@@ -296,6 +296,11 @@ class TMTemplatesRepository extends EntityRepository
                     }
                     
                 }
+
+                if(isset($filters["notify_retention"])){
+                    $sintax.=$logical." DATEADD(day,rc.retention_days,(CASE WHEN t.state_id=8 THEN accret.modified ELSE newt.effectiveDate END))<=GETDATE()";
+                        $logical=" AND ";
+                }
             }
 
         }

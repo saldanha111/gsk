@@ -184,7 +184,7 @@
                                     </td>
                                     <td>{{item.retentionDate is defined and item.retentionDate is not null ? item.retentionDate|date("d/m/Y")|gskdate : ''}}</td>
                                     <td>
-                                        {% if filters.retention_action is defined and (filters.retention_action=="2" or filters.retention_action=="3") %}
+                                        {% if filters.retention_action is defined and filters.retention_action=="3" %}
                                             <a class="btn btn-xs btn-danger btn-retention" href="javascript:void(0)" data-info="Eliminar registro {{item.name}} (ID {{item.id}})" data-id="{{item.id}}" data-unique="1"><i class="fa fa-trash" aria-hidden="true"></i> Eliminar</a>
                                         {% endif %}
                                     </td>
@@ -194,12 +194,10 @@
                                 
                             {% endfor %}
                         {% endif %}
-                        {% if filters.retention_action is defined and count>0 and (filters.retention_action=="2" or filters.retention_action=="3") %}
+                        {% if filters.retention_action is defined and count>0 and filters.retention_action=="3" %}
                             <tr>
                                 <th colspan="12">
-                                    {% if filters.retention_action=="2" or filters.retention_action=="3" %}
-                                        <a class="btn btn-danger pull-right btn-retention" href="javascript:void(0)" data-info="Eliminar"><i class="fa fa-trash" aria-hidden="true"></i> Eliminar</a>
-                                    {% endif %}
+                                    <a class="btn btn-danger pull-right btn-retention" href="javascript:void(0)" data-info="Eliminar"><i class="fa fa-trash" aria-hidden="true"></i> Eliminar</a>
                                 </th>
                                 <th><input id="record_masive" class="supcheck" type="checkbox"></th>
                             </tr>

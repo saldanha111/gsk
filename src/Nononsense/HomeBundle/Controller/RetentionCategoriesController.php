@@ -158,9 +158,11 @@ class RetentionCategoriesController extends Controller
             $category->setType($type);
             if ($user) {
                 $category->setDestroyUser($user);
+                $category->setDestroyGroup(NULL);
             }
             if ($group) {
                 $category->setDestroyGroup($group);
+                $category->setDestroyUser(NULL);
             }
 
             if (!$request->get('name') || !$request->get('description') || (!$user && !$group) || !$state || !$type) {

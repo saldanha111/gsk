@@ -533,6 +533,11 @@ class CVRecordsRepository extends EntityRepository
                     }
                     
                 }
+
+                if(isset($filters["notify_retention"])){
+                    $sintax.=$logical." DATEADD(day,rc.retention_days,accret.modified)<=GETDATE()";
+                        $logical=" AND ";
+                }
             }
 
         }
