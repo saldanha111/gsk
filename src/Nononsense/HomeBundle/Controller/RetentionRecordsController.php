@@ -241,9 +241,11 @@ class RetentionRecordsController extends Controller
 
         if($request->get("retention_type") &&  $request->get("retention_type")=="1"){
             $class=TMTemplates::class;
+            $type="template";
         }
         else{
             $class=CVRecords::class;
+            $type="record";
         }
 
         $items = $this->getDoctrine()->getRepository($class)->list("list",$filters);
@@ -256,9 +258,13 @@ class RetentionRecordsController extends Controller
         
         $records=$this->getDoctrine()->getRepository($class)->findBy(array("id" => $ids));
         foreach($records as $record){
-            $record->setRetentionRemovedAt(new DateTime());break;
+            $record->setRetentionRemovedAt(new DateTime());
+            $this->get('utilities')->saveLogRetention($this->getUser(),1,$request->get('comment'),$type,$record->getId());
+            break;
             $em->persist($record);
         }
+
+
 
         
         $em->flush();
