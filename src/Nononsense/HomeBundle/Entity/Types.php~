@@ -15,11 +15,11 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="categories")
- * @ORM\Entity(repositoryClass="Nononsense\HomeBundle\Entity\CategoriesRepository")
+ * @ORM\Table(name="types")
+ * @ORM\Entity(repositoryClass="Nononsense\HomeBundle\Entity\TypesRepository")
  * @ORM\HasLifecycleCallbacks
  */
-class Categories
+class Types
 {
     /**
      * @ORM\Column(type="integer")
@@ -36,13 +36,6 @@ class Categories
     protected $name;
 
     /**
-     * @var integer
-     *
-     * @ORM\Column(name="padre", type="integer")
-     */
-    protected $padre;
-
-    /**
      * @ORM\Column(type="date")
      */
     protected $created;
@@ -53,9 +46,14 @@ class Categories
     protected $modified;
 
     /**
-     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\MasterWorkflows", mappedBy="category")
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\Documents", mappedBy="type")
      */
-    protected $Master_Workflows;
+    protected $documents;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\RecordsDocuments", mappedBy="type")
+     */
+    protected $records;
 
     public function __construct()
     {
@@ -158,61 +156,5 @@ class Categories
     public function getModified()
     {
         return $this->modified;
-    }
-
-    /**
-     * Add MasterWorkflows
-     *
-     * @param \Nononsense\HomeBundle\Entity\MasterWorkflows $masterWorkflows
-     * @return Categories
-     */
-    public function addMasterWorkflow(\Nononsense\HomeBundle\Entity\MasterWorkflows $masterWorkflows)
-    {
-        $this->MasterWorkflows[] = $masterWorkflows;
-
-        return $this;
-    }
-
-    /**
-     * Remove MasterWorkflows
-     *
-     * @param \Nononsense\HomeBundle\Entity\MasterWorkflows $masterWorkflows
-     */
-    public function removeMasterWorkflow(\Nononsense\HomeBundle\Entity\MasterWorkflows $masterWorkflows)
-    {
-        $this->MasterWorkflows->removeElement($masterWorkflows);
-    }
-
-    /**
-     * Get MasterWorkflows
-     *
-     * @return \Doctrine\Common\Collections\Collection 
-     */
-    public function getMasterWorkflows()
-    {
-        return $this->MasterWorkflows;
-    }
-
-    /**
-     * Set padre
-     *
-     * @param integer $padre
-     * @return Categories
-     */
-    public function setPadre($padre)
-    {
-        $this->padre = $padre;
-
-        return $this;
-    }
-
-    /**
-     * Get padre
-     *
-     * @return integer 
-     */
-    public function getPadre()
-    {
-        return $this->padre;
     }
 }

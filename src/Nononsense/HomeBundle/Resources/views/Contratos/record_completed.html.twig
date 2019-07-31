@@ -1,0 +1,126 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}DOCXPRESSO | {{'Homepage'|trans}} {% endblock %}
+{% block head %}
+{{ parent() }}
+<style>
+
+
+</style>
+{% endblock %}
+{% block main_title %} Se ha rellenado el registro del documento {{documentName}}{% endblock %}
+{% block content %}
+<div class="wrapper wrapper-content">
+    {% for flashMessage in app.session.flashbag.get('error') %}
+    <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+        <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+        {{ flashMessage }}
+    </div>
+    {% endfor %}
+    <div class="row">
+
+
+        {% if validated == 1 %}
+        <h1>El documento está completado</h1>
+        <form id="guardarenviarForm"
+              action="{{path('nononsense_record_save_sent', {'id': id})}}">
+            <div id="signature-pad" class="input-group">
+                <h2>Introduzca su firma</h2>
+                <canvas width="300" height="150"
+                        style="touch-action: none; border: 2px solid #eee; box-shadow: 0px 0px 6px 1px rgba(80, 90, 100, 0.5)"></canvas>
+            </div>
+            <input type="hidden" id="firma" name="firma"/>
+            <a name="borrarFirmar" class="btn btn-primary" id="borrarFirmar">Limpiar firma</a>
+
+            <a class="btn btn-success" name="guardarenviar" id="guardarenviar">Enviar</a>
+            {% else %}
+            <h1>Documento guardado!</h1>
+            El documento está a la espera de ser completado
+            {% endif %}
+            </form>
+    </div>
+    <hr>
+    <input type="hidden" id="dev" value={{devolucion}}>
+</div>
+</div>
+{% endblock %}
+{% block scripts %}
+{{ parent() }}
+<script src="/js/plugins/signature-pad/signature-pad.min.js"></script>
+<script>
+
+
+    $(document).ready(function () {
+
+        toastr.options = {
+            "closeButton": true,
+            "debug": false,
+            "progressBar": true,
+            "positionClass": "toast-top-center",
+            "onclick": null,
+            "showDuration": "400",
+            "hideDuration": "1000",
+            "timeOut": "7000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        }
+
+        var canvas = document.querySelector("canvas");
+
+        var signaturePad = new SignaturePad(canvas);
+
+        ActivateMenu('docxpresso_home');
+        $('#side-menu').metisMenu();
+
+
+        $('a[name="cancelarRegistro"]').on('click', function () {
+            $("#editModal").show();
+        });
+
+        $('#editBtnNo').click(function () {
+            $("#editModal").hide();
+
+        });
+
+        $('#guardarenviar').on('click', function () {
+            $("#firma").val(signaturePad.toDataURL()) // save image as PNG
+            if (signaturePad.isEmpty()) {
+                toastr.error("Debe rellenar una fima, no puede dejar el cuadro en blanco", 'aviso');
+
+            } else {
+                console.log(signaturePad.toDataURL());
+                $("#guardarenviarForm").submit();
+            }
+        });
+
+        $('#guardarRegistro').on('click', function () {
+            var comentarioCompulsory = "{{devolucion}}"
+            if (comentarioCompulsory == 1) {
+                var comment = $('#comment').val()
+                if(comment == ""){
+                    // error
+                    toastr.error("Debe escribir una justificación del cambio realizado, no puede dejar el cuadro en blanco", 'aviso');
+                    return false;
+                }
+            }
+            $("#firma").val(signaturePad.toDataURL()) // save image as PNG
+            if (signaturePad.isEmpty()) {
+                toastr.error("Debe rellenar una fima, no puede dejar el cuadro en blanco", 'aviso');
+
+            } else {
+                console.log(signaturePad.toDataURL());
+                $("#guardarRegistroForm").submit();
+            }
+
+        });
+
+
+        $('#borrarFirmar').on('click', function () {
+            signaturePad.clear();
+        });
+    });
+
+</script>
+{% endblock %}

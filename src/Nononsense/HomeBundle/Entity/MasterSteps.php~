@@ -39,7 +39,7 @@ class MasterSteps
     /**
      * @var string
      *
-     * @ORM\Column(name="plantilla_prefix", type="string", length=90)
+     * @ORM\Column(name="plantilla_prefix", type="text")
      */
     protected $plantilla_prefix;
 
@@ -84,6 +84,13 @@ class MasterSteps
      * @ORM\Column(name="rules", type="text")
      */
     protected $rules;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="validation", type="text")
+     */
+    protected $validation;
 
     /**
      * @var boolean $notification
@@ -231,6 +238,19 @@ class MasterSteps
     public function getPlantillaId()
     {
         return $this->plantilla_id;
+    }
+
+    /**
+     * Get plantilla_id by Year
+     *
+     * @return integer
+     */
+    public function getPlantillaIdByYear($year)
+    {
+        $templatesString = $this->getPlantillaPrefix();
+        $templatesJson = json_decode($templatesString);
+
+        return $templatesJson->{$year};
     }
 
     /**
@@ -632,5 +652,28 @@ class MasterSteps
     public function getOptional()
     {
         return $this->optional;
+    }
+
+    /**
+     * Set validation
+     *
+     * @param string $validation
+     * @return MasterSteps
+     */
+    public function setValidation($validation)
+    {
+        $this->validation = $validation;
+
+        return $this;
+    }
+
+    /**
+     * Get validation
+     *
+     * @return string 
+     */
+    public function getValidation()
+    {
+        return $this->validation;
     }
 }

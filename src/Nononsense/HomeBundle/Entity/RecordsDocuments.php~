@@ -15,11 +15,11 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="instanciasworkflows")
- * @ORM\Entity(repositoryClass="Nononsense\HomeBundle\Entity\InstanciasWorkflowsRepository")
+ * @ORM\Table(name="recordsdocuments")
+ * @ORM\Entity(repositoryClass="Nononsense\HomeBundle\Entity\RecordsDocumentsRepository")
  * @ORM\HasLifecycleCallbacks
  */
-class InstanciasWorkflows
+class RecordsDocuments
 {
     /**
      * @ORM\Column(type="integer")
@@ -27,13 +27,6 @@ class InstanciasWorkflows
      * @ORM\GeneratedValue(strategy="AUTO")
      */
     protected $id;
-
-    /**
-     * @var integer
-     *
-     * @ORM\Column(name="master_workflow", type="integer")
-     */
-    protected $master_workflow;
 
 
     /**
@@ -44,12 +37,40 @@ class InstanciasWorkflows
     protected $description;
 
     /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\Types", inversedBy="records")
+     * @ORM\JoinColumn(name="type_id", referencedColumnName="id")
+     */
+    protected $type;
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="dependsOn", type="integer")
+     */
+    protected $dependsOn;
+
+    /**
      * @var string
      *
      * @ORM\Column(name="masterdatavalues", type="text")
      *
      */
     protected $masterDataValues;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="stepdatavalue", type="text")
+     *
+     */
+    protected $stepDataValue;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="token", type="string", length=90)
+     */
+    protected $token;
 
     /**
      * @var string
@@ -69,15 +90,6 @@ class InstanciasWorkflows
      */
     protected $modified;
 
-    /**
-     * @ORM\Column(name="fecha_firma" ,type="date",nullable=true)
-     */
-    protected $fecha_firma;
-
-    /**
-     * @ORM\Column(name="fecha_grab_borrador" ,type="datetime",nullable=true)
-     */
-    protected $fecha_grabado_borrador;
     /**
      * @var boolean $isActive
      *
@@ -103,37 +115,10 @@ class InstanciasWorkflows
     protected $observaciones;
 
     /**
-     * @var string
-     *
-     * @ORM\Column(name="signvalues", type="text")
-     *
-     */
-    protected $signvalues;
-
-    /**
      * @var integer
      *
      * @ORM\Column(name="status", type="integer", options={"default" = 0})
      *
-     */
-    /*
-     * -2 -> Recien creado
-     * -1 -> Sin actividad
-     * 0 -> En elaboracion
-     * 1 -> Esperando firma guardado parcial
-     * 2 -> Esperando firma para envío
-     * 3 -> Esperando firma cancelación
-     * 4 -> En verificación
-     * 12 -> Esperando firma cancelacion en verificación
-     * 13 -> Esperando firma devolución a edición
-     * 14 -> Pendiente de cancelación en verificación
-     * 5 -> Pendiente cancelación de edición
-     * 6 -> Cancelado en edición
-     * 7 -> Esperando firma verificación
-     * 8 -> Cancelado
-     * 9 -> Archivado
-     * 10 -> Reconciliado
-     * 11 -> Bloqueado
      */
     protected $status;
 
@@ -146,39 +131,10 @@ class InstanciasWorkflows
     protected $year;
 
     /**
-     * @var integer
-     *
-     * @ORM\Column(name="departamento", type="integer", nullable=true,options={"default" = 1})
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\Documents", inversedBy="records")
+     * @ORM\JoinColumn(name="document_id", referencedColumnName="id")
      */
-
-    /*
-     * 0 - desconocido
-     * 1 - NACIONAL
-     * 2 - SUPECO
-     * null - (NACIONAL)
-     */
-    protected $departamento;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\MasterWorkflows", inversedBy="Instancias")
-     * @ORM\JoinColumn(name="master_workflow", referencedColumnName="id")
-     */
-    protected $Master_Workflow_Entity;
-
-    /**
-     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\InstanciasSteps", mappedBy="instancia_workflow")
-     */
-    protected $Steps;
-
-    /**
-     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\MetaData", mappedBy="instancia_workflow")
-     */
-    protected $metaData;
-
-    /**
-     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\MetaFirmantes", mappedBy="instancia_workflow")
-     */
-    protected $metaFirmantes;
+    protected $document;
 
     /**
      * @var integer
@@ -186,18 +142,16 @@ class InstanciasWorkflows
      */
     protected $usercreatedid;
 
-
     /**
-     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="InstanciasWorkflowCreated")
+     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="recordsDocuments")
      * @ORM\JoinColumn(name="usercreatedid", referencedColumnName="id")
      */
     protected $userCreatedEntiy;
 
-
     /**
-     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\RevisionInstanciaWorkflow", mappedBy="instanciaWorkflowEntity")
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\RecordsSignatures", mappedBy="record")
      */
-    protected $Revisions;
+    protected $signatures;
 
 
     /**
@@ -228,8 +182,6 @@ class InstanciasWorkflows
         $this->modified = new \DateTime();
     }
 
-
-
     /**
      * Get id
      *
@@ -238,29 +190,6 @@ class InstanciasWorkflows
     public function getId()
     {
         return $this->id;
-    }
-
-    /**
-     * Set master_workflow
-     *
-     * @param integer $masterWorkflow
-     * @return InstanciasWorkflows
-     */
-    public function setMasterWorkflow($masterWorkflow)
-    {
-        $this->master_workflow = $masterWorkflow;
-
-        return $this;
-    }
-
-    /**
-     * Get master_workflow
-     *
-     * @return integer 
-     */
-    public function getMasterWorkflow()
-    {
-        return $this->master_workflow;
     }
 
     /**
@@ -379,52 +308,6 @@ class InstanciasWorkflows
     }
 
     /**
-     * Set fecha_firma
-     *
-     * @param \DateTime $fechaFirma
-     * @return InstanciasWorkflows
-     */
-    public function setFechaFirma($fechaFirma)
-    {
-        $this->fecha_firma = $fechaFirma;
-
-        return $this;
-    }
-
-    /**
-     * Get fecha_firma
-     *
-     * @return \DateTime 
-     */
-    public function getFechaFirma()
-    {
-        return $this->fecha_firma;
-    }
-
-    /**
-     * Set fecha_grabado_borrador
-     *
-     * @param \DateTime $fechaGrabadoBorrador
-     * @return InstanciasWorkflows
-     */
-    public function setFechaGrabadoBorrador($fechaGrabadoBorrador)
-    {
-        $this->fecha_grabado_borrador = $fechaGrabadoBorrador;
-
-        return $this;
-    }
-
-    /**
-     * Get fecha_grabado_borrador
-     *
-     * @return \DateTime 
-     */
-    public function getFechaGrabadoBorrador()
-    {
-        return $this->fecha_grabado_borrador;
-    }
-
-    /**
      * Set isActive
      *
      * @param boolean $isActive
@@ -493,28 +376,6 @@ class InstanciasWorkflows
         return $this->observaciones;
     }
 
-    /**
-     * Set signvalues
-     *
-     * @param string $signvalues
-     * @return InstanciasWorkflows
-     */
-    public function setSignvalues($signvalues)
-    {
-        $this->signvalues = $signvalues;
-
-        return $this;
-    }
-
-    /**
-     * Get signvalues
-     *
-     * @return string 
-     */
-    public function getSignvalues()
-    {
-        return $this->signvalues;
-    }
 
     /**
      * Set status
@@ -562,28 +423,6 @@ class InstanciasWorkflows
         return $this->year;
     }
 
-    /**
-     * Set departamento
-     *
-     * @param integer $departamento
-     * @return InstanciasWorkflows
-     */
-    public function setDepartamento($departamento)
-    {
-        $this->departamento = $departamento;
-
-        return $this;
-    }
-
-    /**
-     * Get departamento
-     *
-     * @return integer 
-     */
-    public function getDepartamento()
-    {
-        return $this->departamento;
-    }
 
     /**
      * Set usercreatedid
@@ -606,62 +445,6 @@ class InstanciasWorkflows
     public function getUsercreatedid()
     {
         return $this->usercreatedid;
-    }
-
-    /**
-     * Set Master_Workflow_Entity
-     *
-     * @param \Nononsense\HomeBundle\Entity\MasterWorkflows $masterWorkflowEntity
-     * @return InstanciasWorkflows
-     */
-    public function setMasterWorkflowEntity(\Nononsense\HomeBundle\Entity\MasterWorkflows $masterWorkflowEntity = null)
-    {
-        $this->Master_Workflow_Entity = $masterWorkflowEntity;
-
-        return $this;
-    }
-
-    /**
-     * Get Master_Workflow_Entity
-     *
-     * @return \Nononsense\HomeBundle\Entity\MasterWorkflows 
-     */
-    public function getMasterWorkflowEntity()
-    {
-        return $this->Master_Workflow_Entity;
-    }
-
-    /**
-     * Add Steps
-     *
-     * @param \Nononsense\HomeBundle\Entity\InstanciasSteps $steps
-     * @return InstanciasWorkflows
-     */
-    public function addStep(\Nononsense\HomeBundle\Entity\InstanciasSteps $steps)
-    {
-        $this->Steps[] = $steps;
-
-        return $this;
-    }
-
-    /**
-     * Remove Steps
-     *
-     * @param \Nononsense\HomeBundle\Entity\InstanciasSteps $steps
-     */
-    public function removeStep(\Nononsense\HomeBundle\Entity\InstanciasSteps $steps)
-    {
-        $this->Steps->removeElement($steps);
-    }
-
-    /**
-     * Get Steps
-     *
-     * @return \Doctrine\Common\Collections\Collection 
-     */
-    public function getSteps()
-    {
-        return $this->Steps;
     }
 
     /**
@@ -697,38 +480,6 @@ class InstanciasWorkflows
         return $this->metaData;
     }
 
-    /**
-     * Add metaFirmantes
-     *
-     * @param \Nononsense\HomeBundle\Entity\MetaFirmantes $metaFirmantes
-     * @return InstanciasWorkflows
-     */
-    public function addMetaFirmante(\Nononsense\HomeBundle\Entity\MetaFirmantes $metaFirmantes)
-    {
-        $this->metaFirmantes[] = $metaFirmantes;
-
-        return $this;
-    }
-
-    /**
-     * Remove metaFirmantes
-     *
-     * @param \Nononsense\HomeBundle\Entity\MetaFirmantes $metaFirmantes
-     */
-    public function removeMetaFirmante(\Nononsense\HomeBundle\Entity\MetaFirmantes $metaFirmantes)
-    {
-        $this->metaFirmantes->removeElement($metaFirmantes);
-    }
-
-    /**
-     * Get metaFirmantes
-     *
-     * @return \Doctrine\Common\Collections\Collection 
-     */
-    public function getMetaFirmantes()
-    {
-        return $this->metaFirmantes;
-    }
 
     /**
      * Set userCreatedEntiy
@@ -753,36 +504,4 @@ class InstanciasWorkflows
         return $this->userCreatedEntiy;
     }
 
-    /**
-     * Add Revisions
-     *
-     * @param \Nononsense\HomeBundle\Entity\RevisionInstanciaWorkflow $revisions
-     * @return InstanciasWorkflows
-     */
-    public function addRevision(\Nononsense\HomeBundle\Entity\RevisionInstanciaWorkflow $revisions)
-    {
-        $this->Revisions[] = $revisions;
-
-        return $this;
-    }
-
-    /**
-     * Remove Revisions
-     *
-     * @param \Nononsense\HomeBundle\Entity\RevisionInstanciaWorkflow $revisions
-     */
-    public function removeRevision(\Nononsense\HomeBundle\Entity\RevisionInstanciaWorkflow $revisions)
-    {
-        $this->Revisions->removeElement($revisions);
-    }
-
-    /**
-     * Get Revisions
-     *
-     * @return \Doctrine\Common\Collections\Collection 
-     */
-    public function getRevisions()
-    {
-        return $this->Revisions;
-    }
 }

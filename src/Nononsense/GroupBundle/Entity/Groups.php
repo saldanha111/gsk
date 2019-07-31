@@ -90,6 +90,16 @@ class Groups
     protected $modified;
 
     /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\DocumentsSignatures", mappedBy="groupEntiy")
+     */
+    protected $documentsSignatures;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\RecordsSignatures", mappedBy="groupEntiy")
+     */
+    protected $recordsSignatures;
+
+    /**
      * Get id
      *
      * @return integer 

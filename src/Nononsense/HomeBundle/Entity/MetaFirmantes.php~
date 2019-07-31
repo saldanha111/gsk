@@ -15,11 +15,11 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="categories")
- * @ORM\Entity(repositoryClass="Nononsense\HomeBundle\Entity\CategoriesRepository")
+ * @ORM\Table(name="metafirmantes")
+ * @ORM\Entity(repositoryClass="Nononsense\HomeBundle\Entity\MetaFirmantesRepository")
  * @ORM\HasLifecycleCallbacks
  */
-class Categories
+class MetaFirmantes
 {
     /**
      * @ORM\Column(type="integer")
@@ -29,18 +29,25 @@ class Categories
     protected $id;
 
     /**
+     * @var integer
+     *
+     * @ORM\Column(name="workflow_id", type="integer")
+     */
+    protected $workflow_id;
+
+    /**
      * @var string
      *
-     * @ORM\Column(name="name", type="string", length=90)
+     * @ORM\Column(name="name", type="string", length=100)
      */
     protected $name;
 
     /**
-     * @var integer
+     * @var string
      *
-     * @ORM\Column(name="padre", type="integer")
+     * @ORM\Column(name="email", type="string", length=100)
      */
-    protected $padre;
+    protected $email;
 
     /**
      * @ORM\Column(type="date")
@@ -53,9 +60,10 @@ class Categories
     protected $modified;
 
     /**
-     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\MasterWorkflows", mappedBy="category")
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\InstanciasWorkflows", inversedBy="metaFirmantes")
+     * @ORM\JoinColumn(name="workflow_id", referencedColumnName="id")
      */
-    protected $Master_Workflows;
+    protected $instancia_workflow;
 
     public function __construct()
     {
@@ -81,6 +89,9 @@ class Categories
         $this->modified = new \DateTime();
     }
 
+
+
+
     /**
      * Get id
      *
@@ -92,10 +103,34 @@ class Categories
     }
 
     /**
+     * Set workflow_id
+     *
+     * @param integer $workflowId
+     * @return MetaFirmantes
+     */
+    public function setWorkflowId($workflowId)
+    {
+        $this->workflow_id = $workflowId;
+
+        return $this;
+    }
+
+    /**
+     * Get workflow_id
+     *
+     * @return integer 
+     */
+    public function getWorkflowId()
+    {
+        return $this->workflow_id;
+    }
+
+
+    /**
      * Set name
      *
      * @param string $name
-     * @return Categories
+     * @return MetaFirmantes
      */
     public function setName($name)
     {
@@ -118,7 +153,7 @@ class Categories
      * Set created
      *
      * @param \DateTime $created
-     * @return Categories
+     * @return MetaFirmantes
      */
     public function setCreated($created)
     {
@@ -141,7 +176,7 @@ class Categories
      * Set modified
      *
      * @param \DateTime $modified
-     * @return Categories
+     * @return MetaFirmantes
      */
     public function setModified($modified)
     {
@@ -161,58 +196,48 @@ class Categories
     }
 
     /**
-     * Add MasterWorkflows
+     * Set instancia_workflow
      *
-     * @param \Nononsense\HomeBundle\Entity\MasterWorkflows $masterWorkflows
-     * @return Categories
+     * @param \Nononsense\HomeBundle\Entity\InstanciasWorkflows $instanciaWorkflow
+     * @return MetaFirmantes
      */
-    public function addMasterWorkflow(\Nononsense\HomeBundle\Entity\MasterWorkflows $masterWorkflows)
+    public function setInstanciaWorkflow(\Nononsense\HomeBundle\Entity\InstanciasWorkflows $instanciaWorkflow = null)
     {
-        $this->MasterWorkflows[] = $masterWorkflows;
+        $this->instancia_workflow = $instanciaWorkflow;
 
         return $this;
     }
 
     /**
-     * Remove MasterWorkflows
+     * Get instancia_workflow
      *
-     * @param \Nononsense\HomeBundle\Entity\MasterWorkflows $masterWorkflows
+     * @return \Nononsense\HomeBundle\Entity\InstanciasWorkflows 
      */
-    public function removeMasterWorkflow(\Nononsense\HomeBundle\Entity\MasterWorkflows $masterWorkflows)
+    public function getInstanciaWorkflow()
     {
-        $this->MasterWorkflows->removeElement($masterWorkflows);
+        return $this->instancia_workflow;
     }
 
     /**
-     * Get MasterWorkflows
+     * Set email
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @param string $email
+     * @return MetaFirmantes
      */
-    public function getMasterWorkflows()
+    public function setEmail($email)
     {
-        return $this->MasterWorkflows;
-    }
-
-    /**
-     * Set padre
-     *
-     * @param integer $padre
-     * @return Categories
-     */
-    public function setPadre($padre)
-    {
-        $this->padre = $padre;
+        $this->email = $email;
 
         return $this;
     }
 
     /**
-     * Get padre
+     * Get email
      *
-     * @return integer 
+     * @return string 
      */
-    public function getPadre()
+    public function getEmail()
     {
-        return $this->padre;
+        return $this->email;
     }
 }

@@ -1,0 +1,168 @@
+<?php
+/**
+ * Created by IntelliJ IDEA.
+ * User: gushe
+ * Date: 04/04/2018
+ * Time: 13:10
+ */
+
+namespace Nononsense\HomeBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+
+/**
+ * @ORM\Entity
+ * @ORM\Table(name="recordssignatures")
+ * @ORM\Entity(repositoryClass="Nononsense\HomeBundle\Entity\RecordsSignaturesRepository")
+ * @ORM\HasLifecycleCallbacks
+ */
+class RecordsSignatures
+{
+    /**
+     * @ORM\Column(type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    protected $id;
+
+    /**
+     * @ORM\Column(type="date")
+     */
+    protected $created;
+
+    /**
+     * @ORM\Column(type="date")
+     */
+    protected $modified;
+
+    /**
+     * @var integer
+     * @ORM\Column(name="userid", type="integer", nullable=true)
+     */
+    protected $userid;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="recordsSignatures")
+     * @ORM\JoinColumn(name="userid", referencedColumnName="id")
+     */
+    protected $userEntiy;
+
+    /**
+     * @var integer
+     * @ORM\Column(name="groupid", type="integer", nullable=true)
+     */
+    protected $groupid;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\GroupBundle\Entity\Groups", inversedBy="recordsSignatures")
+     * @ORM\JoinColumn(name="groupid", referencedColumnName="id")
+     */
+    protected $groupEntiy;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\RecordsDocuments", inversedBy="signatures")
+     * @ORM\JoinColumn(name="record_id", referencedColumnName="id")
+     */
+    protected $record;
+
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="firma", type="text")
+     */
+    protected $firma;
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="number", type="integer")
+     */
+    protected $number;
+
+
+
+    public function __construct()
+    {
+
+    }
+
+    /**
+     * @ORM\PrePersist
+     */
+    public function setCreatedValue()
+    {
+        if (!$this->created) {
+            $this->created = new \DateTime();
+        }
+        $this->modified = $this->created;
+    }
+
+    /**
+     * @ORM\PreUpdate
+     */
+    public function setModifiedValue()
+    {
+        $this->modified = new \DateTime();
+    }
+
+    /**
+     * Get id
+     *
+     * @return integer 
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+
+    /**
+     * Set created
+     *
+     * @param \DateTime $created
+     * @return Categories
+     */
+    public function setCreated($created)
+    {
+        $this->created = $created;
+
+        return $this;
+    }
+
+    /**
+     * Get created
+     *
+     * @return \DateTime 
+     */
+    public function getCreated()
+    {
+        return $this->created;
+    }
+
+    /**
+     * Set modified
+     *
+     * @param \DateTime $modified
+     * @return Categories
+     */
+    public function setModified($modified)
+    {
+        $this->modified = $modified;
+
+        return $this;
+    }
+
+    /**
+     * Get modified
+     *
+     * @return \DateTime 
+     */
+    public function getModified()
+    {
+        return $this->modified;
+    }
+}

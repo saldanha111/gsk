@@ -25,7 +25,7 @@ class MasterWorkflows
     /**
      * @var string
      *
-     * @ORM\Column(name="name", type="string", length=90)
+     * @ORM\Column(name="name", type="string", length=200)
      * @Assert\NotBlank(message = "You shoud insert a name")
      */
     protected $name;
@@ -33,7 +33,7 @@ class MasterWorkflows
     /**
      * @var string
      *
-     * @ORM\Column(name="description", type="string", length=90)
+     * @ORM\Column(name="description", type="string", length=200)
      * @Assert\NotBlank(message = "You shoud insert a description")
      */
     protected $description;
@@ -45,6 +45,38 @@ class MasterWorkflows
      *
      */
     protected $masterData;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="config", type="text")
+     *
+     */
+    protected $config;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="precreation", type="text")
+     *
+     */
+    protected $precreation;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="validation", type="text")
+     *
+     */
+    protected $validation;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="prevalidation", type="text")
+     *
+     */
+    protected $prevalidation;
 
     /**
      * @var string
@@ -68,6 +100,13 @@ class MasterWorkflows
      * @ORM\Column(name="category_id", type="integer")
      */
     protected $category_id;
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="group_id", type="integer")
+     */
+    protected $group_id;
 
     /**
      * @ORM\Column(type="date")
@@ -94,6 +133,13 @@ class MasterWorkflows
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\MasterSteps", mappedBy="MasterWorkflow")
      */
     protected $MasterSteps;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\GroupBundle\Entity\Groups", inversedBy="MasterWorkflowsVerificacion")
+     * @ORM\JoinColumn(name="group_id", referencedColumnName="id")
+     */
+
+    protected $grupoVerificacion;
 
     public function __construct()
     {
@@ -480,5 +526,143 @@ class MasterWorkflows
     public function getInstancias()
     {
         return $this->Instancias;
+    }
+
+    /**
+     * Set config
+     *
+     * @param string $config
+     * @return MasterWorkflows
+     */
+    public function setConfig($config)
+    {
+        $this->config = $config;
+
+        return $this;
+    }
+
+    /**
+     * Get config
+     *
+     * @return string 
+     */
+    public function getConfig()
+    {
+        return $this->config;
+    }
+
+    /**
+     * Set precreation
+     *
+     * @param string $precreation
+     * @return MasterWorkflows
+     */
+    public function setPrecreation($precreation)
+    {
+        $this->precreation = $precreation;
+
+        return $this;
+    }
+
+    /**
+     * Get precreation
+     *
+     * @return string 
+     */
+    public function getPrecreation()
+    {
+        return $this->precreation;
+    }
+
+    /**
+     * Set validation
+     *
+     * @param string $validation
+     * @return MasterWorkflows
+     */
+    public function setValidation($validation)
+    {
+        $this->validation = $validation;
+
+        return $this;
+    }
+
+    /**
+     * Get validation
+     *
+     * @return string 
+     */
+    public function getValidation()
+    {
+        return $this->validation;
+    }
+
+    /**
+     * Set prevalidation
+     *
+     * @param string $prevalidation
+     * @return MasterWorkflows
+     */
+    public function setPrevalidation($prevalidation)
+    {
+        $this->prevalidation = $prevalidation;
+
+        return $this;
+    }
+
+    /**
+     * Get prevalidation
+     *
+     * @return string 
+     */
+    public function getPrevalidation()
+    {
+        return $this->prevalidation;
+    }
+
+    /**
+     * Set group_id
+     *
+     * @param integer $groupId
+     * @return MasterWorkflows
+     */
+    public function setGroupId($groupId)
+    {
+        $this->group_id = $groupId;
+
+        return $this;
+    }
+
+    /**
+     * Get group_id
+     *
+     * @return integer 
+     */
+    public function getGroupId()
+    {
+        return $this->group_id;
+    }
+
+    /**
+     * Set grupoVerificacion
+     *
+     * @param \Nononsense\GroupBundle\Entity\Groups $grupoVerificacion
+     * @return MasterWorkflows
+     */
+    public function setGrupoVerificacion(\Nononsense\GroupBundle\Entity\Groups $grupoVerificacion = null)
+    {
+        $this->grupoVerificacion = $grupoVerificacion;
+
+        return $this;
+    }
+
+    /**
+     * Get grupoVerificacion
+     *
+     * @return \Nononsense\GroupBundle\Entity\Groups 
+     */
+    public function getGrupoVerificacion()
+    {
+        return $this->grupoVerificacion;
     }
 }

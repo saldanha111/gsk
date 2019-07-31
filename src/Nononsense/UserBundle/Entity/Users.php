@@ -155,6 +155,25 @@ class Users implements AdvancedUserInterface, \Serializable
      */
     protected $news;
 
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\Documents", mappedBy="userCreatedEntiy")
+     */
+    protected $documents;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\RecordsDocuments", mappedBy="userCreatedEntiy")
+     */
+    protected $recordsDocuments;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\DocumentsSignatures", mappedBy="userEntiy")
+     */
+    protected $documentsSignatures;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\RecordsSignatures", mappedBy="userEntiy")
+     */
+    protected $recordsSignatures;
 
     /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\InstanciasWorkflows", mappedBy="userCreatedEntiy")

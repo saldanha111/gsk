@@ -106,6 +106,14 @@ class InstanciasSteps
     /**
      * @var string
      *
+     * @ORM\Column(name="auxvalues", type="text")
+     *
+     */
+    protected $auxvalues;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(name="token", type="string", length=90)
      */
     protected $token;
@@ -126,6 +134,22 @@ class InstanciasSteps
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\Revision", mappedBy="step")
      */
     protected $Revisions;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\CancelacionStep", mappedBy="step")
+     */
+    protected $Cancelaciones;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\RevisionStep", mappedBy="stepEntity")
+     */
+    protected $revisionStep;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\EvidenciasStep", mappedBy="stepEntity")
+     */
+    protected $evidenciasStep;
+
 
     public function __construct()
     {
@@ -533,5 +557,128 @@ class InstanciasSteps
     public function getRevisions()
     {
         return $this->Revisions;
+    }
+
+    /**
+     * Set auxvalues
+     *
+     * @param string $auxvalues
+     * @return InstanciasSteps
+     */
+    public function setAuxvalues($auxvalues)
+    {
+        $this->auxvalues = $auxvalues;
+
+        return $this;
+    }
+
+    /**
+     * Get auxvalues
+     *
+     * @return string 
+     */
+    public function getAuxvalues()
+    {
+        return $this->auxvalues;
+    }
+
+
+    /**
+     * Add Cancelaciones
+     *
+     * @param \Nononsense\HomeBundle\Entity\CancelacionStep $cancelaciones
+     * @return InstanciasSteps
+     */
+    public function addCancelacione(\Nononsense\HomeBundle\Entity\CancelacionStep $cancelaciones)
+    {
+        $this->Cancelaciones[] = $cancelaciones;
+
+        return $this;
+    }
+
+    /**
+     * Remove Cancelaciones
+     *
+     * @param \Nononsense\HomeBundle\Entity\CancelacionStep $cancelaciones
+     */
+    public function removeCancelacione(\Nononsense\HomeBundle\Entity\CancelacionStep $cancelaciones)
+    {
+        $this->Cancelaciones->removeElement($cancelaciones);
+    }
+
+    /**
+     * Get Cancelaciones
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getCancelaciones()
+    {
+        return $this->Cancelaciones;
+    }
+
+    /**
+     * Add revisionStep
+     *
+     * @param \Nononsense\HomeBundle\Entity\RevisionStep $revisionStep
+     * @return InstanciasSteps
+     */
+    public function addRevisionStep(\Nononsense\HomeBundle\Entity\RevisionStep $revisionStep)
+    {
+        $this->revisionStep[] = $revisionStep;
+
+        return $this;
+    }
+
+    /**
+     * Remove revisionStep
+     *
+     * @param \Nononsense\HomeBundle\Entity\RevisionStep $revisionStep
+     */
+    public function removeRevisionStep(\Nononsense\HomeBundle\Entity\RevisionStep $revisionStep)
+    {
+        $this->revisionStep->removeElement($revisionStep);
+    }
+
+    /**
+     * Get revisionStep
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getRevisionStep()
+    {
+        return $this->revisionStep;
+    }
+
+    /**
+     * Add evidenciasStep
+     *
+     * @param \Nononsense\HomeBundle\Entity\EvidenciasStep $evidenciasStep
+     * @return InstanciasSteps
+     */
+    public function addEvidenciasStep(\Nononsense\HomeBundle\Entity\EvidenciasStep $evidenciasStep)
+    {
+        $this->evidenciasStep[] = $evidenciasStep;
+
+        return $this;
+    }
+
+    /**
+     * Remove evidenciasStep
+     *
+     * @param \Nononsense\HomeBundle\Entity\EvidenciasStep $evidenciasStep
+     */
+    public function removeEvidenciasStep(\Nononsense\HomeBundle\Entity\EvidenciasStep $evidenciasStep)
+    {
+        $this->evidenciasStep->removeElement($evidenciasStep);
+    }
+
+    /**
+     * Get evidenciasStep
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getEvidenciasStep()
+    {
+        return $this->evidenciasStep;
     }
 }

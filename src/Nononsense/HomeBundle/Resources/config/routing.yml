@@ -225,3 +225,31 @@ nononsense_backoffice_verificator_groups:
 nononsense_backoffice_set_group:
     path: /set_grupo
     defaults: { _controller: NononsenseHomeBundle:BackOffice:setGrupoVerificador }
+
+nononsense_records_new:
+    path: /records/{id}
+    defaults: { _controller: NononsenseHomeBundle:Records:create, id:0}
+
+nononsense_records_link:
+    path:     /records/{id}/link
+    defaults: { _controller: NononsenseHomeBundle:Records:link, id: 0}
+
+nononsense_records_redirect_from_data:
+    path: /records/redirectFromData/{id}/{action}/{urlaux}
+    defaults: { _controller: NononsenseHomeBundle:Records:redirectFromData, id: 0, action: 0,urlaux: 0}
+
+nononsense_record_save_sent:
+    path:     /records/save_send/{id}
+    defaults: { _controller: NononsenseHomeBundle:Records:saveAndSend, id: 0 }
+
+nononsense_records_requet_data:
+    path:     /dataRecords/requestData/{id}
+    defaults: { _controller: NononsenseHomeBundle:Records:RequestData, id: 0}
+
+nononsense_records_return_data:
+    path:     /dataRecords/returnData/{id}
+    defaults: { _controller: NononsenseHomeBundle:Records:returnData, id: 0}
+
+
+
+
