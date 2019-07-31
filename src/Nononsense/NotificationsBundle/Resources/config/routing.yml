@@ -1,0 +1,31 @@
+nononsense_notifications_inbox:
+    path:     /inbox/{page}/{query}/{group}/{filter}
+    defaults: { _controller: NononsenseNotificationsBundle:Mailbox:inbox, page: 1, query: 'q', group: 0, filter: 'inbox' }
+    
+nononsense_notifications_markasread:
+    path:     /markasread/{page}/{query}/{group}/{filter}/{items}
+    defaults: { _controller: NononsenseNotificationsBundle:Mailbox:markasread, page: 1, query: 'q', group: 0, filter: 'inbox', items: '' }
+
+nononsense_notifications_markastrash:
+    path:     /markastrash/{items}
+    defaults: { _controller: NononsenseNotificationsBundle:Mailbox:markastrash, items: '' }
+    
+nononsense_notifications_markasuntrash:
+    path:     /markasuntrash/{items}
+    defaults: { _controller: NononsenseNotificationsBundle:Mailbox:markasuntrash, items: '' }
+    
+nononsense_notifications_compose:
+    path:     /compose
+    defaults: { _controller: NononsenseNotificationsBundle:Mailbox:compose }
+    
+nononsense_notifications_show:
+    path:     /show/{messageId}
+    defaults: { _controller: NononsenseNotificationsBundle:Mailbox:show, messageId: 0 }
+    
+nononsense_notifications_trash:
+    path:     /trash/{messageId}
+    defaults: { _controller: NononsenseNotificationsBundle:Mailbox:trash, messageId: 0 }
+    
+nononsense_notifications_homepage:
+    path:     /{page}/{query}/{group}/{filter}
+    defaults: { _controller: NononsenseNotificationsBundle:Mailbox:index , page: 1, query: 'q', group: 0, filter: 'inbox' }

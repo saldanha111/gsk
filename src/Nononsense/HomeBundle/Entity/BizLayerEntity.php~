@@ -1,0 +1,330 @@
+<?php
+/**
+ * Created by IntelliJ IDEA.
+ * User: gushe
+ * Date: 27/06/2018
+ * Time: 9:04
+ */
+
+namespace Nononsense\HomeBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+
+/**
+ * @ORM\Entity
+ * @ORM\Table(name="bizlayerentity")
+ * @ORM\Entity(repositoryClass="Nononsense\HomeBundle\Entity\BizLayerEntityRepository")
+ * @ORM\HasLifecycleCallbacks
+ */
+class BizLayerEntity
+{
+    /**
+     * @ORM\Column(type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    protected $id;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    protected $idBizLayer;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="coddofo", type="string", length=90)
+     */
+    protected $codDOFO;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="tipodefichero", type="string", length=90)
+     */
+    protected $tipodefichero;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    protected $statusId;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="path", type="string", length=500)
+     */
+    protected $path;
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="instanciaworkflowid", type="integer")
+     */
+    protected $instanciaworkflowid;
+
+    /**
+     * @ORM\Column(type="date")
+     */
+    protected $created;
+
+    /**
+     * @ORM\Column(type="date")
+     */
+    protected $modified;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\InstanciasWorkflows", inversedBy="signing")
+     * @ORM\JoinColumn(name="instanciaworkflowid", referencedColumnName="id")
+     */
+    protected $instanciaWorkflowEntity;
+
+    /**
+     * BizLayerEntity constructor.
+     */
+    public function __construct()
+    {
+
+    }
+
+    /**
+     * @ORM\PrePersist
+     */
+    public function setCreatedValue()
+    {
+        if (!$this->created) {
+            $this->created = new \DateTime();
+        }
+        $this->modified = $this->created;
+    }
+
+    /**
+     * @ORM\PreUpdate
+     */
+    public function setModifiedValue()
+    {
+        $this->modified = new \DateTime();
+    }
+
+
+
+    /**
+     * Get id
+     *
+     * @return integer 
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * Set idBizLayer
+     *
+     * @param integer $idBizLayer
+     * @return BizLayerEntity
+     */
+    public function setIdBizLayer($idBizLayer)
+    {
+        $this->idBizLayer = $idBizLayer;
+
+        return $this;
+    }
+
+    /**
+     * Get idBizLayer
+     *
+     * @return integer 
+     */
+    public function getIdBizLayer()
+    {
+        return $this->idBizLayer;
+    }
+
+    /**
+     * Set codDOFO
+     *
+     * @param string $codDOFO
+     * @return BizLayerEntity
+     */
+    public function setCodDOFO($codDOFO)
+    {
+        $this->codDOFO = $codDOFO;
+
+        return $this;
+    }
+
+    /**
+     * Get codDOFO
+     *
+     * @return string 
+     */
+    public function getCodDOFO()
+    {
+        return $this->codDOFO;
+    }
+
+    /**
+     * Set tipodefichero
+     *
+     * @param string $tipodefichero
+     * @return BizLayerEntity
+     */
+    public function setTipodefichero($tipodefichero)
+    {
+        $this->tipodefichero = $tipodefichero;
+
+        return $this;
+    }
+
+    /**
+     * Get tipodefichero
+     *
+     * @return string 
+     */
+    public function getTipodefichero()
+    {
+        return $this->tipodefichero;
+    }
+
+    /**
+     * Set statusId
+     *
+     * @param integer $statusId
+     * @return BizLayerEntity
+     */
+    public function setStatusId($statusId)
+    {
+        $this->statusId = $statusId;
+
+        return $this;
+    }
+
+    /**
+     * Get statusId
+     *
+     * @return integer 
+     */
+    public function getStatusId()
+    {
+        return $this->statusId;
+    }
+
+    /**
+     * Set path
+     *
+     * @param string $path
+     * @return BizLayerEntity
+     */
+    public function setPath($path)
+    {
+        $this->path = $path;
+
+        return $this;
+    }
+
+    /**
+     * Get path
+     *
+     * @return string 
+     */
+    public function getPath()
+    {
+        return $this->path;
+    }
+
+    /**
+     * Set instanciaworkflowid
+     *
+     * @param integer $instanciaworkflowid
+     * @return BizLayerEntity
+     */
+    public function setInstanciaworkflowid($instanciaworkflowid)
+    {
+        $this->instanciaworkflowid = $instanciaworkflowid;
+
+        return $this;
+    }
+
+    /**
+     * Get instanciaworkflowid
+     *
+     * @return integer 
+     */
+    public function getInstanciaworkflowid()
+    {
+        return $this->instanciaworkflowid;
+    }
+
+    /**
+     * Set created
+     *
+     * @param \DateTime $created
+     * @return BizLayerEntity
+     */
+    public function setCreated($created)
+    {
+        $this->created = $created;
+
+        return $this;
+    }
+
+    /**
+     * Get created
+     *
+     * @return \DateTime 
+     */
+    public function getCreated()
+    {
+        return $this->created;
+    }
+
+    /**
+     * Set modified
+     *
+     * @param \DateTime $modified
+     * @return BizLayerEntity
+     */
+    public function setModified($modified)
+    {
+        $this->modified = $modified;
+
+        return $this;
+    }
+
+    /**
+     * Get modified
+     *
+     * @return \DateTime 
+     */
+    public function getModified()
+    {
+        return $this->modified;
+    }
+
+    /**
+     * Set instanciaWorkflowEntity
+     *
+     * @param \Nononsense\HomeBundle\Entity\InstanciasWorkflows $instanciaWorkflowEntity
+     * @return BizLayerEntity
+     */
+    public function setInstanciaWorkflowEntity(\Nononsense\HomeBundle\Entity\InstanciasWorkflows $instanciaWorkflowEntity = null)
+    {
+        $this->instanciaWorkflowEntity = $instanciaWorkflowEntity;
+
+        return $this;
+    }
+
+    /**
+     * Get instanciaWorkflowEntity
+     *
+     * @return \Nononsense\HomeBundle\Entity\InstanciasWorkflows 
+     */
+    public function getInstanciaWorkflowEntity()
+    {
+        return $this->instanciaWorkflowEntity;
+    }
+}

@@ -1,0 +1,71 @@
+# Learn more about services, parameters and containers at
+# http://symfony.com/doc/current/book/service_container.html
+parameters:
+#    parameter_name: value
+#Docusign plugin
+    docusign: 1
+    docusign_user: "eduardo@nononsenselabs.com"
+    docusign_pwd: "!guillerman2001"
+    docusign_integrator_key: "3da3694f-64ef-4fc5-b889-3f52ef41efe4"
+    docusign_host: "https://demo.docusign.net/restapi"
+    docusign_API: C:\xampp\htdocs\docusign\docusignAPI\vendor\autoload.php
+
+services:
+    obj2array.twig_extension:
+        class: Nononsense\HomeBundle\Twig\Object2ArrayExtension
+        public: false
+        tags:
+            - { name: twig.extension }
+    jsondecode.twig_extension:
+        class: Nononsense\HomeBundle\Twig\JSONdecodeExtension
+        public: false
+        tags:
+            - { name: twig.extension }
+    urldecode.twig_extension:
+        class: Nononsense\HomeBundle\Twig\UrldecodeExtension
+        public: false
+        tags:
+            - { name: twig.extension }
+    slugify.twig_extension:
+        class: Nononsense\HomeBundle\Twig\SlugifyExtension
+        public: false
+        tags:
+            - { name: twig.extension }
+    cleanoption.twig_extension:
+        class: Nononsense\HomeBundle\Twig\CleanoptionExtension
+        public: false
+        tags:
+            - { name: twig.extension }
+    cleanquotes.twig_extension:
+        class: Nononsense\HomeBundle\Twig\CleanquotesExtension
+        public: false
+        tags:
+            - { name: twig.extension }
+    search.twig_extension:
+        class: Nononsense\HomeBundle\Twig\SearchExtension
+        public: false
+        tags:
+            - { name: twig.extension }
+    existfile.twig_extension:
+        class: Nononsense\HomeBundle\Twig\ExistfileExtension
+        public: false
+        tags:
+            - { name: twig.extension }
+    app.security:
+        class: Nononsense\UtilsBundle\Classes\Security
+        arguments: ['@security.token_storage', '@security.authorization_checker', '%security_level%', '%apikey%', @doctrine.orm.entity_manager, '%apikey_expiration%', '%CAcerts_path%']
+
+    app.sdk:
+        class: Nononsense\UtilsBundle\Classes\SDK
+        arguments: ['%docxpresso_installation%', '%apikey%']
+
+    app.user_search:
+        class: Nononsense\UtilsBundle\Classes\LDAP\LDAP
+        arguments: ['@service_container']
+
+
+    app.json_tools:
+        class: Nononsense\UtilsBundle\Classes\JSON\Tools
+        arguments: [ @doctrine.orm.entity_manager,'@service_container']
+
+

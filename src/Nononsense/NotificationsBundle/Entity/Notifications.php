@@ -1,0 +1,358 @@
+<?php
+
+namespace Nononsense\NotificationsBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+
+/**
+ * @ORM\Entity
+ * @ORM\Table(name="notifications")
+ * @ORM\Entity(repositoryClass="Nononsense\NotificationsBundle\Entity\NotificationsRepository")
+ * @ORM\HasLifecycleCallbacks
+ */
+class Notifications
+{
+    /**
+     * @ORM\Column(type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    protected $id;
+    
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="subject", type="string", length=90)
+     * @Assert\NotBlank()
+     */
+    protected $subject;
+    
+    /**
+     * @var boolean
+     *
+     * @ORM\Column(name="is_active", type="boolean", nullable=true)
+     */
+    protected $isActive;
+    
+    /**
+     * @ORM\Column(name="body", type="text")
+     */
+    protected $body;
+    
+    /**
+     * @ORM\ManyToMany(targetEntity="\Nononsense\GroupBundle\Entity\Groups", inversedBy="notifications")
+     */
+    protected $groups;   
+    
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    protected $created;
+    
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    protected $modified;
+    
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="notifications")
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
+     */
+    protected $author;
+    
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\NotificationsBundle\Entity\MessagesUsers", mappedBy="notification")
+     */
+    protected $messages;
+    
+    
+    public function __construct()
+    {
+        $this->groups = new ArrayCollection();
+        $this->messages = new ArrayCollection();
+    }
+
+    
+    /**
+     * @ORM\PrePersist
+     */
+    public function setCreatedValue()
+    {
+        if (!$this->created) {
+            $this->created = new \DateTime();
+        }
+        $this->modified = $this->created;
+    }
+
+    /**
+     * @ORM\PreUpdate
+     */
+    public function setModifiedValue()
+    {
+        $this->modified = new \DateTime();
+    }
+    
+
+    /**
+     * Get id
+     *
+     * @return integer 
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * Set title
+     *
+     * @param string $title
+     * @return Notifications
+     */
+    public function setTitle($title)
+    {
+        $this->title = $title;
+
+        return $this;
+    }
+
+    /**
+     * Get title
+     *
+     * @return string 
+     */
+    public function getTitle()
+    {
+        return $this->title;
+    }
+
+    /**
+     * Set isActive
+     *
+     * @param boolean $isActive
+     * @return Notifications
+     */
+    public function setIsActive($isActive)
+    {
+        $this->isActive = $isActive;
+
+        return $this;
+    }
+
+    /**
+     * Get isActive
+     *
+     * @return boolean 
+     */
+    public function getIsActive()
+    {
+        return $this->isActive;
+    }
+
+    /**
+     * Set body
+     *
+     * @param string $body
+     * @return Notifications
+     */
+    public function setBody($body)
+    {
+        $this->body = $body;
+
+        return $this;
+    }
+
+    /**
+     * Get body
+     *
+     * @return string 
+     */
+    public function getBody()
+    {
+        return $this->body;
+    }
+
+    /**
+     * Set created
+     *
+     * @param \DateTime $created
+     * @return Notifications
+     */
+    public function setCreated($created)
+    {
+        $this->created = $created;
+
+        return $this;
+    }
+
+    /**
+     * Get created
+     *
+     * @return \DateTime 
+     */
+    public function getCreated()
+    {
+        return $this->created;
+    }
+
+    /**
+     * Set modified
+     *
+     * @param \DateTime $modified
+     * @return Notifications
+     */
+    public function setModified($modified)
+    {
+        $this->modified = $modified;
+
+        return $this;
+    }
+
+    /**
+     * Get modified
+     *
+     * @return \DateTime 
+     */
+    public function getModified()
+    {
+        return $this->modified;
+    }
+
+    /**
+     * Add groups
+     *
+     * @param \Nononsense\GroupBundle\Entity\Groups $groups
+     * @return Notifications
+     */
+    public function addGroup(\Nononsense\GroupBundle\Entity\Groups $groups)
+    {
+        $this->groups[] = $groups;
+
+        return $this;
+    }
+
+    /**
+     * Remove groups
+     *
+     * @param \Nononsense\GroupBundle\Entity\Groups $groups
+     */
+    public function removeGroup(\Nononsense\GroupBundle\Entity\Groups $groups)
+    {
+        $this->groups->removeElement($groups);
+    }
+
+    /**
+     * Get groups
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getGroups()
+    {
+        return $this->groups;
+    }
+
+    /**
+     * Set user
+     *
+     * @param \Nononsense\UserBundle\Entity\Users $user
+     * @return Notifications
+     */
+    public function setUser(\Nononsense\UserBundle\Entity\Users $user)
+    {
+        $this->user = $user;
+
+        return $this;
+    }
+
+    /**
+     * Get user
+     *
+     * @return \Nononsense\UserBundle\Entity\Users 
+     */
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    /**
+     * Set subject
+     *
+     * @param string $subject
+     * @return Notifications
+     */
+    public function setSubject($subject)
+    {
+        $this->subject = $subject;
+
+        return $this;
+    }
+
+    /**
+     * Get subject
+     *
+     * @return string 
+     */
+    public function getSubject()
+    {
+        return $this->subject;
+    }
+
+    /**
+     * Set author
+     *
+     * @param \Nononsense\UserBundle\Entity\Users $author
+     * @return Notifications
+     */
+    public function setAuthor(\Nononsense\UserBundle\Entity\Users $author = null)
+    {
+        $this->author = $author;
+
+        return $this;
+    }
+
+    /**
+     * Get author
+     *
+     * @return \Nononsense\UserBundle\Entity\Users 
+     */
+    public function getAuthor()
+    {
+        return $this->author;
+    }
+
+    /**
+     * Add messages
+     *
+     * @param \Nononsense\NotificationsBundle\Entity\MessagesUsers $messages
+     * @return Notifications
+     */
+    public function addMessage(\Nononsense\NotificationsBundle\Entity\MessagesUsers $messages)
+    {
+        $this->messages[] = $messages;
+
+        return $this;
+    }
+
+    /**
+     * Remove messages
+     *
+     * @param \Nononsense\NotificationsBundle\Entity\MessagesUsers $messages
+     */
+    public function removeMessage(\Nononsense\NotificationsBundle\Entity\MessagesUsers $messages)
+    {
+        $this->messages->removeElement($messages);
+    }
+
+    /**
+     * Get messages
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getMessages()
+    {
+        return $this->messages;
+    }
+}

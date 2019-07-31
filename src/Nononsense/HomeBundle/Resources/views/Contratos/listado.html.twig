@@ -1,0 +1,627 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}DOCXPRESSO | {{'Homepage'|trans}} {% endblock %}
+{% block head %}
+{{ parent() }}
+<style>
+    #loadingChart {
+        display: none
+    }
+
+    .doc-box-filters {
+        display: none
+    }
+
+    .form-control {
+        width: 120px !important
+    }
+
+    table.datos-proveedor {
+        width: 100%;
+        float: left;
+        margin: 15px 0;
+        border-bottom: 1px solid #ccc;
+    }
+
+    table.datos-proveedor thead td {
+        font-weight: bold;
+        font-size: 14px;
+    }
+
+    table.datos-proveedor thead tr {
+        border-bottom: 1px solid #ccc;
+    }
+
+    tbody tr td {
+        padding: 3px 5px;
+        font-size: 14px;
+        font-weight: 400;
+        height: 34px;
+    }
+
+    tbody.datos-proveedor tr td.pdte {
+        color: #ae3d3d;
+    }
+
+    tbody.datos-proveedor tr td.pdte-ok {
+        color: #00cc00;
+    }
+
+    tbody.datos-proveedor tr td {
+        padding: 3px 5px;
+        font-size: 14px;
+        font-weight: 400;
+        height: 34px;
+    }
+
+    tbody tr td.pdte {
+        color: #ae3d3d;
+    }
+
+    tbody tr td.pdte-ok {
+        color: #00cc00;
+    }
+
+    a.btn-table {
+        background: #0fba40;
+        border-radius: 0;
+        color: #fff;
+        font-size: 12px;
+        width: 100%;
+        margin: 0;
+        border: 1px solid #0fba40;
+        padding: 5px 0;
+    }
+
+    a.btn-cancel {
+        background: red;
+        border: 1px solid red;
+    }
+
+    a.btn-table:hover {
+        background: #fff;
+        color: #0fba40;
+    }
+
+    a.btn-cancel:hover {
+        background: #fff;
+        color: red;
+    }
+
+    .row.wrapper-blocks {
+        margin-left: -5px;
+        margin-right: -5px;
+        margin-top: 25px;
+        margin-bottom: 25px;
+    }
+
+    .block-wrapper {
+        padding: 0 5px;
+        min-width: 170px;
+    }
+
+    .block-content {
+        background: #f3f3f3;
+        padding: 10px 0;
+        margin-bottom: 10px;
+        border: 2px solid #adb5bc;
+        height: 168px;
+        display: table;
+        width: 100%;
+    }
+
+    .wrapper-blocks-home .block-content {
+        background: #f3f3f3;
+        padding: 15px;
+        margin-bottom: 10px;
+        border: 2px solid #adb5bc;
+        height: 210px;
+        display: table;
+        width: 100%;
+    }
+
+    h3.title-block {
+        font-size: 24px;
+        color: #4c91d2;
+        max-width: 200px;
+        font-weight: normal;
+        margin-top: 0;
+    }
+
+    h3.title-block + a img {
+        width: 75px;
+        height: 75px;
+        margin: auto;
+        display: table;
+        position: absolute;
+        bottom: 40px;
+        left: 40%;
+    }
+
+    tbody.datos-proveedor tr td.complet {
+        color: #009900;
+    }
+
+    /*
+     * Style Cesar
+     */
+    .row.buscador {
+        margin: 25px 0;
+    }
+
+    select,
+    input[type="text"],
+    input[type="email"],
+    input[type="number"],
+    input[type="search"] {
+        width: 100%;
+        border: 1px solid #3c89ce;
+        padding: 5px 7px;
+        font-size: 14px;
+        margin-bottom: 15px;
+    }
+
+    select {
+        padding: 4px 7px;
+    }
+
+    .disabled-box {
+        background: #9f9f9f;
+        padding: 15px;
+        margin-bottom: 10px;
+        border: 2px solid #adb5bc;
+        height: 210px;
+        display: table;
+        width: 100%;
+    }
+
+
+</style>
+{% endblock %}
+{% block main_title %} Tus documentos{% endblock %}
+{% block content %}
+
+
+
+
+<div class="wrapper wrapper-content">
+    {% for flashMessage in app.session.flashbag.get('error') %}
+    <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+        <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+        {{ flashMessage }}
+    </div>
+    {% endfor %}
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="row wrapper-blocks wrapper-blocks-home">
+
+                <div class="col-sm-3 block-wrapper">
+                    <div class="block-content">
+                        <h3 class="title-block"><a class="iframe" >Empezar
+                            un nuevo contrato</a></h3>
+                        <a class="iframe" ><img
+                                src="/img/icono-1.png"/></a>
+                    </div>
+                </div>
+
+
+                <div class="col-sm-3 block-wrapper">
+                    <div class="block-content">
+                        <h3 class="title-block"><a href="{{path('nononsense_contratos_homepage')}}">Gestión de
+                            contratos</a></h3>
+                        <a href="{{path('nononsense_contratos_homepage')}}"><img src="/img/icono-2.png"/></a>
+                    </div>
+                </div>
+
+
+
+
+
+                <div class="col-sm-3 block-wrapper">
+                    <div class="block-content">
+                        <h3 class="title-block"><a >Archivo</a></h3>
+                        <a ><img src="/img/icono-3.png"/></a>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+        <div class="row buscador">
+            <h2 style="padding-left: 20px">Buscar Contratos</h2>
+            <form id="contratosFilter" action="#">
+                <div>
+                    <div class="col-sm-1 col-xs-6">
+                        <label>ID:</label>
+                        <input id="idInput" name="idInput" type="text" value="{{idInput}}">
+                    </div>
+                    <div class="col-sm-2 col-xs-6">
+                        <label>Cod. Proveedor:</label>
+                        <input id="idCodProv" name="idCodProv" type="text" value="{{idCodProv}}">
+                    </div>
+                    <div class="col-sm-3 col-xs-12">
+                        <label>Proveedor:</label>
+                        <input id="idProv" name="idProv" type="text" value="{{idProv}}">
+                    </div>
+                    <div class="col-sm-2 col-xs-6">
+                        <label>Estado:</label>
+                        <select id="idEstado" name="idEstado">
+                            <option value="todos" {% if idEstado==
+                            "idEstado" %}selected{% endif %}>Todos</option>
+                            <option value="0" {% if idEstado==
+                            "0" %}selected{% endif %}>Borrador</option>
+                            <option value="1" {% if idEstado==
+                            "1" %}selected{% endif %}>Pte. Validación</option>
+                            <option value="10" {% if idEstado==
+                            "10" %}selected{% endif %}>Firmado</option>
+                            <option value="2" {% if idEstado==
+                            "2" %}selected{% endif %}>Rechazado</option>
+                            <option value="4" {% if idEstado==
+                            "4" %}selected{% endif %}>Enviado a firma, esperando recogida</option>
+                            <option value="9" {% if idEstado==
+                            "9" %}selected{% endif %}>Enviado a firma, recogido por Bizlayer</option>
+                            <option value="11" {% if idEstado==
+                            "11" %}selected{% endif %}>Firma rechazada</option>
+                            <option value="15" {% if idEstado==
+                            "15" %}selected{% endif %}>No realizada</option>
+                            <option value="16" {% if idEstado==
+                            "16" %}selected{% endif %}>Rectificado/a</option>
+                            <option value="17" {% if idEstado==
+                            "17" %}selected{% endif %}>Facturado</option>
+
+                        </select>
+                    </div>
+                    <div class="col-sm-3 col-xs-12">
+                        <label>Sección:</label>
+                        <input id="idSecc" name="idSecc" type="text" value="{{idSecc}}">
+                    </div>
+                    <div class="col-sm-2 col-xs-6">
+                        <label>Plantillas:</label>
+                        <select id="idPlantillas" name="idPlantillas">
+                            <option value="todos">Todas</option>
+                            {% for type in plantillas %}
+                            <option value="{{type}}" {% if type==
+                                    idPlantillas %}selected{% endif %}>{{type}}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-sm-2 col-xs-12">
+                        <label>Año:</label>
+                        <select id="idAnyo" name="idAnyo">
+                            <option value="todos">Todos</option>
+                            {% for year in years %}
+                            <option value="{{year}}" {% if year==
+                                    idAnyo %}selected{% endif %}>{{year}}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-sm-2 col-xs-6">
+                        <label>Jefe de producto:</label>
+                        <input id="idJefeProd" name="idJefeProd" type="text" value="{{idJefeProd}}">
+                    </div>
+                    <div class="col-sm-2 col-xs-6">
+                        <label>Tipo de producto:</label>
+                        <select id="idTipoProd" name="idTipoProd">
+                            <option value="todos" {% if idTipoProd==
+                            "idEstado" %}selected{% endif %}>Todos</option>
+                            <option value="0" {% if idTipoProd==
+                            "0" %}selected{% endif %}>MN</option>
+                            <option value="1" {% if idTipoProd==
+                            "1" %}selected{% endif %}>MP</option>
+                            <option value="2" {% if idTipoProd==
+                            "2" %}selected{% endif %}>PP</option>
+
+                        </select>
+                    </div>
+                    <div class="col-sm-3 col-xs-12">
+                        <label>CIF:</label>
+                        <input id="idCIF" name="idCIF" type="text" value="{{idCIF}}">
+                    </div>
+                </div>
+                <div class="col-sm-3 col-xs-12">
+                    <a class="btn btn-xs btn-primary" id="submitFormFiltro"><i class="fa fa-search"> </i> Buscar</a>
+                    <a class="btn btn-xs btn-primary" id="borrarFiltro"><i class="fa fa-eraser"> </i> Borrar filtro</a>
+                    <input type="hidden" value="0" id="borrarFiltroValue" name="borrarFiltroValue">
+                </div>
+            </form>
+        </div>
+        <h2 style="padding-left: 20px">Listado de Contratos</h2>
+        <div style="padding-left: 20px">
+            <table id="datos" class="table table-striped">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Cod. Proveedor</th>
+                    <th>Proveedor</th>
+                    <th>Firmante Carrefour</th>
+                    <th>Fecha creación</th>
+                    <th>Tipo Plantilla o Ficha</th>
+                    <th>Descripción</th>
+                    <th>Rectifica ID:</th>
+                    <th>Estado</th>
+                    <th>Iniciado por:</th>
+                    <th>Acción</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for item in contratos %}
+                <tr>
+                    <td>{{item.id}}</td>
+                    <td>{{item.vendor_id}}</td>
+                    <td>{{item.name}}</td>
+                    <td>{{item.firmante}}</td>
+                    <td>{{item.created|date('Y-m-d')}}</td>
+                    <td>{{item.type}}</td>
+                    {% if item.status == "2" or item.status == "11" or item.status == "12" %}
+                    <td class="pdte">{{item.description}}</td>
+                    {% else %}
+                    <td>{{item.description}}</td>
+                    {%endif %}
+                    <td>{{item.rectificaid}}</td>
+                    {% if item.status == "0" or item.status == "3" or item.status == "8" %}
+                    <td>Borrador</td>
+                    {% elseif item.status == "1" %}
+                    <td>Pdte de validación N1</td>
+                    {% elseif item.status == "2" %}
+                    <td class="pdte">Rechazado</td>
+                    {% elseif item.status == "4" %}
+                    <td class="pdte-ok">Enviado a firma, esperando recogida</td>
+                    {% elseif item.status == "5" %}
+                    <td>Pdte de validación N2</td>
+                    {% elseif item.status == "6" %}
+                    <td>Pde de validación Logística</td>
+                    {% elseif item.status == "9" %}
+                    <td class="pdte-ok">Enviado a firma, recogido por Bizlayer</td>
+                    {% elseif item.status == "10" %}
+                    <td class="pdte-ok">Firmado
+                    </td>
+                    {% elseif item.status == "11" %}
+                    <td class="pdte">Firma rechazada por Bizlayer</td>
+                    {% elseif item.status == "12" %}
+                    <td class="pdte">Error técnico en la recogida de firma</td>
+                    {% elseif item.status == "13" %}
+                    <td class="pdte-ok">Enviado a firma, esperando firma distribuidores</td>
+                    {% elseif item.status == "14" %}
+                    <td>Pde de revision adco</td>
+                    {% elseif item.status == "15" %}
+                    <td>No realizada</td>
+                    {% elseif item.status == "16" %}
+                    <td class="pdte">Rectificado/a</td>
+                    {% elseif item.status == "21" %}
+                    <td class="pdte">Error en la creación del contrato</td>
+                    {% else %}
+                    {% endif %}
+                    <td>{{item.usercreatedname}}</td>
+                    <td>
+                        {% if item.owner == "0" %}
+                            {% if item.status == "17" %}
+                                <a name="factModal" class="btn btn-xs btn-primary " data-wk="{{ item.refsFiscales}}"><i class="fa fa-money"> </i> Ver Facturas</a>
+                            {% endif %}
+                            {% if item.relanzado == "1" %}
+                                <a name="reenvioModal"
+                                   class="btn btn-xs btn-success" data-wk="{{ item.id}}"><i class="fa fa-paper-plane"> </i> Reenviar a Bizlayer </a>
+                            {% endif %}
+                            {% if item.status == "0" or item.status == "3" or item.status == "8" %}
+                                <a href="{{path('nononsense_contrato_concreto_homepage', {'id': item.id}) }}"
+                               class="btn btn-xs btn-primary"><i class="fa fa-lock"> </i> Completar</a>
+                                {% if item.rectificaid == "" %}
+                                    <a name="removeModal" class="btn btn-xs btn-primary btn-cancel" data-wk="{{ item.id}}"><i class="fa fa-trash"> </i> Borrar</a>
+                                {% endif %}
+                            {% elseif item.status == "1" %}
+                                {% if item.rectificaid == "" %}
+                                    <a name="removeModal" class="btn btn-xs btn-primary btn-cancel" data-wk="{{ item.id}}"><i class="fa fa-trash"> </i> Borrar</a>
+                                {% endif %}
+                                <a href="{{path('nononsense_contrato_concreto_download_interface',{'id': item.id,'borrador':3})}}" class="btn btn-xs btn-primary" target="_blank"><i class="fa fa-file-pdf-o"> </i> Descargar
+                            contrato</a>
+                        {% elseif item.status == "5" %}
+                        {% if item.rectificaid == "" %}
+                        <a name="removeModal" class="btn btn-xs btn-primary btn-cancel" data-wk="{{ item.id}}"><i class="fa fa-trash"> </i> Borrar</a>
+                        {% endif %}
+                        <a href="{{path('nononsense_contrato_concreto_download_interface',{'id': item.id,'borrador':3})}}"
+                           class="btn btn-xs btn-primary" target="_blank"><i class="fa fa-file-pdf-o"> </i> Descargar
+                            contrato</a>
+                        {% elseif item.status == "7" %}
+                        {% if item.rectificaid == "" %}
+                        <a name="removeModal" class="btn btn-xs btn-primary btn-cancel" data-wk="{{ item.id}}"><i class="fa fa-trash"> </i> Borrar</a>
+                        {% endif %}
+                        {% endif %}
+                        {% if item.adco != 1 and item.status != "16" %}
+                        <a href="{{path('nononsense_contrato_concreto_duplicate', {'idworkflow': item.id}) }}"
+                           class="btn btn-xs btn-primary"><i class="fa fa-copy"> </i> Duplicar</a>
+                        {% endif %}
+                        {% elseif item.owner == "1" %}
+                        {% if item.status == "0" or item.status == "3" or item.status == "8" %}
+                        <a href="{{path('nononsense_contrato_concreto_homepage', {'id': item.id}) }}"
+                           class="btn btn-xs btn-primary"><i class="fa fa-lock"> </i> Completar</a>
+                        {% elseif item.status == "21" %}
+                        Volver a enviar a firma
+                        {% endif %}
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+
+            <form id="removeContract" name="removeContract" action="{{path('nononsense_contrato_concreto_remove', {'idworkflow': 0}) }}">
+                <input id="idwkr" name="idwk" type="hidden" value="">
+            </form>
+            {% include '::pagination.html.twig' %}
+            <div class="modal" id="factModal" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-body">
+                            <h4>Relación de referencias fiscales</h4>
+                            <p id="refFiscalP"></p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-danger" id="factBtnNo" data-dismiss="modal">
+                                <i class="fa fa-ban" aria-hidden="true"></i> Cerrar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal" id="editModal" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-body">
+                            <h4>Confirmación de Reenvío</h4>
+                            <p>¿Está seguro que quiere volver a enviar este contrato a Bizlayer?</p>
+                            <p>El proceso de carga de los firmantes en Bizlayer puede tardar un par de días.</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-danger" id="editBtnNo" data-dismiss="modal">
+                                <i class="fa fa-ban" aria-hidden="true"></i> Cancelar
+                            </button>
+                            <a
+                                    class="btn btn-success" id="editBtnYes" data-dismiss="modal">
+                                <i class="fa fa-paper-plane " aria-hidden="true"></i> Aceptar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal" id="removeModal" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-body">
+                            <h4>Confirmación de Borrado</h4>
+                            <p>¿Está seguro que que quiere borrar este contrato?</p>
+                            <p>Esta acción es irreversible.</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-danger" id="removeBtnNo" data-dismiss="modal">
+                                <i class="fa fa-ban" aria-hidden="true"></i> Cancelar
+                            </button>
+                            <a
+                                    class="btn btn-success" id="removeBtnYes" data-dismiss="modal">
+                                <i class="fa fa-trash" aria-hidden="true"></i> Aceptar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% endblock %}
+    {% block scripts %}
+    {{ parent() }}
+    <script>
+
+
+        $(document).ready(function () {
+            //$('#samples').load('http://localhost/CORS/index_{{locale}}.php');
+            toastr.options = {
+                "closeButton": true,
+                "debug": false,
+                "progressBar": true,
+                "positionClass": "toast-top-center",
+                "onclick": null,
+                "showDuration": "400",
+                "hideDuration": "1000",
+                "timeOut": "7000",
+                "extendedTimeOut": "1000",
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut"
+            }
+
+            ActivateMenu('docxpresso_home');
+            $('#side-menu').metisMenu();
+
+            $('#borrarFiltro').click(function () {
+                $('#borrarFiltroValue').val("1");
+                $("#contratosFilter").submit();
+
+            });
+
+            $('#submitFormFiltro').click(function () {
+                $("#contratosFilter").submit();
+
+            });
+
+            $('a[name="reenvioModal"]').click(function () {
+                var idwk = $(this).attr('data-wk');
+                console.log("he pulsado el wk: " + idwk);
+                $('#idwk').val(idwk);
+                $("#editModal").show();
+
+            });
+
+            $('#editBtnNo').click(function () {
+                $("#editModal").hide();
+
+            });
+
+            $('#editBtnYes').click(function () {
+                $("#editModal").hide();
+                $("#sendBizlayerAgain").submit();
+
+            });
+
+            $('a[name="removeModal"]').click(function () {
+                var idwk = $(this).attr('data-wk');
+                console.log("he pulsado el wk: " + idwk);
+                $('#idwkr').val(idwk);
+                $("#removeModal").show();
+
+            });
+
+            $('a[name="factModal"]').click(function () {
+                var referenciasFiscales = $(this).attr('data-wk');
+                var parrafo = $('#refFiscalP');
+
+                var refSplitted = referenciasFiscales.split(";");
+                var str = "<ul>";
+
+                for(var i = 0; i < refSplitted.length; i++){
+                    str = str + "<li>"+refSplitted[i]+"</li>";
+                }
+
+
+                str = str+"</ul>";
+                parrafo.empty();
+                parrafo.append(str)
+
+
+                $("#factModal").show();
+            });
+
+            $('#factBtnNo').click(function () {
+                $("#factModal").hide();
+
+            });
+
+
+            $('#removeBtnNo').click(function () {
+                $("#removeModal").hide();
+
+            });
+
+            $('#removeBtnYes').click(function () {
+                $("#removeModal").hide();
+                $("#removeContract").submit();
+
+            });
+        });
+
+        function noCreate() {
+            toastr.error("No tiene permisos para crear un contrato", "aviso");
+        }
+
+        function noValidate() {
+            toastr.error("No tiene permisos para validar contratos", "aviso");
+        }
+
+        function noReporting() {
+            toastr.error("No tiene permisos ver el reporting", "aviso");
+
+        }
+
+
+    </script>
+    {% endblock %}

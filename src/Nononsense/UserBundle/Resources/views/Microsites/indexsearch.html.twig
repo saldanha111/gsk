@@ -1,0 +1,64 @@
+{% if search == true %}
+<div class="row">
+    <div class="col-lg-12">
+
+            <div class="ibox">
+                    <div class="search-form">
+                        <form action="index.html" method="get">
+                            <div class="input-group">
+                                <input type="text" id="search" class="form-control"><span class="input-group-btn"> <button type="button" id="searchButton" class="btn btn-primary">{{'Search'|trans}}</button> </span>
+                            </div>
+                        </form>
+                    </div>
+                    {% if query == 'q' %}
+                        {% include '::microPagerUsers.html.twig' %}
+                    <p>
+                        {{'Introduce a user name to filter your results'|trans}}:
+                    </p>
+                    {% else %}
+                    <p>
+                        {{paging.results}} 
+                        {% if paging.results == 1 %}
+                            {{'result'|trans}}
+                        {% else %}
+                            {{'results'|trans}}
+                            {% endif %}
+                        {{'users found for'}}: <span class="text-navy">“{{query}}”</span>
+                    </p>
+                    {% endif %}
+                    
+            </div>
+
+    </div>
+</div>
+{% endif %}
+{% if search == true %} 
+    <div id="reload">
+{% endif %}
+<div class="row">
+    <div class="col-lg-12"> 
+
+            {% set counter = 0 %}
+            {% for item in users %}
+                <ul>
+                    <li>
+                        <div class="dropdown-messages-box">
+                            <img alt="image" class="img-circle" src="{{webPath}}thumb_{{item.user.id}}.jpg">
+                            <div class="media-body">
+                                <small class="pull-right">Boton</small>
+                                <strong>{{ item.user.name }}</strong>. <br>
+                                <i class="fa fa-cog"> </i> {{ item.user.position}}<br />
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            {% endfor %}
+
+    </div>
+</div>
+{% if search == true %} 
+    </div>
+{% endif %}
+
+
+

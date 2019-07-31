@@ -1,0 +1,20 @@
+{% for message in messages%}
+<li>
+    <div class="dropdown-messages-box">
+        <a href="{{path('nononsense_user_profile', {"id": message.authorid })}}" class="pull-left">
+            <img alt="image" class="img-circle" src="{{webPath}}thumb_{{message.authorid}}.jpg">
+        </a>
+        <div class="media-body ">
+            {{message.subject}} <br>
+            <small class="text-muted">{{message.created|time_diff}} - {{message.created|localizeddate('medium', 'medium', app.request.locale)}}</small>
+        </div>
+    </div>
+</li>
+<li class="divider"></li>
+{% endfor %}
+<script>
+    document.getElementById('unreadTop').innerHTML = '{{unread}}';
+    {% if unread == 0 %}
+        document.getElementById('unreadTop').style.display = 'none';   
+    {% endif %}
+</script>

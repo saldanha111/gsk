@@ -1,0 +1,382 @@
+.docxnav li {
+    white-space: nowrap;
+}
+.item-placeholder {
+    border: 1px dotted #444;
+    background-color: #ffd965;
+    margin: 15px 15px 0 15px;
+}
+
+.grabber {
+    font-size: 12px;
+    color: #8eaadb;
+}
+.tabGeneralData {
+    margin: 15px;
+    padding: 10px;
+    background-color: #f0f9fc;
+    border: 1px dotted #ccccee;
+}
+.tabTools {
+    float: right;
+    width: 78px;
+    opacity: 0.65;
+}
+.blockTools ul.dropdown-menu {
+    margin-left: -156px;
+}
+
+.barButton {
+    font-size: 13px;
+    color: #333;
+}
+
+.barButton button {
+    font-size: 11px;
+}
+
+.wrench {
+    display: inline-block;
+    padding: 0px 3px 2px 3px;
+    margin-right: 3px;
+}
+
+.disableElement {
+    opacity: 0.75;
+}
+.disableColor {
+    background-color: #999 !important;
+}
+
+.tabProcessor {
+    margin: 0 auto;
+    padding-bottom: 20px;
+    width: 780px;
+    border: 1px solid #ccc;
+    box-shadow: 0px 0px 12px 1px rgba(50, 50, 50, 0.75);
+    background-color: #fff;
+}
+.contentBlock {
+    margin: 15px 15px 0 15px;
+}
+.standardBlock {
+    width: 100%;
+    font-size: 13px;
+}
+
+.standardBlock td {
+    vertical-align: top;
+    padding: 3px 0;
+}
+
+.varBlock {
+    padding: 0;
+}
+.varBlock td {
+    padding: 0;
+}
+
+.blueColor {
+    background-color: #8eaadb;
+}
+
+.greyColor {
+    background-color: #eee;
+}
+
+.orangeColor {
+    background-color: #c55a11;
+}
+
+.greenColor {
+    background-color: #65a242;
+}
+
+.redColor {
+    background-color: #b70000;
+}
+
+.tanColor {
+    background-color: #938953;
+}
+
+.purpleColor {
+    background-color: #ccaaff;
+}
+
+.blackColor {
+    background-color: #445;
+}
+
+.blueColor td {
+    color: #f0f0f0;
+}
+
+.greyColor td {
+    background-color: #eee;
+}
+
+.orangeColor td {
+    color: #f0f0f0;
+}
+
+.greenColor td {
+    color: #f0f0f0;
+}
+
+.redColor td {
+    color: #f0f0f0;
+}
+
+.tanColor td {
+    color: #f0f0f0;
+}
+
+.purpleColor td {
+    color: #f0f0f0;
+}
+
+.blackColor td {
+    color: #fff;
+}
+
+.cellStd {
+    text-align: center;
+    width: 20px;
+}
+
+.varData {
+    padding-left: 20px !important;
+}
+.descBlock {
+    border: 1px dotted #ccc;
+    border-top: none;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding: 0 30px 0 30px;
+    background-color: rgba(222, 235, 246, 0.85);
+    overflow: hidden;
+}
+.included {
+    border: 1px dotted #ccc;
+    border-top: none;
+    margin-top: 0;
+    padding: 2px 15px 15px 15px;
+    background-color: rgba(222, 235, 246, 0.85);
+}
+.subBlock {
+    margin: 6px 0;
+}
+
+.listInfoBallon {
+    padding-left: 17px;
+}
+
+.fieldsetGroup {
+    margin: 10px 0 5px 0;
+}
+.form-item {
+    margin: 0 auto !important;
+}
+
+.plaintextarea {
+    width: 100%;
+    min-height: 80px;
+    border: 1px solid #ccc;
+}
+
+
+#progress {
+    float: left;
+    width: 200px;
+    margin-top: 14px;
+}
+
+#progressBarTool {
+    border: 2px solid white;
+    width: 150px;
+    padding: 2px;
+    float: left;
+    margin-right: 6px;
+}
+
+#progressValue {
+    color: white;
+    padding-left: 6px;
+}
+#progressBar {
+    height: 8px;
+    width: 1%;
+    background-color: white;
+}
+.fsactive {
+   overflow: auto;
+}
+.fshidden {
+    display:none;
+}
+.clonneableGroup {
+    border: 1px dotted #aaa;
+    background-color: #f9f9f9;
+    margin: 0 15px 7px 15px;
+}
+
+.plainGroup {
+    border: 1px dotted #aaa;
+    background-color: #f9f9f9;
+    margin: 0 15px 7px 15px;
+    padding-top: 10px;
+}
+
+.fieldsetDescription {
+    margin-bottom: 6px;
+}
+
+.elementTip {
+    margin-top: 4px;
+    margin-bottom: 6px;
+}
+.clonneableBlock {
+    padding-bottom: 4px;
+}
+.clonneableGroup > div:nth-last-child(2) {
+    /*display: none;*/
+}
+.tabElements > div:last-child {
+    /*display: none;*/
+}
+
+.clonneableTools {
+    float: right;
+    height: 28px;
+}
+.clonneableBlock {
+    padding-top: 8px;
+    margin-right: -7px;
+}
+
+.groupHandler {
+   text-align: center; 
+}
+
+.imagePreview {
+    margin-top: 6px;
+}
+
+.imageUpload {
+    margin-top: 8px;
+    margin-bottom: 8px;
+}
+
+.imageUpload img {
+    max-width: 90%;
+    box-shadow: 0px 0px 6px 1px rgba(50, 50, 50, 0.75);
+}
+
+.formComment {
+    margin: 7px 15px 4px 15px;
+}
+
+.commentTitle {
+    font-size: 14px;
+}
+
+.commentTitle:before {
+  font-family: FontAwesome;
+  content: "\f0e5";
+  display: inline-block;
+  padding-right: 5px;
+}
+
+.commentBody {
+    
+}
+
+.formVideo {
+    margin: 7px 15px 4px 15px;
+}
+
+.videoTitle {
+    font-size: 14px;
+}
+
+.videoTitle:before {
+  font-family: FontAwesome;
+  content: "\f03d";
+  display: inline-block;
+  padding-right: 5px;
+}
+
+.videoBody {
+    
+}
+
+
+.elementGroup {
+
+}
+
+.elementGroup div.note-editor {
+    margin-bottom: 12px;
+    background-color: #fff;
+}
+
+.inputError {
+    box-shadow: 0px 0px 10px 1px rgba(250, 50, 50, 0.85) !important;    
+}
+
+input[type="radio"]{
+    vertical-align: bottom;
+}
+
+input[type="checkbox"]{
+    vertical-align: bottom;
+}
+
+.choiceGroup {
+    padding: 0 0 3px 10px;
+}
+
+.inputOtherOption {
+    vertical-align: -3px !important;
+}
+
+@media (max-width: 780px) {
+    .tabProcessor {
+        /*width: 40% !important;*/
+        width: 95%;
+    } 
+    #tabs ul.nav-tabs {
+        width: 95% !important;
+    }
+    #progress {
+        width: 90px;
+    }
+    #progressBarTool {
+        width: 50px;
+    }
+    #progressValue {
+        padding-left: 4px;
+        font-size: 11px;
+    }
+    .form-control {
+        width: 95%;
+    }
+}
+    
+@media (max-width: 480px) {
+    .tabProcessor {
+        border: none;
+        box-shadow: none;
+        background-color: transparent;
+    }
+    .clonneableGroup {
+        padding-left: 0 !important;
+    }
+}
+
+@media (max-width: 1024px){
+    ul.nav-tabs {
+        width: 780px !important;
+    }
+}

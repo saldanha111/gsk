@@ -1,0 +1,86 @@
+# you can read more about security in the related section of the documentation
+# http://symfony.com/doc/current/book/security.html
+security:
+    # http://symfony.com/doc/current/book/security.html#encoding-the-user-s-password
+    encoders:
+        Nononsense\UserBundle\Entity\Users:
+            algorithm: sha512
+            encode-as-base64: true
+            iterations: 100
+
+    # http://symfony.com/doc/current/book/security.html#hierarchical-roles
+    role_hierarchy:
+        ROLE_EXTERNAL:      ROLE_EXTERNAL
+        ROLE_USER:          [ROLE_EXTERNAL, ROLE_USER]
+        ROLE_EDITOR:        [ROLE_EXTERNAL, ROLE_USER]
+        ROLE_ADMIN:         [ROLE_EXTERNAL, ROLE_USER, ROLE_EDITOR, ROLE_ALLOWED_TO_SWITCH]
+        ROLE_SUPER_ADMIN:   [ROLE_EXTERNAL, ROLE_USER, ROLE_EDITOR, ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH]
+
+    # http://symfony.com/doc/current/book/security.html#where-do-users-come-from-user-providers
+    ## providers: [users_ldap, main]
+    providers:
+        chain_users:
+            chain:
+                providers: [main]
+        main:
+            entity:
+                class: Nononsense\UserBundle\Entity\Users
+                property: email
+        #users_ldap:
+         #   id: app.users_ldap_service
+
+    # the main part of the security, where you can set up firewalls
+    # for specific sections of your app
+    firewalls:
+        # disables authentication for assets and the profiler, adapt it according to your needs
+        dev:
+            pattern:  ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+        # the login page has to be accessible for everybody
+        login:
+            pattern:  ^/users/login$
+            security: false
+        # the recover password page has to be accessible for everybody
+        recoverPassword:
+            pattern:  ^/users/recover_password
+            security: false
+        #view:
+            #pattern: ^/documents/preview
+            #anonymous: true
+        # secures part of the application
+        main:
+            pattern: ^/
+            provider: chain_users
+            form_login:
+                check_path: /users/check_user
+                login_path: /users/login
+                remember_me: true
+                default_target_path: /users/login_init
+            logout:
+                path:   /users/logout
+                target: /
+            remember_me:
+                key: Qn65f7wtgGZKCCzWQZps04AskmNSiZrvl3qVZRCCIp
+                lifetime: 31536000
+                path: /
+                domain: ~
+            anonymous: ~
+            switch_user: true
+
+    # with these settings you can restrict or allow access for different parts
+    # of your application based on roles, ip, host or methods
+    # http://symfony.com/doc/current/cookbook/security/access_control.html
+    access_control:
+        - { path: ^/users/accessByToken , roles: IS_AUTHENTICATED_ANONYMOUSLY}
+        - { path: ^/RESTservices/ , roles: IS_AUTHENTICATED_ANONYMOUSLY}
+        - { path: ^/data/ , roles: IS_AUTHENTICATED_ANONYMOUSLY}
+        - { path: ^/info_Bizlayer , roles: IS_AUTHENTICATED_ANONYMOUSLY}
+        - { path: ^/json_integration_index/ , roles: IS_AUTHENTICATED_ANONYMOUSLY}
+        - { path: ^/json_integration_rest/ , roles: IS_AUTHENTICATED_ANONYMOUSLY}
+        - { path: ^/microsites/external/ , roles: ROLE_EXTERNAL}
+        - { path: ^/$ , roles: ROLE_EXTERNAL}
+        - { path: ^/ , roles: ROLE_USER}
+        # require ROLE_ADMIN
+        #- { path: ^/news/create, roles: ROLE_SUPER_ADMIN }
+        #- { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY, requires_channel: https }
+        #- { path: ^/, roles: IS_AUTHENTICATED_ANONYMOUSLY }

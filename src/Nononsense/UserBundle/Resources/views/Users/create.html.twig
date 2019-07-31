@@ -1,0 +1,170 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}DOCXPRESSO | {{'Create user'|trans}} {% endblock %}
+{% block head %}
+    <link href="/css/plugins/summernote/summernote.css" rel="stylesheet">
+    <link href="/css/plugins/summernote/summernote-bs3.css" rel="stylesheet">
+    <link href="/css/plugins/iCheck/custom.css" rel="stylesheet">
+    <link href="/css/plugins/cropper/cropper.min.css" rel="stylesheet">
+
+    {{ parent() }}
+{% endblock %}
+{% block main_title %} {{'Create user'|trans}} {% endblock %}
+{% block breadcrumb %}
+<ol class="breadcrumb">
+    <li>
+        <a href="{{ path('nononsense_home_homepage')}}">{{'Home'|trans}}</a>
+    </li>
+    <li>
+        <a href="{{ path('nononsense_users_homepage')}}">{{'Users'|trans}}</a>
+    </li>
+    <li class="active">
+        <strong>{{'Create user'|trans}}</strong>
+    </li>
+</ol>
+{% endblock %}
+{% block content %}
+    {{ form_start(createUser) }}
+    {{ form_errors(createUser) }}
+
+    <div class="wrapper wrapper-content animated fadeInUp">
+        
+        {% include 'NononsenseUserBundle:Users:dataModule.html.twig' %}
+        {% include 'NononsenseUserBundle:Users:imageModule.html.twig' %}
+                        
+        
+        <div class="row">
+            <div class="col-lg-12">
+                {{ form_widget(createUser.save, {'attr' : {'class': 'btn btn-primary'}}) }} 
+            </div>
+        </div>
+    </div>
+    
+    {{ form_end(createUser) }}
+    
+    <br /> <br />
+
+{% endblock %}
+
+{% block scripts %}
+    {{ parent() }}
+    
+    <!-- SUMMERNOTE -->
+    <script src="/js/plugins/summernote/summernote.js"></script>
+    {% if app.request.locale != 'en' %}
+    <script src="/js/plugins/summernote/lang/summernote-{{app.request.locale}}.js"></script>    
+    {% endif %}
+    <!-- iCheck -->
+    <script src="/js/plugins/iCheck/icheck.min.js"></script>
+    <!-- Image cropper -->
+    <script src="/js/plugins/cropper/cropper.min.js"></script>
+
+    <script>
+        
+        $(document).ready(function(){
+            var $image = $(".image-crop > img")
+            function loadCropper ($crop) {
+                $($crop).cropper({
+                    aspectRatio: 1,
+                    dragCrop: false,
+                    preview: ".img-preview, .img-preview2, .img-preview3",
+                    done: function(data) {
+                        // Output the result data for cropping image.
+                    }
+                });    
+            }
+            loadCropper($image);
+
+            var $inputImage = $("#inputImage");
+            if (window.FileReader) {
+                $inputImage.change(function() {
+                    var fileReader = new FileReader(),
+                            files = this.files,
+                            file;
+
+                    if (!files.length) {
+                        return;
+                    }
+
+                    file = files[0];
+
+                    if (/^image\/\w+$/.test(file.type)) {
+                        fileReader.readAsDataURL(file);
+                        fileReader.onload = function () {
+                            $inputImage.val("");
+                            $image.cropper("reset", true).cropper("replace", this.result);
+                        };
+                    } else {
+                        showMessage("{{'Please choose an image file.'|trans}}");
+                    }
+                });
+            } else {
+                $inputImage.addClass("hide");
+            }
+            
+            $("#browse").click(function() {
+                var el = $("#inputImage");
+                if (el) {
+                  el.click();
+                }
+            });
+
+            $("#download").click(function() {
+                window.open($image.cropper("getDataURL"));
+            });
+
+            $("#zoomIn").click(function() {
+                $image.cropper("zoom", 0.1);
+            });
+
+            $("#zoomOut").click(function() {
+                $image.cropper("zoom", -0.1);
+            });
+
+            $(document).on("click", "[data-method]", function () {
+                var data = $(this).data();
+
+                if (data.method) {
+                  $image.cropper(data.method, data.option);
+                }
+              });
+
+            $("#setDrag").click(function() {
+                $image.cropper("setDragMode", "crop");
+            });
+
+            $('.i-checks').iCheck({
+                    checkboxClass: 'icheckbox_square-green',
+                    radioClass: 'iradio_square-green'
+                });
+            $('.summernote').html($('#user_description').val());
+            $('.summernote').summernote({
+                lang: '{{app.request.locale}}',
+                height: 240,
+                onblur: function(e) {   
+                }
+            });
+            $('#user_save').click(function(e){
+                $('#user_description').val($(".summernote").code());
+                if ( $('#user_description').val() == ''){
+                    toastr.error('{{'You need to include a short description of the user role.'|trans}}', '{{'Warning'|trans}}');
+                    return false;
+                }
+                $('form').submit();
+            });
+            $( "form" ).submit(function( event ) {
+                $('#user_description').val($(".summernote").code());
+                if ( $('#user_description').val() == ''){
+                    toastr.error('{{'You need to include a short description of the user role.'|trans}}', '{{'Warning'|trans}}');
+                    return false;
+                }
+                $('#user_photo').val($image.cropper("getDataURL"));
+                return;
+              });
+             
+             ActivateMenu('create_user');
+            $('#side-menu').metisMenu();
+       });
+    </script>
+{% endblock %}
+
+

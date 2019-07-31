@@ -1,0 +1,55 @@
+parameters:
+    footer: true
+    secret: ThisTokenIsNotSoSecretChangeIt
+    #REST API parameters
+    default_redirect_path: "/documents/download/external"
+    rest_api_max_results: 100
+    CAcerts_path: "C:\CAcerts\cacert.pem"
+    #General interface parameters
+    results_per_page: 25
+    messages_per_page: 20
+    avatar_width: 400
+    avatar_height: 400
+    user_img_dir: "img/users/"
+    thumbnail_dir: "img/documents/"
+    icon_img_dir: "img/icons/"
+    max_locked_time: 3600
+    # Docxpresso API for document generation
+    templates_dir: "templates/"
+    preview_dir: "templates/preview/"
+    previsualization_dir: "templates/previsualizations/"
+    docxpressoAPI: C:\xampp\htdocs\v3_html52pdf\CreateDocument.inc
+    max_response_time: 100
+    # Input formats
+    conversorAPI: C:\xampp\htdocs\v3_html52pdf\Conversor.inc
+    uploadMSOffice: true
+    uploadExtensions: "odt,ods,docx,xlsx"
+    nativeExtensions: "odt,ods"
+    # Ouput formats
+    default_date_format: "mm/dd/yyyy"
+    default_number_format: ".,"
+    available_output_formats: "odt,pdf,doc,docx,doc-legacy,rtf"
+    default_output_formats: "odt,pdf,doc,docx,doc-legacy,rtf"
+    default_output_comments: 0
+    # Attachments
+    attachments_dir: "templates/attachments/"
+    # Globals
+    web_path: %kernel.root_dir%/../web/
+    # document usage
+    max_document_usage: 50
+    #Signature pad dimensions
+    signature_width: 300
+    signature_height: 150
+    #Signature pad scaling
+    signature_scaling: 1
+    canvas_scaling: 2
+    #ReCaptcha
+    #captcha_public_key: 6LcMQRoUAAAAACziWle0uNXwunqkaAtXHv8778u4
+    #captcha_secret: 6LcMQRoUAAAAAJOT6FXUarkMl8QTFrtd3vhf59wh
+    captcha_public_key: 6Ld2NBoUAAAAAATT0zBhKheV2mQudrw0q-_NUVHy
+    captcha_secret: 6Ld2NBoUAAAAAC1O0X80U2mgdIE26hzfFGZq_yfc
+    #Operative System
+    OS: WINDOWS
+    #HELP
+    help_route: https://docs.docxpresso.com/tutorial/content/
+

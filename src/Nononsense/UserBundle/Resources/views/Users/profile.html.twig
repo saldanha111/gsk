@@ -1,0 +1,115 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}DOCXPRESSO | {{'Users'|trans}} | {{ user.name }} {% endblock %}
+
+{% block main_title %} {{ user.name }} {% endblock %}
+{% block breadcrumb %}
+<ol class="breadcrumb">
+    <li>
+        <a href="{{ path('nononsense_home_homepage')}}">{{'Home'|trans}}</a>
+    </li>
+    <li>
+        <a href="{{ path('nononsense_users_homepage')}}">{{'Users'|trans}}</a>
+    </li>
+    <li class="active">
+        <strong>{{ user.name }}</strong>
+    </li>
+</ol>
+{% endblock %}
+{% block content %}
+<div class="wrapper wrapper-content">
+    <div class="row animated fadeInRight">
+        <div class="col-md-5">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title" style="border-bottom: none">
+                    <h5>{{'Profile Details'|trans}}</h5>
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <div class="ibox-content no-padding border-left-right">
+                        <div style="border-bottom: 1px solid #e7eaec">
+                            <div class="limitSize320" style="position: relative">
+                                {% if user.isActive == false %}<button class="btn btn-warning btn-xs " type="button" style="position: absolute; z-index: 10"><i class="fa fa-lock"></i></button>{% endif %}
+                                <img alt="image" class="img-responsive" src="{{webPath}}user_{{user.id}}.jpg?nocache={{random()}}">
+                                {% if editable %}
+                                    <div class="editImage">
+                                        <a href="{{ path('nononsense_user_edit_image', {"id" : user.id})}}" class="btn btn-primary btn-xs"><i class="fa fa-image"></i> {{'Change image'|trans}}</a>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ibox-content profile-content">
+                        <h4 style="padding-top: 20px"><strong>{{ user.name }}</strong></h4>
+                        <address style="line-height: 18px">
+                            <i class="fa fa-calendar"> </i> <strong>{{'User since'|trans}}:</strong> {{ user.created|localizeddate('medium', 'none', app.request.locale)}}<br />
+                            <i class="fa fa-envelope"> </i> &nbsp;<a href="mailto:{{user.email}}" style="text-decoration: underline">{{user.email}}</a><br>
+                            <i class="fa fa-phone"> </i> &nbsp;{{ user.phone }}
+                        </address>
+                        <h4>{{'About me'|trans}}</h4>
+                        {{user.description|raw}}
+                        {% if editable %}
+                        <div class="row m-t">
+                            <div class="col-xs-6">
+                                <a href="{{ path('nononsense_user_edit', {"id" : user.id})}}" class="btn btn-primary btn-xs btn-block"><i class="fa fa-edit"></i> {{'Edit data'|trans}}</a>
+                            </div>
+                            <div class="col-xs-6">
+                                <a href="{{path('nononsense_user_modify_password', {'id': user.id}) }}" class="btn btn-danger btn-xs btn-block"><i class="fa fa-lock"></i> {{'New pass.'|trans}}</a>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+                <div class="col-md-7">
+                    <div class="ibox float-e-margins">
+                        <div class="ibox-title">
+                            <h5>{{'Templates'|trans}}</h5>
+                            <div class="ibox-tools">
+                                <a class="collapse-link">
+                                    <i class="fa fa-chevron-up"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="ibox-content">
+                            {{'Templates uploaded by this user'|trans}}:
+                            <br/><br />
+                            {% if templates|length == 0 %}
+                                <p>{{'This user has not uploaded any template yet.'|trans}}</p>
+                            {% endif %}
+                            <ol>
+                                {% for template in templates %}
+                                    <li>[{{ template.created|localizeddate('medium', 'none', app.request.locale)}}] <a href="{{path('nononsense_documents_show', {'id': template.id})}}">{{template.name}}</a></li> 
+                                {% endfor %}
+                            </ol>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+
+{% endblock %}
+{% block scripts %}
+    {{ parent() }}
+    <!-- Peity -->
+    <script src="/js/plugins/peity/jquery.peity.min.js"></script>
+
+    <!-- Peity -->
+    <script src="/js/demo/peity-demo.js"></script>
+    <script>
+        $(document).ready(function(){
+            
+            ActivateMenu('browse_users');
+            $('#side-menu').metisMenu();
+
+       });
+    </script>
+{% endblock %}
+
+

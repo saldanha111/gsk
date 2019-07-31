@@ -1,0 +1,36 @@
+nononsense_news_show:
+    path:     /show/{id}
+    defaults: { _controller: NononsenseNewsBundle:News:show, id: 1}
+    requirements:
+        id: ".+"
+        
+nononsense_news_show_slash:
+    path:     /show
+    defaults: { _controller: NononsenseNewsBundle:News:show, id: 1}
+    requirements:
+        id: ".+"
+    
+nononsense_news_create:
+    path:     /create
+    defaults: { _controller: NononsenseNewsBundle:News:create }
+    
+nononsense_news_edit:
+    path:     /edit/{id}
+    defaults: { _controller: NononsenseNewsBundle:News:edit, id: 1}
+    requirements:
+        id: ".+"
+        
+nononsense_news_delete:
+    path:     /delete/{id}
+    defaults: { _controller: NononsenseNewsBundle:News:delete, id: 1}
+    requirements:
+        id: ".+"
+
+nononsense_news_homepage:
+    path:     /{page}/{query}
+    defaults: { _controller: NononsenseNewsBundle:News:index, page: 1, query: 'q'}
+        
+nononsense_news_homepage_slash:
+    path:     /
+    defaults: { _controller: NononsenseNewsBundle:News:index, page: 1, query: 'q'}
+

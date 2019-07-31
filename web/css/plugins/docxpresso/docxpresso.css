@@ -1,0 +1,527 @@
+* {
+    box-sizing: content-box !important;
+    -webkit-box-sizing: content-box !important;
+    -moz-box-sizing: content-box !important;
+}
+
+html {
+    font-size: 83.35% !important;
+}
+
+body {
+    background-color: #f6f6ff;
+    box-sizing: content-box !important;
+    -webkit-box-sizing: content-box !important;
+    -moz-box-sizing: content-box !important;
+    overflow-x: scroll !important;
+}
+
+body section * {
+    box-sizing: border-box !important;
+    -webkit-box-sizing: border-box !important;
+    -moz-box-sizing: border-box !important; 
+}
+body section p {
+    color: #000000;
+    line-height: 1;
+    padding: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+body section h1 {
+    margin-top: 0;
+    margin-bottom: 0;
+    color: #000000;
+    font-family: inherit;
+    font-weight: 500;
+    line-height: 1;
+}
+
+body section h2 {
+    margin-top: 0;
+    margin-bottom: 0;
+    color: #000000;
+    font-family: inherit;
+    font-weight: 500;
+    line-height: 1;
+}
+
+body section h3 {
+    margin-top: 0;
+    margin-bottom: 0;
+    color: #000000;
+    font-family: inherit;
+    font-weight: 500;
+    line-height: 1;
+}
+
+body section h4 {
+    margin-top: 0;
+    margin-bottom: 0;
+    color: #000000;
+    font-family: inherit;
+    font-weight: 500;
+    line-height: 1;
+}
+
+body section h5 {
+    margin-top: 0;
+    margin-bottom: 0;
+    color: #000000;
+    font-family: inherit;
+    font-weight: 500;
+    line-height: 1;
+}
+
+body section h6 {
+    margin-top: 0;
+    margin-bottom: 0;
+    color: #000000;
+    font-family: inherit;
+    font-weight: 500;
+    line-height: 1;
+}
+
+/* give small default top and bottom paddings for paragraphs in tables*/
+body section table p {
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-top: 0.1em;
+    padding-bottom: 0.1em;
+}
+
+body section li p {
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-top: 0.1em;
+    padding-bottom: 0.1em;
+}
+
+/* some defaults for tables */
+body section table {
+    border: none;
+}
+
+body section td {
+    vertical-align: top;
+    border: none;
+}
+
+body section th {
+    vertical-align: top;
+    border: none;
+}
+
+body sup a {
+    font-size: 135%;/*to overwrite bootstrap style*/
+    color: inherit;
+}
+
+/* External services*/
+iframe {
+    resize: vertical;
+    border: 1px solid #fff;
+}
+
+.youtube {
+    position:relative;
+    padding-bottom:56.25%;
+    height:0;
+    overflow:hidden;
+    background-color: transparent;
+}
+
+.youtube iframe {
+    resize: none;
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+}
+
+/* This is a spacial class designed to remove unwanted bullets when a li has
+ul as its first child*/
+.removeBullet:before {
+    content: none !important;
+}
+
+.h5p_page {
+    position:relative; 
+    z-index: 2;
+    width: 21cm; 
+    display: table; 
+    background-color: #ffffff; 
+    margin: 25px auto; 
+    box-shadow: 0px 0px 12px 1px rgba(50, 50, 50, 0.75);
+    padding-right: 200px;
+    /*background-image: url(data:image/gif;base64,R0lGODlhyAABAIAAAPT09P///yH5BAQUAP8ALAAAAADIAAEAAAIMhI+py+0Po5y02usKADs=);*/
+    background-position: right top;
+    /*background-repeat: repeat-y;*/
+    clear: both;/*for responsiveness*/
+}
+
+.h5p_page:after {
+    content: "";
+    position: absolute;
+    z-index: 0;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    border-right: 1px solid #999;
+    transform: translate(-199px);
+    /*to make sure that floating elements are always inside the document bounds*/
+    display: block;
+    clear: both;
+}
+
+.h5p_page ul {
+    list-style-type: none;
+}
+
+.h5p_page ol {
+    list-style-type: none;
+}
+/* Avoid the ul and ol styles to cascade to certain docxpresso elements */
+.h5p_page div.h5p-help ul {
+    list-style-type: disc;
+}
+
+.h5p_page div.h5p-help ul ul {
+    list-style-type: circle;
+}
+
+.h5p_page div.h5p-help ul ul ul{
+    list-style-type: square;
+}
+
+.h5p_page div.h5p-help ol {
+    list-style-type: decimal;
+}
+
+.h5p_page span.spanWrapper {
+    font-family: inherit !important;
+    font-size: inherit !important;
+}
+
+.h5p_page span.spanWrapper ul {
+    list-style-type: disc;
+}
+
+.h5p_page span.spanWrapper ul ul {
+    list-style-type: circle;
+}
+
+.h5p_page span.spanWrapper ul ul ul {
+    list-style-type: square;
+}
+
+.h5p_page span.spanWrapper ol {
+    list-style-type: decimal;
+}
+
+.h5p-help div.h5p-help-body * {
+    font-family: Arial, sans-serif !important;
+    font-size: 11px !important;
+}
+
+#h5p-commentLine {
+    position: absolute;
+    z-index: 899;
+    height: 2px;
+    border-top: 1px dotted #b70000;
+    background-color: transparent;
+}
+
+.h5p-commentLine {
+    position: absolute;
+    z-index: 899;
+    height: 2px;
+    border-top: 1px dotted #b70000;
+    background-color: transparent;
+}
+
+span.spanWrapper span[contenteditable] span {
+    font-size: inherit;
+}
+
+#tabs {
+    clear: both;
+    margin-top: 12px;
+}
+
+.panel-title>a {
+    display: inline-block;
+    width:100%;
+    padding: 6px 0 8px 8px;
+}
+
+.accordionTitle>a {
+    display: inline-block;
+    width:100%;
+    padding: 3px 0 3px 8px;
+}
+
+.h5p_page span.h5p_varspan {
+    font-family: inherit !important;
+    font-size: inherit !important;
+    /*this is a hack for ie*/
+    text-indent: 0 !important;
+}
+
+#progress {
+        float: left;
+        width: 200px;
+        margin-top: 14px;
+}
+
+#progressBarTool {
+    border: 2px solid white;
+    width: 150px;
+    padding: 2px;
+    float: left;
+    margin-right: 6px;
+}
+
+#progressValue {
+    color: white;
+    padding-left: 6px;
+}
+#progressBar {
+    height: 8px;
+    width: 1%;
+    background-color: white;
+}
+    
+#validators {
+    margin-left: 0;
+    margin-right: 0;
+    padding-right: 6px;
+}
+
+.validator_number {
+    font-weight: bold;
+}
+
+@media (max-width: 1024px) {
+    html {font-size: 75% !important}
+    body {
+        background-color: #ffffff !important;    
+    }
+    .navbar-top-links li a{
+        padding: 20px 0 20px 10px;
+    }
+    html body section.h5p_page div {width: auto !important}
+    section.h5p_page {width: auto !important; margin: 0 auto}
+    section.h5p_page > div {width: auto !important}
+    section.h5p_page > div table[data-h5p] {width: auto !important;}
+    section.h5p_page > div table[data-h5p] tr td {width: auto !important;}
+    .h5p_page {
+        box-shadow: none;
+        padding-right: 0 !important;
+        background-color: #ffffff !important;
+        background-image: none;
+    }   
+    .h5p_page:after{
+        border: none;
+    }
+    .h5p-help {
+        margin-top: 25px !important;
+        margin-left:-120px;
+        left:50%;
+        max-width: 240px;
+    }
+    ul.nav-tabs {
+        width: 95% !important;
+    }
+    .docxbotnav {
+        margin: 0 auto !important;
+    }
+}
+
+@media (max-width: 780px) {
+    body {
+        background-color: #ffffff !important;    
+    }
+    .h5p_page {
+        padding-right: 0 !important;
+        background-color: #ffffff !important;
+        background-image: none;
+    } 
+    #topToolBar {
+        width: 100% !important;
+    } 
+    button.btn {
+        font-size: 1rem !important;
+    }
+    div.note-fontname {
+        display: none !important;
+    }
+    div.note-color {
+        display: none !important;
+    }
+    span[data-h5p] img {
+        /*width: auto !important;*/
+    }
+    ul.nav-tabs {
+        width: 95% !important;
+    }
+    #saveTools {
+        margin-right: 10px;
+    }
+    /*responsive tables*/
+    .h5p_page div.dxoResponsiveTable{
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow-x: auto !important;
+    }
+    
+    #progress {
+        width: 94px;
+    }
+    #progressBarTool {
+        width: 50px;
+    }
+    #progressValue {
+        padding-left: 4px;
+        font-size: 11px;
+    }
+    
+    
+}
+
+@media (max-width: 480px) {
+    html {font-size: 75% !important} 
+    .h5p_page {
+        /*position:relative; 
+        z-index: 2;
+        width: auto;*/
+        display: block;
+        background-color: #ffffff; 
+        margin: 25px auto; 
+        box-shadow: none;
+        padding-right: 0 !important;
+        background-image: none;
+    } 
+    section.h5p_page > div {
+        margin-left: 2% !important;
+        margin-right: 2% !important}
+    
+    #h5p-tooltip-wrapper {
+        display: none !important;
+    }
+    
+    #saveData {
+        display: none !important;
+    }
+    
+    .h5p-help {
+        display: none !important;
+    }
+    .docxnav > li {
+        /*font-size: 11px !important;*/
+    }
+    .docxbotnav > li {
+        /*font-size: 11px !important;*/
+    }
+    
+    section {
+        margin-left: 2.7rem !important;
+        margin-right: 1.4rem !important;
+    }
+    .buttonTop {
+        display: none;
+    }
+    #fixedbar button.btn {
+        font-size: 1rem !important;
+    }
+    button#cancel {
+        display: none;
+    }
+    
+}
+
+@media (max-width: 320px) {
+    html {font-size: 62.5% !important} 
+    div.note-font {
+        /*display: none !important;*/
+    } 
+    .docxnav > li > a {
+        font-size: 10px !important;
+        padding: 8px 1px !important;
+    }
+    .docxbotnav > li >a {
+        font-size: 10px !important;
+        padding: 8px 1px !important;
+    }
+    .docxnav > li.active > a {
+        font-size: 10px !important;
+        padding: 8px 5px !important;
+    }
+    .docxbotnav > li.active >a {
+        font-size: 10px !important;
+        padding: 8px 5px !important;
+    }
+    .buttonTop {
+        /*display: none;*/
+    }
+    section {
+        margin-left: 3.0rem !important;
+        margin-right: 1.5rem !important;
+    }
+}
+
+/* Portrait */
+@media only screen 
+  and (min-device-width: 320px) 
+  and (max-device-width: 568px)
+  and (-webkit-min-device-pixel-ratio: 2)
+  and (orientation: portrait) {
+      html {font-size: 62.5% !important}
+    div.note-font {
+        /*display: none !important;*/
+    } 
+    .docxnav > li > a {
+        font-size: 10px !important;
+        padding: 8px 1px !important;
+    }
+    .docxbotnav > li >a {
+        font-size: 10px !important;
+        padding: 8px 1px !important;
+    }
+    .docxnav > li.active > a {
+        font-size: 10px !important;
+        padding: 8px 5px !important;
+    }
+    .docxbotnav > li.active >a {
+        font-size: 10px !important;
+        padding: 8px 5px !important;
+    }
+    .buttonTop {
+        /*display: none;*/
+    }
+    section {
+        margin-left: 3.0rem !important;
+        margin-right: 1.5rem !important;
+    } 
+}
+
+@media print {
+    @page {
+    }
+    body {
+       background-color: transparent;
+    }
+    .h5p_page {
+        position:relative; 
+        width: auto; 
+        display: table; 
+        background-color: #ffffff; 
+        margin: auto; 
+        box-shadow: none; 
+    }
+    table {page-break-inside: avoid}
+    h1, h2, h3, h4 {page-break-after: avoid}
+}
+

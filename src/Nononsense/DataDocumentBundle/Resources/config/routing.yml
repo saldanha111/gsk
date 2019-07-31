@@ -1,0 +1,27 @@
+nononsense_dataservices_save_data_uri:
+    path:     /get_data_from_document/{instancia_step_id}
+    defaults: { _controller: NononsenseDataDocumentBundle:DataDocument:getDataURIRequest, instancia_step_id: 0}
+
+nononsense_dataservices_requet_data:
+    path:     /requestData/{instancia_step_id}
+    defaults: { _controller: NononsenseDataDocumentBundle:DataDocument:RequestData, instancia_step_id: 0}
+
+nononsense_descargar_pdf_documento:
+    path:     /descargarpdfdocumento/{workflow_id}/{step_id}
+    defaults: { _controller: NononsenseDataDocumentBundle:DataDocument:descargarpdfdocumento,workflow_id: 1, step_id: 0}
+
+nononsense_get_word_documento:
+    path:     /getworddocumento/{workflow_id}/{step_id}
+    defaults: { _controller: NononsenseDataDocumentBundle:DataDocument:getworddocumento,workflow_id: 1, step_id: 0}
+
+nononsense_get_pdf_documento:
+    path:     /getpdfdocumento/{workflow_id}/{step_id}
+    defaults: { _controller: NononsenseDataDocumentBundle:DataDocument:getpdfdocumento,workflow_id: 1, step_id: 0}
+
+
+
+
+
+
+
+

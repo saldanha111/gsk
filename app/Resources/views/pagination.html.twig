@@ -1,0 +1,17 @@
+<div class="text-center">
+    <div class="btn-group">
+
+
+    {% if paging.page > 1 %}
+        <button class="btn btn-white" type="button" onclick="window.location.href='{{ path(paging.path, {'page': 1, 'query': query}) }}'"><i class="fa fa-angle-double-left"></i></button>
+        <button class="btn btn-white" type="button" onclick="window.location.href='{{ path(paging.path, {'page': paging.page-1, 'query': query}) }}'"><i class="fa fa-angle-left"></i></button>
+    {% endif %}
+    {% for p in range(max(paging.page-5, 1), min(paging.page+5, paging.count)) %}
+        <button type="button"  class="btn btn-white{% if p == paging.page %} active{% endif %}" {% if p == paging.page %} style="cursor: default !important" {% endif %} {% if p != paging.page %}onclick="window.location.href='{{ path(paging.path, {'page': p, 'query': query}) }}'"{% endif %}>{{ p }}</button>
+    {% endfor %}
+    {% if paging.page<paging.count %}
+        <button class="btn btn-white" type="button" onclick="window.location.href='{{ path(paging.path, {'page': paging.page+1, 'query': query}) }}'"><i class="fa fa-angle-right"></i> </button>
+        <button class="btn btn-white" type="button" onclick="window.location.href='{{ path(paging.path, {'page': paging.count, 'query': query}) }}'"><i class="fa fa-angle-double-right"></i> </button>
+    {% endif %}
+    </div>
+</div>

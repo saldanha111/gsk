@@ -1,0 +1,118 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}DOCXPRESSO | Clone group {% endblock %}
+{% block head %}
+    <link href="/css/plugins/summernote/summernote.css" rel="stylesheet">
+    <link href="/css/plugins/summernote/summernote-bs3.css" rel="stylesheet">
+    <link href="/css/plugins/iCheck/custom.css" rel="stylesheet">
+    <link href="/css/plugins/colorpicker/bootstrap-colorpicker.min.css" rel="stylesheet">
+    {{ parent() }}
+{% endblock %}
+{% block main_title %} Clone: {{group.name}} {% endblock %}
+{% block breadcrumb %}
+<ol class="breadcrumb">
+    <li>
+        <a href="{{ path('nononsense_home_homepage')}}">Home</a>
+    </li>
+    <li>
+        <a href="{{ path('nononsense_groups_homepage')}}">Groups</a>
+    </li>
+    <li class="active">
+        <strong>Clone Group</strong>
+    </li>
+</ol>
+{% endblock %}
+{% block content %}
+    
+    <div class="alert alert-info" style="margin-top: 20px; margin-bottom: 0">
+        {{'You are about to clone the group'|trans}} <strong>{{group.name}}</strong>. {{'Please, do only so if you believe you may save some time by importing its <strong>members</strong> and <strong>administrators</strong> (that are listed at the <a href="#members" style="text-decoration: underline; font-weight: bold">bottom of this page</a>).'|trans|raw}}
+    </div>
+    
+    {% include 'NononsenseGroupBundle:Group:groupModule.html.twig' %}
+    
+    <div class="col-md-6" id="members">                
+        <div class="ibox">
+            <div class="ibox-title">
+                <h5>{{'Administrators'|trans}}</h5>
+                <div class="ibox-tools">
+                    <a class="collapse-link">
+                        <i class="fa fa-chevron-up"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="ibox-content" id="adminlist"> 
+                <div class="text-center" style="font-size: 22px">
+                    <i class="fa fa-spinner fa-spin"></i>
+                </div>    
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6"> 
+        <div class="ibox">
+            <div class="ibox-title">
+                <h5>{{'Members'|trans}}</h5>
+                <div class="ibox-tools">
+                    <a class="collapse-link">
+                        <i class="fa fa-chevron-up"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="ibox-content" id="memberlist">
+                <div class="text-center" style="font-size: 22px">
+                    <i class="fa fa-spinner fa-spin"></i>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="clearfix"> &nbsp;</div>
+{% endblock %}
+
+{% block scripts %}
+    {{ parent() }}
+    
+    <!-- SUMMERNOTE -->
+    <script src="/js/plugins/summernote/summernote.js"></script>
+    {% if app.request.locale != 'en' %}
+    <script src="/js/plugins/summernote/lang/summernote-{{app.request.locale}}.js"></script>    
+    {% endif %}
+    <!-- iCheck -->
+    <script src="/js/plugins/iCheck/icheck.min.js"></script>
+    <!-- ColorPicker -->
+    <script src="/js/plugins/colorpicker/bootstrap-colorpicker.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $('.i-checks').iCheck({
+                    checkboxClass: 'icheckbox_square-green',
+                    radioClass: 'iradio_square-green'
+                });
+
+            $('.color').colorpicker();
+
+            $('.summernote').html($('#groups_description').val());
+            $('.summernote').summernote({
+                lang: '{{app.request.locale}}',
+                height: 240,
+                onblur: function(e) {   
+                }
+            });
+            
+            $( "form" ).submit(function( event ) {
+                $('#groups_description').val($(".summernote").code());
+                return;
+              });
+             
+             ActivateMenu('create_group');
+            $('#side-menu').metisMenu();
+            
+            $('#adminlist').load('{{ path('nononsense_group_users', {"id" : group.id, "type": "admin" })}}', function(){
+                $('.remove_admin').remove();
+            });
+            
+            $('#memberlist').load('{{ path('nononsense_group_users', {"id" : group.id, "type": "member" })}}', function(){
+                $('.remove_member').remove();
+            });
+       });
+    </script>
+{% endblock %}
+
+

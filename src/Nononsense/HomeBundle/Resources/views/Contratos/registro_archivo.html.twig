@@ -1,0 +1,457 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}DOCXPRESSO | {{'Homepage'|trans}} {% endblock %}
+{% block head %}
+{{ parent() }}
+<style>
+    #loadingChart {
+        display: none
+    }
+
+    .doc-box-filters {
+        display: none
+    }
+
+    table.datos-proveedor {
+        width: 100%;
+        float: left;
+        margin: 15px 0;
+        border-bottom: 1px solid #ccc;
+    }
+
+    table.datos-proveedor thead td {
+        font-weight: bold;
+        font-size: 14px;
+    }
+
+    table.datos-proveedor thead tr {
+        border-bottom: 1px solid #ccc;
+    }
+
+    tbody tr td {
+        padding: 3px 5px;
+        font-size: 14px;
+        font-weight: 400;
+        height: 34px;
+    }
+
+    tbody.datos-proveedor tr td.pdte {
+        color: #ae3d3d;
+    }
+
+    tbody.datos-proveedor tr td.pdte-ok {
+        color: #00cc00;
+    }
+
+    tbody.datos-proveedor tr td {
+        padding: 3px 5px;
+        font-size: 14px;
+        font-weight: 400;
+        height: 34px;
+    }
+
+    tbody tr td.pdte {
+        color: #ae3d3d;
+    }
+
+    tbody tr td.pdte-ok {
+        color: #00cc00;
+    }
+
+    a.btn-table {
+        background: #0fba40;
+        border-radius: 0;
+        color: #fff;
+        font-size: 12px;
+        width: 100%;
+        margin: 0;
+        border: 1px solid #0fba40;
+        padding: 5px 0;
+    }
+
+    a.btn-cancel {
+        background: red;
+        border: 1px solid red;
+    }
+
+    a.btn-table:hover {
+        background: #fff;
+        color: #0fba40;
+    }
+
+    a.btn-cancel:hover {
+        background: #fff;
+        color: red;
+    }
+
+    .row.wrapper-blocks {
+        margin-left: -5px;
+        margin-right: -5px;
+        margin-top: 25px;
+        margin-bottom: 25px;
+    }
+
+    .block-wrapper {
+        padding: 0 5px;
+        min-width: 170px;
+    }
+
+    .block-content {
+        background: #f3f3f3;
+        padding: 10px 0;
+        margin-bottom: 10px;
+        border: 2px solid #adb5bc;
+        height: 20px;
+        display: table;
+        width: 100%;
+    }
+
+    .wrapper-blocks-home .block-content {
+        background: #f3f3f3;
+        padding: 15px;
+        margin-bottom: 10px;
+        border: 2px solid #adb5bc;
+        height: 30px;
+        display: table;
+        width: 100%;
+    }
+
+    h3.title-block {
+        font-size: 24px;
+        color: #4c91d2;
+        max-width: 200px;
+        font-weight: normal;
+        margin-top: 0;
+    }
+
+    h3.title-block + a img {
+        width: 75px;
+        height: 75px;
+        margin: auto;
+        display: table;
+        bottom: 40px;
+        left: 40%;
+    }
+
+    tbody.datos-proveedor tr td.complet {
+        color: #009900;
+    }
+
+    /*
+     * Style Cesar
+     */
+    .row.buscador {
+        margin: 25px 0;
+    }
+
+    select,
+    input[type="text"],
+    input[type="email"],
+    input[type="number"],
+    input[type="search"] {
+        width: 100%;
+        border: 1px solid #3c89ce;
+        padding: 5px 7px;
+        font-size: 14px;
+        margin-bottom: 15px;
+    }
+
+    select {
+        padding: 4px 7px;
+    }
+
+    .disabled-box {
+        background: #9f9f9f;
+        padding: 15px;
+        margin-bottom: 10px;
+        border: 2px solid #adb5bc;
+        height: 210px;
+        display: table;
+        width: 100%;
+    }
+
+    .doc-box-filters {
+        display: none
+    }
+
+    table.datos-proveedor {
+        width: 100%;
+        float: left;
+        margin: 15px 0;
+        border-bottom: 1px solid #ccc;
+    }
+
+    table.datos-proveedor thead td {
+        font-weight: bold;
+        font-size: 14px;
+    }
+
+    table.datos-proveedor thead tr {
+        border-bottom: 1px solid #ccc;
+    }
+
+    tbody.datos-proveedor tr td {
+        padding: 3px 5px;
+        font-size: 14px;
+        font-weight: 400;
+        height: 34px;
+    }
+
+    tbody.datos-proveedor tr td.pdte {
+        color: #ae3d3d;
+    }
+
+    tbody.datos-proveedor tr td.pdte-ok {
+        color: #00cc00;
+    }
+
+    tbody.datos-proveedor tr td.complet {
+        color: #009900;
+    }
+
+</style>
+{% endblock %}
+{% block main_title %} {{'Proceso'|trans}}{% endblock %}
+{% block content %}
+
+
+<div class="wrapper wrapper-content">
+    {% for flashMessage in app.session.flashbag.get('error') %}
+    <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+        <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+        {{ flashMessage }}
+    </div>
+    {% endfor %}
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="row wrapper-blocks wrapper-blocks-home">
+                <div class="col-sm-3 block-wrapper">
+                    <div class="block-content" style="text-align: -webkit-center;">
+                        <h3 class="title-block"><a class="iframe" href="{{path('nononsense_nuevo_contrato')}}">{{'Nuevo
+                            registro'|trans}}</a></h3>
+                        <a class="iframe" href="{{path('nononsense_nuevo_contrato')}}"><img
+                                src="/img/icono-edit.png"/></a>
+                        <a class="btn btn-primary" href="{{path('nononsense_nuevo_contrato')}}">{{'Empezar'|trans}}</a>
+                    </div>
+                </div>
+                <div class="col-sm-3 block-wrapper">
+                    <div class="block-content" style="text-align: -webkit-center;">
+                        <h3 class="title-block"><a href="{{path('nononsense_registro_enproceso')}}">{{'En
+                            proceso'|trans}}</a></h3>
+                        <a href="{{path('nononsense_registro_enproceso')}}"><img src="/img/icono-archivo.png"/></a>
+                        <a class="btn btn-primary" href="{{path('nononsense_registro_enproceso')}}">{{'Continuar'|trans}}</a>
+                    </div>
+                </div>
+                <div class="col-sm-3 block-wrapper" style="text-align: -webkit-center;">
+                    <div class="block-content">
+                        <h3 class="title-block"><a
+                                href="{{path('nononsense_registro_archivo')}}">{{'Archivo'|trans}}</a></h3>
+                        <a href="{{path('nononsense_registro_archivo')}}"><img src="/img/icono-archivo.png"/></a>
+                        <a class="btn btn-primary" href="{{path('nononsense_registro_archivo')}}">{{'Ver
+                            archivo'|trans}}</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <h3>Filtro</h3>
+
+            <form id="archivo" action="#">
+                <div class="row">
+                    <div class="col-sm-1">
+                        <label for="nPlantilla">ID Plantilla</label>
+                        <input type="text" name="nPlantilla" id="nPlantilla">
+                    </div>
+                    <div class="col-sm-1">
+                        <label for="nRegistro">ID registro</label>
+                        <input type="text" name="nRegistro" id="nRegistro">
+                    </div>
+                    <div class="col-sm-3">
+                        <label for="nombrePlantilla">Nombre de la plantilla</label>
+                        <input type="text" name="nombrePlantilla" id="nombrePlantilla">
+                    </div>
+                    <div class="col-sm-3">
+                        <label for="usuario">Usuario</label>
+                        <input type="text" name="usuario" id="usuario">
+                    </div>
+                    <div class="col-sm-2">
+                        <label for="fechaInicio">Fecha Inicio</label>
+                        <input type="text" name="fechaInicio" id="fechaInicio" placeholder="formato: 2018-04-09">
+                    </div>
+                    <div class="col-sm-2">
+                        <label for="fechaFin">Fecha Fin</label>
+                        <input type="text" name="fechaFin" id="fechaFin" placeholder="formato: 2018-04-09">
+                    </div>
+                    <div class="col-sm-3">
+                        <label for="lote">Lote</label>
+                        <input type="text" name="lote" id="lote">
+                    </div>
+                    <div class="col-sm-3">
+                        <label for="material">Material</label>
+                        <input type="text" name="material" id="material">
+                    </div>
+                    <div class="col-sm-3">
+                        <label for="SAP">Work order SAP</label>
+                        <input type="text" name="SAP" id="SAP">
+                    </div>
+                    <div class="col-sm-3">
+                        <label for="equipo">Número de equipo</label>
+                        <input type="text" name="equipo" id="equipo">
+                    </div>
+                    <div class="col-sm-3">
+                        <label for="estado">Estado</label>
+                        <select id="estado" name="estado">
+                            <option value="0">Todos</option>
+                            <option value="3">Verificado</option>
+                            <option value="2">Cancelado en verificacion</option>
+                            <option value="5">Cancelado en edición</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-3">
+                        <input type="submit" name="submit" id="submit" value="Filtrar" class="btn btn-primary">
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <div>
+                <h2>Mis Registros aprobados</h2>
+                {% if documents|length > 0 %}
+                <table id="datos" class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>SubCategoria</th>
+                        <th>Nombre de la plantilla</th>
+                        <th>Descripcion</th>
+                        <th>Iniciador Por:</th>
+                        <th>Lote</th>
+                        <th>Material</th>
+                        <th>Fecha inicio</th>
+                        <th>Fecha validado</th>
+                        <th>Estado</th>
+                        <th>Acción</th>
+                    </tr>
+                    </thead>
+                    {% for plantilla in documents %}
+                    <tr>
+                        <td>{{plantilla.id}}</td>
+                        <td>{{plantilla.companyName}}</td>
+                        <td>{{plantilla.name}}</td>
+                        <td>{{plantilla.description}}</td>
+                        <td>{{plantilla.namecreated}}</td>
+                        <td>{{plantilla.lote}}</td>
+                        <td>{{plantilla.material}}</td>
+                        <td>{{plantilla.fechainicio}}</td>
+                        <td>{{plantilla.fechavalidado}}</td>
+                        {% if plantilla.status == 0 %}
+                        <td>Iniciado</td>
+                        {% elseif plantilla.status == 1 %}
+                        <td>Pendiente de validar</td>
+                        {% elseif plantilla.status == 2 %}
+                        <td class="pdte">Cancelado por validador</td>
+                        {% elseif plantilla.status == 3 %}
+                        <td>Validado</td>
+                        {% elseif plantilla.status == 5 %}
+                        <td class="pdte">Cancelador por editor</td>
+                        {% elseif plantilla.status == 7 %}
+                        <td class="pdte">Cancelación rechazada por FLL</td>
+                        {% endif %}
+                        <td><a class="btn btn-xs btn-primary" name="verRegistro"
+                               href="{{path('nononsense_archivo_ver', {'registroid': plantilla.id})}}" target="_blank">{{'Ver
+                            registro'|trans}}</a>
+                            <a class="btn btn-xs btn-primary" name="verRegistro"
+                               href="{{path('nononsense_archivo_ver_historico', {'registroid': plantilla.id})}}" target="_blank">{{'Ver
+                                histórico'|trans}}</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </table>
+                {% else %}
+                <p>No hay registros pendientes</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+{{ parent() }}
+<script>
+
+
+    $(document).ready(function () {
+        //$('#samples').load('http://localhost/CORS/index_{{locale}}.php');
+        toastr.options = {
+            "closeButton": true,
+            "debug": false,
+            "progressBar": true,
+            "positionClass": "toast-top-center",
+            "onclick": null,
+            "showDuration": "400",
+            "hideDuration": "1000",
+            "timeOut": "7000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        }
+
+        ActivateMenu('docxpresso_home');
+        $('#side-menu').metisMenu();
+
+
+        $('#searchButton').on('click', function () {
+            var texto = $('#searchinput').val();
+            var categoriaselected = $("#categoriasSelect option:selected").val();
+
+            /*
+             * if (texto.length < 3 && texto.length > 0 ) {
+                toastr.error('Por favor, el texto de búsqueda debe tener al menos 3 caracteres', 'Aviso');
+                return false;
+
+            } else if(categoriaselected == 0 && texto.length == 0){
+                toastr.error('Por favor, si no ha introducido filtro por nombre, seleccione una categoría', 'Aviso');
+                return false;
+            }else {
+
+            }
+             */
+            $(this).find('i').removeClass('fa-search').addClass('fa-spinner').addClass('fa-spin');
+            $('#buscarProveedor').submit();
+
+        });
+
+
+        $('#categoriasSelect').on('change', function () {
+            var categoriaselected = $("#categoriasSelect option:selected").val();
+            console.log("seleccionado la categoria: " + categoriaselected);
+
+
+            $('#subCategoriasSelect').empty();
+
+            $('#subCategoriasSelect').append('<option value="0">Todas</option>');
+
+            $('input[name="todascats"]').each(function () {
+                var idCat = $(this).attr("data-id");
+                var padreCat = $(this).attr("data-padre");
+                var nameCat = $(this).attr("data-name");
+
+                if (padreCat == categoriaselected) {
+                    $('#subCategoriasSelect').append('<option value="' + idCat + '">' + nameCat + '</option>');
+                }
+
+            });
+
+        });
+    });
+
+
+</script>
+{% endblock %}

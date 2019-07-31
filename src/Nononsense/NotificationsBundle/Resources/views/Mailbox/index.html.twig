@@ -1,0 +1,156 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}DOCXPRESSO | {{'Messages'|trans}} {% endblock %}
+{% block head %}
+    <link href="/css/plugins/summernote/summernote.css" rel="stylesheet">
+    <link href="/css/plugins/summernote/summernote-bs3.css" rel="stylesheet">
+    <link href="/css/plugins/iCheck/custom.css" rel="stylesheet">
+    <link href="/css/plugins/chosen/chosen.css" rel="stylesheet">
+    {{ parent() }}
+    <link href="/css/printMail.css" media="print" rel="stylesheet">
+{% endblock %}
+{% block main_title %} {{'Messages'|trans}} {% endblock %}
+{% block breadcrumb %}
+<ol class="breadcrumb">
+    <li>
+        <a href="{{ path('nononsense_home_homepage')}}">Home</a>
+    </li>
+    <li class="active">
+        <strong>{{'Messages'|trans}}</strong>
+    </li>
+</ol>
+{% endblock %}
+{% block content %}
+<div class="wrapper wrapper-content">
+    <div class="row">
+        
+        {% include 'NononsenseNotificationsBundle:Mailbox:moduleMenu.html.twig' %}
+        
+        <div class="col-lg-9">
+            <div id="loading">
+                <div class="text-center"><i class="fa fa-spinner fa-spin"> </i> Loading</div>
+            </div>
+            <div id="contentLoader"></div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+    {{ parent() }}
+    <!-- iCheck -->
+    <script src="/js/plugins/iCheck/icheck.min.js"></script>
+    <!-- SUMMERNOTE -->
+    <script src="/js/plugins/summernote/summernote.js"></script>
+    {% if app.request.locale != 'en' %}
+    <script src="/js/plugins/summernote/lang/summernote-{{app.request.locale}}.js"></script>    
+    {% endif %}
+    <!-- Chosen -->
+    <script src="/js/plugins/chosen/chosen.jquery.js"></script>
+    <script>
+        window.groupName = '';
+        window.marked = '';
+        function loader () {
+            $('#loading').show();
+            $('#contentLoader').css('opacity', '0.35');
+        }
+        function unloader () {
+            $('#loading').hide();
+            $('#contentLoader').css('opacity', '1');
+            $('#groupName').html(window.groupName)
+        }
+        function loadEvent (filter, page, query, groupId) {
+            loader();
+            addr = '{{ url('nononsense_notifications_inbox')}}' + '/' + page + '/' + query + '/' + groupId + '/' + filter;
+            $('#contentLoader').load( addr , function(){unloader()});
+        }
+        function markAs (type) {
+            window.marked = '';
+            $('.i-checks').each(function(){
+                if ($(this).is(":checked")){
+                    window.marked += $(this).val() + '-';
+                }
+            });
+        }
+        function updateUnread(unread){
+            if (unread == 0){
+                $('#unreadInbox').hide();
+                $('#unreadTop').hide();
+            } else {
+                $('#unreadInbox').show();
+                $('#unreadTop').show();
+                $('#unreadInbox').html(unread);
+                $('#unreadTop').html(unread);
+            }
+        }
+        function markAsRead (page, query, groupId, filter) {
+            markAs('read');
+            loader();
+            addr = '{{ url('nononsense_notifications_markasread')}}' + '/' + page + '/' + query + '/' + groupId + '/' + filter + '/' + window.marked;
+            $('#contentLoader').load( addr , function(){unloader()});
+        }
+        function messageAsTrash (id) {
+            loader();
+            addr = '{{ url('nononsense_notifications_markastrash')}}' + '/' + id;
+            $('#contentLoader').load( addr , function(){unloader()});
+        }
+        function messageToInbox (id) {
+            loader();
+            addr = '{{ url('nononsense_notifications_markasuntrash')}}' + '/' + id;
+            $('#contentLoader').load( addr , function(){unloader()});
+        }
+        function markAsTrash () {
+            markAs('trash');
+            loader();
+            addr = '{{ url('nononsense_notifications_markastrash')}}' + '/' + window.marked;
+            $('#contentLoader').load( addr , function(){unloader()});
+        }
+        function markAsUntrash () {
+            markAs('untrash');
+            loader();
+            addr = '{{ url('nononsense_notifications_markasuntrash')}}' + '/' + window.marked;
+            $('#contentLoader').load( addr , function(){unloader()});
+        }
+
+        $(document).ready(function(){
+            
+            {% if filter == 'compose' %}
+                loader();
+                $('#contentLoader').load('{{ url('nononsense_notifications_compose')}}', function(){unloader()});
+            {% else %}
+                loadEvent ('{{filter}}', {{page}}, '{{query}}', {{groupId}});
+            {% endif %}
+                
+            ActivateMenu('browse_messages');
+            $('#side-menu').metisMenu();
+            
+            $('#composeRequest').click (function(event){
+                event.preventDefault();
+                loader();
+                $('#contentLoader').load('{{ url('nononsense_notifications_compose')}}', function(){unloader()});
+            });
+            
+            $('#inboxRequest').click (function(event){
+                event.preventDefault();
+                loader();
+                $('#contentLoader').load('{{ url('nononsense_notifications_inbox', {"filter": "inbox" })}}', function(){unloader()});
+            });
+            $('#sentRequest').click (function(event){
+                event.preventDefault();
+                loader();
+                $('#contentLoader').load('{{ url('nononsense_notifications_inbox', {"filter": "sent" })}}', function(){unloader()});
+            });
+            $('#trashRequest').click (function(event){
+                event.preventDefault();
+                loader();
+                $('#contentLoader').load('{{ url('nononsense_notifications_inbox', {"filter": "trash" })}}', function(){unloader()});
+            });
+            $('.groupFilter').click (function(event){
+                event.preventDefault();
+                window.groupName = $(this).data('name');
+                loader();
+                loadEvent('inbox', 1 , 'q', $(this).data('groupid'));
+            });
+
+       });
+    </script>
+{% endblock %}

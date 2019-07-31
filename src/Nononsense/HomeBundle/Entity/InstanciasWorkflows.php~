@@ -1,0 +1,916 @@
+<?php
+/**
+ * Created by IntelliJ IDEA.
+ * User: gushe
+ * Date: 03/04/2018
+ * Time: 13:45
+ */
+
+namespace Nononsense\HomeBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+
+/**
+ * @ORM\Entity
+ * @ORM\Table(name="instanciasworkflows")
+ * @ORM\Entity(repositoryClass="Nononsense\HomeBundle\Entity\InstanciasWorkflowsRepository")
+ * @ORM\HasLifecycleCallbacks
+ */
+class InstanciasWorkflows
+{
+    /**
+     * @ORM\Column(type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    protected $id;
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="master_workflow", type="integer")
+     */
+    protected $master_workflow;
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="company_id", type="integer")
+     */
+    protected $company_id;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="description", type="string", length=90)
+     */
+    protected $description;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="masterdatavalues", type="text")
+     *
+     */
+    protected $masterDataValues;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="files", type="text")
+     *
+     */
+    protected $files;
+
+    /**
+     * @ORM\Column(type="date")
+     */
+    protected $created;
+
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    protected $modified;
+
+    /**
+     * @var boolean $isActive
+     *
+     * @ORM\Column(name="is_active", type="boolean",  nullable=true, options={"default" = false})
+     */
+
+    protected $isActive;
+
+    /**
+     * @var boolean $isActive
+     *
+     * @ORM\Column(name="needtesoreriavalidation", type="boolean", options={"default" = false})
+     */
+
+    protected $needTesoreriaValidation;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="signvalues", type="text",options={"default" = ""})
+     *
+     */
+    protected $signvalues;
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="status", type="integer", options={"default" = 0})
+     *
+     */
+    /*
+     * 0 -> process
+     * 1 -> In validation N+1
+     * 2 -> rejected
+     * 3 -> pending signing
+     * 4 -> send to Sign
+     * 5 -> In validation N+2
+     * 6 -> validation logistica
+     * 7 -> validation tesoreria
+     * 9 -> signed
+     * 10- > erased
+     *
+     */
+    protected $status;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\Companies", inversedBy="InstanciasdeWorkflows")
+     * @ORM\JoinColumn(name="company_id", referencedColumnName="id")
+     */
+    protected $company;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\MasterWorkflows", inversedBy="Instancias")
+     * @ORM\JoinColumn(name="master_workflow", referencedColumnName="id")
+     */
+    protected $Master_Workflow_Entity;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\InstanciasSteps", mappedBy="instancia_workflow")
+     */
+    protected $Steps;
+
+    /**
+     * @var integer
+     * @ORM\Column(name="usercreatedid", type="integer", options={"default" = 3})
+     */
+    protected $usercreatedid;
+
+    /**
+     * @var integer
+     * @ORM\Column(name="usern1validateddid", type="integer", options={"default" = 3})
+     */
+    protected $usern1validateddid;
+
+    /**
+     * @var integer
+     * @ORM\Column(name="usern2validateddid", type="integer", options={"default" = 0})
+     */
+    protected $usern2validateddid;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="InstanciasWorkflowCreated")
+     * @ORM\JoinColumn(name="usercreatedid", referencedColumnName="id")
+     */
+    protected $userCreatedEntiy;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="InstanciasWorkflowColaboratedLogistica")
+     * @ORM\JoinColumn(name="userlogisticacolaborateddid", referencedColumnName="id")
+     */
+    protected $userLogisticaColaboratedEntiy;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="InstanciasWorkflowValidatedLogistica")
+     * @ORM\JoinColumn(name="userlogisticavalidateddid", referencedColumnName="id")
+     */
+    protected $userLogisticaValidatedEntiy;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="InstanciasWorkflowValidatedTesoreria")
+     * @ORM\JoinColumn(name="usertesoreria1validateddid", referencedColumnName="id")
+     */
+    protected $userTesoreriaValidatedEntiy;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="InstanciasWorkflowValidatedN1")
+     * @ORM\JoinColumn(name="usern1validateddid", referencedColumnName="id")
+     */
+    protected $usern1ValidatedEntiy;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="InstanciasWorkflowValidatedN2")
+     * @ORM\JoinColumn(name="usern2validateddid", referencedColumnName="id")
+     */
+    protected $usern2ValidatedEntiy;
+
+    /**
+     * @ORM\ManyToMany(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="instanciasworkflowscolaborated")
+     */
+    protected $usersColaborated;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\RevisionInstanciaWorkflow", mappedBy="instanciaWorkflowEntity")
+     */
+    protected $Revisions;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\BizLayerEntity", mappedBy="instanciaWorkflowEntity")
+     */
+    protected $signing;
+    /**
+     * InstanciasWorkflows constructor.
+     */
+
+    public function __construct()
+    {
+
+    }
+
+    /**
+     * @ORM\PrePersist
+     */
+    public function setCreatedValue()
+    {
+        if (!$this->created) {
+            $this->created = new \DateTime();
+        }
+        $this->modified = $this->created;
+    }
+
+    /**
+     * @ORM\PreUpdate
+     */
+    public function setModifiedValue()
+    {
+        $this->modified = new \DateTime();
+    }
+
+    /**
+     * Get id
+     *
+     * @return integer
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * Set master_workflow
+     *
+     * @param integer $masterWorkflow
+     * @return Instancias_Workflows
+     */
+    public function setMasterWorkflow($masterWorkflow)
+    {
+        $this->master_workflow = $masterWorkflow;
+
+        return $this;
+    }
+
+    /**
+     * Get master_workflow
+     *
+     * @return integer
+     */
+    public function getMasterWorkflow()
+    {
+        return $this->master_workflow;
+    }
+
+    /**
+     * Set company_id
+     *
+     * @param integer $companyId
+     * @return Instancias_Workflows
+     */
+    public function setCompanyId($companyId)
+    {
+        $this->company_id = $companyId;
+
+        return $this;
+    }
+
+    /**
+     * Get company_id
+     *
+     * @return integer
+     */
+    public function getCompanyId()
+    {
+        return $this->company_id;
+    }
+
+    /**
+     * Set description
+     *
+     * @param string $description
+     * @return Instancias_Workflows
+     */
+    public function setDescription($description)
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    /**
+     * Get description
+     *
+     * @return string
+     */
+    public function getDescription()
+    {
+        return $this->description;
+    }
+
+    /**
+     * Set created
+     *
+     * @param \DateTime $created
+     * @return Instancias_Workflows
+     */
+    public function setCreated($created)
+    {
+        $this->created = $created;
+
+        return $this;
+    }
+
+    /**
+     * Get created
+     *
+     * @return \DateTime
+     */
+    public function getCreated()
+    {
+        return $this->created;
+    }
+
+    /**
+     * Set modified
+     *
+     * @param \DateTime $modified
+     * @return Instancias_Workflows
+     */
+    public function setModified($modified)
+    {
+        $this->modified = $modified;
+
+        return $this;
+    }
+
+    /**
+     * Get modified
+     *
+     * @return \DateTime
+     */
+    public function getModified()
+    {
+        return $this->modified;
+    }
+
+    /**
+     * Set isActive
+     *
+     * @param boolean $isActive
+     * @return Instancias_Workflows
+     */
+    public function setIsActive($isActive)
+    {
+        $this->isActive = $isActive;
+
+        return $this;
+    }
+
+    /**
+     * Get isActive
+     *
+     * @return boolean
+     */
+    public function getIsActive()
+    {
+        return $this->isActive;
+    }
+
+    /**
+     * Set company
+     *
+     * @param \Nononsense\HomeBundle\Entity\Companies $company
+     * @return InstanciasWorkflows
+     */
+    public function setCompany(\Nononsense\HomeBundle\Entity\Companies $company = null)
+    {
+        $this->company = $company;
+
+        return $this;
+    }
+
+    /**
+     * Get company
+     *
+     * @return \Nononsense\HomeBundle\Entity\Companies
+     */
+    public function getCompany()
+    {
+        return $this->company;
+    }
+
+    /**
+     * Add InstanciasSteps
+     *
+     * @param \Nononsense\HomeBundle\Entity\InstanciasSteps $instanciasSteps
+     * @return InstanciasWorkflows
+     */
+    public function addInstanciasStep(\Nononsense\HomeBundle\Entity\InstanciasSteps $instanciasSteps)
+    {
+        $this->InstanciasSteps[] = $instanciasSteps;
+
+        return $this;
+    }
+
+    /**
+     * Remove InstanciasSteps
+     *
+     * @param \Nononsense\HomeBundle\Entity\InstanciasSteps $instanciasSteps
+     */
+    public function removeInstanciasStep(\Nononsense\HomeBundle\Entity\InstanciasSteps $instanciasSteps)
+    {
+        $this->InstanciasSteps->removeElement($instanciasSteps);
+    }
+
+    /**
+     * Get InstanciasSteps
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getInstanciasSteps()
+    {
+        return $this->InstanciasSteps;
+    }
+
+    /**
+     * Set Master_Workflow_Entity
+     *
+     * @param \Nononsense\HomeBundle\Entity\MasterWorkflows $masterWorkflowEntity
+     * @return InstanciasWorkflows
+     */
+    public function setMasterWorkflowEntity(\Nononsense\HomeBundle\Entity\MasterWorkflows $masterWorkflowEntity = null)
+    {
+        $this->Master_Workflow_Entity = $masterWorkflowEntity;
+
+        return $this;
+    }
+
+    /**
+     * Get Master_Workflow_Entity
+     *
+     * @return \Nononsense\HomeBundle\Entity\MasterWorkflows
+     */
+    public function getMasterWorkflowEntity()
+    {
+        return $this->Master_Workflow_Entity;
+    }
+
+    /**
+     * Set masterDataValues
+     *
+     * @param string $masterDataValues
+     * @return InstanciasWorkflows
+     */
+    public function setMasterDataValues($masterDataValues)
+    {
+        $this->masterDataValues = $masterDataValues;
+
+        return $this;
+    }
+
+    /**
+     * Get masterDataValues
+     *
+     * @return string
+     */
+    public function getMasterDataValues()
+    {
+        return $this->masterDataValues;
+    }
+
+    /**
+     * Set status
+     *
+     * @param integer $status
+     * @return InstanciasWorkflows
+     */
+    public function setStatus($status)
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    /**
+     * Get status
+     *
+     * @return integer
+     */
+    public function getStatus()
+    {
+        return $this->status;
+    }
+
+    /**
+     * Set usercreatedid
+     *
+     * @param integer $usercreatedid
+     * @return InstanciasWorkflows
+     */
+    public function setUsercreatedid($usercreatedid)
+    {
+        $this->usercreatedid = $usercreatedid;
+
+        return $this;
+    }
+
+    /**
+     * Get usercreatedid
+     *
+     * @return integer
+     */
+    public function getUsercreatedid()
+    {
+        return $this->usercreatedid;
+    }
+
+    /**
+     * Set userCreatedEntiy
+     *
+     * @param \Nononsense\UserBundle\Entity\Users $userCreatedEntiy
+     * @return InstanciasWorkflows
+     */
+    public function setUserCreatedEntiy(\Nononsense\UserBundle\Entity\Users $userCreatedEntiy = null)
+    {
+        $this->userCreatedEntiy = $userCreatedEntiy;
+
+        return $this;
+    }
+
+    /**
+     * Get userCreatedEntiy
+     *
+     * @return \Nononsense\UserBundle\Entity\Users
+     */
+    public function getUserCreatedEntiy()
+    {
+        return $this->userCreatedEntiy;
+    }
+
+    /**
+     * Add usersColaborated
+     *
+     * @param \Nononsense\UserBundle\Entity\Users $usersColaborated
+     * @return InstanciasWorkflows
+     */
+    public function addUsersColaborated(\Nononsense\UserBundle\Entity\Users $usersColaborated)
+    {
+        $this->usersColaborated[] = $usersColaborated;
+
+        return $this;
+    }
+
+    /**
+     * Remove usersColaborated
+     *
+     * @param \Nononsense\UserBundle\Entity\Users $usersColaborated
+     */
+    public function removeUsersColaborated(\Nononsense\UserBundle\Entity\Users $usersColaborated)
+    {
+        $this->usersColaborated->removeElement($usersColaborated);
+    }
+
+    /**
+     * Get usersColaborated
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getUsersColaborated()
+    {
+        return $this->usersColaborated;
+    }
+
+    /**
+     * Set signvalues
+     *
+     * @param string $signvalues
+     * @return InstanciasWorkflows
+     */
+    public function setSignvalues($signvalues)
+    {
+        $this->signvalues = $signvalues;
+
+        return $this;
+    }
+
+    /**
+     * Get signvalues
+     *
+     * @return string 
+     */
+    public function getSignvalues()
+    {
+        return $this->signvalues;
+    }
+
+    /**
+     * Set usern1validateddid
+     *
+     * @param integer $usern1validateddid
+     * @return InstanciasWorkflows
+     */
+    public function setUsern1validateddid($usern1validateddid)
+    {
+        $this->usern1validateddid = $usern1validateddid;
+
+        return $this;
+    }
+
+    /**
+     * Get usern1validateddid
+     *
+     * @return integer 
+     */
+    public function getUsern1validateddid()
+    {
+        return $this->usern1validateddid;
+    }
+
+    /**
+     * Set usern2validateddid
+     *
+     * @param integer $usern2validateddid
+     * @return InstanciasWorkflows
+     */
+    public function setUsern2validateddid($usern2validateddid)
+    {
+        $this->usern2validateddid = $usern2validateddid;
+
+        return $this;
+    }
+
+    /**
+     * Get usern2validateddid
+     *
+     * @return integer 
+     */
+    public function getUsern2validateddid()
+    {
+        return $this->usern2validateddid;
+    }
+
+    /**
+     * Set usern1ValidatedEntiy
+     *
+     * @param \Nononsense\UserBundle\Entity\Users $usern1ValidatedEntiy
+     * @return InstanciasWorkflows
+     */
+    public function setUsern1ValidatedEntiy(\Nononsense\UserBundle\Entity\Users $usern1ValidatedEntiy = null)
+    {
+        $this->usern1ValidatedEntiy = $usern1ValidatedEntiy;
+
+        return $this;
+    }
+
+    /**
+     * Get usern1ValidatedEntiy
+     *
+     * @return \Nononsense\UserBundle\Entity\Users 
+     */
+    public function getUsern1ValidatedEntiy()
+    {
+        return $this->usern1ValidatedEntiy;
+    }
+
+    /**
+     * Set usern2ValidatedEntiy
+     *
+     * @param \Nononsense\UserBundle\Entity\Users $usern2ValidatedEntiy
+     * @return InstanciasWorkflows
+     */
+    public function setUsern2ValidatedEntiy(\Nononsense\UserBundle\Entity\Users $usern2ValidatedEntiy = null)
+    {
+        $this->usern2ValidatedEntiy = $usern2ValidatedEntiy;
+
+        return $this;
+    }
+
+    /**
+     * Get usern2ValidatedEntiy
+     *
+     * @return \Nononsense\UserBundle\Entity\Users 
+     */
+    public function getUsern2ValidatedEntiy()
+    {
+        return $this->usern2ValidatedEntiy;
+    }
+
+    /**
+     * Add Steps
+     *
+     * @param \Nononsense\HomeBundle\Entity\InstanciasSteps $steps
+     * @return InstanciasWorkflows
+     */
+    public function addStep(\Nononsense\HomeBundle\Entity\InstanciasSteps $steps)
+    {
+        $this->Steps[] = $steps;
+
+        return $this;
+    }
+
+    /**
+     * Remove Steps
+     *
+     * @param \Nononsense\HomeBundle\Entity\InstanciasSteps $steps
+     */
+    public function removeStep(\Nononsense\HomeBundle\Entity\InstanciasSteps $steps)
+    {
+        $this->Steps->removeElement($steps);
+    }
+
+    /**
+     * Get Steps
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getSteps()
+    {
+        return $this->Steps;
+    }
+
+    /**
+     * Add Revisions
+     *
+     * @param \Nononsense\HomeBundle\Entity\RevisionInstanciaWorkflow $revisions
+     * @return InstanciasWorkflows
+     */
+    public function addRevision(\Nononsense\HomeBundle\Entity\RevisionInstanciaWorkflow $revisions)
+    {
+        $this->Revisions[] = $revisions;
+
+        return $this;
+    }
+
+    /**
+     * Remove Revisions
+     *
+     * @param \Nononsense\HomeBundle\Entity\RevisionInstanciaWorkflow $revisions
+     */
+    public function removeRevision(\Nononsense\HomeBundle\Entity\RevisionInstanciaWorkflow $revisions)
+    {
+        $this->Revisions->removeElement($revisions);
+    }
+
+    /**
+     * Get Revisions
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getRevisions()
+    {
+        return $this->Revisions;
+    }
+
+    /**
+     * Set files
+     *
+     * @param string $files
+     * @return InstanciasWorkflows
+     */
+    public function setFiles($files)
+    {
+        $this->files = $files;
+
+        return $this;
+    }
+
+    /**
+     * Get files
+     *
+     * @return string 
+     */
+    public function getFiles()
+    {
+        return $this->files;
+    }
+
+    /**
+     * Add signing
+     *
+     * @param \Nononsense\HomeBundle\Entity\BizLayerEntity $signing
+     * @return InstanciasWorkflows
+     */
+    public function addSigning(\Nononsense\HomeBundle\Entity\BizLayerEntity $signing)
+    {
+        $this->signing[] = $signing;
+
+        return $this;
+    }
+
+    /**
+     * Remove signing
+     *
+     * @param \Nononsense\HomeBundle\Entity\BizLayerEntity $signing
+     */
+    public function removeSigning(\Nononsense\HomeBundle\Entity\BizLayerEntity $signing)
+    {
+        $this->signing->removeElement($signing);
+    }
+
+    /**
+     * Get signing
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getSigning()
+    {
+        return $this->signing;
+    }
+
+    /**
+     * Set userTesoreriaValidatedEntiy
+     *
+     * @param \Nononsense\UserBundle\Entity\Users $userTesoreriaValidatedEntiy
+     * @return InstanciasWorkflows
+     */
+    public function setUserTesoreriaValidatedEntiy(\Nononsense\UserBundle\Entity\Users $userTesoreriaValidatedEntiy = null)
+    {
+        $this->userTesoreriaValidatedEntiy = $userTesoreriaValidatedEntiy;
+
+        return $this;
+    }
+
+    /**
+     * Get userTesoreriaValidatedEntiy
+     *
+     * @return \Nononsense\UserBundle\Entity\Users 
+     */
+    public function getUserTesoreriaValidatedEntiy()
+    {
+        return $this->userTesoreriaValidatedEntiy;
+    }
+
+    /**
+     * Set userLogisticaValidatedEntiy
+     *
+     * @param \Nononsense\UserBundle\Entity\Users $userLogisticaValidatedEntiy
+     * @return InstanciasWorkflows
+     */
+    public function setUserLogisticaValidatedEntiy(\Nononsense\UserBundle\Entity\Users $userLogisticaValidatedEntiy = null)
+    {
+        $this->userLogisticaValidatedEntiy = $userLogisticaValidatedEntiy;
+
+        return $this;
+    }
+
+    /**
+     * Get userLogisticaValidatedEntiy
+     *
+     * @return \Nononsense\UserBundle\Entity\Users 
+     */
+    public function getUserLogisticaValidatedEntiy()
+    {
+        return $this->userLogisticaValidatedEntiy;
+    }
+
+    /**
+     * Set userLogisticaColaboratedEntiy
+     *
+     * @param \Nononsense\UserBundle\Entity\Users $userLogisticaColaboratedEntiy
+     * @return InstanciasWorkflows
+     */
+    public function setUserLogisticaColaboratedEntiy(\Nononsense\UserBundle\Entity\Users $userLogisticaColaboratedEntiy = null)
+    {
+        $this->userLogisticaColaboratedEntiy = $userLogisticaColaboratedEntiy;
+
+        return $this;
+    }
+
+    /**
+     * Get userLogisticaColaboratedEntiy
+     *
+     * @return \Nononsense\UserBundle\Entity\Users 
+     */
+    public function getUserLogisticaColaboratedEntiy()
+    {
+        return $this->userLogisticaColaboratedEntiy;
+    }
+
+    /**
+     * Set needTesoreriaValidation
+     *
+     * @param boolean $needTesoreriaValidation
+     * @return InstanciasWorkflows
+     */
+    public function setNeedTesoreriaValidation($needTesoreriaValidation)
+    {
+        $this->needTesoreriaValidation = $needTesoreriaValidation;
+
+        return $this;
+    }
+
+    /**
+     * Get needTesoreriaValidation
+     *
+     * @return boolean 
+     */
+    public function getNeedTesoreriaValidation()
+    {
+        return $this->needTesoreriaValidation;
+    }
+}

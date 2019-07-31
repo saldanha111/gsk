@@ -1,0 +1,54 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}DOCXPRESSO | {{'News'|trans}} | {{ news.title }} {% endblock %}
+
+{% block main_title %} {{ news.title }} {% endblock %}
+{% block breadcrumb %}
+<ol class="breadcrumb">
+    <li>
+        <a href="{{ path('nononsense_home_homepage')}}">{{'Home'|trans}}</a>
+    </li>
+    <li>
+        <a href="{{ path('nononsense_news_homepage')}}">{{'News'|trans}}</a>
+    </li>
+    <li class="active">
+        <strong>{{'News item'|trans}}</strong>
+    </li>
+</ol>
+{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="wrapper wrapper-content animated fadeInUp">
+            <div class="ibox">
+                <div class="ibox-content">
+                    {% if app.user and is_granted('ROLE_ADMIN') %}
+                        <a href="{{path('nononsense_news_delete', {'id': news.id}) }}" class="btn btn-danger btn-xs pull-right"><i class="fa fa-remove"></i> {{'Delete'|trans}}</a>
+                        
+                        <a href="{{path('nononsense_news_edit', {'id': news.id}) }}" class="btn btn-primary btn-xs pull-right" style="margin-right: 10px"><i class="fa fa-edit"></i> {{'Edit'|trans}}</a>
+                        
+                    {% endif %}
+                    <p><strong>{{'Created by'|trans}}:</strong> {{ user.name }}</p>
+                    <p class="text-success">[<i>{{ news.created|localizeddate('medium', 'none', app.request.locale) }}</i>]</p>
+                
+                    {{ news.body|raw }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
+{% block scripts %}
+    {{ parent() }}
+    <script>
+        $(document).ready(function(){
+            
+            ActivateMenu('browse_news');
+            $('#side-menu').metisMenu();
+
+       });
+    </script>
+{% endblock %}
+
+

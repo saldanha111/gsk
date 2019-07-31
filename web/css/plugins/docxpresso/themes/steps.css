@@ -1,0 +1,110 @@
+.note-editor .dropdown-menu {
+    position: absolute;
+    top: auto;
+    left: 0;
+    z-index: 1000;
+    display: none;
+    float: left;
+    min-width: 160px;
+    padding: 5px 0;
+    margin: 2px 0 0;
+    list-style: none;
+    font-size: 14px;
+    background-color: #ffffff;
+    border: 1px solid #cccccc;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+    -webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+    background-clip: padding-box;
+}
+
+/**************************/
+/**************************/
+
+@media (min-width: 769px) {
+    div#tabs {
+        position: relative;
+        padding-bottom: 100px;
+        display: block;
+        width: 100%;
+        max-width: 780px;
+        margin: auto;
+        min-height: 500px;
+    }
+
+    ul#docxpressoTabBar {
+        background: #f2f4f1;
+        width: auto!important;
+        border: 1px solid #c6c7c6;
+        max-width: 780px;
+        margin: auto!important;
+        border-radius: 50px;
+        display: table!important;
+        padding: 0 100px;
+        position: absolute;
+        bottom: 20px;
+        float: none;
+        z-index: 5;
+        left: 25%;
+        right: 50%;
+    }
+
+    ul#docxpressoTabBar li{
+            margin-bottom:0;
+    }
+
+    ul#docxpressoTabBar li a {
+        padding: 0;
+        font-size: 0;
+        width: 25px;
+        display: block;
+        height: 65px;
+        background: transparent url('http://snglr.es/docxpresso/legalistas-pres/tab-item.jpg') no-repeat center 6px!important;
+        border: 0;
+    }
+
+    ul#docxpressoTabBar li.active {
+        border: 0;
+        background: transparent;
+        width: auto;
+        display: block;
+        position: relative;
+    }
+
+    ul#docxpressoTabBar li.active a {
+        background: transparent url('http://snglr.es/docxpresso/legalistas-pres/tab-active.jpg') no-repeat center 8px!important;
+    }
+
+    .tabGeneralData {
+        background: #f2f4f1 url(http://snglr.es/docxpresso/legalistas-pres/paso.jpg) no-repeat 10px 10px;
+        padding: 20px 25px 20px 100px;
+        margin-bottom:35px;
+        min-height: 50px;
+        margin: 15px 0 35px;
+    }
+    .tabElements {
+        padding: 0 50px;
+    }
+
+    .tab-pane .tabGeneralData:before {
+        display: block;
+        width: auto;
+        position: absolute;
+        font-size: 30px;
+        color: #070707;
+        left: 34px;
+        top: 22px;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+

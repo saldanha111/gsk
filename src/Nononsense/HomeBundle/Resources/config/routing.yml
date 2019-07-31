@@ -1,0 +1,227 @@
+nononsense_homepage_lineChart:
+    path:     /lineChart/{aft}/{bef}
+    defaults: { _controller: NononsenseHomeBundle:Default:lineChart, aft: 0, bef: 0}
+    
+nononsense_home_homepage:
+    path:     /
+    defaults: { _controller: NononsenseHomeBundle:Default:index}
+
+nononsense_contrato_concreto_homepage:
+    path:     /contratos_concreto/{id}
+    defaults: { _controller: NononsenseHomeBundle:ContratoConcreto:index,id: 1}
+
+nononsense_nuevo_contrato_concreto_homepage:
+    path:     /contratos_concreto/{idmaster}/{cif}
+    defaults: { _controller: NononsenseHomeBundle:ContratoConcreto:create,idmaster: 1,cif: 0}
+
+nononsense_nuevo_contrato:
+    path:     /nuevoregistropasouno
+    defaults: { _controller: NononsenseHomeBundle:NuevoRegistro:pasouno}
+
+nononsense_nuevo_contrato_add_validadores:
+    path:     /nuevocontratovalidadores/{workflowid}
+    defaults: { _controller: NononsenseHomeBundle:NuevoRegistro:pasovalidadores, workflowid:0}
+
+nononsense_contrato_concreto_clone:
+    path:     /contratos_concreto/{id}/clone/{stepid}
+    defaults: { _controller: NononsenseHomeBundle:ContratoConcreto:clone,id: 1, stepid: 0}
+
+nononsense_contrato_concreto_delete:
+    path:     /contratos_concreto/{id}/delete/{stepid}
+    defaults: { _controller: NononsenseHomeBundle:ContratoConcreto:delete,id: 1, stepid: 0}
+
+nononsense_contrato_concreto_active:
+    path:     /contratos_concreto/{id}/active/{stepid}
+    defaults: { _controller: NononsenseHomeBundle:ContratoConcreto:active,id: 1, stepid: 0}
+
+nononsense_contrato_concreto_revision_contrato:
+    path:     /contratos_concreto/{workflowid}/revisionworkflow/
+    defaults: { _controller: NononsenseHomeBundle:ContratoConcreto:revisionWorkflow,workflowid: 1}
+
+nononsense_contrato_concreto_download:
+    path:     /contratos_concreto/{id}/downloadworkflow/{borrador}
+    defaults: { _controller: NononsenseHomeBundle:ContratoConcreto:download,id: 1,borrador:0}
+
+nononsense_nuevo_contrato_concreto_post:
+    path:     /nuevo_contrato/{idmaster}/{cif}/{year_selected}/{adco}
+    defaults: { _controller: NononsenseHomeBundle:ContratoConcreto:createPost,idmaster: 1,cif: 0,year_selected:0,adco:0}
+
+nononsense_contrato_concreto_download_interface:
+    path:     /contratos_concreto/{id}/downloadworkflowinterface/{borrador}
+    defaults: { _controller: NononsenseHomeBundle:ContratoConcreto:downloadInterface,id: 1,borrador:0}
+
+nononsense_contrato_concreto_remove:
+    path:     /contratos_concreto_remove/{idworkflow}
+    defaults: { _controller: NononsenseHomeBundle:ContratoConcreto:remove,idworkflow: 1}
+
+nononsense_contrato_concreto_duplicate:
+    path:     /contratos_concreto_duplicate/{idworkflow}
+    defaults: { _controller: NononsenseHomeBundle:ContratoConcreto:duplicate,idworkflow: 1}
+
+nononsense_add_logistica:
+    path:     /contratoaddvalidadlogistica/{workflowid}
+    defaults: { _controller: NononsenseHomeBundle:ContratoConcreto:pasologistica, workflowid:0}
+
+nononsense_test_email:
+    path:     /test_email
+    defaults: { _controller: NononsenseHomeBundle:Email:sendmail}
+
+nononsense_send_email:
+    path:     /send_email/{instanciaWorkflowid}/{userid}/{action}
+    defaults: { _controller: NononsenseHomeBundle:Email:sendEmailToCarrefour, instanciaWorkflowid: 0, userid: 0, action: 0}
+
+nononsense_contrato_concreto_link_test:
+    path: /testlink
+    defaults: { _controller: NononsenseHomeBundle:NuevoRegistro:testLink, templateid:0}
+
+nononsense_contrato_crear_registro:
+    path: /nuevoregistroconcreto/{templateid}
+    defaults: { _controller: NononsenseHomeBundle:NuevoRegistro:create, templateid:0}
+
+nononsense_contrato_registro_completado:
+    path: /registrocompletado/{stepid}
+    defaults: { _controller: NononsenseHomeBundle:RegistroConcreto:registroCompletado, stepid: 0}
+
+nononsense_contrato_control_elaboracion:
+    path: /control_elaboracion/{stepid}/{action}/{urlaux}
+    defaults: { _controller: NononsenseHomeBundle:RegistroConcreto:controlElaboracion, stepid: 0, action: 0,urlaux: 0}
+
+nononsense_contrato_control_validacion:
+    path: /control_validacion/{stepid}/{action}/{urlaux}
+    defaults: { _controller: NononsenseHomeBundle:RegistroConcreto:controlValidacion, stepid: 0, action: 0, urlaux: 0}
+
+nononsense_registro_concreto_link:
+    path:     /registro_link/{stepid}/{form}/{revisionid}
+    defaults: { _controller: NononsenseHomeBundle:RegistroConcreto:link, stepid: 0, form: 0, revisionid: 0 }
+
+nononsense_registro_concreto_guardar_enviar:
+    path:     /registro_save_send/{stepid}
+    defaults: { _controller: NononsenseHomeBundle:RegistroConcreto:saveAndSend, stepid: 0 }
+
+nononsense_registro_concreto_guardar:
+    path:     /registro_save/{stepid}
+    defaults: { _controller: NononsenseHomeBundle:RegistroConcreto:save, stepid: 0 }
+
+nononsense_registro_enproceso:
+    path:     /registro_process/{page}/{query}
+    defaults: { _controller: NononsenseHomeBundle:RegistroValidation:list, page: 1, query: q }
+
+nononsense_registro_validar:
+    path:     /registro_validar/{revisionid}
+    defaults: { _controller: NononsenseHomeBundle:RegistroValidation:validar, revisionid: 0 }
+
+nononsense_registro_devolver_interface:
+    path:     /registro_devolver_interface/{revisionid}
+    defaults: { _controller: NononsenseHomeBundle:RegistroValidation:devolverInterface, revisionid: 0 }
+
+nononsense_registro_devolucion:
+    path:     /registro_devolver/{revisionid}
+    defaults: { _controller: NononsenseHomeBundle:RegistroValidation:devolver, revisionid: 0 }
+
+nononsense_ver_registro:
+    path:     /registro_ver/{revisionid}
+    defaults: { _controller: NononsenseHomeBundle:RegistroValidation:ver, revisionid: 0 }
+
+nononsense_registro_cancelar_interface:
+    path:     /registro_cancelar_interface/{revisionid}
+    defaults: { _controller: NononsenseHomeBundle:RegistroValidation:cancelarRevisionInterface, revisionid: 0 }
+
+nononsense_registro_cancelado_validation:
+    path:     /registro_cancelar_validation/{revisionid}
+    defaults: { _controller: NononsenseHomeBundle:RegistroValidation:cancelarRevision, revisionid: 0 }
+
+nononsense_registro_archivo:
+    path:     /registro_archivo
+    defaults: { _controller: NononsenseHomeBundle:RegistroArchivo:list }
+
+nononsense_registro_validado:
+    path:     /registro_validado/{stepid}
+    defaults: { _controller: NononsenseHomeBundle:RegistroValidation:validarOk, stepid: 0 }
+
+nononsense_registro_completar:
+    path:    /registro_completar/{registroid}
+    defaults: { _controller: NononsenseHomeBundle:RegistroValidation:completar, registroid: 0 }
+
+nononsense_registro_cancelar:
+    path:     /registro_cancelar/{stepid}
+    defaults: { _controller: NononsenseHomeBundle:RegistroValidation:cancelarInterface, stepid: 0 }
+
+nononsense_registro_verificar:
+    path:     /registro_verificar_firma/{stepid}
+    defaults: { _controller: NononsenseHomeBundle:RegistroValidation:verificarInterface, stepid: 0 }
+
+nononsense_registro_cancelar_verficiacion:
+    path:     /registro_verificar_cancelar/{stepid}
+    defaults: { _controller: NononsenseHomeBundle:RegistroValidation:cancelarVerificarInterface, stepid: 0 }
+
+nononsense_registro_devolver_edicion:
+    path:     /registro_devolver_edicion/{stepid}
+    defaults: { _controller: NononsenseHomeBundle:RegistroValidation:devolverEdicionInterface, stepid: 0 }
+
+nononsense_registro_cancelado:
+    path:     /registro_cancelado/{stepid}
+    defaults: { _controller: NononsenseHomeBundle:RegistroValidation:cancelarStep, stepid: 0 }
+
+nononsense_registro_verificado:
+    path:     /registro_verificado/{stepid}
+    defaults: { _controller: NononsenseHomeBundle:RegistroValidation:verificarOkStep, stepid: 0 }
+
+nononsense_registro_cancelar_verificado:
+    path:     /registro_cancelar_verificado/{stepid}
+    defaults: { _controller: NononsenseHomeBundle:RegistroValidation:verificarKoStep, stepid: 0 }
+
+nononsense_registro_devolver_edicion_accion:
+    path:     /registro_devolver_edicion_accion/{stepid}
+    defaults: { _controller: NononsenseHomeBundle:RegistroValidation:verificarDevolverEdicion, stepid: 0 }
+
+nononsense_precreation_codigo_lote_interface:
+    path:     /precreation_codigolote/{registroid}
+    defaults: { _controller: NononsenseHomeBundle:NuevoRegistro:codigoLoteInterface, registroid: 0 }
+
+nononsense_precreation_equipo_qr_interface:
+    path:     /precreation_equipo_qr/{registroid}
+    defaults: { _controller: NononsenseHomeBundle:NuevoRegistro:equipoQRInterface, registroid: 0 }
+
+nononsense_precreation_equipo_pesa_qr_interface:
+    path:     /precreation_equipo_pesa_qr/{registroid}
+    defaults: { _controller: NononsenseHomeBundle:NuevoRegistro:equipoPesaQRInterface, registroid: 0 }
+
+nononsense_precreation_codigo_lote_save:
+    path:     /precreation_codigolote_save/{registroid}
+    defaults: { _controller: NononsenseHomeBundle:NuevoRegistro:codigoLoteSave, registroid: 0 }
+
+nononsense_precreation_equipo_qr_save:
+    path:     /precreation_equipoqr_save/{registroid}
+    defaults: { _controller: NononsenseHomeBundle:NuevoRegistro:equipoQRSave, registroid: 0 }
+
+nononsense_precreation_equipo_pesa_qr_save:
+    path:     /precreation_equipo_pesa_qr_save/{registroid}
+    defaults: { _controller: NononsenseHomeBundle:NuevoRegistro:equipoPesaQRSave, registroid: 0 }
+
+nononsense_archivo_ver:
+    path:     /archivo_ver/{registroid}
+    defaults: { _controller: NononsenseHomeBundle:RegistroArchivo:verRegistro, registroid: 0 }
+
+nononsense_archivo_ver_historico:
+    path:     /archivo_ver_historico/{registroid}
+    defaults: { _controller: NononsenseHomeBundle:RegistroArchivo:verRegistroHistoricoInterface, registroid: 0 }
+
+nononsense_prevalidation_creation:
+    path:     /prevalidation_creation/{registroid}/{stepid}
+    defaults: { _controller: NononsenseHomeBundle:NuevoRegistro:checkPreValidationRegistro, registroid: 0, stepid: 0 }
+
+nononsense_solicitud_reconciliacion:
+    path:     /solicitud_reconciliacion/{registroid}
+    defaults: { _controller: NononsenseHomeBundle:NuevoRegistro:solicitudReconciliacion,registroid: 0 }
+
+nononsense_solicitud_reconciliacion_formulario:
+    path:     /solicitud_reconciliacion_formulario/{registroid}
+    defaults: { _controller: NononsenseHomeBundle:NuevoRegistro:solicitudReconciliacionFormulario,registroid: 0 }
+
+nononsense_backoffice_verificator_groups:
+    path: /grupos_verificacion
+    defaults: { _controller: NononsenseHomeBundle:BackOffice:grupoVerificadorIndex }
+
+nononsense_backoffice_set_group:
+    path: /set_grupo
+    defaults: { _controller: NononsenseHomeBundle:BackOffice:setGrupoVerificador }

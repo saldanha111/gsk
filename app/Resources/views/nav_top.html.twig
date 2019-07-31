@@ -1,0 +1,81 @@
+<div class="clearHead">
+    <div class="border-bottom">
+        <div class="col-sm-4 col-xs-10">
+            <a href="{{path('nononsense_home_homepage')}}"><img src="/img/logo-gsk.png"/></a>
+        </div>
+        <div class="col-xs-2 only-mobile pull-right">
+            <a class="navbar-minimalize minimalize-styl-2 btn btn-primary pull-right" href="#"><i class="fa fa-bars"></i> </a>
+        </div>
+        <div class="col-sm-8 col-xs-12 border-xs-top">
+            <nav class="navbar navbar-static-top pull-right" role="navigation" style="margin-bottom: 0">
+                <ul class="nav navbar-top-links navbar-right">
+                    <li>
+                        <span class="m-r-sm text-muted welcome-message">{{'Welcome to'|trans}} <span class="corpColor">Docxpresso</span></span>
+                    </li>
+                    <li class="dropdown phoneHidden">
+                        <a class="dropdown-toggle count-info" data-toggle="dropdown" href="#">
+                            <i class="fa fa-bell"></i>  <span class="label label-warning" id="unreadTop">&nbsp;</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-messages">
+                            {{ render(controller('NononsenseNotificationsBundle:Mailbox:widget')) }}					
+                            <li>
+                                <div class="text-center link-block">
+                                    <a href="{{ path('nononsense_notifications_homepage') }}">
+                                        <i class="fa fa-envelope"></i> <strong>{{'Read All Mesages'|trans}}</strong>
+                                    </a>
+                                </div>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a class="dropdown-toggle count-info" data-toggle="dropdown" href="#">
+                            <i class="fa fa-user"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-alerts" style="width: 240px">
+                            <li>
+                                <a href="{{ path("nononsense_user_profile", {'id': app.user.id}) }}">
+                                    <div>
+                                        <i class="fa fa-file-code-o fa-fw"></i> {{'Visit your personal space'|trans}}
+                                    </div>
+                                </a>
+                            </li>
+                            <li class="divider"></li>
+                            <li>
+                                <a href="{{ path("nononsense_user_edit", {'id': app.user.id}) }}">
+                                    <div>
+                                        <i class="fa fa-database fa-fw"></i> {{'Edit your user data'|trans}}
+                                    </div>
+                                </a>
+                            </li>
+                            <li class="divider"></li>
+                            {% if is_granted('ROLE_ADMIN') %}
+                            <li>
+                                <a href="{{ path("nononsense_user_modify_password", {'id': app.user.id}) }}">
+                                    <div>
+                                        <i class="fa fa-lock fa-fw"></i> {{'Modify your password'|trans}}
+                                    </div>
+                                </a>
+                            </li>
+                            {% endif %}
+                            <li class="divider"></li>
+                            <li>
+                                <a href="{{ path("nononsense_user_edit_image", {'id': app.user.id}) }}">
+                                    <div>
+                                        <i class="fa fa-image fa-fw"></i> {{'Modify your avatar'|trans}}
+                                    </div>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    {% if is_granted('ROLE_PREVIOUS_ADMIN') %}
+                        <li><a href="{{ path('nononsense_home_homepage', {'_switch_user': '_exit'}) }}" style="font-weight: normal; color:#888; font-size: 13px"><i class="fa fa-users" style="color: #b70000; font-size: 16px"></i>Exit impersonation</a></li>
+                        {% else %}
+                        <li><a href="{{ path("nononsense_user_logout") }}"  style="font-weight: normal; color:#888; font-size: 13px"><i class="fa fa-power-off" style="color: #b70000; font-size: 16px"></i>Log out</a></li>
+                        {% endif %}
+                </ul>
+
+            </nav>
+        </div>
+    </div>
+</div>

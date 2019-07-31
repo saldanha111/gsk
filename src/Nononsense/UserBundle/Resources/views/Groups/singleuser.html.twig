@@ -1,0 +1,10 @@
+<div class="dropdown-messages-box" id="newUser_{{user.id}}">
+    <img alt="image" class="img-circle" src="{{webPath}}thumb_{{user.id}}.jpg">
+    <div class="media-body">
+        <span class="pull-right"><button class="btn btn-danger btn-xs removeFromList" data-user ="{{user.id}}"  type="button" onclick="removeNewUser({{user.id}})"><i class="fa fa-times"> </i></button></span>
+        <strong>{{ user.name }}</strong>. <br>
+        <i class="fa fa-cog"> </i> {{ user.position}}<br />
+    </div>
+</div>
+
+

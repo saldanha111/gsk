@@ -1,0 +1,50 @@
+<div id="printable">
+    <div class="mail-box-header">
+        <div class="pull-right tooltip-demo mail-buttons">
+            <a href="#" class="btn btn-white btn-sm" data-toggle="tooltip" data-placement="top" title="{{'Print message'|trans}}" onclick="print()"><i class="fa fa-print"></i> </a>
+            {% if trash %}
+                <a href="#" class="btn btn-white btn-sm" data-toggle="tooltip" data-placement="top" title="{{'Move to inbox'|trans}}" onclick="messageToInbox({{message.id}})"><i class="fa fa-inbox"></i> </a>
+            {% else %}
+                <a href="#" class="btn btn-white btn-sm" data-toggle="tooltip" data-placement="top" title="{{'Move to trash'|trans}}" onclick="messageAsTrash({{message.id}})"><i class="fa fa-trash-o"></i> </a>
+            {% endif %}
+            </div>
+        <h2 class="mail-head">
+            {{'View Message'|trans}}
+        </h2>
+        <div class="mail-tools tooltip-demo m-t-md">
+
+
+            <h3>
+                <span class="font-noraml">{{'Subject:'|trans}} </span>{{message.subject}}
+            </h3>
+            <h5>
+                <span class="pull-right font-noraml">{{message.created|localizeddate('medium', 'medium', app.request.locale)}}</span>
+                <span class="font-noraml">{{'From:'|trans}} </span>{{message.author}}
+            </h5>
+        </div>
+    </div>
+
+    <div class="mail-box">
+
+
+    <div class="mail-body">
+        {{message.body|raw}}
+    </div>
+
+    <div class="mail-body text-right tooltip-demo mail-footer">
+            <button  data-toggle="tooltip" data-placement="top" type="button" class="btn btn-sm btn-white" title="{{'Print message'|trans}}" onclick="print()"><i class="fa fa-print"></i> {{'Print'|trans}}</button>
+            {% if trash %}
+                <a href="#" class="btn btn-white btn-sm" data-toggle="tooltip" data-placement="top" title="{{'Back to Inbox'|trans}}" onclick="messageToInbox({{message.id}})"><i class="fa fa-inbox"></i> {{'Back to Inbox'|trans}}</a>
+            {% else %}
+                <a href="#" class="btn btn-white btn-sm" data-toggle="tooltip" data-placement="top" title="{{'Remove'|trans}}" onclick="messageAsTrash({{message.id}})"><i class="fa fa-trash-o"></i> {{'Remove'|trans}}</a>
+            {% endif %}
+    </div>
+    <div class="clearfix"></div>
+
+    </div>
+</div>
+<script>
+    updateUnread({{unread}});
+</script>
+    
+

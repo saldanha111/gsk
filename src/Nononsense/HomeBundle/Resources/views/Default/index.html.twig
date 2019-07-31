@@ -1,0 +1,95 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}DOCXPRESSO | {{'Homepage'|trans}} {% endblock %}
+{% block head %}
+    {{ parent() }}
+    <link href="/css/plugins/jasny/jasny-bootstrap.min.css" rel="stylesheet">
+    <link href="/css/plugins/datapicker/datepicker3.css" rel="stylesheet">
+    <link href="/css/plugins/dropzone/dropzone_{{locale}}.css" rel="stylesheet">
+    <style>
+        #loadingChart {display: none}
+        .doc-box-filters {display: none}
+        .form-control {width: 120px !important}
+    </style>
+{% endblock %}
+{% block main_title %} {{'Welcome to'|trans}} DOCXPRESSO {% endblock %}
+{% block content %}
+    <div class="wrapper wrapper-content"> 
+        {% for flashMessage in app.session.flashbag.get('error') %}
+            <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                {{ flashMessage }}
+            </div>
+        {% endfor %}
+        <div class="row">
+            <div class="col-md-7" id="homeChart">
+                <div class="ibox">
+                    <div class="ibox-title">
+                        <h5>{{'Example Box'|trans}}</h5>
+                        <div class="ibox-tools">
+                            <a class="collapse-link">
+                                <i class="fa fa-chevron-up"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="ibox-content" style="min-height: 410px">
+                        
+                    </div>
+                </div>  
+            </div>
+            <div class="col-md-5">
+                <div class="ibox">
+                    <div class="ibox-title">
+                        <h5>{{'Latest News'|trans}}  <small>(<a href="{{path('nononsense_news_homepage')}}">{{'Complete list'|trans}} </a>)</small></h5>
+                        <div class="ibox-tools">
+                            <a class="collapse-link">
+                                <i class="fa fa-chevron-up"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="ibox-content" style="height: 410px; overflow-y: auto">
+                    {% for item in news %}
+                        <div>
+                            <h4> <small>[{{ item.created|localizeddate('medium', 'none', app.request.locale)}}]</small> 
+                                <a href="{{path('nononsense_news_show', {'id': item.id}) }}">{{ item.title }}</a></h4>
+                            {{ item.body|striptags|truncate(100)|raw}}
+                        </div>
+                        <div class="hr-line-dashed" style="margin: 10px 0"></div>
+                    {% endfor %}   
+                    </div>
+                </div>  
+            </div>
+        </div>
+            
+{% endblock %}
+{% block scripts %}
+    {{ parent() }}
+    <script>
+        
+        
+        $(document).ready(function(){
+            //$('#samples').load('http://localhost/CORS/index_{{locale}}.php');
+            toastr.options = {
+                "closeButton": true,
+                "debug": false,
+                "progressBar": true,
+                "positionClass": "toast-top-center",
+                "onclick": null,
+                "showDuration": "400",
+                "hideDuration": "1000",
+                "timeOut": "7000",
+                "extendedTimeOut": "1000",
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut"
+            }
+            
+            ActivateMenu('docxpresso_home');
+            $('#side-menu').metisMenu();
+
+        });
+        
+    </script>
+{% endblock %}

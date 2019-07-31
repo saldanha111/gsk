@@ -1,0 +1,4 @@
+services:
+#    nononsense_notifications.example:
+#        class: Nononsense\NotificationsBundle\Example
+#        arguments: [@service_id, "plain_value", %parameter%]

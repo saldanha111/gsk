@@ -1,0 +1,138 @@
+<?php
+
+namespace Nononsense\UserBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Security\Core\Role\RoleInterface;
+
+/**
+ * Role
+ *
+ * @ORM\Table(name="roles")
+ * @ORM\Entity(repositoryClass="Nononsense\UserBundle\Entity\RolesRepository")
+ */
+class Roles implements RoleInterface
+{
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="id", type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    protected $id;
+
+    /**
+     * @ORM\ManyToMany(targetEntity="\Nononsense\UserBundle\Entity\Users", mappedBy="role")
+     */
+    protected $user;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="name", type="string", length=90)
+     */
+    protected $name;
+
+    /**
+     * Get id
+     *
+     * @return integer 
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * Construct
+     *
+     */
+    public function __construct() {
+        $this->users = new ArrayCollection();
+    }
+
+    /**
+     * To string magic method
+     *
+     * @return string
+     */
+    public function __toString() {
+        return $this->getName();
+    }
+
+    /**
+     * Set name
+     *
+     * @param string $name
+     * @return Role
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    /**
+     * Get name
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * Add users
+     *
+     * @param \Nononsense\UserBundle\Entity\Users $user
+     * @return Role
+     */
+    public function addUser(\Nononsense\UserBundle\Entity\Users $user)
+    {
+        $this->users[] = $user;
+
+        return $this;
+    }
+
+    /**
+     * Remove users
+     *
+     * @param \Nononsense\UserBundle\Entity\Users $users
+     */
+    public function removeUser(\Nononsense\UserBundle\Entity\Users $user)
+    {
+        $this->users->removeElement($user);
+    }
+
+    /**
+     * Get users
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getUsers()
+    {
+        return $this->users;
+    }
+
+    /**
+     * Get role
+     */
+    public function getRole()
+    {
+        return $this->getName();
+    }
+
+    /**
+     * Get user
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getUser()
+    {
+        return $this->user;
+    }
+}

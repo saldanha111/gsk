@@ -1,0 +1,68 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}DOCXPRESSO | {{'Create group'|trans}} {% endblock %}
+{% block head %}
+    <link href="/css/plugins/summernote/summernote.css" rel="stylesheet">
+    <link href="/css/plugins/summernote/summernote-bs3.css" rel="stylesheet">
+    <link href="/css/plugins/iCheck/custom.css" rel="stylesheet">
+    <link href="/css/plugins/colorpicker/bootstrap-colorpicker.min.css" rel="stylesheet">
+    {{ parent() }}
+{% endblock %}
+{% block main_title %} {{'Create group'|trans}} {% endblock %}
+{% block breadcrumb %}
+<ol class="breadcrumb">
+    <li>
+        <a href="{{ path('nononsense_home_homepage')}}">{{'Home'|trans}}</a>
+    </li>
+    <li>
+        <a href="{{ path('nononsense_groups_homepage')}}">{{'Groups'|trans}}</a>
+    </li>
+    <li class="active">
+        <strong>{{'Create group'|trans}}</strong>
+    </li>
+</ol>
+{% endblock %}
+{% block content %}
+    {% include 'NononsenseGroupBundle:Group:groupModule.html.twig' %}  
+{% endblock %}
+
+{% block scripts %}
+    {{ parent() }}
+    
+    <!-- SUMMERNOTE -->
+    <script src="/js/plugins/summernote/summernote.js"></script>
+    {% if app.request.locale != 'en' %}
+    <script src="/js/plugins/summernote/lang/summernote-{{app.request.locale}}.js"></script>    
+    {% endif %}
+    <!-- iCheck -->
+    <script src="/js/plugins/iCheck/icheck.min.js"></script>
+    <!-- ColorPicker -->
+    <script src="/js/plugins/colorpicker/bootstrap-colorpicker.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $('.i-checks').iCheck({
+                    checkboxClass: 'icheckbox_square-green',
+                    radioClass: 'iradio_square-green'
+                });
+
+            $('.color').colorpicker();
+
+            $('.summernote').html($('#groups_description').val());
+            $('.summernote').summernote({
+                lang: '{{app.request.locale}}',
+                height: 240,
+                onblur: function(e) {   
+                }
+            });
+            
+            $( "form" ).submit(function( event ) {
+                $('#groups_description').val($(".summernote").code());
+                return;
+              });
+             
+             ActivateMenu('create_group');
+            $('#side-menu').metisMenu();
+       });
+    </script>
+{% endblock %}
+
+

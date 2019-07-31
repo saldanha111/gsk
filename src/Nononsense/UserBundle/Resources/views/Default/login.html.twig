@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>DOCXPRESSO | Login</title>
+
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/font-awesome/css/font-awesome.css" rel="stylesheet">
+
+    <link href="/css/animate.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+
+</head>
+<style>
+    .bgimg {
+        background-image: url('/img/imagen-fondo.png');
+        background-repeat: no-repeat;
+        background-position: center;
+        min-height: 900px;
+    }
+
+    .bgwhite {
+        background-color: white;
+        padding: 10px;
+        margin: 10px;
+    }
+</style>
+
+<body class="gray-bg">
+<div class="bgimg">
+    <div class="middle-box text-center loginscreen  animated fadeInDown ">
+        <div>
+
+            <div>
+
+                <h1 class="logo-name"><img src="/img/logo-gsk.png" style="height: 65px"/></h1>
+
+            </div>
+            <div id="avisoIdNavegador" class="alert alert-danger alert-dismissable"
+                 style="margin: 0 16px 10px 16px; display: none">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                Le recomendamos que utilice el navegador <strong>Google Chrome</strong>.
+            </div>
+            <div class="bgwhite">
+                <h2>{{'Portal de gestión de registros'|trans}}</h2>
+                {% if error %}
+                <div class="alert alert-danger alert-dismissable" style="text-align: center;">
+                    <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                    &emsp;&emsp;{{'Bad credentials.'|trans}}
+                </div>
+                {% endif %}
+                <form role="form" action="{{path('nononsense_user_check')}}" method="post">
+                    <div class="form-group row">
+                        <label for="emailLogin" class="col-sm-3 col-form-label">{{'Email'|trans}}</label>
+                        <div class="col-sm-9">
+                            <input id="emailLogin" name="_username" class="form-control"
+                                   placeholder="{{'Network user'|trans}}" required="">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="passLogin" class="col-sm-3 col-form-label">{{'Contraseña'|trans}}</label>
+                        <div class="col-sm-9">
+                            <input id="passLogin" type="password" name="_password" class="form-control"
+                                   placeholder="{{'Password'|trans}}" required="">
+                        </div>
+                    </div>
+                    <button type="submit" name="_submit" class="btn btn-primary block full-width m-b">
+                        {{'Entrar'|trans}}
+                    </button>
+
+
+                </form>
+                <p class="m-t">
+                    <small>No-nonsense Labs &copy; 2015</small>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- scripts -->
+<script src="/js/jquery-2.1.1.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+
+<script>
+
+    $(document).ready(function () {
+        var isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
+        if (!isChrome) {
+            $('#avisoIdNavegador').show();
+        }
+
+    });
+
+</script>
+
+</body>
+
+</html>

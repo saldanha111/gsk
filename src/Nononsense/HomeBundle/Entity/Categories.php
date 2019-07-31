@@ -1,0 +1,218 @@
+<?php
+/**
+ * Created by IntelliJ IDEA.
+ * User: gushe
+ * Date: 04/04/2018
+ * Time: 13:10
+ */
+
+namespace Nononsense\HomeBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+
+/**
+ * @ORM\Entity
+ * @ORM\Table(name="categories")
+ * @ORM\Entity(repositoryClass="Nononsense\HomeBundle\Entity\CategoriesRepository")
+ * @ORM\HasLifecycleCallbacks
+ */
+class Categories
+{
+    /**
+     * @ORM\Column(type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    protected $id;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="name", type="string", length=90)
+     */
+    protected $name;
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="padre", type="integer")
+     */
+    protected $padre;
+
+    /**
+     * @ORM\Column(type="date")
+     */
+    protected $created;
+
+    /**
+     * @ORM\Column(type="date")
+     */
+    protected $modified;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\MasterWorkflows", mappedBy="category")
+     */
+    protected $Master_Workflows;
+
+    public function __construct()
+    {
+
+    }
+
+    /**
+     * @ORM\PrePersist
+     */
+    public function setCreatedValue()
+    {
+        if (!$this->created) {
+            $this->created = new \DateTime();
+        }
+        $this->modified = $this->created;
+    }
+
+    /**
+     * @ORM\PreUpdate
+     */
+    public function setModifiedValue()
+    {
+        $this->modified = new \DateTime();
+    }
+
+    /**
+     * Get id
+     *
+     * @return integer 
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * Set name
+     *
+     * @param string $name
+     * @return Categories
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    /**
+     * Get name
+     *
+     * @return string 
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * Set created
+     *
+     * @param \DateTime $created
+     * @return Categories
+     */
+    public function setCreated($created)
+    {
+        $this->created = $created;
+
+        return $this;
+    }
+
+    /**
+     * Get created
+     *
+     * @return \DateTime 
+     */
+    public function getCreated()
+    {
+        return $this->created;
+    }
+
+    /**
+     * Set modified
+     *
+     * @param \DateTime $modified
+     * @return Categories
+     */
+    public function setModified($modified)
+    {
+        $this->modified = $modified;
+
+        return $this;
+    }
+
+    /**
+     * Get modified
+     *
+     * @return \DateTime 
+     */
+    public function getModified()
+    {
+        return $this->modified;
+    }
+
+    /**
+     * Add MasterWorkflows
+     *
+     * @param \Nononsense\HomeBundle\Entity\MasterWorkflows $masterWorkflows
+     * @return Categories
+     */
+    public function addMasterWorkflow(\Nononsense\HomeBundle\Entity\MasterWorkflows $masterWorkflows)
+    {
+        $this->MasterWorkflows[] = $masterWorkflows;
+
+        return $this;
+    }
+
+    /**
+     * Remove MasterWorkflows
+     *
+     * @param \Nononsense\HomeBundle\Entity\MasterWorkflows $masterWorkflows
+     */
+    public function removeMasterWorkflow(\Nononsense\HomeBundle\Entity\MasterWorkflows $masterWorkflows)
+    {
+        $this->MasterWorkflows->removeElement($masterWorkflows);
+    }
+
+    /**
+     * Get MasterWorkflows
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getMasterWorkflows()
+    {
+        return $this->MasterWorkflows;
+    }
+
+    /**
+     * Set padre
+     *
+     * @param integer $padre
+     * @return Categories
+     */
+    public function setPadre($padre)
+    {
+        $this->padre = $padre;
+
+        return $this;
+    }
+
+    /**
+     * Get padre
+     *
+     * @return integer 
+     */
+    public function getPadre()
+    {
+        return $this->padre;
+    }
+}

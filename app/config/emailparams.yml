@@ -1,0 +1,13 @@
+parameters:
+    #GMail
+    #mailer_transport: gmail
+    #mailer_user: saas@docxpresso.com
+    #mailer_password: 6102saasnononsense
+    #SendGrid
+    mailer_transport: smtp
+    mailer_user: noreply@docxpresso.net
+    mailer_host: smtp.sendgrid.net
+    mailer_port: 587
+    mailer_encryption: ~
+    mailer_username: EduardoRamos
+    mailer_password: $docxsend2001$

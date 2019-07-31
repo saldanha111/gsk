@@ -1,0 +1,16 @@
+
+    <div class="btn-group pull-right">
+
+    {% if paging.page == 1 %}
+        <button class="btn btn-white" type="button" style="opacity: 0.3; cursor: default"><i class="fa fa-arrow-left"></i></button>
+    {% endif %}
+    {% if paging.page > 1 %}
+        <button class="btn btn-white" type="button" onclick="loadEvent('{{filter}}' , {{paging.page-1}}, '{{query}}', {{groupId}})"><i class="fa fa-arrow-left"></i></button>
+    {% endif %}
+    {% if paging.page<paging.count %}
+        <button class="btn btn-white" type="button" onclick="loadEvent('{{filter}}' , {{paging.page+1}}, '{{query}}', {{groupId}})"><i class="fa fa-arrow-right"></i> </button>
+    {% endif %}
+    {% if paging.page == paging.count %}
+        <button class="btn btn-white" type="button" style="opacity: 0.3; cursor: default"><i class="fa fa-arrow-right"></i></button>
+    {% endif %}
+    </div>

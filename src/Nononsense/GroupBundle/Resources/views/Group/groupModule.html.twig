@@ -1,0 +1,107 @@
+{{ form_start(createGroup) }}
+    {{ form_errors(createGroup) }}
+    <div class="wrapper wrapper-content animated fadeInUp">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="ibox">
+                    <div class="ibox-title">
+                        <h5>Metadata <small>{{'All fields are mandatory'|trans}}.</small></h5>
+                        <div class="ibox-tools">
+                            <a class="collapse-link">
+                                <i class="fa fa-chevron-up"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="ibox-content form-horizontal">
+                        {% if form_errors(createGroup.name) %}
+                            <div class="alert alert-danger alert-dismissable">
+                                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                                {{ form_errors(createGroup.name) }}    
+                            </div>
+                        {% endif %}
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">{{'Name'|trans}}</label>
+                            <div class="input-group m-b">
+                                <span class="input-group-addon"><i class="fa fa-tag"></i></span>
+                                    {{ form_widget(
+                                        createGroup.name, 
+                                        {
+                                        'attr': {
+                                            'class': 'form-control',
+                                            'placeholder': 'Insert group name'|trans
+                                                }
+                                        }
+                                    ) 
+                                    }}
+                            </div>
+                        </div>
+                        <div class="hr-line-dashed"></div>
+                        {% if form_errors(createGroup.color) %}
+                            <div class="alert alert-danger alert-dismissable">
+                                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                                {{ form_errors(createGroup.color) }}    
+                            </div>
+                        {% endif %}
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">{{'Group color'|trans}}</label>
+                            <div class="input-group m-b color">
+                                <span class="input-group-addon"><i></i></span>
+                                    {{ form_widget(
+                                        createGroup.color, 
+                                        {
+                                        'attr': {
+                                            'class': 'form-control',
+                                            'placeholder': 'Choose a unique color to identify the group'|trans
+                                                }
+                                        }
+                                    ) 
+                                    }}
+                            </div>
+                        </div>
+                        <div class="hr-line-dashed"></div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">{{'Active'|trans}}</label>
+                            <div class="col-sm-10">
+                                <div class="checkbox i-checks">
+                                    <label>{{ form_widget(createGroup.isActive)}}</label>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- This control is hidden -->
+                        <div  class="hiddenField">              
+                            {{ form_widget(createGroup.description) }}
+                        </div>
+                        <div class="hr-line-dashed"></div>
+                        {% if form_errors(createGroup.description) %}    
+                            <div class="alert alert-danger alert-dismissable">
+                                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                                {{ form_errors(createGroup.description) }}    
+                            </div>
+                        {% endif %}
+
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="ibox float-e-margins">
+                                    <div class="ibox-title">
+                                        <h5>{{'Description'|trans}}</h5>
+                                    </div>
+                                    <div class="ibox-content no-padding">
+                                        <div class="summernote">{{'<p>Insert <strong>here</strong> the group description.</p>'|trans}}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-12">
+            {{ form_widget(createGroup.save, {'attr' : {'class': 'btn btn-primary'}}) }}
+            </div>
+        </div>
+
+{{ form_end(createGroup) }}
+
+    </div><br />

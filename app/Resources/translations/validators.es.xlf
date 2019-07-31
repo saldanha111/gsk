@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+    <file source-language="en" target-language="en" datatype="plaintext" original="file.text">
+        <body>
+            <trans-unit id="1">
+                <source>The password fields must match.</source>
+                <target>Las claves deben coincidir.</target>
+            </trans-unit>
+            <trans-unit id="2">
+                <source>The email fields must match.</source>
+                <target>Los emails deben coincidir.</target>
+            </trans-unit>
+            <trans-unit id="3">
+                <source></source>
+                <target></target>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>

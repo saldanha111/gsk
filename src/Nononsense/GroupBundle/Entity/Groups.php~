@@ -1,0 +1,468 @@
+<?php
+
+namespace Nononsense\GroupBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+
+/**
+ * Groups
+ *
+ * @ORM\Entity
+ * @ORM\Table(name="groups")
+ * @ORM\Entity(repositoryClass="Nononsense\GroupBundle\Entity\GroupsRepository")
+ * @ORM\HasLifecycleCallbacks
+ * @UniqueEntity("name")
+ * @UniqueEntity("color", message="Please, choose a different color because this one is already used by other group.")
+ */
+class Groups
+{
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="id", type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    protected $id;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\GroupBundle\Entity\GroupUsers", mappedBy="group")
+     */
+    protected $users;
+    
+    /**
+     * @ORM\ManyToMany(targetEntity="\Nononsense\NotificationsBundle\Entity\Notifications", mappedBy="groups")
+     */
+    protected $notifications;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="name", type="string", length=90, unique=true)
+     */
+    protected $name;
+    
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="description", type="text")
+     */
+    protected $description;
+    
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="color", type="string", length=7, unique=true)
+     */
+    protected $color;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="codigo", type="string", length=10, nullable=true)
+     */
+    protected $codigo;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="permisos", type="text",  nullable=true)
+     */
+    protected $permisos;
+    
+    /**
+     * @var boolean
+     *
+     * @ORM\Column(name="is_active", type="boolean", nullable=true)
+     */
+    protected $isActive;
+    
+    /**
+     * @ORM\Column(type="date")
+     */
+    protected $created;
+    
+    /**
+     * @ORM\Column(type="date")
+     */
+    protected $modified;
+
+    /**
+     * Get id
+     *
+     * @return integer 
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\MasterSteps", mappedBy="Groups")
+     */
+    protected $MasterSteps;
+    /**
+     * Construct
+     *
+     */
+    public function __construct() {
+        $this->users = new ArrayCollection();
+        $this->notifications = new ArrayCollection();
+        $this->codigousuarios = "";
+        $this->permisos = "{}";
+    }
+
+    /**
+     * To string magic method
+     *
+     * @return string
+     */
+    public function __toString() {
+        return $this->getName();
+    }
+
+    /**
+     * Set name
+     *
+     * @param string $name
+     * @return Role
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    /**
+     * Get name
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+    
+    /**
+     * @ORM\PrePersist
+     */
+    public function setCreatedValue()
+    {
+        if (!$this->created) {
+            $this->created = new \DateTime();
+        }
+        $this->modified = $this->created;
+    }
+
+    /**
+     * @ORM\PreUpdate
+     */
+    public function setModifiedValue()
+    {
+        $this->modified = new \DateTime();
+    }
+
+    /**
+     * Add users
+     *
+     * @param \Nononsense\UserBundle\Entity\Users $user
+     * @return Groups
+     */
+    public function addUser(\Nononsense\UserBundle\Entity\Users $user)
+    {
+        $this->users[] = $user;
+
+        return $this;
+    }
+
+    /**
+     * Remove users
+     *
+     * @param \Nononsense\UserBundle\Entity\Users $users
+     */
+    public function removeUser(\Nononsense\UserBundle\Entity\Users $user)
+    {
+        $this->user->removeElement($user);
+    }
+
+    /**
+     * Get users
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getUsers()
+    {
+        return $this->users;
+    }
+
+    /**
+     * Get role
+     */
+    public function getGroup()
+    {
+        return $this->getName();
+    }
+
+    /**
+     * Set created
+     *
+     * @param \DateTime $created
+     * @return Groups
+     */
+    public function setCreated($created)
+    {
+        $this->created = $created;
+
+        return $this;
+    }
+
+    /**
+     * Get created
+     *
+     * @return \DateTime 
+     */
+    public function getCreated()
+    {
+        return $this->created;
+    }
+
+    /**
+     * Set modified
+     *
+     * @param \DateTime $modified
+     * @return Groups
+     */
+    public function setModified($modified)
+    {
+        $this->modified = $modified;
+
+        return $this;
+    }
+
+    /**
+     * Get modified
+     *
+     * @return \DateTime 
+     */
+    public function getModified()
+    {
+        return $this->modified;
+    }
+
+    /**
+     * Get user
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    /**
+     * Add notifications
+     *
+     * @param \Nononsense\NotificationsBundle\Entity\Notifications $notifications
+     * @return Groups
+     */
+    public function addNotification(\Nononsense\NotificationsBundle\Entity\Notifications $notifications)
+    {
+        $this->notifications[] = $notifications;
+
+        return $this;
+    }
+
+    /**
+     * Remove notifications
+     *
+     * @param \Nononsense\NotificationsBundle\Entity\Notifications $notifications
+     */
+    public function removeNotification(\Nononsense\NotificationsBundle\Entity\Notifications $notifications)
+    {
+        $this->notifications->removeElement($notifications);
+    }
+
+    /**
+     * Get notifications
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getNotifications()
+    {
+        return $this->notifications;
+    }
+
+    /**
+     * Set description
+     *
+     * @param string $description
+     * @return Groups
+     */
+    public function setDescription($description)
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    /**
+     * Get description
+     *
+     * @return string 
+     */
+    public function getDescription()
+    {
+        return $this->description;
+    }
+
+    /**
+     * Set color
+     *
+     * @param string $color
+     * @return Groups
+     */
+    public function setColor($color)
+    {
+        $this->color = $color;
+
+        return $this;
+    }
+
+    /**
+     * Get color
+     *
+     * @return string 
+     */
+    public function getColor()
+    {
+        return $this->color;
+    }
+
+    /**
+     * Set isActive
+     *
+     * @param boolean $isActive
+     * @return Groups
+     */
+    public function setIsActive($isActive)
+    {
+        $this->isActive = $isActive;
+
+        return $this;
+    }
+
+    /**
+     * Get isActive
+     *
+     * @return boolean 
+     */
+    public function getIsActive()
+    {
+        return $this->isActive;
+    }
+
+    /**
+     * Add MasterSteps
+     *
+     * @param \Nononsense\HomeBundle\Entity\MasterSteps $masterSteps
+     * @return Groups
+     */
+    public function addMasterStep(\Nononsense\HomeBundle\Entity\MasterSteps $masterSteps)
+    {
+        $this->MasterSteps[] = $masterSteps;
+
+        return $this;
+    }
+
+    /**
+     * Remove MasterSteps
+     *
+     * @param \Nononsense\HomeBundle\Entity\MasterSteps $masterSteps
+     */
+    public function removeMasterStep(\Nononsense\HomeBundle\Entity\MasterSteps $masterSteps)
+    {
+        $this->MasterSteps->removeElement($masterSteps);
+    }
+
+    /**
+     * Get MasterSteps
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getMasterSteps()
+    {
+        return $this->MasterSteps;
+    }
+
+    /**
+     * Set codigousuarios
+     *
+     * @param string $codigousuarios
+     * @return Groups
+     */
+    public function setCodigousuarios($codigousuarios)
+    {
+        $this->codigousuarios = $codigousuarios;
+
+        return $this;
+    }
+
+    /**
+     * Get codigousuarios
+     *
+     * @return string 
+     */
+    public function getCodigousuarios()
+    {
+        return $this->codigousuarios;
+    }
+
+    /**
+     * Set permisos
+     *
+     * @param string $permisos
+     * @return Groups
+     */
+    public function setPermisos($permisos)
+    {
+        $this->permisos = $permisos;
+
+        return $this;
+    }
+
+    /**
+     * Get permisos
+     *
+     * @return string 
+     */
+    public function getPermisos()
+    {
+        return $this->permisos;
+    }
+
+    /**
+     * Set codigo
+     *
+     * @param string $codigo
+     * @return Groups
+     */
+    public function setCodigo($codigo)
+    {
+        $this->codigo = $codigo;
+
+        return $this;
+    }
+
+    /**
+     * Get codigo
+     *
+     * @return string 
+     */
+    public function getCodigo()
+    {
+        return $this->codigo;
+    }
+}

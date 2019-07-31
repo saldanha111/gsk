@@ -1,0 +1,98 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}DOCXPRESSO | {{'Modify user data'|trans}} {% endblock %}
+{% block head %}
+    <link href="/css/plugins/summernote/summernote.css" rel="stylesheet">
+    <link href="/css/plugins/summernote/summernote-bs3.css" rel="stylesheet">
+    <link href="/css/plugins/iCheck/custom.css" rel="stylesheet">
+    <link href="/css/plugins/cropper/cropper.min.css" rel="stylesheet">
+
+    {{ parent() }}
+{% endblock %}
+{% block main_title %} {{'Modify user data'|trans}} {% endblock %}
+{% block breadcrumb %}
+<ol class="breadcrumb">
+    <li>
+        <a href="{{ path('nononsense_home_homepage')}}">{{'Home'|trans}}</a>
+    </li>
+    <li>
+        <a href="{{ path('nononsense_users_homepage')}}">{{'Users'|trans}}</a>
+    </li>
+    <li class="active">
+        <strong>{{'Modify user data'|trans}}</strong>
+    </li>
+</ol>
+{% endblock %}
+{% block content %}
+    {{ form_start(createUser) }}
+    {{ form_errors(createUser) }}
+
+    <div class="wrapper wrapper-content animated fadeInUp">
+        
+        {% include 'NononsenseUserBundle:Users:dataModule.html.twig' %}
+                        
+        
+        <div class="row">
+            <div class="col-lg-12">
+                {{ form_widget(createUser.save, {'attr' : {'class': 'btn btn-primary'}}) }} 
+            </div>
+        </div>
+    </div>
+    
+    {{ form_end(createUser) }}
+    
+    <br /> <br />
+
+{% endblock %}
+
+{% block scripts %}
+    {{ parent() }}
+    
+    <!-- SUMMERNOTE -->
+    <script src="/js/plugins/summernote/summernote.js"></script>
+    {% if app.request.locale != 'en' %}
+    <script src="/js/plugins/summernote/lang/summernote-{{app.request.locale}}.js"></script>    
+    {% endif %}
+    <!-- iCheck -->
+    <script src="/js/plugins/iCheck/icheck.min.js"></script>
+    <!-- Image cropper -->
+    <script src="/js/plugins/cropper/cropper.min.js"></script>
+
+    <script>
+        
+        $(document).ready(function(){
+
+            $('.i-checks').iCheck({
+                    checkboxClass: 'icheckbox_square-green',
+                    radioClass: 'iradio_square-green'
+                });
+            $('.summernote').html($('#user_description').val());
+            $('.summernote').summernote({
+                lang: '{{app.request.locale}}',
+                height: 240,
+                onblur: function(e) {   
+                }
+            });
+            $('#user_save').click(function(e){
+                $('#user_description').val($(".summernote").code());
+                if ( $('#user_description').val() == ''){
+                    toastr.error('{{'You need to include a short description of the user role.'|trans}}', '{{'Warning'|trans}}');
+                    return false;
+                }
+                $('form').submit();
+            });
+            $( "form" ).submit(function( event ) {
+                $('#user_description').val($(".summernote").code());
+                if ( $('#user_description').val() == ''){
+                    toastr.error('{{'You need to include a short description of the user role.'|trans}}', '{{'Warning'|trans}}');
+                    return false;
+                }
+                return;
+              });
+             
+             ActivateMenu('create_user');
+            $('#side-menu').metisMenu();
+       });
+    </script>
+{% endblock %}
+
+

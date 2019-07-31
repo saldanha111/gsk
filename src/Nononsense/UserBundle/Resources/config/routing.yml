@@ -1,0 +1,82 @@
+nononsense_user_login:
+    path:     /login
+    defaults: { _controller: NononsenseUserBundle:Login:login }
+    
+nononsense_user_check:
+    path:     /check_user
+    
+nononsense_user_logout:
+    path:     /logout
+    
+nononsense_user_login_init:
+    path:     /login_init
+    defaults: { _controller: NononsenseUserBundle:Login:userLoginInit }
+    
+nononsense_user_recover_password:
+    path:     /recover_password/{error}
+    defaults: { _controller: NononsenseUserBundle:Login:recoverPassword, error: 0 }
+    
+nononsense_user_request_account:
+    path:     /request_account
+    defaults: { _controller: NononsenseUserBundle:Login:requestAccount }
+    
+nononsense_user_keep_alive:
+    path:     /keep-alive
+    defaults: { _controller: NononsenseUserBundle:Users:keepAlive }
+    
+nononsense_user_profile:
+    path:     /profile/{id}
+    defaults: { _controller: NononsenseUserBundle:Users:show }
+    requirements:
+        id: ".+"
+        
+nononsense_user_profile_slash:
+    path:     /profile
+    defaults: { _controller: NononsenseUserBundle:Users:show}
+    requirements:
+        id: ".+"
+    
+nononsense_user_create:
+    path:     /create
+    defaults: { _controller: NononsenseUserBundle:Users:create }
+    
+nononsense_user_edit:
+    path:     /edit/{id}
+    defaults: { _controller: NononsenseUserBundle:Users:edit}
+    requirements:
+        id: ".+"
+    
+nononsense_user_edit_image:
+    path:     /editImage/{id}
+    defaults: { _controller: NononsenseUserBundle:Users:editImage}
+    requirements:
+        id: ".+"
+        
+nononsense_user_modify_password:
+    path:     /modifyPassword/{id}
+    defaults: { _controller: NononsenseUserBundle:Users:resetPassword}
+    requirements:
+        id: ".+"
+        
+nononsense_user_delete:
+    path:     /delete/{id}
+    defaults: { _controller: NononsenseUserBundle:Users:delete, id: 1}
+    requirements:
+        id: ".+"
+        
+nononsense_users_access_token:
+    path:     /accessByToken
+    defaults: { _controller: NononsenseUserBundle:Login:accessByToken}
+    
+nononsense_users_load_csv:
+    path:     /load_users
+    defaults: { _controller: NononsenseUserBundle:Users:loadUsers}
+    
+nononsense_users_homepage:
+    path:     /{page}/{query}
+    defaults: { _controller: NononsenseUserBundle:Users:index, page: 1, query: 'q'}
+        
+nononsense_users_homepage_slash:
+    path:     /
+    defaults: { _controller: NononsenseUserBundle:Users:index, page: 1, query: 'q'}
+    

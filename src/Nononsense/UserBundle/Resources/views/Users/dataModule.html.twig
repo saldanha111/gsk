@@ -1,0 +1,250 @@
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox">
+            <div class="ibox-title">
+                <h5>Metadata <small>{{'All fields are mandatory'|trans}}.</small></h5>
+                <div class="ibox-tools">
+                    <a class="collapse-link">
+                        <i class="fa fa-chevron-up"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="ibox-content form-horizontal">
+                {% if form_errors(createUser.username) %}
+                    <div class="alert alert-danger alert-dismissable">
+                        <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                        {{ form_errors(createUser.username) }}    
+                    </div>
+                {% endif %}
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">{{'Username'|trans}}</label>
+                    <div class="col-sm-10">
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="fa fa-tag"></i></span>
+                            {{ form_widget(
+                                createUser.username, 
+                                {
+                                'attr': {
+                                    'class': 'form-control',
+                                    'placeholder': 'Insert an unique username'|trans
+                                        }
+                                }
+                            ) 
+                            }}
+                        </div>
+                    </div>
+                </div>
+                <div class="hr-line-dashed"></div>
+                {% if form_errors(createUser.name) %}
+                    <div class="alert alert-danger alert-dismissable">
+                        <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                        {{ form_errors(createUser.name) }}    
+                    </div>
+                {% endif %}
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">{{'Name'|trans}}</label>
+                    <div class="col-sm-10">
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="fa fa-user"></i></span>
+                            {{ form_widget(
+                                createUser.name, 
+                                {
+                                'attr': {
+                                    'class': 'form-control',
+                                    'placeholder': 'Insert the user full name'|trans
+                                        }
+                                }
+                            ) 
+                            }}
+                        </div>
+                    </div>
+                </div>
+                <div class="hr-line-dashed"></div>
+                {% if form_errors(createUser.position) %}
+                    <div class="alert alert-danger alert-dismissable">
+                        <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                        {{ form_errors(createUser.position) }}    
+                    </div>
+                {% endif %}
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">{{'Position'|trans}}</label>
+                    <div class="col-sm-10">
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="fa fa-suitcase"></i></span>
+                            {{ form_widget(
+                                createUser.position, 
+                                {
+                                'attr': {
+                                    'class': 'form-control',
+                                    'placeholder': 'Insert the company position'|trans
+                                        }
+                                }
+                            ) 
+                            }}
+                        </div>
+                    </div>
+                </div>  
+                {% if create and admin %}
+                    {% if createUser.vars.value.password is null or not createUser.vars.valid %}
+                        <div class="hr-line-dashed"></div>
+                        {% if form_errors(createUser.password.first) %}
+                            <div class="alert alert-danger alert-dismissable">
+                                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                                {{ form_errors(createUser.password.first) }}    
+                            </div>
+                        {% endif %}
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">{{'Password'|trans}}</label>
+                            <div class="col-sm-10">
+                                <div class="input-group">
+                                    <span class="input-group-addon"><i class="fa fa-lock"></i></span>
+                                    {{ form_widget(
+                                        createUser.password.first, 
+                                        {
+                                        'attr': {
+                                            'class': 'form-control',
+                                            'placeholder': 'Password'|trans
+                                                }
+                                        }
+                                    ) 
+                                    }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">{{'Confirm'|trans}}</label>
+                            <div class="col-sm-10">
+                                <div class="input-group">
+                                    <span class="input-group-addon"><i class="fa fa-check"></i></span>
+                                    {{ form_widget(
+                                        createUser.password.second, 
+                                        {
+                                        'attr': {
+                                            'class': 'form-control',
+                                            'placeholder': 'Confirm password'|trans
+                                                }
+                                        }
+                                    ) 
+                                    }}
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                
+                    <div class="hr-line-dashed"></div>
+                    {% if form_errors(createUser.email.first) %}
+                        <div class="alert alert-danger alert-dismissable">
+                            <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                            {{ form_errors(createUser.email.first) }}    
+                        </div>
+                    {% endif %}
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">Email</label>
+                        <div class="col-sm-10">
+                            <div class="input-group">
+                                <span class="input-group-addon">@</span> 
+                                {{ form_widget(
+                                    createUser.email.first, 
+                                    {
+                                    'attr': {
+                                        'class': 'form-control',
+                                        'placeholder': 'Insert an unique user email'|trans
+                                            }
+                                    }
+                                ) 
+                                }} 
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">{{'Confirm'|trans}}</label>
+                        <div class="col-sm-10">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-check"></i></span> 
+                                {{ form_widget(
+                                    createUser.email.second, 
+                                    {
+                                    'attr': {
+                                        'class': 'form-control',
+                                        'placeholder': 'Confirm user email'|trans
+                                            }
+                                    }
+                                ) 
+                                }} 
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+                <div class="hr-line-dashed"></div>
+                {% if form_errors(createUser.phone) %}
+                    <div class="alert alert-danger alert-dismissable">
+                        <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                        {{ form_errors(createUser.phone) }}    
+                    </div>
+                {% endif %}
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">{{'Phone'|trans}}</label>
+                    <div class="col-sm-10">
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="fa fa-phone"></i></span> 
+                            {{ form_widget(
+                                createUser.phone, 
+                                {
+                                'attr': {
+                                    'class': 'form-control',
+                                    'placeholder': 'Phone number'|trans
+                                        }
+                                }
+                            ) 
+                            }} 
+                        </div>
+                    </div>
+                </div>
+                {% if admin %}
+                <div class="hr-line-dashed"></div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">{{'Active user'|trans}}</label>
+                    <div class="col-sm-10">
+                        <div class="checkbox i-checks">
+                            <label>{{ form_widget(createUser.isActive)}}</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="hr-line-dashed"></div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">{{'Role'|trans}}</label>
+                    <div class="col-sm-10">
+                        <select class="form-control" name="account">
+                            <option value="3" {% if rol == 3 %}selected{% endif %}>{{'Administrator'|trans}}</option>
+                            <option value="2" {% if rol == 2 %}selected{% endif %}>{{'Editor'|trans}}</option>
+                            <option value="1" {% if rol == 1 %}selected{% endif %}>{{'User'|trans}}</option>
+                            <option value="0" {% if rol == 0 %}selected{% endif %}>{{'External user'|trans}}</option>
+                        </select>
+
+                    </div>
+                </div>
+                {% endif %}
+                <div class="hr-line-dashed"></div>
+                <!-- This control is hidden -->
+                <div class="hiddenField">                
+                    {{ form_widget(createUser.description) }}
+                </div>
+                {% if form_errors(createUser.description) %}    
+                    <div class="alert alert-danger alert-dismissable">
+                        <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                        {{ form_errors(createUser.description) }}    
+                    </div>
+                {% endif %}
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                        <h5>{{'Description'|trans}}</h5>
+                    </div>
+                    <div class="ibox-content no-padding">
+                        <div class="summernote">{{'<p>Insert <strong>here</strong> the user description.</p>'|trans|raw}}</div>
+                    </div>
+                </div>
+            </div>  
+
+        </div>          
+    </div>              
+</div>

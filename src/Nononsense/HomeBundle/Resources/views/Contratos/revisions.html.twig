@@ -1,0 +1,249 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}DOCXPRESSO | {{'Homepage'|trans}} {% endblock %}
+{% block head %}
+{{ parent() }}
+<style>
+    #loadingChart {
+        display: none
+    }
+
+    .doc-box-filters {
+        display: none
+    }
+
+    .form-control {
+        width: 120px !important
+    }
+
+    #wrapper {
+        width: 100%;
+        height: auto;
+    }
+
+    .row.wrapper-blocks {
+        margin-left: -5px;
+        margin-right: -5px;
+        margin-top: 15px;
+        margin-bottom: 15px;
+    }
+
+    .block-wrapper {
+        padding: 0 5px;
+        min-width: 230px;
+        min-height: 230px;
+    }
+
+    .block-content {
+        background: #f3f3f3;
+        padding: 10px 0;
+        margin-bottom: 10px;
+        border: 2px solid #adb5bc;
+        height: 230px;
+        display: table;
+        width: 100%;
+    }
+
+    .wrapper-blocks-home .block-content {
+        background: #f3f3f3;
+        padding: 15px;
+        margin-bottom: 10px;
+        border: 2px solid #adb5bc;
+        height: 210px;
+        display: table;
+        width: 100%;
+    }
+
+    a.btn-edit {
+        width: auto;
+        border: 1px solid;
+        float: right;
+        padding: 3px 5px;
+        margin: 5px 0;
+        border-radius: 5px;
+        display: block;
+    }
+
+    a.btn-enviar {
+        border: 1px solid;
+        float: right;
+        padding: 3px 5px;
+        border-radius: 5px;
+        display: block;
+    }
+
+    .block-content .bottom {
+        position: absolute;
+        bottom: 30px;
+    }
+
+    .block-content .download {
+        margin: 5px 0;
+        width: 100%;
+        float: left;
+    }
+
+    a.title-block {
+        font-weight: bold;
+    }
+
+    .block-content.started {
+        border: 2px solid #8ab6dc;
+        background: #cde5f9;
+    }
+
+    .block-content.rejected {
+        border: 2px solid #dc8ab8;
+        background: #f7d3cb;
+    }
+
+    .block-content.disabled {
+        color: #666666 !important;
+        background: #cccccc;
+    }
+
+    a.disabled {
+        color: #666666 !important;
+    }
+
+    .block-content.accepted {
+        border: 2px solid #60b44d;
+
+    }
+
+    .rejected a.title-block {
+        color: #d12200;
+    }
+
+    .rejected a.btn-edit {
+        color: #d12200;
+    }
+
+    .rejected a.btn-enviar {
+        color: #d12200;
+    }
+
+    .bar-progress {
+        width: 100%;
+        border: 1px solid #1b9cd5;
+        margin-top: 7px;
+        border-radius: 3px;
+        padding: 1px;
+        float: left;
+    }
+
+    .bar-progress-wrapper {
+        padding: 0;
+    }
+
+    .percent {
+        background: #1b9cd5;
+        padding: 1px 3px;
+        border-radius: 3px;
+        float: left;
+    }
+
+    span.percente-date {
+        font-size: 11px;
+        color: #fff;
+        float: right;
+    }
+
+    div.percent[style="width:0%;"] span.percente-date {
+        float: left;
+        color: #ccc;
+        margin-left: 5px;
+    }
+
+    .custom-margin {
+        margin: 3px;
+    }
+
+</style>
+{% endblock %}
+{% block main_title %} {{tipo_contrato}} / {{codigo}} {{nombre}} <a class="btn btn-primary pull-right"
+                                                                    href="{{path('nononsense_validaciones') }}"><i
+        class="fa fa-arrow-circle-left" aria-hidden="true"></i> Volver</a>{% endblock %}
+{% block content %}
+<div class="wrapper wrapper-content">
+    {% for flashMessage in app.session.flashbag.get('error') %}
+    <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+        <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+        {{ flashMessage }}
+    </div>
+    {% endfor %}
+    <div class="row">
+        <div style="margin-left: 20px">
+            <div class="col-sm-6">
+                <a class="up-level-title" href="{{path('nononsense_contratos_homepage')}}"></a>
+            </div>
+        </div>
+        <div class="row">
+            <div style="margin-left: 20px">
+                <div class="col-sm-12">
+                    <div class="row wrapper-blocks">
+                        {% set currentblock = 0 %}
+                        {% for item in validaciones %}
+
+                        {% if item.block > currentblock %}
+                        {% set currentblock = item.block %}
+                    </div>
+                    <hr>
+                    <div class="row wrapper-blocks">
+
+                        {%endif %}
+                        {% set name = item.name %}
+
+                        <div class="col-sm-2 col-xs-6 block-wrapper">
+                            <div class="block-content">
+                                <div class="col-sm-12">
+                                    <a class="title-block"
+                                       href="{{path('nononsense_validaciones_revision',{'idworkflow': workflow_id,'revisionid': item.id})}}">{{name}}</a>
+                                </div>
+                                <div class="col-sm-12">
+
+                                    <a class="btn-enviar"
+                                       href="{{path('nononsense_validaciones_revision',{'idworkflow': workflow_id,'revisionid': item.id})}}"><i
+                                            class="fa fa-paper-plane"
+                                            aria-hidden="true"></i> Revisar documento </a>
+                                </div>
+
+
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        {% endblock %}
+        {% block scripts %}
+        {{ parent() }}
+        <script>
+
+
+            $(document).ready(function () {
+                toastr.options = {
+                    "closeButton": true,
+                    "debug": false,
+                    "progressBar": true,
+                    "positionClass": "toast-top-center",
+                    "onclick": null,
+                    "showDuration": "400",
+                    "hideDuration": "1000",
+                    "timeOut": "7000",
+                    "extendedTimeOut": "1000",
+                    "showEasing": "swing",
+                    "hideEasing": "linear",
+                    "showMethod": "fadeIn",
+                    "hideMethod": "fadeOut"
+                }
+
+                ActivateMenu('docxpresso_home');
+                $('#side-menu').metisMenu();
+
+            });
+
+        </script>
+        {% endblock %}

@@ -1,0 +1,555 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}DOCXPRESSO | {{'Homepage'|trans}} {% endblock %}
+{% block head %}
+{{ parent() }}
+<style>
+    #loadingChart {
+        display: none
+    }
+
+    .doc-box-filters {
+        display: none
+    }
+
+    table.datos-proveedor {
+        width: 100%;
+        float: left;
+        margin: 15px 0;
+        border-bottom: 1px solid #ccc;
+    }
+
+    table.datos-proveedor thead td {
+        font-weight: bold;
+        font-size: 14px;
+    }
+
+    table.datos-proveedor thead tr {
+        border-bottom: 1px solid #ccc;
+    }
+
+    tbody tr td {
+        padding: 3px 5px;
+        font-size: 14px;
+        font-weight: 400;
+        height: 34px;
+    }
+
+    tbody.datos-proveedor tr td.pdte {
+        color: #ae3d3d;
+    }
+
+    tbody.datos-proveedor tr td.pdte-ok {
+        color: #00cc00;
+    }
+
+    tbody.datos-proveedor tr td {
+        padding: 3px 5px;
+        font-size: 14px;
+        font-weight: 400;
+        height: 34px;
+    }
+
+    tbody tr td.pdte {
+        color: #ae3d3d;
+    }
+
+    tbody tr td.pdte-ok {
+        color: #00cc00;
+    }
+
+    a.btn-table {
+        background: #0fba40;
+        border-radius: 0;
+        color: #fff;
+        font-size: 12px;
+        width: 100%;
+        margin: 0;
+        border: 1px solid #0fba40;
+        padding: 5px 0;
+    }
+
+    a.btn-cancel {
+        background: red;
+        border: 1px solid red;
+    }
+
+    a.btn-table:hover {
+        background: #fff;
+        color: #0fba40;
+    }
+
+    a.btn-cancel:hover {
+        background: #fff;
+        color: red;
+    }
+
+    .row.wrapper-blocks {
+        margin-left: -5px;
+        margin-right: -5px;
+        margin-top: 25px;
+        margin-bottom: 25px;
+    }
+
+    .block-wrapper {
+        padding: 0 5px;
+        min-width: 170px;
+    }
+
+    .block-content {
+        background: #f3f3f3;
+        padding: 10px 0;
+        margin-bottom: 10px;
+        border: 2px solid #adb5bc;
+        height: 20px;
+        display: table;
+        width: 100%;
+    }
+
+    .wrapper-blocks-home .block-content {
+        background: #f3f3f3;
+        padding: 15px;
+        margin-bottom: 10px;
+        border: 2px solid #adb5bc;
+        height: 30px;
+        display: table;
+        width: 100%;
+    }
+
+    h3.title-block {
+        font-size: 24px;
+        color: #4c91d2;
+        max-width: 200px;
+        font-weight: normal;
+        margin-top: 0;
+    }
+
+    h3.title-block + a img {
+        width: 75px;
+        height: 75px;
+        margin: auto;
+        display: table;
+        bottom: 40px;
+        left: 40%;
+    }
+
+    tbody.datos-proveedor tr td.complet {
+        color: #009900;
+    }
+
+    /*
+     * Style Cesar
+     */
+    .row.buscador {
+        margin: 25px 0;
+    }
+
+    select,
+    input[type="text"],
+    input[type="email"],
+    input[type="number"],
+    input[type="search"] {
+        width: 100%;
+        border: 1px solid #3c89ce;
+        padding: 5px 7px;
+        font-size: 14px;
+        margin-bottom: 15px;
+    }
+
+    select {
+        padding: 4px 7px;
+    }
+
+    .disabled-box {
+        background: #9f9f9f;
+        padding: 15px;
+        margin-bottom: 10px;
+        border: 2px solid #adb5bc;
+        height: 210px;
+        display: table;
+        width: 100%;
+    }
+
+    .doc-box-filters {
+        display: none
+    }
+
+    table.datos-proveedor {
+        width: 100%;
+        float: left;
+        margin: 15px 0;
+        border-bottom: 1px solid #ccc;
+    }
+
+    table.datos-proveedor thead td {
+        font-weight: bold;
+        font-size: 14px;
+    }
+
+    table.datos-proveedor thead tr {
+        border-bottom: 1px solid #ccc;
+    }
+
+    tbody.datos-proveedor tr td {
+        padding: 3px 5px;
+        font-size: 14px;
+        font-weight: 400;
+        height: 34px;
+    }
+
+    tbody.datos-proveedor tr td.pdte {
+        color: #ae3d3d;
+    }
+
+    tbody.datos-proveedor tr td.pdte-ok {
+        color: #00cc00;
+    }
+
+    tbody.datos-proveedor tr td.complet {
+        color: #009900;
+    }
+
+</style>
+{% endblock %}
+{% block main_title %} {{'Proceso'|trans}}{% endblock %}
+{% block content %}
+
+
+<div class="wrapper wrapper-content">
+    {% for flashMessage in app.session.flashbag.get('error') %}
+    <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+        <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+        {{ flashMessage }}
+    </div>
+    {% endfor %}
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="row wrapper-blocks wrapper-blocks-home">
+                <div class="col-sm-3 block-wrapper">
+                    <div class="block-content" style="text-align: -webkit-center;">
+                        <h3 class="title-block"><a class="iframe" href="{{path('nononsense_nuevo_contrato')}}">{{'Nuevo
+                            registro'|trans}}</a></h3>
+                        <a class="iframe" href="{{path('nononsense_nuevo_contrato')}}"><img
+                                src="/img/icono-edit.png"/></a>
+                        <a class="btn btn-primary" href="{{path('nononsense_nuevo_contrato')}}">{{'Empezar'|trans}}</a>
+                    </div>
+                </div>
+                <div class="col-sm-3 block-wrapper">
+                    <div class="block-content" style="text-align: -webkit-center;">
+                        <h3 class="title-block"><a href="{{path('nononsense_registro_enproceso')}}">{{'En
+                            proceso'|trans}}</a></h3>
+                        <a href="{{path('nononsense_registro_enproceso')}}"><img src="/img/icono-archivo.png"/></a>
+                        <a class="btn btn-primary" href="{{path('nononsense_registro_enproceso')}}">{{'Continuar'|trans}}</a>
+                    </div>
+                </div>
+                <div class="col-sm-3 block-wrapper" style="text-align: -webkit-center;">
+                    <div class="block-content">
+                        <h3 class="title-block"><a
+                                href="{{path('nononsense_registro_archivo')}}">{{'Archivo'|trans}}</a></h3>
+                        <a href="{{path('nononsense_registro_archivo')}}"><img src="/img/icono-archivo.png"/></a>
+                        <a class="btn btn-primary" href="{{path('nononsense_registro_archivo')}}">{{'Ver
+                            archivo'|trans}}</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <div>
+                <button class="btn btn-outline-info active" id="tituloregistros">Registros en cumplimentación</button>
+                <button class="btn btn-outline-secondary" id="tituloparcial">Cumplimentación parcial en proceso</button>
+                <hr>
+                <div class="row" id="filtroparciales" style="display: none">
+                    <form>
+                        <div class="col-sm-3">
+                            <label for="idunicocodigomaterial">Código Material</label>
+                            <input type="text" name="idunicocodigomaterial" id="idunicocodigomaterial"
+                                   value="{{codigomaterial}}">
+                        </div>
+                        <div class="col-sm-3">
+                            <label for="idLote">Lote</label>
+                            <input type="text" name="idLote" id="idLote" value="{{lote}}">
+                        </div>
+                        <div class="col-sm-3">
+                            <label for="idcodigoequipo">Código Equipo</label>
+                            <input type="text" name="idcodigoequipo" id="idcodigoequipo" value="{{codigoequipo}}">
+                        </div>
+                        <div class="col-sm-3">
+                            <label for="idworkordersap">Work order SAP</label>
+                            <input type="text" name="idworkordersap" id="idworkordersap" value="{{workordersap}}">
+                        </div>
+                        <div class="col-sm-3">
+                            <label for="idcodigodocumento">Código de documento</label>
+                            <input type="text" name="idcodigodocumento" id="idcodigodocumento"
+                                   value="{{codigodocumento}}">
+                        </div>
+                        <div class="col-sm-3">
+                            <label for="idregistro">ID Registro</label>
+                            <input type="text" name="idregistro" id="idregistro" value="{{idregistro}}">
+                        </div>
+                        <div class="col-sm-1">
+                            <label for="idfiltrar" style="color: white">ID Registro</label>
+                            <input type="text" name="idfiltrar" id="idfiltrar" value="Filtrar" class="btn btn-primary"
+                                   readonly>
+
+                        </div>
+                    </form>
+                </div>
+                {% if documentsProcessParcial|length > 0 %}
+                <div class="row" style="display: none" id="cumplimentacionParcialDiv">
+                    <h2>Registros en cumplimentación parcial: </h2>
+                    <table id="inProcessParcial" class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>Nº</th>
+                            <th>SubCategoria</th>
+                            <th>Nombre</th>
+                            <!--<th>Descripcion</th>-->
+                            <th>Estado</th>
+                            <th>Fecha Iniciado</th>
+                            <th>Acción</th>
+                        </tr>
+                        </thead>
+                        {% for plantilla in documentsProcessParcial %}
+                        <tr>
+                            <td>{{plantilla.id}}</td>
+                            <td>{{plantilla.getMasterWorkflowEntity.category.name}}</td>
+                            <td>{{plantilla.getMasterWorkflowEntity.name}}</td>
+                            <!--<td>{{plantilla.getMasterWorkflowEntity.description}}</td>-->
+                            {% if plantilla.status == 0 %}
+                            <td>Iniciado</td>
+                            {% elseif plantilla.status == 6 %}
+                            <td class="pdte">Devuelto para edición</td>
+                            {% else %}
+                            <td class="pdte">No deberías estar viendo este registro</td>
+                            {% endif %}
+                            <td>{{plantilla.getMetaData[0].getFechainicio | date('d-m-Y H:i:s') }}</td>
+                            {% if plantilla.status == 0 or plantilla.status == 6 %}
+                            {% if plantilla.getInEdition == 0 %}
+                            <td><a class="btn btn-xs btn-primary" name="completarregistro"
+                                   href="{{path('nononsense_registro_completar', {'registroid': plantilla.id})}}">{{'Completar
+                                registro'|trans}}</a></td>
+                            {% else %}
+                            <td><a class="btn btn-xs btn-secondary" name="completarregistro"><i class="fa fa-lock"> </i>
+                                {{'En edicion'|trans}}</a></td>
+                            {% endif %}
+                            {% else %}
+                            <td></td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                    </table>
+                    {% include '::pagination.html.twig' %}
+                </div>
+                {% endif %}
+
+                {% if documentsProcess|length > 0 %}
+                <table id="inProcess" class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th>Nº</th>
+                        <th>SubCategoria</th>
+                        <th>Nombre</th>
+                        <!--<th>Descripcion</th>-->
+                        <th>Estado</th>
+                        <th>Fecha Iniciado</th>
+                        <th>Acción</th>
+                    </tr>
+                    </thead>
+                    {% for plantilla in documentsProcess %}
+                    <tr>
+                        <td>{{plantilla.id}}</td>
+                        <td>{{plantilla.companyName}}</td>
+                        <td>{{plantilla.name}}</td>
+                        <!--<td>{{plantilla.description}}</td>-->
+                        {% if plantilla.status == 0 %}
+                        <td>Iniciado</td>
+                        {% elseif plantilla.status == 1 %}
+                        <td>Pendiente de verificar</td>
+                        {% elseif plantilla.status == 2 %}
+                        <td class="pdte">Cancelado</td>
+                        {% elseif plantilla.status == 3 %}
+                        <td>Validado</td>
+                        {% elseif plantilla.status == 4 %}
+                        <td>Pendiente de validar</td>
+                        {% elseif plantilla.status == 5 %}
+                        <td>Pendiente de cancelar</td>
+                        {% elseif plantilla.status == 6 %}
+                        <td class="pdte">Devuelto para edición</td>
+                        {% endif %}
+                        <td>{{plantilla.fecha | date('d-m-Y H:i:s') }}</td>
+                        {% if plantilla.status == 0 or plantilla.status == 6 %}
+                        {% if plantilla.in_edition == 0%}
+                        <td><a class="btn btn-xs btn-primary" name="completarregistro"
+                               href="{{path('nononsense_registro_completar', {'registroid': plantilla.id})}}">{{'Completar
+                            registro'|trans}}</a></td>
+                        {% else %}
+                        <td><a class="btn btn-xs btn-secondary" name="completarregistro"><i class="fa fa-lock"> </i>
+                            {{'En edicion'|trans}}</a></td>
+                        {% endif %}
+                        {% else %}
+                        <td></td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                </table>
+                {% else %}
+                <p>No hay registros en Processo</p>
+                {% endif %}
+            </div>
+            <hr>
+            <div>
+                <h2>Registro en validación</h2>
+                {% if documents|length > 0 %}
+                <table id="datos" class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th>Nº</th>
+                        <th>SubCategoria</th>
+                        <th>Nombre</th>
+                        <th>Iniciador Por:</th>
+                        <!--<th>Descripcion</th>-->
+                        <th>Lote</th>
+                        <th>Código Material</th>
+                        <th>Fecha inicio</th>
+                        <th>Iniciar</th>
+                    </tr>
+                    </thead>
+                    {% for plantilla in documents %}
+                    <tr>
+                        <td>{{plantilla.registroid}}</td>
+                        <td>{{plantilla.companyName}}</td>
+                        <td>{{plantilla.name}}</td>
+                        <td>{{plantilla.namecreated}}</td>
+                        <!--<td>{{plantilla.description}}</td>-->
+                        <td>
+                            {{plantilla.lote}}
+                        </td>
+                        <td>
+                            {{plantilla.codigo}}
+                        </td>
+                        <td>{{plantilla.fecha | date('d-m-Y H:i:s')}}</td>
+                        <td>
+                            {% if plantilla.in_edition == 0 %}
+                            <a class="btn btn-xs btn-primary" name="verregistro"
+                               href="{{path('nononsense_ver_registro', {'revisionid': plantilla.registroid})}}"
+                               target="_self">{{'Ver'|trans}}</a>
+                            {% else %}
+                        <a class="btn btn-xs btn-secondary" name="completarregistro"><i class="fa fa-lock"> </i>
+                            {{'En revision'|trans}}</a>
+                        {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </table>
+                {% else %}
+                <p>No hay registros pendientes</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+{{ parent() }}
+<script>
+
+
+    $(document).ready(function () {
+        toastr.options = {
+            "closeButton": true,
+            "debug": false,
+            "progressBar": true,
+            "positionClass": "toast-top-center",
+            "onclick": null,
+            "showDuration": "400",
+            "hideDuration": "1000",
+            "timeOut": "7000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        };
+
+        ActivateMenu('docxpresso_home');
+        $('#side-menu').metisMenu();
+
+
+        $('#factBtnNo').click(function () {
+            $("#factModal").hide();
+
+        });
+
+        $('#tituloparcial').click(function () {
+            $(this).addClass('active');
+            $('#tituloregistros').removeClass('active');
+
+            $('#cumplimentacionParcialDiv').show();
+            $('#filtroparciales').show();
+            $('#inProcess').hide();
+        });
+
+        $('#tituloregistros').click(function () {
+            $(this).addClass('active');
+            $('#tituloparcial').removeClass('active');
+
+            $('#filtroparciales').hide();
+            $('#inProcess').show();
+            $('#cumplimentacionParcialDiv').hide();
+
+        });
+
+        $('#idfiltrar').click(function () {
+            var idRegistro = $('#idregistro').val();
+
+            var idcodigomaterial = $('#idunicocodigomaterial').val();
+            var idlote = $('#idLote').val();
+            var idcodigoequipo = $('#idcodigoequipo').val();
+            var idworkordersap = $('#idworkordersap').val();
+            var idcodigodocumento = $('#idcodigodocumento').val();
+
+            if (idRegistro == "") {
+                idRegistro = "-1";
+            }
+            if (idcodigomaterial == "") {
+                idcodigomaterial = "-1";
+
+            }
+            if (idlote == "") {
+                idlote = "-1";
+
+            }
+            if (idcodigoequipo == "") {
+                idcodigoequipo = "-1";
+
+            }
+            if (idworkordersap == "") {
+                idworkordersap = "-1";
+
+            }
+            if (idcodigodocumento == "") {
+                idcodigodocumento = "-1";
+
+            }
+
+            var query = idRegistro + "_" + idcodigomaterial + "_" + idlote + "_" + idcodigoequipo + "_" + idworkordersap + "_" + idcodigodocumento;
+
+            var server = "/registro_process/1/" + query;
+
+            location.replace(server);
+
+        });
+
+        if ("{{query}}" != 'q') {
+            console.log("Me ejecuto");
+            $("#tituloparcial").trigger("click");
+        } else {
+            console.log("{{query}}");
+        }
+
+    });
+
+
+</script>
+{% endblock %}

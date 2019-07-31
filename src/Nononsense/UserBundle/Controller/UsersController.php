@@ -1,0 +1,368 @@
+<?php
+
+namespace Nononsense\UserBundle\Controller;
+
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Nononsense\UserBundle\Entity\Users;
+use Nononsense\UserBundle\Entity\Roles;
+use Nononsense\GroupBundle\Entity\GroupUsers;
+use Nononsense\UserBundle\Form\Type as FormUsers;
+use Symfony\Component\Security\Core\Util\SecureRandom;
+use Doctrine\ORM\Tools\Pagination\Paginator;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\Session;
+
+
+class UsersController extends Controller
+{
+    public function indexAction($page, $query = 'q')
+    {
+        if (false === $this->get('security.authorization_checker')->isGranted('ROLE_ADMIN')) {
+            $admin = false;
+        } else {
+            $admin = true;
+        }
+
+        $maxResults = $this->container->getParameter('results_per_page');
+
+         $users = $this->getDoctrine()
+                      ->getRepository('NononsenseUserBundle:Users')
+                      ->listUsers($page, $maxResults, 'id', $query, $admin);
+
+        $paging = array(
+            'page' => $page,
+            'path' => 'nononsense_users_homepage',
+            'count' => max(ceil($users->count() / $maxResults), 1),
+            'results' => $users->count()
+            );
+        $path = '/' . $this->container->getParameter('user_img_dir');
+        return $this->render('NononsenseUserBundle:Users:index.html.twig', array(
+            'users' => $users,
+            'webPath' => $path,
+            'paging' => $paging,
+            'query' => $query
+        ));
+    }
+    
+    public function showAction($id)
+    {
+        $user = $this->getDoctrine()
+                     ->getRepository('NononsenseUserBundle:Users')
+                     ->find($id);
+        
+        $templates =array();
+        /*
+        $templates = $this->getDoctrine()
+                     ->getRepository('NononsenseDocumentBundle:Templates')
+                     ->templatesByUser($user->getId());
+*/
+        if ($this->get('security.authorization_checker')->isGranted('ROLE_ADMIN')
+            || $id == $this->getUser()->getId()) {
+            $editable = true;
+        } else {
+            $editable = false;
+        }
+        $path = '/' . $this->container->getParameter('user_img_dir');
+        return $this->render('NononsenseUserBundle:Users:profile.html.twig', array(
+            'user' => $user,
+            'webPath' => $path,
+            'templates' => $templates,
+            'editable' => $editable
+        ));
+    }
+    
+    public function createAction(Request $request)
+    {       
+        // if does not enjoy the required permission send the user to the
+        //users list
+        if (false === $this->get('security.authorization_checker')->isGranted('ROLE_ADMIN')) {
+            return $this->redirect($this->generateUrl('nononsense_users_homepage'));
+        }
+        
+        // create a user entity
+        $width = $this->container->getParameter('avatar_width');
+        $height = $this->container->getParameter('avatar_height');
+        $size = array('width' => $width, 'height' => $height);
+        $image = \Nononsense\UtilsBundle\Classes\Utils::generateColoredPNG($size);
+        $user = new Users();
+        $user->setIsActive(true);
+        $user->setPhoto($image);
+        $user->setDescription($this->get('translator')->trans('<p>Insert <strong>here</strong> the user description.</p>'));
+
+        
+        $form = $this->createForm(new FormUsers\UserType(true), $user);
+        $form->handleRequest($request);
+
+        if ($form->isValid()) {
+            $roleId = $request->request->get('account');
+            //get assosiated role entity
+            $role = $this->getDoctrine()
+                         ->getRepository('NononsenseUserBundle:Roles')
+                         ->find($roleId);
+            $user->addRole($role);
+            // generate a new unique salt
+            $generator = new SecureRandom();
+            $user->setSalt(base64_encode($generator->nextBytes(10)));
+            // encode password and set the new value instead the plain value
+            $factory = $this->get('security.encoder_factory');
+            $encoder = $factory->getEncoder($user);
+            $password = $encoder->encodePassword($user->getPassword(), $user->getSalt());
+            $user->setPassword($password);
+            $em = $this->getDoctrine()->getManager();                
+            $em->persist($user);
+            $em->flush();
+            //grab the id
+            $id = $user->getId();
+            //save the uploaded image as a  medium size image and a thumb
+            $webPath = $this->container->getParameter('user_img_dir');
+            $absolutePath = __DIR__ .'/../../../../web/' . $webPath;
+            $imagePath = $absolutePath . 'user_' . $id . '.jpg';
+            $img = \Nononsense\UtilsBundle\Classes\Utils::resize2JPG($user->getPhoto(), $width, $height, 90, $imagePath);
+            $thumbPath = $absolutePath . 'thumb_' . $id . '.jpg';
+            $thumb = \Nononsense\UtilsBundle\Classes\Utils::resize2JPG($user->getPhoto(), 140, 140, 100, $thumbPath);
+            //Notify the user
+            $this->get('session')->getFlashBag()->add(
+            'createdUser',
+            $this->get('translator')->trans('The user with username: "') . $user->getUsername() . $this->get('translator')->trans('" has been created.')
+            );
+            return $this->redirect($this->generateUrl('nononsense_users_homepage'));
+        }
+
+        return $this->render('NononsenseUserBundle:Users:create.html.twig', array(
+            'createUser' => $form->createView(),
+            'photo' => $image,
+            'rol' => 2, // editor by default
+            'admin' => true,
+            'create' => true
+        ));
+    }
+    
+    public function deleteAction($id, Request $request)
+    {
+        // if does not enjoy the required permission send the user to the
+        //users list
+        if (false === $this->get('security.authorization_checker')->isGranted('ROLE_ADMIN')) {
+            return $this->redirect($this->generateUrl('nononsense_users_homepage'));
+        }
+        //TODO: we can not remove users just like that!!!
+        // create a user entity
+        // get the user entity
+        $user = $this->getDoctrine()
+                     ->getRepository('NononsenseUserBundle:Users')
+                     ->find($id);
+
+        $form = $this->createForm(new FormUsers\DeleteUserType(), $user);
+        $form->handleRequest($request);
+
+        if ($form->isValid()) {
+            $em = $this->getDoctrine()->getManager();
+            $row = $em->getRepository('NononsenseUserBundle:Users')
+                      ->findOneBy(array('id' => $id));
+            $em->remove($row);
+            $em->flush();
+            $this->get('session')->getFlashBag()->add(
+            'deletedUser',
+            $this->get('translator')->trans('The user with username: "') . $user->getUsername() . $this->get('translator')->trans('" has been removed.')
+            );
+            return $this->redirect($this->generateUrl('nononsense_users_homepage'));
+        }
+
+        return $this->render('NononsenseUserBundle:Users:delete.html.twig', array(
+            'deleteUser' => $form->createView(),
+            'user' => $user
+        ));
+    }
+    
+    public function editAction($id, Request $request)
+    {
+        // if does not enjoy the required permission send the user to the
+        //user list
+        if (false === $this->get('security.authorization_checker')->isGranted('ROLE_ADMIN')
+            && $id != $this->getUser()->getId()) {
+            return $this->redirect($this->generateUrl('nononsense_users_homepage'));
+        }
+        if ($this->get('security.authorization_checker')->isGranted('ROLE_ADMIN')) {
+            $admin = true;
+        } else {
+            $admin = false;
+        }
+        //recall the user entity        
+        $user = $this->getDoctrine()
+                     ->getRepository('NononsenseUserBundle:Users')
+                     ->find(array('id' => $id));
+      
+        //get the previous user rol for later use    
+        $roles =  $user->getRoles();
+        if (!empty($roles)){
+            $rol = $roles[0]->getId();
+        } else {    
+            $rol = 2;//Editor by default
+        }
+        $form = $this->createForm(new FormUsers\UserType($admin), $user);
+        $form->handleRequest($request);
+
+        if ($form->isValid()) {
+            $em = $this->getDoctrine()->getManager();
+            //get the old roles if any
+            if (!empty($roles) && $admin){
+                $oldRole = $this->getDoctrine()
+                                 ->getRepository('NononsenseUserBundle:Roles')
+                                 ->find($rol);
+                $user->removeRole($oldRole);
+            }
+            //get the new role entity
+            $roleId = $request->request->get('account');
+            if ($admin) {
+                $role = $this->getDoctrine()
+                             ->getRepository('NononsenseUserBundle:Roles')
+                             ->find($roleId);
+
+                $user->addRole($role); 
+            }
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($user);
+            $em->flush();
+            return $this->redirect($this->generateUrl('nononsense_user_profile', array('id' => $id)));
+        }
+
+        return $this->render('NononsenseUserBundle:Users:editData.html.twig', array(
+            'createUser' => $form->createView(),
+            'rol' => $rol,
+            'admin' => $admin,
+            'create' => false
+        ));
+    }
+    
+    public function editImageAction($id, Request $request)
+    {
+        // if does not enjoy the required permission send the user to the
+        //user list
+        if (false === $this->get('security.authorization_checker')->isGranted('ROLE_ADMIN')
+            && $id != $this->getUser()->getId()) {
+            return $this->redirect($this->generateUrl('nononsense_users_homepage'));
+        }
+        //recall the user entity
+        $width = $this->container->getParameter('avatar_width');
+        $height = $this->container->getParameter('avatar_height');
+        $size = array('width' => $width, 'height' => $height);
+        
+        $user = $this->getDoctrine()
+                     ->getRepository('NononsenseUserBundle:Users')
+                     ->findOneBy(array('id' => $id));
+        if (empty($user->getPhoto())) {
+            $image = \Nononsense\UtilsBundle\Classes\Utils::generateColoredPNG($size);
+            $user->setPhoto($image);
+        } else {
+            $image = $user->getPhoto();
+        }
+        $form = $this->createForm(new FormUsers\UserImageType(), $user);
+        $form->handleRequest($request);
+
+        if ($form->isValid()) {
+            //save the uploaded image as a  medium size image and a thumb
+            $webPath = $this->container->getParameter('user_img_dir');
+            $absolutePath = __DIR__ .'/../../../../web/' . $webPath;
+            $imagePath = $absolutePath . 'user_' . $id . '.jpg';
+            $img = \Nononsense\UtilsBundle\Classes\Utils::resize2JPG($user->getPhoto(), $width, $height, 90, $imagePath);
+            $thumbPath = $absolutePath . 'thumb_' . $id . '.jpg';
+            $thumb = \Nononsense\UtilsBundle\Classes\Utils::resize2JPG($user->getPhoto(), 140, 140, 100, $thumbPath);
+            $em = $this->getDoctrine()->getManager();                
+            $em->persist($user);
+            $em->flush();
+            return $this->redirect($this->generateUrl('nononsense_user_profile', array('id' => $id)));
+        }
+
+        return $this->render('NononsenseUserBundle:Users:editImage.html.twig', array(
+            'createUser' => $form->createView(),
+            'photo' => $image
+        ));
+    }
+    
+    public function resetPasswordAction($id, Request $request)
+    {
+        // if does not enjoy the required permission send the user to the
+        //user list
+        if (false === $this->get('security.authorization_checker')->isGranted('ROLE_ADMIN')) {
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+        }
+        if ($this->get('security.authorization_checker')->isGranted('ROLE_ADMIN')
+            || $this->getUser()->getRecoverPass() == 'pending' ) {
+            $admin = true;
+        } else {
+            $admin = false;
+        }
+        //recall the user entity        
+        $user = $this->getDoctrine()
+                     ->getRepository('NononsenseUserBundle:Users')
+                     ->find(array('id' => $id));
+      
+        $salt = $user->getSalt();
+        $pwd = $user->getPassword();
+        $form = $this->createForm(new FormUsers\ResetPassType(), $user);
+        $form->handleRequest($request);
+
+        if ($form->isValid()) {
+            //check that the old password is correct if is not an admin
+            if (!$admin) {
+                $oldPWDerror = false;
+                $oldPassword = $request->request->get('oldPassword');
+                $factory = $this->get('security.encoder_factory');
+                $encoder = $factory->getEncoder($user);
+                $checkPWD = $encoder->encodePassword($oldPassword, $salt);
+                if ($checkPWD != $pwd) {
+                    $oldPWDerror = $this->get('translator')->trans('The old password that you just introduced was incorrect, please, try again.');
+                    //Notify the user
+                    $this->get('session')->getFlashBag()->add(
+                    'pwdError',
+                    $oldPWDerror
+                    );
+                    return $this->redirect($this->generateUrl('nononsense_user_modify_password', array('id' => $id)));
+                }
+            }
+            //insert new password
+            // generate a new unique salt
+            $generator = new SecureRandom();
+            $user->setSalt(base64_encode($generator->nextBytes(10)));
+            // encode password and set the new value instead the plain value
+            $factory = $this->get('security.encoder_factory');
+            $encoder = $factory->getEncoder($user);
+            $password = $encoder->encodePassword($user->getPassword(), $user->getSalt());
+            $user->setPassword($password);
+            $user->setRecoverPass(null);
+            $em = $this->getDoctrine()->getManager();
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($user);
+            $em->flush();
+            return $this->redirect($this->generateUrl('nononsense_user_profile', array('id' => $id)));
+        }
+
+        return $this->render('NononsenseUserBundle:Users:resetPass.html.twig', array(
+            'editPass' => $form->createView(),
+            'admin' => $admin,
+            'pwd' => false
+        ));
+    }
+    
+    public function keepAliveAction(Request $request)
+    {
+ 
+        $response = new Response();
+        $response->setContent('OK');
+        
+        return  $response;
+    }
+    
+    public function loadUsersAction(Request $request)
+    {       
+        // if does not enjoy the required permission kick him out
+        if (false === $this->get('security.authorization_checker')->isGranted('ROLE_ADMIN')) {
+            echo 'No tiene permisos estar aquí';
+            exit;
+        }
+        echo 'No debería estar aquí';
+        exit;
+        
+    }
+    
+}

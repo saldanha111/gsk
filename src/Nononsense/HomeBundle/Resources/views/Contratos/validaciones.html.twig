@@ -1,0 +1,233 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}DOCXPRESSO | {{'Homepage'|trans}} {% endblock %}
+{% block head %}
+    {{ parent() }}
+
+    <style>
+        #loadingChart {display: none}
+        .doc-box-filters {display: none}
+        .form-control {width: 120px !important}
+
+        table.datos-proveedor {
+            width: 100%;
+            float: left;
+            margin: 15px 0;
+            border-bottom: 1px solid #ccc;
+        }
+
+        table.datos-proveedor thead td {
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        table.datos-proveedor thead tr {
+            border-bottom: 1px solid #ccc;
+        }
+
+        tbody tr td {
+            padding: 3px 5px;
+            font-size: 14px;
+            font-weight: 400;
+            height: 34px;
+        }
+
+        tbody.datos-proveedor tr td.pdte {
+            color: #ae3d3d;
+        }
+
+        tbody.datos-proveedor tr td.pdte-ok {
+            color: #00cc00;
+        }
+
+        tbody.datos-proveedor tr td {
+            padding: 3px 5px;
+            font-size: 14px;
+            font-weight: 400;
+            height: 34px;
+        }
+
+        tbody tr td.pdte {
+            color: #ae3d3d;
+        }
+
+        tbody tr td.pdte-ok {
+            color: #00cc00;
+        }
+        a.btn-table {
+            background: #0fba40;
+            border-radius: 0;
+            color: #fff;
+            font-size: 12px;
+            width: 100%;
+            margin: 0;
+            border: 1px solid #0fba40;
+            padding: 5px 0;
+        }
+
+        a.btn.btn-table.btn-cancel {
+            background: red;
+            border: 1px solid red;
+        }
+
+        a.btn-table:hover {
+            background: #fff;
+            color: #0fba40;
+        }
+
+        a.btn.btn-table.btn-cancel:hover {
+            background: #fff;
+            color: red;
+        }
+        .row.wrapper-blocks {
+            margin-left: -5px;
+            margin-right: -5px;
+            margin-top: 25px;
+            margin-bottom: 25px;
+        }
+
+        .block-wrapper {
+            padding: 0 5px;
+            min-width: 170px;
+        }
+
+        .block-content {
+            background: #f3f3f3;
+            padding: 10px 0;
+            margin-bottom: 10px;
+            border: 2px solid #adb5bc;
+            height: 168px;
+            display: table;
+            width: 100%;
+        }
+
+        .wrapper-blocks-home .block-content {
+            background: #f3f3f3;
+            padding: 15px;
+            margin-bottom: 10px;
+            border: 2px solid #adb5bc;
+            height: 210px;
+            display: table;
+            width: 100%;
+        }
+        h3.title-block {
+            font-size: 24px;
+            color: #4c91d2;
+            max-width: 200px;
+            font-weight: normal;
+            margin-top: 0;
+        }
+
+        h3.title-block + a img {
+            width: 75px;
+            height: 75px;
+            margin: auto;
+            display: table;
+            position: absolute;
+            bottom: 40px;
+            left: 40%;
+        }
+
+
+        tbody.datos-proveedor tr td.complet {color: #009900;}
+    </style>
+{% endblock %}
+{% block main_title %} Tus validaciones {% endblock %}
+{% block content %}
+    <div class="wrapper wrapper-content"> 
+        {% for flashMessage in app.session.flashbag.get('error') %}
+            <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                {{ flashMessage }}
+            </div>
+        {% endfor %}
+        <div class="row">
+            <div  style="padding-left: 20px">
+                <table id="datos" class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th>ID</td>
+                        <th>Cod. Proveedor</th>
+                        <th>Proveedor</th>
+                        <th>Fecha envío a validación</th>
+                        <th>Tipo Plantilla o Ficha</th>
+                        <th>Descripción</th>
+                        <th>Estado</th>
+                        <th>Iniciado por</th>
+                        <th>Acción</th>
+                    </tr>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for item in contratos %}
+                    <tr>
+                        <td>{{item.id}}</td>
+                        <td>{{item.vendor_id}}</td>
+                        <td>{{item.name}}</td>
+                        <td>{{item.modified |date('Y-m-d H:i:s')}} </td>
+                        <td>{{item.type}}</td>
+                        <td>{{item.description}}</td>
+
+                        {% if item.status == "0" or item.status == "3" or item.status == "8" %}
+                        <td>Borrador</td>
+                        {% elseif item.status == "1" %}
+                        <td>Pde de validación N1</td>
+                        {% elseif item.status == "2" %}
+                        <td class="pdte">Rechazado</td>
+                        {% elseif item.status == "4" %}
+                        <td class="pdte-ok">Enviado a firma</td>
+                        {% elseif item.status == "5" %}
+                        <td>Pde de validación N2</td>
+                        {% elseif item.status == "6" %}
+                        <td>Pde de validación Logística</td>
+                        {% elseif item.status == "9" %}
+                        <td class="pdte-ok">Firmado</td>
+                        {% else %}
+
+                        {% endif %}
+                        <td>{{item.username}}</td>
+                        <td>
+                            {% if item.status == "1" or item.status == "2" or item.status == "5" or item.status == "6" or item.status == "7" %}
+                            <!-- a href="{{path('nononsense_validaciones_workflow', {'idworkflow': item.id}) }}" class="btn btn-xs btn-primary"><i class="fa fa-paper-plane"> </i> Validar</a -->
+                            <a href="{{path('nononsense_revision_workflow', {'idworkflow': item.id,revisionid: item.revisionid}) }}" class="btn btn-xs btn-primary"><i class="fa fa-paper-plane"> </i> Validar</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+
+                {% include '::pagination.html.twig' %}
+
+            </div>
+        </div>
+            
+{% endblock %}
+{% block scripts %}
+    {{ parent() }}
+    <script>
+        
+        
+        $(document).ready(function(){
+            toastr.options = {
+                "closeButton": true,
+                "debug": false,
+                "progressBar": true,
+                "positionClass": "toast-top-center",
+                "onclick": null,
+                "showDuration": "400",
+                "hideDuration": "1000",
+                "timeOut": "7000",
+                "extendedTimeOut": "1000",
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut"
+            }
+            
+            ActivateMenu('docxpresso_home');
+            $('#side-menu').metisMenu();
+
+        });
+        
+    </script>
+{% endblock %}

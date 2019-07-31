@@ -1,0 +1,105 @@
+
+body { background:#fff!important;}
+#fixedbar {
+    top: auto;
+    bottom: 0;
+    box-shadow: none;
+    background: #f9f9f9;
+    border-top: 1px solid #ddd;
+    padding: 5px 0;
+}
+.form-horizontal { background: #fff url('../../../../img/themes/legalitas/fondo-legalitas.png') center top no-repeat fixed!important;}
+.tabProcessor {
+	box-shadow:none;
+	border:0;
+}
+
+div#progressBarTool { border: 2px solid #ccc;}
+#progressBar { background-color: #ccc;}
+#progressValue {color: #aaa;}
+
+.nav.nav-tabs li:first-child {
+	margin-left:15px;
+}
+.nav.nav-tabs li.active {
+	border:1px solid #ddd;
+	border-bottom: 1px solid #fff;
+}
+
+.nav.nav-tabs li.active a  {
+	border:0;
+	box-shadow:none;
+}
+.tabGeneralData {
+    background: transparent;
+    border: 0;
+    padding: 15px 25px;
+}
+.tabGeneralData h3 {
+	margin: 10px 0;
+	font-weight: 300;
+}
+label {
+	font-weight: 300;
+	font-size:22px;
+	display:none;
+}
+.hr-line-dashed {display:none;}
+.form-control {
+    font-size: 24px;
+    font-weight: 300;
+	border:0;
+    border-bottom: 1px solid #ddd;
+    color: #666;
+	margin-top:25px;
+	background-color:transparent;
+	-webkit-transition: background-color 0.3s ease-out;
+    -moz-transition: background-color 0.3s ease-out;
+    -o-transition: background-color 0.3s ease-out;
+    transition: background-color 0.3s ease-out;
+}
+.form-control:focus {
+    border: 0;
+    background-color: #f6f6f6;
+}
+.tabProcessor {
+    max-width: 500px;
+    padding: 0 100px;
+}
+
+input::-webkit-input-placeholder,
+textarea::-webkit-input-placeholder {  transition: all 0.3s ease-in-out; color:#ccc;}
+
+input:focus, input#:valid,
+textarea#:valid, textarea:focus {
+		box-shadow: none;
+		outline: none;
+		background-position: 0 0;
+}
+input:focus::-webkit-input-placeholder,
+textarea:focus::-webkit-input-placeholder {
+	font-weight: 300;
+	font-size:18px;
+	transform: translateY(-45px) translateX(-10px);
+	visibility: visible !important;
+	padding-left:0;
+	color:#676a6c;
+	margin-left:-30px;
+}
+
+.btn-info {
+    background-color: #f6f6f6;
+    border-color: #ccc;
+    color: #bbb;
+    margin-bottom: 15px;
+    position: absolute;
+    right: -30px;
+    top: -47px;
+}
+
+.btn-info:hover,
+.btn-info:focus {
+    background-color: #bbb;
+    border-color: #bbb;
+    color: #fff;
+}

@@ -1,0 +1,24 @@
+<div class="col-lg-3">
+    <div class="ibox float-e-margins">
+        <div class="ibox-content mailbox-content">
+            <div class="file-manager">
+                <a class="btn btn-block btn-primary compose-mail" href="#" id="composeRequest">{{'Compose message'|trans}}</a>
+                <div class="space-25"></div>
+                <h5>{{'Folders'|trans}}</h5>
+                <ul class="folder-list m-b-md" style="padding: 0">
+                    <li><a href="#" id="inboxRequest"> <i class="fa fa-inbox "></i> {{'Inbox'|trans}} <span class="label label-warning pull-right" id="unreadInbox">&nbsp;</span> </a></li>
+                    <li><a href="#" id="sentRequest"> <i class="fa fa-envelope-o"></i> {{'Sent Mail'|trans}}</a></li>
+                    <li><a href="#" id="trashRequest"> <i class="fa fa-trash-o"></i> {{'Trash'|trans}}</a></li>
+                </ul>
+                <h5>{{'My Groups'|trans}}</h5>
+                <ul class="category-list" style="padding: 0">
+                    {% for group in groups %}
+                    <li><a href="#" class="groupFilter" data-name="{{group.name}}" data-groupid ="{{group.id}}"> <i class="fa fa-circle" style="color: {{group.color}}"></i> {{group.name}} </a></li>
+                    {% endfor %}
+                </ul>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+    </div>
+</div>
+

@@ -1,0 +1,4 @@
+services:
+#    nononsense_news.example:
+#        class: Nononsense\NewsBundle\Example
+#        arguments: [@service_id, "plain_value", %parameter%]

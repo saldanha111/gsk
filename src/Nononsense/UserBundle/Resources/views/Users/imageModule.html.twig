@@ -1,0 +1,44 @@
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title  back-change">
+                <h5>{{'Image'|trans}} <small>{{'Recommended minimum size: 320x320 pixels'|trans}}</small></h5>
+                <div class="ibox-tools">
+                    <a class="collapse-link">
+                        <i class="fa fa-chevron-up"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="ibox-content">
+                <div class="row">
+                    <div class="col-md-6 text-center">
+                        <input type="file" accept="image/*" name="file" id="inputImage" class="hide">
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-info" id="browse"><i class="fa fa-file-image-o"></i> {{'New image'|trans}}</button>
+                                <button type="button" class="btn btn-info" id="zoomIn"><i class="fa fa-search-plus"></i></button>
+                                <button type="button" class="btn btn-info" id="zoomOut"><i class="fa fa-search-minus"></i></button>
+                                <button type="button" class="btn btn-info" id="rotateLeft" data-method="rotate" data-option="-90"><i class="fa fa-rotate-left"></i></button>
+                                <button type="button" class="btn btn-info" id="rotateRight" data-method="rotate" data-option="90"><i class="fa fa-rotate-right"></i></button>
+                        </div>
+                        <div class="image-crop">
+                            <img src="{{photo}}">
+                        </div>
+                    </div>
+                    <div class="col-md-6 text-center">
+                            <h4 style="padding: 5px;">{{'Preview images'|trans}}</h4>
+                            <div class="img-preview img-preview-sm" style="height: 320px; width: 320px; border: 1px solid #777; margin: 0 auto; box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.5);"></div>
+                            <div style="margin: 10px auto; width: 180px">
+                                <div class="img-preview2 img-preview-sm" style="border: 1px solid #777; border-radius: 50%; width:100px; height: 100px; overflow: hidden; float: left;box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.5);"></div>
+                                <div class="img-preview3 img-preview-sm" style="border: 1px solid #777; border-radius: 50%; width:50px; height: 50px; overflow: hidden; float: left; margin-top: 25px;margin-left: 20px; box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.5);"></div>
+                            </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- This control is hidden -->
+<div class="hiddenField">                
+    {{ form_widget(createUser.photo) }}
+</div>

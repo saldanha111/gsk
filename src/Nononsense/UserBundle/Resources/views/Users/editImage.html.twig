@@ -1,0 +1,135 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}DOCXPRESSO | {{'Edit user image'|trans}} {% endblock %}
+{% block head %}
+    <link href="/css/plugins/summernote/summernote.css" rel="stylesheet">
+    <link href="/css/plugins/summernote/summernote-bs3.css" rel="stylesheet">
+    <link href="/css/plugins/iCheck/custom.css" rel="stylesheet">
+    <link href="/css/plugins/cropper/cropper.min.css" rel="stylesheet">
+
+    {{ parent() }}
+{% endblock %}
+{% block main_title %} {{'Edit user image'|trans}}{% endblock %}
+{% block breadcrumb %}
+<ol class="breadcrumb">
+    <li>
+        <a href="{{ path('nononsense_home_homepage')}}">{{'Home'|trans}}</a>
+    </li>
+    <li>
+        <a href="{{ path('nononsense_users_homepage')}}">{{'Users'|trans}}</a>
+    </li>
+    <li class="active">
+        <strong>{{'Edit user image'|trans}}</strong>
+    </li>
+</ol>
+{% endblock %}
+{% block content %}
+    {{ form_start(createUser) }}
+    {{ form_errors(createUser) }}
+
+    <div class="wrapper wrapper-content animated fadeInUp">
+        {% include 'NononsenseUserBundle:Users:imageModule.html.twig' %}      
+        <div class="row">
+            <div class="col-lg-12">
+                {{ form_widget(createUser.save, {'attr' : {'class': 'btn btn-primary'}}) }} 
+            </div>
+        </div>
+    </div>
+    
+    {{ form_end(createUser) }}
+    
+    <br /> <br />
+
+{% endblock %}
+
+{% block scripts %}
+    {{ parent() }}
+    
+    <!-- Image cropper -->
+    <script src="/js/plugins/cropper/cropper.min.js"></script>
+
+    <script>
+        
+        $(document).ready(function(){
+            var $image = $(".image-crop > img")
+            function loadCropper ($crop) {
+                $($crop).cropper({
+                    aspectRatio: 1,
+                    dragCrop: false,
+                    preview: ".img-preview, .img-preview2, .img-preview3",
+                    done: function(data) {
+                        // Output the result data for cropping image.
+                    }
+                });    
+            }
+            loadCropper($image);
+
+            var $inputImage = $("#inputImage");
+            if (window.FileReader) {
+                $inputImage.change(function() {
+                    var fileReader = new FileReader(),
+                            files = this.files,
+                            file;
+
+                    if (!files.length) {
+                        return;
+                    }
+
+                    file = files[0];
+
+                    if (/^image\/\w+$/.test(file.type)) {
+                        fileReader.readAsDataURL(file);
+                        fileReader.onload = function () {
+                            $inputImage.val("");
+                            $image.cropper("reset", true).cropper("replace", this.result);
+                        };
+                    } else {
+                        showMessage("Please choose an image file.");
+                    }
+                });
+            } else {
+                $inputImage.addClass("hide");
+            }
+            
+            $("#browse").click(function() {
+                var el = $("#inputImage");
+                if (el) {
+                  el.click();
+                }
+            });
+
+            $("#download").click(function() {
+                window.open($image.cropper("getDataURL"));
+            });
+
+            $("#zoomIn").click(function() {
+                $image.cropper("zoom", 0.1);
+            });
+
+            $("#zoomOut").click(function() {
+                $image.cropper("zoom", -0.1);
+            });
+
+            $(document).on("click", "[data-method]", function () {
+                var data = $(this).data();
+
+                if (data.method) {
+                  $image.cropper(data.method, data.option);
+                }
+              });
+
+            $("#setDrag").click(function() {
+                $image.cropper("setDragMode", "crop");
+            });
+            
+            $( "form" ).submit(function( event ) {
+                $('#userImage_photo').val($image.cropper("getDataURL"));
+                return;
+              });
+             
+             ActivateMenu('browse_users');
+            $('#side-menu').metisMenu();
+       });
+    </script>
+{% endblock %}
+
+

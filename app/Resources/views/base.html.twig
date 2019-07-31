@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+{% block namespaces %}<html>{% endblock%}
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block page_title %}DOCXPRESSO{% endblock %}</title>
+    {% block head %}
+        {% include "::head.html.twig" %}
+    {% endblock %}
+    </head>
+    <body class="boxed-layout">
+        <div class="header-page">
+            {% block nav_top %}
+                    {% include "::nav_top.html.twig" %}
+            {% endblock %} 
+        </div>
+        <div id="wrapper" class="border-xs-top border-sm-top">
+            {% block nav_side %}
+                {% include "::nav_side.html.twig" %}
+            {% endblock %}
+            <div id="page-wrapper">
+                <div class="row wrapper border-bottom white-bg page-heading">
+                    <div class="col-sm-12">
+                        <h2>{% block main_title %} Title {% endblock %}</h2>
+                        {% block breadcrumb %}
+                        <ol class="breadcrumb">
+                            <li>
+				<a href="{{ path('nononsense_home_homepage')}}">{{'Home'|trans}}</a>
+                            </li>
+                        </ol>
+                        {% endblock %}
+                    </div>      
+                </div>
+                {% block content %}Content{% endblock %}
+                
+                {% block help %}
+                    {% include "::help.html.twig" %}
+                {% endblock %}
+            </div>
+        </div>
+        <div class="footer-wrapper">
+            {% block footer %}
+                {% include "::footer.html.twig" %}
+            {% endblock %}
+        </div>
+        {% block scripts %}
+            {% include "::scripts.html.twig" %}
+        {% endblock %}
+    </body>
+</html>

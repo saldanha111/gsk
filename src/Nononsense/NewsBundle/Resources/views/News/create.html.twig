@@ -1,0 +1,164 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}DOCXPRESSO | 
+    {% if edit %}
+    {{'Edit news entry'|trans}} 
+    {% else %}
+    {{'Create news entry'|trans}}     
+    {% endif %}
+{% endblock %}
+{% block head %}
+    <link href="/css/plugins/summernote/summernote.css" rel="stylesheet">
+    <link href="/css/plugins/summernote/summernote-bs3.css" rel="stylesheet">
+    <link href="/css/plugins/iCheck/custom.css" rel="stylesheet">
+
+    {{ parent() }}
+{% endblock %}
+{% block main_title %} 
+    {% if edit %}
+    {{'Edit news entry'|trans}} 
+    {% else %}
+    {{'Create news entry'|trans}}     
+    {% endif %} 
+{% endblock %}
+{% block breadcrumb %}
+<ol class="breadcrumb">
+    <li>
+        <a href="{{ path('nononsense_home_homepage')}}">{{'Home'|trans}}</a>
+    </li>
+    <li>
+        <a href="{{ path('nononsense_news_homepage')}}">{{'News'|trans}}</a>
+    </li>
+    <li class="active">
+        {% if edit %}
+        <strong>{{'Edit'|trans}}</strong>
+        {% else %}
+        <strong>{{'Create'|trans}}</strong>   
+        {% endif %}
+    </li>
+</ol>
+{% endblock %}
+{% block content %}
+    {{ form_start(createNews) }}
+        {{ form_errors(createNews) }}
+        <div class="wrapper wrapper-content animated fadeInUp">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="ibox">
+                        <div class="ibox-title">
+                            <h5>Metadata <small>{{'All fields are mandatory'|trans}}.</small></h5>
+                            <div class="ibox-tools">
+                                <a class="collapse-link">
+                                    <i class="fa fa-chevron-up"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="ibox-content form-horizontal">
+                            {% if form_errors(createNews.title) %}
+                                <div class="alert alert-danger alert-dismissable">
+                                    <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                                    {{ form_errors(createNews.title) }}    
+                                </div>
+                            {% endif %}
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">{{'Title'|trans}}</label>
+                                <div class="input-group">
+                                    <span class="input-group-addon"><i class="fa fa-tag"></i></span>
+                                        {{ form_widget(
+                                            createNews.title, 
+                                            {
+                                            'attr': {
+                                                'class': 'form-control',
+                                                'placeholder': 'Insert news title'|trans
+                                                    }
+                                            }
+                                        ) 
+                                        }}
+                                </div>
+                            </div>
+                            <div class="hr-line-dashed"></div>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">{{'Publish'|trans}}</label>
+                                <div class="col-sm-10">
+                                    <div class="checkbox i-checks">
+                                        <label>{{ form_widget(createNews.isActive)}}</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- This control is hidden -->
+                            <div  class="hiddenField">              
+                                {{ form_widget(createNews.body) }}
+                            </div>
+                            <div class="hr-line-dashed"></div>
+                            {% if form_errors(createNews.body) %}    
+                                <div class="alert alert-danger alert-dismissable">
+                                    <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                                    {{ form_errors(createNews.body) }}    
+                                </div>
+                            {% endif %}
+
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="ibox float-e-margins">
+                                        <div class="ibox-title">
+                                            <h5>{{'News body'|trans}}</h5>
+                                        </div>
+                                        <div class="ibox-content no-padding">
+                                            <div class="summernote">{{'<p>Insert <strong>here</strong> the news content.</p>'}}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-lg-12">
+                {{ form_widget(createNews.save, {'attr' : {'class': 'btn btn-primary'}}) }}
+                </div>
+            </div>
+    
+    {{ form_end(createNews) }}
+    
+        <br /> <br />
+        </div>  
+
+{% endblock %}
+
+{% block scripts %}
+    {{ parent() }}
+    
+    <!-- SUMMERNOTE -->
+    <script src="/js/plugins/summernote/summernote.js"></script>
+    {% if app.request.locale != 'en' %}
+    <script src="/js/plugins/summernote/lang/summernote-{{app.request.locale}}.js"></script>    
+    {% endif %}
+    <!-- iCheck -->
+    <script src="/js/plugins/iCheck/icheck.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $('.i-checks').iCheck({
+                    checkboxClass: 'icheckbox_square-green',
+                    radioClass: 'iradio_square-green'
+                });
+            $('.summernote').html($('#news_body').val());
+            $('.summernote').summernote({
+                lang: '{{app.request.locale}}',
+                height: 240,
+                onblur: function(e) {   
+                }
+            });
+            
+            $( "form" ).submit(function( event ) {
+                $('#news_body').val($(".summernote").code());
+                return;
+              });
+             
+             ActivateMenu('create_news');
+            $('#side-menu').metisMenu();
+       });
+    </script>
+{% endblock %}
+
+

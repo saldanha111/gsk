@@ -1,0 +1,56 @@
+Nononsense\UsersBundle\Entity\Role:
+    role1:
+        name: ROLE_USER
+    role2:
+        name: ROLE_USER_NOT_VALIDATED
+    role3:
+        name: ROLE_MODERATOR
+    role4:
+        name: ROLE_ADMIN
+    role5:
+        name: ROLE_ALLOWED_TO_SWITCH
+    role6:
+        name: ROLE_SUPER_ADMIN
+
+Nononsense\UsersBundle\Entity\User:
+    user1:
+        email: admin@nononsenselabs.com
+        username: adminnns
+        slug: adminnns
+        salt: WW5zQo9gqcQc9g==
+        password: IUcXnJ97TDZsXlF+ve+3v8+RG6JjuH/a6b/hIlgrUKMnwbz/qnvtyQsw4e0DW2W/f6BAwAbXvR0R0zgKAG6U/w==
+        isActive: true
+        isValidated: true
+        roles: [@role1, @role3, @role4, @role5, @role6]
+    user2:
+        email: anonymous@nononsenselabs.com
+        username: anonymous
+        slug: anonymous
+        salt: WW5zQo9gqcQc9g==
+        password: IUcXnJ97TDZsXlF+ve+3v8+RG6JjuH/a6b/hIlgrUKMnwbz/qnvtyQsw4e0DW2W/f6BAwAbXvR0R0zgKAG6U/w==
+        isActive: true
+        isValidated: true
+        roles: [@role1]
+
+Nononsense\NewsBundle\Entity\News:
+    news1:
+        title: DOCXPRESSO v1.0 Release Notes
+        body: <p>We are proud to announce the launch of <strong>DOCXPRESSO v1.0</strong>.</p><p>DOCXPRESSO is a highly sophisticated library designed to facilitate the generation and deployment of documentation in a web server.</p><p>DOCXPRESSO allows for the dynamical generation of PDF, Word, ODF and/or RTF files from virtually any data source,in any web platform infrastructure in a simple and cost-efficient way.</p><p>One may generate all kind of documentation from academic papers to business reports with a single tool in almost any conceivable format just by transforming HTML5 code or directly using its powerful public API.</p><p>The generated documents may contain:</p><ul><li>Standard document components like, paragraphs, images, tables and list,</li><li>headers and footers.</li><li>footnotes and endnotes,</li><li>tables of contents,</li><li>2D and 3D charts,</li><li>cross-references,</li><li>interactive forms (only PDF and ODF output formats),</li><li>etcetera.</li></ul><p>DOCXPRESSO may be used under different licenses that only differ in its scope of use but not functionality:</p><ul><li><strong>FREE</strong>, at no cost, for personal use,testing and development and charitable organizations (the last may apply for a free PRO license). The documentation generated with this type of license include a very discreet DOCXPRESSO branding at the end of the document.</li><li><strong>PRO</strong>, conceived for professional and commercial use it allows the generation of unlimited documents by unlimited editors in a single (web) server.</li><li><strong>SaaS</strong>, for the integration within a web app with SaaS or PaaS architecture.</li><li><strong>OEM</strong>, for the redistributionwithin third party software or bulk licensing.</li></ul>
+        isActive: true
+        metaKeywords: release, notes
+        metaDescription: DOCXPRESSO v1.0 Release Notes
+        slug: release-notes
+    news2:
+        title: DOCXPRESSO Social Responsability
+        body: <p>DOCXPRESSO is developed by <strong>No-nonsense Labs</strong>, a start-up company located in Madrid, Spain.</p><p>Although No-nonsense Labs is definitely a &quot;for profit&quot; organization we are also conscious that, unfortunately, there are millions of people in the world that live under terrible conditions and lacking even the most basic services so we would like to be of a little help to alleviate that situation.</p><p>We believe that paying our taxes even if of great importance is not good enough, so we have adopted the following policies:</p><ul><li>We will donate 5% of all our revenues (not just profits) to international NGOs like, for example, Doctors Without Borders, of which we are already proud partners.</li><li>We will donate a copy of DOCXPRESSO PRO and offer free support to all charitable organizations that request it.</li></ul>
+        isActive: true
+        metaKeywords: social, responsability
+        metaDescription: DOCXPRESSO Social Responsability
+        slug: social-responsability
+    news3:
+        title: DOCXPRESSO and Open Document Format
+        body: <p>DOCXPRESSO is based internally in open standards:</p><ul><li>HTML5, </li><li>CSS and</li><li>ODF (Open Document Format).</li></ul><p>This is so because of a variety of reasons among which we would like to pinpoint:</li><ul><li>interoperability,</li><li>ease of use,</li><li>Ample documentation,</li><li>and last but not least openness itself.</li></ul><p>There is not much to say above HTML5 and CSS that you may not already know, but certainly not everyone is so familiar with the Open Document Format.</p><p>The Open Document format is an ISO standard (ISO/IEC 26300:2006) developed and maintained by OASIS (Organization for the Advancement of Structured Information Standards) and it was designed to be an open alternative to vendor based formats.</p><p>Open Document Format is supported by multiple government and public corporations and it is directly used by standard Office Suites like Apache open office or Libre Office among others.</p><p>The documents compliant with this format consist of a bunch of XML files bundled together within a zip file. This allows for a relatively simple algorithmic manipulation of their contents.</p><p>DOCXPRESSO uses the DOM and XPath capabilities of PHP to generate and/or modified the ODF XML files and its ZipArchive extension (that belongs to the PHP5 core) to open or create the corresponding .odt file (the associated ODF file extension).</p><p>The Open Document files  generated by the DOCXPRESSO core package are later converted to other formats with the help of Libre or Open Office.</p><p>ODF is also directly supported by MS Office sine its 2007 (SP2) version so the generated documents can also be opened by MS Word (the .doc documents generated by DOCXPRESSO are just .odt files in disguise).</p>
+        isActive: true
+        metaKeywords: open, document, format, odf
+        metaDescription: DOCXPRESSO and Open Document Format
+        slug: open-document-format

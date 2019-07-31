@@ -1,0 +1,86 @@
+.header-page {
+    display: none;
+}
+.header-page * {
+    display: none;
+}
+.navbar-default {
+    display: none !important;
+    width: 1px !important;
+}
+.navbar-default *{
+    display: none !important;
+    width: 1px !important;
+}
+
+.body.mini-navbar {
+    display: none !important;
+    width: 1px !important;
+}
+
+#page-wrapper {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.sidebar-collapse {
+    display: none !important;
+    background-color: green;
+}
+#side-menu {
+    display: none !important;
+    background-color: green;
+}
+.navbar-header {
+    display: none;
+}
+.page-heading {
+    display: none;
+}
+.mailbox-content {
+    display: none;
+}
+.footer {
+    display: none;
+}
+.page-wrapper {
+    background-color: white !important;
+    margin: 0 !important;
+    min-height: 100px;
+}
+
+#printAnalytics {
+  width: 190mm;
+  margin: 1cm;
+}
+
+#printAnalytics h2{
+  padding-top: 15mm;
+}
+
+#printAnalytics h3{
+  padding-top: 15mm;
+}
+
+#printAnalytics button{
+  display: none;
+}
+
+.single_variable:not(:last-child) {
+    page-break-after: always;
+}
+
+#printAnalytics div.general_data {
+    page-break-after: always;
+}
+
+#printAnalytics div.ibox-title {
+    display: none;
+}
+
+@page {
+  size: A4;
+  margin: 0;
+}
+
+

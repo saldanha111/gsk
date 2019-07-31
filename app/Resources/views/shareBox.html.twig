@@ -1,0 +1,269 @@
+<!--Share-->
+<div class="{%if validation is defined %}col-lg-6{% endif %}">
+    <div class="ibox float-e-margins">
+        <div class="ibox-title">
+            <h5><i class="fa fa-share-alt"> </i> {{'Share'|trans}} {%if token is defined %}&nbsp;<span style="font-weight: normal">[{{'Templata + Data'|trans}}]</span>{% endif %}</h5>
+            <div class="ibox-tools">
+                <a class="collapse-link">
+                    <i class="fa fa-chevron-up"></i>
+                </a>
+            </div>
+        </div>
+
+        <div class="ibox-content">
+            <div class="form-horizontal">
+                <div class="form-group clearfix" >
+                    <div class="col-sm-12">
+                        <div class="checkbox i-checks">
+                            <input type="radio"  id="radioDoc" name="doctype" value="0" checked /> <label for="name" style="font-weight: bold; padding-left: 5px; padding-right: 25px">{{'DOCUMENT'|trans}}</label>
+                            <input type="radio"  id="radioForm" name="doctype" value="1" /> <label for="name" style="font-weight: bold; padding-left: 5px;">{{'WEB FORM'|trans}}</label>
+                        </div>
+                    </div>
+                </div>              
+            </div>
+                
+            <div class="panel blank-panel">
+                <div class="panel-heading">
+                    <div class="panel-options">
+                        <ul class="docxnav docxnav-tabs docxnavBO" style="margin-top: 6px">
+                            <li class="active"><a data-toggle="tab" href="#shareLinkTab"><i class="fa fa-code"></i> {{'Generate Link'|trans}}</a></li>
+                            <li class=""><a data-toggle="tab" href="#shareEmailTab"><i class="fa fa-envelope"></i> {{'Send Email'|trans}}</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <!--ADAVANCED OPTIONS-->
+                    <div class="m-t-md m-b-sm" style="clear: left">
+                        <a data-toggle="collapse" data-target="#advancedOptions" class="advancedOptionsLink">
+                            <i class="fa fa-sort"> </i> {{'Advanced options'|trans}}
+                        </a>
+                    </div>                    
+                    <div id="advancedOptions" class="collapse" aria-expanded="false" style="height: 0px"> 
+                        <div class="form-group clearfix   m-t-sm" >
+                            <div class="col-sm-12">
+                                <div class="checkbox i-checks">
+                                    <input type="checkbox"  id="access" name="access" class="advancedOptions" /> <label for="access" style="font-weight: bold">{{'Provide continue link'|trans}}</label>
+                                    <div id="emailBox"  style="display:none">
+                                        <div class="input-group m-t-sm m-r-sm">
+                                            <span class="input-group-addon"><i class="fa fa-envelope-o"></i></span>
+                                            <input type="text" id="email" name="email" value="" class="form-control advancedOptions" placeholder="{{'email'|trans}}"/>
+                                        </div>
+                                        <small>{{'If not given the user will be prompted to include one.'|trans}}</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group clearfix m-t-sm">
+                            <label class="col-sm-12 control-label">{{'Identifier field'|trans}}</label>
+                            <div class="col-sm-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon"><i class="fa fa-tag"></i></span>
+                                    <select id="identifier"   class="form-control  advancedOptions">
+                                        <option value="">None</option>
+                                    </select>
+                                </div>
+                                <small>{{'Template field that may uniquely identify the end user.'|trans}}</small> 
+                                <small>{{'This option (if different from none) will overwrite the default template identifier.'|trans}}</small> 
+                            </div>
+                        </div>
+                        <div class="form-group clearfix m-t-sm">
+                            <label class="col-sm-12 control-label">{{'Reference'|trans}}</label>
+                            <div class="col-sm-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon"><i class="fa fa-tag"></i></span>
+                                    <input type="text" id="reference" value="" class="form-control  advancedOptions" placeholder="{{'Reference'|trans}}">
+                                </div>
+                                <small>{{'Additional reference to identify the transaction.'|trans}}</small>
+                            </div>
+                        </div>
+                        <div class="form-group clearfix m-t-sm">
+                            <label class="col-sm-12 control-label">{{'Notify'|trans}}</label>
+                            <div class="col-sm-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon"><i class="fa fa-envelope"></i></span>
+                                    <input type="text" id="notify" value="" class="form-control  advancedOptions" placeholder="{{'Notify'|trans}}">
+                                </div>
+                                <small>{{'Additional custom notification emails (separate by ";").'|trans}}</small>
+                            </div>
+                        </div>
+                        <div class="form-group clearfix m-t-sm">
+                            <label class="col-sm-12 control-label">{{'Custom data'|trans}}</label>
+                            <div class="col-sm-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon"><i class="fa fa-tag"></i></span>
+                                    <input type="text" id="custom" value="" class="form-control  advancedOptions" placeholder="{{'Custom data'|trans}}">
+                                </div>
+                                <small>{{'Custom data used to further personalize the document.'|trans}}</small>
+                            </div>
+                        </div>
+                        <div class="form-group clearfix m-t-sm" >
+                            <div class="col-sm-12">
+                                <div class="checkbox i-checks">
+                                    <input type="checkbox"  id="enforceValidation" name="enforceValidation" class="advancedOptions" /> <label for="enforceValidation" style="font-weight: bold">{{'Enforce validations'|trans}}</label><br/>
+                                    <small>{{'If checked the data will not be sent until correctly validated.'|trans}}</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group clearfix m-t-sm" >
+                            <div class="col-sm-12">
+                                <div class="checkbox i-checks">
+                                    <input type="checkbox"  id="captcha" name="captcha" class="advancedOptions" /> <label for="captcha" style="font-weight: bold">{{'Use captcha'|trans}}</label><br/>
+                                    <small>{{'If checked the end user will have to answer a captcha question.'|trans}}</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group clearfix m-t-sm">
+                            <label class="col-sm-12 control-label">{{'Prefix'|trans}}</label>
+                            <div class="col-sm-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon"><i class="fa fa-tag"></i></span>
+                                        <select multiple id="prefix"  class="form-control advancedOptions">
+                                        </select>
+                                </div>
+                                <small>{{'Only prefixed variables are editable.'|trans}}</small>
+                            </div>
+                        </div>
+                        {% if token is defined %}
+                        <div class="form-group clearfix m-t-sm">
+                            <label class="col-sm-12 control-label">{{'Use a different template'|trans}}</label>
+                            <div class="col-sm-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon"><i class="fa fa-file-o"></i></span>
+                                        <select id="forwardTemplate" class="advancedOptions">
+                                            <option value="none">{{'Choose a template'|trans}}</option>
+                                            {% for template in templates %}
+                                                <option value="{{template.id}}">{{template.name}}</option>
+                                            {% endfor %}
+                                        </select>
+                                </div>
+                                <small>{{'Data will be forwarded to the chosen template.'|trans}}</small>
+                            </div>
+                        </div>
+                        <div class="form-group clearfix m-t-sm">
+                            <div class="col-sm-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon">Token</span>
+                                    <input type="text" id="token" value="{{token}}" class="form-control" disabled>
+                                </div>
+                                <small>{{'Unique identifier of this template usage.'|trans}}</small>
+                            </div>
+                        </div>
+                        {% endif %}
+                        <!-- we temporarily comment on this options because they seem a little arcane fro a standard user
+                        <div class="form-group clearfix m-t-sm">
+                            <label class="col-sm-12 control-label">{{'Request data'|trans}}</label>
+                            <div class="col-sm-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon"><i class="fa fa-link"></i></span>
+                                    <input type="text" id="requestDataURI" value="" class="form-control" placeholder="URL">
+                                </div>
+                                <small>{{'URL from where to retrieve additional data.'|trans}}</small>
+                            </div>
+                        </div>
+                        <div class="form-group clearfix m-t-sm">
+                            <label class="col-sm-12 control-label">{{'Save data'|trans}}</label>
+                            <div class="col-sm-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon"><i class="fa fa-link"></i></span>
+                                    <input type="text" id="responseDataURI" value="" class="form-control" placeholder="URL">
+                                </div>
+                                <small>{{'URL where data should be (also) saved.'|trans}}</small>
+                            </div>
+                        </div>-->
+                        <div class="form-group clearfix m-t-sm">
+                            <label class="col-sm-12 control-label">{{'Redirect URL'|trans}}</label>
+                            <div class="col-sm-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon"><i class="fa fa-link"></i></span>
+                                    <input type="text" id="responseURL" value="" class="form-control advancedOptions" placeholder="http://redirect.url.com">
+                                </div>
+                                <small>{{'URL where the user should be redirected.'|trans}}</small>
+                            </div>
+                        </div>
+                        <!--<div class="form-group clearfix m-t-sm">
+                            <label class="col-sm-12 control-label">{{'Error URL'|trans}}</label>
+                            <div class="col-sm-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon"><i class="fa fa-link"></i></span>
+                                    <input type="text" id="referer" value="" class="form-control" placeholder="URL">
+                                </div>
+                                <small>{{'URL where the user should be informed of any potential error.'|trans}}</small>
+                            </div>
+                        </div>
+                        -->
+                        <div class="hr-line-dashed m-b-none"></div>
+                    </div>
+                    <div class="tab-content">
+                        <div id="shareLinkTab" class="tab-pane-active">   
+                            <div class="col-sm-2">
+                                <button id="requestLink" class="btn btn-sm btn-success m-t-sm" onclick="return false;"><i class="fa fa-refresh"> </i> </button>
+                            </div>
+                            <div id="linkData" class="m-t-sm col-sm-10" style="padding: 0"></div>
+                        </div>
+
+                        <div id="shareEmailTab" class="tab-pane">
+                            <div class="form-group clearfix m-t-sm" >
+                                <div class="col-sm-12">
+                                    <label for="To" style="font-weight: bold">{{'Send to'|trans}}</label>
+                                    <div class="input-group">
+                                        <span class="input-group-addon"><i class="fa fa-tag"></i></span>
+                                        <input type="text" id="To" name="To" value="" class="form-control" placeholder="{{'email'|trans}}"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group clearfix m-t-sm" >
+                                <div class="col-sm-12">
+                                    <label for="subject" style="font-weight: bold">{{'Subject'|trans}}</label>
+                                    <div class="input-group">
+                                        <span class="input-group-addon"><i class="fa fa-envelope-o"></i></span>
+                                        <input type="text" id="subject" name="subject" value="" class="form-control" placeholder="{{'Subject'|trans}}"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group clearfix m-t-sm" >
+                                <div class="col-sm-12">
+                                    <label  style="font-weight: bold">{{'Message'|trans}}</label>
+                                    <div class="summernote" id="message">
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-12">
+                                <button id="generateEmail" class="btn btn-sm btn-success m-t-md" onclick="return false;"><i class="fa fa-send"> </i> {{'Send email'|trans}}</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+
+        {% if microsites|length > 0 %}    
+        <div class="ibox-content">
+            <div class="form-horizontal">
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">{{'Workflows'|trans}}</label>
+                    <div class="col-sm-10">
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="fa fa-globe"></i></span>
+                            <select id="microsite"  class="form-control">
+                                <option value="0" selected>{{'Select a workflow'|trans}}</option>
+                                {% for microsite in microsites %}
+                                <option value="{{microsite.id}}">{{microsite.name|raw}}</option>   
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-12">
+                <button id="addMicrosite" class="btn btn-sm btn-success btn-success-dxo" onclick="return false;"><i class="fa fa-globe"> </i> {{'Add to workflow'|trans}}</button>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+

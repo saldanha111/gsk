@@ -1,0 +1,343 @@
+<?php
+/**
+ * Created by IntelliJ IDEA.
+ * User: gushe
+ * Date: 04/04/2018
+ * Time: 9:13
+ */
+
+namespace Nononsense\HomeBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+
+/**
+ * @ORM\Entity
+ * @ORM\Table(name="companies")
+ * @ORM\Entity(repositoryClass="Nononsense\HomeBundle\Entity\CompaniesRepository")
+ * @ORM\HasLifecycleCallbacks
+ */
+class Companies
+{
+    /**
+     * @ORM\Column(type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    protected $id;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="name", type="string", length=90)
+     */
+    protected $name;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="cif", type="string", length=20)
+     */
+    protected $cif;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="vendor", type="string", length=20)
+     */
+    protected $vendor_id;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="codigo_proveedor", type="string", length=20)
+     */
+    protected $codigo_proveedor;
+
+    /**
+     * @ORM\Column(type="date")
+     */
+    protected $created;
+
+    /**
+     * @ORM\Column(type="date")
+     */
+    protected $modified;
+
+    /**
+     * @var boolean $isActive
+     *
+     * @ORM\Column(name="is_active", type="boolean",  nullable=true, options={"default" = false})
+     */
+
+    protected $isActive;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\InstanciasWorkflows", mappedBy="company")
+     */
+    protected $InstanciasdeWorkflows;
+
+    public function __construct()
+    {
+
+    }
+
+    /**
+     * @ORM\PrePersist
+     */
+    public function setCreatedValue()
+    {
+        if (!$this->created) {
+            $this->created = new \DateTime();
+        }
+        $this->modified = $this->created;
+    }
+
+    /**
+     * @ORM\PreUpdate
+     */
+    public function setModifiedValue()
+    {
+        $this->modified = new \DateTime();
+    }
+
+
+    /**
+     * Get id
+     *
+     * @return integer 
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * Set name
+     *
+     * @param string $name
+     * @return Companies
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    /**
+     * Get name
+     *
+     * @return string 
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * Set cif
+     *
+     * @param string $cif
+     * @return Companies
+     */
+    public function setCif($cif)
+    {
+        $this->cif = $cif;
+
+        return $this;
+    }
+
+    /**
+     * Get cif
+     *
+     * @return string 
+     */
+    public function getCif()
+    {
+        return $this->cif;
+    }
+
+    /**
+     * Set created
+     *
+     * @param \DateTime $created
+     * @return Companies
+     */
+    public function setCreated($created)
+    {
+        $this->created = $created;
+
+        return $this;
+    }
+
+    /**
+     * Get created
+     *
+     * @return \DateTime 
+     */
+    public function getCreated()
+    {
+        return $this->created;
+    }
+
+    /**
+     * Set modified
+     *
+     * @param \DateTime $modified
+     * @return Companies
+     */
+    public function setModified($modified)
+    {
+        $this->modified = $modified;
+
+        return $this;
+    }
+
+    /**
+     * Get modified
+     *
+     * @return \DateTime 
+     */
+    public function getModified()
+    {
+        return $this->modified;
+    }
+
+    /**
+     * Add InstanciasWorkflows
+     *
+     * @param \Nononsense\HomeBundle\Entity\InstanciasWorkflows $instanciasWorkflows
+     * @return Companies
+     */
+    public function addInstanciasWorkflow(\Nononsense\HomeBundle\Entity\InstanciasWorkflows $instanciasWorkflows)
+    {
+        $this->InstanciasWorkflows[] = $instanciasWorkflows;
+
+        return $this;
+    }
+
+    /**
+     * Remove InstanciasWorkflows
+     *
+     * @param \Nononsense\HomeBundle\Entity\InstanciasWorkflows $instanciasWorkflows
+     */
+    public function removeInstanciasWorkflow(\Nononsense\HomeBundle\Entity\InstanciasWorkflows $instanciasWorkflows)
+    {
+        $this->InstanciasWorkflows->removeElement($instanciasWorkflows);
+    }
+
+    /**
+     * Get InstanciasWorkflows
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getInstanciasWorkflows()
+    {
+        return $this->InstanciasWorkflows;
+    }
+
+    /**
+     * Set isActive
+     *
+     * @param boolean $isActive
+     * @return Companies
+     */
+    public function setIsActive($isActive)
+    {
+        $this->isActive = $isActive;
+
+        return $this;
+    }
+
+    /**
+     * Get isActive
+     *
+     * @return boolean 
+     */
+    public function getIsActive()
+    {
+        return $this->isActive;
+    }
+
+    /**
+     * Set vendor_id
+     *
+     * @param string $vendorId
+     * @return Companies
+     */
+    public function setVendorId($vendorId)
+    {
+        $this->vendor_id = $vendorId;
+
+        return $this;
+    }
+
+    /**
+     * Get vendor_id
+     *
+     * @return string 
+     */
+    public function getVendorId()
+    {
+        return $this->vendor_id;
+    }
+
+    /**
+     * Set codigo_proveedor
+     *
+     * @param string $codigoProveedor
+     * @return Companies
+     */
+    public function setCodigoProveedor($codigoProveedor)
+    {
+        $this->codigo_proveedor = $codigoProveedor;
+
+        return $this;
+    }
+
+    /**
+     * Get codigo_proveedor
+     *
+     * @return string 
+     */
+    public function getCodigoProveedor()
+    {
+        return $this->codigo_proveedor;
+    }
+
+    /**
+     * Add InstanciasdeWorkflows
+     *
+     * @param \Nononsense\HomeBundle\Entity\InstanciasWorkflows $instanciasdeWorkflows
+     * @return Companies
+     */
+    public function addInstanciasdeWorkflow(\Nononsense\HomeBundle\Entity\InstanciasWorkflows $instanciasdeWorkflows)
+    {
+        $this->InstanciasdeWorkflows[] = $instanciasdeWorkflows;
+
+        return $this;
+    }
+
+    /**
+     * Remove InstanciasdeWorkflows
+     *
+     * @param \Nononsense\HomeBundle\Entity\InstanciasWorkflows $instanciasdeWorkflows
+     */
+    public function removeInstanciasdeWorkflow(\Nononsense\HomeBundle\Entity\InstanciasWorkflows $instanciasdeWorkflows)
+    {
+        $this->InstanciasdeWorkflows->removeElement($instanciasdeWorkflows);
+    }
+
+    /**
+     * Get InstanciasdeWorkflows
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getInstanciasdeWorkflows()
+    {
+        return $this->InstanciasdeWorkflows;
+    }
+}

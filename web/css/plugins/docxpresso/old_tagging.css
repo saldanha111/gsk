@@ -1,0 +1,301 @@
+/*TOP TOOL BAR */
+body {
+    padding-top: 45px;
+}
+#fixedbar {
+    width: 100%;
+    padding: 0 0 5px 0;
+    background-color: rgba(100, 120, 160, 0.9);
+    position: fixed;
+    top: 0;
+    z-index: 1000;
+    -webkit-box-shadow: -2px -1px 6px 4px rgba(106,111,128,0.60);
+    -moz-box-shadow: -2px -1px 6px 4px rgba(106,111,128,0.60);
+    box-shadow: -2px -1px 6px 4px rgba(106,111,128,0.60);
+}
+#topToolBar {
+    margin: 0 auto;
+    width: 780px;
+}
+/* TOOLS */
+.h5p_rightTools {
+    width: 20px;
+    border-radius: 0 4px 4px 0;
+    background-color: rgba(55,55,55, 0.5);
+    position: absolute;
+    right: -18px; 
+    display: none;
+    height: 21px;
+    -webkit-box-shadow: 1px 0px 1px 1px rgba(0,0,0,0.10);
+    -moz-box-shadow: 1px 0px 1px 1px rgba(0,0,0,0.10);
+    box-shadow: 1px 0px 1px 1px rgba(0,0,0,0.10);
+    z-index: 100;
+}
+.h5p_leftTools {
+    width: 38px;
+    border-radius: 4px 0 0 4px;
+    background-color: rgba(55,55,55, 0.5);
+    position: absolute;
+    left: -37px;
+    display: none;
+    height: 21px;
+    -webkit-box-shadow: -1px 0px 1px 1px rgba(0,0,0,0.10);
+    -moz-box-shadow: -1px 0px 1px 1px rgba(0,0,0,0.10);
+    box-shadow: -1px 0px 1px 1px rgba(0,0,0,0.10);
+    z-index: 100;
+}
+.h5p_proTools {
+    width: 20px;
+    position: absolute;
+    left: -20px;
+    display: none;
+    z-index: 100;
+}
+.h5p_listitem div.h5p_leftTools {
+    width: 36px !important;
+}
+.h5p_clone_button {
+    width: 18px; 
+    background-color: #1ab394; 
+    border: 1px solid #1ab394;
+    margin: 2px 0 0 0;
+    padding:0;  
+    text-align: center;
+    color: white; 
+    font-weight:bold;   
+    font-size: 13px;
+    -webkit-box-shadow: 0px 0px 1px 1px rgba(0,0,0,0.1);
+    -moz-box-shadow: 0px 0px 1px 1px rgba(0,0,0,0.1);
+    box-shadow: 0px 0px 1px 1px rgba(0,0,0,0.1);
+}
+.h5p_sort_button {
+    width: 18px; 
+    background-color: #000000; 
+    border: 1px solid #000000;
+    border-radius: 4px 0 0 4px;
+    padding:0; 
+    margin: 2px 0 0 2px; 
+    text-align: center;
+    color: white; 
+    font-weight:bold;  
+    font-size: 13px;
+    -webkit-box-shadow: -1px 0px 1px 1px rgba(0,0,0,0.10);
+    -moz-box-shadow: -1px 0px 1px 1px rgba(0,0,0,0.10);
+    box-shadow: -1px 0px 1px 1px rgba(0,0,0,0.10);
+}
+.h5p_delete_button {
+    width: 18px; 
+    border-radius: 0 4px 4px 0;
+    background-color: #b70000;
+    border: 1px solid #b70000;
+    padding:0; 
+    margin: 2px 0 0 0;  
+    text-align: center;
+    color: white; 
+    font-weight:bold;  
+    font-size: 13px;
+    -webkit-box-shadow: 1px 0px 1px 1px rgba(0,0,0,0.10);
+    -moz-box-shadow: 1px 0px 1px 1px rgba(0,0,0,0.10);
+    box-shadow: 1px 0px 1px 1px rgba(0,0,0,0.10);
+}
+.h5p_pro_button {
+    width: 20px; 
+    padding:0; 
+    text-align: center;   
+    font-size: 13px;
+}
+/* TABLES */
+.h5p_table {
+    position:relative;
+}
+tbody.h5p_clone_row_group {
+ 
+}
+.h5p_rowgroup:hover {
+    background: repeating-linear-gradient(
+    135deg,
+    rgba(100, 150, 200, 0.04),
+    rgba(100, 150, 200, 0.04) 5px,
+    rgba(100, 150, 200, 0.10) 5px,
+    rgba(100, 150, 200, 0.10) 10px
+  );
+}
+
+/* LISTS */
+.h5p_listitem {
+    background: repeating-linear-gradient(
+    135deg,
+    rgba(100, 150, 200, 0.04),
+    rgba(100, 150, 200, 0.04) 5px,
+    rgba(100, 150, 200, 0.10) 5px,
+    rgba(100, 150, 200, 0.10) 10px
+    );
+    position:relative;
+}
+.h5p_delete_list_button {
+    position: absolute;
+}
+.h5p_clone_list_button {
+    position: absolute;
+    margin-left: 18px;
+}
+.h5p_sort_list_button {
+    position: absolute;
+}
+.h5p_listitem_edit:before {
+    display: table-cell !important;
+}
+
+/* BLOCKS */
+div.h5p_wrappingdiv {
+    background-color: #f9f9f9;
+    border: 1px dotted #aaa;
+    margin-left: -10px;
+    margin-right: -10px;
+    padding-left: 10px;
+    padding-right: 10px;
+    position: relative;
+}
+
+
+/* GENERAL */
+.h5p_placeholder {
+    display: block;
+    min-height: 25px;
+    width: 100%;
+    background-color: transparent;
+}
+
+pre.h5p_prelistitem {
+    margin: 0;
+    padding: 0;
+    height: 18px;
+}
+span.h5p_varspan {
+    border-bottom: 1px dotted #888;
+    padding: 0 3px 0 7px;
+    display: inline;
+    /*white-space: nowrap;*/
+}
+span.spanWrapper i {
+    font-size: smaller;
+}
+span.h5p_varspecial {
+    padding: 0 0 0 2px;
+    display: inline;
+    /*white-space: nowrap;*/
+}
+span.spanWrapperSpecial i {
+    font-size: 65%;
+}
+#h5p-tooltip-wrapper {
+    display: none;
+    border-radius: 4px;
+    position: absolute;
+    z-index: 10000;
+}
+
+#h5p-tooltip {
+    min-height: 15px;
+    min-width: 15px;
+    background-color: #333;
+    border-radius: 4px;
+    color: white;
+    font-family: Verdana;
+    font-size: 11px;
+    padding: 2px 5px 3px 5px;
+}
+#h5p-tooltip-arrow{
+    width: 0; 
+    height: 0; 
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 4px solid #333;
+    font-size: 0;
+    line-height: 0;
+    margin-left: 5px;
+}
+
+.h5p-help {
+    box-sizing: border-content;
+    display: none;
+    position: absolute;
+    z-index: 50000;
+    border: 1px solid #789;
+    right: 10px;
+    width: 180px;
+    box-shadow: 0px 0px 6px 1px rgba(80, 90, 100, 0.5);
+    background-color: #fff;
+    border-radius: 4px;
+    font-size: 12px !important;
+}
+.h5p-help-header {
+    background-color: #99aacc;
+    font-family: Verdana;
+    font-size: 13px;
+    line-height: 24px;
+    margin: 0;
+    padding: 0 6px;
+    font-weight: bold;
+    color: white;
+    border-bottom: 1px solid #789;
+    font-size: 12px !important;
+}
+.h5p-help-body {
+    background-color: #fff;
+    min-height: 60px;
+    padding: 5px 10px 7px 10px;
+    font-size: 12px !important;
+}
+
+.h5p-help-body ul {
+    margin: 0;
+    padding-left: 18px;
+    font-size: 12px;
+}
+
+.h5p-help-body ol {
+    margin: 0;
+    padding-left: 18px;
+    font-size: 12px;
+}
+
+#saveTools {
+    float: right;
+}
+
+#saveTools button {
+    font-size: 13px;
+}
+
+.math {
+    font-weight: 900 !important;
+}
+
+.fa {display: inline !important}
+
+.preImage {
+    position: absolute;
+    margin-left: 15px;
+    margin-top: 15px;
+    color: #b70000;
+    text-shadow: 0px 0px 2px rgba(0, 0, 0, 0.60);
+}
+#signature-pad {
+    text-align: center;
+}
+#signature-pad canvas {
+    background-color: white;
+    border: 1px solid #eee;
+    box-shadow: 0px 0px 6px 1px rgba(80, 90, 100, 0.5);
+}
+
+span.choice {
+    border-bottom: none !important;
+    padding: 0 3px 0 3px;
+    /*white-space: nowrap;*/
+}
+
+span.choice input {
+    vertical-align: text-bottom;
+}

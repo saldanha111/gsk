@@ -1,0 +1,24 @@
+{% if query == 'q' %}
+<p>
+    {{'Introduce a query term if you wish to filter your results'|trans}}:
+</p>
+{% else %}
+<p>
+    {{paging.results}} 
+    {% if paging.results == 1 %}
+        {{'result'|trans}}
+    {% else %}
+        {{'results'|trans}}
+        {% endif %}
+    {{'found for'|trans}}: <span class="text-navy">“{{query}}”</span>
+</p>
+{% endif %}
+
+<div class="search-form">
+    <form action="index.html" method="get">
+        <div class="input-group">
+            <input type="text" id="search" class="form-control"><span class="input-group-btn"> <button type="button" id="searchButton" class="btn btn-primary">{{'Search'|trans}}</button> </span>
+        </div>
+
+    </form>
+</div>

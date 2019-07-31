@@ -1,0 +1,32 @@
+table.datos-proveedor {
+    width: 100%;
+    float: left;
+    margin: 15px 0;
+    border-bottom: 1px solid #ccc;
+}
+
+table.datos-proveedor thead td {
+    font-weight: bold;
+    font-size: 14px;
+}
+
+table.datos-proveedor thead tr {
+    border-bottom: 1px solid #ccc;
+}
+
+tbody.datos-proveedor tr td {
+    padding: 3px 5px;
+    font-size: 14px;
+    font-weight: 400;
+    height: 34px;
+}
+
+tbody.datos-proveedor tr td.pdte {
+    color: #ae3d3d;
+}
+
+tbody.datos-proveedor tr td.pdte-ok {
+    color: #00cc00;
+}
+
+tbody.datos-proveedor tr td.complet {color: #009900;}

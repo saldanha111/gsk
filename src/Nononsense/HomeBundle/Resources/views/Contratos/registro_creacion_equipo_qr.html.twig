@@ -1,0 +1,185 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}DOCXPRESSO | {{'Homepage'|trans}} {% endblock %}
+{% block head %}
+{{ parent() }}
+<style>
+
+
+</style>
+{% endblock %}
+{% block main_title %} {{subCat}}{% endblock %}
+{% block content %}
+<div class="wrapper wrapper-content">
+    {% for flashMessage in app.session.flashbag.get('error') %}
+    <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+        <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+        {{ flashMessage }}
+    </div>
+    {% endfor %}
+    <div class="row">
+        <div>
+            <div class="col-sm-6 ">
+                <h3>{{documentName}}</h3>
+                <form id="createform"
+                      action="{{path('nononsense_precreation_equipo_qr_save', {'registroid': registroid})}}">
+                    <div class="row" style="padding: 5px">
+
+                        <div class="col-sm-5">
+                            <label for="imageQR"> Código QR: </label>
+                        </div>
+                        <div class="col-sm-5">
+                            <input id="imageQR" type="file" name="pic" accept="image/*" capture="camera"
+                                   onchange="handleFiles(this.files)">
+                        </div>
+                    </div>
+                    <div class="row" style="padding: 5px">
+                        <div class="col-sm-5">
+                            <label for="equipo"> Valor: </label>
+                        </div>
+                        <div class="col-sm-5">
+                            <input type="text" placeholder="equipo" name="equipo" id="equipo" readonly>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <a name="guardarRegistro" class="btn btn-success">Iniciar</a>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+{{ parent() }}
+<script type="text/javascript" src="/js/plugins/jsqrcode-master/src/grid.js"></script>
+<script type="text/javascript" src="/js/plugins/jsqrcode-master/src/version.js"></script>
+<script type="text/javascript" src="/js/plugins/jsqrcode-master/src/detector.js"></script>
+<script type="text/javascript" src="/js/plugins/jsqrcode-master/src/formatinf.js"></script>
+<script type="text/javascript" src="/js/plugins/jsqrcode-master/src/errorlevel.js"></script>
+<script type="text/javascript" src="/js/plugins/jsqrcode-master/src/bitmat.js"></script>
+<script type="text/javascript" src="/js/plugins/jsqrcode-master/src/datablock.js"></script>
+<script type="text/javascript" src="/js/plugins/jsqrcode-master/src/bmparser.js"></script>
+<script type="text/javascript" src="/js/plugins/jsqrcode-master/src/datamask.js"></script>
+<script type="text/javascript" src="/js/plugins/jsqrcode-master/src/rsdecoder.js"></script>
+<script type="text/javascript" src="/js/plugins/jsqrcode-master/src/gf256poly.js"></script>
+<script type="text/javascript" src="/js/plugins/jsqrcode-master/src/gf256.js"></script>
+<script type="text/javascript" src="/js/plugins/jsqrcode-master/src/decoder.js"></script>
+<script type="text/javascript" src="/js/plugins/jsqrcode-master/src/qrcode.js"></script>
+<script type="text/javascript" src="/js/plugins/jsqrcode-master/src/findpat.js"></script>
+<script type="text/javascript" src="/js/plugins/jsqrcode-master/src/alignpat.js"></script>
+<script type="text/javascript" src="/js/plugins/jsqrcode-master/src/databr.js"></script>
+<script>
+
+
+    $(document).ready(function () {
+
+        toastr.options = {
+            "closeButton": true,
+            "debug": false,
+            "progressBar": true,
+            "positionClass": "toast-top-center",
+            "onclick": null,
+            "showDuration": "400",
+            "hideDuration": "1000",
+            "timeOut": "7000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        }
+
+        ActivateMenu('docxpresso_home');
+        $('#side-menu').metisMenu();
+
+
+        qrcode.callback = putQrValue;
+    });
+
+
+    function putQrValue(a) {
+        console.log("funcion callback: " + a);
+        $('#equipo').val(a);
+        if(!checkQRValue(a)){
+            toastr.error("El Código escaneado no se corresponde con esta plantilla.", 'aviso');
+        }else{
+            // Envio automático
+            $("#createform").submit();
+        }
+    }
+
+    function handleFiles(files) {
+        /*
+        var oneFile = files[0];
+        console.log(oneFile);
+        qrcode.decode(oneFile);
+*/
+        var o = [];
+        for (var i = 0; i < files.length; i++) {
+            var reader = new FileReader();
+            reader.onload = (function (theFile) {
+                return function (e) {
+                    console.log("cargar imagen");
+                    qrcode.decode(e.target.result);
+                };
+            })(files[i]);
+            // Read in the image file as a data URL.
+            reader.readAsDataURL(files[i]);
+        }
+    }
+
+    $('a[name="guardarRegistro"]').on('click', function () {
+
+        var equipo = $("#equipo").val();
+        console.log(equipo);
+        if (equipo == "") {
+            toastr.error("Debe escanear un código QR para completar el valor de equipo.", 'aviso');
+        } else if (checkQRValue(equipo)) {
+            $("#createform").submit();
+        } else {
+            toastr.error("El Código escaneado no se corresponde con esta plantilla.", 'aviso');
+
+        }
+
+    });
+
+    function checkQRValue(value) {
+        // Debería hacerse por ajax.
+        var valid = true;
+        var master = '{{master}}';
+        var valoresAdmitidos = [];
+
+        if (master == 4 || master == 5) {
+            valoresAdmitidos = [
+                "SARTORIUS MSA6 29305085",
+                "METTLER XP205DR 1126360856",
+                "METTLER XP205DR 1128391731",
+                "METTLER PR8002 1118121361",
+                "METTLER PM2500 1114292831",
+                "Balanza MPM AG285",
+                "Balanza MPM  PG802-S Cabina muestreo 1",
+                "Balanza MPM  PG802-S Cabina  muestreo 2"
+            ]
+
+        } else if (master == 2) {
+            valoresAdmitidos = [
+                "Cabina de muestreo 1",
+                "Cabina de muestreo 2"
+            ]
+        } else if (master == 1) {
+            valoresAdmitidos = ["Proof reading"]
+        }
+
+        if (valoresAdmitidos.indexOf(value) != -1) {
+            valid = true;
+        } else {
+            valid = false;
+        }
+
+        return valid;
+    }
+
+</script>
+{% endblock %}

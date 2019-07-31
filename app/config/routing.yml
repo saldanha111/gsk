@@ -1,0 +1,28 @@
+nononsense_group:
+    resource: "@NononsenseGroupBundle/Resources/config/routing.yml"
+    prefix:   /groups
+
+nononsense_user:
+    resource: "@NononsenseUserBundle/Resources/config/routing.yml"
+    prefix:   /users
+
+nononsense_news:
+    resource: "@NononsenseNewsBundle/Resources/config/routing.yml"
+    prefix:   /news
+    
+nononsense_notifications:
+    resource: "@NononsenseNotificationsBundle/Resources/config/routing.yml"
+    prefix:   /messages
+    
+nononsense_home:
+    resource: "@NononsenseHomeBundle/Resources/config/routing.yml"
+    prefix:   /
+
+nononsense_datadocument:
+    resource: "@NononsenseDataDocumentBundle/Resources/config/routing.yml"
+    prefix:   /data
+
+
+
+
+

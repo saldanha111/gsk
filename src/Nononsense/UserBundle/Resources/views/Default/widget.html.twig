@@ -1,0 +1,21 @@
+<div class="dropdown profile-element"> <span>
+{% if imgExists == '1'%}
+		<img alt="image" class="img-circle" src="{{webPath}}thumb_{{app.user.id}}.jpg?nocache={{random()}}" style="width: 50px; height: 50px"/>
+{% else %}
+    		<img alt="image" class="img-circle" src="{{webPath}}" style="width: 50px; height: 50px"/>
+    {% endif %}
+
+		 </span>
+	<a data-toggle="dropdown" class="dropdown-toggle" href="#">
+		<span class="clear"> <span class="block m-t-xs"> <strong class="font-bold">{{app.user.name}}</strong>
+		 </span> <span class="text-muted text-xs block">{{app.user.position}} <b class="caret"></b></span> </span> </a>
+	<ul class="dropdown-menu animated fadeInRight m-t-xs">
+		<li><a href="{{ path("nononsense_user_profile", {'id': app.user.id}) }}">{{'My Profile'|trans}}</a></li>
+                <li class="divider"></li>
+                <li><a href="{{ path("nononsense_user_modify_password", {'id': app.user.id}) }}">{{'New password'|trans}}</a></li>
+                <li><a href="{{ path("nononsense_user_edit_image", {'id': app.user.id}) }}">{{'Edit profile image'|trans}}</a></li>
+                <li><a href="{{ path("nononsense_user_edit", {'id': app.user.id}) }}">{{'Edit profile data'|trans}}</a></li>
+                <li class="divider"></li>
+		<li><a href="{{ path("nononsense_user_logout") }}">Logout</a></li>
+	</ul>
+</div>

@@ -1,0 +1,250 @@
+//SHARE
+{% if display is defined and display == 'form' %}
+    $("#radioDoc").prop("checked", false);
+    $("#radioForm").prop("checked", true);
+{% endif %}
+{% if token is defined %}
+//we have to set the ichecks in this case because they are not previously loaded
+$('.i-checks').iCheck({
+    checkboxClass: 'icheckbox_square-blue',
+    radioClass: 'iradio_square-blue'
+});
+    {% if reference is defined %}
+    $('#reference').val('{{reference}}');
+    {% elseif usage.reference is defined %}
+    $('#reference').val('{{usage.reference}}');  
+    {% endif %}
+{% endif %}
+$('#access').on('ifChecked', function(event){
+$('#emailBox').show();
+});
+$('#access').on('ifUnchecked', function(event){
+    $('#emailBox').hide();
+});
+//populate the identifier field
+dataDoc = JSON.parse('{{doc.data|raw}}');
+numVars = dataDoc.data.length;
+prefixes = [];
+for (var p = 0; p < numVars; p++) {
+    //add an option to the identifier variable select
+    $('<option value="' + dataDoc.data[p]['name'] + '">' + dataDoc.data[p]['name'] + '</option>').appendTo('#identifier');
+    //check for prefixes
+    if (typeof dataDoc.data[p]['name'] == 'string'){
+        prefixArray = dataDoc.data[p]['name'].split('_');
+    } else {
+        prefixArray = [];
+    }
+    if (prefixArray.length > 1) {
+        if(prefixes.indexOf(prefixArray[0]) == -1){
+            $('<option value="' + prefixArray[0] + '">' + prefixArray[0] + '</option>').appendTo('#prefix');
+            prefixes.push(prefixArray[0]);
+        }
+    }
+}
+
+$("#prefix").chosen({no_results_text: "{{'No results match'|trans}}", placeholder_text_multiple: "{{'Select'|trans}}"});
+
+$('#requestLink').click(function(){
+    requestLink();
+});
+
+function requestLink() {
+    var htmlPreload = '<div class="text-center"><i class="fa fa-spin fa-spinner"> </i></div>';
+    $('#linkData').html(htmlPreload);
+    //var getData = '?requestDataURI=' + $('#requestDataURI').val();
+    var getData = '?formType=' + $("input:radio[name='doctype']:checked").val();
+    //getData += '&responseDataURI=' + $('#responseDataURI').val();
+    getData += '&responseURL=' + $('#responseURL').val();
+    //getData += '&referer=' + $('#referer').val();
+    getData += '&identifier=' + $('#identifier').val();
+    getData += '&custom=' + $('#custom').val();
+    getData += '&notify=' + $('#notify').val();
+    getData += '&reference=' + $('#reference').val();
+    if ($('#prefix').val() != null){
+        getData += '&prefix=' + $('#prefix').val();
+    } else {
+        getData += '&prefix=';
+    }
+    if ($('#enforceValidation').prop('checked')){
+        getData += '&enforceValidation=1';
+    }
+    if ($('#captcha').prop('checked')){
+        getData += '&captcha=1';
+    }
+    if ($('#access').prop('checked')){
+        getData += '&access=authenticated';
+        getData += '&email=' + $('#email').val();
+    } 
+    {% if token is defined %}
+    getData += '&token=' + $('#token').val();
+    {% endif %}
+    //getData += '&comments=' + encodeURIComponent(encodeURIComponent($('#linkComments').code()));
+    var linkURL = '{{ url('nononsense_documents_linkURL', {"id": doc.id })}}' + getData;
+    if (typeof $('#forwardTemplate').val() !== 'undefined' && $('#forwardTemplate').val() != 'none' && $('#forwardTemplate').val()) {
+        linkURL = linkURL.replace("/{{doc.id}}?", "/" + $('#forwardTemplate').val() + "?");
+    }
+    $.ajax({
+        url: linkURL,
+        crossDomain: false,
+        dataType: "text",
+        cache: false,
+        // parse response
+        success: function( response ) {
+            console.log(response);
+            $('#linkData').html(response);
+            $("#linkData textarea").height( $("#linkData textarea")[0].scrollHeight );
+            $("#linkData textarea").select();
+        },
+        error: function( xhr, status, errorThrown ) {
+            toastr.error('{{'Sorry, there were problems generating the share link.'|trans}}', '{{'Warning'|trans}}');
+            console.log( "Error: " + errorThrown );
+            console.log( "Status: " + status );
+            console.dir( xhr );
+        }
+    });
+}
+
+$('#addMicrosite').click(function(){ 
+    var microsite = $('#microsite').val();
+    if (microsite > 0) {
+        var linkURL = '{{ url('nononsense_microsite_create_document', {"micrositeid": "micrositeid", "id": doc.id, "token": "pretoken"})|raw}}';
+        var link = linkURL.replace("micrositeid", microsite);
+        {% if token is defined %}
+        var link2 = link.replace("pretoken", '{{token}}');
+        {% else %}
+        var link2 = link.replace("pretoken", '0');  
+        {% endif %}
+        window.location.href = link2;
+    } else {
+        toastr.error('{{'You should choose an existing workflow first.'|trans}}', '{{'Warning'|trans}}');
+    }   
+});
+//load templates in chosen
+$('#forwardTemplate').chosen();
+
+//clean the link textarea when an input in the advanced panel changes
+$('.advancedOptions').focus(function(){
+    $('#linkData').text('{{'Click the refresh button to regenerate the link with the new options.'|trans}}');
+});
+$('#advancedOptions').on('mousedown', '.search-choice-close', function(){
+    $('#linkData').text('{{'Click the refresh button to regenerate the link with the new options.'|trans}}');
+});
+$('#advancedOptions').on('click', '.chosen-results li', function(){
+    $('#linkData').text('{{'Click the refresh button to regenerate the link with the new options.'|trans}}');
+});
+$('.checkbox').on('ifChanged', function(){
+    $('#linkData').text('{{'Click the refresh button to regenerate the link with the new options.'|trans}}');
+});
+$('#forwardTemplate').change(function(){
+    $('#linkData').text('{{'Click the refresh button to regenerate the link with the new options.'|trans}}');
+});
+
+//generate link on load
+requestLink();
+
+
+$('#generateEmail').click(function(){
+    var open = true;
+    if ($('#To').val() == '') {
+        toastr.error('{{'You need to include the email where you want to send the link.'|trans}}', '{{'Warning'|trans}}');
+        open = false;
+        return;
+    }
+    if ($('#subject').val() == '') {
+        toastr.error('{{'You need to include the email subject.'|trans}}', '{{'Warning'|trans}}');
+        open = false;
+        return;
+    }
+    if (!validateEmail($('#To').val())) {
+        toastr.error('{{'The email is not valid.'|trans}}', '{{'Warning'|trans}}');
+        open = false;
+        return;
+    }
+    if (open) {
+        //we should start to load the variables in the form
+        $('#emailTo').val($('#To').val());
+        $('#sendingTo').text($('#To').val());
+        $('#emailSubject').val($('#subject').val());
+        $('#messageSubject').text($('#subject').val());
+        $('#emailMessage').val(encodeURI($(".summernote").code()));
+        $('#messageBody').html($(".summernote").code());
+        $('#emailFormType').val($("input:radio[name='doctype']:checked").val());
+        $('#emailIdentifier').val($('#identifier').val());
+        $('#emailCustom').val($('#custom').val());
+        $('#emailNotify').val($('#notify').val());
+        $('#emailReference').val($('#reference').val());
+        $('#emailPrefix').val($('#prefix').val());
+        if ($('#enforceValidation').prop('checked')){
+            $('#emailEnforceValidation').val(1);
+        }
+        if ($('#access').prop('checked')){
+            $('#emailAccess').val('authenticated');
+            $('#emailEmail').val($('#email').val());
+        } 
+        {% if token is defined %}
+        $('#emailToken').val($('#token').val());
+        {% endif %}
+        
+        $('#sendmailModal').modal('show');
+        $('#confirmSendEmail').show();
+        $('#sentWarning').hide();
+        $('#errorWarning').hide();
+        $('#spinner').hide();
+    }
+});
+
+function validateEmail(email) 
+{
+    var re = /\S+@\S+\.\S+/;
+    return re.test(email);
+}
+
+$('#confirmSendEmail').click(function(){
+    $(this).hide();
+    $('#spinner').show();
+    $('#sendingMail').submit();
+});
+
+$('#sendingMail').submit(function(e) {
+    var url = "{{ url('nononsense_documents_share_link_by_email', {"id": doc.id })}}";
+    if (typeof $('#forwardTemplate').val() !== 'undefined' && $('#forwardTemplate').val() != 'none') {
+        url = url.replace("/{{doc.id}}", "/" + $('#forwardTemplate').val());
+    }
+    $.ajax({
+       type: "POST",
+       url: url,
+       data: $("#sendingMail").serialize(),
+       success: function(data)
+       {
+           if (data == 1) {
+                $('#sentWarning').show();
+           } else {
+                $('#errorWarning').show();
+           }
+           $('#spinner').hide();
+       }
+     });
+     e.preventDefault(); 
+});
+
+$('#forwardTemplate').change(function(){
+    var prefix = $(this).val();
+    addr = '{{ path('nononsense_documents_load_prefixes', {'id': 'docid'} )}}';
+    addrid = addr.replace('docid', $(this).val());
+    $('#prefix').html('<option value=""> {{'Loading'|trans}}...</option>');
+    $('#prefix').load( addrid , function(){
+    });  
+});
+
+//SUMMERNOTE
+$('.summernote').summernote({
+    lang: '{{app.request.locale}}',
+    height: 56,
+    toolbar: [
+        ['style', ['bold', 'italic', 'underline', 'clear']],
+        ['color', ['color']],
+        ['para', ['ul', 'ol']],
+      ],
+    onblur: function(e) {   
+    }
+});

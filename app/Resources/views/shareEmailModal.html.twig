@@ -1,0 +1,51 @@
+<div class="modal inmodal" id="sendmailModal" tabindex="-1" role="dialog"  data-backdrop="static" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content animated fadeIn">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">{{'Close'|trans}}</span></button>
+                <strong><i class="fa fa-share-square-o"></i> {{'Share document by email'|trans}}</strong>
+            </div>
+            <div id="sentWarning" style="display: none">
+                <div class="alert alert-success alert-dismissable" style="margin: 10px 16px 0 16px">
+                    {{'The email was successfully sent.'|trans}}
+                </div>
+            </div>
+            <div id="errorWarning" style="display: none">
+                <div class="alert alert-error alert-dismissable" style="margin: 10px 16px 0 16px">
+                    {{'There were problems sending the email.'|trans}}
+                </div>
+            </div>
+            <div class="modal-body">
+                <form id="sendingMail" name="sendingMail" method="POST" >
+                    <input type ="hidden" name="emailTo" id ="emailTo" value="" />
+                    <input type ="hidden" name="emailSubject" id ="emailSubject" value="" />
+                    <input type ="hidden" name="emailMessage" id ="emailMessage" value="" />
+                    <input type ="hidden" name="emailFormType" id ="emailFormType" value="" />
+                    <input type ="hidden" name="emailIdentifier" id ="emailIdentifier" value="" />
+                    <input type ="hidden" name="emailCustom" id ="emailCustom" value="" />
+                    <input type ="hidden" name="emailNotify" id ="emailNotify" value="" />
+                    <input type ="hidden" name="emailReference" id ="emailReference" value="" />
+                    <input type ="hidden" name="emailPrefix" id ="emailPrefix" value="" />
+                    <input type ="hidden" name="emailEnforceValidation" id ="emailEnforceValidation" value="" />
+                    <input type ="hidden" name="emailAccess" id ="emailAccess" value="" />
+                    <input type ="hidden" name="emailEmail" id ="emailEmail" value="" />
+                    <input type ="hidden" name="emailToken" id ="emailToken" value="" />
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <p><strong>{{'Send to'|trans}}:</strong> <span id="sendingTo"></span></p> 
+                            <p><strong>{{'Subject'|trans}}:</strong> <span id="messageSubject"></span></p> 
+                            <p><strong>{{'Message body'|trans}}:</strong></p>
+                            <div id="messageBody"></div>
+                            <p class="m-t-md"><small style="color: #b70000">{{'The edition link will be automatically attached at the end of the message.'|trans}}</small></p>
+                        </div>              
+                    </div>     
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-white btn-sm" data-dismiss="modal">{{'Close'|trans}}</button>
+                <button type="button" class="btn btn-primary btn-sm" id="confirmSendEmail">{{'Confirm to send'|trans}}</button>
+                <button type="button" class="btn btn-warning btn-sm" id="spinner" style="display: none"><i class='fa fa-refresh fa-spin'> </i></button>
+            </div>
+        </div>
+    </div>
+</div>

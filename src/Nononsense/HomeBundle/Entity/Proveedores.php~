@@ -1,0 +1,236 @@
+<?php
+
+namespace Nononsense\HomeBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+
+/**
+ * @ORM\Entity
+ * @ORM\Table(name="proveedores")
+ * @ORM\Entity(repositoryClass="Nononsense\HomeBundle\Entity\ProveedoresRepository")
+ * @ORM\HasLifecycleCallbacks
+ */
+class Proveedores
+{
+    /**
+     * @ORM\Column(type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    protected $id;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="cif", type="string", length=90)
+     */
+    protected $cif;
+    
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="name", type="string", length=90)
+     */
+    protected $name;
+    
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="surname", type="string", length=90)
+     */
+    protected $surname;
+
+    
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="email", type="string", length=150)
+     */
+    protected $email;
+    
+    /**
+     * @ORM\Column(type="date")
+     */
+    protected $created;
+
+    /**
+     * @ORM\Column(type="date")
+     */
+    protected $modified;
+
+    public function __construct()
+    {
+
+    }
+
+    /**
+     * @ORM\PrePersist
+     */
+    public function setCreatedValue()
+    {
+        if (!$this->created) {
+            $this->created = new \DateTime();
+        }
+        $this->modified = $this->created;
+    }
+
+    /**
+     * @ORM\PreUpdate
+     */
+    public function setModifiedValue()
+    {
+        $this->modified = new \DateTime();
+    }
+    
+
+    /**
+     * Get id
+     *
+     * @return integer 
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * Set cif
+     *
+     * @param string $cif
+     * @return Proveedores
+     */
+    public function setCif($cif)
+    {
+        $this->cif = $cif;
+
+        return $this;
+    }
+
+    /**
+     * Get cif
+     *
+     * @return string 
+     */
+    public function getCif()
+    {
+        return $this->cif;
+    }
+
+    /**
+     * Set name
+     *
+     * @param string $name
+     * @return Proveedores
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    /**
+     * Get name
+     *
+     * @return string 
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * Set surname
+     *
+     * @param string $surname
+     * @return Proveedores
+     */
+    public function setSurname($surname)
+    {
+        $this->surname = $surname;
+
+        return $this;
+    }
+
+    /**
+     * Get surname
+     *
+     * @return string 
+     */
+    public function getSurname()
+    {
+        return $this->surname;
+    }
+
+    /**
+     * Set email
+     *
+     * @param string $email
+     * @return Proveedores
+     */
+    public function setEmail($email)
+    {
+        $this->email = $email;
+
+        return $this;
+    }
+
+    /**
+     * Get email
+     *
+     * @return string 
+     */
+    public function getEmail()
+    {
+        return $this->email;
+    }
+
+    /**
+     * Set created
+     *
+     * @param \DateTime $created
+     * @return Proveedores
+     */
+    public function setCreated($created)
+    {
+        $this->created = $created;
+
+        return $this;
+    }
+
+    /**
+     * Get created
+     *
+     * @return \DateTime 
+     */
+    public function getCreated()
+    {
+        return $this->created;
+    }
+
+    /**
+     * Set modified
+     *
+     * @param \DateTime $modified
+     * @return Proveedores
+     */
+    public function setModified($modified)
+    {
+        $this->modified = $modified;
+
+        return $this;
+    }
+
+    /**
+     * Get modified
+     *
+     * @return \DateTime 
+     */
+    public function getModified()
+    {
+        return $this->modified;
+    }
+}

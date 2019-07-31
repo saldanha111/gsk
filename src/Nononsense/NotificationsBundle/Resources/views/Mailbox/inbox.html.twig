@@ -1,0 +1,90 @@
+
+<div class="mail-box-header">
+    <form method="get" action="" class="pull-right mail-search">
+        <div class="input-group">
+            <input type="text" class="form-control input-sm" name="search" id="search" placeholder="{{'Search messages'|trans}}">
+            <div class="input-group-btn">
+                <button type="submit" class="btn btn-sm btn-primary" id="searchButton">
+                    {{'Search'|trans}}
+                </button>
+            </div>
+        </div>
+    </form>
+    
+    <h2>
+        {{title}}
+    </h2>
+    <div class="mail-tools tooltip-demo m-t-md">
+        {% include '::microPager.html.twig' %}
+        <button class="btn btn-white btn-sm" data-toggle="tooltip" data-placement="left" title="{{'Refresh inbox'|trans}}" data-original-title="{{'Refresh inbox'|trans}}" onclick="loadEvent ('{{filter}}', 1, 'q', 0)"><i class="fa fa-refresh"></i> </button>
+        {% if filter == 'inbox' %}
+            <button class="btn btn-white btn-sm" data-toggle="tooltip" data-placement="top" title="{{'Mark as read/unread'|trans}}" onclick="markAsRead({{paging.page}}, '{{query}}', {{groupId}}, '{{filter}}')"><i class="fa fa-eye"></i> </button>
+            <button class="btn btn-white btn-sm" data-toggle="tooltip" data-placement="top" title="{{'Move to trash'|trans}}" onclick="markAsTrash()"><i class="fa fa-trash-o"></i> </button>
+        {% elseif filter == 'trash' %}
+            <button class="btn btn-white btn-sm" data-toggle="tooltip" data-placement="top" title="{{'Move to inbox'|trans}}" onclick="markAsUntrash()"><i class="fa fa-inbox"></i> </button>
+        {% endif %}
+        </div>
+    <div class="filters">
+        {% if paging.results > 0 %}
+            <p>{{'Messages from'|trans}} <strong>{{(paging.page -1) * paging.show + 1}}</strong>
+                {{'to'|trans}} 
+                {% if (paging.page * paging.show) < paging.results %}
+                    <strong>{{paging.page * paging.show}}</strong> 
+                {% else %}
+                    <strong>{{paging.results}}</strong>   
+                {% endif %}
+                {{'of'|trans}} <strong>{{paging.results}}</strong>
+            </p>
+        {% else %}
+            <p>{{'There are no messages to show.'|trans}}</p>
+        {% endif %}
+        {% if groupId > 0 %}
+            <p>{{'From group'|trans}}: <strong><span id="groupName"></span></strong>.</p>
+        {% endif %} 
+        {% if query != 'q' %}
+            <p>{{'Filtered by query term'|trans}}: <strong>{{query}}</strong>.</p>
+        {% endif %}
+    </div>
+</div>
+    
+<div class="mail-box">
+    <table class="table table-hover table-mail">
+        <tbody>
+            {% for message in messages %}
+            <tr {% if message.messages[0] is defined or title == 'Sent Mail' %} class="read showRequest" {% else %} class="unread showRequest" {% endif %}  data-messageid="{{message.id}}">
+                <td class="check-mail">
+                    <input type="checkbox" class="i-checks" value="{{message.id}}">
+                </td>
+                <td class="mail-ontact">{{message.author}}</td>
+                <td class="mail-subject">{{message.subject}}</td>
+                <!--<td class="text-right mail-date">{{message.created|date('Y-m-d')}}</td>-->
+                <td class="text-right mail-date">{{message.created|time_diff}}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+    
+<script>
+    updateUnread({{unread}});
+    
+    $('.i-checks').iCheck({
+        checkboxClass: 'icheckbox_square-green',
+        radioClass: 'iradio_square-green',
+    });
+    $('.showRequest').click (function(event){
+        messageId = $(this).data('messageid');
+        loader();
+        $('#contentLoader').load('{{ url('nononsense_notifications_show')}}' + '/' + messageId, function(){unloader()});
+    });
+    $('#searchButton').click (function(event){
+        event.preventDefault();
+        query = $('#search').val();
+        if (query.length < 3) {
+            toastr.error('{{'The search term needs to include at least three characters.'|trans}}','{{'Warning'|trans}}');
+        } else {
+            query = encodeURIComponent(query);
+            loadEvent ('{{filter}}', 1, query, {{groupId}});
+        }
+    });
+</script>

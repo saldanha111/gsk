@@ -1,0 +1,522 @@
+<?php
+
+namespace Nononsense\HomeBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+
+/**
+ * @ORM\Entity
+ * @ORM\Table(name="tesoreria", indexes={@ORM\Index(name="cif_idx", columns={"cif"})}, uniqueConstraints={@ORM\UniqueConstraint(name="identificador", columns={"cif", "seccion", "codigo"})})
+ * @ORM\Entity(repositoryClass="Nononsense\HomeBundle\Entity\TesoreriaRepository")
+ * @ORM\HasLifecycleCallbacks
+ */
+class Tesoreria
+{
+    /**
+     * @ORM\Column(type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    protected $id;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="cif", type="string", length=90)
+     */
+    protected $cif;
+    
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="name", type="string", length=120)
+     */
+    protected $name;
+    
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="seccion", type="string", length=90)
+     */
+    protected $seccion;
+    
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="codigo", type="string", length=90)
+     */
+    protected $codigo;
+    
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="plazo", type="string", length=90)
+     */
+    protected $plazo;
+    
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="ajuste", type="string", length=90)
+     */
+    protected $ajuste;
+    
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="compcial", type="string", length=90)
+     */
+    protected $compCial;
+    
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="prontopago", type="string", length=90)
+     */
+    protected $prontoPago;
+    
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="timbre", type="string", length=90)
+     */
+    protected $timbre;
+    
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="formapago", type="string", length=90)
+     */
+    protected $formaPago;
+    
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="revisado", type="string", length=90, nullable=true)
+     */
+    protected $revisado;
+    
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="mensaje", type="text", nullable=true)
+     */
+    protected $mensaje;
+    
+    
+    /**
+     * @ORM\Column(type="date")
+     */
+    protected $created;
+
+    /**
+     * @ORM\Column(type="date")
+     */
+    protected $modified;
+
+    public function __construct()
+    {
+
+    }
+
+    /**
+     * @ORM\PrePersist
+     */
+    public function setCreatedValue()
+    {
+        if (!$this->created) {
+            $this->created = new \DateTime();
+        }
+        $this->modified = $this->created;
+    }
+
+    /**
+     * @ORM\PreUpdate
+     */
+    public function setModifiedValue()
+    {
+        $this->modified = new \DateTime();
+    }
+    
+
+    /**
+     * Get id
+     *
+     * @return integer 
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * Set cif
+     *
+     * @param string $cif
+     * @return Proveedores
+     */
+    public function setCif($cif)
+    {
+        $this->cif = $cif;
+
+        return $this;
+    }
+
+    /**
+     * Get cif
+     *
+     * @return string 
+     */
+    public function getCif()
+    {
+        return $this->cif;
+    }
+
+    /**
+     * Set name
+     *
+     * @param string $name
+     * @return Proveedores
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    /**
+     * Get name
+     *
+     * @return string 
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * Set surname
+     *
+     * @param string $surname
+     * @return Proveedores
+     */
+    public function setSurname($surname)
+    {
+        $this->surname = $surname;
+
+        return $this;
+    }
+
+    /**
+     * Get surname
+     *
+     * @return string 
+     */
+    public function getSurname()
+    {
+        return $this->surname;
+    }
+
+    /**
+     * Set email
+     *
+     * @param string $email
+     * @return Proveedores
+     */
+    public function setEmail($email)
+    {
+        $this->email = $email;
+
+        return $this;
+    }
+
+    /**
+     * Get email
+     *
+     * @return string 
+     */
+    public function getEmail()
+    {
+        return $this->email;
+    }
+
+    /**
+     * Set created
+     *
+     * @param \DateTime $created
+     * @return Proveedores
+     */
+    public function setCreated($created)
+    {
+        $this->created = $created;
+
+        return $this;
+    }
+
+    /**
+     * Get created
+     *
+     * @return \DateTime 
+     */
+    public function getCreated()
+    {
+        return $this->created;
+    }
+
+    /**
+     * Set modified
+     *
+     * @param \DateTime $modified
+     * @return Proveedores
+     */
+    public function setModified($modified)
+    {
+        $this->modified = $modified;
+
+        return $this;
+    }
+
+    /**
+     * Get modified
+     *
+     * @return \DateTime 
+     */
+    public function getModified()
+    {
+        return $this->modified;
+    }
+
+    /**
+     * Set seccion
+     *
+     * @param string $seccion
+     * @return Tesoreria
+     */
+    public function setSeccion($seccion)
+    {
+        $this->seccion = $seccion;
+
+        return $this;
+    }
+
+    /**
+     * Get seccion
+     *
+     * @return string 
+     */
+    public function getSeccion()
+    {
+        return $this->seccion;
+    }
+
+    /**
+     * Set codigo
+     *
+     * @param string $codigo
+     * @return Tesoreria
+     */
+    public function setCodigo($codigo)
+    {
+        $this->codigo = $codigo;
+
+        return $this;
+    }
+
+    /**
+     * Get codigo
+     *
+     * @return string 
+     */
+    public function getCodigo()
+    {
+        return $this->codigo;
+    }
+
+    /**
+     * Set plazo
+     *
+     * @param string $plazo
+     * @return Tesoreria
+     */
+    public function setPlazo($plazo)
+    {
+        $this->plazo = $plazo;
+
+        return $this;
+    }
+
+    /**
+     * Get plazo
+     *
+     * @return string 
+     */
+    public function getPlazo()
+    {
+        return $this->plazo;
+    }
+
+    /**
+     * Set ajuste
+     *
+     * @param string $ajuste
+     * @return Tesoreria
+     */
+    public function setAjuste($ajuste)
+    {
+        $this->ajuste = $ajuste;
+
+        return $this;
+    }
+
+    /**
+     * Get ajuste
+     *
+     * @return string 
+     */
+    public function getAjuste()
+    {
+        return $this->ajuste;
+    }
+
+    /**
+     * Set compCial
+     *
+     * @param string $compCial
+     * @return Tesoreria
+     */
+    public function setCompCial($compCial)
+    {
+        $this->compCial = $compCial;
+
+        return $this;
+    }
+
+    /**
+     * Get compCial
+     *
+     * @return string 
+     */
+    public function getCompCial()
+    {
+        return $this->compCial;
+    }
+
+    /**
+     * Set prontoPago
+     *
+     * @param string $prontoPago
+     * @return Tesoreria
+     */
+    public function setProntoPago($prontoPago)
+    {
+        $this->prontoPago = $prontoPago;
+
+        return $this;
+    }
+
+    /**
+     * Get prontoPago
+     *
+     * @return string 
+     */
+    public function getProntoPago()
+    {
+        return $this->prontoPago;
+    }
+
+    /**
+     * Set timbre
+     *
+     * @param string $timbre
+     * @return Tesoreria
+     */
+    public function setTimbre($timbre)
+    {
+        $this->timbre = $timbre;
+
+        return $this;
+    }
+
+    /**
+     * Get timbre
+     *
+     * @return string 
+     */
+    public function getTimbre()
+    {
+        return $this->timbre;
+    }
+
+    /**
+     * Set formaPago
+     *
+     * @param string $formaPago
+     * @return Tesoreria
+     */
+    public function setFormaPago($formaPago)
+    {
+        $this->formaPago = $formaPago;
+
+        return $this;
+    }
+
+    /**
+     * Get formaPago
+     *
+     * @return string 
+     */
+    public function getFormaPago()
+    {
+        return $this->formaPago;
+    }
+
+    /**
+     * Set revisado
+     *
+     * @param string $revisado
+     * @return Tesoreria
+     */
+    public function setRevisado($revisado)
+    {
+        $this->revisado = $revisado;
+
+        return $this;
+    }
+
+    /**
+     * Get revisado
+     *
+     * @return string 
+     */
+    public function getRevisado()
+    {
+        return $this->revisado;
+    }
+
+    /**
+     * Set mensaje
+     *
+     * @param string $mensaje
+     * @return Tesoreria
+     */
+    public function setMensaje($mensaje)
+    {
+        $this->mensaje = $mensaje;
+
+        return $this;
+    }
+
+    /**
+     * Get mensaje
+     *
+     * @return string 
+     */
+    public function getMensaje()
+    {
+        return $this->mensaje;
+    }
+}

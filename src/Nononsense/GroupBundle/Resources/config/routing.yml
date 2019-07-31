@@ -1,0 +1,67 @@
+nononsense_group_create:
+    path:     /create
+    defaults: { _controller: NononsenseGroupBundle:Group:create }
+    
+nononsense_group_edit:
+    path:     /edit/{id}
+    defaults: { _controller: NononsenseGroupBundle:Group:edit }
+    requirements:
+        id: ".+"
+        
+nononsense_group_clone:
+    path:     /clone/{id}
+    defaults: { _controller: NononsenseGroupBundle:Group:clone }
+    requirements:
+        id: ".+"
+    
+nononsense_group_delete:
+    path:     /delete/{id}
+    defaults: { _controller: NononsenseGroupBundle:Group:delete }
+    requirements:
+        id: ".+"
+        
+nononsense_group_adduser:
+    path:     /add/user/{id}
+    defaults: { _controller: NononsenseGroupBundle:Group:adduser }
+    requirements:
+        id: ".+"
+        
+nononsense_group_removeuser:
+    path:     /remove/user/{id}
+    defaults: { _controller: NononsenseGroupBundle:Group:removeuser }
+    requirements:
+        id: ".+"
+
+nononsense_group_show:
+    path:     /show/{id}
+    defaults: { _controller: NononsenseGroupBundle:Group:show }
+    requirements:
+        id: ".+"
+        
+nononsense_group_users:
+    path:     /users/{id}/{type}
+    defaults: { _controller: NononsenseGroupBundle:Group:users, type: 'member' }
+    
+nononsense_group_remove_user:
+    path:     /users/{id}/{type}/{userid}
+    defaults: { _controller: NononsenseGroupBundle:Group:removeuser, id: 0, type: 'member', userid: 0 }
+    
+nononsense_group_addusers:
+    path:     /addusers/{id}/{type}
+    defaults: { _controller: NononsenseGroupBundle:Group:addusers, type: 'member' }
+    
+nononsense_group_addone:
+    path:     /addsingleuser
+    defaults: { _controller: NononsenseGroupBundle:Group:addsingleuser }
+    
+nononsense_group_addbulk:
+    path:     /addbulkusers
+    defaults: { _controller: NononsenseGroupBundle:Group:addbulk }
+        
+nononsense_groups_homepage:
+    path:     /{page}/{query}
+    defaults: { _controller: NononsenseGroupBundle:Group:index, page: 1, query: 'q' }
+    
+nononsense_groups_homepage_slash:
+    path:     /
+    defaults: { _controller: NononsenseGroupBundle:Group:index, page: 1, query: 'q' }
