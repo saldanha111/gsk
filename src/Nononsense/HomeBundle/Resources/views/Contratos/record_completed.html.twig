@@ -22,7 +22,7 @@
         {% if validated == 1 %}
         <h1>El documento está completado</h1>
         <form id="guardarenviarForm"
-              action="{{path('nononsense_record_save_sent', {'id': id})}}">
+              action="{{path('nononsense_record_save_send', {'id': id})}}">
             <div id="signature-pad" class="input-group">
                 <h2>Introduzca su firma</h2>
                 <canvas width="300" height="150"
@@ -32,6 +32,9 @@
             <a name="borrarFirmar" class="btn btn-primary" id="borrarFirmar">Limpiar firma</a>
 
             <a class="btn btn-success" name="guardarenviar" id="guardarenviar">Enviar</a>
+            {% elseif validated == 2 %}
+            <h1>Documento firmado!</h1>
+            El documento ha sido firmado
             {% else %}
             <h1>Documento guardado!</h1>
             El documento está a la espera de ser completado

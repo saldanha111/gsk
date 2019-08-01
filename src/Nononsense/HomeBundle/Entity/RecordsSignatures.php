@@ -72,7 +72,7 @@ class RecordsSignatures
     /**
      * @var string
      *
-     * @ORM\Column(name="firma", type="text")
+     * @ORM\Column(name="firma", type="text", nullable=true)
      */
     protected $firma;
 
@@ -82,6 +82,28 @@ class RecordsSignatures
      * @ORM\Column(name="number", type="integer")
      */
     protected $number;
+
+    /**
+     * @var boolean $next
+     *
+     * @ORM\Column(name="next", type="boolean", options={"default" = false})
+     */
+    protected $next;
+
+    /**
+     * @var boolean $attachment
+     *
+     * @ORM\Column(name="attachment", type="boolean", options={"default" = false})
+     */
+    protected $attachment;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="files", type="text", nullable=true)
+     *
+     */
+    protected $file;
 
 
 
@@ -325,5 +347,74 @@ class RecordsSignatures
     public function getRecord()
     {
         return $this->record;
+    }
+
+    /**
+     * Set next
+     *
+     * @param boolean $next
+     * @return RecordsSignatures
+     */
+    public function setNext($next)
+    {
+        $this->next = $next;
+
+        return $this;
+    }
+
+    /**
+     * Get next
+     *
+     * @return boolean 
+     */
+    public function getNext()
+    {
+        return $this->next;
+    }
+
+    /**
+     * Set attachment
+     *
+     * @param boolean $attachment
+     * @return RecordsSignatures
+     */
+    public function setAttachment($attachment)
+    {
+        $this->attachment = $attachment;
+
+        return $this;
+    }
+
+    /**
+     * Get attachment
+     *
+     * @return boolean 
+     */
+    public function getAttachment()
+    {
+        return $this->attachment;
+    }
+
+    /**
+     * Set file
+     *
+     * @param string $file
+     * @return RecordsSignatures
+     */
+    public function setFile($file)
+    {
+        $this->file = $file;
+
+        return $this;
+    }
+
+    /**
+     * Get file
+     *
+     * @return string 
+     */
+    public function getFile()
+    {
+        return $this->file;
     }
 }

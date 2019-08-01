@@ -119,6 +119,14 @@ class Documents
      */
     protected $userCreatedEntiy;
 
+    /**
+     * @var boolean $signCreator
+     *
+     * @ORM\Column(name="sign_creator", type="boolean",  nullable=true, options={"default" = false})
+     */
+    protected $signCreator;
+
+
 
     public function __construct()
     {
@@ -518,5 +526,28 @@ class Documents
     public function getUserCreatedEntiy()
     {
         return $this->userCreatedEntiy;
+    }
+
+    /**
+     * Set signCreator
+     *
+     * @param boolean $signCreator
+     * @return Documents
+     */
+    public function setSignCreator($signCreator)
+    {
+        $this->signCreator = $signCreator;
+
+        return $this;
+    }
+
+    /**
+     * Get signCreator
+     *
+     * @return boolean 
+     */
+    public function getSignCreator()
+    {
+        return $this->signCreator;
     }
 }

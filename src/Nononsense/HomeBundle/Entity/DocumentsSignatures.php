@@ -75,6 +75,12 @@ class DocumentsSignatures
      */
     protected $number;
 
+    /**
+     * @var boolean $attachment
+     *
+     * @ORM\Column(name="attachment", type="boolean", options={"default" = false})
+     */
+    protected $attachment;
 
 
     public function __construct()
@@ -294,5 +300,28 @@ class DocumentsSignatures
     public function getDocument()
     {
         return $this->document;
+    }
+
+    /**
+     * Set attachment
+     *
+     * @param boolean $attachment
+     * @return DocumentsSignatures
+     */
+    public function setAttachment($attachment)
+    {
+        $this->attachment = $attachment;
+
+        return $this;
+    }
+
+    /**
+     * Get attachment
+     *
+     * @return boolean 
+     */
+    public function getAttachment()
+    {
+        return $this->attachment;
     }
 }

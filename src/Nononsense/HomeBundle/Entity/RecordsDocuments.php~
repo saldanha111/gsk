@@ -504,4 +504,152 @@ class RecordsDocuments
         return $this->userCreatedEntiy;
     }
 
+
+    /**
+     * Set dependsOn
+     *
+     * @param integer $dependsOn
+     * @return RecordsDocuments
+     */
+    public function setDependsOn($dependsOn)
+    {
+        $this->dependsOn = $dependsOn;
+
+        return $this;
+    }
+
+    /**
+     * Get dependsOn
+     *
+     * @return integer 
+     */
+    public function getDependsOn()
+    {
+        return $this->dependsOn;
+    }
+
+    /**
+     * Set stepDataValue
+     *
+     * @param string $stepDataValue
+     * @return RecordsDocuments
+     */
+    public function setStepDataValue($stepDataValue)
+    {
+        $this->stepDataValue = $stepDataValue;
+
+        return $this;
+    }
+
+    /**
+     * Get stepDataValue
+     *
+     * @return string 
+     */
+    public function getStepDataValue()
+    {
+        return $this->stepDataValue;
+    }
+
+    /**
+     * Set token
+     *
+     * @param string $token
+     * @return RecordsDocuments
+     */
+    public function setToken($token)
+    {
+        $this->token = $token;
+
+        return $this;
+    }
+
+    /**
+     * Get token
+     *
+     * @return string 
+     */
+    public function getToken()
+    {
+        return $this->token;
+    }
+
+    /**
+     * Set type
+     *
+     * @param \Nononsense\HomeBundle\Entity\Types $type
+     * @return RecordsDocuments
+     */
+    public function setType(\Nononsense\HomeBundle\Entity\Types $type = null)
+    {
+        $this->type = $type;
+
+        return $this;
+    }
+
+    /**
+     * Get type
+     *
+     * @return \Nononsense\HomeBundle\Entity\Types 
+     */
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    /**
+     * Set document
+     *
+     * @param \Nononsense\HomeBundle\Entity\Documents $document
+     * @return RecordsDocuments
+     */
+    public function setDocument(\Nononsense\HomeBundle\Entity\Documents $document = null)
+    {
+        $this->document = $document;
+
+        return $this;
+    }
+
+    /**
+     * Get document
+     *
+     * @return \Nononsense\HomeBundle\Entity\Documents 
+     */
+    public function getDocument()
+    {
+        return $this->document;
+    }
+
+    /**
+     * Add signatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\RecordsSignatures $signatures
+     * @return RecordsDocuments
+     */
+    public function addSignature(\Nononsense\HomeBundle\Entity\RecordsSignatures $signatures)
+    {
+        $this->signatures[] = $signatures;
+
+        return $this;
+    }
+
+    /**
+     * Remove signatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\RecordsSignatures $signatures
+     */
+    public function removeSignature(\Nononsense\HomeBundle\Entity\RecordsSignatures $signatures)
+    {
+        $this->signatures->removeElement($signatures);
+    }
+
+    /**
+     * Get signatures
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getSignatures()
+    {
+        return $this->signatures;
+    }
 }

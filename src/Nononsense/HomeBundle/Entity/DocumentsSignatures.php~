@@ -75,6 +75,12 @@ class DocumentsSignatures
      */
     protected $number;
 
+    /**
+     * @var boolean $attachment
+     *
+     * @ORM\Column(name="attachment", type="boolean", options={"default" = false})
+     */
+    protected $attachment;
 
 
     public function __construct()
@@ -156,5 +162,166 @@ class DocumentsSignatures
     public function getModified()
     {
         return $this->modified;
+    }
+
+    /**
+     * Set userid
+     *
+     * @param integer $userid
+     * @return DocumentsSignatures
+     */
+    public function setUserid($userid)
+    {
+        $this->userid = $userid;
+
+        return $this;
+    }
+
+    /**
+     * Get userid
+     *
+     * @return integer 
+     */
+    public function getUserid()
+    {
+        return $this->userid;
+    }
+
+    /**
+     * Set groupid
+     *
+     * @param integer $groupid
+     * @return DocumentsSignatures
+     */
+    public function setGroupid($groupid)
+    {
+        $this->groupid = $groupid;
+
+        return $this;
+    }
+
+    /**
+     * Get groupid
+     *
+     * @return integer 
+     */
+    public function getGroupid()
+    {
+        return $this->groupid;
+    }
+
+    /**
+     * Set number
+     *
+     * @param integer $number
+     * @return DocumentsSignatures
+     */
+    public function setNumber($number)
+    {
+        $this->number = $number;
+
+        return $this;
+    }
+
+    /**
+     * Get number
+     *
+     * @return integer 
+     */
+    public function getNumber()
+    {
+        return $this->number;
+    }
+
+    /**
+     * Set userEntiy
+     *
+     * @param \Nononsense\UserBundle\Entity\Users $userEntiy
+     * @return DocumentsSignatures
+     */
+    public function setUserEntiy(\Nononsense\UserBundle\Entity\Users $userEntiy = null)
+    {
+        $this->userEntiy = $userEntiy;
+
+        return $this;
+    }
+
+    /**
+     * Get userEntiy
+     *
+     * @return \Nononsense\UserBundle\Entity\Users 
+     */
+    public function getUserEntiy()
+    {
+        return $this->userEntiy;
+    }
+
+    /**
+     * Set groupEntiy
+     *
+     * @param \Nononsense\GroupBundle\Entity\Groups $groupEntiy
+     * @return DocumentsSignatures
+     */
+    public function setGroupEntiy(\Nononsense\GroupBundle\Entity\Groups $groupEntiy = null)
+    {
+        $this->groupEntiy = $groupEntiy;
+
+        return $this;
+    }
+
+    /**
+     * Get groupEntiy
+     *
+     * @return \Nononsense\GroupBundle\Entity\Groups 
+     */
+    public function getGroupEntiy()
+    {
+        return $this->groupEntiy;
+    }
+
+    /**
+     * Set document
+     *
+     * @param \Nononsense\HomeBundle\Entity\Documents $document
+     * @return DocumentsSignatures
+     */
+    public function setDocument(\Nononsense\HomeBundle\Entity\Documents $document = null)
+    {
+        $this->document = $document;
+
+        return $this;
+    }
+
+    /**
+     * Get document
+     *
+     * @return \Nononsense\HomeBundle\Entity\Documents 
+     */
+    public function getDocument()
+    {
+        return $this->document;
+    }
+
+    /**
+     * Set attachment
+     *
+     * @param boolean $attachment
+     * @return DocumentsSignatures
+     */
+    public function setAttachment($attachment)
+    {
+        $this->attachment = $attachment;
+
+        return $this;
+    }
+
+    /**
+     * Get attachment
+     *
+     * @return boolean 
+     */
+    public function getAttachment()
+    {
+        return $this->attachment;
     }
 }

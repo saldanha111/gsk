@@ -11,6 +11,8 @@ namespace Nononsense\HomeBundle\Controller;
 
 use Nononsense\HomeBundle\Entity\Documents;
 use Nononsense\HomeBundle\Entity\RecordsDocuments;
+use Nononsense\HomeBundle\Entity\DocumentsSignatures;
+use Nononsense\HomeBundle\Entity\RecordsSignatures;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Nononsense\HomeBundle\Form\Type as FormProveedor;
@@ -27,6 +29,13 @@ class RecordsController extends Controller
         $document = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:Documents')
             ->find($id);
+
+
+        /* Para testear */
+
+        $record = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:RecordsDocuments')
+            ->find(55);
 
         $user = $this->container->get('security.context')->getToken()->getUser();
         $em = $this->getDoctrine()->getManager();
@@ -102,10 +111,10 @@ class RecordsController extends Controller
         } else if ($record->getStatus() == -1 || $record->getStatus() == 0) {
             // abrir para editar
             $versionJS = filemtime(__DIR__ . "/../../../../web/js/js_templates/activity.js");
-            $validacionURL1 = $baseUrl . "js/js_templates/activity.js?v=" . $versionJS;
+            $validacionURL1 = $baseUrl . "js/js_templates/document.js?v=" . $versionJS;
 
             $options['prefix'] = 'u';
-            $options['responseURL'] = $baseUrl . "dataRecords/redirectFromData/" . $id . "/";
+            $options['responseURL'] = $baseUrl . "records/redirectFromData/" . $id . "/";
         }
 
 
@@ -183,10 +192,8 @@ class RecordsController extends Controller
             $data->varValues = $varValues;
 
 
-        } else {
+        } 
 
-
-        }
         /*
         var_dump(json_encode($data));
                 exit;
@@ -245,6 +252,57 @@ class RecordsController extends Controller
         $record->setStepDataValue($data);
         $record->setStatus(1);
         $record->setToken($dataJSON->token);
+
+        $stepData = $record->getStepDataValue();
+        $stepDataJSON = json_decode($stepData);
+
+        $validations = $stepDataJSON->validations;
+        $percentageCompleted = $validations->percentage;
+        $validated = $validations->validated;
+
+
+        $signatures = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:RecordsSignatures')
+            ->findBy(array("record"=> $record->getId()));
+
+        /* Si no está metido el workflow de las firmas lo metemos */
+        if(!$signatures){
+            if($validated && $percentageCompleted==100){
+                switch($record->getType()){
+                    //Caso especial para los registros de tipo Albarán Almacén
+                    case 1: $this->albaranAlmacen($record);
+                            break;
+                    default:
+                            $baseSignatures = $this->getDoctrine()
+                                ->getRepository('NononsenseHomeBundle:DocumentsSignatures')
+                                ->findBy(array("document"=> $record->getDocument()));
+
+                            $next=1;
+                            if($record->getDocument()->getSignCreator()){
+                                $sign = new RecordsSignatures();
+                                $sign->setUserEntiy($record->getUserCreatedEntiy());
+                                $sign->setRecord($record);
+                                $sign->setNumber(0);
+                                $sign->setAttachment(0);
+                                $sign->setNext($next);
+                                $em->persist($sign); 
+                                $next=0;
+                            }
+                            foreach ($baseSignatures as $baseSignaturre) {
+                                $sign = new RecordsSignatures();
+                                $sign->setUserEntiy($baseSignaturre->getUserEntiy());
+                                $sign->setGroupEntiy($baseSignaturre->getGroupEntiy());
+                                $sign->setRecord($record);
+                                $sign->setNumber($baseSignaturre->getNumber());
+                                $sign->setAttachment($baseSignaturre->getAttachment());
+                                $sign->setNext($next);
+                                $em->persist($sign);
+                                $next=0;
+                            }
+                            break;
+                }
+            }
+        }
 
         $em->persist($record);
 
@@ -330,7 +388,6 @@ class RecordsController extends Controller
                 $em->persist($record);
                 $em->flush();
             
-
                 /*
                  * Revisar si ha habido algún cambio en las variables para que muestre el campo de texto.
                  */
@@ -366,158 +423,203 @@ class RecordsController extends Controller
 
     public function saveAndSendAction($id, Request $request)
     {
-        $comentario = $request->query->get('comment');
-
-        $step = $this->getDoctrine()
-            ->getRepository('NononsenseHomeBundle:InstanciasSteps')
-            ->find($stepid);
-
         $em = $this->getDoctrine()->getManager();
 
-        $registro = $step->getInstanciaWorkflow();
-        $registro->setStatus(4);
-
-        if (isset($comentario)) {
-            // Devolución
-            $revisionInstanciaWorkflowEntityAux = new RevisionInstanciaWorkflow();
-            $revisionInstanciaWorkflowEntityAux->setStatus(3);
-
-            $revisionInstanciaWorkflowEntityAux->setRevisiontext($comentario);
-            $revisionInstanciaWorkflowEntityAux->setInstanciaWorkflowEntity($registro);
-
-            $revisionInstanciaWorkflowEntityAux->setType(1);
-            $em->persist($revisionInstanciaWorkflowEntityAux);
-        }
-        /*
-         * Crea la validación, asignar grupo si es específico.
-         */
-        $validationType = $registro->getMasterWorkflowEntity()->getValidation();
-        // En type va el valor del grupo del usuario de creación.
-
         $user = $this->container->get('security.context')->getToken()->getUser();
+        
+        $comentario = $request->query->get('comment');
 
-        // Sólo debería tener uno ...
-        foreach ($user->getGroups() as $groupMe) {
-            $type = $groupMe->getGroup()->getId();
+        $record = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:RecordsDocuments')
+            ->findOneBy(array("id" => $id, "status" => 2));
+
+        if(!$record){
+            return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
         }
 
+        $signature = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:RecordsSignatures')
+            ->findOneBy(array("record"=>$record,"next"=>1));
 
-        switch ($validationType) {
-            case "FLL":
-                $type = 5;
-                $registro->setStatus(8);
-                break;
-            case "mantenimiento":
-                /*
-                 * Si valor mantenimineto en el datos del step el type es 2, sino es 1
-                 * varValues
-                 */
-                $data = $step->getStepDataValue();
-                $dataJson = json_decode($data);
-
-                $u_accion = $dataJson->varValues->u_accion;
-                if (in_array("Mantenimiento", $u_accion)) {
-                    $type = 5;
-                }
-                break;
-            case "intervencion":
-                /*
-                 * Si u_accion es intervención.
-                 * Bloquear la plantilla.
-                 *
-                 */
-                $data = $step->getStepDataValue();
-                $dataJson = json_decode($data);
-
-                $u_accion = $dataJson->varValues->u_accion;
-                //var_dump($u_accion);
-                //exit;
-                if (in_array("Intervenci%C3%B3n", $u_accion)) {
-                    $metaData = $this->getDoctrine()
-                        ->getRepository('NononsenseHomeBundle:MetaData')
-                        ->findOneBy(array("workflow_id" => $registro->getId()));
-
-                    $equipo = $metaData->getEquipo();
-                    $type = 5;
-
-                    $now = new \DateTime();
-                    $now->modify("+2 hour"); // Ver tema de horarios usos
-
-                    $bloqueoMasterWorkflow = new BloqueoMasterWorkflow();
-                    $bloqueoMasterWorkflow->setStatus(0);
-                    $bloqueoMasterWorkflow->setEquipo($equipo);
-                    $bloqueoMasterWorkflow->setMasterWorkflowId($registro->getMasterWorkflowEntity()->getId());
-                    $bloqueoMasterWorkflow->setFechaInicioBloqueo($now);
-                    $bloqueoMasterWorkflow->setRegistroId($registro->getId());
-
-                    $em->persist($bloqueoMasterWorkflow);
-
-                }
-                break;
+        if(!$signature){
+            return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
         }
 
+        $can_sign=0;
+        if($signature->getGroupEntiy()){
+            $isGroup = $this->getDoctrine()
+            ->getRepository('NononsenseGroupBundle:GroupUsers')
+            ->findOneBy(array("group"=>$signature->getGroupEntiy(),"user"=>$user));
+            if($isGroup){
+                $can_sign=1;
+            }
+        }
+        else{
+            if($signature->getUserEntiy()->getId()==$user->getId()){
+                $can_sign=1;
+            }  
+        }
 
-        $revisionInstanciaWorkflowEntity = new RevisionInstanciaWorkflow();
-        $revisionInstanciaWorkflowEntity->setStatus(0);
+        if(!$can_sign){
+            return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
+        }
 
-        $revisionInstanciaWorkflowEntity->setRevisiontext("Escriba aquí los comentarios que sean necesarios");
-        $revisionInstanciaWorkflowEntity->setInstanciaWorkflowEntity($registro);
+        if($signature->getAttachment()){
+            /*if(!$request->query->get('firma')){
+                return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
+            }*/
+        }
 
-        $revisionInstanciaWorkflowEntity->setType($type);
+        $signature->setFirma($request->query->get('firma'));
+        $signature->setNext(0);
+        $signature->setUserEntiy($user);
 
-        $em->persist($revisionInstanciaWorkflowEntity);
-        $em->persist($registro);
-        /*
-                $metaData = new MetaData();
-                $metaData->setInstanciaWorkflow($registro);
-                $metaData->setDataname("Fecha Registro Completado");
-                $now = new \DateTime();
-                $now->modify("+2 hour"); // Ver tema de horarios usos
-                $metaData->setFecha($now);
+        $signature2 = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:RecordsSignatures')
+            ->findOneBy(array("record"=>$record,"firma"=>null,"next" => 0), array('number' => 'ASC'));
 
-                $em->persist($metaData);
-        */
+        if($signature2){
+            $signature2->setNext(1);
+            $em->persist($signature2);
+            if($signature2->getUserEntiy()){
+                //Enviamos mail
+            }
+            else{
+                //Como es un grupo no enviamos email
+            }
+        }
+
+        $em->persist($signature);
         $em->flush();
 
-        /*
-         * Guardar evidencia de registro completado
-         */
-        $evidencia = new EvidenciasStep();
-        $evidencia->setStepEntity($step);
-        $evidencia->setStatus(0);
-        $evidencia->setUserEntiy($registro->getUserCreatedEntiy());
-        $evidencia->setToken($step->getToken());
-        $evidencia->setStepDataValue($step->getStepDataValue());
+        
 
-        $documentName = $step->getMasterStep()->getName();
+        $route = $this->container->get('router')->generate('nononsense_record_sent', array("id" => $record->getId()));
+        
+        return $this->redirect($route);
 
-        /*
-         * Guardar firma
-         */
-        $firmas = $this->getDoctrine()
-            ->getRepository('NononsenseHomeBundle:FirmasStep')
-            ->findBy(array("step_id" => $step->getId()));
-
-        $counter = count($firmas) + 1;
-
-        $firmaImagen = $request->query->get('firma');
-        $firma = new FirmasStep();
-        $firma->setAccion("Guardado y enviado a validación");
-        $firma->setStepEntity($step);
-        $firma->setUserEntiy($user);
-        $firma->setFirma($firmaImagen);
-        $firma->setNumber($counter);
-
-        $evidencia->setFirmaEntity($firma);
-
-        $em->persist($evidencia);
-        $em->persist($firma);
-        $em->flush();
-
-        return $this->render('NononsenseHomeBundle:Contratos:registro_guardadoenviado.html.twig', array(
-            "documentName" => $documentName,
-        ));
-
+        
     }
 
+    public function sentAction($id, Request $request)
+    {
+        $record = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:RecordsDocuments')
+            ->findOneBy(array("id" => $id));
+            
+        $stepData = $record->getStepDataValue();
+        $stepDataJSON = json_decode($stepData);
+
+        $documentName = $record->getDocument()->getName();
+        $validations = $stepDataJSON->validations;
+        $percentageCompleted = $validations->percentage;
+
+        return $this->render('NononsenseHomeBundle:Contratos:record_sent.html.twig', array(
+                    "documentName" => $documentName,
+                    "percentageCompleted" => $percentageCompleted,
+                    "id" => $id,
+        ));
+    }
+
+    private function albaranAlmacen($record){
+
+        $em = $this->getDoctrine()->getManager();
+        $baseSignatures = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:DocumentsSignatures')
+            ->findBy(array("document"=> $record->getDocument()));
+
+        $data = $record->getStepDataValue();
+        $dataJson = json_decode($data);
+
+        $logistica=0;
+        $calidad=0;
+        $almacen=1;
+        $responsable_almacen=1;
+        $anexo=0;
+
+        $step3=0;
+        $step4=0;
+        
+
+        if(urldecode($dataJson->varValues->u_check3[1])!="" && urldecode($dataJson->varValues->u_check4[1])==""){
+            $anexo=1;
+        }
+
+        if(urldecode($dataJson->varValues->u_check4[2])!="" && (urldecode($dataJson->varValues->u_check3[3])!="" || urldecode($dataJson->varValues->u_check3[4])!="") && urldecode($dataJson->varValues->u_tipo_material[0])!="ZINT REG" && urldecode($dataJson->varValues->u_tipo_material[0])!="ZCOM NO Impreso"){
+            $anexo=1;
+        }
+
+        switch(urldecode($dataJson->varValues->u_tipo_material[0])){
+            case "ZINT REG":
+            case "ZINT PRU":
+                $step4=1;
+                break;
+            case "ZNBW":
+                $almacen=1;
+                $responsable_almacen=1;
+                break;
+            case "ZCOM Impreso":
+                if(urldecode($dataJson->varValues->u_check2[0])!=""){
+                    $step4=1;
+                }
+                else{
+                    $logistica=1;
+                    $step4=1;
+                }
+                break;
+            default:
+                $step3=1;
+                break;
+        }
+
+        if($step3){
+            if(urldecode($dataJson->varValues->u_check3[2])!="" && urldecode($dataJson->varValues->u_check4[0])==""){
+                $almacen=1;
+                $responsable_almacen=1;
+            }
+            else{
+                $logistica=1;
+                $step4=1;
+            }
+        }
+
+        /* Miramos Logística */
+        if($step4){
+            if(urldecode($dataJson->varValues->u_check4[0])!="" && urldecode($dataJson->varValues->u_check3[2])!=""){
+                $calidad=1;
+            }
+            else{
+                $almacen=1;
+                $responsable_almacen=1;
+            }
+        }
+
+        $next=1;
+        if($record->getDocument()->getSignCreator()){
+            $sign = new RecordsSignatures();
+            $sign->setUserEntiy($record->getUserCreatedEntiy());
+            $sign->setRecord($record);
+            $sign->setNumber(0);
+            $sign->setAttachment($anexo);
+            $sign->setNext($next);
+            $em->persist($sign); 
+            $next=0;
+        }
+
+        foreach ($baseSignatures as $key => $baseSignaturre) {
+            if(($key==0 && $logistica) || ($key==1 && $calidad) || ($key==2 && $almacen) || ($key==3 && $responsable_almacen)){
+                $sign = new RecordsSignatures();
+                $sign->setUserEntiy($baseSignaturre->getUserEntiy());
+                $sign->setGroupEntiy($baseSignaturre->getGroupEntiy());
+                $sign->setRecord($record);
+                $sign->setNumber($baseSignaturre->getNumber());
+                $sign->setAttachment($baseSignaturre->getAttachment());
+                $sign->setNext($next);
+                $em->persist($sign);
+                $next=0;
+            }
+        }
+
+        $em->flush();
+    }
 }

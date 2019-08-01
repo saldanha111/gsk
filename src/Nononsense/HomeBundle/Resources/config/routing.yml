@@ -238,9 +238,13 @@ nononsense_records_redirect_from_data:
     path: /records/redirectFromData/{id}/{action}/{urlaux}
     defaults: { _controller: NononsenseHomeBundle:Records:redirectFromData, id: 0, action: 0,urlaux: 0}
 
-nononsense_record_save_sent:
+nononsense_record_save_send:
     path:     /records/save_send/{id}
     defaults: { _controller: NononsenseHomeBundle:Records:saveAndSend, id: 0 }
+
+nononsense_record_sent:
+    path:     /records/{id}/completed
+    defaults: { _controller: NononsenseHomeBundle:Records:sent, id: 0 }
 
 nononsense_records_requet_data:
     path:     /dataRecords/requestData/{id}

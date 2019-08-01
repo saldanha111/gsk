@@ -72,7 +72,7 @@ class RecordsSignatures
     /**
      * @var string
      *
-     * @ORM\Column(name="firma", type="text")
+     * @ORM\Column(name="firma", type="text", nullable=true)
      */
     protected $firma;
 
@@ -82,6 +82,28 @@ class RecordsSignatures
      * @ORM\Column(name="number", type="integer")
      */
     protected $number;
+
+    /**
+     * @var boolean $next
+     *
+     * @ORM\Column(name="next", type="boolean", options={"default" = false})
+     */
+    protected $next;
+
+    /**
+     * @var boolean $attachment
+     *
+     * @ORM\Column(name="attachment", type="boolean", options={"default" = false})
+     */
+    protected $attachment;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="files", type="text", nullable=true)
+     *
+     */
+    protected $file;
 
 
 
@@ -164,5 +186,235 @@ class RecordsSignatures
     public function getModified()
     {
         return $this->modified;
+    }
+
+    /**
+     * Set userid
+     *
+     * @param integer $userid
+     * @return RecordsSignatures
+     */
+    public function setUserid($userid)
+    {
+        $this->userid = $userid;
+
+        return $this;
+    }
+
+    /**
+     * Get userid
+     *
+     * @return integer 
+     */
+    public function getUserid()
+    {
+        return $this->userid;
+    }
+
+    /**
+     * Set groupid
+     *
+     * @param integer $groupid
+     * @return RecordsSignatures
+     */
+    public function setGroupid($groupid)
+    {
+        $this->groupid = $groupid;
+
+        return $this;
+    }
+
+    /**
+     * Get groupid
+     *
+     * @return integer 
+     */
+    public function getGroupid()
+    {
+        return $this->groupid;
+    }
+
+    /**
+     * Set firma
+     *
+     * @param string $firma
+     * @return RecordsSignatures
+     */
+    public function setFirma($firma)
+    {
+        $this->firma = $firma;
+
+        return $this;
+    }
+
+    /**
+     * Get firma
+     *
+     * @return string 
+     */
+    public function getFirma()
+    {
+        return $this->firma;
+    }
+
+    /**
+     * Set number
+     *
+     * @param integer $number
+     * @return RecordsSignatures
+     */
+    public function setNumber($number)
+    {
+        $this->number = $number;
+
+        return $this;
+    }
+
+    /**
+     * Get number
+     *
+     * @return integer 
+     */
+    public function getNumber()
+    {
+        return $this->number;
+    }
+
+    /**
+     * Set userEntiy
+     *
+     * @param \Nononsense\UserBundle\Entity\Users $userEntiy
+     * @return RecordsSignatures
+     */
+    public function setUserEntiy(\Nononsense\UserBundle\Entity\Users $userEntiy = null)
+    {
+        $this->userEntiy = $userEntiy;
+
+        return $this;
+    }
+
+    /**
+     * Get userEntiy
+     *
+     * @return \Nononsense\UserBundle\Entity\Users 
+     */
+    public function getUserEntiy()
+    {
+        return $this->userEntiy;
+    }
+
+    /**
+     * Set groupEntiy
+     *
+     * @param \Nononsense\GroupBundle\Entity\Groups $groupEntiy
+     * @return RecordsSignatures
+     */
+    public function setGroupEntiy(\Nononsense\GroupBundle\Entity\Groups $groupEntiy = null)
+    {
+        $this->groupEntiy = $groupEntiy;
+
+        return $this;
+    }
+
+    /**
+     * Get groupEntiy
+     *
+     * @return \Nononsense\GroupBundle\Entity\Groups 
+     */
+    public function getGroupEntiy()
+    {
+        return $this->groupEntiy;
+    }
+
+    /**
+     * Set record
+     *
+     * @param \Nononsense\HomeBundle\Entity\RecordsDocuments $record
+     * @return RecordsSignatures
+     */
+    public function setRecord(\Nononsense\HomeBundle\Entity\RecordsDocuments $record = null)
+    {
+        $this->record = $record;
+
+        return $this;
+    }
+
+    /**
+     * Get record
+     *
+     * @return \Nononsense\HomeBundle\Entity\RecordsDocuments 
+     */
+    public function getRecord()
+    {
+        return $this->record;
+    }
+
+    /**
+     * Set next
+     *
+     * @param boolean $next
+     * @return RecordsSignatures
+     */
+    public function setNext($next)
+    {
+        $this->next = $next;
+
+        return $this;
+    }
+
+    /**
+     * Get next
+     *
+     * @return boolean 
+     */
+    public function getNext()
+    {
+        return $this->next;
+    }
+
+    /**
+     * Set attachment
+     *
+     * @param boolean $attachment
+     * @return RecordsSignatures
+     */
+    public function setAttachment($attachment)
+    {
+        $this->attachment = $attachment;
+
+        return $this;
+    }
+
+    /**
+     * Get attachment
+     *
+     * @return boolean 
+     */
+    public function getAttachment()
+    {
+        return $this->attachment;
+    }
+
+    /**
+     * Set file
+     *
+     * @param string $file
+     * @return RecordsSignatures
+     */
+    public function setFile($file)
+    {
+        $this->file = $file;
+
+        return $this;
+    }
+
+    /**
+     * Get file
+     *
+     * @return string 
+     */
+    public function getFile()
+    {
+        return $this->file;
     }
 }

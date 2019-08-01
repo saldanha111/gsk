@@ -157,4 +157,70 @@ class Types
     {
         return $this->modified;
     }
+
+    /**
+     * Add documents
+     *
+     * @param \Nononsense\HomeBundle\Entity\Documents $documents
+     * @return Types
+     */
+    public function addDocument(\Nononsense\HomeBundle\Entity\Documents $documents)
+    {
+        $this->documents[] = $documents;
+
+        return $this;
+    }
+
+    /**
+     * Remove documents
+     *
+     * @param \Nononsense\HomeBundle\Entity\Documents $documents
+     */
+    public function removeDocument(\Nononsense\HomeBundle\Entity\Documents $documents)
+    {
+        $this->documents->removeElement($documents);
+    }
+
+    /**
+     * Get documents
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getDocuments()
+    {
+        return $this->documents;
+    }
+
+    /**
+     * Add records
+     *
+     * @param \Nononsense\HomeBundle\Entity\RecordsDocuments $records
+     * @return Types
+     */
+    public function addRecord(\Nononsense\HomeBundle\Entity\RecordsDocuments $records)
+    {
+        $this->records[] = $records;
+
+        return $this;
+    }
+
+    /**
+     * Remove records
+     *
+     * @param \Nononsense\HomeBundle\Entity\RecordsDocuments $records
+     */
+    public function removeRecord(\Nononsense\HomeBundle\Entity\RecordsDocuments $records)
+    {
+        $this->records->removeElement($records);
+    }
+
+    /**
+     * Get records
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getRecords()
+    {
+        return $this->records;
+    }
 }
