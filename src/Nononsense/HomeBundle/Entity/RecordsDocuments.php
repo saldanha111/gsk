@@ -95,8 +95,14 @@ class RecordsDocuments
      *
      * @ORM\Column(name="is_active", type="boolean",  nullable=true, options={"default" = false})
      */
-
     protected $isActive;
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="last_sign", type="integer",  nullable=true)
+     */
+    protected $lastSign;
 
     /**
      * @var boolean $isActive
@@ -651,5 +657,28 @@ class RecordsDocuments
     public function getSignatures()
     {
         return $this->signatures;
+    }
+
+    /**
+     * Set lastSign
+     *
+     * @param integer $lastSign
+     * @return RecordsDocuments
+     */
+    public function setLastSign($lastSign)
+    {
+        $this->lastSign = $lastSign;
+
+        return $this;
+    }
+
+    /**
+     * Get lastSign
+     *
+     * @return integer 
+     */
+    public function getLastSign()
+    {
+        return $this->lastSign;
     }
 }

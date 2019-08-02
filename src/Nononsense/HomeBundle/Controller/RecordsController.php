@@ -19,9 +19,49 @@ use Nononsense\HomeBundle\Form\Type as FormProveedor;
 
 use Nononsense\UtilsBundle\Classes;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
+use Symfony\Component\HttpFoundation\File\File;
 
 class RecordsController extends Controller
 {
+    public function listAction(Request $request)
+    {
+        $user = $this->container->get('security.context')->getToken()->getUser();
+
+        $Egroups = $this->getDoctrine()
+            ->getRepository('NononsenseGroupBundle:GroupUsers')
+            ->findBy(array("user"=>$user));
+        
+        $filters=array();
+        $filters2=array();
+        $types=array();
+
+        $filters["user"]=$user;
+        $filters2["user"]=$user;
+
+        $array_item["suser"]["id"]=$user->getId();
+        foreach($Egroups as $group){
+            $groups[]=$group->getGroup()->getId();
+        }
+        
+        if($groups){
+            $filters["groups"]=$groups;
+            $filters2["groups"]=$groups;
+        }
+
+        if($request->get("pending_for_me")){
+            $filters["pending_for_me"]=$request->get("pending_for_me");
+            $filters2["pending_for_me"]=$request->get("pending_for_me");
+        }
+
+        $array_item["suser"]["groups"]=$groups;
+        $array_item["items"] = $this->getDoctrine()->getRepository(RecordsDocuments::class)->list($filters);
+        $array_item["count"] = $this->getDoctrine()->getRepository(RecordsDocuments::class)->count($filters2,$types);
+
+        return $this->render('NononsenseHomeBundle:Contratos:records.html.twig',$array_item);
+    }
+
 
     public function createAction($id)
     {
@@ -63,6 +103,7 @@ class RecordsController extends Controller
         return $this->redirect($route);
     }
 
+    /* Donde Generamos el link que llama a docxpresso */
     public function linkAction($id)
     {
         $record = $this->getDoctrine()
@@ -100,15 +141,21 @@ class RecordsController extends Controller
 
         $options['custom'] = json_encode($customObject);
 
-        if ($record->getStatus() == 4 || $record->getStatus() == 5) {
+        if ($record->getStatus() == 2 || $record->getStatus() == 3) {
             // Abrir para validar
-            $options['responseURL'] = $baseUrl . "control_validacion/" . $id . "/";
+            $options['responseURL'] = $baseUrl . "records/redirectFromData/" . $id . "/";
             $options['prefix'] = 'v';
 
-            $versionJS = filemtime(__DIR__ . "/../../../../web/js/js_templates/validacion.js");
-            $validacionURL1 = $baseUrl . "js/js_templates/validacion.js?v=" . $versionJS;
+            if ($record->getStatus() == 2){
+                $versionJS = filemtime(__DIR__ . "/../../../../web/js/js_templates/documentValidacion.js");
+                $validacionURL1 = $baseUrl . "js/js_templates/documentValidacion.js?v=" . $versionJS;   
+            }
+            else{
+                $versionJS = filemtime(__DIR__ . "/../../../../web/js/js_templates/documentClosed.js");
+                $validacionURL1 = $baseUrl . "js/js_templates/documentClosed.js?v=" . $versionJS; 
+            }
 
-        } else if ($record->getStatus() == -1 || $record->getStatus() == 0) {
+        } else if ($record->getStatus() == -1 || $record->getStatus() == 0  || $record->getStatus() == 1) {
             // abrir para editar
             $versionJS = filemtime(__DIR__ . "/../../../../web/js/js_templates/activity.js");
             $validacionURL1 = $baseUrl . "js/js_templates/document.js?v=" . $versionJS;
@@ -148,6 +195,7 @@ class RecordsController extends Controller
         return $this->redirect($url_edit_documento);
     }
 
+    /* Función a la que llama docxpresso antes de abrir la vista previa para saber si necesita cargar datos en las plantillas */
     public function RequestDataAction($id)
     {
         /*
@@ -162,9 +210,10 @@ class RecordsController extends Controller
         $document = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:Documents')
             ->find($record->getDocument());
+        
 
 
-
+        $stepMasterData = $record->getStepDataValue();
         $recordMasterData = $record->getMasterDataValues();
         $recordMasterDataJSON = json_decode($recordMasterData);
         $em = $this->getDoctrine()->getManager();
@@ -193,6 +242,23 @@ class RecordsController extends Controller
 
 
         } 
+        else {
+            // Data Ingegrity other usage
+
+            $stepDataValue = $record->getStepDataValue();
+            $data = json_decode($stepDataValue);
+
+            $firmas = $this->getDoctrine()
+                ->getRepository('NononsenseHomeBundle:RecordsSignatures')
+                ->findBy(array("record" => $record));
+
+            if (!empty($firmas)) {
+                $data->varValues->dxo_gsk_audit_trail_bloque = array("No");
+                $data->varValues->dxo_gsk_firmas_bloque = array("Si");
+                $data->varValues->dxo_gsk_firmas = array($this->_construirFirmas($firmas));
+            }
+
+        }
 
         /*
         var_dump(json_encode($data));
@@ -209,6 +275,7 @@ class RecordsController extends Controller
         return $response;
     }
 
+    /* Función a la que se conecta doxpresso para mandar los datos - Webhook*/
     public function returnDataAction($id)
     {
 
@@ -273,6 +340,7 @@ class RecordsController extends Controller
                     case 1: $this->albaranAlmacen($record);
                             break;
                     default:
+                            $record->setModified(date("Y-m-d"));
                             $baseSignatures = $this->getDoctrine()
                                 ->getRepository('NononsenseHomeBundle:DocumentsSignatures')
                                 ->findBy(array("document"=> $record->getDocument()));
@@ -315,6 +383,7 @@ class RecordsController extends Controller
         return $responseAction;
     }
 
+    /* Pagina a la que vamos tras volver de docxpresso */
     public function redirectFromDataAction($id, $action, $urlaux)
     {
         /*
@@ -337,7 +406,7 @@ class RecordsController extends Controller
         $route = $this->container->get('router')->generate('nononsense_home_homepage');
 
         if ($action == 'cancelar') {
-            $record->setStatus(3);
+            $record->setStatus(4);
             $em->persist($record);
             $em->flush();
 
@@ -347,7 +416,7 @@ class RecordsController extends Controller
             ));
 
         } elseif ($action == 'parcial') {
-            if($record->getStatus()==0 || $record->getStatus()==1 || $record->getUserCreatedEntiy()==$user){
+            if(($record->getStatus()==0 || $record->getStatus()==1) && $record->getUserCreatedEntiy()==$user){
                 $record->setStatus(1);
                 $em->persist($record);
                 $em->flush();
@@ -375,7 +444,7 @@ class RecordsController extends Controller
                 ));
             }
 
-        } elseif ($action == 'enviar') {
+        } elseif ($action == 'enviar' || $action == 'verificar') {
             $stepData = $record->getStepDataValue();
             $stepDataJSON = json_decode($stepData);
 
@@ -387,6 +456,17 @@ class RecordsController extends Controller
                 $record->setStatus(2);
                 $em->persist($record);
                 $em->flush();
+
+                $signature = $this->getDoctrine()
+                ->getRepository('NononsenseHomeBundle:RecordsSignatures')
+                ->findOneBy(array("record"=>$record,"next"=>1));
+                
+                if($signature->getAttachment()){
+                    $anexo=1;
+                }
+                else{
+                    $anexo=0;
+                }
             
                 /*
                  * Revisar si ha habido algún cambio en las variables para que muestre el campo de texto.
@@ -399,7 +479,8 @@ class RecordsController extends Controller
                     "percentageCompleted" => $percentageCompleted,
                     "validated" => $validated,
                     "id" => $id,
-                    "devolucion" => $devolucion
+                    "devolucion" => $devolucion,
+                    "anexo" => $anexo
                 ));
             }
 
@@ -421,6 +502,7 @@ class RecordsController extends Controller
         return $this->redirect($route);
     }
 
+    /* Proceso donde firmamos los documentos */
     public function saveAndSendAction($id, Request $request)
     {
         $em = $this->getDoctrine()->getManager();
@@ -465,10 +547,15 @@ class RecordsController extends Controller
         }
 
         if($signature->getAttachment()){
-            /*if(!$request->query->get('firma')){
+            if(!$request->files->get('anexo')){
                 return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
-            }*/
+            }
+            else{
+                $file = $this->uploadFile($request, $record->getId());
+                $record->setFiles($file["name"]);
+            }
         }
+
 
         $signature->setFirma($request->query->get('firma'));
         $signature->setNext(0);
@@ -488,7 +575,13 @@ class RecordsController extends Controller
                 //Como es un grupo no enviamos email
             }
         }
+        else{
+            $record->setStatus(3);
+            $record->setLastSign($signature->getId());
+            
+        }
 
+        $em->persist($record);
         $em->persist($signature);
         $em->flush();
 
@@ -519,6 +612,37 @@ class RecordsController extends Controller
                     "percentageCompleted" => $percentageCompleted,
                     "id" => $id,
         ));
+    }
+
+    public function editAction($id)
+    {
+
+        $record = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:RecordsDocuments')
+            ->find($id);
+
+        $route = $this->container->get('router')->generate('nononsense_records_link', array("id" => $record->getId()));
+        return $this->redirect($route);
+    }
+
+    public function fileAction($id)
+    {
+
+        $record = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:RecordsDocuments')
+            ->find($id);
+
+        $file = new File($this->get('kernel')->getRootDir().$record->getFiles());
+
+        $response = new Response($file);
+
+        $disposition = $response->headers->makeDisposition(
+            ResponseHeaderBag::DISPOSITION_ATTACHMENT,basename($record->getFiles()));
+
+        $response->headers->set('Content-Disposition', $disposition);
+
+        return $response;
+
     }
 
     private function albaranAlmacen($record){
@@ -621,5 +745,99 @@ class RecordsController extends Controller
         }
 
         $em->flush();
+    }
+
+    private function _construirFirmas($firmas)
+    {
+        //$firmas => array entidad firmas
+        $fullText = "<table id='tablefirmas' class='table table-striped'>";
+
+
+        foreach ($firmas as $firma) {
+            if($firma->getFirma()!=NULL){
+                $user = $this->getDoctrine()
+                ->getRepository('NononsenseUserBundle:Users')
+                ->find($firma->getuserid());
+                if($user->getName()){
+                    $name=$user->getName();
+                }
+                else{
+                    $name="";
+                }
+                
+                $id = $firma->getId();
+                $nombre = $name;
+                $fecha = $firma->getCreated()->format('d-m-Y H:i:s');
+                $firma = $firma->getFirma();
+
+                $fullText .= "<tr><td colspan='4'>Firma</td></tr><tr><td>" . $id . "</td><td>" . $nombre . " " . $fecha . "</td><td><img src='" . $firma . "' /></td></tr>";
+            }
+        }
+
+        $fullText .= "</table>";
+        return $fullText;
+
+    }
+
+    private function uploadFile($request, $record_id)
+    {
+        //====================
+        // GUARDAR DOCUMENTOS
+        //====================
+
+        //--------------------
+        // url carpeta usuario
+        //--------------------
+        $ruta='/files/documents/'.$record_id.'/anexos/';
+        $full_path = $this->get('kernel')->getRootDir() . $ruta;
+
+        //---------------------------
+        // ayudante archivos Symfony
+        //---------------------------
+        $fs = new Filesystem();
+
+        //----------------------------
+        // crear carpeta si no existe
+        //----------------------------
+        if(!$fs->exists($full_path))
+        {
+            $fs->mkdir($full_path);
+        }
+
+        //----------------------
+        // nombre del documento
+        //----------------------
+        $file = $request->files->get('anexo');
+        $file_name = $file->getClientOriginalName();
+        $file_name_ = $file_name;
+
+        //--------------------------------------------------
+        // si existe documento mismo nombre, cambiar nombre
+        //--------------------------------------------------
+        if(file_exists($full_path.$file_name))
+        {
+            $i = 0;
+
+            do
+            {
+                $i++;
+                $file_name = $i.$file_name_;
+            }
+
+            while (file_exists($full_path.$file_name));
+        }
+
+        //-------------------
+        // guardar documento
+        //-------------------
+        $file->move($full_path, $file_name);
+
+        /**
+         * @return [ nombre documento, tamaño documento ]
+         */
+        return [
+            'name' => $ruta.$file_name,
+            'size' => $file->getClientSize()
+        ];
     }
 }

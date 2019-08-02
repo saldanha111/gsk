@@ -95,8 +95,14 @@ class RecordsDocuments
      *
      * @ORM\Column(name="is_active", type="boolean",  nullable=true, options={"default" = false})
      */
-
     protected $isActive;
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="last_sign", type="integer",  nullable=true)
+     */
+    protected $lastSign;
 
     /**
      * @var boolean $isActive

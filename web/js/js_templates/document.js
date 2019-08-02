@@ -12,8 +12,8 @@ function customOnFullyLoaded() {
     divButtons.prepend(htmlButton);
     htmlButton = '<button type="submit" id="downloadsend" class="btn btn-success btn-sm btn-small" onclick="return false;" style="margin-left: 8px"><i class="fa fa-save" aria-hidden="true"> </i> <span class="buttonTop">Enviar y firmar</span></button>';
     divButtons.append(htmlButton);
-    htmlButton = '<button type="submit" id="gskcancel" class="btn btn-danger btn-sm btn-small" onclick="return false;" style="margin-left: 8px"><i class="fa fa-times" aria-hidden="true"> </i> <span class="buttonTop">Cancelar</span></button>';
-    divButtons.append(htmlButton);
+    /*htmlButton = '<button type="submit" id="gskcancel" class="btn btn-danger btn-sm btn-small" onclick="return false;" style="margin-left: 8px"><i class="fa fa-times" aria-hidden="true"> </i> <span class="buttonTop">Cancelar</span></button>';
+    divButtons.append(htmlButton);*/
 
     //This script takes into account the activity of the end user in a document preview
     //first define some global variables

@@ -226,9 +226,27 @@ nononsense_backoffice_set_group:
     path: /set_grupo
     defaults: { _controller: NononsenseHomeBundle:BackOffice:setGrupoVerificador }
 
+
+
+nononsense_documents:
+    path: /documents
+    defaults: { _controller: NononsenseHomeBundle:Documents:list}
+
+nononsense_records:
+    path: /records
+    defaults: { _controller: NononsenseHomeBundle:Records:list}
+
 nononsense_records_new:
-    path: /records/{id}
+    path: /records/document/{id}
     defaults: { _controller: NononsenseHomeBundle:Records:create, id:0}
+
+nononsense_records_edit:
+    path:    /records/{id}
+    defaults: { _controller: NononsenseHomeBundle:Records:edit, id: 0 }
+
+nononsense_records_file:
+    path:    /records/{id}/file
+    defaults: { _controller: NononsenseHomeBundle:Records:file, id: 0 }
 
 nononsense_records_link:
     path:     /records/{id}/link
@@ -253,6 +271,8 @@ nononsense_records_requet_data:
 nononsense_records_return_data:
     path:     /dataRecords/returnData/{id}
     defaults: { _controller: NononsenseHomeBundle:Records:returnData, id: 0}
+
+
 
 
 

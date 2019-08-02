@@ -12,4 +12,65 @@ use Doctrine\ORM\EntityRepository;
  */
 class DocumentsRepository extends EntityRepository
 {
+	public function list($filters)
+    {
+        $em = $this->getEntityManager();
+
+
+        $list = $this->createQueryBuilder('d')
+            ->select('d.id', 'd.name', 't.name as nameType')
+            ->leftJoin("d.type", "t")
+            ->andWhere('d.isActive=1')
+            ->orderBy('d.id', 'DESC');
+
+        /*if ($usuario != "") {
+            $list->andWhere('u.name LIKE :username');
+            $list->setParameter('username', '%' . $usuario . '%');
+        }*/
+
+
+       
+        /*if(isset($filters["limit_from"])){
+            $query->setFirstResult($filters["limit_from"]*$filters["limit_many"])->setMaxResults($filters["limit_many"]);
+        }*/
+        
+        
+        if(!empty($parameters)){
+            $query->setParameters($parameters);
+        }
+
+        $query = $list->getQuery();
+
+        return $query->getResult();
+    }
+
+    public function count($filters = array(),$types = array())
+    {
+        $em = $this->getEntityManager();
+        $sintax="";
+        $logical="AND ";
+        $parameters=array();
+
+        if(!empty($filters)){
+            /*if(isset($filters["user_id"])){
+                $sintax.=$logical."e.cpUser=:user_id";
+                $parameters["user_id"]=$filters["user_id"];
+                $logical=" AND ";
+            }*/
+        }
+
+
+        $query = $em->createQuery("SELECT COUNT(d.id) conta FROM Nononsense\HomeBundle\Entity\Documents d LEFT JOIN Nononsense\HomeBundle\Entity\Types t WITH t.id=d.type WHERE d.isActive=1 ".$sintax);
+
+        //$query = $em->createQuery("SELECT COUNT(t.id) conta FROM CoreBundle\Entity\Tickets t LEFT JOIN CoreBundle\Entity\Events e WITH t.event=e.id LEFT JOIN CoreBundle\Entity\Users u WITH t.user=u.id ".$sintax);
+        
+        if(!empty($parameters)){
+            $query->setParameters($parameters);
+        }
+
+        $count=$query->getSingleScalarResult();
+
+        return $count;
+    }
+
 }

@@ -12,4 +12,82 @@ use Doctrine\ORM\EntityRepository;
  */
 class RecordsDocumentsRepository extends EntityRepository
 {
+		public function list($filters)
+    {
+        $em = $this->getEntityManager();
+
+        if (isset($filters["groups"])) {
+        	$groups = $filters["groups"];
+    	}
+
+        if (isset($filters["user"])) {
+            $user = $filters["user"];
+        }
+
+        $list = $this->createQueryBuilder('r')
+            ->select('r.id', 'd.name', 't.name as nameType', 'u.name as usuario', 'r.status', 's.userid as idNextSigner', 'u2.name nameNextSigner', 's.groupid as idNextSignerGroup', 'g2.name nameNextSignerGroup', 'r.usercreatedid', 'r.files')
+            ->leftJoin("r.type", "t")
+            ->leftJoin("r.userCreatedEntiy", "u")
+            ->leftJoin("r.document", "d")
+            ->leftJoin("r.signatures", "s")
+            ->leftJoin("s.userEntiy", "u2")
+            ->leftJoin("s.groupEntiy", "g2")
+            ->andWhere('r.isActive=1')
+            ->andWhere('r.status>0')
+            ->andWhere('(s.next=1 OR s.next IS NULL) OR (r.status=3 AND s.id=r.lastSign)')
+            ->orderBy('r.id', 'DESC');
+
+        if (isset($filters["pending_for_me"])) {
+        	$list_groups= implode($groups);
+        	
+
+            $list->andWhere('(r.status=1 AND r.usercreatedid=:user_id) OR (r.status=2 AND (s.userid=:user_id OR s.groupid IN (:list_groups)))');
+            $list->setParameter('user_id', $user->getId());
+            $list->setParameter('list_groups', $list_groups);
+        }
+
+
+       
+        /*if(isset($filters["limit_from"])){
+            $query->setFirstResult($filters["limit_from"]*$filters["limit_many"])->setMaxResults($filters["limit_many"]);
+        }*/
+        
+        
+        if(!empty($parameters)){
+            $query->setParameters($parameters);
+        }
+
+        $query = $list->getQuery();
+
+        return $query->getResult();
+    }
+
+    public function count($filters = array(),$types = array())
+    {
+        $em = $this->getEntityManager();
+        $sintax="";
+        $logical="AND ";
+        $parameters=array();
+
+        if(!empty($filters)){
+            /*if(isset($filters["user_id"])){
+                $sintax.=$logical."e.cpUser=:user_id";
+                $parameters["user_id"]=$filters["user_id"];
+                $logical=" AND ";
+            }*/
+        }
+
+
+        $query = $em->createQuery("SELECT COUNT(d.id) conta FROM Nononsense\HomeBundle\Entity\Documents d LEFT JOIN Nononsense\HomeBundle\Entity\Types t WITH t.id=d.type WHERE d.isActive=1 ".$sintax);
+
+        //$query = $em->createQuery("SELECT COUNT(t.id) conta FROM CoreBundle\Entity\Tickets t LEFT JOIN CoreBundle\Entity\Events e WITH t.event=e.id LEFT JOIN CoreBundle\Entity\Users u WITH t.user=u.id ".$sintax);
+        
+        if(!empty($parameters)){
+            $query->setParameters($parameters);
+        }
+
+        $count=$query->getSingleScalarResult();
+
+        return $count;
+    }
 }

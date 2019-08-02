@@ -6214,6 +6214,10 @@ a.navbar-minimalize.btn-primary {
 
 .only-mobile { display:none;}
 
+#page-wrapper{
+  min-height: 600px;
+}
+
 @media (min-width: 768px) {
 	.border-sm-top {border-top:1px solid #e7eaec;}
 }

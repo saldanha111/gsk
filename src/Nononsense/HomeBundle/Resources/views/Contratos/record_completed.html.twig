@@ -21,8 +21,14 @@
 
         {% if validated == 1 %}
         <h1>El documento está completado</h1>
-        <form id="guardarenviarForm"
-              action="{{path('nononsense_record_save_send', {'id': id})}}">
+        <form method="POST" id="guardarenviarForm"
+              action="{{path('nononsense_record_save_send', {'id': id})}}" enctype="multipart/form-data">
+                {% if anexo == 1 %}
+                    <h2>Adjuntar anexo</h2>
+                    <input type='file' name="anexo" id="anexo" />
+                {% else %}
+                    <input type="hidden" value="1" id="no_anexo">
+                {% endif %}  
             <div id="signature-pad" class="input-group">
                 <h2>Introduzca su firma</h2>
                 <canvas width="300" height="150"
@@ -88,13 +94,18 @@
         });
 
         $('#guardarenviar').on('click', function () {
-            $("#firma").val(signaturePad.toDataURL()) // save image as PNG
-            if (signaturePad.isEmpty()) {
-                toastr.error("Debe rellenar una fima, no puede dejar el cuadro en blanco", 'aviso');
+            if($('#anexo').val() || $('#no_anexo').val()){
+                $("#firma").val(signaturePad.toDataURL()); // save image as PNG
+                if (signaturePad.isEmpty()) {
+                    toastr.error("Debe rellenar una fima, no puede dejar el cuadro en blanco", 'aviso');
 
-            } else {
-                console.log(signaturePad.toDataURL());
-                $("#guardarenviarForm").submit();
+                } else {
+                    console.log(signaturePad.toDataURL());
+                    $("#guardarenviarForm").submit();
+                }
+            }
+            else{
+                toastr.error("Debe adjuntar un Anexo", 'aviso');
             }
         });
 
