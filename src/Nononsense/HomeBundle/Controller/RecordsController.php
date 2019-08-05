@@ -22,6 +22,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class RecordsController extends Controller
 {
@@ -399,6 +400,10 @@ class RecordsController extends Controller
             ->getRepository('NononsenseHomeBundle:RecordsDocuments')
             ->find($id);
 
+        if(!$record){
+            return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
+        }
+
         
         $record->setInEdition(0);
         $documentName = $record->getDocument()->getName();
@@ -453,6 +458,34 @@ class RecordsController extends Controller
             $validated = $validations->validated;
 
             if($validations->percentage==100){
+
+                $signature = $this->getDoctrine()
+                    ->getRepository('NononsenseHomeBundle:RecordsSignatures')
+                    ->findOneBy(array("record"=>$record,"next"=>1));
+
+                if(!$signature){
+                    return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
+                }
+
+                $can_sign=0;
+                if($signature->getGroupEntiy()){
+                    $isGroup = $this->getDoctrine()
+                    ->getRepository('NononsenseGroupBundle:GroupUsers')
+                    ->findOneBy(array("group"=>$signature->getGroupEntiy(),"user"=>$user));
+                    if($isGroup){
+                        $can_sign=1;
+                    }
+                }
+                else{
+                    if($signature->getUserEntiy()->getId()==$user->getId()){
+                        $can_sign=1;
+                    }  
+                }
+
+                if(!$can_sign){
+                    return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
+                }
+
                 $record->setStatus(2);
                 $em->persist($record);
                 $em->flush();
@@ -556,8 +589,7 @@ class RecordsController extends Controller
             }
         }
 
-
-        $signature->setFirma($request->query->get('firma'));
+        $signature->setFirma($request->get('firma'));
         $signature->setNext(0);
         $signature->setUserEntiy($user);
 
@@ -569,7 +601,12 @@ class RecordsController extends Controller
             $signature2->setNext(1);
             $em->persist($signature2);
             if($signature2->getUserEntiy()){
-                //Enviamos mail
+                $email=$signature2->getUserEntiy()->getEmail();
+                $subject="Documento pendiente de firma";
+                $mensaje='El Documento con ID '.$record->getId().' está pendiente de firmar por su parte. Para hacerlo puede acceder a "Mis documentos pendientes", buscar el documento y pulsar en Firmar';
+                $baseURL=$this->container->get('router')->generate('nononsense_records_edit', array("id" => $record->getId()),TRUE);
+                
+                $this->_sendNotification($email, $baseURL, "", "", $subject, $mensaje);
             }
             else{
                 //Como es un grupo no enviamos email
@@ -627,22 +664,11 @@ class RecordsController extends Controller
 
     public function fileAction($id)
     {
-
         $record = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:RecordsDocuments')
             ->find($id);
 
-        $file = new File($this->get('kernel')->getRootDir().$record->getFiles());
-
-        $response = new Response($file);
-
-        $disposition = $response->headers->makeDisposition(
-            ResponseHeaderBag::DISPOSITION_ATTACHMENT,basename($record->getFiles()));
-
-        $response->headers->set('Content-Disposition', $disposition);
-
-        return $response;
-
+        return new BinaryFileResponse($this->get('kernel')->getRootDir().$record->getFiles());
     }
 
     private function albaranAlmacen($record){
@@ -839,5 +865,34 @@ class RecordsController extends Controller
             'name' => $ruta.$file_name,
             'size' => $file->getClientSize()
         ];
+    }
+
+    private function _sendNotification($mailTo, $link, $logo, $accion, $subject, $message)
+    {
+        $mailLogger = new \Swift_Plugins_Loggers_ArrayLogger();
+        $this->get('mailer')->registerPlugin(new \Swift_Plugins_LoggerPlugin($mailLogger));
+        $email = \Swift_Message::newInstance()
+            ->setSubject($subject)
+            ->setFrom($this->container->getParameter('mailer_user'))
+            ->setTo($mailTo)
+            ->setBody(
+                $this->renderView(
+                    'NononsenseHomeBundle:Email:notificationUser.html.twig', array(
+                    'logo' => $logo,
+                    'accion' => $accion,
+                    'message' => $message,
+                    'link' => $link
+                )),
+                'text/html'
+            );
+        if ($this->get('mailer')->send($email)) {
+            //echo '[SWIFTMAILER] sent email to ' . $mailTo;
+            //echo 'LOG: ' . $mailLogger->dump();
+            return true;
+        } else {
+            //echo '[SWIFTMAILER] not sending email: ' . $mailLogger->dump();
+            return false;
+        }
+
     }
 }
