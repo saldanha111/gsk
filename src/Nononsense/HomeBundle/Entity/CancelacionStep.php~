@@ -15,11 +15,11 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="revisioninstanciaworkflow")
- * @ORM\Entity(repositoryClass="Nononsense\HomeBundle\Entity\RevisionInstanciaWorkflowRepository")
+ * @ORM\Table(name="cancelacionstep")
+ * @ORM\Entity(repositoryClass="Nononsense\HomeBundle\Entity\CancelacionStepRepository")
  * @ORM\HasLifecycleCallbacks
  */
-class RevisionInstanciaWorkflow
+class CancelacionStep
 {
     /**
      * @ORM\Column(type="integer")
@@ -31,9 +31,9 @@ class RevisionInstanciaWorkflow
     /**
      * @var integer
      *
-     * @ORM\Column(name="instanciaworkflowid", type="integer")
+     * @ORM\Column(name="instanciastepid", type="integer")
      */
-    protected $instanciaworkflowid;
+    protected $instanciastepid;
 
     /**
      * @var string
@@ -50,17 +50,6 @@ class RevisionInstanciaWorkflow
     protected $status;
 
     /**
-     * @var integer
-     * 0 borrador
-     * 1 n1
-     * 2 n2
-     * 4 logistica
-     *
-     * @ORM\Column(name="type", type="integer", options={"default" = 0})
-     */
-    protected $type;
-
-    /**
      * @ORM\Column(type="datetime")
      */
     protected $created;
@@ -72,21 +61,21 @@ class RevisionInstanciaWorkflow
 
     /**
      * @var integer
-     * @ORM\Column(name="userrevisionid", type="integer", options={"default" = 3}, nullable=true)
+     * @ORM\Column(name="userrevisionid", type="integer", options={"default" = 3},nullable=true)
      */
     protected $userrevisionid;
 
     /**
-     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="Revisions")
+     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="Cancelaciones")
      * @ORM\JoinColumn(name="userrevisionid", referencedColumnName="id")
      */
     protected $userRevisionEntiy;
 
     /**
-     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\InstanciasWorkflows", inversedBy="Revisions")
-     * @ORM\JoinColumn(name="instanciaworkflowid", referencedColumnName="id")
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\InstanciasSteps", inversedBy="Cancelaciones")
+     * @ORM\JoinColumn(name="instanciastepid", referencedColumnName="id")
      */
-    protected $instanciaWorkflowEntity;
+    protected $step;
 
     /**
      * Revision constructor.
@@ -125,7 +114,30 @@ class RevisionInstanciaWorkflow
         return $this->id;
     }
 
-       /**
+    /**
+     * Set instanciastepid
+     *
+     * @param integer $instanciastepid
+     * @return Revision
+     */
+    public function setInstanciastepid($instanciastepid)
+    {
+        $this->instanciastepid = $instanciastepid;
+
+        return $this;
+    }
+
+    /**
+     * Get instanciastepid
+     *
+     * @return integer 
+     */
+    public function getInstanciastepid()
+    {
+        return $this->instanciastepid;
+    }
+
+    /**
      * Set revisiontext
      *
      * @param string $revisiontext
@@ -263,73 +275,49 @@ class RevisionInstanciaWorkflow
         return $this->userRevisionEntiy;
     }
 
-
     /**
-     * Set instanciaworkflowid
+     * Set instanciaSteps
      *
-     * @param integer $instanciaworkflowid
-     * @return RevisionInstanciaWorkflow
+     * @param \Nononsense\HomeBundle\Entity\InstanciasSteps $instanciaSteps
+     * @return Revision
      */
-    public function setInstanciaworkflowid($instanciaworkflowid)
+    public function setInstanciaSteps(\Nononsense\HomeBundle\Entity\InstanciasSteps $instanciaSteps = null)
     {
-        $this->instanciaworkflowid = $instanciaworkflowid;
+        $this->instanciaSteps = $instanciaSteps;
 
         return $this;
     }
 
     /**
-     * Get instanciaworkflowid
+     * Get instanciaSteps
      *
-     * @return integer 
+     * @return \Nononsense\HomeBundle\Entity\InstanciasSteps 
      */
-    public function getInstanciaworkflowid()
+    public function getInstanciaSteps()
     {
-        return $this->instanciaworkflowid;
+        return $this->instanciaSteps;
     }
 
     /**
-     * Set instanciaWorkflowEntity
+     * Set step
      *
-     * @param \Nononsense\HomeBundle\Entity\InstanciasWorkflows $instanciaWorkflowEntity
-     * @return RevisionInstanciaWorkflow
+     * @param \Nononsense\HomeBundle\Entity\InstanciasSteps $step
+     * @return Revision
      */
-    public function setInstanciaWorkflowEntity(\Nononsense\HomeBundle\Entity\InstanciasWorkflows $instanciaWorkflowEntity = null)
+    public function setStep(\Nononsense\HomeBundle\Entity\InstanciasSteps $step = null)
     {
-        $this->instanciaWorkflowEntity = $instanciaWorkflowEntity;
+        $this->step = $step;
 
         return $this;
     }
 
     /**
-     * Get instanciaWorkflowEntity
+     * Get step
      *
-     * @return \Nononsense\HomeBundle\Entity\InstanciasWorkflows
+     * @return \Nononsense\HomeBundle\Entity\InstanciasSteps 
      */
-    public function getInstanciaWorkflowEntity()
+    public function getStep()
     {
-        return $this->instanciaWorkflowEntity;
-    }
-
-    /**
-     * Set type
-     *
-     * @param integer $type
-     * @return RevisionInstanciaWorkflow
-     */
-    public function setType($type)
-    {
-        $this->type = $type;
-
-        return $this;
-    }
-
-    /**
-     * Get type
-     *
-     * @return integer 
-     */
-    public function getType()
-    {
-        return $this->type;
+        return $this->step;
     }
 }

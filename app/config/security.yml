@@ -74,6 +74,7 @@ security:
         - { path: ^/users/accessByToken , roles: IS_AUTHENTICATED_ANONYMOUSLY}
         - { path: ^/RESTservices/ , roles: IS_AUTHENTICATED_ANONYMOUSLY}
         - { path: ^/data/ , roles: IS_AUTHENTICATED_ANONYMOUSLY}
+        - { path: ^/dataRecords/ , roles: IS_AUTHENTICATED_ANONYMOUSLY}
         - { path: ^/info_Bizlayer , roles: IS_AUTHENTICATED_ANONYMOUSLY}
         - { path: ^/json_integration_index/ , roles: IS_AUTHENTICATED_ANONYMOUSLY}
         - { path: ^/json_integration_rest/ , roles: IS_AUTHENTICATED_ANONYMOUSLY}

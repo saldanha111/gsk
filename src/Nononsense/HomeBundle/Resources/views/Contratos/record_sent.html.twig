@@ -1,0 +1,32 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}DOCXPRESSO | {{'Homepage'|trans}} {% endblock %}
+{% block head %}
+{{ parent() }}
+<style>
+
+
+</style>
+{% endblock %}
+{% block main_title %} Se ha rellenado el registro del documento {{documentName}}{% endblock %}
+{% block content %}
+<div class="wrapper wrapper-content">
+    {% for flashMessage in app.session.flashbag.get('error') %}
+    <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+        <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+        {{ flashMessage }}
+    </div>
+    {% endfor %}
+    <div class="row">
+        <h1>Documento procesado!</h1>
+        El documento ha sido procesado
+        </form>
+    </div>
+    <hr>
+
+</div>
+</div>
+{% endblock %}
+{% block scripts %}
+{{ parent() }}
+
+{% endblock %}

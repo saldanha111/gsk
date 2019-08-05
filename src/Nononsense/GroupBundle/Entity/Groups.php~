@@ -61,16 +61,16 @@ class Groups
     /**
      * @var string
      *
-     * @ORM\Column(name="codigo", type="string", length=10, nullable=true)
+     * @ORM\Column(name="tipo", type="string", length=10, nullable=true)
      */
-    protected $codigo;
+    protected $tipo;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="permisos", type="text",  nullable=true)
+     * @ORM\Column(name="superior", type="integer",  nullable=true)
      */
-    protected $permisos;
+    protected $superior;
     
     /**
      * @var boolean
@@ -90,6 +90,16 @@ class Groups
     protected $modified;
 
     /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\DocumentsSignatures", mappedBy="groupEntiy")
+     */
+    protected $documentsSignatures;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\RecordsSignatures", mappedBy="groupEntiy")
+     */
+    protected $recordsSignatures;
+
+    /**
      * Get id
      *
      * @return integer 
@@ -103,6 +113,11 @@ class Groups
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\MasterSteps", mappedBy="Groups")
      */
     protected $MasterSteps;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\MasterWorkflows", mappedBy="grupoVerificacion")
+     */
+    protected $MasterWorkflowsVerificacion;
     /**
      * Construct
      *
@@ -464,5 +479,84 @@ class Groups
     public function getCodigo()
     {
         return $this->codigo;
+    }
+
+    /**
+     * Set tipo
+     *
+     * @param string $tipo
+     * @return Groups
+     */
+    public function setTipo($tipo)
+    {
+        $this->tipo = $tipo;
+
+        return $this;
+    }
+
+    /**
+     * Get tipo
+     *
+     * @return string 
+     */
+    public function getTipo()
+    {
+        return $this->tipo;
+    }
+
+    /**
+     * Set superior
+     *
+     * @param integer $superior
+     * @return Groups
+     */
+    public function setSuperior($superior)
+    {
+        $this->superior = $superior;
+
+        return $this;
+    }
+
+    /**
+     * Get superior
+     *
+     * @return integer 
+     */
+    public function getSuperior()
+    {
+        return $this->superior;
+    }
+
+    /**
+     * Add MasterWorkflowsVerificacion
+     *
+     * @param \Nononsense\HomeBundle\Entity\MasterWorkflows $masterWorkflowsVerificacion
+     * @return Groups
+     */
+    public function addMasterWorkflowsVerificacion(\Nononsense\HomeBundle\Entity\MasterWorkflows $masterWorkflowsVerificacion)
+    {
+        $this->MasterWorkflowsVerificacion[] = $masterWorkflowsVerificacion;
+
+        return $this;
+    }
+
+    /**
+     * Remove MasterWorkflowsVerificacion
+     *
+     * @param \Nononsense\HomeBundle\Entity\MasterWorkflows $masterWorkflowsVerificacion
+     */
+    public function removeMasterWorkflowsVerificacion(\Nononsense\HomeBundle\Entity\MasterWorkflows $masterWorkflowsVerificacion)
+    {
+        $this->MasterWorkflowsVerificacion->removeElement($masterWorkflowsVerificacion);
+    }
+
+    /**
+     * Get MasterWorkflowsVerificacion
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getMasterWorkflowsVerificacion()
+    {
+        return $this->MasterWorkflowsVerificacion;
     }
 }

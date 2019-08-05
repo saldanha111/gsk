@@ -90,6 +90,16 @@ class Groups
     protected $modified;
 
     /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\DocumentsSignatures", mappedBy="groupEntiy")
+     */
+    protected $documentsSignatures;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\RecordsSignatures", mappedBy="groupEntiy")
+     */
+    protected $recordsSignatures;
+
+    /**
      * Get id
      *
      * @return integer 
@@ -548,5 +558,71 @@ class Groups
     public function getMasterWorkflowsVerificacion()
     {
         return $this->MasterWorkflowsVerificacion;
+    }
+
+    /**
+     * Add documentsSignatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\DocumentsSignatures $documentsSignatures
+     * @return Groups
+     */
+    public function addDocumentsSignature(\Nononsense\HomeBundle\Entity\DocumentsSignatures $documentsSignatures)
+    {
+        $this->documentsSignatures[] = $documentsSignatures;
+
+        return $this;
+    }
+
+    /**
+     * Remove documentsSignatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\DocumentsSignatures $documentsSignatures
+     */
+    public function removeDocumentsSignature(\Nononsense\HomeBundle\Entity\DocumentsSignatures $documentsSignatures)
+    {
+        $this->documentsSignatures->removeElement($documentsSignatures);
+    }
+
+    /**
+     * Get documentsSignatures
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getDocumentsSignatures()
+    {
+        return $this->documentsSignatures;
+    }
+
+    /**
+     * Add recordsSignatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\RecordsSignatures $recordsSignatures
+     * @return Groups
+     */
+    public function addRecordsSignature(\Nononsense\HomeBundle\Entity\RecordsSignatures $recordsSignatures)
+    {
+        $this->recordsSignatures[] = $recordsSignatures;
+
+        return $this;
+    }
+
+    /**
+     * Remove recordsSignatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\RecordsSignatures $recordsSignatures
+     */
+    public function removeRecordsSignature(\Nononsense\HomeBundle\Entity\RecordsSignatures $recordsSignatures)
+    {
+        $this->recordsSignatures->removeElement($recordsSignatures);
+    }
+
+    /**
+     * Get recordsSignatures
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getRecordsSignatures()
+    {
+        return $this->recordsSignatures;
     }
 }

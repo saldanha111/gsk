@@ -15,11 +15,11 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="categories")
- * @ORM\Entity(repositoryClass="Nononsense\HomeBundle\Entity\CategoriesRepository")
+ * @ORM\Table(name="types")
+ * @ORM\Entity(repositoryClass="Nononsense\HomeBundle\Entity\TypesRepository")
  * @ORM\HasLifecycleCallbacks
  */
-class Categories
+class Types
 {
     /**
      * @ORM\Column(type="integer")
@@ -36,13 +36,6 @@ class Categories
     protected $name;
 
     /**
-     * @var integer
-     *
-     * @ORM\Column(name="padre", type="integer")
-     */
-    protected $padre;
-
-    /**
      * @ORM\Column(type="date")
      */
     protected $created;
@@ -53,9 +46,14 @@ class Categories
     protected $modified;
 
     /**
-     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\MasterWorkflows", mappedBy="category")
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\Documents", mappedBy="type")
      */
-    protected $Master_Workflows;
+    protected $documents;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\RecordsDocuments", mappedBy="type")
+     */
+    protected $records;
 
     public function __construct()
     {
@@ -161,58 +159,68 @@ class Categories
     }
 
     /**
-     * Add MasterWorkflows
+     * Add documents
      *
-     * @param \Nononsense\HomeBundle\Entity\MasterWorkflows $masterWorkflows
-     * @return Categories
+     * @param \Nononsense\HomeBundle\Entity\Documents $documents
+     * @return Types
      */
-    public function addMasterWorkflow(\Nononsense\HomeBundle\Entity\MasterWorkflows $masterWorkflows)
+    public function addDocument(\Nononsense\HomeBundle\Entity\Documents $documents)
     {
-        $this->MasterWorkflows[] = $masterWorkflows;
+        $this->documents[] = $documents;
 
         return $this;
     }
 
     /**
-     * Remove MasterWorkflows
+     * Remove documents
      *
-     * @param \Nononsense\HomeBundle\Entity\MasterWorkflows $masterWorkflows
+     * @param \Nononsense\HomeBundle\Entity\Documents $documents
      */
-    public function removeMasterWorkflow(\Nononsense\HomeBundle\Entity\MasterWorkflows $masterWorkflows)
+    public function removeDocument(\Nononsense\HomeBundle\Entity\Documents $documents)
     {
-        $this->MasterWorkflows->removeElement($masterWorkflows);
+        $this->documents->removeElement($documents);
     }
 
     /**
-     * Get MasterWorkflows
+     * Get documents
      *
      * @return \Doctrine\Common\Collections\Collection 
      */
-    public function getMasterWorkflows()
+    public function getDocuments()
     {
-        return $this->MasterWorkflows;
+        return $this->documents;
     }
 
     /**
-     * Set padre
+     * Add records
      *
-     * @param integer $padre
-     * @return Categories
+     * @param \Nononsense\HomeBundle\Entity\RecordsDocuments $records
+     * @return Types
      */
-    public function setPadre($padre)
+    public function addRecord(\Nononsense\HomeBundle\Entity\RecordsDocuments $records)
     {
-        $this->padre = $padre;
+        $this->records[] = $records;
 
         return $this;
     }
 
     /**
-     * Get padre
+     * Remove records
      *
-     * @return integer 
+     * @param \Nononsense\HomeBundle\Entity\RecordsDocuments $records
      */
-    public function getPadre()
+    public function removeRecord(\Nononsense\HomeBundle\Entity\RecordsDocuments $records)
     {
-        return $this->padre;
+        $this->records->removeElement($records);
+    }
+
+    /**
+     * Get records
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getRecords()
+    {
+        return $this->records;
     }
 }
