@@ -38,9 +38,8 @@ class RecordsDocumentsRepository extends EntityRepository
             ->orderBy('r.id', 'DESC');
 
         if (isset($filters["pending_for_me"])) {
-        	$list_groups= implode($groups);
+        	$list_groups= implode(",",$groups);
         	
-
             $list->andWhere('(r.status=1 AND r.usercreatedid=:user_id) OR (r.status=2 AND (s.userid=:user_id OR s.groupid IN (:list_groups)))');
             $list->setParameter('user_id', $user->getId());
             $list->setParameter('list_groups', $list_groups);

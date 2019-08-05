@@ -82,6 +82,12 @@ class DocumentsSignatures
      */
     protected $attachment;
 
+    /**
+     * @var string
+     * @ORM\Column(name="email", type="string", length=90, nullable=true)
+     */
+    protected $email;
+
 
     public function __construct()
     {
@@ -323,5 +329,28 @@ class DocumentsSignatures
     public function getAttachment()
     {
         return $this->attachment;
+    }
+
+    /**
+     * Set email
+     *
+     * @param string $email
+     * @return DocumentsSignatures
+     */
+    public function setEmail($email)
+    {
+        $this->email = $email;
+
+        return $this;
+    }
+
+    /**
+     * Get email
+     *
+     * @return string 
+     */
+    public function getEmail()
+    {
+        return $this->email;
     }
 }

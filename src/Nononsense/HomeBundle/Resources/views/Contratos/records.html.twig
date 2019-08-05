@@ -21,6 +21,7 @@
                             <th>Tipo</th>
                             <th></th>
                             <th></th>
+                            <th></th>
                         </tr>
                         </thead>
                         {% if items is defined %}
@@ -56,11 +57,16 @@
                                     <a href="{{path('nononsense_records_edit', {'id': item.id}) }}" class="btn btn-xs btn-info"><i class="fa fa-eye" aria-hidden="true"></i> Completado</a>
                                 {% endif %}
                                 </td>
-                                <th>
+                                <td>
                                     {% if item.files is defined and item.files is not empty %}
                                         <a href="{{path('nononsense_records_file', {'id': item.id}) }}" class="btn btn-xs" target="_blank"><i class="fa fa-paperclip" aria-hidden="true"></i> Anexo</a>
                                     {% endif %}
-                                </th>
+                                </td>
+                                <td>
+                                    {% if item.status is defined and item.status==2 %}
+                                    <a href="{{path('nononsense_records_pdf', {'id': item.id}) }}" class="btn btn-xs" target="_blank"><i class="fa fa-file-pdf-o" aria-hidden="true"></i> Descargar pdf</a>
+                                    {% endif %}  
+                                </td>
                             </tr>
                             {% endfor %}
                         {% endif %}

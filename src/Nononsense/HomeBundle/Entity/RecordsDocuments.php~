@@ -658,4 +658,27 @@ class RecordsDocuments
     {
         return $this->signatures;
     }
+
+    /**
+     * Set lastSign
+     *
+     * @param integer $lastSign
+     * @return RecordsDocuments
+     */
+    public function setLastSign($lastSign)
+    {
+        $this->lastSign = $lastSign;
+
+        return $this;
+    }
+
+    /**
+     * Get lastSign
+     *
+     * @return integer 
+     */
+    public function getLastSign()
+    {
+        return $this->lastSign;
+    }
 }

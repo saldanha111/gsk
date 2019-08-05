@@ -105,6 +105,12 @@ class RecordsSignatures
      */
     protected $file;
 
+    /**
+     * @var string
+     * @ORM\Column(name="email", type="string", length=90, nullable=true)
+     */
+    protected $email;
+
 
 
     public function __construct()
@@ -416,5 +422,28 @@ class RecordsSignatures
     public function getFile()
     {
         return $this->file;
+    }
+
+    /**
+     * Set email
+     *
+     * @param string $email
+     * @return RecordsSignatures
+     */
+    public function setEmail($email)
+    {
+        $this->email = $email;
+
+        return $this;
+    }
+
+    /**
+     * Get email
+     *
+     * @return string 
+     */
+    public function getEmail()
+    {
+        return $this->email;
     }
 }

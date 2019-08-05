@@ -1,6 +1,8 @@
 /app/config/clientparams.yml
 !/app/cache
 /app/cache/*
+!/app/files
+/app/files/*
 !app/cache/.gitkeep
 !/app/logs
 /app/logs/*

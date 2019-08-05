@@ -252,6 +252,10 @@ nononsense_records_link:
     path:     /records/{id}/link
     defaults: { _controller: NononsenseHomeBundle:Records:link, id: 0}
 
+nononsense_records_pdf:
+    path:     /records/{id}/pdf
+    defaults: { _controller: NononsenseHomeBundle:Records:downloadPdf,id: 1}
+
 nononsense_records_redirect_from_data:
     path: /records/redirectFromData/{id}/{action}/{urlaux}
     defaults: { _controller: NononsenseHomeBundle:Records:redirectFromData, id: 0, action: 0,urlaux: 0}

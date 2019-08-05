@@ -24,6 +24,9 @@ use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
+use Nononsense\UtilsBundle\Classes\Auxiliar;
+use Nononsense\UtilsBundle\Classes\Utils;
+
 class RecordsController extends Controller
 {
     public function listAction(Request $request)
@@ -364,6 +367,7 @@ class RecordsController extends Controller
                                 $sign->setRecord($record);
                                 $sign->setNumber($baseSignaturre->getNumber());
                                 $sign->setAttachment($baseSignaturre->getAttachment());
+                                $sign->setEmail($baseSignaturre->getEmail());
                                 $sign->setNext($next);
                                 $em->persist($sign);
                                 $next=0;
@@ -593,6 +597,10 @@ class RecordsController extends Controller
         $signature->setNext(0);
         $signature->setUserEntiy($user);
 
+        
+
+        
+
         $signature2 = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:RecordsSignatures')
             ->findOneBy(array("record"=>$record,"firma"=>null,"next" => 0), array('number' => 'ASC'));
@@ -600,16 +608,25 @@ class RecordsController extends Controller
         if($signature2){
             $signature2->setNext(1);
             $em->persist($signature2);
+            $send_email=0;
             if($signature2->getUserEntiy()){
+                $send_email=1;
                 $email=$signature2->getUserEntiy()->getEmail();
+                
+            }
+            else{
+                if($signature2->getEmail()){
+                   $send_email=1; 
+                   $email=$signature2->getEmail();
+                }
+            }
+
+            if($send_email==1){
                 $subject="Documento pendiente de firma";
                 $mensaje='El Documento con ID '.$record->getId().' está pendiente de firmar por su parte. Para hacerlo puede acceder a "Mis documentos pendientes", buscar el documento y pulsar en Firmar';
                 $baseURL=$this->container->get('router')->generate('nononsense_records_edit', array("id" => $record->getId()),TRUE);
                 
                 $this->_sendNotification($email, $baseURL, "", "", $subject, $mensaje);
-            }
-            else{
-                //Como es un grupo no enviamos email
             }
         }
         else{
@@ -617,12 +634,30 @@ class RecordsController extends Controller
             $record->setLastSign($signature->getId());
             
         }
+        
+        
 
+
+        $firmas = $this->getDoctrine()
+                ->getRepository('NononsenseHomeBundle:RecordsSignatures')
+                ->findBy(array("record" => $record));
+
+        $stepDataValues = $record->getStepDataValue();
+        $stepDataValuesJSON = json_decode($stepDataValues);
+
+        $stepDataValuesJSON->varValues->dxo_gsk_audit_trail_bloque = array("No");
+        $stepDataValuesJSON->varValues->dxo_gsk_firmas_bloque = array("Si");
+
+
+        $stepDataValuesJSON->varValues->dxo_gsk_firmas[0] = $this->_construirFirmas($firmas);
+
+
+        $data = json_encode($stepDataValuesJSON);
+
+        $record->setStepDataValue($data);
         $em->persist($record);
         $em->persist($signature);
         $em->flush();
-
-        
 
         $route = $this->container->get('router')->generate('nononsense_record_sent', array("id" => $record->getId()));
         
@@ -669,6 +704,121 @@ class RecordsController extends Controller
             ->find($id);
 
         return new BinaryFileResponse($this->get('kernel')->getRootDir().$record->getFiles());
+    }
+
+    public function downloadPdfAction($id)
+    {
+        /*
+         *
+         */
+        
+        $dataResponse = new \stdClass();
+        $dataResponse->id = $id;
+
+        $record = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:RecordsDocuments')
+            ->find($id);
+
+
+        $name = $record->getDocument()->getName();
+
+        
+
+        $template = $record->getDocument()->getPlantillaId();
+
+
+        $stepDataValues = $record->getStepDataValue();
+        $stepDataValuesJSON = json_decode($stepDataValues);
+
+        $rootdir = $this->get('kernel')->getRootDir();
+        $rootdirFiles = $rootdir . "/files/documents/".$id;
+
+        $fs = new Filesystem();
+        if(!$fs->exists($rootdirFiles))
+        {
+            $fs->mkdir($rootdirFiles);
+        }
+
+        $filenamedownloadpdf = $rootdirFiles . "/" . $name . $id .".pdf";
+        $filenamepdf = $name . $id;
+        
+        $aux = new Auxiliar();
+        $utils = new Utils();
+        
+        $options = array();
+        $options['template'] = (int)$template;
+        $options['documentName'] = $filenamepdf;
+        $options['response'] = 'json';
+
+        $dataDXO = json_encode($stepDataValuesJSON);
+
+        $options['data'] = $dataDXO;
+        $options['docFormat'] = 'pdf';
+        $options['name'] = $filenamepdf . '.pdf';
+        $options['reference'] = $filenamepdf;
+
+        $opt = $this->get('app.sdk')->base64_encode_url_safe(json_encode($options));
+        //generate security info
+        $uniqid = uniqid() . rand(99999, 9999999);
+        $timestamp = time();
+        $control = $template . '-';
+        $control .= $timestamp . '-' . $uniqid;
+        $control .= '-' . $opt;
+
+        $dataKey = sha1($control, true);
+        $masterKey = $this->getParameter('apikey');
+        $APIKEY = bin2hex($utils->sha1_hmac($masterKey, $dataKey));
+
+        //we should now redirect to Docxpresso
+        $url = $this->getParameter('docxpresso_installation') . '/documents/requestDocument/' . $template;
+        $addr = $url . '?';
+        $addr .= 'uniqid=' . $uniqid . '&';
+        $addr .= 'timestamp=' . $timestamp . '&';
+        $addr .= 'APIKEY=' . $APIKEY;
+
+        $curlResponse = $aux->curlRequest($addr, $opt);
+
+        if ($curlResponse['status'] != 'OK') {
+            //handle the error
+            //exit('error');
+            echo "</br>Error</br>";
+            print_r("</br>" . $curlResponse['externalData']);
+
+            $responseAction = new Response();
+            $responseAction->setStatusCode(500);
+            $dataResponse->feedback = "Error en la creación del fichero";
+            $responseAction->setContent(json_encode($dataResponse));
+        } else {
+            //print_r($curlResponse);
+
+            $response = json_decode($curlResponse['externalData']);
+            //print_r($response);
+
+            $usageId = $response->usageId;
+            $token = $response->token;
+            $name = $response->name;
+
+            $dataDonwload = array();
+            $dataDonwload['id'] = $template;
+            $dataDonwload['token'] = $token;
+            $documentLink = $this->get('app.sdk')->downloadDocument($dataDonwload);
+
+            if (file_exists($filenamedownloadpdf)) {
+                unlink($filenamedownloadpdf);
+            }
+
+            if (file_put_contents($filenamedownloadpdf, fopen($documentLink, 'r')) === FALSE) {
+                $responseAction = new Response();
+                $responseAction->setStatusCode(500);
+                $dataResponse->feedback = "Error en la descarga del fichero";
+                $responseAction->setContent(json_encode($dataResponse));
+
+            } else {
+                return new BinaryFileResponse($filenamedownloadpdf);
+            }
+        }
+
+        return $responseAction;
     }
 
     private function albaranAlmacen($record){
@@ -765,6 +915,7 @@ class RecordsController extends Controller
                 $sign->setNumber($baseSignaturre->getNumber());
                 $sign->setAttachment($baseSignaturre->getAttachment());
                 $sign->setNext($next);
+                $sign->setEmail($baseSignaturre->getEmail());
                 $em->persist($sign);
                 $next=0;
             }
@@ -776,19 +927,19 @@ class RecordsController extends Controller
     private function _construirFirmas($firmas)
     {
         //$firmas => array entidad firmas
-        $fullText = "<table id='tablefirmas' class='table table-striped'>";
-
 
         foreach ($firmas as $firma) {
-            if($firma->getFirma()!=NULL){
+            if($firma->getFirma() && $firma->getUserEntiy()){
+                
                 $user = $this->getDoctrine()
                 ->getRepository('NononsenseUserBundle:Users')
-                ->find($firma->getuserid());
+                ->find($firma->getUserEntiy());
                 if($user->getName()){
                     $name=$user->getName();
                 }
                 else{
                     $name="";
+       
                 }
                 
                 $id = $firma->getId();
@@ -796,11 +947,10 @@ class RecordsController extends Controller
                 $fecha = $firma->getCreated()->format('d-m-Y H:i:s');
                 $firma = $firma->getFirma();
 
-                $fullText .= "<tr><td colspan='4'>Firma</td></tr><tr><td>" . $id . "</td><td>" . $nombre . " " . $fecha . "</td><td><img src='" . $firma . "' /></td></tr>";
+                $fullText .= "<b>FIRMA: " . $id . "</b><br>" . $nombre . " " . $fecha . "<br><img src='" . $firma . "' /><br><br><br>";
             }
         }
-
-        $fullText .= "</table>";
+        
         return $fullText;
 
     }
