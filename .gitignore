@@ -13,3 +13,4 @@
 !app/SymfonyRequirements.php
 /vendor/
 /web/bundles/
+/web/img/users/
