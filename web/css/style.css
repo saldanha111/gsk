@@ -6218,6 +6218,14 @@ a.navbar-minimalize.btn-primary {
   min-height: 600px;
 }
 
+.paginador-active{
+    z-index: 3;
+    color: #fff!important;
+    background-color: #00468C!important;
+    border-color: #00468C!important;
+    cursor: default!important;
+}
+
 @media (min-width: 768px) {
 	.border-sm-top {border-top:1px solid #e7eaec;}
 }

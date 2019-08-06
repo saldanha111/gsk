@@ -23,20 +23,24 @@ class DocumentsRepository extends EntityRepository
             ->andWhere('d.isActive=1')
             ->orderBy('d.id', 'DESC');
 
-        /*if ($usuario != "") {
-            $list->andWhere('u.name LIKE :username');
-            $list->setParameter('username', '%' . $usuario . '%');
-        }*/
+        if(!empty($filters)){
+            if(isset($filters["name"])){
+                $terms = explode(" ", $filters["name"]);
+                foreach($terms as $key => $term){
+                    $list->andWhere('d.name LIKE :name'.$key);
+                    $list->setParameter('name'.$key, '%' . $term. '%');
+                }
+                
+            }
 
+            if(isset($filters["type"])){
+                $list->andWhere('d.type=:type');
+                $list->setParameter('type', $filters["type"]);
+            }
+        }
 
-       
-        /*if(isset($filters["limit_from"])){
-            $query->setFirstResult($filters["limit_from"]*$filters["limit_many"])->setMaxResults($filters["limit_many"]);
-        }*/
-        
-        
-        if(!empty($parameters)){
-            $query->setParameters($parameters);
+        if(isset($filters["limit_from"])){
+            $list->setFirstResult($filters["limit_from"]*$filters["limit_many"])->setMaxResults($filters["limit_many"]);
         }
 
         $query = $list->getQuery();
@@ -47,30 +51,31 @@ class DocumentsRepository extends EntityRepository
     public function count($filters = array(),$types = array())
     {
         $em = $this->getEntityManager();
-        $sintax="";
-        $logical="AND ";
-        $parameters=array();
+
+        $list = $this->createQueryBuilder('d')
+            ->select('COUNT(d.id) as conta')
+            ->leftJoin("d.type", "t")
+            ->andWhere('d.isActive=1');
 
         if(!empty($filters)){
-            /*if(isset($filters["user_id"])){
-                $sintax.=$logical."e.cpUser=:user_id";
-                $parameters["user_id"]=$filters["user_id"];
-                $logical=" AND ";
-            }*/
+            if(isset($filters["name"])){
+                $terms = explode(" ", $filters["name"]);
+                foreach($terms as $key => $term){
+                    $list->andWhere('d.name LIKE :name'.$key);
+                    $list->setParameter('name'.$key, '%' . $term. '%');
+                }
+                
+            }
+
+            if(isset($filters["type"])){
+                $list->andWhere('d.type=:type');
+                $list->setParameter('type', $filters["type"]);
+            }
         }
-
-
-        $query = $em->createQuery("SELECT COUNT(d.id) conta FROM Nononsense\HomeBundle\Entity\Documents d LEFT JOIN Nononsense\HomeBundle\Entity\Types t WITH t.id=d.type WHERE d.isActive=1 ".$sintax);
-
-        //$query = $em->createQuery("SELECT COUNT(t.id) conta FROM CoreBundle\Entity\Tickets t LEFT JOIN CoreBundle\Entity\Events e WITH t.event=e.id LEFT JOIN CoreBundle\Entity\Users u WITH t.user=u.id ".$sintax);
         
-        if(!empty($parameters)){
-            $query->setParameters($parameters);
-        }
+        $query = $list->getQuery();
 
-        $count=$query->getSingleScalarResult();
-
-        return $count;
+        return $query->getSingleResult()["conta"];
     }
 
 }
