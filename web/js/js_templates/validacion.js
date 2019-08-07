@@ -2,12 +2,15 @@ function customOnFullyLoaded() {
     /***** Create new buttons ******/
     var sendAndSignButton = $('#download');
     $('#download').hide();
+    $('#cancel').hide();
 
     var divButtons = sendAndSignButton.parents('div:first');
 
     var htmlButton = '<button type="submit" id="gskclose" class="btn btn-danger btn-sm btn-small" onclick="return false;" style="margin-left: 8px"><i class="fa fa-times" aria-hidden="true"> </i> <span class="buttonTop">Cerrar</span></button>';
     divButtons.prepend(htmlButton);
-    htmlButton = '<button type="submit" id="downloadsend" class="btn btn-success btn-sm btn-small" onclick="return false;" style="margin-left: 8px"><i class="fa fa-save" aria-hidden="true"> </i> <span class="buttonTop">Verificar</span></button>';
+    htmlButton = '<button type="submit" id="downloadsend" class="btn btn-success btn-sm btn-small" onclick="return false;" style="margin-left: 8px"><i class="fa fa-save" aria-hidden="true"> </i> <span class="buttonTop">Verificación total</span></button>';
+    divButtons.append(htmlButton);
+    htmlButton = '<button type="submit" id="downloadsave" class="btn btn-warning btn-sm btn-small" onclick="return false;" style="margin-left: 8px"><i class="fa fa-save" aria-hidden="true"> </i> <span class="buttonTop">Verificación parcial</span></button>';
     divButtons.append(htmlButton);
     htmlButton = '<button type="submit" id="gskcancel" class="btn btn-danger btn-sm btn-small" onclick="return false;" style="margin-left: 8px"><i class="fa fa-times" aria-hidden="true"> </i> <span class="buttonTop">Cancelar</span></button>';
     divButtons.append(htmlButton);
@@ -77,14 +80,46 @@ function customOnLoad() {
 
     $('body').on('click', 'button[id="downloadsend"]', function () {
         console.log("Boton verificar de GSK");
+        var auxValuePercentage = $('#percentComp').val();
 
-        // Poner el action cancelar
-        var responseURL = $('#responseURL').val();
-        responseURL += 'verificar';
-        $('#responseURL').val(responseURL);
-        $('#download').trigger('click');
+        if(auxValuePercentage != 100){
+            // No se puede realizar una verificación total
+            var title = "No puede realizar esta acción porque el documento no está al 100% verificado";
+            var message = "<p>El documento está rellenado al <strong>+auxValuePercentage+%</strong> y no se puede realizar una verificación total. </p>";
+            launchMessage(title, message);
+            return false;
+        }else{
+            var responseURL = $('#responseURL').val();
+            responseURL += 'verificar';
+            $('#responseURL').val(responseURL);
+            $('#download').trigger('click');
+        }
+
+
 
     });
+    $('body').on('click', 'button[id="downloadsave"]', function () {
+        console.log("Boton verificación parcial de GSK");
+        var auxValuePercentage = $('#percentComp').val();
+
+        if(auxValuePercentage == 100){
+            // No se puede hacer una verificacion parcial
+            var title = "No puede realizar esta acción porque el documento está al 100% verificado";
+            var message = "<p>El documento está rellenado al <strong>100%</strong> y no se puede guardar una verificación parcial. </p>";
+            launchMessage(title, message);
+            return false;
+
+        }else{
+            var responseURL = $('#responseURL').val();
+            responseURL += 'verificarparcial';
+            $('#responseURL').val(responseURL);
+            $('#download').trigger('click');
+        }
+
+
+
+    });
+
 
     // gskreturn
     $('body').on('click', 'button[id="gskreturn"]', function () {

@@ -86,7 +86,6 @@ class RegistroValidationController extends Controller
             ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
             ->listProcess($user_logged);
 
-
         foreach ($documents as &$element) {
             $idRegistro = $element['registroid'];
             //var_dump($element['fecha']);
@@ -103,6 +102,17 @@ class RegistroValidationController extends Controller
                 $element['comentarios'] = $texto;
             } else {
                 $element['comentarios'] = "";
+            }
+
+            if($element['checklist'] == 1){
+                $masterStepCheckList = $this->getDoctrine()
+                    ->getRepository('NononsenseHomeBundle:MasterSteps')
+                    ->findOneBy(array('workflow_id'=>$element['masterworkflowid'],'checklist'=>1));
+
+                $element['checklistName'] = $masterStepCheckList->getName();
+
+            }else{
+                $element['checklistName'] = '';
             }
         }
 
@@ -753,6 +763,21 @@ class RegistroValidationController extends Controller
         $em->persist($firma);
         $em->persist($evidencia);
         $em->flush();
+
+        /*
+         * Envío por email a creador del documento
+         */
+        $emailTo = $registro->getUserCreatedEntiy()->getEmail();
+        $baseUrl = $this->getParameter("cm_installation");
+        $linkToEnProcess = $baseUrl . "registro_process";
+        $logo = "";
+        $accion = "devolverEdicion";
+        $subject = "Registro devuelto para edición";
+        $message = "El registro con Id: ". $registro->getId() . " ha sido devuelto para edición, por favor revíselo o notifique a otro usuario para que revise dicha cumplimentación";
+
+
+        $this->_sendNotification($emailTo,$linkToEnProcess,$logo,$accion, $subject,$message);
+
 
         $route = $this->container->get('router')->generate('nononsense_registro_enproceso');
 

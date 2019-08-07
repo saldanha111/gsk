@@ -539,6 +539,70 @@ class InstanciasWorkflows
         return $this->status;
     }
 
+    public function getStatusString()
+    {
+        $result = "";
+        switch ($this->status){
+            case -2:
+                $result = "Iniciado sin datos";
+                break;
+            case -1:
+                $result = "Iniciado con datos pre-cargados";
+                break;
+            case 0:
+                $result = "Iniciado";
+                break;
+            case 1:
+                $result = "Esperando firma guardado parcial";
+                break;
+            case 2:
+                $result = "Esperando firma envío a verificación";
+                break;
+            case 3:
+                $result = "Esperando firma cancelación";
+                break;
+            case 4:
+                $result = "En verificación";
+                break;
+            case 5:
+                $result = "Pendiente cancelación en edición";
+                break;
+            case 6:
+                $result = "Cancelado en edición";
+                break;
+            case 7:
+                $result = "Esperando firma verificación total";
+                break;
+            case 8:
+                $result = "Cancelado";
+                break;
+            case 9:
+                $result = "Archivado";
+                break;
+            case 10:
+                $result = "Reconciliado";
+                break;
+            case 11:
+                $result = "Bloqueado";
+                break;
+            case 12:
+                $result = "Esperando firma cancelación en verificación";
+                break;
+            case 13:
+                $result = "Esperando firma devolución a edición";
+                break;
+            case 14:
+                $result = "Pendiente cancelación en verificación";
+                break;
+            case 15:
+                $result = "Esperando firma verificación parcial";
+                break;
+
+
+        }
+        return $result;
+    }
+
     /**
      * Set year
      *

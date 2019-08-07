@@ -95,6 +95,22 @@ class MasterWorkflows
     protected $isActive;
 
     /**
+     * @var boolean $logbook
+     *
+     * @ORM\Column(name="logbook", type="boolean",  options={"default" = false})
+     */
+
+    protected $logbook;
+
+    /**
+     * @var boolean $checklist
+     *
+     * @ORM\Column(name="checklist", type="boolean",  options={"default" = false})
+     */
+
+    protected $checklist;
+
+    /**
      * @var integer
      *
      * @ORM\Column(name="category_id", type="integer")
@@ -664,5 +680,51 @@ class MasterWorkflows
     public function getGrupoVerificacion()
     {
         return $this->grupoVerificacion;
+    }
+
+    /**
+     * Set logbook
+     *
+     * @param boolean $logbook
+     * @return MasterWorkflows
+     */
+    public function setLogbook($logbook)
+    {
+        $this->logbook = $logbook;
+
+        return $this;
+    }
+
+    /**
+     * Get logbook
+     *
+     * @return boolean 
+     */
+    public function getLogbook()
+    {
+        return $this->logbook;
+    }
+
+    /**
+     * Set checklist
+     *
+     * @param boolean $checklist
+     * @return MasterWorkflows
+     */
+    public function setChecklist($checklist)
+    {
+        $this->checklist = $checklist;
+
+        return $this;
+    }
+
+    /**
+     * Get checklist
+     *
+     * @return boolean 
+     */
+    public function getChecklist()
+    {
+        return $this->checklist;
     }
 }

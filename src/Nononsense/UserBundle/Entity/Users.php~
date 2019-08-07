@@ -1270,4 +1270,136 @@ class Users implements AdvancedUserInterface, \Serializable
     {
         return $this->Firmas;
     }
+
+    /**
+     * Add documents
+     *
+     * @param \Nononsense\HomeBundle\Entity\Documents $documents
+     * @return Users
+     */
+    public function addDocument(\Nononsense\HomeBundle\Entity\Documents $documents)
+    {
+        $this->documents[] = $documents;
+
+        return $this;
+    }
+
+    /**
+     * Remove documents
+     *
+     * @param \Nononsense\HomeBundle\Entity\Documents $documents
+     */
+    public function removeDocument(\Nononsense\HomeBundle\Entity\Documents $documents)
+    {
+        $this->documents->removeElement($documents);
+    }
+
+    /**
+     * Get documents
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getDocuments()
+    {
+        return $this->documents;
+    }
+
+    /**
+     * Add recordsDocuments
+     *
+     * @param \Nononsense\HomeBundle\Entity\RecordsDocuments $recordsDocuments
+     * @return Users
+     */
+    public function addRecordsDocument(\Nononsense\HomeBundle\Entity\RecordsDocuments $recordsDocuments)
+    {
+        $this->recordsDocuments[] = $recordsDocuments;
+
+        return $this;
+    }
+
+    /**
+     * Remove recordsDocuments
+     *
+     * @param \Nononsense\HomeBundle\Entity\RecordsDocuments $recordsDocuments
+     */
+    public function removeRecordsDocument(\Nononsense\HomeBundle\Entity\RecordsDocuments $recordsDocuments)
+    {
+        $this->recordsDocuments->removeElement($recordsDocuments);
+    }
+
+    /**
+     * Get recordsDocuments
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getRecordsDocuments()
+    {
+        return $this->recordsDocuments;
+    }
+
+    /**
+     * Add documentsSignatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\DocumentsSignatures $documentsSignatures
+     * @return Users
+     */
+    public function addDocumentsSignature(\Nononsense\HomeBundle\Entity\DocumentsSignatures $documentsSignatures)
+    {
+        $this->documentsSignatures[] = $documentsSignatures;
+
+        return $this;
+    }
+
+    /**
+     * Remove documentsSignatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\DocumentsSignatures $documentsSignatures
+     */
+    public function removeDocumentsSignature(\Nononsense\HomeBundle\Entity\DocumentsSignatures $documentsSignatures)
+    {
+        $this->documentsSignatures->removeElement($documentsSignatures);
+    }
+
+    /**
+     * Get documentsSignatures
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getDocumentsSignatures()
+    {
+        return $this->documentsSignatures;
+    }
+
+    /**
+     * Add recordsSignatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\RecordsSignatures $recordsSignatures
+     * @return Users
+     */
+    public function addRecordsSignature(\Nononsense\HomeBundle\Entity\RecordsSignatures $recordsSignatures)
+    {
+        $this->recordsSignatures[] = $recordsSignatures;
+
+        return $this;
+    }
+
+    /**
+     * Remove recordsSignatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\RecordsSignatures $recordsSignatures
+     */
+    public function removeRecordsSignature(\Nononsense\HomeBundle\Entity\RecordsSignatures $recordsSignatures)
+    {
+        $this->recordsSignatures->removeElement($recordsSignatures);
+    }
+
+    /**
+     * Get recordsSignatures
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getRecordsSignatures()
+    {
+        return $this->recordsSignatures;
+    }
 }

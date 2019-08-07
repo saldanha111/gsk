@@ -412,6 +412,7 @@
                         <th>Lote</th>
                         <th>Código Material</th>
                         <th>Fecha inicio</th>
+                        <th>Estado</th>
                         <th>Iniciar</th>
                     </tr>
                     </thead>
@@ -429,6 +430,23 @@
                             {{plantilla.codigo}}
                         </td>
                         <td>{{plantilla.fecha | date('d-m-Y H:i:s')}}</td>
+                        {% if plantilla.status == 0 %}
+                        <td>Iniciado</td>
+                        {% elseif plantilla.status == 1 %}
+                        <td>Pendiente de verificar</td>
+                        {% elseif plantilla.status == 2 %}
+                        <td class="pdte">Cancelado</td>
+                        {% elseif plantilla.status == 3 %}
+                        <td>Validado</td>
+                        {% elseif plantilla.status == 4 %}
+                        <td>Pendiente de validar</td>
+                        {% elseif plantilla.status == 5 %}
+                        <td>Pendiente de cancelar</td>
+                        {% elseif plantilla.status == 6 %}
+                        <td class="pdte">Devuelto para edición</td>
+                        {% else %}
+                        <td class="pdte">{{plantilla.status}}</td>
+                        {% endif %}
                         <td>
                             {% if plantilla.in_edition == 0 %}
                             <a class="btn btn-xs btn-primary" name="verregistro"
@@ -440,6 +458,39 @@
                         {% endif %}
                         </td>
                     </tr>
+                    {% if plantilla.checklist == 1 and plantilla.status == 4 %}
+                    <tr>
+                        <td>{{plantilla.registroid}}</td>
+                        <td>{{plantilla.companyName}}</td>
+                        <td>{{plantilla.checklistName}}</td>
+                        <td>{{plantilla.namecreated}}</td>
+                        <td>
+                            {{plantilla.lote}}
+                        </td>
+                        <td>
+                            {{plantilla.codigo}}
+                        </td>
+                        <td>{{plantilla.fecha | date('d-m-Y H:i:s') }}</td>
+                        {% if plantilla.status == 0 %}
+                        <td>Iniciado</td>
+                        {% elseif plantilla.status == 1 %}
+                        <td>Pendiente de verificar</td>
+                        {% elseif plantilla.status == 2 %}
+                        <td class="pdte">Cancelado</td>
+                        {% elseif plantilla.status == 3 %}
+                        <td>Validado</td>
+                        {% elseif plantilla.status == 4 %}
+                        <td>Pendiente de validar</td>
+                        {% elseif plantilla.status == 5 %}
+                        <td>Pendiente de cancelar</td>
+                        {% elseif plantilla.status == 6 %}
+                        <td class="pdte">Devuelto para edición</td>
+                        {% else %}
+                        <td class="pdte">{{plantilla.status}}</td>
+                        {% endif %}
+                        <td>Checklist</td>
+                    </tr>
+                    {% endif %}
                     {% endfor %}
                 </table>
                 {% else %}

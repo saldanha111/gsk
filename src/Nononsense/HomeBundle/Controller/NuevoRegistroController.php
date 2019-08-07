@@ -329,7 +329,7 @@ class NuevoRegistroController extends Controller
 
                 }else{
                     $valido = false;
-                    $causa = "Ya existe un registro para el Código Material: ".$material." Lote: ".$lote;
+                    $causa = "Ya existe un registro (".$registroViejoReconciliacionId.") para el Código Material: ".$material." Lote: ".$lote ;
                     $reconciliacion = true;
                 }
 

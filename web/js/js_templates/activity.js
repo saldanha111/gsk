@@ -191,6 +191,8 @@ function customOnLoad() {
                 launchMessage(title, message);
             }else{
                 var responseURL = $('#responseURL').val();
+                responseURL = responseURL.replace(/parcial/g, "");
+                responseURL = responseURL.replace(/enviar/g, "");
                 responseURL += 'parcial';
                 $('#responseURL').val(responseURL);
                 $('#download').trigger('click');
@@ -208,8 +210,11 @@ function customOnLoad() {
             // Hacer un click sobre download
             // Poner el action cancelar
             var responseURL = $('#responseURL').val();
+            responseURL = responseURL.replace(/parcial/g, "");
+            responseURL = responseURL.replace(/enviar/g, "");
             responseURL += 'enviar';
             $('#responseURL').val(responseURL);
+            console.log(responseURL);
             $('#download').trigger('click');
 
 

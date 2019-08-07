@@ -330,4 +330,27 @@ class DocumentsSignatures
     {
         return $this->attachment;
     }
+
+    /**
+     * Set email
+     *
+     * @param string $email
+     * @return DocumentsSignatures
+     */
+    public function setEmail($email)
+    {
+        $this->email = $email;
+
+        return $this;
+    }
+
+    /**
+     * Get email
+     *
+     * @return string 
+     */
+    public function getEmail()
+    {
+        return $this->email;
+    }
 }

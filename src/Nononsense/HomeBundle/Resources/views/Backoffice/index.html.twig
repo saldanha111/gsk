@@ -1,0 +1,159 @@
+{% extends '::base.html.twig' %}
+
+{% block page_title %}DOCXPRESSO | {{'Gestionar grupos verificacion'|trans}}  {% endblock %}
+{% block head %}
+<link href="/css/plugins/chosen/chosen.css" rel="stylesheet">
+{{ parent() }}
+{% endblock %}
+{% block main_title %} {{ 'Gestionar grupos verificacion' | trans }} {% endblock %}
+{% block breadcrumb %}
+<ol class="breadcrumb">
+    <li>
+        <a href="{{ path('nononsense_home_homepage')}}">{{'Home'|trans}}</a>
+    </li>
+    <li class="active">
+        <strong>{{ 'Gestionar grupos verificacion' | trans }}</strong>
+    </li>
+</ol>
+{% endblock %}
+{% block content %}
+<div class="wrapper wrapper-content">
+    {% for flashMessage in app.session.flashbag.get('success') %}
+    <div class="alert alert-success alert-dismissable" style="margin: 10px 16px 0 16px">
+        <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+        {{ flashMessage }}
+    </div>
+    {% endfor %}
+    <div class="row animated fadeInRight">
+        <div class="col-md-7">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>Metadata</h5>
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="ibox-content">
+                    <h3 style="font-weight: normal"><i class="fa fa-archive"></i> Plantillas</h3>
+                    <select id="PlantillasSelect" form="setGroupForm" name="PlantillasSelect">
+                        <option value="0">Seleccione una plantilla:</option>
+                        {% for plantilla in listadoPlantillas %}
+                        <option value="{{plantilla.getGroupId}}"
+                                data-group-name="{{plantilla.getGrupoVerificacion.getName}}" data-plantilla-name="{{plantilla.name}}">{{plantilla.name}}
+                        </option>
+                        {% endfor %}
+                    </select>
+                    <p id="grupoVerificacion">
+
+                    </p>
+                    <p>
+                        <small>Si quiere modificar el grupo utilice el panel de la derecha</small>
+                    </p>
+
+                </div>
+
+            </div>
+        </div>
+        <div class="col-md-5">
+            <div class="ibox">
+                <div class="ibox-title">
+                    <h5>{{'Modificar grupo de verificacion'|trans}}
+                    </h5>
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+
+                        </a>
+                    </div>
+
+                </div>
+                <div class="ibox-content" id="memberlist">
+                    <div class="text-center">
+                        <div id="PlantillaSelected">
+                            <h3>No ha seleccionado ninguna plantilla</h3>
+                        </div>
+                        <div id="gruposDisponibles" style="display: none">
+                            <form action="{{ path('nononsense_backoffice_set_group')}}" id="setGroupForm" >
+                                <select id="gruposDisponiblesSelect" form="setGroupForm" name="gruposDisponiblesSelect">
+                                    <option value="0">Seleccione un nuevo grupo</option>
+                                    {% for grupo in listadoGrupos %}
+                                    <option value="{{grupo.id}}">{{grupo.name}}</option>
+                                    {% endfor %}
+                                </select>
+                                <a class="btn btn-primary" id="addGroup">Modificar</a>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
+{% block scripts %}
+{{ parent() }}
+
+<!-- Chosen -->
+<script src="/js/plugins/chosen/chosen.jquery.js"></script>
+
+<script>
+
+
+    $(document).ready(function () {
+
+        ActivateMenu('browse_verification_groups');
+        $('#side-menu').metisMenu();
+
+        $('#PlantillasSelect').on('change', function () {
+            console.log("Hey men!")
+            var plantillaSelected = $("#PlantillasSelect option:selected").val();
+
+            $('#grupoVerificacion').empty();
+            $('#PlantillaSelected').empty();
+            if (plantillaSelected == 0) {
+                // Do nothing
+
+                $('#gruposDisponibles').hide();
+
+            } else {
+
+                var nombreGrupo = $("#PlantillasSelect option:selected").attr('data-group-name');
+                var plantillaName = $("#PlantillasSelect option:selected").attr('data-plantilla-name');
+                console.log("TEngo que añadir: " + nombreGrupo)
+                $('#grupoVerificacion').append('<h3>Grupo de verificación asignado: ' + nombreGrupo + '</h3>');
+                $('#PlantillaSelected').append('<h3>' + plantillaName+ '</h3>');
+                $('#gruposDisponibles').show();
+
+
+            }
+        });
+
+        //nononsense_backoffice_set_group
+        $('#addGroup').on('click',function () {
+            var plantillaSelected = $("#PlantillasSelect option:selected").val();
+            if(plantillaSelected == 0){
+                toastr.error("Debe seleccionar una plantilla",'aviso');
+            }else{
+                var grupoSelected = $("#gruposDisponiblesSelect option:selected").val();
+                if(grupoSelected == 0){
+                    toastr.error("Debe seleccionar un grupo",'aviso');
+                }else{
+                    $('#setGroupForm').submit();
+                }
+
+            }
+
+        });
+
+
+
+    });
+</script>
+{% endblock %}
+
+

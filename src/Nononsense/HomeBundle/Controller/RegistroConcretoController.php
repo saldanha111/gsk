@@ -109,7 +109,7 @@ class RegistroConcretoController extends Controller
         if ($registro->getStatus() == 4 || $registro->getStatus() == 5) {
             // Abrir para validar
             $options['responseURL'] = $baseUrl . "control_validacion/" . $stepid . "/";
-            $options['prefix'] = 'v';
+            $options['prefix'] = 'verchk';
 
             $versionJS = filemtime(__DIR__ . "/../../../../web/js/js_templates/validacion.js");
             $validacionURL1 = $baseUrl . "js/js_templates/validacion.js?v=" . $versionJS;
@@ -386,6 +386,30 @@ class RegistroConcretoController extends Controller
         $em->persist($firma);
         $em->flush();
 
+        /*
+         * Enviar email si sólo hay un usuario en un grupo.
+         */
+
+        $grupoVerificacion = $registro->getMasterWorkflowEntity()->getGrupoVerificacion();
+        $userGroupVerificacion = $grupoVerificacion->getUsers();
+
+        if(count($userGroupVerificacion) == 1){
+            // Enviar notificación al único usuario del grupo
+
+            $groupUsers = $userGroupVerificacion[0];
+            $userVerificacion = $groupUsers->getUser();
+
+            $mailTo = $userVerificacion->getEmail();
+            $baseURL = $this->container->getParameter('cm_installation');
+            $link = $baseURL . "registro_process";
+            $logo = '';
+            $accion = 'notificarVerficiacion';
+            $subject = 'Tiene un registro pendiente de verificar';
+            $message = 'Tiene pendiente el siguiente registro: ' . $registro->getId() . ' pendiente de verificar';
+
+            $this->_sendNotification($mailTo,$link,$logo,$accion,$subject,$message);
+        }
+
         return $this->render('NononsenseHomeBundle:Contratos:registro_guardadoenviado.html.twig', array(
             "documentName" => $documentName,
         ));
@@ -474,6 +498,10 @@ class RegistroConcretoController extends Controller
             $route = base64_decode($urlaux);
 
 
+        } else if ($action == 'verificarparcial') {
+
+
+
         } else {
             // Error... go inbox
             echo 'No deberías haber llegado aquí. Error desconocido';
@@ -522,11 +550,11 @@ class RegistroConcretoController extends Controller
                     if ($position === 0) {
                         // variable válida
                         // variable válida.
-                        $lastValue = trim(implode("",$lastVarValues->{$prop})); // Para que funcione en los "checboxes" y "radioButton" habría que hacer un implode + trim
+                        $lastValue = trim(implode("", $lastVarValues->{$prop})); // Para que funcione en los "checboxes" y "radioButton" habría que hacer un implode + trim
                         // if lastValue es un valor vacío no haría falta hacer un "modificado"
-                        $currentValue = trim(implode("",$value));
+                        $currentValue = trim(implode("", $value));
 
-                        if($lastValue != ""){
+                        if ($lastValue != "") {
                             if ($lastValue != $currentValue) {
                                 // Modificado
                                 $resultado = true;
@@ -552,5 +580,34 @@ class RegistroConcretoController extends Controller
         }
 
         return $resultado;
+    }
+
+    private function _sendNotification($mailTo, $link, $logo, $accion, $subject, $message)
+    {
+        $mailLogger = new \Swift_Plugins_Loggers_ArrayLogger();
+        $this->get('mailer')->registerPlugin(new \Swift_Plugins_LoggerPlugin($mailLogger));
+        $email = \Swift_Message::newInstance()
+            ->setSubject($subject)
+            ->setFrom($this->container->getParameter('mailer_user'))
+            ->setTo($mailTo)
+            ->setBody(
+                $this->renderView(
+                    'NononsenseHomeBundle:Email:notificationUser.html.twig', array(
+                    'logo' => $logo,
+                    'accion' => $accion,
+                    'message' => $message,
+                    'link' => $link
+                )),
+                'text/html'
+            );
+        if ($this->get('mailer')->send($email)) {
+            //echo '[SWIFTMAILER] sent email to ' . $mailTo;
+            //echo 'LOG: ' . $mailLogger->dump();
+            return true;
+        } else {
+            //echo '[SWIFTMAILER] not sending email: ' . $mailLogger->dump();
+            return false;
+        }
+
     }
 }

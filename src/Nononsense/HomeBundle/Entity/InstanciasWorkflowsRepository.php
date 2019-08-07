@@ -232,7 +232,7 @@ class InstanciasWorkflowsRepository extends EntityRepository
     public function listProcess($user_logged)
     {
         $list = $this->createQueryBuilder('n')
-            ->select('n.id', 'ms.name', 'ms.description', 'c.name as companyName', 'n.status', 'mt.fechainicio as fecha','n.in_edition')
+            ->select('n.id', 'ms.name', 'ms.description', 'c.name as companyName', 'n.status', 'mt.fechainicio as fecha','n.in_edition','ms.id as masterworkflowid')
             ->leftJoin("n.Master_Workflow_Entity", "ms")
             ->leftJoin("ms.category", "c")
             ->innerJoin("n.metaData", "mt")
@@ -344,7 +344,7 @@ class InstanciasWorkflowsRepository extends EntityRepository
     {
 
         $list = $this->createQueryBuilder('n')
-            ->select('ms.name', 'ms.description', 'c.name as companyName', 'n.id as registroid', 'mt.fechainicio as fecha', 'mt.lote', 'mt.material as codigo', 'u.name as namecreated','n.in_edition')
+            ->select('ms.name', 'ms.description', 'c.name as companyName', 'n.id as registroid', 'mt.fechainicio as fecha', 'mt.lote', 'mt.material as codigo', 'u.name as namecreated','n.in_edition','ms.checklist as checklist','n.status','ms.id as masterworkflowid')
             ->leftJoin("n.Master_Workflow_Entity", "ms")
             ->leftJoin("ms.category", "c")
             ->leftJoin("n.userCreatedEntiy", "u")

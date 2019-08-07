@@ -237,6 +237,7 @@ class DataDocumentController extends Controller
         $instancia_workflow = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
             ->find($step->getWorkflowId());
+        $instancia_workflowAux = $instancia_workflow;
 
         $stepMasterData = $master_step->getStepData();
         $workflowMasterData = $instancia_workflow->getMasterDataValues();
@@ -297,16 +298,19 @@ class DataDocumentController extends Controller
             /*
              * Tendría que haber un protocolo para diferenciar cuando se imprimen sólo las firmas o el histórico completo:
              */
-            $completo = true;
+
+            $completo = false;
             if ($completo) {
                 $data->varValues->dxo_gsk_audit_trail_bloque = array("Si");
                 $data->varValues->dxo_gsk_audit_trail = array($this->_construirHistorico($step));
+                //$data->varValues->dxo_gsk_audit_trail = array();
                 $data->varValues->dxo_gsk_firmas_bloque = array("No");
 
             } else {
                 /*
             * Si hay firmas claro.
             */
+
                 $firmas = $this->getDoctrine()
                     ->getRepository('NononsenseHomeBundle:FirmasStep')
                     ->findBy(array("step_id" => $step->getId()));
@@ -325,14 +329,116 @@ class DataDocumentController extends Controller
                 $data->varValues->{$varIndiceName} = array($value->firma);
             }
 
+
         }
-/*
-var_dump(json_encode($data));
-        exit;
-*/
-        if(isset($data->custom)){
+        /*
+        var_dump(json_encode($data));
+                exit;
+        */
+        if (isset($data->custom)) {
             unset($data->custom);
         }
+
+
+        /*
+         * Generar los cuatro últimos, si logbook
+         */
+        $logbokk = true;
+        if ($instancia_workflowAux->getMasterWorkflowEntity()->getLogbook() == 1 && $logbokk) {
+            /*
+             * Cargar una serie de datos de registros válidos
+             */
+            $arrayIds = array();
+            $nRegistros = 4;
+            $mostrados = 0;
+            $index = 1;
+            $mostrar = true;
+            $first = true;
+            $fullText = "<table id='tableAnteriores' class='table table-striped' >";
+
+            while ($mostrar) {
+                $idMostrar = $instancia_workflowAux->getId() - $index;
+                if ($idMostrar != 0) {
+                    $InstanciaWorkflowAMostrar = $this->getDoctrine()
+                        ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
+                        ->findOneBy(array('id' => $idMostrar, 'master_workflow' => $instancia_workflowAux->getMasterWorkflowEntity()->getId()));
+
+                    if (isset($InstanciaWorkflowAMostrar) && $InstanciaWorkflowAMostrar->getStatus() != 20
+                        && $InstanciaWorkflowAMostrar->getStatus() != -2) {
+                        // registro válido que debo mostrar
+
+
+                        $instanciaStepAMostrar = $this->getDoctrine()
+                            ->getRepository('NononsenseHomeBundle:InstanciasSteps')
+                            ->findOneBy(array('workflow_id' => $idMostrar));
+
+                        $stepDataValueMostrar = $instanciaStepAMostrar->getStepDataValue();
+                        if ($stepDataValueMostrar != "") {
+                            $mostrados++;
+
+                            $dataMostrar = json_decode($stepDataValueMostrar);
+
+                            $varValuesMostrar = $dataMostrar->varValues;
+                            if ($first) {
+                                // pintar cabecera
+                                $fullText .= "<tr><th>id Registro</th><th>Estado</th>";
+                                foreach ($varValuesMostrar as $prop => $value) {
+                                    $position = strpos($prop, "u_");
+
+                                    if ($position === 0) {
+                                        // variable válida.
+
+                                        $fullText .= '<th>' . $prop . '</th>';
+                                    }
+
+                                }
+                                $fullText .= '</tr>';
+
+                                $first = false;
+                            }
+                            $estadoString = $this->processRowValue($InstanciaWorkflowAMostrar->getStatusString());
+
+                            $fullText .= '<tr><td>' . $idMostrar . '</td><td>' . $estadoString . '</td>';
+                            foreach ($varValuesMostrar as $prop => $value) {
+                                $position = strpos($prop, "u_");
+
+                                if ($position === 0) {
+                                    // variable válida.
+                                    $valor = $value[0];
+                                    $fullText .= '<td>' . $valor . '</td>';
+                                }
+
+                            }
+                            $fullText .= '</tr>';
+                        }
+
+
+                    }
+                    $index++;
+                } else {
+                    $mostrar = false;
+                }
+
+                if ($mostrados == $nRegistros) {
+                    $mostrar = false;
+                }
+            }
+            $fullText .= '</table>';
+            $data->varValues->dxo_gsk_logbook = array("Si");
+            $data->varValues->dxp_gsk_logbook_bloque = array($fullText);
+            //$data->varValues->dxp_gsk_logbook_bloque = array('1');
+
+        }
+        //var_dump(json_encode($data));
+        //echo 'venga ya!';
+        //exit;
+
+        /*
+                var_dump($instancia_workflowAux->getMasterWorkflowEntity()->getName());
+                echo '-separate-';
+                var_dump($instancia_workflowAux->getMasterWorkflowEntity()->getLogbook());
+                var_dump($fullText);
+                exit;*/
 
         $response = new Response();
         $response->setStatusCode(200);
@@ -501,7 +607,7 @@ var_dump(json_encode($data));
         $fullText = "<table id='tableHistorico' class='table table-striped' >";
         foreach ($evidencias as $evidenciaElement) {
             $firmaAsociada = $evidenciaElement->getFirmaEntity();
-            if($first){
+            if ($first) {
 
                 $id = $firmaAsociada->getNumber();
                 $nombre = $firmaAsociada->getUserEntiy()->getName();
@@ -513,7 +619,7 @@ var_dump(json_encode($data));
                 $lastEvidencia = $evidenciaElement;
                 $first = false;
 
-            }else{
+            } else {
                 // Primero descifrar si ha habido cambios.
                 $dataString = $evidenciaElement->getStepDataValue();
                 $dataJson = json_decode($dataString);
@@ -525,7 +631,7 @@ var_dump(json_encode($data));
                 $lastVarValues = $dataJson->varValues;
 
 
-                $bloqueHTML = "<tr><td colspan='4'>Modificaciones</td></tr><tr><td rowspan='###NUMBERREPLACE###'>".$firmaAsociada->getNumber()."</td><td>Campo</td><td>Antes</td><td>Después</td></tr>";
+                $bloqueHTML = "<tr><td colspan='4'>Modificaciones</td></tr><tr><td rowspan='###NUMBERREPLACE###'>" . $firmaAsociada->getNumber() . "</td><td>Campo</td><td>Antes</td><td>Después</td></tr>";
                 $modified = false;
                 $counterModified = 1;
 
@@ -533,16 +639,16 @@ var_dump(json_encode($data));
                     $position = strpos($prop, "u_");
                     if ($position === 0) {
                         // variable válida.
-                        $lastValue = trim(implode("",$lastVarValues->{$prop})); // Para que funcione en los "checboxes" y "radioButton" habría que hacer un implode + trim
+                        $lastValue = trim(implode("", $lastVarValues->{$prop})); // Para que funcione en los "checboxes" y "radioButton" habría que hacer un implode + trim
                         // if lastValue es un valor vacío no haría falta hacer un "modificado"
-                        $currentValue = trim(implode("",$value));
+                        $currentValue = trim(implode("", $value));
 
-                        if($lastValue != ""){
+                        if ($lastValue != "") {
                             if ($lastValue != $currentValue) {
                                 // Modificado
                                 $counterModified++;
                                 $modified = true;
-                                $bloqueHTML .= "<tr><td>".$prop."</td><td>".$lastValue."</td><td>".$currentValue."</td></tr>";
+                                $bloqueHTML .= "<tr><td>" . $prop . "</td><td>" . $lastValue . "</td><td>" . $currentValue . "</td></tr>";
                             }
                         }
 
@@ -550,8 +656,8 @@ var_dump(json_encode($data));
                 }
 
 
-                if($modified){
-                    $bloqueHTML = str_replace('###NUMBERREPLACE###',$counterModified,$bloqueHTML);
+                if ($modified) {
+                    $bloqueHTML = str_replace('###NUMBERREPLACE###', $counterModified, $bloqueHTML);
                     $fullText .= $bloqueHTML;
                 }
                 // Después añadir la fila de firma sin mas.
@@ -623,6 +729,14 @@ var_dump(json_encode($data));
 
                     if ($position === 0) {
                         // variable válida.
+                        if (!isset($mapVariable->{$prop}) ||
+                            empty($mapVariable->{$prop})) {
+                            $mapVariable->{$prop} = new \stdClass();
+                        }
+
+                        if (isset($mapVariable->{$prop}->valor)) {
+                            $mapVariable->{$prop}->valor = new \stdClass();
+                        }
                         $mapVariable->{$prop}->valor = $value;
                         $mapVariable->{$prop}->firma = $firmaId;
                     }
@@ -683,5 +797,22 @@ var_dump(json_encode($data));
                 $newProp = $prop;
         }
         return $newProp;
+    }
+
+    private function processRowValue($cadena)
+    {
+        $cadena = html_entity_decode($cadena);
+        $cadena = str_replace("&", "&amp;", $cadena);
+        $cadena = str_replace("&amp;amp;", "&amp;", $cadena);
+
+        $utils = new Utils();
+        if (!$utils->UTF8Encoded($cadena)) {
+            $cadena = utf8_encode($cadena);
+        }
+
+        $cadena = rawurlencode($cadena);
+
+        $cadena = str_replace("%C2%80", "%E2%82%AC", $cadena);
+        return $cadena;
     }
 }
