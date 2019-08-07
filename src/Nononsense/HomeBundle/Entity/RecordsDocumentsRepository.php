@@ -17,7 +17,7 @@ class RecordsDocumentsRepository extends EntityRepository
         $em = $this->getEntityManager();
 
         $list = $this->createQueryBuilder('r')
-            ->select('r.id', 'd.name', 't.name as nameType', 'u.name as usuario', 'r.status', 's.userid as idNextSigner', 'u2.name nameNextSigner', 's.groupid as idNextSignerGroup', 'g2.name nameNextSignerGroup', 'r.usercreatedid', 'r.files')
+            ->select('r.id', 'd.name', 't.name as nameType', 'u.name as usuario', 'r.status', 's.userid as idNextSigner', 'u2.name nameNextSigner', 's.groupid as idNextSignerGroup', 'g2.name nameNextSignerGroup', 'r.usercreatedid', 'r.files', 'r.created')
             ->leftJoin("r.type", "t")
             ->leftJoin("r.userCreatedEntiy", "u")
             ->leftJoin("r.document", "d")
@@ -62,6 +62,16 @@ class RecordsDocumentsRepository extends EntityRepository
                 $list->andWhere('(r.status=1 AND r.usercreatedid=:user_id) OR (r.status=2 AND (s.userid=:user_id OR s.groupid IN (:groups)))');
                 $list->setParameter('user_id', $user->getId());
                 $list->setParameter('groups', $groups);
+            }
+
+            if(isset($filters["from"])){
+                $list->andWhere('r.created>=:from');
+                $list->setParameter('from', $filters["from"]);
+            }
+
+            if(isset($filters["until"])){
+                $list->andWhere('r.created<=:until');
+                $list->setParameter('until', $filters["until"]." 23:59:00");
             }
         }
 
@@ -117,6 +127,16 @@ class RecordsDocumentsRepository extends EntityRepository
             if(isset($filters["status"])){
                 $list->andWhere('r.status=:status');
                 $list->setParameter('status', $filters["status"]);
+            }
+
+            if(isset($filters["from"])){
+                $list->andWhere('r.created>=:from');
+                $list->setParameter('from', $filters["from"]);
+            }
+
+            if(isset($filters["until"])){
+                $list->andWhere('r.created<=:until');
+                $list->setParameter('until', $filters["until"]." 23:59:00");
             }
 
             if (isset($filters["pending_for_me"])) {

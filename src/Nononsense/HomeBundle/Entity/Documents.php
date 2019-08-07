@@ -6,6 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity
@@ -19,6 +20,7 @@ class Documents
      * @ORM\Column(type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @Groups({"detail_document"})
      */
     protected $id;
 
@@ -26,6 +28,7 @@ class Documents
      * @var integer
      *
      * @ORM\Column(name="plantilla_id", type="integer")
+     * @Groups({"detail_document"})
      */
     protected $plantilla_id;
     
@@ -34,6 +37,7 @@ class Documents
      *
      * @ORM\Column(name="name", type="string", length=200)
      * @Assert\NotBlank(message = "You shoud insert a name")
+     * @Groups({"detail_document"})
      */
     protected $name;
 
@@ -42,6 +46,7 @@ class Documents
      *
      * @ORM\Column(name="description", type="string", length=200)
      * @Assert\NotBlank(message = "You shoud insert a description")
+     * @Groups({"detail_document"})
      */
     protected $description;
 
@@ -77,8 +82,8 @@ class Documents
      * @var boolean $isActive
      *
      * @ORM\Column(name="is_active", type="boolean",  nullable=true, options={"default" = false})
+     * @Groups({"detail_document"})
      */
-
     protected $isActive;
 
     /**
@@ -94,6 +99,7 @@ class Documents
     /**
      * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\Types", inversedBy="documents")
      * @ORM\JoinColumn(name="type_id", referencedColumnName="id")
+     * @Groups({"detail_document"})
      */
     protected $type;
 
@@ -123,8 +129,17 @@ class Documents
      * @var boolean $signCreator
      *
      * @ORM\Column(name="sign_creator", type="boolean",  nullable=true, options={"default" = false})
+     * @Groups({"detail_document"})
      */
     protected $signCreator;
+
+    /**
+     * @var boolean $attachment
+     *
+     * @ORM\Column(name="attachment", type="boolean", options={"default" = false})
+     * @Groups({"detail_document"})
+     */
+    protected $attachment;
 
 
 
@@ -549,5 +564,28 @@ class Documents
     public function getSignCreator()
     {
         return $this->signCreator;
+    }
+
+    /**
+     * Set attachment
+     *
+     * @param boolean $attachment
+     * @return Documents
+     */
+    public function setAttachment($attachment)
+    {
+        $this->attachment = $attachment;
+
+        return $this;
+    }
+
+    /**
+     * Get attachment
+     *
+     * @return boolean 
+     */
+    public function getAttachment()
+    {
+        return $this->attachment;
     }
 }

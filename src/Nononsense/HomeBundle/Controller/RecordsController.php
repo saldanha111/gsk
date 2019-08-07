@@ -90,6 +90,16 @@ class RecordsController extends Controller
             $filters2["status"]=$request->get("status");
         }
 
+        if($request->get("from")){
+            $filters["from"]=$request->get("from");
+            $filters2["from"]=$request->get("from");
+        }
+
+        if($request->get("until")){
+            $filters["until"]=$request->get("until");
+            $filters2["until"]=$request->get("until");
+        }
+
         $array_item["states"][1]="Pendiente de completar";
         $array_item["states"][2]="Pendiente de firma";
         $array_item["states"][3]="Completado";
@@ -403,7 +413,7 @@ class RecordsController extends Controller
                                 $sign->setUserEntiy($record->getUserCreatedEntiy());
                                 $sign->setRecord($record);
                                 $sign->setNumber(0);
-                                $sign->setAttachment(0);
+                                $sign->setAttachment($record->getDocument()->getAttachment());
                                 $sign->setNext($next);
                                 $sign->setCreated(new \DateTime());
                                 $em->persist($sign); 
