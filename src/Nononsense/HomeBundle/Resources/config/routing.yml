@@ -238,6 +238,10 @@ nononsense_documents_edit:
     path: /documents/{id}
     defaults: { _controller: NononsenseHomeBundle:Documents:edit}
 
+nononsense_documents_update:
+    path: /documents/{id}/save
+    defaults: { _controller: NononsenseHomeBundle:Documents:update}
+
 nononsense_records:
     path: /records
     defaults: { _controller: NononsenseHomeBundle:Records:list}

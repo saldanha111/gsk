@@ -92,17 +92,130 @@ class DocumentsController extends Controller
         $array_item["types"] = $this->getDoctrine()->getRepository(Types::class)->findAll();
         $array_item["users"] = $this->getDoctrine()->getRepository(Users::class)->findAll();
         $array_item["groups"] = $this->getDoctrine()->getRepository(Groups::class)->findAll();
+
         if($id!=0){
             $item = $this->getDoctrine()->getRepository(Documents::class)->findOneById($id);
+            if(!$item){
+                return $this->redirect($this->container->get('router')->generate('nononsense_documents'));
+            }
             $array_item["item"] = json_decode($serializer->serialize($item, 'json',array('groups' => array('detail_document'))),true);
 
-            $baseSignatures = $this->getDoctrine()->getRepository('NononsenseHomeBundle:DocumentsSignatures')->findBy(array("document"=> $item));
+            $baseSignatures = $this->getDoctrine()->getRepository('NononsenseHomeBundle:DocumentsSignatures')->findBy(array("document"=> $item),array("number" => "ASC"));
             $array_item["baseSignatures"] = json_decode($serializer->serialize($baseSignatures, 'json',array('groups' => array('list_baseS'))),true);
-        }
-        else{
 
+            $records = $this->getDoctrine()->getRepository(RecordsDocuments::class)->findBy(array("document" => $item));
+            if($records){
+                $array_item["not_update"]=1;
+            }
         }
 
         return $this->render('NononsenseHomeBundle:Contratos:document.html.twig',$array_item);
+    }
+
+    public function updateAction(Request $request, string $id)
+    {   
+        $em = $this->getDoctrine()->getManager();
+
+        try {
+            $not_update=0;
+            if($id!=0){
+                $document = $this->getDoctrine()->getRepository(Documents::class)->findOneById($id);
+
+                $signatures = $em->getRepository(DocumentsSignatures::class)->findBy(["document"=>$document]);
+                foreach ($signatures as $signature) {
+                    $em->remove($signature);
+                }
+            }
+            else{
+                $document = new Documents();
+                $user = $this->container->get('security.context')->getToken()->getUser();
+                $document->setUserCreatedEntiy($user);
+            }
+
+            $records = $this->getDoctrine()->getRepository(RecordsDocuments::class)->findBy(array("document" => $document));
+            if($records){
+                $not_update=1;
+            }
+
+            if(!$not_update){
+                $type = $this->getDoctrine()->getRepository(Types::class)->find($request->get("type"));
+                $document->setType($type);
+                $document->setPlantillaId($request->get("plantilla_id"));
+            }
+
+            $document->setName($request->get("name"));
+            $document->setDescription($request->get("description"));
+            $document->setPosition(1);
+            $document->setBlock(1);
+            $document->setOptional(0);
+            $document->setDependsOn(0);
+            $document->setCreated(new \DateTime());
+            $document->setModified(new \DateTime());
+
+            if($request->get("is_active")){
+                $document->setIsActive(1);
+            }
+            else{
+                $document->setIsActive(0);
+            }
+
+            if($request->get("sign_creator")){
+                $document->setSignCreator(1);
+            }
+            else{
+                $document->setSignCreator(0);
+            }
+
+            if($request->get("attachment") && $request->get("sign_creator")){
+                $document->setAttachment(1);
+            }
+            else{
+                $document->setAttachment(0);
+            }
+
+            if($request->get("relationals")){
+                $order=1;
+                foreach($request->get("relationals") as $key => $relational){
+                    $signature = new DocumentsSignatures();
+
+                    if($request->get("types")[$key]=="1"){
+                        $group = $this->getDoctrine()->getRepository(Groups::class)->find($relational);
+                        $signature->setGroupEntiy($group);
+                        $signature->setEmail($request->get("emails")[$key]);
+                    }
+                    else{
+                        $user = $this->getDoctrine()->getRepository(Users::class)->find($relational);
+                        $signature->setUserEntiy($user);
+                    }
+
+                    $signature->setDocument($document);
+                    $signature->setCreated(new \DateTime());
+                    $signature->setModified(new \DateTime());
+                    $signature->setNumber($order);
+                    $signature->setAttachment(0);
+                    $em->persist($signature);
+
+                    $order++;
+                }
+            }
+
+            $em->persist($document);
+            $em->flush();
+
+        }catch (\Exception $e) {
+            $this->get('session')->getFlashBag()->add(
+                    'error',
+                    "Error desconocido al intentar guardar los datos de la plantilla".$e->getMessage()
+                );
+            $route = $this->container->get('router')->generate('nononsense_documents_edit', array("id" => $id));
+        
+            return $this->redirect($route);
+        }
+
+        
+
+        $route = $this->container->get('router')->generate('nononsense_documents');
+        
+        return $this->redirect($route);
     }
 }
