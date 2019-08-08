@@ -232,7 +232,7 @@ class InstanciasWorkflowsRepository extends EntityRepository
     public function listProcess($user_logged)
     {
         $list = $this->createQueryBuilder('n')
-            ->select('n.id', 'ms.name', 'ms.description', 'c.name as companyName', 'n.status', 'mt.fechainicio as fecha','n.in_edition','ms.id as masterworkflowid')
+            ->select('n.id', 'ms.name', 'ms.description', 'c.name as companyName', 'n.status', 'mt.fechainicio as fecha','n.in_edition','ms.id as masterworkflowid','ms.logbook')
             ->leftJoin("n.Master_Workflow_Entity", "ms")
             ->leftJoin("ms.category", "c")
             ->innerJoin("n.metaData", "mt")

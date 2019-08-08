@@ -122,9 +122,13 @@ class NuevoRegistroController extends Controller
         ));
     }
 
-    public function createAction($templateid)
+    public function createAction($templateid, Request $request)
     {
 
+        if($templateid == 0){
+            $logbook = $request->query->get('logbook');
+            $templateid = $request->query->get('templateid');
+        }
         $MasterWorkflow = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:MasterWorkflows')
             ->find($templateid);
@@ -219,27 +223,32 @@ class NuevoRegistroController extends Controller
         $em->flush();
 
         $precreation = $MasterWorkflow->getPrecreation();
+
+        /*
+         * logbook -> post!!
+         */
+
         switch ($precreation) {
             case "default":
                 $instanciaWorkflow->setStatus(-1); // estado sin actividad
                 $em->persist($instanciaWorkflow);
                 $em->flush();
-                $route = $this->container->get('router')->generate('nononsense_prevalidation_creation', array("registroid"=>$instanciaWorkflow->getId(),"stepid" => $firststep));
+                $route = $this->container->get('router')->generate('nononsense_prevalidation_creation', array("registroid"=>$instanciaWorkflow->getId(),"stepid" => $firststep,"logbook"=>$logbook));
                 break;
             case "codigolote":
-                $route = $this->container->get('router')->generate('nononsense_precreation_codigo_lote_interface', array("registroid" => $instanciaWorkflow->getId()));
+                $route = $this->container->get('router')->generate('nononsense_precreation_codigo_lote_interface', array("registroid" => $instanciaWorkflow->getId(),"logbook"=>$logbook));
                 break;
             case "equipoqr":
-                $route = $this->container->get('router')->generate('nononsense_precreation_equipo_qr_interface', array("registroid" => $instanciaWorkflow->getId()));
+                $route = $this->container->get('router')->generate('nononsense_precreation_equipo_qr_interface', array("registroid" => $instanciaWorkflow->getId(),"logbook"=>$logbook));
                 break;
             case "equipopesaqr":
-                $route = $this->container->get('router')->generate('nononsense_precreation_equipo_pesa_qr_interface', array("registroid" => $instanciaWorkflow->getId()));
+                $route = $this->container->get('router')->generate('nononsense_precreation_equipo_pesa_qr_interface', array("registroid" => $instanciaWorkflow->getId(),"logbook"=>$logbook));
                 break;
             default:
                 $instanciaWorkflow->setStatus(-1); // estado sin actividad
                 $em->persist($instanciaWorkflow);
                 $em->flush();
-                $route = $this->container->get('router')->generate('nononsense_prevalidation_creation', array("registroid"=>$instanciaWorkflow->getId(),"stepid" => $firststep));
+                $route = $this->container->get('router')->generate('nononsense_prevalidation_creation', array("registroid"=>$instanciaWorkflow->getId(),"stepid" => $firststep,"logbook"=>$logbook));
                 break;
         }
 
@@ -247,7 +256,7 @@ class NuevoRegistroController extends Controller
         return $this->redirect($route);
     }
 
-    public function checkPreValidationRegistroAction($registroid,$stepid)
+    public function checkPreValidationRegistroAction($registroid,$stepid, $logbook)
     {
         // Si todo OK, registro válido
         $em = $this->getDoctrine()->getManager();
@@ -354,7 +363,7 @@ class NuevoRegistroController extends Controller
                 $em->flush();
             }
 
-            $route = $this->container->get('router')->generate('nononsense_registro_concreto_link', array("stepid" => $stepid, "form" => 0));
+            $route = $this->container->get('router')->generate('nononsense_registro_concreto_link', array("stepid" => $stepid, "form" => 0, "revisionid" => 0, "logbook" => $logbook));
         }else{
             if($reconciliacion){
                 /*
@@ -496,7 +505,7 @@ class NuevoRegistroController extends Controller
         $em->persist($reconciliacionRegistro);
         $em->flush();
 
-        $route = $this->container->get('router')->generate('nononsense_registro_concreto_link', array("stepid" => $firststep, "form" => 0));
+        $route = $this->container->get('router')->generate('nononsense_registro_concreto_link', array("stepid" => $firststep, "form" => 0, "revisionid"=> 0, "logbook" => 0));
         return $this->redirect($route);
 
     }
@@ -523,7 +532,7 @@ class NuevoRegistroController extends Controller
         return $this->redirect($url_edit_documento);
     }
 
-    public function codigoLoteInterfaceAction($registroid)
+    public function codigoLoteInterfaceAction($registroid,$logbook)
     {
         /*
          * Interfaz para asignar un codigo lote al workflow
@@ -538,11 +547,12 @@ class NuevoRegistroController extends Controller
         return $this->render('NononsenseHomeBundle:Contratos:registro_creacion_codigolote.html.twig', array(
             "registroid" => $registroid,
             "documentName" => $documentName,
-            "subCat" => $subCat
+            "subCat" => $subCat,
+            "logbook" => $logbook
         ));
     }
 
-    public function equipoQRInterfaceAction($registroid)
+    public function equipoQRInterfaceAction($registroid,$logbook)
     {
         /*
         * Interfaz para asignar un equipo al workflow a través de un QR.
@@ -560,11 +570,12 @@ class NuevoRegistroController extends Controller
             "registroid" => $registroid,
             "documentName" => $documentName,
             "subCat" => $subCat,
-            "master" => $master
+            "master" => $master,
+            "logbook" => $logbook
         ));
     }
 
-    public function equipoPesaQRInterfaceAction($registroid)
+    public function equipoPesaQRInterfaceAction($registroid, $logbook)
     {
         /*
         * Interfaz para asignar un equipo al workflow a través de un QR.
@@ -582,11 +593,12 @@ class NuevoRegistroController extends Controller
             "registroid" => $registroid,
             "documentName" => $documentName,
             "subCat" => $subCat,
-            "master" => $master
+            "master" => $master,
+            "logbook" => $logbook
         ));
     }
 
-    public function codigoLoteSaveAction($registroid, Request $request)
+    public function codigoLoteSaveAction($registroid, Request $request,$logbook)
     {
 
         /*
@@ -641,11 +653,11 @@ class NuevoRegistroController extends Controller
                 'dependsOn' => 0,
                 'workflow_id' => $registroid));
 
-        $route = $this->container->get('router')->generate('nononsense_prevalidation_creation', array("registroid"=>$registro->getId(),"stepid" => $firststep->getId()));
+        $route = $this->container->get('router')->generate('nononsense_prevalidation_creation', array("registroid"=>$registro->getId(),"stepid" => $firststep->getId(), "logbook"=>$logbook));
         return $this->redirect($route);
     }
 
-    public function equipoQRSaveAction($registroid, Request $request)
+    public function equipoQRSaveAction($registroid, Request $request, $logbook)
     {
 
         $registro = $this->getDoctrine()
@@ -689,7 +701,7 @@ class NuevoRegistroController extends Controller
                 'dependsOn' => 0,
                 'workflow_id' => $registroid));
 
-        $route = $this->container->get('router')->generate('nononsense_prevalidation_creation', array("registroid"=>$registro->getId(),"stepid" => $firststep->getId()));
+        $route = $this->container->get('router')->generate('nononsense_prevalidation_creation', array("registroid"=>$registro->getId(),"stepid" => $firststep->getId(), "logbook"=>$logbook));
         return $this->redirect($route);
     }
 

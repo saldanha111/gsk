@@ -236,7 +236,7 @@
                                    value="{{termino}}">
                         </div>
                         <div class="m-t-sm">
-                            <small>*Mínimo tres caracteres para permitir la búsqueda. </small>
+                            <small>*Mínimo tres caracteres para permitir la búsqueda.</small>
                         </div>
                         <div class="m-t-sm">
                             <small>Para la prueba se permite cualquier valor</small>
@@ -278,22 +278,61 @@
                             <th>Iniciar</th>
                         </tr>
                         </thead>
-                    {% for plantilla in templates %}
-                            <tr>
-                                <td>{{plantilla.category}}</td>
-                                <td>{{plantilla.subCatName}}</td>
-                                <td>{{plantilla.name}}</td>
-                                <td><a class="btn btn-xs btn-primary" name="crearregistro" href="{{path('nononsense_contrato_crear_registro', {'templateid': plantilla.id})}}">{{'Crear Registro'|trans}}</a></td>
-                            </tr>
-                    {% endfor %}
+                        {% for plantilla in templates %}
+                        <tr>
+                            <td>{{plantilla.category}}</td>
+                            <td>{{plantilla.subCatName}}</td>
+                            <td>{{plantilla.name}}</td>
+                            <td><a class="btn btn-xs btn-primary crearregistro" name="crearregistro" data-template="{{plantilla.id}}"
+                                   data-loogbook="{{plantilla.logbook}}">{{'Crear
+                                Registro'|trans}}</a></td>
+                        </tr>
+                        {% endfor %}
                     </table>
                     {% endif %}
+                </div>
+            </div>
+            <div style="display: none">
+                <form id="createRegistro" action="{{path('nononsense_contrato_crear_registro', {'templateid': 0})}}">
+                    <input type="hidden" name="templateid" id="templateidForm">
+                    <input type="hidden" name="logbook" id="logbookForm">
+                </form>
+            </div>
+            <div class="modal" id="editModal" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-body">
+                            <h4>Número de registros del logbook </h4>
+                            <p>Introduzca el número de registros anteriores que quiere ver en el logbook</p>
+                            <p>
+                                Nombre: <input id="logbook" name="logbook" type="number"
+                                               min="0"
+                                               max="10"
+                                               step="1"
+                                               value=""
+                                               class="form-control"></br>
+                            </p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-danger" id="editBtnNo"
+                                    data-dismiss="modal">
+                                <i class="fa fa-ban" aria-hidden="true"></i> Cancelar
+                            </button>
+                            <a
+                                    class="btn btn-success" id="editBtnYes"
+                                    data-dismiss="modal">
+                                <i class="fa fa-paper-plane" aria-hidden="true"></i>
+                                Aceptar
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
             <hr>
             <div style="display: none">
                 {% for catelement in todasCat %}
-                <input name="todascats" data-id="{{catelement.id}}" data-name="{{catelement.name}}" data-padre="{{catelement.padre}}">
+                <input name="todascats" data-id="{{catelement.id}}" data-name="{{catelement.name}}"
+                       data-padre="{{catelement.padre}}">
                 {% endfor %}
             </div>
         </div>
@@ -326,6 +365,40 @@
             ActivateMenu('docxpresso_home');
             $('#side-menu').metisMenu();
 
+            $('.crearregistro').click(function () {
+                console.log("click yeah!")
+
+                var templateid = $(this).attr('data-template');
+                $('#templateidForm').val(templateid);
+                //envío de email
+                var logbookTemplate = $(this).attr('data-loogbook');
+
+                console.log(logbookTemplate);
+                if (logbookTemplate == 1) {
+                    console.log('showModal!');
+                    $("#editModal").show();
+                } else {
+                    console.log('submit!');
+                    $('#logbookForm').val(0);
+                    $('#createRegistro').submit();
+                }
+
+            });
+
+            $('#editBtnNo').click(function () {
+                $("#editModal").hide();
+
+            });
+
+            $('#editBtnYes').click(function () {
+
+                var logbook = $('#logbook').val();
+
+                $('#logbookForm').val(logbook);
+                $('#createRegistro').submit();
+
+
+            });
 
             $('#searchButton').on('click', function () {
                 var texto = $('#searchinput').val();
@@ -349,9 +422,9 @@
             });
 
 
-            $('#categoriasSelect').on('change',function(){
+            $('#categoriasSelect').on('change', function () {
                 var categoriaselected = $("#categoriasSelect option:selected").val();
-                console.log("seleccionado la categoria: "+ categoriaselected);
+                console.log("seleccionado la categoria: " + categoriaselected);
 
 
                 $('#subCategoriasSelect').empty();
@@ -363,8 +436,8 @@
                     var padreCat = $(this).attr("data-padre");
                     var nameCat = $(this).attr("data-name");
 
-                    if(padreCat == categoriaselected){
-                        $('#subCategoriasSelect').append('<option value="'+idCat+'">'+nameCat+'</option>');
+                    if (padreCat == categoriaselected) {
+                        $('#subCategoriasSelect').append('<option value="' + idCat + '">' + nameCat + '</option>');
                     }
 
                 });

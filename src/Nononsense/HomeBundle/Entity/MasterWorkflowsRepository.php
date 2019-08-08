@@ -42,7 +42,7 @@ class MasterWorkflowsRepository extends EntityRepository
     public function listDocumentosByNameAndCategory($name, $categories)
     {
         $list = $this->createQueryBuilder('n')
-            ->select('n.id', 'n.name', 'n.description', 'c.name as subCatName', 'c.padre as padre')
+            ->select('n.id', 'n.name', 'n.description', 'c.name as subCatName', 'c.padre as padre', 'n.logbook')
             ->leftJoin("n.category", "c")
             ->andWhere('n.isActive = 1')
             ->orderBy('n.id', 'ASC');

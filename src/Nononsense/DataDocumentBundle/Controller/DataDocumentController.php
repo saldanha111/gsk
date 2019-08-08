@@ -219,7 +219,7 @@ class DataDocumentController extends Controller
         return $responseAction;
     }
 
-    public function RequestDataAction($instancia_step_id)
+    public function RequestDataAction($instancia_step_id, $logbook)
     {
         /*
          * Get Value from JSON to put into document
@@ -344,12 +344,12 @@ class DataDocumentController extends Controller
          * Generar los cuatro últimos, si logbook
          */
         $logbokk = true;
-        if ($instancia_workflowAux->getMasterWorkflowEntity()->getLogbook() == 1 && $logbokk) {
+        if ($instancia_workflowAux->getMasterWorkflowEntity()->getLogbook() == 1 && $logbokk && $logbook > 0) {
             /*
              * Cargar una serie de datos de registros válidos
              */
             $arrayIds = array();
-            $nRegistros = 4;
+            $nRegistros = $logbook;
             $mostrados = 0;
             $index = 1;
             $mostrar = true;

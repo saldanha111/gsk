@@ -485,13 +485,19 @@ class RegistroValidationController extends Controller
 
     }
 
-    public function completarAction($registroid)
+    public function completarAction($registroid, Request $request)
     {
         /*
          * Localizar el step completado.
          * Asignar el estado 3. Temporal. Pero si no se ha abierto nunca (estado 0) no poner en 3.
          * Abrir con link como siempre
          */
+        if($registroid == 0){
+            $logbook = $request->query->get('logbook');
+            $registroid = $request->query->get('registroidForm');
+        }
+
+
         $registro = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
             ->find($registroid);
@@ -511,7 +517,7 @@ class RegistroValidationController extends Controller
         $em->persist($pendingStep);
         $em->flush();
 
-        $route = $this->container->get('router')->generate('nononsense_registro_concreto_link', array("stepid" => $pendingStep->getId(), "form" => 0));
+        $route = $this->container->get('router')->generate('nononsense_registro_concreto_link', array("stepid" => $pendingStep->getId(), "form" => 0,"revisionid"=> 0, "logbook" => $logbook));
         return $this->redirect($route);
     }
 

@@ -67,7 +67,7 @@ class RegistroConcretoController extends Controller
         ));
     }
 
-    public function linkAction($stepid, $form, $revisionid)
+    public function linkAction($stepid, $form, $revisionid,$logbook)
     {
         $step = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:InstanciasSteps')
@@ -145,7 +145,7 @@ class RegistroConcretoController extends Controller
 
         $options['requestExternalJS'] = $validacionURL1;
         $url_resp_data_uri = $baseUrl . 'data/get_data_from_document/' . $stepid;
-        $url_requesetData = $baseUrl . 'data/requestData/' . $step->getId();
+        $url_requesetData = $baseUrl . 'data/requestData/' . $step->getId().'/'.$logbook;
 
         $options['responseDataURI'] = $url_resp_data_uri;
         $options['requestDataURI'] = $url_requesetData;

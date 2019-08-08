@@ -76,7 +76,7 @@ nononsense_contrato_concreto_link_test:
 
 nononsense_contrato_crear_registro:
     path: /nuevoregistroconcreto/{templateid}
-    defaults: { _controller: NononsenseHomeBundle:NuevoRegistro:create, templateid:0}
+    defaults: { _controller: NononsenseHomeBundle:NuevoRegistro:create, templateid: 0}
 
 nononsense_contrato_registro_completado:
     path: /registrocompletado/{stepid}
@@ -91,8 +91,8 @@ nononsense_contrato_control_validacion:
     defaults: { _controller: NononsenseHomeBundle:RegistroConcreto:controlValidacion, stepid: 0, action: 0, urlaux: 0}
 
 nononsense_registro_concreto_link:
-    path:     /registro_link/{stepid}/{form}/{revisionid}
-    defaults: { _controller: NononsenseHomeBundle:RegistroConcreto:link, stepid: 0, form: 0, revisionid: 0 }
+    path:     /registro_link/{stepid}/{form}/{revisionid}/{logbook}
+    defaults: { _controller: NononsenseHomeBundle:RegistroConcreto:link, stepid: 0, form: 0, revisionid: 0, logbook: 0}
 
 nononsense_registro_concreto_guardar_enviar:
     path:     /registro_save_send/{stepid}
@@ -175,24 +175,24 @@ nononsense_registro_devolver_edicion_accion:
     defaults: { _controller: NononsenseHomeBundle:RegistroValidation:verificarDevolverEdicion, stepid: 0 }
 
 nononsense_precreation_codigo_lote_interface:
-    path:     /precreation_codigolote/{registroid}
-    defaults: { _controller: NononsenseHomeBundle:NuevoRegistro:codigoLoteInterface, registroid: 0 }
+    path:     /precreation_codigolote/{registroid}/{logbook}
+    defaults: { _controller: NononsenseHomeBundle:NuevoRegistro:codigoLoteInterface, registroid: 0, logbook: 0 }
 
 nononsense_precreation_equipo_qr_interface:
-    path:     /precreation_equipo_qr/{registroid}
-    defaults: { _controller: NononsenseHomeBundle:NuevoRegistro:equipoQRInterface, registroid: 0 }
+    path:     /precreation_equipo_qr/{registroid}/{logbook}
+    defaults: { _controller: NononsenseHomeBundle:NuevoRegistro:equipoQRInterface, registroid: 0, logbook: 0 }
 
 nononsense_precreation_equipo_pesa_qr_interface:
-    path:     /precreation_equipo_pesa_qr/{registroid}
-    defaults: { _controller: NononsenseHomeBundle:NuevoRegistro:equipoPesaQRInterface, registroid: 0 }
+    path:     /precreation_equipo_pesa_qr/{registroid}/{logbook}
+    defaults: { _controller: NononsenseHomeBundle:NuevoRegistro:equipoPesaQRInterface, registroid: 0, logbook: 0}
 
 nononsense_precreation_codigo_lote_save:
-    path:     /precreation_codigolote_save/{registroid}
-    defaults: { _controller: NononsenseHomeBundle:NuevoRegistro:codigoLoteSave, registroid: 0 }
+    path:     /precreation_codigolote_save/{registroid}/{logbook}
+    defaults: { _controller: NononsenseHomeBundle:NuevoRegistro:codigoLoteSave, registroid: 0, logbook: 0 }
 
 nononsense_precreation_equipo_qr_save:
-    path:     /precreation_equipoqr_save/{registroid}
-    defaults: { _controller: NononsenseHomeBundle:NuevoRegistro:equipoQRSave, registroid: 0 }
+    path:     /precreation_equipoqr_save/{registroid}/{logbook}
+    defaults: { _controller: NononsenseHomeBundle:NuevoRegistro:equipoQRSave, registroid: 0 ,logbook: 0 }
 
 nononsense_precreation_equipo_pesa_qr_save:
     path:     /precreation_equipo_pesa_qr_save/{registroid}
@@ -207,8 +207,8 @@ nononsense_archivo_ver_historico:
     defaults: { _controller: NononsenseHomeBundle:RegistroArchivo:verRegistroHistoricoInterface, registroid: 0 }
 
 nononsense_prevalidation_creation:
-    path:     /prevalidation_creation/{registroid}/{stepid}
-    defaults: { _controller: NononsenseHomeBundle:NuevoRegistro:checkPreValidationRegistro, registroid: 0, stepid: 0 }
+    path:     /prevalidation_creation/{registroid}/{stepid}/{logbook}
+    defaults: { _controller: NononsenseHomeBundle:NuevoRegistro:checkPreValidationRegistro, registroid: 0, stepid: 0, logbook: 0 }
 
 nononsense_solicitud_reconciliacion:
     path:     /solicitud_reconciliacion/{registroid}
