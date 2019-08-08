@@ -2,6 +2,7 @@
 {% block page_title %}DOCXPRESSO | {{'Homepage'|trans}} {% endblock %}
 {% block head %}
 {{ parent() }}
+<link rel="stylesheet" href="/css/plugins/datapicker/datepicker3.css">
 {% endblock %}
 {% block main_title %} Listado de documentos y contratos{% endblock %}
 {% block content %}
@@ -11,6 +12,62 @@
         <div class="col-sm-12">
             <div>
                 <div class="row">
+                    <form class="form-horizontal" id="form_item" action="{{ path('nononsense_records')}}" method="GET">
+                        <div class="form-group">
+
+                            <label class="col-sm-1 control-label item_filter">Nombre</label>
+                            <div class="col-sm-2 item_filter">
+                                <input type="text" name="name" class="form-control" value="{{filters.name is defined ? filters.name : ''}}">
+                            </div>
+
+                            {% if types is defined %}
+                                <label class="col-sm-1 control-label item_filter">Tipo</label>
+                                <div class="col-sm-2 item_filter">
+                                  <select class="form-control" style="width: 100%;" name="type">
+                                    <option value=""></option>
+                                    {% for type in types %}
+                                      <option value="{{type.id}}" {{ filters.type is defined and filters.type==type.id ? 'selected="selected"' : ''}}>{{type.name}}</option>
+                                    {% endfor %}
+                                  </select>
+                                </div>
+                            {% endif %}
+
+                            {% if states is defined %}
+                                <label class="col-sm-1 control-label item_filter">Estado</label>
+                                <div class="col-sm-2 item_filter">
+                                  <select class="form-control" style="width: 100%;" name="status">
+                                    <option value=""></option>
+                                    {% for key,state in states %}
+                                      <option value="{{key}}" {{ filters.status is defined and filters.status==key ? 'selected="selected"' : ''}}>{{state}}</option>
+                                    {% endfor %}
+                                  </select>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label item_filter">Fecha</label>
+                            <div class="col-sm-1 item_filter">
+                                <input type="text" class="form-control pull-right" autocomplete="off" name="from" id="from" value="{{filters.from is defined ? filters.from|date("Y-m-d") : ''}}">
+                            </div>
+
+                            <div class="col-sm-1 item_filter">
+                                <input type="text" class="form-control pull-right" autocomplete="off" name="until" id="until" value="{{filters.until is defined ? filters.until|date("Y-m-d") : ''}}">
+                            </div>
+                            <div class="col-sm-2 col-sm-offset-1">
+                              <div class="checkbox">
+                                <label>
+                                  <input name="pending_for_me" value="1" type="checkbox" {% if filters.pending_for_me is defined and  filters.pending_for_me == true %} checked="checked" {% endif %}> Mis Doc. Pend.
+                                </label>
+                              </div>
+                            </div>
+
+                            <div class="col-sm-1 item_filter">
+                                <button type="submit" class="btn btn-primary pull-right">Filtrar</button>
+                            </div>
+                        </div>
+                      </form>
+                </div>
+                <div class="row">
                     <table id="inProcessParcial" class="table table-striped">
                         <thead>
                         <tr>
@@ -19,6 +76,7 @@
                             <th>Creador</th>
                             <th>Próx.Firmante</th>
                             <th>Tipo</th>
+                            <th>Fecha</th>
                             <th></th>
                             <th></th>
                             <th></th>
@@ -40,6 +98,7 @@
                                     {% endif %}
                                 </td>
                                 <td>{{item.nameType}}</td>
+                                <td>{{item.created|date("d/m/Y")}}</td>
                                 <td>
                                 {% if item.status is defined and item.status==1 and suser.id==item.usercreatedid %}
                                     <a href="{{path('nononsense_records_edit', {'id': item.id}) }}" class="btn btn-xs btn-primary"><i class="fa fa-lock"> </i> Completar registro</a>
@@ -71,6 +130,13 @@
                             {% endfor %}
                         {% endif %}
                     </table>
+
+                    {% if count==0 %}
+                        <br><b>No se han encontrado datos disponibles</b>
+                    {% endif %}
+                    {% if pagination is defined and pagination.needed %}
+                        {% include '::pagination2.html.twig' %}
+                    {% endif %}
                     
                 </div>
             </div>
@@ -80,7 +146,22 @@
 {% endblock %}
 {% block scripts %}
 {{ parent() }}
+<script src="/js/plugins/datapicker/bootstrap-datepicker.js"></script>
+<script src="/js/plugins/datapicker/locales/bootstrap-datepicker.es.js" charset="UTF-8"></script>
 <script>
-
+  $(function () {
+    $('#from').datepicker({
+      autoclose: true,
+      orientation: 'bottom auto',
+      format: 'yyyy-mm-dd',
+      language: 'es'
+    });
+    $('#until').datepicker({
+      autoclose: true,
+      orientation: 'bottom auto',
+      format: 'yyyy-mm-dd',
+      language: 'es'
+    });
+  });
 </script>
 {% endblock %}

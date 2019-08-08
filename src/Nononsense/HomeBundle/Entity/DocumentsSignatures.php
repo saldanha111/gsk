@@ -12,6 +12,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity
@@ -41,24 +42,28 @@ class DocumentsSignatures
     /**
      * @var integer
      * @ORM\Column(name="userid", type="integer", nullable=true)
+     * @Groups({"list_baseS"})
      */
     protected $userid;
 
     /**
      * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="documentsSignatures")
      * @ORM\JoinColumn(name="userid", referencedColumnName="id")
+     * @Groups({"list_baseS"})
      */
     protected $userEntiy;
 
     /**
      * @var integer
      * @ORM\Column(name="groupid", type="integer", nullable=true)
+     * @Groups({"list_baseS"})
      */
     protected $groupid;
 
     /**
      * @ORM\ManyToOne(targetEntity="\Nononsense\GroupBundle\Entity\Groups", inversedBy="documentsSignatures")
      * @ORM\JoinColumn(name="groupid", referencedColumnName="id")
+     * @Groups({"list_baseS"})
      */
     protected $groupEntiy;
 
@@ -79,12 +84,14 @@ class DocumentsSignatures
      * @var boolean $attachment
      *
      * @ORM\Column(name="attachment", type="boolean", options={"default" = false})
+     * @Groups({"list_baseS"})
      */
     protected $attachment;
 
     /**
      * @var string
      * @ORM\Column(name="email", type="string", length=90, nullable=true)
+     * @Groups({"list_baseS"})
      */
     protected $email;
 
