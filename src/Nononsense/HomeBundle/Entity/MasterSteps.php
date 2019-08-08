@@ -56,7 +56,14 @@ class MasterSteps
      * @ORM\Column(name="position", type="integer")
      */
     protected $position;
+    
+    /**
+     * @var boolean $checklist
+     *
+     * @ORM\Column(name="checklist", type="boolean",  options={"default" = false})
+     */
 
+    protected $checklist;
     /**
      * @var integer
      *
@@ -675,5 +682,28 @@ class MasterSteps
     public function getValidation()
     {
         return $this->validation;
+    }
+
+    /**
+     * Set checklist
+     *
+     * @param boolean $checklist
+     * @return MasterSteps
+     */
+    public function setChecklist($checklist)
+    {
+        $this->checklist = $checklist;
+
+        return $this;
+    }
+
+    /**
+     * Get checklist
+     *
+     * @return boolean 
+     */
+    public function getChecklist()
+    {
+        return $this->checklist;
     }
 }

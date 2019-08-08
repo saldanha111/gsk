@@ -571,6 +571,8 @@ class RegistroValidationController extends Controller
         ));
     }
 
+
+
     public function verificarInterfaceAction($stepid)
     {
 
@@ -584,6 +586,24 @@ class RegistroValidationController extends Controller
         $documentName = $step->getMasterStep()->getName();
 
         return $this->render('NononsenseHomeBundle:Contratos:registro_verificar_ok_interface.html.twig', array(
+            "documentName" => $documentName,
+            "stepid" => $stepid
+        ));
+    }
+
+    public function verificarParcialInterfaceAction($stepid)
+    {
+
+        /*
+         * Interfaz de verificacion
+         */
+        $step = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:InstanciasSteps')
+            ->find($stepid);
+
+        $documentName = $step->getMasterStep()->getName();
+
+        return $this->render('NononsenseHomeBundle:Contratos:registro_verificar_parcial_interface.html.twig', array(
             "documentName" => $documentName,
             "stepid" => $stepid
         ));
@@ -646,6 +666,69 @@ class RegistroValidationController extends Controller
         $em->flush();
 
         return $this->render('NononsenseHomeBundle:Contratos:registro_validado.html.twig', array(
+            "documentName" => $documentName,
+            "stepid" => $stepid
+        ));
+
+    }
+
+    public function verificarParcialStepAction($stepid, Request $request)
+    {
+
+        $user = $this->container->get('security.context')->getToken()->getUser();
+
+        $step = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:InstanciasSteps')
+            ->find($stepid);
+
+        $comentario = $request->query->get('comment');
+        $firmaImagen = $request->query->get('firma');
+
+        $documentName = $step->getMasterStep()->getName();
+
+        $registro = $step->getInstanciaWorkflow();
+        $registro->setStatus(4);
+
+        //$step->setStatusId(4);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($step);
+        $em->persist($registro);
+        $em->flush();
+
+        /*
+         * Guardar evidencia de registro verificado
+         */
+        $evidencia = new EvidenciasStep();
+        $evidencia->setStepEntity($step);
+        $evidencia->setStatus(1);
+        $evidencia->setUserEntiy($registro->getUserCreatedEntiy());
+        $evidencia->setToken($step->getToken());
+        $evidencia->setStepDataValue($step->getStepDataValue());
+
+        /*
+         * Guardar firma
+         */
+        $firmas = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:FirmasStep')
+            ->findBy(array("step_id" => $step->getId()));
+
+        $counter = count($firmas)+1;
+
+        $firma = new FirmasStep();
+        $firma->setAccion("Verificación parcial: " . $comentario);
+        $firma->setStepEntity($step);
+        $firma->setUserEntiy($user);
+        $firma->setFirma($firmaImagen);
+        $firma->setNumber($counter);
+
+        $evidencia->setFirmaEntity($firma);
+
+        $em->persist($firma);
+        $em->persist($evidencia);
+        $em->flush();
+
+        return $this->render('NononsenseHomeBundle:Contratos:registro_validado_parcial.html.twig', array(
             "documentName" => $documentName,
             "stepid" => $stepid
         ));

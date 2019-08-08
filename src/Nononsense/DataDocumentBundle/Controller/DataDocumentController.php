@@ -299,11 +299,10 @@ class DataDocumentController extends Controller
              * Tendría que haber un protocolo para diferenciar cuando se imprimen sólo las firmas o el histórico completo:
              */
 
-            $completo = false;
+            $completo = true;
             if ($completo) {
                 $data->varValues->dxo_gsk_audit_trail_bloque = array("Si");
                 $data->varValues->dxo_gsk_audit_trail = array($this->_construirHistorico($step));
-                //$data->varValues->dxo_gsk_audit_trail = array();
                 $data->varValues->dxo_gsk_firmas_bloque = array("No");
 
             } else {
@@ -325,7 +324,10 @@ class DataDocumentController extends Controller
 
             $mapVariable = $this->_construirMapVariables($step);
             foreach ($mapVariable as $prop => $value) {
+
                 $varIndiceName = str_replace("u_", "in_", $prop);
+                $varIndiceName = str_replace("verchk_", "in_verchk_", $varIndiceName);
+
                 $data->varValues->{$varIndiceName} = array($value->firma);
             }
 
@@ -630,14 +632,15 @@ class DataDocumentController extends Controller
                 $dataJson = json_decode($dataString);
                 $lastVarValues = $dataJson->varValues;
 
-
                 $bloqueHTML = "<tr><td colspan='4'>Modificaciones</td></tr><tr><td rowspan='###NUMBERREPLACE###'>" . $firmaAsociada->getNumber() . "</td><td>Campo</td><td>Antes</td><td>Después</td></tr>";
                 $modified = false;
                 $counterModified = 1;
 
                 foreach ($currentVarValues as $prop => $value) {
                     $position = strpos($prop, "u_");
-                    if ($position === 0) {
+                    $positionV = strpos($prop, "verchk_");
+                    
+                    if ($position === 0 || $positionV === 0) {
                         // variable válida.
                         $lastValue = trim(implode("", $lastVarValues->{$prop})); // Para que funcione en los "checboxes" y "radioButton" habría que hacer un implode + trim
                         // if lastValue es un valor vacío no haría falta hacer un "modificado"
@@ -651,7 +654,6 @@ class DataDocumentController extends Controller
                                 $bloqueHTML .= "<tr><td>" . $prop . "</td><td>" . $lastValue . "</td><td>" . $currentValue . "</td></tr>";
                             }
                         }
-
                     }
                 }
 
@@ -726,8 +728,9 @@ class DataDocumentController extends Controller
 
                 foreach ($varValues as $prop => $value) {
                     $position = strpos($prop, "u_");
+                    $positionV = strpos($prop, "verchk_");
 
-                    if ($position === 0) {
+                    if ($position === 0 || $positionV === 0 ) {
                         // variable válida.
                         if (!isset($mapVariable->{$prop}) ||
                             empty($mapVariable->{$prop})) {
@@ -745,9 +748,12 @@ class DataDocumentController extends Controller
 
                 $first = false;
             } else {
+
                 foreach ($varValues as $prop => $value) {
                     $position = strpos($prop, "u_");
-                    if ($position === 0) {
+                    $positionV = strpos($prop, "verchk_");
+
+                    if ($position === 0 || $positionV === 0) {
                         // variable válida.
                         $currentValue = $mapVariable->{$prop}->valor[0]; // solo se están guardando los valores unitarios
                         if ($currentValue != $value[0]) {

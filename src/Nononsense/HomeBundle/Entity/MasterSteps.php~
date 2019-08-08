@@ -56,7 +56,14 @@ class MasterSteps
      * @ORM\Column(name="position", type="integer")
      */
     protected $position;
+    
+    /**
+     * @var boolean $checklist
+     *
+     * @ORM\Column(name="checklist", type="boolean",  options={"default" = false})
+     */
 
+    protected $checklist;
     /**
      * @var integer
      *

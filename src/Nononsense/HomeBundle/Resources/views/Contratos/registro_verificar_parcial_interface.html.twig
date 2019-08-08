@@ -1,0 +1,112 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}DOCXPRESSO | {{'Homepage'|trans}} {% endblock %}
+{% block head %}
+{{ parent() }}
+<style>
+
+
+</style>
+{% endblock %}
+{% block main_title %} Se ha realizado una verificación parcial el registro del documento {{documentName}}{% endblock %}
+{% block content %}
+<div class="wrapper wrapper-content">
+    {% for flashMessage in app.session.flashbag.get('error') %}
+    <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+        <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+        {{ flashMessage }}
+    </div>
+    {% endfor %}
+    <div class="row">
+        <div>
+            <div class="col-sm-5 ">
+                <h1>Verificar datos</h1>
+                <form id="cancelform" action="{{path('nononsense_registro_verificado_parcial', {'stepid': stepid})}}">
+                    <div class="input-group">
+                        <span class="input-group-addon"
+                              style="background-color: #62bbe2; color: #fff"> Indicar motivo</span>
+                        <select id="motivoSelect" name="motivoSelect" class="form-control">
+                            <option value="0">Indicar motivo</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <textarea id="comment" name="comment" form="cancelform" rows="10" cols="91"></textarea>
+                    </div>
+                    <div id="signature-pad" class="input-group">
+                        <h2>Introduzca su firma</h2>
+                        <canvas width="300" height="150" style="touch-action: none; border: 2px solid #eee; box-shadow: 0px 0px 6px 1px rgba(80, 90, 100, 0.5)"></canvas>
+                    </div>
+                    <input type="hidden" id="firma" name="firma" />
+                    <a name="borrarFirmar" class="btn btn-primary" id="borrarFirmar">Limpiar firma</a>
+                    <a name="cancelarRegistro" class="btn btn-danger" id="backButton">Volver</a>
+                    <a name="guardarRegistro" class="btn btn-success">Guardar verificación de registro</a>
+                </form>
+            </div>
+        </div>
+        <hr>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+{{ parent() }}
+<script src="/js/plugins/signature-pad/signature-pad.min.js"></script>
+<script>
+    $(document).ready(function () {
+
+        toastr.options = {
+            "closeButton": true,
+            "debug": false,
+            "progressBar": true,
+            "positionClass": "toast-top-center",
+            "onclick": null,
+            "showDuration": "400",
+            "hideDuration": "1000",
+            "timeOut": "7000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        }
+
+        ActivateMenu('docxpresso_home');
+        $('#side-menu').metisMenu();
+
+        var canvas = document.querySelector("canvas");
+
+        var signaturePad = new SignaturePad(canvas);
+
+
+        $('a[name="guardarRegistro"]').on('click', function () {
+            var valueSelect = $("#motivoSelect").val();
+            var text = $("#comment").val();
+
+            $("#firma").val(signaturePad.toDataURL()) // save image as PNG
+
+            console.log(text);
+
+            if (text == ""){
+                toastr.error("Debe escribir un motivo, no puede dejar el cuadro en blanco",'aviso');
+            }else if(signaturePad.isEmpty()){
+                toastr.error("Debe rellenar una fima, no puede dejar el cuadro en blanco",'aviso');
+
+            }else{
+                console.log(signaturePad.toDataURL());
+                $("#cancelform").submit();
+            }
+
+
+        });
+        $('#borrarFirmar').on('click', function () {
+            signaturePad.clear();
+        });
+        $('#backButton').on('click', function () {
+            window.history.back();
+        });
+
+
+
+
+    });
+
+</script>
+{% endblock %}

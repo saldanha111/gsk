@@ -499,8 +499,8 @@ class RegistroConcretoController extends Controller
 
 
         } else if ($action == 'verificarparcial') {
-
-
+            $registro->setStatus(15);
+            $route = $this->container->get('router')->generate('nononsense_registro_verificar_parcial', array('stepid' => $stepid));
 
         } else {
             // Error... go inbox
