@@ -639,7 +639,7 @@ class DataDocumentController extends Controller
                 foreach ($currentVarValues as $prop => $value) {
                     $position = strpos($prop, "u_");
                     $positionV = strpos($prop, "verchk_");
-                    
+
                     if ($position === 0 || $positionV === 0) {
                         // variable válida.
                         $lastValue = trim(implode("", $lastVarValues->{$prop})); // Para que funcione en los "checboxes" y "radioButton" habría que hacer un implode + trim

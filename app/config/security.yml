@@ -79,6 +79,7 @@ security:
         - { path: ^/json_integration_index/ , roles: IS_AUTHENTICATED_ANONYMOUSLY}
         - { path: ^/json_integration_rest/ , roles: IS_AUTHENTICATED_ANONYMOUSLY}
         - { path: ^/microsites/external/ , roles: ROLE_EXTERNAL}
+        - { path: ^/notificacion_semanal , roles: IS_AUTHENTICATED_ANONYMOUSLY}
         - { path: ^/$ , roles: ROLE_EXTERNAL}
         - { path: ^/ , roles: ROLE_USER}
         # require ROLE_ADMIN

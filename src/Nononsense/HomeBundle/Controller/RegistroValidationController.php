@@ -874,6 +874,54 @@ class RegistroValidationController extends Controller
 
     }
 
+    public function notificacionSemanalPendienteVerificarAction(){
+
+        $documents = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
+            ->findBy(array("status" => 4));
+
+        $arrayIdPendientes = array();
+        foreach ($documents as $oneDocument){
+            $arrayIdPendientes[] = $oneDocument->getId();
+        }
+        $idPendientesString = implode(",",$arrayIdPendientes);
+
+        /*
+         * En producción habría que hacerlo por areas ahora sólo va a haber un grupo
+         */
+        $groups = $this->getDoctrine()
+            ->getRepository('NononsenseGroupBundle:Groups')
+            ->findOneBy(array("id" => 11));
+
+        $groupUsers = $groups->getUsers();
+        $enviosUser = array();
+        foreach ($groupUsers as $element) {
+            $users = $element->getUser();
+            $enviosUser[] = $users->getEmail();
+        }
+
+        $subject = "Documento pendiente de verificar";
+        $mensaje = "Los siguientes registros: ".$idPendientesString. " están pendientes de verificar en el sistema";
+        $arrayEnviosHechos = array();
+
+        $baseUrl = $this->getParameter("cm_installation");
+        $linkToEnProcess = $baseUrl . "registro_process";
+
+        foreach ($enviosUser as $email) {
+            if ($this->_sendNotification($email, $linkToEnProcess, "", "", $subject, $mensaje)) {
+                $arrayEnviosHechos[] = 'envio correcto de ' . $email;
+            } else {
+                $arrayEnviosHechos[] = 'envio erroneo de ' . $email;
+            }
+        }
+
+
+        $responseAction = new Response();
+        $responseAction->setStatusCode(200);
+        $responseAction->setContent("OK");
+        return $responseAction;
+
+    }
 
     public function cancelarStepAction($stepid, Request $request)
     {

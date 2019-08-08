@@ -233,7 +233,9 @@ nononsense_backoffice_set_group:
     path: /set_grupo
     defaults: { _controller: NononsenseHomeBundle:BackOffice:setGrupoVerificador }
 
-
+nononsense_notificacion_semanal:
+    path: /notificacion_semanal
+    defaults: { _controller: NononsenseHomeBundle:RegistroValidation:notificacionSemanalPendienteVerificar }
 
 nononsense_documents:
     path: /documents
