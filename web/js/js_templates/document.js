@@ -147,8 +147,9 @@ function customOnLoad() {
         console.log(responseURL);
 
         responseURL = decodeURIComponent(responseURL);
+        console.log("test");
         //window.location = responseURL;
-        window.location.replace(responseURL);
+        location.href =responseURL;
 
     });
     $('body').on('click', 'button[id="gskcancel"]', function () {

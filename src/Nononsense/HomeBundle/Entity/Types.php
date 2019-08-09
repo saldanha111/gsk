@@ -12,6 +12,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity
@@ -25,6 +26,7 @@ class Types
      * @ORM\Column(type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @Groups({"detail_document"})
      */
     protected $id;
 
@@ -32,6 +34,7 @@ class Types
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=90)
+     * @Groups({"detail_document"})
      */
     protected $name;
 

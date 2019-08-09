@@ -13,6 +13,7 @@ use Nononsense\HomeBundle\Entity\Documents;
 use Nononsense\HomeBundle\Entity\RecordsDocuments;
 use Nononsense\HomeBundle\Entity\DocumentsSignatures;
 use Nononsense\HomeBundle\Entity\RecordsSignatures;
+use Nononsense\HomeBundle\Entity\Types;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Nononsense\HomeBundle\Form\Type as FormProveedor;
@@ -59,9 +60,65 @@ class RecordsController extends Controller
             $filters2["pending_for_me"]=$request->get("pending_for_me");
         }
 
+        if(!$request->get("export_excel")){
+            if($request->get("page")){
+                $filters["limit_from"]=$request->get("page")-1;
+            }
+            else{
+                $filters["limit_from"]=0;
+            }
+            $filters["limit_many"]=15;
+        }
+        else{
+            $filters["limit_from"]=0;
+            $filters["limit_many"]=99999999999;
+        }
+
+
+        if($request->get("name")){
+            $filters["name"]=$request->get("name");
+            $filters2["name"]=$request->get("name");
+        }
+
+        if($request->get("type")){
+            $filters["type"]=$request->get("type");
+            $filters2["type"]=$request->get("type");
+        }
+
+        if($request->get("status")){
+            $filters["status"]=$request->get("status");
+            $filters2["status"]=$request->get("status");
+        }
+
+        if($request->get("from")){
+            $filters["from"]=$request->get("from");
+            $filters2["from"]=$request->get("from");
+        }
+
+        if($request->get("until")){
+            $filters["until"]=$request->get("until");
+            $filters2["until"]=$request->get("until");
+        }
+
+        $array_item["states"][1]="Pendiente de completar";
+        $array_item["states"][2]="Pendiente de firma";
+        $array_item["states"][3]="Completado";
         $array_item["suser"]["groups"]=$groups;
+        $array_item["filters"]=$filters;
+        $array_item["types"] = $this->getDoctrine()->getRepository(Types::class)->findAll();
         $array_item["items"] = $this->getDoctrine()->getRepository(RecordsDocuments::class)->list($filters);
         $array_item["count"] = $this->getDoctrine()->getRepository(RecordsDocuments::class)->count($filters2,$types);
+
+        $url=$this->container->get('router')->generate('nononsense_records');
+        $params=$request->query->all();
+        unset($params["page"]);
+        if(!empty($params)){
+            $parameters=TRUE;
+        }
+        else{
+            $parameters=FALSE;
+        }
+        $array_item["pagination"]=\Nononsense\UtilsBundle\Classes\Utils::paginador($filters["limit_many"],$request,$url,$array_item["count"],"/", $parameters);
 
         return $this->render('NononsenseHomeBundle:Contratos:records.html.twig',$array_item);
     }
@@ -89,6 +146,7 @@ class RecordsController extends Controller
         $record->setStatus(0); // Estado especial de creación
         $record->setDescription("");
         $record->setMasterDataValues("");
+        $record->setCreated(new \DateTime());
         $record->setObservaciones("");
         $record->setYear(date("Y"));
         $record->setUserCreatedEntiy($user);
@@ -161,7 +219,7 @@ class RecordsController extends Controller
 
         } else if ($record->getStatus() == -1 || $record->getStatus() == 0  || $record->getStatus() == 1) {
             // abrir para editar
-            $versionJS = filemtime(__DIR__ . "/../../../../web/js/js_templates/activity.js");
+            $versionJS = filemtime(__DIR__ . "/../../../../web/js/js_templates/document.js");
             $validacionURL1 = $baseUrl . "js/js_templates/document.js?v=" . $versionJS;
 
             $options['prefix'] = 'u';
@@ -230,7 +288,7 @@ class RecordsController extends Controller
             // first usage
             $data = new \stdClass();
             $varValues = new \stdClass();
-            $varValues->u_id_cumplimentacion = array($record->getId());
+            $varValues->numero_solicitud = array($record->getId());
 
             if (isset($recordMasterDataJSON)) {
                 foreach ($recordMasterDataJSON as $variable) {
@@ -355,8 +413,9 @@ class RecordsController extends Controller
                                 $sign->setUserEntiy($record->getUserCreatedEntiy());
                                 $sign->setRecord($record);
                                 $sign->setNumber(0);
-                                $sign->setAttachment(0);
+                                $sign->setAttachment($record->getDocument()->getAttachment());
                                 $sign->setNext($next);
+                                $sign->setCreated(new \DateTime());
                                 $em->persist($sign); 
                                 $next=0;
                             }
@@ -369,6 +428,7 @@ class RecordsController extends Controller
                                 $sign->setAttachment($baseSignaturre->getAttachment());
                                 $sign->setEmail($baseSignaturre->getEmail());
                                 $sign->setNext($next);
+                                $sign->setCreated(new \DateTime());
                                 $em->persist($sign);
                                 $next=0;
                             }
@@ -596,8 +656,7 @@ class RecordsController extends Controller
         $signature->setFirma($request->get('firma'));
         $signature->setNext(0);
         $signature->setUserEntiy($user);
-
-        
+        $signature->setModified(new \DateTime());
 
         
 
@@ -902,6 +961,7 @@ class RecordsController extends Controller
             $sign->setNumber(0);
             $sign->setAttachment($anexo);
             $sign->setNext($next);
+            $sign->setCreated(new \DateTime());
             $em->persist($sign); 
             $next=0;
         }
@@ -916,6 +976,7 @@ class RecordsController extends Controller
                 $sign->setAttachment($baseSignaturre->getAttachment());
                 $sign->setNext($next);
                 $sign->setEmail($baseSignaturre->getEmail());
+                $sign->setCreated(new \DateTime());
                 $em->persist($sign);
                 $next=0;
             }
@@ -927,7 +988,7 @@ class RecordsController extends Controller
     private function _construirFirmas($firmas)
     {
         //$firmas => array entidad firmas
-
+        $fullText="";
         foreach ($firmas as $firma) {
             if($firma->getFirma() && $firma->getUserEntiy()){
                 
@@ -944,7 +1005,7 @@ class RecordsController extends Controller
                 
                 $id = $firma->getId();
                 $nombre = $name;
-                $fecha = $firma->getCreated()->format('d-m-Y H:i:s');
+                $fecha = $firma->getModified()->format('d-m-Y H:i:s');
                 $firma = $firma->getFirma();
 
                 $fullText .= "<b>FIRMA: " . $id . "</b><br>" . $nombre . " " . $fecha . "<br><img src='" . $firma . "' /><br><br><br>";

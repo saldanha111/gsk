@@ -237,9 +237,19 @@ nononsense_notificacion_semanal:
     path: /notificacion_semanal
     defaults: { _controller: NononsenseHomeBundle:RegistroValidation:notificacionSemanalPendienteVerificar }
 
+
+
 nononsense_documents:
     path: /documents
     defaults: { _controller: NononsenseHomeBundle:Documents:list}
+
+nononsense_documents_edit:
+    path: /documents/{id}
+    defaults: { _controller: NononsenseHomeBundle:Documents:edit}
+
+nononsense_documents_update:
+    path: /documents/{id}/save
+    defaults: { _controller: NononsenseHomeBundle:Documents:update}
 
 nononsense_records:
     path: /records

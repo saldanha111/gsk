@@ -644,4 +644,34 @@ class Utils
         }
     }
 
+    public static function paginador($limit,$request,$url,$count,$base_url,$filtros)
+    {
+        $url_b=$_SERVER['REQUEST_URI'];
+        if(!$filtros){
+            if($url_b = preg_replace('/\?page=[^&]*/', '', $url_b)){}
+            $data["character"]="?";
+            //$url_b=$base_url.$url;
+        }
+        else{
+            $url_b = preg_replace('/&?page=[^&]*/', '', $url_b);
+            $data["character"]="&";
+        }
+        $page      = ($request->get('page', 0) > 0) ? $request->get('page')-1 : 0;
+        $skip      = ($page ) * $limit;
+        
+
+        $data["needed"]=$count > $limit;
+        $data["count"]=$count;
+        $data["page"]=$page;
+        $data["lastpage"]=(ceil($count / $limit) == 0 ? 1 : ceil($count / $limit));
+        $data["limit"]=$limit;
+        $protocol = stripos($_SERVER['SERVER_PROTOCOL'],'https') === true ? 'https://' : 'http://';
+        $data["url"]=$protocol.$_SERVER["HTTP_HOST"].$url_b;
+        $data["size"]=5;
+        $data["skip"]=$skip ;
+
+        return $data;
+
+    } 
+
 }
