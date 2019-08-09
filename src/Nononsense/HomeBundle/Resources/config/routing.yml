@@ -228,7 +228,9 @@ nononsense_backoffice_set_group:
 
 
 
-
+nononsense_search:
+    path: /search
+    defaults: { _controller: NononsenseHomeBundle:Search:list}
 
 nononsense_documents:
     path: /documents
@@ -285,9 +287,4 @@ nononsense_records_requet_data:
 nononsense_records_return_data:
     path:     /dataRecords/returnData/{id}
     defaults: { _controller: NononsenseHomeBundle:Records:returnData, id: 0}
-
-
-
-
-
 
