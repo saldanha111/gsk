@@ -294,7 +294,7 @@ class RegistroValidationController extends Controller
             ->getRepository('NononsenseHomeBundle:InstanciasSteps')
             ->findOneBy(array("workflow_id" => $registro->getId(), "dependsOn" => 0));
 
-        $firstStep->setStatusId(4); // Devolver
+  //      $firstStep->setStatusId(4); // Devolver
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($firstStep);
@@ -374,7 +374,7 @@ class RegistroValidationController extends Controller
             ->getRepository('NononsenseHomeBundle:InstanciasSteps')
             ->findOneBy(array("workflow_id" => $registro->getId(), "dependsOn" => 0));
 
-        $firstStep->setStatusId(5); // Cancelar
+        //$firstStep->setStatusId(5); // Cancelar
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($revisionWorkflow);
@@ -505,13 +505,13 @@ class RegistroValidationController extends Controller
         $pendingStep = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:InstanciasSteps')
             ->findOneBy(array("workflow_id" => $registro->getId(), "status_id" => array(1, 3, 0)));
-
+/*
         if ($pendingStep->getStatusId() == 0) {
 
         } else {
             $pendingStep->setStatusId(3);
         }
-
+*/
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($pendingStep);
@@ -950,7 +950,7 @@ class RegistroValidationController extends Controller
         $registro = $step->getInstanciaWorkflow();
         $registro->setStatus(5);
 
-        $step->setStatusId(4);
+//        $step->setStatusId(4);
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($step);
