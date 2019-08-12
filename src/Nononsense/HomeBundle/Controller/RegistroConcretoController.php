@@ -32,7 +32,7 @@ use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
 class RegistroConcretoController extends Controller
 {
-    public function registroCompletadoAction($stepid)
+    public function registroCompletadoAction($stepid, $comment)
     {
         // si el registro se ha validado no mostrar esta interfaz sino otra.
 
@@ -54,6 +54,9 @@ class RegistroConcretoController extends Controller
          */
         $devolucion = 0;
         if ($this->_checkModifyVariables($step)) {
+            $devolucion = 1;
+        }
+        if($comment == 1){
             $devolucion = 1;
         }
 
@@ -416,7 +419,7 @@ class RegistroConcretoController extends Controller
 
     }
 
-    public function controlElaboracionAction($stepid, $action, $urlaux)
+    public function controlElaboracionAction($stepid, $action, $comment, $urlaux)
     {
         /*
          * cerrar
@@ -441,11 +444,11 @@ class RegistroConcretoController extends Controller
         } elseif ($action == 'parcial') {
             $registro->setStatus(1);
 
-            $route = $this->container->get('router')->generate('nononsense_contrato_registro_completado', array('stepid' => $stepid));
+            $route = $this->container->get('router')->generate('nononsense_contrato_registro_completado', array('stepid' => $stepid,'comment'=>$comment));
 
         } elseif ($action == 'enviar') {
             $registro->setStatus(2);
-            $route = $this->container->get('router')->generate('nononsense_contrato_registro_completado', array('stepid' => $stepid));
+            $route = $this->container->get('router')->generate('nononsense_contrato_registro_completado', array('stepid' => $stepid, 'comment'=>$comment));
 
         } else if ($action == 'cerrar') {
 
@@ -466,7 +469,7 @@ class RegistroConcretoController extends Controller
         return $this->redirect($route);
     }
 
-    public function controlValidacionAction($stepid, $action, $urlaux)
+    public function controlValidacionAction($stepid, $action, $comment, $urlaux)
     {
         $em = $this->getDoctrine()->getManager();
 
@@ -485,7 +488,7 @@ class RegistroConcretoController extends Controller
 
         } elseif ($action == 'verificar') {
             $registro->setStatus(7);
-            $route = $this->container->get('router')->generate('nononsense_registro_verificar', array('stepid' => $stepid));
+            $route = $this->container->get('router')->generate('nononsense_registro_verificar', array('stepid' => $stepid,'comment'=>$comment));
 
 
         } elseif ($action == 'devolver') {
@@ -500,7 +503,7 @@ class RegistroConcretoController extends Controller
 
         } else if ($action == 'verificarparcial') {
             $registro->setStatus(15);
-            $route = $this->container->get('router')->generate('nononsense_registro_verificar_parcial', array('stepid' => $stepid));
+            $route = $this->container->get('router')->generate('nononsense_registro_verificar_parcial', array('stepid' => $stepid,'comment'=>$comment));
 
         } else {
             // Error... go inbox

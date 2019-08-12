@@ -22,11 +22,12 @@
                 <h1>Verificar datos</h1>
                 <form id="cancelform" action="{{path('nononsense_registro_verificado_parcial', {'stepid': stepid})}}">
                     <div class="input-group">
-                        <span class="input-group-addon"
-                              style="background-color: #62bbe2; color: #fff"> Indicar motivo</span>
-                        <select id="motivoSelect" name="motivoSelect" class="form-control">
-                            <option value="0">Indicar motivo</option>
-                        </select>
+                        {% if comment == 1 %}
+                        <div id="comentario" class="input-group">
+                            <p>Ha modificado valores previamente imputados. Explique por qué</p>
+                        </div>
+                        {% endif %}
+
                     </div>
                     <div class="input-group">
                         <textarea id="comment" name="comment" form="cancelform" rows="10" cols="91"></textarea>
@@ -79,12 +80,12 @@
         $('a[name="guardarRegistro"]').on('click', function () {
             var valueSelect = $("#motivoSelect").val();
             var text = $("#comment").val();
-
+            var comment = "{{comment}}";
             $("#firma").val(signaturePad.toDataURL()) // save image as PNG
 
             console.log(text);
 
-            if (text == ""){
+            if (text == "" && comment == 1){
                 toastr.error("Debe escribir un motivo, no puede dejar el cuadro en blanco",'aviso');
             }else if(signaturePad.isEmpty()){
                 toastr.error("Debe rellenar una fima, no puede dejar el cuadro en blanco",'aviso');

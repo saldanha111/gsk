@@ -21,16 +21,16 @@
             <div class="col-sm-5 ">
                 <h1>Verificar datos</h1>
                 <form id="cancelform" action="{{path('nononsense_registro_verificado', {'stepid': stepid})}}">
-                    <div class="input-group">
-                        <span class="input-group-addon"
-                              style="background-color: #62bbe2; color: #fff"> Indicar motivo</span>
-                        <select id="motivoSelect" name="motivoSelect" class="form-control">
-                            <option value="0">Indicar motivo</option>
-                        </select>
+                    {% if comment == 1 %}
+                    <div id="comentario" class="input-group">
+                        <p>Ha modificado valores previamente imputados. Explique por qué</p>
+
+                        <div class="input-group">
+                            <textarea id="comment" name="comment" form="cancelform" rows="10" cols="91"></textarea>
+                        </div>
                     </div>
-                    <div class="input-group">
-                        <textarea id="comment" name="comment" form="cancelform" rows="10" cols="91"></textarea>
-                    </div>
+                    {% else %}
+                    {% endif %}
                     <div id="signature-pad" class="input-group">
                         <h2>Introduzca su firma</h2>
                         <canvas width="300" height="150" style="touch-action: none; border: 2px solid #eee; box-shadow: 0px 0px 6px 1px rgba(80, 90, 100, 0.5)"></canvas>
@@ -80,11 +80,13 @@
             var valueSelect = $("#motivoSelect").val();
             var text = $("#comment").val();
 
-            $("#firma").val(signaturePad.toDataURL()) // save image as PNG
+            var comment = "{{comment}}";
+
+            $("#firma").val(signaturePad.toDataURL()); // save image as PNG
 
             console.log(text);
 
-            if (text == ""){
+            if (text == "" && comment == 1){
                 toastr.error("Debe escribir un motivo, no puede dejar el cuadro en blanco",'aviso');
             }else if(signaturePad.isEmpty()){
                 toastr.error("Debe rellenar una fima, no puede dejar el cuadro en blanco",'aviso');

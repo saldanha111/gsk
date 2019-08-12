@@ -567,13 +567,13 @@ class RegistroValidationController extends Controller
 
         return $this->render('NononsenseHomeBundle:Contratos:registro_verificar_ko_interface.html.twig', array(
             "documentName" => $documentName,
-            "stepid" => $stepid
+            "stepid" => $stepid,
         ));
     }
 
 
 
-    public function verificarInterfaceAction($stepid)
+    public function verificarInterfaceAction($stepid,$comment)
     {
 
         /*
@@ -587,11 +587,12 @@ class RegistroValidationController extends Controller
 
         return $this->render('NononsenseHomeBundle:Contratos:registro_verificar_ok_interface.html.twig', array(
             "documentName" => $documentName,
-            "stepid" => $stepid
+            "stepid" => $stepid,
+            "comment" => $comment
         ));
     }
 
-    public function verificarParcialInterfaceAction($stepid)
+    public function verificarParcialInterfaceAction($stepid,$comment)
     {
 
         /*
@@ -605,7 +606,8 @@ class RegistroValidationController extends Controller
 
         return $this->render('NononsenseHomeBundle:Contratos:registro_verificar_parcial_interface.html.twig', array(
             "documentName" => $documentName,
-            "stepid" => $stepid
+            "stepid" => $stepid,
+            "comment" => $comment
         ));
     }
 

@@ -58,12 +58,17 @@ function customOnFullyLoaded() {
             window.lastUpdated = Date.now();
             console.log('click');
             onChangeActivity('click');
+            checkCommentCompulsory($(this));
+
+
         });
         mainDXO.on('keypress', '*[contenteditable], note-editable, input, select', function () {
             window.globalKeypress = true;
             window.lastUpdated = Date.now();
             console.log('keypress');
             onChangeActivity('keypress');
+            checkCommentCompulsory($(this));
+
         });
         mainDXO.on('change', 'input, select', function () {
             //this does not detect all possible changes but it is OK by the time being, isn´t it?
@@ -71,6 +76,8 @@ function customOnFullyLoaded() {
             window.lastUpdated = Date.now();
             console.log('change');
             onChangeActivity('change');
+            checkCommentCompulsory($(this));
+
         });
     }
 
@@ -123,8 +130,126 @@ function customOnFullyLoaded() {
         }
     };
 
+    /****** ArrayPreLoad ******/
+    var arrayPreLoad = [];
+    console.log(refData)
+
+    for(var varName in refData){
+        var value = decodeURI(refData[varName]);
+        // Sólo hacer caso a aquellos que empiecen por u_ y verchk_
+
+        if(varName.indexOf("u_") == 0  ){
+            //console.log("var name: "+varName+ " valor por defecto: "+value);
+            if(value == varName ){
+                // radio button or checkbox
+                value = "";
+            }
+            if(checkVarValue(varName,value)){
+                arrayPreLoad[varName] = false;
+            }else{
+                arrayPreLoad[varName] = true;
+            }
+
+        }
+
+    }
+    window.commentCompulsory = false;
+    window.arrayPreLoad = arrayPreLoad;
+    //console.log(arrayPreLoad);
+
+}
+/*
+ * Comprobar si valToCheck está en la variable, el dilema son los checkboxes (estos habría que tratarlos quizás como vacíos.
+ */
+function checkVarValue(name, valToCheck){
+    var values = [];
+    var resultado = true;
+
+    //var variable = $('span[data-name="' + name + '"]');
+    if($('input[data-list="' + name + '"]') == undefined){
+
+        $('span[data-name="' + name + '"]').each(function () {
+            var value = $(this).text();
+            //console.log("voy a comprobar: "+valToCheck+" con: "+$(this).text());
+            if(value != valToCheck){
+                //console.log("Variable "+)
+                resultado = false;
+            }
+        });
+    }else{
+
+        console.log("Voy a revisar el checkbox o radio: "+name);
+        console.log("Valor: "+ $('input[data-list="' + name + '"]').is(':checked'));
+        if($('input[data-list="' + name + '"]').is(':checked')){
+            resultado = false;
+        }else{
+
+        }
+    }
+
+
+    /*
+    $('input[data-list="' + name + '"]').each(function () {
+        if($(this).is(':checked')){
+            // true, do nothing
+        }else{
+
+        }
+        checkradio = true;
+        var value = $(this).text();
+        console.log("voy a comprobar: "+valToCheck+" con: "+$(this).val());
+        if(value != valToCheck){
+            //console.log("Variable "+)
+            radioResultado = true;
+        }
+    });
+    $('input[data-list="' + name + '"]').each(function () {
+        checkradio = true;
+        var value = $(this).text();
+        console.log("voy a comprobar: "+valToCheck+" con: "+$(this).val());
+        if(value != valToCheck){
+            //console.log("Variable "+)
+            radioResultado = true;
+        }
+    });
+
+    if(checkradio){
+        resultado = radioResultado;
+    }
+    */
+
+    return resultado;
 }
 
+function checkCommentCompulsory(element){
+    var varName = "";
+    if(element.attr('data-name') == undefined){
+        varName = element.attr('data-reference');
+    }else{
+        varName = element.attr('data-name');
+    }
+
+    if(window.arrayPreLoad[varName]){
+//        console.log("valor de preload: "+window.arrayPreLoad[varName]);
+        window.commentCompulsory = true;
+        //console.log("Se ha interactuado con un elemento pre-cargado!!!! El comentario es obligatorio");
+
+        var title = "Se ha interactuado con una variable rellenada anteriormente. ";
+        var message = "<p>Ha interactuado con la variable <strong>"+varName+"</strong>. Se le solicitará un comentario obligatorio al firmar</p>";
+        message += '<p style="text-align: center"></p>';
+
+        launchMessage(title, message);
+    }else{
+        //console.log("valor de preload: "+window.arrayPreLoad[varName]);
+    }
+}
+
+function customOnValidate(val, name) {
+    //console.log(refData);
+
+    // Validación estandar docxpresso
+    return true;
+}
 
 function customOnSubmit() {
     var result = true;
@@ -142,7 +267,7 @@ function customOnLoad() {
         console.log(historyObj);
 
         var responseURL = $('#responseURL').val();
-        responseURL += 'cerrar%2F';
+        responseURL += 'cerrar%2F0%2F';
         responseURL += historyObj;
         console.log(responseURL);
 
@@ -194,6 +319,11 @@ function customOnLoad() {
                 responseURL = responseURL.replace(/parcial/g, "");
                 responseURL = responseURL.replace(/enviar/g, "");
                 responseURL += 'parcial';
+                if(window.commentCompulsory){
+                    responseURL += '%2F1';
+                }else{
+                    responseURL += '%2F0';
+                }
                 $('#responseURL').val(responseURL);
                 $('#download').trigger('click');
             }
@@ -213,6 +343,11 @@ function customOnLoad() {
             responseURL = responseURL.replace(/parcial/g, "");
             responseURL = responseURL.replace(/enviar/g, "");
             responseURL += 'enviar';
+            if(window.commentCompulsory){
+                responseURL += '%2F1';
+            }else{
+                responseURL += '%2F0';
+            }
             $('#responseURL').val(responseURL);
             console.log(responseURL);
             $('#download').trigger('click');

@@ -33,6 +33,69 @@ function customOnFullyLoaded() {
     var sessionTime = customData.sessionTime; //in seconds
     var sessionLocation = decodeURIComponent(customData.sessionLocation); //URL rawurlencoded where to redirect the user after session time has expired
 
+
+    /**** ACTIVITY *****/
+
+    //we have to set a timeout to start recording real user activity
+    //because selects are "clicked" on change by default to sync with the corresponding data span
+    setTimeout(registerActivity, 500);
+
+    function registerActivity() {
+        //register clicks
+        var mainDXO = $('#mainDXO');
+        console.log('registering activity');
+        mainDXO.on('click', '*[contenteditable], span[data-name], button, input, select, img[data-image]', function () {
+            window.globalClick = true;
+            window.lastUpdated = Date.now();
+            console.log('click');
+            checkCommentCompulsory($(this));
+
+
+        });
+        mainDXO.on('keypress', '*[contenteditable], note-editable, input, select', function () {
+            window.globalKeypress = true;
+            window.lastUpdated = Date.now();
+            console.log('keypress');
+            checkCommentCompulsory($(this));
+
+        });
+        mainDXO.on('change', 'input, select', function () {
+            //this does not detect all possible changes but it is OK by the time being, isn´t it?
+            window.globalChange = true;
+            window.lastUpdated = Date.now();
+            console.log('change');
+            checkCommentCompulsory($(this));
+
+        });
+    }
+
+    /****** ArrayPreLoad ******/
+    var arrayPreLoad = [];
+    console.log(refData)
+
+    for (var varName in refData) {
+        var value = decodeURI(refData[varName]);
+        // Sólo hacer caso a aquellos que empiecen por u_ y verchk_
+
+        if (varName.indexOf("verchk_") == 0) {
+            //console.log("var name: "+varName+ " valor por defecto: "+value);
+            if (value == varName) {
+                // radio button or checkbox
+                value = "";
+            }
+            if (checkVarValue(varName, value)) {
+                arrayPreLoad[varName] = false;
+            } else {
+                arrayPreLoad[varName] = true;
+            }
+
+        }
+
+    }
+    window.commentCompulsory = false;
+    window.arrayPreLoad = arrayPreLoad;
+    console.log(arrayPreLoad);
+
     /**** SESSION *****/
 
     setInterval(checkSession, 5000);
@@ -49,6 +112,48 @@ function customOnFullyLoaded() {
 
 }
 
+/*
+ * Comprobar si valToCheck está en la variable, el dilema son los checkboxes (estos habría que tratarlos quizás como vacíos.
+ */
+function checkVarValue(name, valToCheck) {
+    var values = [];
+    var resultado = true;
+
+
+    console.log("Voy a revisar el checkbox o radio: " + name);
+    console.log("Valor: " + $('input[data-list="' + name + '"]').is(':checked'));
+    if ($('input[data-list="' + name + '"]').is(':checked')) {
+        resultado = false;
+    } else {
+
+    }
+
+
+    return resultado;
+}
+
+function checkCommentCompulsory(element){
+    var varName = "";
+    if(element.attr('data-name') == undefined){
+        varName = element.attr('data-reference');
+    }else{
+        varName = element.attr('data-name');
+    }
+
+    if(window.arrayPreLoad[varName]){
+//        console.log("valor de preload: "+window.arrayPreLoad[varName]);
+        window.commentCompulsory = true;
+        //console.log("Se ha interactuado con un elemento pre-cargado!!!! El comentario es obligatorio");
+
+        var title = "Se ha interactuado con una variable rellenada anteriormente. ";
+        var message = "<p>Ha interactuado con la variable <strong>"+varName+"</strong>. Se le solicitará un comentario obligatorio al firmar</p>";
+        message += '<p style="text-align: center"></p>';
+
+        launchMessage(title, message);
+    }else{
+        //console.log("valor de preload: "+window.arrayPreLoad[varName]);
+    }
+}
 
 function customOnLoad() {
     $('body').on('click', 'button[id="gskclose"]', function () {
@@ -57,7 +162,7 @@ function customOnLoad() {
         console.log(historyObj);
 
         var responseURL = $('#responseURL').val();
-        responseURL += 'cerrar%2F';
+        responseURL += 'cerrar%2F0%2F';
         responseURL += historyObj;
         console.log(responseURL);
 
@@ -82,19 +187,23 @@ function customOnLoad() {
         console.log("Boton verificar de GSK");
         var auxValuePercentage = $('#percentComp').val();
 
-        if(auxValuePercentage != 100){
+        if (auxValuePercentage != 100) {
             // No se puede realizar una verificación total
             var title = "No puede realizar esta acción porque el documento no está al 100% verificado";
             var message = "<p>El documento está rellenado al <strong>+auxValuePercentage+%</strong> y no se puede realizar una verificación total. </p>";
             launchMessage(title, message);
             return false;
-        }else{
+        } else {
             var responseURL = $('#responseURL').val();
             responseURL += 'verificar';
+            if(window.commentCompulsory){
+                responseURL += '%2F1';
+            }else{
+                responseURL += '%2F0';
+            }
             $('#responseURL').val(responseURL);
             $('#download').trigger('click');
         }
-
 
 
     });
@@ -102,20 +211,24 @@ function customOnLoad() {
         console.log("Boton verificación parcial de GSK");
         var auxValuePercentage = $('#percentComp').val();
 
-        if(auxValuePercentage == 100){
+        if (auxValuePercentage == 100) {
             // No se puede hacer una verificacion parcial
             var title = "No puede realizar esta acción porque el documento está al 100% verificado";
             var message = "<p>El documento está rellenado al <strong>100%</strong> y no se puede guardar una verificación parcial. </p>";
             launchMessage(title, message);
             return false;
 
-        }else{
+        } else {
             var responseURL = $('#responseURL').val();
             responseURL += 'verificarparcial';
+            if(window.commentCompulsory){
+                responseURL += '%2F1';
+            }else{
+                responseURL += '%2F0';
+            }
             $('#responseURL').val(responseURL);
             $('#download').trigger('click');
         }
-
 
 
     });

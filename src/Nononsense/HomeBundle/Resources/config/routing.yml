@@ -79,16 +79,16 @@ nononsense_contrato_crear_registro:
     defaults: { _controller: NononsenseHomeBundle:NuevoRegistro:create, templateid: 0}
 
 nononsense_contrato_registro_completado:
-    path: /registrocompletado/{stepid}
-    defaults: { _controller: NononsenseHomeBundle:RegistroConcreto:registroCompletado, stepid: 0}
+    path: /registrocompletado/{stepid}/{comment}
+    defaults: { _controller: NononsenseHomeBundle:RegistroConcreto:registroCompletado, stepid: 0, comment: 0}
 
 nononsense_contrato_control_elaboracion:
-    path: /control_elaboracion/{stepid}/{action}/{urlaux}
-    defaults: { _controller: NononsenseHomeBundle:RegistroConcreto:controlElaboracion, stepid: 0, action: 0,urlaux: 0}
+    path: /control_elaboracion/{stepid}/{action}/{comment}/{urlaux}
+    defaults: { _controller: NononsenseHomeBundle:RegistroConcreto:controlElaboracion, stepid: 0, action: 0,comment: 0,urlaux: 0}
 
 nononsense_contrato_control_validacion:
-    path: /control_validacion/{stepid}/{action}/{urlaux}
-    defaults: { _controller: NononsenseHomeBundle:RegistroConcreto:controlValidacion, stepid: 0, action: 0, urlaux: 0}
+    path: /control_validacion/{stepid}/{action}/{comment}/{urlaux}
+    defaults: { _controller: NononsenseHomeBundle:RegistroConcreto:controlValidacion, stepid: 0, action: 0, comment: 0, urlaux: 0}
 
 nononsense_registro_concreto_link:
     path:     /registro_link/{stepid}/{form}/{revisionid}/{logbook}
@@ -147,12 +147,12 @@ nononsense_registro_cancelar:
     defaults: { _controller: NononsenseHomeBundle:RegistroValidation:cancelarInterface, stepid: 0 }
 
 nononsense_registro_verificar:
-    path:     /registro_verificar_firma/{stepid}
-    defaults: { _controller: NononsenseHomeBundle:RegistroValidation:verificarInterface, stepid: 0 }
+    path:     /registro_verificar_firma/{stepid}/{comment}
+    defaults: { _controller: NononsenseHomeBundle:RegistroValidation:verificarInterface, stepid: 0, comment: 0 }
 
 nononsense_registro_verificar_parcial:
-    path:     /registro_verificar_parcial_firma/{stepid}
-    defaults: { _controller: NononsenseHomeBundle:RegistroValidation:verificarParcialInterface, stepid: 0 }
+    path:     /registro_verificar_parcial_firma/{stepid}/{comment}
+    defaults: { _controller: NononsenseHomeBundle:RegistroValidation:verificarParcialInterface, stepid: 0, comment: 0}
 
 nononsense_registro_cancelar_verficiacion:
     path:     /registro_verificar_cancelar/{stepid}
