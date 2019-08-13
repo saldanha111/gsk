@@ -56,7 +56,7 @@ class RegistroConcretoController extends Controller
         if ($this->_checkModifyVariables($step)) {
             $devolucion = 1;
         }
-        if($comment == 1){
+        if ($comment == 1) {
             $devolucion = 1;
         }
 
@@ -70,11 +70,47 @@ class RegistroConcretoController extends Controller
         ));
     }
 
-    public function linkAction($stepid, $form, $revisionid,$logbook)
+    public function verStepAction($stepid)
+    {
+        //$dataResponse = new \stdClass();
+        //$dataResponse->workflow_id = $registroid;
+
+
+        $firststep = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:InstanciasSteps')
+            ->find($stepid);
+
+        $options = array();
+
+        $options['template'] = $firststep->getMasterStep()->getPlantillaId();
+        $options['token'] = $firststep->getToken();
+
+        $url_edit_documento = $this->get('app.sdk')->viewDocument($options);
+        return $this->redirect($url_edit_documento);
+    }
+
+    public function linkAction($stepid, $form, $revisionid, $logbook)
     {
         $step = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:InstanciasSteps')
             ->find($stepid);
+
+        $registro = $step->getInstanciaWorkflow();
+        if ($step->getStatusId() == 2) {
+            // ya validado
+
+            $route = $this->container->get('router')->generate('nononsense_ver_step', array("stepid" => $stepid));
+            return $this->redirect($route);
+            /*
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                'No puede ver este registro aquí porque ya ha sido validado'
+            );
+            $route = $this->container->get('router')->generate('nononsense_registro_enproceso');
+            return $this->redirect($route);
+            */
+
+        }
 
         $baseUrl = $this->getParameter("cm_installation");
 
@@ -99,7 +135,7 @@ class RegistroConcretoController extends Controller
         $customObject->sessionTime = '1200'; // In seconds
         $customObject->sessionLocation = 'http://gsk.docxpresso.org/';// Dónde redirigir para el logout
 
-        $registro = $step->getInstanciaWorkflow();
+
         /*
          * Saber si hay algún precreation
          */
@@ -109,27 +145,39 @@ class RegistroConcretoController extends Controller
         }
         $options['custom'] = json_encode($customObject);
 
-        if ($registro->getStatus() == 4 || $registro->getStatus() == 5) {
-            // Abrir para validar
-            $options['responseURL'] = $baseUrl . "control_validacion/" . $stepid . "/";
-            $options['prefix'] = 'verchk';
+        if ($step->getMasterStep()->getChecklist() == 1) {
 
-            $versionJS = filemtime(__DIR__ . "/../../../../web/js/js_templates/validacion.js");
-            $validacionURL1 = $baseUrl . "js/js_templates/validacion.js?v=" . $versionJS;
-
-        } else if ($registro->getStatus() == -1 ||
-            $registro->getStatus() == 0) {
-            // abrir para editar
             $versionJS = filemtime(__DIR__ . "/../../../../web/js/js_templates/activity.js");
             $validacionURL1 = $baseUrl . "js/js_templates/activity.js?v=" . $versionJS;
 
             $options['prefix'] = 'u';
-            $options['responseURL'] = $baseUrl . "control_elaboracion/" . $stepid . "/";
+            $options['responseURL'] = $baseUrl . "control_check_list/" . $stepid . "/";
 
 
         } else {
-            // No abrir para editar ... usar el método show
+            if ($registro->getStatus() == 4 || $registro->getStatus() == 5) {
+                // Abrir para validar
+                $options['responseURL'] = $baseUrl . "control_validacion/" . $stepid . "/";
+                $options['prefix'] = 'verchk';
+
+                $versionJS = filemtime(__DIR__ . "/../../../../web/js/js_templates/validacion.js");
+                $validacionURL1 = $baseUrl . "js/js_templates/validacion.js?v=" . $versionJS;
+
+            } else if ($registro->getStatus() == -1 ||
+                $registro->getStatus() == 0) {
+                // abrir para editar
+                $versionJS = filemtime(__DIR__ . "/../../../../web/js/js_templates/activity.js");
+                $validacionURL1 = $baseUrl . "js/js_templates/activity.js?v=" . $versionJS;
+
+                $options['prefix'] = 'u';
+                $options['responseURL'] = $baseUrl . "control_elaboracion/" . $stepid . "/";
+
+
+            } else {
+                // No abrir para editar ... usar el método show
+            }
         }
+
 
         /*
          * Caso especial de firma FLL
@@ -148,7 +196,7 @@ class RegistroConcretoController extends Controller
 
         $options['requestExternalJS'] = $validacionURL1;
         $url_resp_data_uri = $baseUrl . 'data/get_data_from_document/' . $stepid;
-        $url_requesetData = $baseUrl . 'data/requestData/' . $step->getId().'/'.$logbook;
+        $url_requesetData = $baseUrl . 'data/requestData/' . $step->getId() . '/' . $logbook;
 
         $options['responseDataURI'] = $url_resp_data_uri;
         $options['requestDataURI'] = $url_requesetData;
@@ -185,7 +233,10 @@ class RegistroConcretoController extends Controller
         $em = $this->getDoctrine()->getManager();
 
         $registro = $step->getInstanciaWorkflow();
-        $registro->setStatus(0);
+
+        if ($step->getMasterStep()->getChecklist() == 0) {
+            $registro->setStatus(0);
+        }
 
         $em->persist($registro);
         $em->flush();
@@ -396,7 +447,7 @@ class RegistroConcretoController extends Controller
         $grupoVerificacion = $registro->getMasterWorkflowEntity()->getGrupoVerificacion();
         $userGroupVerificacion = $grupoVerificacion->getUsers();
 
-        if(count($userGroupVerificacion) == 1){
+        if (count($userGroupVerificacion) == 1) {
             // Enviar notificación al único usuario del grupo
 
             $groupUsers = $userGroupVerificacion[0];
@@ -410,13 +461,100 @@ class RegistroConcretoController extends Controller
             $subject = 'Tiene un registro pendiente de verificar';
             $message = 'Tiene pendiente el siguiente registro: ' . $registro->getId() . ' pendiente de verificar';
 
-            $this->_sendNotification($mailTo,$link,$logo,$accion,$subject,$message);
+            $this->_sendNotification($mailTo, $link, $logo, $accion, $subject, $message);
         }
 
         return $this->render('NononsenseHomeBundle:Contratos:registro_guardadoenviado.html.twig', array(
             "documentName" => $documentName,
         ));
 
+    }
+
+    public function controlCheckListAction($stepid, $action, $comment, $urlaux)
+    {
+        /*
+                * cerrar
+                * cancelar
+                * parcial
+                * enviar
+                */
+        $em = $this->getDoctrine()->getManager();
+
+        $step = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:InstanciasSteps')
+            ->find($stepid);
+
+        $registro = $step->getInstanciaWorkflow();
+        $registro->setInEdition(0);
+
+        if ($action == 'cancelar') {
+            $registro->setStatus(3);
+            $route = $this->container->get('router')->generate('nononsense_registro_cancelar', array('stepid' => $stepid));
+
+        } elseif ($action == 'parcial') {
+            //$registro->setStatus(1);
+
+            $route = $this->container->get('router')->generate('nononsense_contrato_registro_completado', array('stepid' => $stepid, 'comment' => $comment));
+
+        } elseif ($action == 'enviar') {
+            /*
+             * Para llegar a este punto REAL el usuario debe haber verificado el ES-MA. Si no lo ha hecho mostrar un mensaje de error
+             */
+            $stepList = $this->getDoctrine()
+                ->getRepository('NononsenseHomeBundle:InstanciasSteps')
+                ->findBy(array("workflow_id" => $registro->getId()));
+
+            $esmavalidado = false;
+
+            foreach ($stepList as $oneStep) {
+                if ($oneStep->getMasterStep()->getChecklist() == 0) {
+                    // El ES-MA debe estar validado
+                    if ($oneStep->getStatusId() == 2) {
+                        $esmavalidado = true;
+                    }
+                }
+            }
+
+            if ($esmavalidado) {
+                $step->setStatusId(2); // verificado
+                $route = $this->container->get('router')->generate('nononsense_registro_verificar', array('stepid' => $stepid, 'comment' => $comment));
+            } else {
+                $route = $this->container->get('router')->generate('nononsense_esma_no_validado', array('workflowid' => $registro->getId()));
+            }
+
+
+        } else if ($action == 'cerrar') {
+
+            $route = base64_decode($urlaux);
+
+
+        } else {
+            // Error... go inbox
+            echo 'No deberías haber llegado aquí. Error desconocido';
+            var_dump($action);
+            exit;
+
+        }
+
+        $em->persist($step);
+        $em->persist($registro);
+        $em->flush();
+
+        return $this->redirect($route);
+    }
+
+    public function ESMANoValidadoAction($workflowid)
+    {
+
+        $registro = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
+            ->find($workflowid);
+
+        $documentName = $registro->getMasterWorkflowEntity()->getName();
+
+        return $this->render('NononsenseHomeBundle:Contratos:registro_esma_no_validado.html.twig', array(
+            "documentName" => $documentName
+        ));
     }
 
     public function controlElaboracionAction($stepid, $action, $comment, $urlaux)
@@ -444,11 +582,11 @@ class RegistroConcretoController extends Controller
         } elseif ($action == 'parcial') {
             $registro->setStatus(1);
 
-            $route = $this->container->get('router')->generate('nononsense_contrato_registro_completado', array('stepid' => $stepid,'comment'=>$comment));
+            $route = $this->container->get('router')->generate('nononsense_contrato_registro_completado', array('stepid' => $stepid, 'comment' => $comment));
 
         } elseif ($action == 'enviar') {
             $registro->setStatus(2);
-            $route = $this->container->get('router')->generate('nononsense_contrato_registro_completado', array('stepid' => $stepid, 'comment'=>$comment));
+            $route = $this->container->get('router')->generate('nononsense_contrato_registro_completado', array('stepid' => $stepid, 'comment' => $comment));
 
         } else if ($action == 'cerrar') {
 
@@ -487,8 +625,9 @@ class RegistroConcretoController extends Controller
             $route = $this->container->get('router')->generate('nononsense_registro_cancelar_verficiacion', array('stepid' => $stepid));
 
         } elseif ($action == 'verificar') {
+            $step->setStatusId(2); // verificado
             $registro->setStatus(7);
-            $route = $this->container->get('router')->generate('nononsense_registro_verificar', array('stepid' => $stepid,'comment'=>$comment));
+            $route = $this->container->get('router')->generate('nononsense_registro_verificar', array('stepid' => $stepid, 'comment' => $comment));
 
 
         } elseif ($action == 'devolver') {
@@ -503,7 +642,7 @@ class RegistroConcretoController extends Controller
 
         } else if ($action == 'verificarparcial') {
             $registro->setStatus(15);
-            $route = $this->container->get('router')->generate('nononsense_registro_verificar_parcial', array('stepid' => $stepid,'comment'=>$comment));
+            $route = $this->container->get('router')->generate('nononsense_registro_verificar_parcial', array('stepid' => $stepid, 'comment' => $comment));
 
         } else {
             // Error... go inbox
@@ -512,6 +651,10 @@ class RegistroConcretoController extends Controller
             exit;
 
         }
+
+        $em->persist($step);
+        $em->persist($registro);
+        $em->flush();
 
         return $this->redirect($route);
     }

@@ -86,6 +86,10 @@ nononsense_contrato_control_elaboracion:
     path: /control_elaboracion/{stepid}/{action}/{comment}/{urlaux}
     defaults: { _controller: NononsenseHomeBundle:RegistroConcreto:controlElaboracion, stepid: 0, action: 0,comment: 0,urlaux: 0}
 
+nononsense_contrato_control_check_list:
+    path: /control_check_list/{stepid}/{action}/{comment}/{urlaux}
+    defaults: { _controller: NononsenseHomeBundle:RegistroConcreto:controlCheckList, stepid: 0, action: 0,comment: 0,urlaux: 0}
+
 nononsense_contrato_control_validacion:
     path: /control_validacion/{stepid}/{action}/{comment}/{urlaux}
     defaults: { _controller: NononsenseHomeBundle:RegistroConcreto:controlValidacion, stepid: 0, action: 0, comment: 0, urlaux: 0}
@@ -121,6 +125,10 @@ nononsense_registro_devolucion:
 nononsense_ver_registro:
     path:     /registro_ver/{revisionid}
     defaults: { _controller: NononsenseHomeBundle:RegistroValidation:ver, revisionid: 0 }
+
+nononsense_ver_checklist:
+    path:     /registro_verchecklist/{revisionid}
+    defaults: { _controller: NononsenseHomeBundle:RegistroValidation:verChecklist, revisionid: 0 }
 
 nononsense_registro_cancelar_interface:
     path:     /registro_cancelar_interface/{revisionid}
@@ -204,6 +212,11 @@ nononsense_precreation_equipo_qr_save:
 nononsense_precreation_equipo_pesa_qr_save:
     path:     /precreation_equipo_pesa_qr_save/{registroid}
     defaults: { _controller: NononsenseHomeBundle:NuevoRegistro:equipoPesaQRSave, registroid: 0 }
+
+
+nononsense_ver_step:
+    path:     /ver_step/{stepid}
+    defaults: { _controller: NononsenseHomeBundle:RegistroConcreto:verStep, stepid: 0 }
 
 nononsense_archivo_ver:
     path:     /archivo_ver/{registroid}
@@ -295,6 +308,9 @@ nononsense_records_return_data:
     path:     /dataRecords/returnData/{id}
     defaults: { _controller: NononsenseHomeBundle:Records:returnData, id: 0}
 
+nononsense_esma_no_validado:
+    path:     /nononsense_esma_no_validado/{workflowid}
+    defaults: { _controller: NononsenseHomeBundle:RegistroConcreto:ESMANoValidado, workflowid: 0}
 
 
 

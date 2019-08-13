@@ -490,7 +490,9 @@
                         {% else %}
                         <td class="pdte">{{plantilla.status}}</td>
                         {% endif %}
-                        <td>Checklist</td>
+                        <td><a class="btn btn-xs btn-primary" name="verregistro"
+                               href="{{path('nononsense_ver_checklist', {'revisionid': plantilla.registroid})}}"
+                               target="_self">{{'Ver checklist'|trans}}</a></td>
                     </tr>
                     {% endif %}
                     {% endfor %}

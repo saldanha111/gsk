@@ -231,10 +231,46 @@ class RegistroValidationController extends Controller
 
         $route = $this->container->get('router')->generate('nononsense_registro_concreto_link', array("stepid" => $firstStep->getId(), "form" => 0, "revisionid" => $revisionid));
         return $this->redirect($route);
+    }
 
+    public function verChecklistAction($revisionid){
+        /*
+         * Usar link pero modificado para que no se pueda modificar nada y con un "functions" diferente.
+         * Cómo es el checklist debería abrirse incluso con un "functions" diferente sólo con las opciones de:
+         * cerrar, guardar, guardar y enviar.
+         */
+
+        $registro = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
+            ->find($revisionid);
+
+        $stepsList = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:InstanciasSteps')
+            ->findBy(array("workflow_id" => $registro->getId()));
+
+        $stepCheckList = null;
+
+        foreach ($stepsList as $oneStep){
+            if($oneStep->getMasterStep()->getChecklist() == 1){
+                $stepCheckList = $oneStep;
+            }
+        }
+
+        if($stepCheckList != null){
+            $route = $this->container->get('router')->generate('nononsense_registro_concreto_link', array("stepid" => $stepCheckList->getId(), "form" => 0, "revisionid" => $revisionid));
+            return $this->redirect($route);
+        }else{
+            echo 'Se ha producido un error inesperado';
+            exit;
+        }
 
     }
 
+    /*
+     * Creo que este método no se usa, debería borrarle
+     * Le dejo comentado para saber si debo borrarlo o no
+     */
+    /*
     public function validarOkAction($stepid)
     {
         $em = $this->getDoctrine()->getManager();
@@ -243,8 +279,14 @@ class RegistroValidationController extends Controller
             ->getRepository('NononsenseHomeBundle:InstanciasSteps')
             ->find($stepid);
 
+        /*
+         * Si tiene una checklist, no se debería marcar cómo válido el registro. Aún.
+         *
         $registro = $step->getInstanciaWorkflow();
-        $registro->setStatus(9); // Estado archivado.
+        if($registro->getMasterWorkflowEntity()->getChecklist() == 0){
+            $registro->setStatus(9); // Estado archivado.
+        }
+
 /*
         $evidencia = new EvidenciasStep();
         $evidencia->setStepEntity($step);
@@ -254,7 +296,7 @@ class RegistroValidationController extends Controller
 */
         /*
          * Desbloquear en caso de que este registro generase bloqueo
-         */
+         *
 
         $bloqueo = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:BloqueoMasterWorkflow')
@@ -271,6 +313,7 @@ class RegistroValidationController extends Controller
 
         return $this->render('NononsenseHomeBundle:Contratos:registro_validado.html.twig', array());
     }
+*/
 
     public function devolverInterfaceAction($revisionid)
     {
@@ -504,7 +547,7 @@ class RegistroValidationController extends Controller
 
         $pendingStep = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:InstanciasSteps')
-            ->findOneBy(array("workflow_id" => $registro->getId(), "status_id" => array(1, 3, 0)));
+            ->findOneBy(array("workflow_id" => $registro->getId(), "status_id" => array(1, 3, 0),"dependsOn"=> 0));
 /*
         if ($pendingStep->getStatusId() == 0) {
 
@@ -585,6 +628,7 @@ class RegistroValidationController extends Controller
 
         $documentName = $step->getMasterStep()->getName();
 
+
         return $this->render('NononsenseHomeBundle:Contratos:registro_verificar_ok_interface.html.twig', array(
             "documentName" => $documentName,
             "stepid" => $stepid,
@@ -626,7 +670,17 @@ class RegistroValidationController extends Controller
         $documentName = $step->getMasterStep()->getName();
 
         $registro = $step->getInstanciaWorkflow();
-        $registro->setStatus(9);
+        if($registro->getMasterWorkflowEntity()->getChecklist() == 0){
+                        $registro->setStatus(9); // Estado archivado.
+
+        }else{
+            if($step->getMasterStep()->getChecklist() == 1){
+                // Yo soy la checklist
+                $registro->setStatus(9); // Estado archivado.
+            }else{
+                $registro->setStatus(4); // Sigue en estado en validación
+            }
+        }
 
         //$step->setStatusId(4);
 
