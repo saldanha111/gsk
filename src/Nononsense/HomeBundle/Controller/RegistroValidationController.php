@@ -74,7 +74,7 @@ class RegistroValidationController extends Controller
 
             $documentosInProcessParcial = $this->getDoctrine()
                 ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
-                ->listProcessParcial($page,$max,$idregistro, $idcodigomaterial, $idlote, $idcodigoequipo,$idworkordersap, $idcodigodocumento );
+                ->listProcessParcial($page, $max, $idregistro, $idcodigomaterial, $idlote, $idcodigoequipo, $idworkordersap, $idcodigodocumento);
 
 
         } else {
@@ -104,14 +104,14 @@ class RegistroValidationController extends Controller
                 $element['comentarios'] = "";
             }
 
-            if($element['checklist'] == 1){
+            if ($element['checklist'] == 1) {
                 $masterStepCheckList = $this->getDoctrine()
                     ->getRepository('NononsenseHomeBundle:MasterSteps')
-                    ->findOneBy(array('workflow_id'=>$element['masterworkflowid'],'checklist'=>1));
+                    ->findOneBy(array('workflow_id' => $element['masterworkflowid'], 'checklist' => 1));
 
                 $element['checklistName'] = $masterStepCheckList->getName();
 
-            }else{
+            } else {
                 $element['checklistName'] = '';
             }
         }
@@ -143,22 +143,22 @@ class RegistroValidationController extends Controller
             'count' => max(ceil(sizeof($documentosInProcessParcial) / 10), 1),
             'results' => sizeof($documentosInProcessParcial)
         );
-        if($idregistro == "-1"){
+        if ($idregistro == "-1") {
             $idregistro = "";
         }
-        if($idcodigomaterial == "-1"){
+        if ($idcodigomaterial == "-1") {
             $idcodigomaterial = "";
         }
-        if($idlote== "-1"){
+        if ($idlote == "-1") {
             $idlote = "";
         }
-        if($idcodigoequipo == "-1"){
+        if ($idcodigoequipo == "-1") {
             $idcodigoequipo = "";
         }
-        if($idworkordersap == "-1"){
+        if ($idworkordersap == "-1") {
             $idworkordersap = "";
         }
-        if($idcodigodocumento == "-1"){
+        if ($idcodigodocumento == "-1") {
             $idcodigodocumento = "";
         }
 
@@ -233,7 +233,8 @@ class RegistroValidationController extends Controller
         return $this->redirect($route);
     }
 
-    public function verChecklistAction($revisionid){
+    public function verChecklistAction($revisionid)
+    {
         /*
          * Usar link pero modificado para que no se pueda modificar nada y con un "functions" diferente.
          * Cómo es el checklist debería abrirse incluso con un "functions" diferente sólo con las opciones de:
@@ -250,16 +251,16 @@ class RegistroValidationController extends Controller
 
         $stepCheckList = null;
 
-        foreach ($stepsList as $oneStep){
-            if($oneStep->getMasterStep()->getChecklist() == 1){
+        foreach ($stepsList as $oneStep) {
+            if ($oneStep->getMasterStep()->getChecklist() == 1) {
                 $stepCheckList = $oneStep;
             }
         }
 
-        if($stepCheckList != null){
+        if ($stepCheckList != null) {
             $route = $this->container->get('router')->generate('nononsense_registro_concreto_link', array("stepid" => $stepCheckList->getId(), "form" => 0, "revisionid" => $revisionid));
             return $this->redirect($route);
-        }else{
+        } else {
             echo 'Se ha producido un error inesperado';
             exit;
         }
@@ -294,25 +295,25 @@ class RegistroValidationController extends Controller
         $evidencia->setUserEntiy($registro->getUserCreatedEntiy());
         $evidencia->setToken($step->getToken());
 */
-        /*
-         * Desbloquear en caso de que este registro generase bloqueo
-         *
+    /*
+     * Desbloquear en caso de que este registro generase bloqueo
+     *
 
-        $bloqueo = $this->getDoctrine()
-            ->getRepository('NononsenseHomeBundle:BloqueoMasterWorkflow')
-            ->findOneBy(array("master_workflow_id" => $registro->getMasterWorkflowEntity()->getId(), "status" => 0, "registro_id" => $registro->getId()));
+    $bloqueo = $this->getDoctrine()
+        ->getRepository('NononsenseHomeBundle:BloqueoMasterWorkflow')
+        ->findOneBy(array("master_workflow_id" => $registro->getMasterWorkflowEntity()->getId(), "status" => 0, "registro_id" => $registro->getId()));
 
-        if ($bloqueo != null) {
-            $bloqueo->setStatus(1);
-            $em->persist($bloqueo);
-        }
-
-
-        //$em->persist($evidencia);
-        $em->flush();
-
-        return $this->render('NononsenseHomeBundle:Contratos:registro_validado.html.twig', array());
+    if ($bloqueo != null) {
+        $bloqueo->setStatus(1);
+        $em->persist($bloqueo);
     }
+
+
+    //$em->persist($evidencia);
+    $em->flush();
+
+    return $this->render('NononsenseHomeBundle:Contratos:registro_validado.html.twig', array());
+}
 */
 
     public function devolverInterfaceAction($revisionid)
@@ -337,7 +338,7 @@ class RegistroValidationController extends Controller
             ->getRepository('NononsenseHomeBundle:InstanciasSteps')
             ->findOneBy(array("workflow_id" => $registro->getId(), "dependsOn" => 0));
 
-  //      $firstStep->setStatusId(4); // Devolver
+        //      $firstStep->setStatusId(4); // Devolver
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($firstStep);
@@ -385,14 +386,14 @@ class RegistroValidationController extends Controller
         $step = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:InstanciasSteps')
             ->findOneBy(array("workflow_id" => $registro->getId(), "dependsOn" => 0));
-/*
-        $evidencia = new EvidenciasStep();
-        $evidencia->setStepEntity($step);
-        $evidencia->setStatus(3);
-        $evidencia->setUserEntiy($registro->getUserCreatedEntiy());
-        $evidencia->setToken($step->getToken());
-*/
-  //      $em->persist($evidencia);
+        /*
+                $evidencia = new EvidenciasStep();
+                $evidencia->setStepEntity($step);
+                $evidencia->setStatus(3);
+                $evidencia->setUserEntiy($registro->getUserCreatedEntiy());
+                $evidencia->setToken($step->getToken());
+        */
+        //      $em->persist($evidencia);
         $em->flush();
 
         $route = $this->container->get('router')->generate('nononsense_home_homepage');
@@ -514,13 +515,13 @@ class RegistroValidationController extends Controller
         $step = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:InstanciasSteps')
             ->findOneBy(array("workflow_id" => $registro->getId(), "dependsOn" => 0));
-/*
-        $evidencia = new EvidenciasStep();
-        $evidencia->setStepEntity($step);
-        $evidencia->setStatus(6);
-        $evidencia->setUserEntiy($registro->getUserCreatedEntiy());
-        $evidencia->setToken($step->getToken());
-*/
+        /*
+                $evidencia = new EvidenciasStep();
+                $evidencia->setStepEntity($step);
+                $evidencia->setStatus(6);
+                $evidencia->setUserEntiy($registro->getUserCreatedEntiy());
+                $evidencia->setToken($step->getToken());
+        */
 //        $em->persist($evidencia);
         $em->flush();
 
@@ -535,7 +536,7 @@ class RegistroValidationController extends Controller
          * Asignar el estado 3. Temporal. Pero si no se ha abierto nunca (estado 0) no poner en 3.
          * Abrir con link como siempre
          */
-        if($registroid == 0){
+        if ($registroid == 0) {
             $logbook = $request->query->get('logbook');
             $registroid = $request->query->get('registroidForm');
         }
@@ -547,20 +548,20 @@ class RegistroValidationController extends Controller
 
         $pendingStep = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:InstanciasSteps')
-            ->findOneBy(array("workflow_id" => $registro->getId(), "status_id" => array(1, 3, 0),"dependsOn"=> 0));
-/*
-        if ($pendingStep->getStatusId() == 0) {
+            ->findOneBy(array("workflow_id" => $registro->getId(), "status_id" => array(1, 3, 0), "dependsOn" => 0));
+        /*
+                if ($pendingStep->getStatusId() == 0) {
 
-        } else {
-            $pendingStep->setStatusId(3);
-        }
-*/
+                } else {
+                    $pendingStep->setStatusId(3);
+                }
+        */
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($pendingStep);
         $em->flush();
 
-        $route = $this->container->get('router')->generate('nononsense_registro_concreto_link', array("stepid" => $pendingStep->getId(), "form" => 0,"revisionid"=> 0, "logbook" => $logbook));
+        $route = $this->container->get('router')->generate('nononsense_registro_concreto_link', array("stepid" => $pendingStep->getId(), "form" => 0, "revisionid" => 0, "logbook" => $logbook));
         return $this->redirect($route);
     }
 
@@ -582,7 +583,8 @@ class RegistroValidationController extends Controller
         ));
     }
 
-    public function devolverEdicionInterfaceAction($stepid){
+    public function devolverEdicionInterfaceAction($stepid)
+    {
         /*
          * Interfaz de verificacion
          */
@@ -598,7 +600,8 @@ class RegistroValidationController extends Controller
         ));
     }
 
-    public function cancelarVerificarInterfaceAction($stepid){
+    public function cancelarVerificarInterfaceAction($stepid)
+    {
         /*
          * Interfaz de verificacion
          */
@@ -615,8 +618,7 @@ class RegistroValidationController extends Controller
     }
 
 
-
-    public function verificarInterfaceAction($stepid,$comment)
+    public function verificarInterfaceAction($stepid, $comment)
     {
 
         /*
@@ -636,7 +638,7 @@ class RegistroValidationController extends Controller
         ));
     }
 
-    public function verificarParcialInterfaceAction($stepid,$comment)
+    public function verificarParcialInterfaceAction($stepid, $comment)
     {
 
         /*
@@ -670,14 +672,14 @@ class RegistroValidationController extends Controller
         $documentName = $step->getMasterStep()->getName();
 
         $registro = $step->getInstanciaWorkflow();
-        if($registro->getMasterWorkflowEntity()->getChecklist() == 0){
-                        $registro->setStatus(9); // Estado archivado.
+        if ($registro->getMasterWorkflowEntity()->getChecklist() == 0) {
+            $registro->setStatus(9); // Estado archivado.
 
-        }else{
-            if($step->getMasterStep()->getChecklist() == 1){
+        } else {
+            if ($step->getMasterStep()->getChecklist() == 1) {
                 // Yo soy la checklist
                 $registro->setStatus(9); // Estado archivado.
-            }else{
+            } else {
                 $registro->setStatus(4); // Sigue en estado en validación
             }
         }
@@ -706,7 +708,7 @@ class RegistroValidationController extends Controller
             ->getRepository('NononsenseHomeBundle:FirmasStep')
             ->findBy(array("step_id" => $step->getId()));
 
-        $counter = count($firmas)+1;
+        $counter = count($firmas) + 1;
 
         $firma = new FirmasStep();
         $firma->setAccion("Verificación positiva: " . $comentario);
@@ -769,7 +771,7 @@ class RegistroValidationController extends Controller
             ->getRepository('NononsenseHomeBundle:FirmasStep')
             ->findBy(array("step_id" => $step->getId()));
 
-        $counter = count($firmas)+1;
+        $counter = count($firmas) + 1;
 
         $firma = new FirmasStep();
         $firma->setAccion("Verificación parcial: " . $comentario);
@@ -806,7 +808,7 @@ class RegistroValidationController extends Controller
         $documentName = $step->getMasterStep()->getName();
 
         $registro = $step->getInstanciaWorkflow();
-        $registro->setStatus(8);
+        $registro->setStatus(14);
 
         //$step->setStatusId(4);
 
@@ -832,7 +834,7 @@ class RegistroValidationController extends Controller
             ->getRepository('NononsenseHomeBundle:FirmasStep')
             ->findBy(array("step_id" => $step->getId()));
 
-        $counter = count($firmas)+1;
+        $counter = count($firmas) + 1;
 
         $firma = new FirmasStep();
         $firma->setAccion("Verificación negativa: " . $comentario);
@@ -894,7 +896,7 @@ class RegistroValidationController extends Controller
             ->getRepository('NononsenseHomeBundle:FirmasStep')
             ->findBy(array("step_id" => $step->getId()));
 
-        $counter = count($firmas)+1;
+        $counter = count($firmas) + 1;
 
         $firma = new FirmasStep();
         $firma->setAccion("Devuelto para edición: " . $comentario);
@@ -918,10 +920,10 @@ class RegistroValidationController extends Controller
         $logo = "";
         $accion = "devolverEdicion";
         $subject = "Registro devuelto para edición";
-        $message = "El registro con Id: ". $registro->getId() . " ha sido devuelto para edición, por favor revíselo o notifique a otro usuario para que revise dicha cumplimentación";
+        $message = "El registro con Id: " . $registro->getId() . " ha sido devuelto para edición, por favor revíselo o notifique a otro usuario para que revise dicha cumplimentación";
 
 
-        $this->_sendNotification($emailTo,$linkToEnProcess,$logo,$accion, $subject,$message);
+        $this->_sendNotification($emailTo, $linkToEnProcess, $logo, $accion, $subject, $message);
 
 
         $route = $this->container->get('router')->generate('nononsense_registro_enproceso');
@@ -930,17 +932,18 @@ class RegistroValidationController extends Controller
 
     }
 
-    public function notificacionSemanalPendienteVerificarAction(){
+    public function notificacionSemanalPendienteVerificarAction()
+    {
 
         $documents = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
             ->findBy(array("status" => 4));
 
         $arrayIdPendientes = array();
-        foreach ($documents as $oneDocument){
+        foreach ($documents as $oneDocument) {
             $arrayIdPendientes[] = $oneDocument->getId();
         }
-        $idPendientesString = implode(",",$arrayIdPendientes);
+        $idPendientesString = implode(",", $arrayIdPendientes);
 
         /*
          * En producción habría que hacerlo por areas ahora sólo va a haber un grupo
@@ -957,7 +960,7 @@ class RegistroValidationController extends Controller
         }
 
         $subject = "Documento pendiente de verificar";
-        $mensaje = "Los siguientes registros: ".$idPendientesString. " están pendientes de verificar en el sistema";
+        $mensaje = "Los siguientes registros: " . $idPendientesString . " están pendientes de verificar en el sistema";
         $arrayEnviosHechos = array();
 
         $baseUrl = $this->getParameter("cm_installation");
@@ -977,6 +980,182 @@ class RegistroValidationController extends Controller
         $responseAction->setContent("OK");
         return $responseAction;
 
+    }
+
+    /*
+     * Muestra la interfaz de firma para una rechazar una cancelación
+     */
+    public function rechazarCancelacionFirmaAction($stepid)
+    {
+        $step = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:InstanciasSteps')
+            ->find($stepid);
+
+        $documentName = $step->getMasterStep()->getName();
+
+        return $this->render('NononsenseHomeBundle:Contratos:registro_rechazar_cancelacion_firma.html.twig', array(
+            "documentName" => $documentName,
+            "stepid" => $stepid
+        ));
+
+    }
+
+    /*
+     * Interfaz de cancelacion rechazada y método que registra firma y datos
+     */
+    public function cancelacionRechazadaAction($stepid, Request $request)
+    {
+
+        $user = $this->container->get('security.context')->getToken()->getUser();
+
+        $step = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:InstanciasSteps')
+            ->find($stepid);
+
+        $comentario = $request->query->get('comment');
+        $firmaImagen = $request->query->get('firma');
+
+        $documentName = $step->getMasterStep()->getName();
+
+        $registro = $step->getInstanciaWorkflow();
+
+        if ($registro->getStatus() == 5) {
+            $registro->setStatus(0);
+
+        } elseif ($registro->getStatus() == 14) {
+            $registro->setStatus(4);
+
+        }
+
+
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($step);
+        $em->persist($registro);
+        $em->flush();
+
+        /*
+         * Guardar evidencia de cabcekacuib rechazada
+         */
+        $evidencia = new EvidenciasStep();
+        $evidencia->setStepEntity($step);
+        $evidencia->setStatus(1);
+        $evidencia->setUserEntiy($registro->getUserCreatedEntiy());
+        $evidencia->setToken($step->getToken());
+        $evidencia->setStepDataValue($step->getStepDataValue());
+
+        /*
+         * Guardar firma
+         */
+        $firmas = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:FirmasStep')
+            ->findBy(array("step_id" => $step->getId()));
+
+        $counter = count($firmas) + 1;
+
+        $firma = new FirmasStep();
+        $firma->setAccion("Rechazada la cancelación: " . $comentario);
+        $firma->setStepEntity($step);
+        $firma->setUserEntiy($user);
+        $firma->setFirma($firmaImagen);
+        $firma->setNumber($counter);
+
+        $evidencia->setFirmaEntity($firma);
+
+        $em->persist($firma);
+        $em->persist($evidencia);
+        $em->flush();
+
+        return $this->render('NononsenseHomeBundle:Contratos:registro_cancelacion_rechazada.html.twig', array(
+            "documentName" => $documentName,
+            "stepid" => $stepid
+        ));
+
+    }
+
+    /*
+     * Muestra la interfaz de firma para aprobar una cancelación
+     */
+    public function aprobarCancelacionFirmaAction($stepid)
+    {
+        $step = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:InstanciasSteps')
+            ->find($stepid);
+
+        $documentName = $step->getMasterStep()->getName();
+
+        return $this->render('NononsenseHomeBundle:Contratos:registro_aprobar_cancelacion_firma.html.twig', array(
+            "documentName" => $documentName,
+            "stepid" => $stepid
+        ));
+    }
+
+    /*
+     * Interfaz de cancelación aprobada y registro de datos y firma
+     */
+    public function cancelacionAprobadaAction($stepid, Request $request){
+
+        $user = $this->container->get('security.context')->getToken()->getUser();
+
+        $step = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:InstanciasSteps')
+            ->find($stepid);
+
+        $comentario = $request->query->get('comment');
+        $firmaImagen = $request->query->get('firma');
+
+        $documentName = $step->getMasterStep()->getName();
+
+        $registro = $step->getInstanciaWorkflow();
+
+        if ($registro->getStatus() == 5) {
+            $registro->setStatus(6);
+
+        } elseif ($registro->getStatus() == 14) {
+            $registro->setStatus(8);
+
+        }
+
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($step);
+        $em->persist($registro);
+        $em->flush();
+
+        /*
+         * Guardar evidencia de cabcekacuib rechazada
+         */
+        $evidencia = new EvidenciasStep();
+        $evidencia->setStepEntity($step);
+        $evidencia->setStatus(1);
+        $evidencia->setUserEntiy($registro->getUserCreatedEntiy());
+        $evidencia->setToken($step->getToken());
+        $evidencia->setStepDataValue($step->getStepDataValue());
+
+        /*
+         * Guardar firma
+         */
+        $firmas = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:FirmasStep')
+            ->findBy(array("step_id" => $step->getId()));
+
+        $counter = count($firmas) + 1;
+
+        $firma = new FirmasStep();
+        $firma->setAccion("Aprobada la cancelación: " . $comentario);
+        $firma->setStepEntity($step);
+        $firma->setUserEntiy($user);
+        $firma->setFirma($firmaImagen);
+        $firma->setNumber($counter);
+
+        $evidencia->setFirmaEntity($firma);
+
+        $em->persist($firma);
+        $em->persist($evidencia);
+        $em->flush();
+
+        return $this->render('NononsenseHomeBundle:Contratos:registro_cancelacion_aprobada.html.twig', array(
+            "documentName" => $documentName,
+            "stepid" => $stepid
+        ));
     }
 
     public function cancelarStepAction($stepid, Request $request)
@@ -1029,7 +1208,7 @@ class RegistroValidationController extends Controller
             ->getRepository('NononsenseHomeBundle:FirmasStep')
             ->findBy(array("step_id" => $step->getId()));
 
-        $counter = count($firmas)+1;
+        $counter = count($firmas) + 1;
 
         $firma = new FirmasStep();
         $firma->setAccion("Solicitud cancelacion: " . $comentario);

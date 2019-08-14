@@ -349,7 +349,7 @@ class InstanciasWorkflowsRepository extends EntityRepository
             ->leftJoin("ms.category", "c")
             ->leftJoin("n.userCreatedEntiy", "u")
             ->innerJoin("n.metaData", "mt")
-            ->andWhere('n.status in (5,4)')
+            ->andWhere('n.status in (5,4,14)')
             ->andWhere('n.usercreatedid != :user')
             ->andWhere('ms.group_id in (:groupsuser)')
             ->setParameter('user', $user_logged)

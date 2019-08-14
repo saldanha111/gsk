@@ -132,25 +132,25 @@ function checkVarValue(name, valToCheck) {
     return resultado;
 }
 
-function checkCommentCompulsory(element){
+function checkCommentCompulsory(element) {
     var varName = "";
-    if(element.attr('data-name') == undefined){
+    if (element.attr('data-name') == undefined) {
         varName = element.attr('data-reference');
-    }else{
+    } else {
         varName = element.attr('data-name');
     }
 
-    if(window.arrayPreLoad[varName]){
+    if (window.arrayPreLoad[varName]) {
 //        console.log("valor de preload: "+window.arrayPreLoad[varName]);
         window.commentCompulsory = true;
         //console.log("Se ha interactuado con un elemento pre-cargado!!!! El comentario es obligatorio");
 
         var title = "Se ha interactuado con una variable rellenada anteriormente. ";
-        var message = "<p>Ha interactuado con la variable <strong>"+varName+"</strong>. Se le solicitará un comentario obligatorio al firmar</p>";
+        var message = "<p>Ha interactuado con la variable <strong>" + varName + "</strong>. Se le solicitará un comentario obligatorio al firmar</p>";
         message += '<p style="text-align: center"></p>';
 
         launchMessage(title, message);
-    }else{
+    } else {
         //console.log("valor de preload: "+window.arrayPreLoad[varName]);
     }
 }
@@ -176,6 +176,10 @@ function customOnLoad() {
         console.log("Boton cancelar de GSK");
 
         var responseURL = $('#responseURL').val();
+        responseURL = responseURL.replace(/cancelar/g, "");
+        responseURL = responseURL.replace(/parcial/g, "");
+        responseURL = responseURL.replace(/enviar/g, "");
+        responseURL = responseURL.replace(/verificarparcial/g, "");
         responseURL += 'cancelar';
         $('#responseURL').val(responseURL);
         $('#download').trigger('click');
@@ -195,10 +199,14 @@ function customOnLoad() {
             return false;
         } else {
             var responseURL = $('#responseURL').val();
+            responseURL = responseURL.replace(/cancelar/g, "");
+            responseURL = responseURL.replace(/parcial/g, "");
+            responseURL = responseURL.replace(/enviar/g, "");
+            responseURL = responseURL.replace(/verificarparcial/g, "");
             responseURL += 'verificar';
-            if(window.commentCompulsory){
+            if (window.commentCompulsory) {
                 responseURL += '%2F1';
-            }else{
+            } else {
                 responseURL += '%2F0';
             }
             $('#responseURL').val(responseURL);
@@ -220,10 +228,14 @@ function customOnLoad() {
 
         } else {
             var responseURL = $('#responseURL').val();
+            responseURL = responseURL.replace(/cancelar/g, "");
+            responseURL = responseURL.replace(/parcial/g, "");
+            responseURL = responseURL.replace(/enviar/g, "");
+            responseURL = responseURL.replace(/verificarparcial/g, "");
             responseURL += 'verificarparcial';
-            if(window.commentCompulsory){
+            if (window.commentCompulsory) {
                 responseURL += '%2F1';
-            }else{
+            } else {
                 responseURL += '%2F0';
             }
             $('#responseURL').val(responseURL);

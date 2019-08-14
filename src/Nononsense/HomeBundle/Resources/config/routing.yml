@@ -86,6 +86,10 @@ nononsense_contrato_control_elaboracion:
     path: /control_elaboracion/{stepid}/{action}/{comment}/{urlaux}
     defaults: { _controller: NononsenseHomeBundle:RegistroConcreto:controlElaboracion, stepid: 0, action: 0,comment: 0,urlaux: 0}
 
+nononsense_contrato_control_cancelacion:
+    path: /control_cancelacion/{stepid}/{action}/{urlaux}
+    defaults: { _controller: NononsenseHomeBundle:RegistroConcreto:controlCancelacion, stepid: 0, action: 0,urlaux: 0}
+
 nononsense_contrato_control_check_list:
     path: /control_check_list/{stepid}/{action}/{comment}/{urlaux}
     defaults: { _controller: NononsenseHomeBundle:RegistroConcreto:controlCheckList, stepid: 0, action: 0,comment: 0,urlaux: 0}
@@ -311,6 +315,22 @@ nononsense_records_return_data:
 nononsense_esma_no_validado:
     path:     /nononsense_esma_no_validado/{workflowid}
     defaults: { _controller: NononsenseHomeBundle:RegistroConcreto:ESMANoValidado, workflowid: 0}
+
+nononsense_registro_rechazar_cancelacion_firma:
+    path:     /nononsense_registro_rechazar_cancelacion_firma/{stepid}
+    defaults: { _controller: NononsenseHomeBundle:RegistroValidation:rechazarCancelacionFirma, stepid: 0}
+
+nononsense_registro_aprobar_cancelacion_firma:
+    path:     /nononsense_registro_aprobar_cancelacion_firma/{stepid}
+    defaults: { _controller: NononsenseHomeBundle:RegistroValidation:aprobarCancelacionFirma, stepid: 0}
+
+nononsense_cancelacion_rechazada:
+    path:     /nononsense_cancelacion_rechazada/{stepid}
+    defaults: { _controller: NononsenseHomeBundle:RegistroValidation:cancelacionRechazada, stepid: 0}
+
+nononsense_cancelacion_aprobada:
+    path:     /nononsense_cancelacion_aprobada/{stepid}
+    defaults: { _controller: NononsenseHomeBundle:RegistroValidation:cancelacionAprobada, stepid: 0}
 
 
 

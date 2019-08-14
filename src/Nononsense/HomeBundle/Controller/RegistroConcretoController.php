@@ -155,7 +155,7 @@ class RegistroConcretoController extends Controller
 
 
         } else {
-            if ($registro->getStatus() == 4 || $registro->getStatus() == 5) {
+            if ($registro->getStatus() == 4) {
                 // Abrir para validar
                 $options['responseURL'] = $baseUrl . "control_validacion/" . $stepid . "/";
                 $options['prefix'] = 'verchk';
@@ -173,8 +173,18 @@ class RegistroConcretoController extends Controller
                 $options['responseURL'] = $baseUrl . "control_elaboracion/" . $stepid . "/";
 
 
+            } else if ($registro->getStatus() == 5 || $registro->getStatus() == 14) {
+                // Flujos de cancelación
+                $options['prefix'] = 'show';
+                $options['responseURL'] = $baseUrl . "control_cancelacion/" . $stepid . "/";
+
+
+                $versionJS = filemtime(__DIR__ . "/../../../../web/js/js_templates/cancelacion.js");
+                $validacionURL1 = $baseUrl . "js/js_templates/cancelacion.js?v=" . $versionJS;
+
             } else {
                 // No abrir para editar ... usar el método show
+                $options['prefix'] = 'show';
             }
         }
 
@@ -622,6 +632,7 @@ class RegistroConcretoController extends Controller
         $em->flush();
 
         if ($action == 'cancelar') {
+            $registro->setStatus(12);
             $route = $this->container->get('router')->generate('nononsense_registro_cancelar_verficiacion', array('stepid' => $stepid));
 
         } elseif ($action == 'verificar') {
@@ -631,7 +642,7 @@ class RegistroConcretoController extends Controller
 
 
         } elseif ($action == 'devolver') {
-
+            $registro->setStatus(13);
             $route = $this->container->get('router')->generate('nononsense_registro_devolver_edicion', array('stepid' => $stepid));
 
 
@@ -643,6 +654,49 @@ class RegistroConcretoController extends Controller
         } else if ($action == 'verificarparcial') {
             $registro->setStatus(15);
             $route = $this->container->get('router')->generate('nononsense_registro_verificar_parcial', array('stepid' => $stepid, 'comment' => $comment));
+
+        } else {
+            // Error... go inbox
+            echo 'No deberías haber llegado aquí. Error desconocido';
+            var_dump($action);
+            exit;
+
+        }
+
+        $em->persist($step);
+        $em->persist($registro);
+        $em->flush();
+
+        return $this->redirect($route);
+    }
+
+    public function controlCancelacionAction($stepid, $action, $urlaux)
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $step = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:InstanciasSteps')
+            ->find($stepid);
+
+        $registro = $step->getInstanciaWorkflow();
+        $registro->setInEdition(0);
+
+        $em->persist($registro);
+        $em->flush();
+
+        if ($action == 'rechazar') {
+
+            $route = $this->container->get('router')->generate('nononsense_registro_rechazar_cancelacion_firma', array('stepid' => $stepid));
+
+        } elseif ($action == 'aprobar') {
+
+            $route = $this->container->get('router')->generate('nononsense_registro_aprobar_cancelacion_firma', array('stepid' => $stepid));
+
+
+        } else if ($action == 'cerrar') {
+
+            $route = base64_decode($urlaux);
+
 
         } else {
             // Error... go inbox
