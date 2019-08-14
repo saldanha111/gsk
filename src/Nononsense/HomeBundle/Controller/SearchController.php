@@ -28,6 +28,7 @@ class SearchController extends Controller
 {
     public function listAction(Request $request)
     {
+        $user = $this->container->get('security.context')->getToken()->getUser();
         $filters=Array();
         $filters2=Array();
         $types=array();
@@ -103,7 +104,7 @@ class SearchController extends Controller
         }
 
         
-
+        $array_item["suser"]["id"]=$user->getId();
         $array_item["filters"]=$filters;
         $array_item["items"] = $this->getDoctrine()->getRepository(InstanciasWorkflows::class)->search("list",$filters);
         $array_item["count"] = $this->getDoctrine()->getRepository(InstanciasWorkflows::class)->search("count",$filters2);

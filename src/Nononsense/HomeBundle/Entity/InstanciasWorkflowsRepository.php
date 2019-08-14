@@ -371,7 +371,7 @@ class InstanciasWorkflowsRepository extends EntityRepository
         switch($type){
             case "list":
                 $list = $this->createQueryBuilder('i')
-                    ->select('i.id','ms.name','u.name as creator','i.created','m.modified','m.lote','m.material','m.equipo','m.workordersap');
+                    ->select('i.id', 'i.usercreatedid','ms.name','u.name as creator','i.created','m.modified','m.lote','m.material','m.equipo','m.workordersap','ms.logbook','i.status');
                 break;
             case "count":
                 $list = $this->createQueryBuilder('i')
@@ -389,22 +389,56 @@ class InstanciasWorkflowsRepository extends EntityRepository
         if(!empty($filters)){
             /*if (isset($filters["groups"])) {
                 $groups = $filters["groups"];
-            }
+            }*/
 
-            if (isset($filters["user"])) {
+            /*if (isset($filters["user"])) {
                 $user = $filters["user"];
+            }*/
+
+            if(isset($filters["id"])){
+                $list->andWhere('i.id=:id');
+                $list->setParameter('id', $filters["id"]);
             }
 
             if(isset($filters["name"])){
                 $terms = explode(" ", $filters["name"]);
                 foreach($terms as $key => $term){
-                    $list->andWhere('d.name LIKE :name'.$key);
+                    $list->andWhere('ms.name LIKE :name'.$key);
                     $list->setParameter('name'.$key, '%' . $term. '%');
                 }
                 
             }
 
-            if(isset($filters["type"])){
+            if(isset($filters["creator"])){
+                $terms = explode(" ", $filters["creator"]);
+                foreach($terms as $key => $term){
+                    $list->andWhere('u.name LIKE :creator'.$key);
+                    $list->setParameter('creator'.$key, '%' . $term. '%');
+                }
+                
+            }
+
+            if(isset($filters["lot"])){
+                $list->andWhere('m.lote=:lot');
+                $list->setParameter('lot', $filters["lot"]);
+            }
+
+            if(isset($filters["material"])){
+                $list->andWhere('m.material=:material');
+                $list->setParameter('material', $filters["material"]);
+            }
+
+            if(isset($filters["equipment_number"])){
+                $list->andWhere('m.equipo=:equipment_number');
+                $list->setParameter('equipment_number', $filters["equipment_number"]);
+            }
+
+            if(isset($filters["sap"])){
+                $list->andWhere('m.workordersap=:sap');
+                $list->setParameter('sap', $filters["sap"]);
+            }
+
+            /*if(isset($filters["type"])){
                 $list->andWhere('r.type=:type');
                 $list->setParameter('type', $filters["type"]);
             }
@@ -419,16 +453,17 @@ class InstanciasWorkflowsRepository extends EntityRepository
                 $list->setParameter('user_id', $user->getId());
                 $list->setParameter('groups', $groups);
             }
+            */
 
             if(isset($filters["from"])){
-                $list->andWhere('r.created>=:from');
+                $list->andWhere('i.created>=:from');
                 $list->setParameter('from', $filters["from"]);
             }
 
             if(isset($filters["until"])){
-                $list->andWhere('r.created<=:until');
+                $list->andWhere('i.created<=:until');
                 $list->setParameter('until', $filters["until"]." 23:59:00");
-            }*/
+            }
         }
 
 

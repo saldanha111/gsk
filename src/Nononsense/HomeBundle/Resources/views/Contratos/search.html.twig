@@ -12,7 +12,7 @@
         <div class="col-sm-12">
             <div>
                 <div class="row">
-                    <form class="form-horizontal" id="form_item" action="{{ path('nononsense_records')}}" method="GET">
+                    <form class="form-horizontal" id="form_item" action="{{ path('nononsense_search')}}" method="GET">
                         <div class="form-group">
                             <label class="col-sm-1 control-label">ID</label>
                             <div class="col-sm-1 item_filter">
@@ -49,6 +49,14 @@
                             <div class="col-sm-2 item_filter">
                                 <select class="form-control" style="width: 100%;" name="state">
                                     <option value=""></option>
+                                    <option value="1">Iniciado</option>
+                                    <option value="2">Pendiente cancelación en edición</option>
+                                    <option value="3">Cancelado en edición</option>
+                                    <option value="4">Verificación</option>
+                                    <option value="5">Pendiente cancelación en verificación</option>
+                                    <option value="6">Cancelado en verificación</option>
+                                    <option value="7">Archivado</option>
+                                    <option value="8">Reconciliación</option>
                                   </select>
                             </div>
 
@@ -124,7 +132,49 @@
                                 <td>{{item.equipo}}</td>
                                 <td>{{item.material}}</td>
                                 <td>{{item.workordersap}}</td>
-                                <td></td>
+                                <td>
+
+                                {% if item.status == 0 or item.status == 1 or item.status == 2 or item.status == 3 %}
+                                    {% if suser.id==item.usercreatedid %}
+                                        <a class="btn btn-xs btn-primary" name="completarregistro" data-template="{{item.id}}" data-loogbook="{{item.logbook}}">{{'Completar registro'|trans}}</a>
+                                    {% else %}
+                                        Iniciado
+                                    {% endif %}
+                                {% endif %}
+
+                                {% if item.status == 4 or item.status == 15 or item.status == 13 or item.status == 7 or item.status == 12 %}
+                                    {% if verified is defined %}
+                                        <a class="btn btn-xs btn-primary" href="#">Verificar</a>
+                                    {% else %}
+                                        En verificación
+                                    {% endif %}
+                                {% endif %}
+
+                                {% if item.status == 5 %}
+                                    Pendiente cancelación en edición
+                                {% endif %}
+
+                                {% if item.status == 6 %}
+                                    Cancelado en edición
+                                {% endif %}
+
+                                {% if item.status == 14 %}
+                                    Pendiente cancelación en verificación
+                                {% endif %}
+
+                                {% if item.status == 8 %}
+                                    Cancelado en verificación
+                                {% endif %}
+
+                                {% if item.status == 11 %}
+                                    Bloqueado
+                                {% endif %}
+
+                                {% if item.status == 9 or item.status == 10 %}
+                                    Archivado
+                                {% endif %}
+
+                                </td>
                             </tr>
                             {% endfor %}
                         {% endif %}
@@ -141,6 +191,12 @@
             </div>
         </div>
     </div>
+</div>
+<div style="display: none">
+    <form id="createRegistro" action="{{path('nononsense_registro_completar', {'registroid': 0})}}">
+        <input type="hidden" name="registroidForm" id="registroidForm">
+        <input type="hidden" name="logbook" id="logbookForm">
+    </form>
 </div>
 {% endblock %}
 {% block scripts %}
@@ -160,6 +216,26 @@
       orientation: 'bottom auto',
       format: 'yyyy-mm-dd',
       language: 'es'
+    });
+
+    $('[name="completarregistro"]').click(function () {
+        console.log("click yeah!")
+
+        var templateid = $(this).attr('data-template');
+        $('#registroidForm').val(templateid);
+        //envío de email
+        var logbookTemplate = $(this).attr('data-loogbook');
+
+        console.log(logbookTemplate);
+        if (logbookTemplate == 1) {
+            console.log('showModal!');
+            $("#editModal").show();
+        } else {
+            console.log('submit!');
+            $('#logbookForm').val(0);
+            $('#createRegistro').submit();
+        }
+
     });
   });
 </script>
