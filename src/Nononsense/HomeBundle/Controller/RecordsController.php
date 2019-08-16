@@ -206,13 +206,17 @@ class RecordsController extends Controller
         if ($record->getStatus() == 2 || $record->getStatus() == 3) {
             // Abrir para validar
             $options['responseURL'] = $baseUrl . "records/redirectFromData/" . $id . "/";
-            $options['prefix'] = 'v';
-
+            
             if ($record->getStatus() == 2){
+                if($record->getType()->getId()==1){
+                    $options['prefix'] = 'resp_alm';
+                }
+
                 $versionJS = filemtime(__DIR__ . "/../../../../web/js/js_templates/documentValidacion.js");
                 $validacionURL1 = $baseUrl . "js/js_templates/documentValidacion.js?v=" . $versionJS;   
             }
             else{
+                $options['prefix'] = 'closed_';
                 $versionJS = filemtime(__DIR__ . "/../../../../web/js/js_templates/documentClosed.js");
                 $validacionURL1 = $baseUrl . "js/js_templates/documentClosed.js?v=" . $versionJS; 
             }
@@ -302,7 +306,7 @@ class RecordsController extends Controller
             $varValues->historico_steps = array("     ");
             $data->varValues = $varValues;
 
-
+            $data->varValues->require_sap=""; 
         } 
         else {
             // Data Ingegrity other usage
@@ -318,6 +322,23 @@ class RecordsController extends Controller
                 $data->varValues->dxo_gsk_audit_trail_bloque = array("No");
                 $data->varValues->dxo_gsk_firmas_bloque = array("Si");
                 $data->varValues->dxo_gsk_firmas = array($this->_construirFirmas($firmas));
+            }
+
+            if($record->getType()->getId()==1){
+                if($record->getStatus()==2 || $record->getStatus()==3){
+                    $signatures = $this->getDoctrine()
+                        ->getRepository('NononsenseHomeBundle:RecordsSignatures')
+                        ->findBy(array("record"=> $record->getId(), "firma" => NULL));
+                    if(count($signatures)<=1){
+                        $data->varValues->require_sap="1"; 
+                    }
+                    else{
+                        $data->varValues->require_sap=""; 
+                    }
+                }
+                else{
+                    $data->varValues->require_sap=""; 
+                }
             }
 
         }
@@ -379,7 +400,6 @@ class RecordsController extends Controller
 
         $data = json_encode($dataJSON);
         $record->setStepDataValue($data);
-        $record->setStatus(1);
         $record->setToken($dataJSON->token);
 
         $stepData = $record->getStepDataValue();

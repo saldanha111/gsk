@@ -364,6 +364,125 @@ class InstanciasWorkflowsRepository extends EntityRepository
 
     }
 
+    public function search($type,$filters)
+    {
+        $em = $this->getEntityManager();
+
+        switch($type){
+            case "list":
+                $list = $this->createQueryBuilder('i')
+                    ->select('i.id', 'i.usercreatedid','ms.name','u.name as creator','i.created','m.modified','m.lote','m.material','m.equipo','m.workordersap','ms.logbook','i.status');
+                break;
+            case "count":
+                $list = $this->createQueryBuilder('i')
+                    ->select('COUNT(i.id) as conta');
+                break;
+        }
+
+        $list->leftJoin("i.Master_Workflow_Entity", "ms")
+            ->leftJoin("ms.category", "c")
+            ->leftJoin("i.userCreatedEntiy", "u")
+            ->leftJoin("i.metaData", "m")
+            ->orderBy('i.id', 'DESC');
+
+
+        if(!empty($filters)){
+            /*if (isset($filters["groups"])) {
+                $groups = $filters["groups"];
+            }*/
+
+            /*if (isset($filters["user"])) {
+                $user = $filters["user"];
+            }*/
+
+            if(isset($filters["id"])){
+                $list->andWhere('i.id=:id');
+                $list->setParameter('id', $filters["id"]);
+            }
+
+            if(isset($filters["name"])){
+                $terms = explode(" ", $filters["name"]);
+                foreach($terms as $key => $term){
+                    $list->andWhere('ms.name LIKE :name'.$key);
+                    $list->setParameter('name'.$key, '%' . $term. '%');
+                }
+                
+            }
+
+            if(isset($filters["creator"])){
+                $terms = explode(" ", $filters["creator"]);
+                foreach($terms as $key => $term){
+                    $list->andWhere('u.name LIKE :creator'.$key);
+                    $list->setParameter('creator'.$key, '%' . $term. '%');
+                }
+                
+            }
+
+            if(isset($filters["lot"])){
+                $list->andWhere('m.lote=:lot');
+                $list->setParameter('lot', $filters["lot"]);
+            }
+
+            if(isset($filters["material"])){
+                $list->andWhere('m.material=:material');
+                $list->setParameter('material', $filters["material"]);
+            }
+
+            if(isset($filters["equipment_number"])){
+                $list->andWhere('m.equipo=:equipment_number');
+                $list->setParameter('equipment_number', $filters["equipment_number"]);
+            }
+
+            if(isset($filters["sap"])){
+                $list->andWhere('m.workordersap=:sap');
+                $list->setParameter('sap', $filters["sap"]);
+            }
+
+            /*if(isset($filters["type"])){
+                $list->andWhere('r.type=:type');
+                $list->setParameter('type', $filters["type"]);
+            }
+
+            if(isset($filters["status"])){
+                $list->andWhere('r.status=:status');
+                $list->setParameter('status', $filters["status"]);
+            }
+
+            if (isset($filters["pending_for_me"])) {
+                $list->andWhere('(r.status=1 AND r.usercreatedid=:user_id) OR (r.status=2 AND (s.userid=:user_id OR s.groupid IN (:groups)))');
+                $list->setParameter('user_id', $user->getId());
+                $list->setParameter('groups', $groups);
+            }
+            */
+
+            if(isset($filters["from"])){
+                $list->andWhere('i.created>=:from');
+                $list->setParameter('from', $filters["from"]);
+            }
+
+            if(isset($filters["until"])){
+                $list->andWhere('i.created<=:until');
+                $list->setParameter('until', $filters["until"]." 23:59:00");
+            }
+        }
+
+
+        if(isset($filters["limit_from"])){
+            $list->setFirstResult($filters["limit_from"]*$filters["limit_many"])->setMaxResults($filters["limit_many"]);
+        }
+
+        $query = $list->getQuery();
+
+
+        switch($type){
+            case "list":
+                return $query->getResult();
+                break;
+            case "count":
+                return $query->getSingleResult()["conta"];
+                break;
+        }
+    }
 }
 
 

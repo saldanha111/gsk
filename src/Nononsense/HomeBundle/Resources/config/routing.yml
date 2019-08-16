@@ -253,6 +253,47 @@ nononsense_notificacion_semanal:
     path: /notificacion_semanal
     defaults: { _controller: NononsenseHomeBundle:RegistroValidation:notificacionSemanalPendienteVerificar }
 
+nononsense_esma_no_validado:
+    path:     /nononsense_esma_no_validado/{workflowid}
+    defaults: { _controller: NononsenseHomeBundle:RegistroConcreto:ESMANoValidado, workflowid: 0}
+
+nononsense_registro_rechazar_cancelacion_firma:
+    path:     /nononsense_registro_rechazar_cancelacion_firma/{stepid}
+    defaults: { _controller: NononsenseHomeBundle:RegistroValidation:rechazarCancelacionFirma, stepid: 0}
+
+nononsense_registro_aprobar_cancelacion_firma:
+    path:     /nononsense_registro_aprobar_cancelacion_firma/{stepid}
+    defaults: { _controller: NononsenseHomeBundle:RegistroValidation:aprobarCancelacionFirma, stepid: 0}
+
+nononsense_cancelacion_rechazada:
+    path:     /nononsense_cancelacion_rechazada/{stepid}
+    defaults: { _controller: NononsenseHomeBundle:RegistroValidation:cancelacionRechazada, stepid: 0}
+
+nononsense_cancelacion_aprobada:
+    path:     /nononsense_cancelacion_aprobada/{stepid}
+    defaults: { _controller: NononsenseHomeBundle:RegistroValidation:cancelacionAprobada, stepid: 0}
+
+nononsense_registro_autorizar_list:
+    path:     /nononsense_registro_autorizar_list
+    defaults: { _controller: NononsenseHomeBundle:RegistroConcreto:listadoAutorizaciones}
+
+nononsense_autorizar_peticion:
+    path:     /autorizar_peticion/{peticionid}
+    defaults: { _controller: NononsenseHomeBundle:RegistroConcreto:autorizarPeticionInterface, peticionid: 0}
+
+nononsense_peticion_reconciliacion_accion:
+    path:     /peticion_reconciliacion_accion/{peticionid}
+    defaults: { _controller: NononsenseHomeBundle:RegistroConcreto:procesarPeticion, peticionid: 0}
+
+nononsense_peticion_reconciliacion_accion_solicitar:
+    path:     /peticion_reconciliacion_accion_solicitar/{peticionid}
+    defaults: { _controller: NononsenseHomeBundle:NuevoRegistro:SolicitarPeticion, peticionid: 0}
+
+
+nononsense_search:
+    path: /search
+    defaults: { _controller: NononsenseHomeBundle:Search:list}
+
 nononsense_documents:
     path: /documents
     defaults: { _controller: NononsenseHomeBundle:Documents:list}
@@ -308,40 +349,3 @@ nononsense_records_requet_data:
 nononsense_records_return_data:
     path:     /dataRecords/returnData/{id}
     defaults: { _controller: NononsenseHomeBundle:Records:returnData, id: 0}
-
-nononsense_esma_no_validado:
-    path:     /nononsense_esma_no_validado/{workflowid}
-    defaults: { _controller: NononsenseHomeBundle:RegistroConcreto:ESMANoValidado, workflowid: 0}
-
-nononsense_registro_rechazar_cancelacion_firma:
-    path:     /nononsense_registro_rechazar_cancelacion_firma/{stepid}
-    defaults: { _controller: NononsenseHomeBundle:RegistroValidation:rechazarCancelacionFirma, stepid: 0}
-
-nononsense_registro_aprobar_cancelacion_firma:
-    path:     /nononsense_registro_aprobar_cancelacion_firma/{stepid}
-    defaults: { _controller: NononsenseHomeBundle:RegistroValidation:aprobarCancelacionFirma, stepid: 0}
-
-nononsense_cancelacion_rechazada:
-    path:     /nononsense_cancelacion_rechazada/{stepid}
-    defaults: { _controller: NononsenseHomeBundle:RegistroValidation:cancelacionRechazada, stepid: 0}
-
-nononsense_cancelacion_aprobada:
-    path:     /nononsense_cancelacion_aprobada/{stepid}
-    defaults: { _controller: NononsenseHomeBundle:RegistroValidation:cancelacionAprobada, stepid: 0}
-
-nononsense_registro_autorizar_list:
-    path:     /nononsense_registro_autorizar_list
-    defaults: { _controller: NononsenseHomeBundle:RegistroConcreto:listadoAutorizaciones}
-
-nononsense_autorizar_peticion:
-    path:     /autorizar_peticion/{peticionid}
-    defaults: { _controller: NononsenseHomeBundle:RegistroConcreto:autorizarPeticionInterface, peticionid: 0}
-
-nononsense_peticion_reconciliacion_accion:
-    path:     /peticion_reconciliacion_accion/{peticionid}
-    defaults: { _controller: NononsenseHomeBundle:RegistroConcreto:procesarPeticion, peticionid: 0}
-
-nononsense_peticion_reconciliacion_accion_solicitar:
-    path:     /peticion_reconciliacion_accion_solicitar/{peticionid}
-    defaults: { _controller: NononsenseHomeBundle:NuevoRegistro:SolicitarPeticion, peticionid: 0}
-

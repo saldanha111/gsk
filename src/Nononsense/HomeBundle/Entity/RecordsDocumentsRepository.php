@@ -12,7 +12,7 @@ use Doctrine\ORM\EntityRepository;
  */
 class RecordsDocumentsRepository extends EntityRepository
 {
-		public function list($filters)
+	public function list($filters)
     {
         $em = $this->getEntityManager();
 
