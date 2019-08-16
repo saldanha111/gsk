@@ -211,6 +211,9 @@ class RecordsController extends Controller
                 if($record->getType()->getId()==1){
                     $options['prefix'] = 'resp_alm';
                 }
+                else{
+                    $options['prefix'] = 'def_v';
+                }
 
                 $versionJS = filemtime(__DIR__ . "/../../../../web/js/js_templates/documentValidacion.js");
                 $validacionURL1 = $baseUrl . "js/js_templates/documentValidacion.js?v=" . $versionJS;   
@@ -419,7 +422,7 @@ class RecordsController extends Controller
             if($validated && $percentageCompleted==100){
                 switch($record->getType()->getId()){
                     //Caso especial para los registros de tipo Albarán Almacén
-                    case 1: $this->albaranAlmacen($record);
+                    case "1": $this->albaranAlmacen($record);
                             break;
                     default:
                             $record->setModified(date("Y-m-d"));
