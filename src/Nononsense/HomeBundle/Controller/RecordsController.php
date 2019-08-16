@@ -417,7 +417,7 @@ class RecordsController extends Controller
         /* Si no está metido el workflow de las firmas lo metemos */
         if(!$signatures){
             if($validated && $percentageCompleted==100){
-                switch($record->getType()){
+                switch($record->getType()->getId()){
                     //Caso especial para los registros de tipo Albarán Almacén
                     case 1: $this->albaranAlmacen($record);
                             break;
