@@ -96,8 +96,9 @@ class RegistroConcretoController extends Controller
             ->find($stepid);
 
         $registro = $step->getInstanciaWorkflow();
-        if ($step->getStatusId() == 2) {
-            // ya validado
+        /*
+        if ($step->getStatusId() == 2 && $registro->getStatus() != 10 ) {
+            // ya validado, en realidad es como algo raro esto porque en la instalación de gus no funciona pero seguro que en las otras si
 
             $route = $this->container->get('router')->generate('nononsense_ver_step', array("stepid" => $stepid));
             return $this->redirect($route);
@@ -108,10 +109,10 @@ class RegistroConcretoController extends Controller
             );
             $route = $this->container->get('router')->generate('nononsense_registro_enproceso');
             return $this->redirect($route);
-            */
+            *
 
         }
-
+        */
         $baseUrl = $this->getParameter("cm_installation");
 
         $options = array();
@@ -155,6 +156,8 @@ class RegistroConcretoController extends Controller
 
 
         } else {
+
+
             if ($registro->getStatus() == 4) {
                 // Abrir para validar
                 $options['responseURL'] = $baseUrl . "control_validacion/" . $stepid . "/";
@@ -183,8 +186,11 @@ class RegistroConcretoController extends Controller
                 $validacionURL1 = $baseUrl . "js/js_templates/cancelacion.js?v=" . $versionJS;
 
             } else {
+
                 // No abrir para editar ... usar el método show
                 $options['prefix'] = 'show';
+                $versionJS = filemtime(__DIR__ . "/../../../../web/js/js_templates/show.js");
+                $validacionURL1 = $baseUrl . "js/js_templates/show.js?v=" . $versionJS;
             }
         }
 
@@ -711,6 +717,241 @@ class RegistroConcretoController extends Controller
         $em->flush();
 
         return $this->redirect($route);
+    }
+
+    public function listadoAutorizacionesAction()
+    {
+        // Sólo si FLL
+        $user = $this->container->get('security.context')->getToken()->getUser();
+        $FLL = false;
+
+        foreach ($user->getGroups() as $groupMe) {
+            $type = $groupMe->getGroup()->getTipo();
+            if ($type == 'FLL') {
+                $FLL = true;
+            }
+        }
+
+        if (!$FLL) {
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                'No tiene permisos para estar aqui'
+            );
+            $route = $this->container->get('router')->generate('nononsense_home_homepage');
+            return $this->redirect($route);
+
+        }
+
+        $documentsProcess = array();
+        /*
+         * id
+         * idafectado
+         * subcat => companyName
+         * name
+         * fecha
+         * nameSol
+         *
+         */
+
+        $peticionesReconciliacion = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:ReconciliacionRegistro')
+            ->findBy(array('status' => 0));
+
+        foreach ($peticionesReconciliacion as $peticion) {
+            $registroViejoId = $peticion->getRegistroViejoId();
+
+            $registroViejo = $this->getDoctrine()
+                ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
+                ->find($registroViejoId);
+
+            $userSolicitud = $this->getDoctrine()
+                ->getRepository('NononsenseUserBundle:Users')
+                ->find($peticion->getUserId());
+
+            $subcat = $registroViejo->getMasterWorkflowEntity()->getCategory()->getName();
+            $nombre_usuario = $userSolicitud->getName();
+            $name = $registroViejo->getMasterWorkflowEntity()->getName();
+            $fecha = $peticion->getCreated();
+
+            $element = array(
+                "id" => $peticion->getId(),
+                "idafectado" => $registroViejoId,
+                "subcat" => $subcat,
+                "name" => $name,
+                "fecha" => $fecha,
+                "nameUser" => $nombre_usuario
+            );
+            $documentsProcess[] = $element;
+        }
+
+        return $this->render('NononsenseHomeBundle:Contratos:reconcialiacion_list.html.twig', array(
+            "documentsProcess" => $documentsProcess,
+        ));
+    }
+
+    public function autorizarPeticionInterfaceAction($peticionid)
+    {
+        $peticionEntity = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:ReconciliacionRegistro')
+            ->find($peticionid);
+
+        $registroViejoId = $peticionEntity->getRegistroViejoId();
+
+        $registroViejo = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
+            ->find($registroViejoId);
+
+        $userSolicitud = $this->getDoctrine()
+            ->getRepository('NononsenseUserBundle:Users')
+            ->find($peticionEntity->getUserId());
+
+        $subcat = $registroViejo->getMasterWorkflowEntity()->getCategory()->getName();
+        $nombre_usuario = $userSolicitud->getName();
+        $name = $registroViejo->getMasterWorkflowEntity()->getName();
+        $fecha = $peticionEntity->getCreated();
+
+        $peticion = array(
+            "id" => $peticionEntity->getId(),
+            "idafectado" => $registroViejoId,
+            "subcat" => $subcat,
+            "name" => $name,
+            "fecha" => $fecha,
+            "nameUser" => $nombre_usuario
+        );
+
+        $documentsReconciliacion = array();
+        $procesarReconciliaciones = true;
+
+        while($procesarReconciliaciones){
+            if($registroViejo != null){
+
+                $subcat = $registroViejo->getMasterWorkflowEntity()->getCategory()->getName();
+                $name = $registroViejo->getMasterWorkflowEntity()->getName();
+
+                $element = array(
+                    "id"=> $registroViejo->getId(),
+                    "subcat" => $subcat,
+                    "name" => $name,
+                    "status" => $registroViejo->getStatus(),
+                    "fecha" =>$registroViejo->getModified()
+                );
+                $documentsReconciliacion[] = $element;
+            }else{
+                $procesarReconciliaciones = false;
+            }
+
+            // Ver una posible reconciliación del registro viejo
+            $peticionReconciliacionAntigua = $this->getDoctrine()
+                ->getRepository('NononsenseHomeBundle:ReconciliacionRegistro')
+                ->findOneBy(array("registro_nuevo_id"=>$registroViejo->getId()));
+
+            if(isset($peticionReconciliacionAntigua)){
+
+                $registroViejoId = $peticionReconciliacionAntigua->getRegistroViejoId();
+                $registroViejo = $this->getDoctrine()
+                    ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
+                    ->find($registroViejoId);
+
+            }else{
+                $registroViejo = null;
+                $procesarReconciliaciones = false;
+            }
+
+        }
+
+        return $this->render('NononsenseHomeBundle:Contratos:gestionar_peticion_reconciliacion.html.twig', array(
+            "documentsReconciliacion" => $documentsReconciliacion,
+            "peticion" => $peticion));
+    }
+
+    public function procesarPeticionAction($peticionid, Request $request)
+    {
+        /*
+         * Se genera una evidencia a mayores para el step del registro original
+         * Se le pega la firma.
+         * En caso correcto, se marca como registro reconciliado y el nuevo se habilita y se pone a 0.
+         */
+        $peticionEntity = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:ReconciliacionRegistro')
+            ->find($peticionid);
+
+        $registroViejoId = $peticionEntity->getRegistroViejoId();
+        $registroNuevoId = $peticionEntity->getRegistroNuevoId();
+
+        $registroViejo = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
+            ->find($registroViejoId);
+
+        $step = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:InstanciasSteps')
+            ->findOneBy(array("workflow_id" => $registroViejoId, "dependsOn"=>0));
+
+        /*
+         * Guardar firma
+         */
+
+        $user = $this->container->get('security.context')->getToken()->getUser();
+
+        $em = $this->getDoctrine()->getManager();
+
+        /*
+        * Guardar evidencia un paso "mas" auxiliar
+        */
+        $evidencia = new EvidenciasStep();
+        $evidencia->setStepEntity($step);
+        $evidencia->setStatus(0);
+        $evidencia->setUserEntiy($user);
+        $evidencia->setToken($step->getToken());
+        $evidencia->setStepDataValue($step->getStepDataValue());
+
+
+        $firmaImagen = $request->query->get('firma');
+        $comentario = $request->query->get('comment');
+        $accion = $request->query->get('accion');
+
+        if($accion == 'autorizar'){
+            $descp = "Petición de reconciliación autorizada. " . $comentario;
+            $registroViejo->setStatus(10);
+            $peticionEntity->setStatus(1);
+
+            $registroNuevo = $this->getDoctrine()
+                ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
+                ->find($registroNuevoId);
+            $registroNuevo->setStatus(0);
+            $em->persist($registroNuevo);
+
+        }else{
+            $descp = "Petición de reconciliación no autorizada. " . $comentario;
+            $peticionEntity->setStatus(2);
+        }
+        /*
+         * Guardar firma
+         */
+        $firmas = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:FirmasStep')
+            ->findBy(array("step_id" => $step->getId()));
+
+        $counter = count($firmas) + 1;
+
+        $firma = new FirmasStep();
+        $firma->setAccion($descp);
+        $firma->setStepEntity($step);
+        $firma->setUserEntiy($user);
+        $firma->setFirma($firmaImagen);
+        $firma->setNumber($counter);
+
+        $evidencia->setFirmaEntity($firma);
+
+
+        $em->persist($evidencia);
+        $em->persist($peticionEntity);
+        $em->persist($firma);
+        $em->persist($registroViejo);
+        $em->flush();
+
+        $route = $this->container->get('router')->generate('nononsense_registro_enproceso');
+        return $this->redirect($route);
+
     }
 
     private function _checkModifyVariables($step)

@@ -236,7 +236,7 @@ class InstanciasWorkflowsRepository extends EntityRepository
             ->leftJoin("n.Master_Workflow_Entity", "ms")
             ->leftJoin("ms.category", "c")
             ->innerJoin("n.metaData", "mt")
-            ->andWhere('n.status in (0,1,5,6,4)')
+            ->andWhere('n.status in (0,1,5,6,4,16)')
             ->andWhere('n.usercreatedid = :user')
             ->setParameter('user', $user_logged)
             ->orderBy('n.id', 'DESC');

@@ -89,21 +89,21 @@ class RegistroValidationController extends Controller
         foreach ($documents as &$element) {
             $idRegistro = $element['registroid'];
             //var_dump($element['fecha']);
+            /*
+                        $revisionWorkflow = $this->getDoctrine()
+                            ->getRepository('NononsenseHomeBundle:RevisionInstanciaWorkflow')
+                            ->findBy(array('status' => 3, "instanciaworkflowid" => $idRegistro));
 
-            $revisionWorkflow = $this->getDoctrine()
-                ->getRepository('NononsenseHomeBundle:RevisionInstanciaWorkflow')
-                ->findBy(array('status' => 3, "instanciaworkflowid" => $idRegistro));
-
-            if (!empty($revisionWorkflow)) {
-                $texto = "";
-                foreach ($revisionWorkflow as $revision) {
-                    $texto = $texto . $revision->getRevisiontext() . ".";
-                }
-                $element['comentarios'] = $texto;
-            } else {
-                $element['comentarios'] = "";
-            }
-
+                        if (!empty($revisionWorkflow)) {
+                            $texto = "";
+                            foreach ($revisionWorkflow as $revision) {
+                                $texto = $texto . $revision->getRevisiontext() . ".";
+                            }
+                            $element['comentarios'] = $texto;
+                        } else {
+                            $element['comentarios'] = "";
+                        }
+            */
             if ($element['checklist'] == 1) {
                 $masterStepCheckList = $this->getDoctrine()
                     ->getRepository('NononsenseHomeBundle:MasterSteps')
@@ -114,6 +114,27 @@ class RegistroValidationController extends Controller
             } else {
                 $element['checklistName'] = '';
             }
+
+            // Reconciliacion
+            $reconciliacionElement = $this->getDoctrine()
+                ->getRepository('NononsenseHomeBundle:ReconciliacionRegistro')
+                ->findOneBy(array("registro_nuevo_id" => $idRegistro));
+            if(isset($reconciliacionElement)){
+                $registroReconciliadoId = $reconciliacionElement->getRegistroViejoId();
+
+                $registroReconciliado = $this->getDoctrine()
+                    ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
+                    ->find($registroReconciliadoId);
+
+                $element['reconciliacion'] = $registroReconciliado->getId();
+
+            }else{
+                $element['reconciliacion'] = 'NO';
+            }
+
+
+
+
         }
 
         foreach ($documentosInProcess as &$element2) {
@@ -132,6 +153,44 @@ class RegistroValidationController extends Controller
                 $element2['motivo'] = $texto;
             }
 
+            $reconciliacionElement = $this->getDoctrine()
+                ->getRepository('NononsenseHomeBundle:ReconciliacionRegistro')
+                ->findOneBy(array("registro_nuevo_id" => $idRegistro));
+
+            if(isset($reconciliacionElement)){
+                $registroReconciliadoId = $reconciliacionElement->getRegistroViejoId();
+
+                $registroReconciliado = $this->getDoctrine()
+                    ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
+                    ->find($registroReconciliadoId);
+
+                $element2['reconciliacion'] = $registroReconciliado->getId();
+
+            }else{
+                $element2['reconciliacion'] = 'NO';
+            }
+
+        }
+
+        foreach ($documentosInProcessParcial as &$element3) {
+            $idRegistro = $element3['id'];
+
+            $reconciliacionElement = $this->getDoctrine()
+                ->getRepository('NononsenseHomeBundle:ReconciliacionRegistro')
+                ->findOneBy(array("registro_nuevo_id" => $idRegistro));
+
+            if(isset($reconciliacionElement)){
+                $registroReconciliadoId = $reconciliacionElement->getRegistroViejoId();
+
+                $registroReconciliado = $this->getDoctrine()
+                    ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
+                    ->find($registroReconciliadoId);
+
+                $element3['reconciliacion'] = $registroReconciliado->getId();
+
+            }else{
+                $element3['reconciliacion'] = 'NO';
+            }
 
         }
 
@@ -228,7 +287,6 @@ class RegistroValidationController extends Controller
         //$options['token'] = $firstStep->getToken();
 
         //$url_edit_documento = $this->get('app.sdk')->viewDocument($options);
-
         $route = $this->container->get('router')->generate('nononsense_registro_concreto_link', array("stepid" => $firstStep->getId(), "form" => 0, "revisionid" => $revisionid));
         return $this->redirect($route);
     }
@@ -1092,7 +1150,8 @@ class RegistroValidationController extends Controller
     /*
      * Interfaz de cancelación aprobada y registro de datos y firma
      */
-    public function cancelacionAprobadaAction($stepid, Request $request){
+    public function cancelacionAprobadaAction($stepid, Request $request)
+    {
 
         $user = $this->container->get('security.context')->getToken()->getUser();
 

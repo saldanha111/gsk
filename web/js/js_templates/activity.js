@@ -283,10 +283,7 @@ function customOnLoad() {
             // OK
             console.log(auxValuePercentage);
             var responseURL = $('#responseURL').val();
-            responseURL = responseURL.replace(/cancelar/g, "");
-            responseURL = responseURL.replace(/parcial/g, "");
-            responseURL = responseURL.replace(/enviar/g, "");
-            responseURL = responseURL.replace(/verificarparcial/g, "");
+            responseURL = limpiarResponseUrl(responseURL);
             responseURL += 'cancelar';
             $('#responseURL').val(responseURL);
             $('#download').trigger('click');
@@ -320,10 +317,7 @@ function customOnLoad() {
                 launchMessage(title, message);
             }else{
                 var responseURL = $('#responseURL').val();
-                responseURL = responseURL.replace(/cancelar/g, "");
-                responseURL = responseURL.replace(/parcial/g, "");
-                responseURL = responseURL.replace(/enviar/g, "");
-                responseURL = responseURL.replace(/verificarparcial/g, "");
+                responseURL = limpiarResponseUrl(responseURL);
                 responseURL += 'parcial';
                 if(window.commentCompulsory){
                     responseURL += '%2F1';
@@ -346,10 +340,7 @@ function customOnLoad() {
             // Hacer un click sobre download
             // Poner el action cancelar
             var responseURL = $('#responseURL').val();
-            responseURL = responseURL.replace(/cancelar/g, "");
-            responseURL = responseURL.replace(/parcial/g, "");
-            responseURL = responseURL.replace(/enviar/g, "");
-            responseURL = responseURL.replace(/verificarparcial/g, "");
+            responseURL = limpiarResponseUrl(responseURL);
             responseURL += 'enviar';
             if(window.commentCompulsory){
                 responseURL += '%2F1';
@@ -369,7 +360,22 @@ function customOnLoad() {
             // si pudiera mostrar aquí panel de validación, hacer el click
         }
 
+
     });
+
+    function limpiarResponseUrl(url){
+        var urlLimpia = url;
+        urlLimpia = urlLimpia.replace(/cancelar%2F1/g, "");
+        urlLimpia = urlLimpia.replace(/cancelar%2F0/g, "");
+        urlLimpia = urlLimpia.replace(/parcial%2F1/g, "");
+        urlLimpia = urlLimpia.replace(/parcial%2F0/g, "");
+        urlLimpia = urlLimpia.replace(/enviar%2F1/g, "");
+        urlLimpia = urlLimpia.replace(/enviar%2F0/g, "");
+        urlLimpia = urlLimpia.replace(/verificarparcial%2F1/g, "");
+        urlLimpia = urlLimpia.replace(/verificarparcial%2F0/g, "");
+
+        return urlLimpia;
+    }
 
 }
 

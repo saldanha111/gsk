@@ -12,6 +12,8 @@ namespace Nononsense\HomeBundle\Controller;
 use Nononsense\HomeBundle\Entity\InstanciasSteps;
 use Nononsense\HomeBundle\Entity\InstanciasWorkflows;
 use Nononsense\HomeBundle\Entity\MetaData;
+use Nononsense\HomeBundle\Entity\EvidenciasStep;
+use Nononsense\HomeBundle\Entity\FirmasStep;
 use Nononsense\HomeBundle\Entity\ReconciliacionRegistro;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
@@ -125,7 +127,7 @@ class NuevoRegistroController extends Controller
     public function createAction($templateid, Request $request)
     {
 
-        if($templateid == 0){
+        if ($templateid == 0) {
             $logbook = $request->query->get('logbook');
             $templateid = $request->query->get('templateid');
         }
@@ -233,22 +235,22 @@ class NuevoRegistroController extends Controller
                 $instanciaWorkflow->setStatus(-1); // estado sin actividad
                 $em->persist($instanciaWorkflow);
                 $em->flush();
-                $route = $this->container->get('router')->generate('nononsense_prevalidation_creation', array("registroid"=>$instanciaWorkflow->getId(),"stepid" => $firststep,"logbook"=>$logbook));
+                $route = $this->container->get('router')->generate('nononsense_prevalidation_creation', array("registroid" => $instanciaWorkflow->getId(), "stepid" => $firststep, "logbook" => $logbook));
                 break;
             case "codigolote":
-                $route = $this->container->get('router')->generate('nononsense_precreation_codigo_lote_interface', array("registroid" => $instanciaWorkflow->getId(),"logbook"=>$logbook));
+                $route = $this->container->get('router')->generate('nononsense_precreation_codigo_lote_interface', array("registroid" => $instanciaWorkflow->getId(), "logbook" => $logbook));
                 break;
             case "equipoqr":
-                $route = $this->container->get('router')->generate('nononsense_precreation_equipo_qr_interface', array("registroid" => $instanciaWorkflow->getId(),"logbook"=>$logbook));
+                $route = $this->container->get('router')->generate('nononsense_precreation_equipo_qr_interface', array("registroid" => $instanciaWorkflow->getId(), "logbook" => $logbook));
                 break;
             case "equipopesaqr":
-                $route = $this->container->get('router')->generate('nononsense_precreation_equipo_pesa_qr_interface', array("registroid" => $instanciaWorkflow->getId(),"logbook"=>$logbook));
+                $route = $this->container->get('router')->generate('nononsense_precreation_equipo_pesa_qr_interface', array("registroid" => $instanciaWorkflow->getId(), "logbook" => $logbook));
                 break;
             default:
                 $instanciaWorkflow->setStatus(-1); // estado sin actividad
                 $em->persist($instanciaWorkflow);
                 $em->flush();
-                $route = $this->container->get('router')->generate('nononsense_prevalidation_creation', array("registroid"=>$instanciaWorkflow->getId(),"stepid" => $firststep,"logbook"=>$logbook));
+                $route = $this->container->get('router')->generate('nononsense_prevalidation_creation', array("registroid" => $instanciaWorkflow->getId(), "stepid" => $firststep, "logbook" => $logbook));
                 break;
         }
 
@@ -256,7 +258,7 @@ class NuevoRegistroController extends Controller
         return $this->redirect($route);
     }
 
-    public function checkPreValidationRegistroAction($registroid,$stepid, $logbook)
+    public function checkPreValidationRegistroAction($registroid, $stepid, $logbook)
     {
         // Si todo OK, registro válido
         $em = $this->getDoctrine()->getManager();
@@ -274,21 +276,23 @@ class NuevoRegistroController extends Controller
         $reconciliacion = false;
         $posibleReconciliado = false;
         $registroViejoReconciliado = 0;
-        switch ($prevalidationcreate){
+
+
+        switch ($prevalidationcreate) {
             case "intervencion":
                 $metaData = $this->getDoctrine()
                     ->getRepository('NononsenseHomeBundle:MetaData')
-                    ->findOneBy(array("workflow_id"=>$registroid));
+                    ->findOneBy(array("workflow_id" => $registroid));
 
                 $equipo = $metaData->getEquipo();
 
                 $bloqueo = $this->getDoctrine()
                     ->getRepository('NononsenseHomeBundle:BloqueoMasterWorkflow')
-                    ->findOneBy(array("master_workflow_id"=>$registro->getMasterWorkflowEntity()->getId(), "status"=>0,"equipo"=>$equipo));
+                    ->findOneBy(array("master_workflow_id" => $registro->getMasterWorkflowEntity()->getId(), "status" => 0, "equipo" => $equipo));
 
-                if($bloqueo == null){
+                if ($bloqueo == null) {
                     $valido = true;
-                }else{
+                } else {
                     $valido = false;
                     $causa = "Recepción del equipo tras intervención pendiente de verificación, la plantilla esta bloqueada hasta que se verifique.";
                 }
@@ -296,50 +300,91 @@ class NuevoRegistroController extends Controller
                 break;
             case "codigoloteunico":
                 /*
-                 * Sólo puede haber un registro con ese par codigo / lote
+                 * Sólo puede haber un registro con ese par codigo / lote por tipo de plantilla.
+                 * ¿Si hay uno en proceso entiendo que no debería dejar seguir?
                  */
                 $metaData = $this->getDoctrine()
                     ->getRepository('NononsenseHomeBundle:MetaData')
-                    ->findOneBy(array("workflow_id"=>$registroid));
+                    ->findOneBy(array("workflow_id" => $registroid));
 
                 $lote = $metaData->getLote();
                 $material = $metaData->getMaterial();
 
                 $metaDataArray = $this->getDoctrine()
                     ->getRepository('NononsenseHomeBundle:MetaData')
-                    ->findBy(array("lote"=>$lote,"material"=>$material));
+                    ->findBy(array("lote" => $lote, "material" => $material));
 
                 $it = 0;
                 $registroViejoReconciliacionId = 0;
-                foreach ($metaDataArray as $metaData){
-                    $registro = $metaData->getInstanciaWorkflow();
-                    //echo $registro->getId();
 
-                    if($registro->getStatus() < 20 && $registro->getStatus() >= 0 ){
-                        // registro válido.
-                        if($registro->getStatus() != 9){
-                            $it++;
-                            $registroViejoReconciliacionId = $registro->getId();
+                $tipoPlantilla = $registro->getMasterWorkflow();
+                $valido = true;
 
-                        }else{
-                            // Posible Reconciliado
-                            $posibleReconciliado = true;
-                            $registroViejoReconciliado = $registro->getId();
+                foreach ($metaDataArray as $metaData) {
 
+                    $registroM = $metaData->getInstanciaWorkflow();
 
+                    if ($registroM->getMasterWorkflow() == $tipoPlantilla) {
+
+                        if ($registroM->getStatus() != 20 &&
+                            $registroM->getStatus() != -2) {
+                            //echo "posible reconciliación, he encontrado el siguiente id: " . $registroM->getId(). " con el siguiente estado: ".$registroM->getStatus(). "<br />";
+
+                            // posible reconciliación
+                            if ($registroM->getStatus() != 6 &&
+                                $registroM->getStatus() != 8 &&
+                                $registroM->getStatus() != 9 &&
+                                $registroM->getStatus() != 10
+                            ) {
+                                // En proceso, ya no es valido
+                                $valido = false;
+                                $registroViejoReconciliacionId = $registroM->getId();
+                                //  echo "Proceso no válido <br/>";
+                                $reconciliacion = false;
+
+                            } else {
+                                // Estados correctos, no problem
+                                //echo "El registro que he detectado está en un estado final y se puede reconciliar, ole!<br />";
+                                $valido = false;
+                                $posibleReconciliado = true;
+                                $registroViejoReconciliacionId = $registroM->getId();
+                                $reconciliacion = true;
+                            }
                         }
-
-                  //      echo " registro activo";
                     }
-                }
-                //var_dump($it);
-                if($it == 0){
-                    $valido = true;
 
-                }else{
-                    $valido = false;
-                    $causa = "Ya existe un registro (".$registroViejoReconciliacionId.") para el Código Material: ".$material." Lote: ".$lote ;
-                    $reconciliacion = true;
+
+                    //echo "iteración: ";
+                    //echo $registroM->getId();
+                    //echo $registroM->getStatus();
+                    /*
+                                        if ($registroM->getStatus() < 20 && $registroM->getStatus() >= 0) {
+                                            // registro válido.
+                                            if ($registroM->getStatus() != 9) {
+                                                $it++;
+                                                $registroViejoReconciliacionId = $registroM->getId();
+
+                                            } else {
+                                                // Posible Reconciliado
+                                                $posibleReconciliado = true;
+                                                $registroViejoReconciliado = $registroM->getId();
+
+
+                                            }
+
+                                            //  echo " registro activo";
+                                        }
+                    */
+
+                    //exit;
+                }
+
+                //var_dump($it);
+                if (!$valido) {
+                    $causa = "Ya existe un registro (" . $registroViejoReconciliacionId . ") para el Código Material: " . $material . " Lote: " . $lote;
+                    //echo 'registro no válido por: '. $causa;
+                } else {
+                    //echo 'registro válido<br/>';
                 }
 
                 break;
@@ -347,25 +392,27 @@ class NuevoRegistroController extends Controller
                 $valido = true;
                 break;
         }
+        //exit;
 
-        if($valido){
+        if ($valido) {
             $registro->setStatus(0);
             $em->persist($registro);
             $em->flush();
 
-            if($posibleReconciliado){
+            if ($posibleReconciliado) {
                 // Actualizar:
                 $reconciliacionRegistro = $this->getDoctrine()
                     ->getRepository('NononsenseHomeBundle:ReconciliacionRegistro')
                     ->findOneBy(array("registro_viejo_id" => $registroViejoReconciliado));
+
                 $reconciliacionRegistro->setRegistroNuevoId($registro->getId());
                 $em->persist($reconciliacionRegistro);
                 $em->flush();
             }
 
             $route = $this->container->get('router')->generate('nononsense_registro_concreto_link', array("stepid" => $stepid, "form" => 0, "revisionid" => 0, "logbook" => $logbook));
-        }else{
-            if($reconciliacion){
+        } else {
+            if ($reconciliacion) {
                 /*
                  * Flujo especial
                  */
@@ -373,12 +420,12 @@ class NuevoRegistroController extends Controller
                     'error',
                     $causa
                 );
-                $route = $this->container->get('router')->generate('nononsense_solicitud_reconciliacion',array("registroid"=>$registroViejoReconciliacionId));
+                $route = $this->container->get('router')->generate('nononsense_solicitud_reconciliacion', array("registroViejoId" => $registroViejoReconciliacionId, "registroNuevoId" => $registro->getId()));
 
-            }else{
+            } else {
                 $this->get('session')->getFlashBag()->add(
                     'error',
-                    'No se puede crear el registro debido a: '.$causa
+                    'No se puede crear el registro debido a: ' . $causa
                 );
                 $route = $this->container->get('router')->generate('nononsense_home_homepage');
             }
@@ -387,126 +434,144 @@ class NuevoRegistroController extends Controller
         return $this->redirect($route);
     }
 
-    public function solicitudReconciliacionAction($registroid){
+    public function solicitudReconciliacionAction($registroViejoId, $registroNuevoId)
+    {
         return $this->render('NononsenseHomeBundle:Contratos:registro_reconciliacionInterface.html.twig', array(
-            "registroid" => $registroid,
+            "registroid" => $registroViejoId,
+            "nuevoregistroid" => $registroNuevoId
         ));
     }
 
-    public function solicitudReconciliacionFormularioAction($registroid){
+    public function solicitudReconciliacionFormularioAction($registroid, $nuevoregistroid)
+    {
         /*
+         * Antes:
          * Crear nuevo registro especial de reconciliación.
          * Crear una reconciliacionRegistro en status 0
+         *
+         * Ahora:
+         * Crear una entidad reconciliacionRegistro y utilizarla
          * En validación debe ir al FLL.
          */
-        $MasterWorkflow = $this->getDoctrine()
-            ->getRepository('NononsenseHomeBundle:MasterWorkflows')
-            ->find(16);
 
         $user = $this->container->get('security.context')->getToken()->getUser();
 
         $em = $this->getDoctrine()->getManager();
 
-        $instanciaWorkflow = new InstanciasWorkflows();
-        $instanciaWorkflow->setIsActive(true);
-        $instanciaWorkflow->setStatus(0);
-        $instanciaWorkflow->setDescription("");
-        $instanciaWorkflow->setMasterDataValues("");
-        $instanciaWorkflow->setObservaciones("");
-        $instanciaWorkflow->setYear(2019);
-
-        $instanciaWorkflow->setUserCreatedEntiy($user);
-        $instanciaWorkflow->setMasterWorkflowEntity($MasterWorkflow);
-        $instanciaWorkflow->setSignvalues("");
-        $instanciaWorkflow->setFiles("");
-
-        $em->persist($instanciaWorkflow);
-        $em->flush();
-
-        $MasterSteps = $this->getDoctrine()
-            ->getRepository('NononsenseHomeBundle:MasterSteps')
-            ->findBy(array("workflow_id" => 16));
-
-        foreach ($MasterSteps as $stepM) {
-            $instancias_step = new InstanciasSteps();
-            $instancias_step->setInstanciaWorkflow($instanciaWorkflow);
-
-            $instancias_step->setMasterStep($stepM);
-            $instancias_step->setDependsOn(0);
-            $instancias_step->setRules("");
-            $instancias_step->setStatusId(0);
-            $instancias_step->setUsageId(0);
-            $instancias_step->setToken("");
-            $instancias_step->setIsActive(1);
-            $instancias_step->setStepDataValue("");
-            $instancias_step->setAuxvalues("");
-
-            $em->persist($instancias_step);
-        }
-
-        $em->flush();
-
-        // asignar los depends on
-
-        foreach ($MasterSteps as $stepM) {
-            $instancias_stepMultiple = $this->getDoctrine()
-                ->getRepository('NononsenseHomeBundle:InstanciasSteps')
-                ->findBy(array(
-                    'master_step_id' => $stepM->getId(),
-                    'workflow_id' => $instanciaWorkflow->getId()));
-
-            foreach ($instancias_stepMultiple as $instancias_step) {
-                if ($stepM->getDependsOn() != 0) {
-
-                    $Master_step_dependsOn = $this->getDoctrine()
-                        ->getRepository('NononsenseHomeBundle:MasterSteps')
-                        ->find($stepM->getDependsOn());
-
-                    $instancias_step_dependON = $this->getDoctrine()
-                        ->getRepository('NononsenseHomeBundle:InstanciasSteps')
-                        ->findOneBy(array(
-                            'master_step_id' => $Master_step_dependsOn->getId(),
-                            'workflow_id' => $instanciaWorkflow->getId()));
-
-                    $instancias_step->setDependsOn($instancias_step_dependON->getId());
-
-                } else {
-                    $firststep = $instancias_step->getId();
-                }
-            }
-        }
-
-
-        $em->flush();
-        /*
-         * MetaData fecha y hora de creación
-         */
-        $metaData = new MetaData();
-        $metaData->setInstanciaWorkflow($instanciaWorkflow);
-        $now = new \DateTime();
-        $now->modify("+2 hour"); // Ver tema de horarios usos
-        $metaData->setFechainicio($now);
-
-        $em->persist($metaData);
-
-        $em->persist($instanciaWorkflow);
-        $em->flush();
+        $registroViejo = $reconciliacionRegistro = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
+            ->find($registroid);
 
         /*
          * Creacion de la entidad de control reconciliacionRegistro
          */
         $reconciliacionRegistro = new ReconciliacionRegistro();
-        $reconciliacionRegistro->setStatus(0);
+        $reconciliacionRegistro->setStatus(-1); // Estado pendiente
         $reconciliacionRegistro->setRegistroViejoId($registroid);
-        $reconciliacionRegistro->setRegistroNuevoId(0);
-        $reconciliacionRegistro->setSolicitudId($instanciaWorkflow->getId());
-        $reconciliacionRegistro->setDescription("");
+        $reconciliacionRegistro->setRegistroNuevoId($nuevoregistroid);
+        $reconciliacionRegistro->setUserId($user->getId());
+        $reconciliacionRegistro->setDescription("Petición en estado pendiente");
 
         $em->persist($reconciliacionRegistro);
         $em->flush();
 
-        $route = $this->container->get('router')->generate('nononsense_registro_concreto_link', array("stepid" => $firststep, "form" => 0, "revisionid"=> 0, "logbook" => 0));
+        $subcat = $registroViejo->getMasterWorkflowEntity()->getCategory()->getName();
+        $name = $registroViejo->getMasterWorkflowEntity()->getName();
+        $fecha = $reconciliacionRegistro->getCreated();
+
+        $peticion = array(
+            "id" => $reconciliacionRegistro->getId(),
+            "idafectado" => $registroid,
+            "subcat" => $subcat,
+            "name" => $name,
+            "fecha" => $fecha,
+            "nameUser" => $user->getName()
+        );
+
+        //Cargar interfaz para ello.
+        return $this->render('NononsenseHomeBundle:Contratos:formulario_peticion_reconciliacion.html.twig', array(
+            "peticion" => $peticion,
+
+        ));
+
+    }
+
+    public function SolicitarPeticionAction($peticionid,Request $request){
+        $peticionEntity = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:ReconciliacionRegistro')
+            ->find($peticionid);
+
+        $registroViejoId = $peticionEntity->getRegistroViejoId();
+        $registroNuevoId = $peticionEntity->getRegistroNuevoId();
+
+        $registroNuevo = $reconciliacionRegistro = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
+            ->find($registroNuevoId);
+
+        $step = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:InstanciasSteps')
+            ->findOneBy(array("workflow_id" => $registroViejoId, "dependsOn"=>0));
+
+        /*
+         * Guardar firma
+         */
+
+        $user = $this->container->get('security.context')->getToken()->getUser();
+
+        $em = $this->getDoctrine()->getManager();
+
+        /*
+        * Guardar evidencia un paso "mas" auxiliar
+        */
+        $evidencia = new EvidenciasStep();
+        $evidencia->setStepEntity($step);
+        $evidencia->setStatus(0);
+        $evidencia->setUserEntiy($user);
+        $evidencia->setToken($step->getToken());
+        $evidencia->setStepDataValue($step->getStepDataValue());
+
+        $firmaImagen = $request->query->get('firma');
+        $comentario = $request->query->get('comment');
+
+        $descp = "Petición de reconciliación solicitada. " . $comentario;
+
+        $peticionEntity->setStatus(0);
+        $peticionEntity->setDescription($comentario);
+
+        /*
+        * Guardar firma
+        */
+        $firmas = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:FirmasStep')
+            ->findBy(array("step_id" => $step->getId()));
+
+        $counter = count($firmas) + 1;
+
+        $firma = new FirmasStep();
+        $firma->setAccion($descp);
+        $firma->setStepEntity($step);
+        $firma->setUserEntiy($user);
+        $firma->setFirma($firmaImagen);
+        $firma->setNumber($counter);
+
+        $evidencia->setFirmaEntity($firma);
+
+        $registroNuevo->setStatus(16); // Esperando autorización para reconciliación
+
+        $em->persist($evidencia);
+        $em->persist($peticionEntity);
+        $em->persist($firma);
+        $em->persist($registroNuevo);
+        $em->flush();
+
+        $this->get('session')->getFlashBag()->add(
+            'success',
+            "Creada la solicitud de reconciliación. Cuando se la autoricen podrá comenzar la elaboración del registro: " . $registroNuevo->getId()
+        );
+
+        $route = $this->container->get('router')->generate('nononsense_registro_enproceso');
         return $this->redirect($route);
+
 
     }
 
@@ -532,7 +597,7 @@ class NuevoRegistroController extends Controller
         return $this->redirect($url_edit_documento);
     }
 
-    public function codigoLoteInterfaceAction($registroid,$logbook)
+    public function codigoLoteInterfaceAction($registroid, $logbook)
     {
         /*
          * Interfaz para asignar un codigo lote al workflow
@@ -552,7 +617,7 @@ class NuevoRegistroController extends Controller
         ));
     }
 
-    public function equipoQRInterfaceAction($registroid,$logbook)
+    public function equipoQRInterfaceAction($registroid, $logbook)
     {
         /*
         * Interfaz para asignar un equipo al workflow a través de un QR.
@@ -598,7 +663,7 @@ class NuevoRegistroController extends Controller
         ));
     }
 
-    public function codigoLoteSaveAction($registroid, Request $request,$logbook)
+    public function codigoLoteSaveAction($registroid, Request $request, $logbook)
     {
 
         /*
@@ -620,10 +685,10 @@ class NuevoRegistroController extends Controller
         $lote = $request->query->get('lote');
 
         $masterData = new \stdClass();
-        $masterData->u_codigo_material = new \stdClass();
-        $masterData->u_codigo_material->nameVar = "u_codigo_material";
-        $masterData->u_codigo_material->valueVar = array($codigo);
-        $masterData->u_codigo_material->step = "";
+        $masterData->u_lote = new \stdClass();
+        $masterData->u_lote->nameVar = "u_lote";
+        $masterData->u_lote->valueVar = array($codigo);
+        $masterData->u_lote->step = "";
 
         $masterData->u_batch = new \stdClass();
         $masterData->u_batch->nameVar = "u_batch";
@@ -653,7 +718,7 @@ class NuevoRegistroController extends Controller
                 'dependsOn' => 0,
                 'workflow_id' => $registroid));
 
-        $route = $this->container->get('router')->generate('nononsense_prevalidation_creation', array("registroid"=>$registro->getId(),"stepid" => $firststep->getId(), "logbook"=>$logbook));
+        $route = $this->container->get('router')->generate('nononsense_prevalidation_creation', array("registroid" => $registro->getId(), "stepid" => $firststep->getId(), "logbook" => $logbook));
         return $this->redirect($route);
     }
 
@@ -701,7 +766,7 @@ class NuevoRegistroController extends Controller
                 'dependsOn' => 0,
                 'workflow_id' => $registroid));
 
-        $route = $this->container->get('router')->generate('nononsense_prevalidation_creation', array("registroid"=>$registro->getId(),"stepid" => $firststep->getId(), "logbook"=>$logbook));
+        $route = $this->container->get('router')->generate('nononsense_prevalidation_creation', array("registroid" => $registro->getId(), "stepid" => $firststep->getId(), "logbook" => $logbook));
         return $this->redirect($route);
     }
 
@@ -767,7 +832,7 @@ class NuevoRegistroController extends Controller
                 'dependsOn' => 0,
                 'workflow_id' => $registroid));
 
-        $route = $this->container->get('router')->generate('nononsense_prevalidation_creation', array("registroid"=>$registro->getId(),"stepid" => $firststep->getId()));
+        $route = $this->container->get('router')->generate('nononsense_prevalidation_creation', array("registroid" => $registro->getId(), "stepid" => $firststep->getId()));
         return $this->redirect($route);
     }
 

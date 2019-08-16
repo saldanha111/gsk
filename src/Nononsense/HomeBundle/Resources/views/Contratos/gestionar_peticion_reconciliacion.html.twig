@@ -1,0 +1,413 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}DOCXPRESSO | {{'Homepage'|trans}} {% endblock %}
+{% block head %}
+{{ parent() }}
+<style>
+    #loadingChart {
+        display: none
+    }
+
+    .doc-box-filters {
+        display: none
+    }
+
+    table.datos-proveedor {
+        width: 100%;
+        float: left;
+        margin: 15px 0;
+        border-bottom: 1px solid #ccc;
+    }
+
+    table.datos-proveedor thead td {
+        font-weight: bold;
+        font-size: 14px;
+    }
+
+    table.datos-proveedor thead tr {
+        border-bottom: 1px solid #ccc;
+    }
+
+    tbody tr td {
+        padding: 3px 5px;
+        font-size: 14px;
+        font-weight: 400;
+        height: 34px;
+    }
+
+    tbody.datos-proveedor tr td.pdte {
+        color: #ae3d3d;
+    }
+
+    tbody.datos-proveedor tr td.pdte-ok {
+        color: #00cc00;
+    }
+
+    tbody.datos-proveedor tr td {
+        padding: 3px 5px;
+        font-size: 14px;
+        font-weight: 400;
+        height: 34px;
+    }
+
+    tbody tr td.pdte {
+        color: #ae3d3d;
+    }
+
+    tbody tr td.pdte-ok {
+        color: #00cc00;
+    }
+
+    a.btn-table {
+        background: #0fba40;
+        border-radius: 0;
+        color: #fff;
+        font-size: 12px;
+        width: 100%;
+        margin: 0;
+        border: 1px solid #0fba40;
+        padding: 5px 0;
+    }
+
+    a.btn-cancel {
+        background: red;
+        border: 1px solid red;
+    }
+
+    a.btn-table:hover {
+        background: #fff;
+        color: #0fba40;
+    }
+
+    a.btn-cancel:hover {
+        background: #fff;
+        color: red;
+    }
+
+    .row.wrapper-blocks {
+        margin-left: -5px;
+        margin-right: -5px;
+        margin-top: 25px;
+        margin-bottom: 25px;
+    }
+
+    .block-wrapper {
+        padding: 0 5px;
+        min-width: 170px;
+    }
+
+    .block-content {
+        background: #f3f3f3;
+        padding: 10px 0;
+        margin-bottom: 10px;
+        border: 2px solid #adb5bc;
+        height: 20px;
+        display: table;
+        width: 100%;
+    }
+
+    .wrapper-blocks-home .block-content {
+        background: #f3f3f3;
+        padding: 15px;
+        margin-bottom: 10px;
+        border: 2px solid #adb5bc;
+        height: 30px;
+        display: table;
+        width: 100%;
+    }
+
+    h3.title-block {
+        font-size: 24px;
+        color: #4c91d2;
+        max-width: 200px;
+        font-weight: normal;
+        margin-top: 0;
+    }
+
+    h3.title-block + a img {
+        width: 75px;
+        height: 75px;
+        margin: auto;
+        display: table;
+        bottom: 40px;
+        left: 40%;
+    }
+
+    tbody.datos-proveedor tr td.complet {
+        color: #009900;
+    }
+
+    /*
+     * Style Cesar
+     */
+    .row.buscador {
+        margin: 25px 0;
+    }
+
+    select,
+    input[type="text"],
+    input[type="email"],
+    input[type="number"],
+    input[type="search"] {
+        width: 100%;
+        border: 1px solid #3c89ce;
+        padding: 5px 7px;
+        font-size: 14px;
+        margin-bottom: 15px;
+    }
+
+    select {
+        padding: 4px 7px;
+    }
+
+    .disabled-box {
+        background: #9f9f9f;
+        padding: 15px;
+        margin-bottom: 10px;
+        border: 2px solid #adb5bc;
+        height: 210px;
+        display: table;
+        width: 100%;
+    }
+
+    .doc-box-filters {
+        display: none
+    }
+
+    table.datos-proveedor {
+        width: 100%;
+        float: left;
+        margin: 15px 0;
+        border-bottom: 1px solid #ccc;
+    }
+
+    table.datos-proveedor thead td {
+        font-weight: bold;
+        font-size: 14px;
+    }
+
+    table.datos-proveedor thead tr {
+        border-bottom: 1px solid #ccc;
+    }
+
+    tbody.datos-proveedor tr td {
+        padding: 3px 5px;
+        font-size: 14px;
+        font-weight: 400;
+        height: 34px;
+    }
+
+    tbody.datos-proveedor tr td.pdte {
+        color: #ae3d3d;
+    }
+
+    tbody.datos-proveedor tr td.pdte-ok {
+        color: #00cc00;
+    }
+
+    tbody.datos-proveedor tr td.complet {
+        color: #009900;
+    }
+
+</style>
+{% endblock %}
+{% block main_title %} {{'Gestionar petición'|trans}}{% endblock %}
+{% block content %}
+
+
+<div class="wrapper wrapper-content">
+    {% for flashMessage in app.session.flashbag.get('error') %}
+    <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+        <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+        {{ flashMessage }}
+    </div>
+    {% endfor %}
+
+    <div class="row">
+        <div class="col-sm-12">
+            <table id="inProcess" class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Nº Petición</th>
+                    <th>Id Registro afectado</th>
+                    <th>SubCategoria</th>
+                    <th>Nombre</th>
+                    <th>Fecha Solicitado</th>
+                    <th>Solicitado por</th>
+                </tr>
+                </thead>
+                <tr>
+                    <td>{{peticion.id}}</td>
+                    <td>{{peticion.idafectado}}</td>
+                    <td>{{peticion.subcat}}</td>
+                    <td>{{peticion.name}}</td>
+                    <td>{{peticion.fecha | date('d-m-Y H:i:s') }}</td>
+                    <td>{{peticion.nameUser}}</td>
+                </tr>
+            </table>
+        </div>
+        <div class="col-sm-12">
+            <table id="inProcess2" class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Nº</th>
+                    <th>SubCategoria</th>
+                    <th>Nombre</th>
+                    <th>Estado</th>
+                    <th>Fecha Finalización</th>
+                    <th>Acción</th>
+                </tr>
+                </thead>
+                {% for plantilla in documentsReconciliacion %}
+                <tr>
+                    <td>{{plantilla.id}}</td>
+                    <td>{{plantilla.subcat}}</td>
+                    <td>{{plantilla.name}}</td>
+                    {% if plantilla.status == 0 %}
+                    <td>Iniciado</td>
+                    {% elseif plantilla.status == 1 %}
+                    <td>Esperando firma guardado parcial</td>
+                    {% elseif plantilla.status == 2 %}
+                    <td>Esperando firma envío</td>
+                    {% elseif plantilla.status == 3 %}
+                    <td>Esperando firma cancelación</td>
+                    {% elseif plantilla.status == 4 %}
+                    <td>En verificación</td>
+                    {% elseif plantilla.status == 5 %}
+                    <td>Pendiente cancelación en edición</td>
+                    {% elseif plantilla.status == 6 %}
+                    <td class="pdte">Cancelado en edición</td>
+                    {% elseif plantilla.status == 7 %}
+                    <td class="pdte">Esperando firma verificación total</td>
+                    {% elseif plantilla.status == 8 %}
+                    <td class="pdte">Cancelado</td>
+                    {% elseif plantilla.status == 9 %}
+                    <td>Archivado</td>
+                    {% elseif plantilla.status == 10 %}
+                    <td>Reconciliado</td>
+                    {% elseif plantilla.status == 11 %}
+                    <td class="pdte">Bloqueado</td>
+                    {% elseif plantilla.status == 12 %}
+                    <td>Esperando firma cancelación en verificación</td>
+                    {% elseif plantilla.status == 13 %}
+                    <td>Esperando firma devolución a edición</td>
+                    {% elseif plantilla.status == 14 %}
+                    <td>Pendiente de cancelación en verificación</td>
+                    {% elseif plantilla.status == 15 %}
+                    <td>Esperando firma verificación parcial</td>
+                    {% elseif plantilla.status == 16 %}
+                    <td>Esperando autorización para reconciliación</td>
+                    {% else %}
+                    <td class="pdte">{{plantilla.status}}</td>
+                    {% endif %}
+                    <td>{{plantilla.fecha | date('d-m-Y H:i:s') }}</td>
+                    <td><a class="btn btn-xs btn-primary" name="verregistro"
+                           href="{{path('nononsense_ver_registro', {'revisionid': plantilla.id})}}"
+                           target="_blank">{{'Ver'|trans}}</a></td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+        <form id="accionform" action="{{path('nononsense_peticion_reconciliacion_accion', {'peticionid': peticion.id})}}">
+            <textarea id="comment" name="comment" form="accionform" rows="10" cols="91"></textarea>
+            <div id="signature-pad" class="input-group">
+                <h2>Introduzca su firma</h2>
+                <canvas width="300" height="150" style="touch-action: none; border: 2px solid #eee; box-shadow: 0px 0px 6px 1px rgba(80, 90, 100, 0.5)"></canvas>
+            </div>
+            <input type="hidden" id="firma" name="firma" />
+            <input type="hidden" id="accion" name="accion" />
+            <a name="borrarFirmar" class="btn btn-primary" id="borrarFirmar">Limpiar firma</a>
+            <a name="volver" class="btn btn-danger" id="backButton">Volver</a>
+            <a name="autorizarPeticion" class="btn btn-success">Autorizar Petición</a>
+            <a name="cancelarPeticion" class="btn btn-danger">Cancelar Petición</a>
+        </form>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+{{ parent() }}
+<script src="/js/plugins/signature-pad/signature-pad.min.js"></script>
+<script>
+
+
+    $(document).ready(function () {
+        toastr.options = {
+            "closeButton": true,
+            "debug": false,
+            "progressBar": true,
+            "positionClass": "toast-top-center",
+            "onclick": null,
+            "showDuration": "400",
+            "hideDuration": "1000",
+            "timeOut": "7000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        };
+
+        ActivateMenu('docxpresso_auth');
+        $('#side-menu').metisMenu();
+
+        var canvas = document.querySelector("canvas");
+
+        var signaturePad = new SignaturePad(canvas);
+
+        $('a[name="cancelarPeticion"]').on('click', function () {
+            var valueSelect = $("#motivoSelect").val();
+            var text = $("#comment").val();
+
+
+            $("#firma").val(signaturePad.toDataURL()); // save image as PNG
+            $("#accion").val('cancelar'); // accion a procesar
+
+            console.log(text);
+
+            if (text == ""){
+                toastr.error("Debe escribir un motivo, no puede dejar el cuadro en blanco",'aviso');
+            }else if(signaturePad.isEmpty()){
+                toastr.error("Debe rellenar una fima, no puede dejar el cuadro en blanco",'aviso');
+
+            }else{
+                console.log(signaturePad.toDataURL());
+                $("#accionform").submit();
+            }
+
+
+        });
+
+        $('a[name="autorizarPeticion"]').on('click', function () {
+            var valueSelect = $("#motivoSelect").val();
+            var text = $("#comment").val();
+
+
+            $("#firma").val(signaturePad.toDataURL()); // save image as PNG
+            $("#accion").val('autorizar'); // accion a procesar
+
+            console.log(text);
+
+            if (text == ""){
+                toastr.error("Debe escribir un motivo, no puede dejar el cuadro en blanco",'aviso');
+            }else if(signaturePad.isEmpty()){
+                toastr.error("Debe rellenar una fima, no puede dejar el cuadro en blanco",'aviso');
+
+            }else{
+                console.log(signaturePad.toDataURL());
+                $("#accionform").submit();
+            }
+
+
+        });
+        $('#borrarFirmar').on('click', function () {
+            signaturePad.clear();
+        });
+        $('#backButton').on('click', function () {
+            window.history.back();
+        });
+
+
+    });
+
+
+</script>
+{% endblock %}

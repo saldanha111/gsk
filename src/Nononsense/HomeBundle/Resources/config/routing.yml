@@ -217,7 +217,6 @@ nononsense_precreation_equipo_pesa_qr_save:
     path:     /precreation_equipo_pesa_qr_save/{registroid}
     defaults: { _controller: NononsenseHomeBundle:NuevoRegistro:equipoPesaQRSave, registroid: 0 }
 
-
 nononsense_ver_step:
     path:     /ver_step/{stepid}
     defaults: { _controller: NononsenseHomeBundle:RegistroConcreto:verStep, stepid: 0 }
@@ -235,12 +234,12 @@ nononsense_prevalidation_creation:
     defaults: { _controller: NononsenseHomeBundle:NuevoRegistro:checkPreValidationRegistro, registroid: 0, stepid: 0, logbook: 0 }
 
 nononsense_solicitud_reconciliacion:
-    path:     /solicitud_reconciliacion/{registroid}
-    defaults: { _controller: NononsenseHomeBundle:NuevoRegistro:solicitudReconciliacion,registroid: 0 }
+    path:     /solicitud_reconciliacion/{registroViejoId}/{registroNuevoId}
+    defaults: { _controller: NononsenseHomeBundle:NuevoRegistro:solicitudReconciliacion,registroViejoId: 0, registroNuevoId: 0 }
 
 nononsense_solicitud_reconciliacion_formulario:
-    path:     /solicitud_reconciliacion_formulario/{registroid}
-    defaults: { _controller: NononsenseHomeBundle:NuevoRegistro:solicitudReconciliacionFormulario,registroid: 0 }
+    path:     /solicitud_reconciliacion_formulario/{registroid}/{nuevoregistroid}
+    defaults: { _controller: NononsenseHomeBundle:NuevoRegistro:solicitudReconciliacionFormulario,registroid: 0, nuevoregistroid: 0}
 
 nononsense_backoffice_verificator_groups:
     path: /grupos_verificacion
@@ -253,8 +252,6 @@ nononsense_backoffice_set_group:
 nononsense_notificacion_semanal:
     path: /notificacion_semanal
     defaults: { _controller: NononsenseHomeBundle:RegistroValidation:notificacionSemanalPendienteVerificar }
-
-
 
 nononsense_documents:
     path: /documents
@@ -332,7 +329,19 @@ nononsense_cancelacion_aprobada:
     path:     /nononsense_cancelacion_aprobada/{stepid}
     defaults: { _controller: NononsenseHomeBundle:RegistroValidation:cancelacionAprobada, stepid: 0}
 
+nononsense_registro_autorizar_list:
+    path:     /nononsense_registro_autorizar_list
+    defaults: { _controller: NononsenseHomeBundle:RegistroConcreto:listadoAutorizaciones}
 
+nononsense_autorizar_peticion:
+    path:     /autorizar_peticion/{peticionid}
+    defaults: { _controller: NononsenseHomeBundle:RegistroConcreto:autorizarPeticionInterface, peticionid: 0}
 
+nononsense_peticion_reconciliacion_accion:
+    path:     /peticion_reconciliacion_accion/{peticionid}
+    defaults: { _controller: NononsenseHomeBundle:RegistroConcreto:procesarPeticion, peticionid: 0}
 
+nononsense_peticion_reconciliacion_accion_solicitar:
+    path:     /peticion_reconciliacion_accion_solicitar/{peticionid}
+    defaults: { _controller: NononsenseHomeBundle:NuevoRegistro:SolicitarPeticion, peticionid: 0}
 

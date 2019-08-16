@@ -99,8 +99,7 @@ function customOnLoad() {
         console.log(window.onActivityChange);
 
         var responseURL = $('#responseURL').val();
-        responseURL = responseURL.replace(/parcial/g, "");
-        responseURL = responseURL.replace(/enviar/g, "");
+        responseURL = limpiarResponseUrl(responseURL);
         responseURL += 'rechazar';
 
         $('#responseURL').val(responseURL);
@@ -117,8 +116,7 @@ function customOnLoad() {
         // Hacer un click sobre download
         // Poner el action cancelar
         var responseURL = $('#responseURL').val();
-        responseURL = responseURL.replace(/parcial/g, "");
-        responseURL = responseURL.replace(/enviar/g, "");
+        responseURL = limpiarResponseUrl(responseURL);
         responseURL += 'aprobar';
 
         $('#responseURL').val(responseURL);
@@ -128,7 +126,22 @@ function customOnLoad() {
 
     });
 
+    function limpiarResponseUrl(url){
+        var urlLimpia = url;
+        urlLimpia = urlLimpia.replace(/cancelar%2F1/g, "");
+        urlLimpia = urlLimpia.replace(/cancelar%2F0/g, "");
+        urlLimpia = urlLimpia.replace(/parcial%2F1/g, "");
+        urlLimpia = urlLimpia.replace(/parcial%2F0/g, "");
+        urlLimpia = urlLimpia.replace(/enviar%2F1/g, "");
+        urlLimpia = urlLimpia.replace(/enviar%2F0/g, "");
+        urlLimpia = urlLimpia.replace(/verificarparcial%2F1/g, "");
+        urlLimpia = urlLimpia.replace(/verificarparcial%2F0/g, "");
+
+        return urlLimpia;
+    }
 }
+
+
 
 
 

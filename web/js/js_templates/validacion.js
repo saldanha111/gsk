@@ -176,10 +176,7 @@ function customOnLoad() {
         console.log("Boton cancelar de GSK");
 
         var responseURL = $('#responseURL').val();
-        responseURL = responseURL.replace(/cancelar/g, "");
-        responseURL = responseURL.replace(/parcial/g, "");
-        responseURL = responseURL.replace(/enviar/g, "");
-        responseURL = responseURL.replace(/verificarparcial/g, "");
+        responseURL = limpiarResponseUrl(responseURL);
         responseURL += 'cancelar';
         $('#responseURL').val(responseURL);
         $('#download').trigger('click');
@@ -199,10 +196,7 @@ function customOnLoad() {
             return false;
         } else {
             var responseURL = $('#responseURL').val();
-            responseURL = responseURL.replace(/cancelar/g, "");
-            responseURL = responseURL.replace(/parcial/g, "");
-            responseURL = responseURL.replace(/enviar/g, "");
-            responseURL = responseURL.replace(/verificarparcial/g, "");
+            responseURL = limpiarResponseUrl(responseURL);
             responseURL += 'verificar';
             if (window.commentCompulsory) {
                 responseURL += '%2F1';
@@ -228,10 +222,7 @@ function customOnLoad() {
 
         } else {
             var responseURL = $('#responseURL').val();
-            responseURL = responseURL.replace(/cancelar/g, "");
-            responseURL = responseURL.replace(/parcial/g, "");
-            responseURL = responseURL.replace(/enviar/g, "");
-            responseURL = responseURL.replace(/verificarparcial/g, "");
+            responseURL = limpiarResponseUrl(responseURL);
             responseURL += 'verificarparcial';
             if (window.commentCompulsory) {
                 responseURL += '%2F1';
@@ -258,6 +249,20 @@ function customOnLoad() {
 
     });
 
+
+    function limpiarResponseUrl(url){
+        var urlLimpia = url;
+        urlLimpia = urlLimpia.replace(/cancelar%2F1/g, "");
+        urlLimpia = urlLimpia.replace(/cancelar%2F0/g, "");
+        urlLimpia = urlLimpia.replace(/parcial%2F1/g, "");
+        urlLimpia = urlLimpia.replace(/parcial%2F0/g, "");
+        urlLimpia = urlLimpia.replace(/enviar%2F1/g, "");
+        urlLimpia = urlLimpia.replace(/enviar%2F0/g, "");
+        urlLimpia = urlLimpia.replace(/verificarparcial%2F1/g, "");
+        urlLimpia = urlLimpia.replace(/verificarparcial%2F0/g, "");
+
+        return urlLimpia;
+    }
 }
 
 

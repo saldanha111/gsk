@@ -46,9 +46,9 @@ class ReconciliacionRegistro
     /**
      * @var integer
      *
-     * @ORM\Column(name="solicitud_id", type="integer")
+     * @ORM\Column(name="user_id", type="integer")
      */
-    protected $solicitud_id;
+    protected $user_id;
 
     /**
      * @var string
@@ -254,26 +254,28 @@ class ReconciliacionRegistro
         return $this->modified;
     }
 
+
+
     /**
-     * Set solicitud_id
+     * Set user_id
      *
-     * @param integer $solicitudId
+     * @param integer $userId
      * @return ReconciliacionRegistro
      */
-    public function setSolicitudId($solicitudId)
+    public function setUserId($userId)
     {
-        $this->solicitud_id = $solicitudId;
+        $this->user_id = $userId;
 
         return $this;
     }
 
     /**
-     * Get solicitud_id
+     * Get user_id
      *
      * @return integer 
      */
-    public function getSolicitudId()
+    public function getUserId()
     {
-        return $this->solicitud_id;
+        return $this->user_id;
     }
 }

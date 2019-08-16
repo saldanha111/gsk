@@ -129,6 +129,7 @@ class Documents
      * @var boolean $signCreator
      *
      * @ORM\Column(name="sign_creator", type="boolean",  nullable=true, options={"default" = false})
+     * @Groups({"detail_document"})
      */
     protected $signCreator;
 
@@ -136,6 +137,7 @@ class Documents
      * @var boolean $attachment
      *
      * @ORM\Column(name="attachment", type="boolean", options={"default" = false})
+     * @Groups({"detail_document"})
      */
     protected $attachment;
 
@@ -562,5 +564,28 @@ class Documents
     public function getSignCreator()
     {
         return $this->signCreator;
+    }
+
+    /**
+     * Set attachment
+     *
+     * @param boolean $attachment
+     * @return Documents
+     */
+    public function setAttachment($attachment)
+    {
+        $this->attachment = $attachment;
+
+        return $this;
+    }
+
+    /**
+     * Get attachment
+     *
+     * @return boolean 
+     */
+    public function getAttachment()
+    {
+        return $this->attachment;
     }
 }

@@ -221,12 +221,6 @@
         {{ flashMessage }}
     </div>
     {% endfor %}
-    {% for flashMessage in app.session.flashbag.get('success') %}
-    <div class="alert alert-success alert-dismissable" style="margin: 10px 16px 0 16px">
-        <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
-        {{ flashMessage }}
-    </div>
-    {% endfor %}
     <div class="row">
         <div class="col-sm-12">
             <div class="row wrapper-blocks wrapper-blocks-home">
@@ -324,8 +318,6 @@
                             <!--<td>{{plantilla.getMasterWorkflowEntity.description}}</td>-->
                             {% if plantilla.status == 0 %}
                             <td>Iniciado</td>
-                            {% elseif plantilla.status == 16 %}
-                            <td>Esperando autorización para reconciliación</td>
                             {% elseif plantilla.status == 6 %}
                             <td class="pdte">Devuelto para edición</td>
                             {% else %}
@@ -337,13 +329,7 @@
                             <td><a class="btn btn-xs btn-primary" name="completarregistro"
                                    data-template="{{plantilla.id}}"
                                    data-loogbook="{{plantilla.logbook}}">{{'Completar
-                                registro'|trans}}</a>
-                                {% if plantilla.reconciliacion != 'NO' %}
-                                <a class="btn btn-xs btn-primary" name="verregistro"
-                                   href="{{path('nononsense_ver_registro', {'revisionid': plantilla.reconciliacion})}}"
-                                   target="_blank">{{'Ver reconciliado'|trans}}</a>
-                                {% endif %}
-                            </td>
+                                registro'|trans}}</a></td>
                             {% else %}
                             <td><a class="btn btn-xs btn-secondary" name="completarregistro"><i class="fa fa-lock"> </i>
                                 {{'En edicion'|trans}}</a></td>
@@ -409,8 +395,6 @@
                         <td>Pendiente de cancelación en verificación</td>
                         {% elseif plantilla.status == 15 %}
                         <td>Esperando firma verificación parcial</td>
-                        {% elseif plantilla.status == 16 %}
-                        <td>Esperando autorización para reconciliación</td>
                         {% else %}
                         <td class="pdte">{{plantilla.status}}</td>
                         {% endif %}
@@ -420,13 +404,7 @@
                         <td><a class="btn btn-xs btn-primary" name="completarregistro"
                                data-template="{{plantilla.id}}"
                                data-loogbook="{{plantilla.logbook}}">{{'Completar
-                            registro'|trans}}</a>
-                            {% if plantilla.reconciliacion != 'NO' %}
-                            <a class="btn btn-xs btn-primary" name="verregistro"
-                               href="{{path('nononsense_ver_registro', {'revisionid': plantilla.reconciliacion})}}"
-                               target="_blank">{{'Ver reconciliado'|trans}}</a>
-                            {% endif %}
-                        </td>
+                            registro'|trans}}</a></td>
                         {% else %}
                         <td><a class="btn btn-xs btn-secondary" name="completarregistro"><i class="fa fa-lock"> </i>
                             {{'En edicion'|trans}}</a></td>
@@ -515,13 +493,8 @@
                                href="{{path('nononsense_ver_registro', {'revisionid': plantilla.registroid})}}"
                                target="_self">{{'Ver'|trans}}</a>
                             {% else %}
-                        <a class="btn btn-xs btn-secondary" name="completarregistro"><i class="fa fa-lock"> </i>
-                            {{'En revision'|trans}}</a>
-                        {% endif %}
-                            {% if plantilla.reconciliacion != 'NO' %}
-                            <a class="btn btn-xs btn-primary" name="verregistro"
-                               href="{{path('nononsense_ver_registro', {'revisionid': plantilla.reconciliacion})}}"
-                               target="_blank">{{'Ver reconciliado'|trans}}</a>
+                            <a class="btn btn-xs btn-secondary" name="completarregistro"><i class="fa fa-lock"> </i>
+                                {{'En revision'|trans}}</a>
                             {% endif %}
                         </td>
                     </tr>
@@ -585,42 +558,6 @@
                 {% endif %}
             </div>
         </div>
-        <div style="display: none">
-            <form id="createRegistro" action="{{path('nononsense_registro_completar', {'registroid': 0})}}">
-                <input type="hidden" name="registroidForm" id="registroidForm">
-                <input type="hidden" name="logbook" id="logbookForm">
-            </form>
-        </div>
-        <div class="modal" id="editModal" tabindex="-1">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-body">
-                        <h4>Número de registros del logbook </h4>
-                        <p>Introduzca el número de registros anteriores que quiere ver en el logbook</p>
-                        <p>
-                            Nombre: <input id="logbook" name="logbook" type="number"
-                                           min="0"
-                                           max="10"
-                                           step="1"
-                                           value=""
-                                           class="form-control"></br>
-                        </p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-danger" id="editBtnNo"
-                                data-dismiss="modal">
-                            <i class="fa fa-ban" aria-hidden="true"></i> Cancelar
-                        </button>
-                        <a
-                                class="btn btn-success" id="editBtnYes"
-                                data-dismiss="modal">
-                            <i class="fa fa-paper-plane" aria-hidden="true"></i>
-                            Aceptar
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 </div>
 {% endblock %}
@@ -649,113 +586,6 @@
         ActivateMenu('docxpresso_home');
         $('#side-menu').metisMenu();
 
-
-        $('#factBtnNo').click(function () {
-            $("#factModal").hide();
-
-        });
-
-        $('[name="completarregistro"]').click(function () {
-            console.log("click yeah!")
-
-            var templateid = $(this).attr('data-template');
-            $('#registroidForm').val(templateid);
-            //envío de email
-            var logbookTemplate = $(this).attr('data-loogbook');
-
-            console.log(logbookTemplate);
-            if (logbookTemplate == 1) {
-                console.log('showModal!');
-                $("#editModal").show();
-            } else {
-                console.log('submit!');
-                $('#logbookForm').val(0);
-                $('#createRegistro').submit();
-            }
-
-        });
-
-        $('#editBtnNo').click(function () {
-            $("#editModal").hide();
-
-        });
-
-        $('#editBtnYes').click(function () {
-
-            var logbook = $('#logbook').val();
-
-            $('#logbookForm').val(logbook);
-            $('#createRegistro').submit();
-
-
-        });
-
-        $('#tituloparcial').click(function () {
-            $(this).addClass('active');
-            $('#tituloregistros').removeClass('active');
-
-            $('#cumplimentacionParcialDiv').show();
-            $('#filtroparciales').show();
-            $('#inProcess').hide();
-        });
-
-        $('#tituloregistros').click(function () {
-            $(this).addClass('active');
-            $('#tituloparcial').removeClass('active');
-
-            $('#filtroparciales').hide();
-            $('#inProcess').show();
-            $('#cumplimentacionParcialDiv').hide();
-
-        });
-
-        $('#idfiltrar').click(function () {
-            var idRegistro = $('#idregistro').val();
-
-            var idcodigomaterial = $('#idunicocodigomaterial').val();
-            var idlote = $('#idLote').val();
-            var idcodigoequipo = $('#idcodigoequipo').val();
-            var idworkordersap = $('#idworkordersap').val();
-            var idcodigodocumento = $('#idcodigodocumento').val();
-
-            if (idRegistro == "") {
-                idRegistro = "-1";
-            }
-            if (idcodigomaterial == "") {
-                idcodigomaterial = "-1";
-
-            }
-            if (idlote == "") {
-                idlote = "-1";
-
-            }
-            if (idcodigoequipo == "") {
-                idcodigoequipo = "-1";
-
-            }
-            if (idworkordersap == "") {
-                idworkordersap = "-1";
-
-            }
-            if (idcodigodocumento == "") {
-                idcodigodocumento = "-1";
-
-            }
-
-            var query = idRegistro + "_" + idcodigomaterial + "_" + idlote + "_" + idcodigoequipo + "_" + idworkordersap + "_" + idcodigodocumento;
-
-            var server = "/registro_process/1/" + query;
-
-            location.replace(server);
-
-        });
-
-        if ("{{query}}" != 'q') {
-            console.log("Me ejecuto");
-            $("#tituloparcial").trigger("click");
-        } else {
-            console.log("{{query}}");
-        }
 
     });
 

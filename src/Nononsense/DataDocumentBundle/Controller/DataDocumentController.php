@@ -166,6 +166,9 @@ class DataDocumentController extends Controller
                 case "u_codigo":
                     $lote = rawurldecode($value[0]);
                     break;
+                case "u_batch":
+                    $material = rawurldecode($value[0]);
+                    break;
                 case "u_SAP":
                     $workorderSAP = rawurldecode($value[0]);
                     break;

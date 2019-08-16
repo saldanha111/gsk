@@ -683,4 +683,27 @@ class MasterSteps
     {
         return $this->validation;
     }
+
+    /**
+     * Set checklist
+     *
+     * @param boolean $checklist
+     * @return MasterSteps
+     */
+    public function setChecklist($checklist)
+    {
+        $this->checklist = $checklist;
+
+        return $this;
+    }
+
+    /**
+     * Get checklist
+     *
+     * @return boolean 
+     */
+    public function getChecklist()
+    {
+        return $this->checklist;
+    }
 }
