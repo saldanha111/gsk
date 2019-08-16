@@ -226,7 +226,7 @@ class RecordsController extends Controller
             $versionJS = filemtime(__DIR__ . "/../../../../web/js/js_templates/document.js");
             $validacionURL1 = $baseUrl . "js/js_templates/document.js?v=" . $versionJS;
 
-            $options['prefix'] = 'u';
+            //$options['prefix'] = 'u';
             $options['responseURL'] = $baseUrl . "records/redirectFromData/" . $id . "/";
         }
 
