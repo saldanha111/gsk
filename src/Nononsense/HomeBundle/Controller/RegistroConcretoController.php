@@ -541,13 +541,17 @@ class RegistroConcretoController extends Controller
 
         if (count($userGroupVerificacion) == 1) {
             // Enviar notificación al único usuario del grupo
+            // {{path('nononsense_ver_registro', {'revisionid': plantilla.registroid})}}
+            $route = $this->container->get('router')->generate('nononsense_ver_registro', array('revisionid'=>$registro->getId()));
+            $route = 'registro_ver/'.$registro->getId();
 
             $groupUsers = $userGroupVerificacion[0];
             $userVerificacion = $groupUsers->getUser();
 
             $mailTo = $userVerificacion->getEmail();
             $baseURL = $this->container->getParameter('cm_installation');
-            $link = $baseURL . "registro_process";
+            $link = $baseURL . $route;
+
             $logo = '';
             $accion = 'notificarVerficiacion';
             $subject = 'Tiene un registro pendiente de verificar';
