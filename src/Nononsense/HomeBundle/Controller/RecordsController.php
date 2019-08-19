@@ -103,6 +103,7 @@ class RecordsController extends Controller
         $array_item["states"][1]="Pendiente de completar";
         $array_item["states"][2]="Pendiente de firma";
         $array_item["states"][3]="Completado";
+        $array_item["states"][4]="Cancelado";
         $array_item["suser"]["groups"]=$groups;
         $array_item["filters"]=$filters;
         $array_item["types"] = $this->getDoctrine()->getRepository(Types::class)->findAll();
@@ -570,7 +571,12 @@ class RecordsController extends Controller
                 }
 
                 if(!$can_sign){
-                    return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
+                    if($record->getStatus()==2){
+                        return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
+                    }
+                    else{
+                        $can_sign=0;
+                    }
                 }
 
                 $record->setStatus(2);
@@ -600,7 +606,8 @@ class RecordsController extends Controller
                     "validated" => $validated,
                     "id" => $id,
                     "devolucion" => $devolucion,
-                    "anexo" => $anexo
+                    "anexo" => $anexo,
+                    "can_sign" => $can_sign
                 ));
             }
 
