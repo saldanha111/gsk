@@ -111,6 +111,14 @@ class RecordsSignatures
      */
     protected $email;
 
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="comments", type="text",  nullable=true)
+     *
+     */
+    protected $comments;
+
 
 
     public function __construct()

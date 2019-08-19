@@ -121,6 +121,14 @@ class RecordsDocuments
     protected $observaciones;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="comments", type="text",  nullable=true)
+     *
+     */
+    protected $comments;
+
+    /**
      * @var integer
      *
      * @ORM\Column(name="status", type="integer", options={"default" = 0})
@@ -680,5 +688,28 @@ class RecordsDocuments
     public function getLastSign()
     {
         return $this->lastSign;
+    }
+
+    /**
+     * Set comments
+     *
+     * @param string $comments
+     * @return RecordsDocuments
+     */
+    public function setComments($comments)
+    {
+        $this->comments = $comments;
+
+        return $this;
+    }
+
+    /**
+     * Get comments
+     *
+     * @return string 
+     */
+    public function getComments()
+    {
+        return $this->comments;
     }
 }

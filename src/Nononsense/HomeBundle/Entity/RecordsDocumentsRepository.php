@@ -17,7 +17,7 @@ class RecordsDocumentsRepository extends EntityRepository
         $em = $this->getEntityManager();
 
         $list = $this->createQueryBuilder('r')
-            ->select('r.id', 'd.name', 't.name as nameType', 'u.name as usuario', 'r.status', 's.userid as idNextSigner', 'u2.name nameNextSigner', 's.groupid as idNextSignerGroup', 'g2.name nameNextSignerGroup', 'r.usercreatedid', 'r.files', 'r.created')
+            ->select('r.id', 'd.name', 't.name as nameType', 'u.name as usuario', 'r.status', 's.userid as idNextSigner', 'u2.name nameNextSigner', 's.groupid as idNextSignerGroup', 'g2.name nameNextSignerGroup', 'r.usercreatedid', 'r.files', 'r.created', 'r.comments')
             ->leftJoin("r.type", "t")
             ->leftJoin("r.userCreatedEntiy", "u")
             ->leftJoin("r.document", "d")
@@ -26,7 +26,7 @@ class RecordsDocumentsRepository extends EntityRepository
             ->leftJoin("s.groupEntiy", "g2")
             ->andWhere('r.isActive=1')
             ->andWhere('r.status>0')
-            ->andWhere('(s.next=1 OR s.next IS NULL) OR (r.status=3 AND s.id=r.lastSign)')
+            ->andWhere('(s.next=1 OR s.next IS NULL) OR (r.status=3 AND s.id=r.lastSign) or (r.comments IS NOT NULL and s.number=0)')
             ->orderBy('r.id', 'DESC');
 
 

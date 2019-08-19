@@ -338,6 +338,10 @@ nononsense_record_save_send:
     path:     /records/save_send/{id}
     defaults: { _controller: NononsenseHomeBundle:Records:saveAndSend, id: 0 }
 
+nononsense_record_return:
+    path:     /records/return/{id}
+    defaults: { _controller: NononsenseHomeBundle:Records:return, id: 0 }
+
 nononsense_record_sent:
     path:     /records/{id}/completed
     defaults: { _controller: NononsenseHomeBundle:Records:sent, id: 0 }

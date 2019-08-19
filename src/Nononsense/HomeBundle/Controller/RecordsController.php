@@ -419,11 +419,18 @@ class RecordsController extends Controller
             ->findBy(array("record"=> $record->getId()));
 
         /* Si no está metido el workflow de las firmas lo metemos */
-        if(!$signatures){
+        if(!$signatures || $record->getComments()!=NULL){
+            $record->setComments(NULL);
             if($validated && $percentageCompleted==100){
+                if($signatures){
+                    $number_signatures=count($signatures);
+                }
+                else{
+                    $number_signatures=0;
+                }
                 switch($record->getType()->getId()){
                     //Caso especial para los registros de tipo Albarán Almacén
-                    case "1": $this->albaranAlmacen($record);
+                    case "1": $this->albaranAlmacen($record,$number_signatures);
                             break;
                     default:
                             $record->setModified(date("Y-m-d"));
@@ -436,7 +443,7 @@ class RecordsController extends Controller
                                 $sign = new RecordsSignatures();
                                 $sign->setUserEntiy($record->getUserCreatedEntiy());
                                 $sign->setRecord($record);
-                                $sign->setNumber(0);
+                                $sign->setNumber(0+$number_signatures);
                                 $sign->setAttachment($record->getDocument()->getAttachment());
                                 $sign->setNext($next);
                                 $sign->setCreated(new \DateTime());
@@ -448,7 +455,7 @@ class RecordsController extends Controller
                                 $sign->setUserEntiy($baseSignaturre->getUserEntiy());
                                 $sign->setGroupEntiy($baseSignaturre->getGroupEntiy());
                                 $sign->setRecord($record);
-                                $sign->setNumber($baseSignaturre->getNumber());
+                                $sign->setNumber($baseSignaturre->getNumber()+$number_signatures);
                                 $sign->setAttachment($baseSignaturre->getAttachment());
                                 $sign->setEmail($baseSignaturre->getEmail());
                                 $sign->setNext($next);
@@ -507,7 +514,43 @@ class RecordsController extends Controller
                 "documentName" => $documentName,
                 "stepid" => $id
             ));
+        } elseif ($action == 'devolver') {
+            $signature = $this->getDoctrine()
+                ->getRepository('NononsenseHomeBundle:RecordsSignatures')
+                ->findOneBy(array("record"=>$record,"next"=>1));
 
+            if(!$signature){
+                return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
+            }
+
+            $can_sign=0;
+            if($signature->getGroupEntiy()){
+                $isGroup = $this->getDoctrine()
+                ->getRepository('NononsenseGroupBundle:GroupUsers')
+                ->findOneBy(array("group"=>$signature->getGroupEntiy(),"user"=>$user));
+                if($isGroup){
+                    $can_sign=1;
+                }
+            }
+            else{
+                if($signature->getUserEntiy()->getId()==$user->getId()){
+                    $can_sign=1;
+                }  
+            }
+
+            if(!$can_sign){
+                return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
+            }
+
+            if($record->getStatus()!=2){
+                return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
+            }
+
+            return $this->render('NononsenseHomeBundle:Contratos:record_return_interface.html.twig', array(
+                "documentName" => $documentName,
+                "id" => $id
+            ));
+            
         } elseif ($action == 'parcial') {
             if(($record->getStatus()==0 || $record->getStatus()==1) && $record->getUserCreatedEntiy()==$user){
                 $record->setStatus(1);
@@ -755,6 +798,124 @@ class RecordsController extends Controller
         
     }
 
+    /* Proceso donde firmamos los documentos */
+    public function returnAction($id, Request $request)
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $user = $this->container->get('security.context')->getToken()->getUser();
+        
+        $comentario = $request->query->get('comment');
+
+        $record = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:RecordsDocuments')
+            ->findOneBy(array("id" => $id, "status" => 2));
+
+        if(!$record){
+            return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
+        }
+
+        $signature = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:RecordsSignatures')
+            ->findOneBy(array("record"=>$record,"next"=>1));
+
+        if(!$signature){
+            return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
+        }
+
+        $can_sign=0;
+        if($signature->getGroupEntiy()){
+            $isGroup = $this->getDoctrine()
+            ->getRepository('NononsenseGroupBundle:GroupUsers')
+            ->findOneBy(array("group"=>$signature->getGroupEntiy(),"user"=>$user));
+            if($isGroup){
+                $can_sign=1;
+            }
+        }
+        else{
+            if($signature->getUserEntiy()->getId()==$user->getId()){
+                $can_sign=1;
+            }  
+        }
+
+        if(!$can_sign){
+            return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
+        }
+
+        if($record->getStatus()!=2){
+            return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
+        }
+
+
+        $signature->setFirma($request->get('firma'));
+        $signature->setComments($request->get('comment'));
+        $signature->setNext(0);
+        $signature->setUserEntiy($user);
+        $signature->setModified(new \DateTime());
+
+        $record->setStatus(1);
+        $record->setComments($request->get('comment'));
+
+        $signature2 = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:RecordsSignatures')
+            ->findOneBy(array("record"=>$record), array('number' => 'ASC'));
+
+        if($signature2){
+            
+            $email=$signature2->getUserEntiy()->getEmail();
+            
+
+            $subject="Documento devuelto para revisión";
+            $mensaje='El Documento con ID '.$record->getId().' ha sido devuelto y está pendiente de revisión.<br>La razón por la que se ha devuelto el documento es la siguiente: '.$request->get('comment').'.<br><br> Para poder revisar el documento puede acceder a la sección de "Mis documentos pendientes", buscar el documento y pulsar en Completar Documento';
+            $baseURL=$this->container->get('router')->generate('nononsense_records_edit', array("id" => $record->getId()),TRUE);
+                
+            $this->_sendNotification($email, $baseURL, "", "", $subject, $mensaje);
+
+        }
+        else{
+            return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
+        }
+        
+        
+        
+
+        $firmas = $this->getDoctrine()
+                ->getRepository('NononsenseHomeBundle:RecordsSignatures')
+                ->findBy(array("record" => $record));
+
+        $stepDataValues = $record->getStepDataValue();
+        $stepDataValuesJSON = json_decode($stepDataValues);
+
+        $stepDataValuesJSON->varValues->dxo_gsk_audit_trail_bloque = array("No");
+        $stepDataValuesJSON->varValues->dxo_gsk_firmas_bloque = array("Si");
+
+
+        $stepDataValuesJSON->varValues->dxo_gsk_firmas[0] = $this->_construirFirmas($firmas);
+
+
+        $data = json_encode($stepDataValuesJSON);
+
+        $record->setStepDataValue($data);
+        $em->persist($record);
+        $em->persist($signature);
+
+        $remove_signatures = $em->getRepository(RecordsSignatures::class)->findBy(["record" => $record, "firma" => NULL]);
+        
+        foreach ($remove_signatures as $remove_signature) {
+            if($signature->getId()!=$remove_signature->getId()){
+                $em->remove($remove_signature);
+            }
+        }
+
+        $em->flush();
+
+        $route = $this->container->get('router')->generate('nononsense_record_sent', array("id" => $record->getId()));
+        
+        return $this->redirect($route);
+
+        
+    }
+
     public function sentAction($id, Request $request)
     {
         $record = $this->getDoctrine()
@@ -910,7 +1071,7 @@ class RecordsController extends Controller
         return $responseAction;
     }
 
-    private function albaranAlmacen($record){
+    private function albaranAlmacen($record,$number_signatures){
 
         $em = $this->getDoctrine()->getManager();
         $baseSignatures = $this->getDoctrine()
@@ -988,7 +1149,7 @@ class RecordsController extends Controller
             $sign = new RecordsSignatures();
             $sign->setUserEntiy($record->getUserCreatedEntiy());
             $sign->setRecord($record);
-            $sign->setNumber(0);
+            $sign->setNumber(0+$number_signatures);
             $sign->setAttachment($anexo);
             $sign->setNext($next);
             $sign->setCreated(new \DateTime());
@@ -1002,7 +1163,7 @@ class RecordsController extends Controller
                 $sign->setUserEntiy($baseSignaturre->getUserEntiy());
                 $sign->setGroupEntiy($baseSignaturre->getGroupEntiy());
                 $sign->setRecord($record);
-                $sign->setNumber($baseSignaturre->getNumber());
+                $sign->setNumber($baseSignaturre->getNumber()+$number_signatures);
                 $sign->setAttachment($baseSignaturre->getAttachment());
                 $sign->setNext($next);
                 $sign->setEmail($baseSignaturre->getEmail());

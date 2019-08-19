@@ -255,4 +255,27 @@ class ReconciliacionRegistro
     }
 
 
+
+    /**
+     * Set user_id
+     *
+     * @param integer $userId
+     * @return ReconciliacionRegistro
+     */
+    public function setUserId($userId)
+    {
+        $this->user_id = $userId;
+
+        return $this;
+    }
+
+    /**
+     * Get user_id
+     *
+     * @return integer 
+     */
+    public function getUserId()
+    {
+        return $this->user_id;
+    }
 }
