@@ -12,8 +12,8 @@ function customOnFullyLoaded() {
     divButtons.prepend(htmlButton);
     htmlButton = '<button type="submit" id="downloadsend" class="btn btn-success btn-sm btn-small" onclick="return false;" style="margin-left: 8px"><i class="fa fa-save" aria-hidden="true"> </i> <span class="buttonTop">Enviar y firmar</span></button>';
     divButtons.append(htmlButton);
-    /*htmlButton = '<button type="submit" id="gskcancel" class="btn btn-danger btn-sm btn-small" onclick="return false;" style="margin-left: 8px"><i class="fa fa-times" aria-hidden="true"> </i> <span class="buttonTop">Cancelar</span></button>';
-    divButtons.append(htmlButton);*/
+    htmlButton = '<button type="submit" id="gskcancel" class="btn btn-danger btn-sm btn-small" onclick="return false;" style="margin-left: 8px"><i class="fa fa-times" aria-hidden="true"> </i> <span class="buttonTop">Cancelar</span></button>';
+    divButtons.append(htmlButton);
 
     //This script takes into account the activity of the end user in a document preview
     //first define some global variables
@@ -155,21 +155,13 @@ function customOnLoad() {
     $('body').on('click', 'button[id="gskcancel"]', function () {
         console.log("Boton cancelar de GSK");
         var auxValuePercentage = $('#percentComp').val();
-        if(!window.onActivityChange){
+
             // OK
             console.log(auxValuePercentage);
             var responseURL = $('#responseURL').val();
             responseURL += 'cancelar';
             $('#responseURL').val(responseURL);
             $('#download').trigger('click');
-        }else{
-            var title = "No puede realizar esta acción porque no ha rellenado nada del documento";
-            var message = "<p>No ha rellenado ningún campo del documento, no puede realizar una cancelación del mismo</p>";
-            launchMessage(title, message);
-            return false;
-        }
-
-
     });
     $('body').on('click', 'button[id="download2"]', function () {
         console.log("Boton guardar y firmar de GSK");

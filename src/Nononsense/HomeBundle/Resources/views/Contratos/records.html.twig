@@ -115,6 +115,11 @@
                                 {% if item.status is defined and item.status==3 %}
                                     <a href="{{path('nononsense_records_edit', {'id': item.id}) }}" class="btn btn-xs btn-info"><i class="fa fa-eye" aria-hidden="true"></i> Completado</a>
                                 {% endif %}
+
+                                {% if item.status is defined and item.status==4 %}
+                                    <a href="#" class="btn btn-xs btn-default disabled"> Cancelado</a>
+                                {% endif %}
+
                                 </td>
                                 <td>
                                     {% if item.files is defined and item.files is not empty %}
