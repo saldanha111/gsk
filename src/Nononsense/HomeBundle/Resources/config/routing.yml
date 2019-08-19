@@ -257,6 +257,10 @@ nononsense_esma_no_validado:
     path:     /nononsense_esma_no_validado/{workflowid}
     defaults: { _controller: NononsenseHomeBundle:RegistroConcreto:ESMANoValidado, workflowid: 0}
 
+nononsense_registro_esma_no_valido_firma:
+    path:     /nononsense_esma_no_validado_firma/{workflowid}
+    defaults: { _controller: NononsenseHomeBundle:RegistroConcreto:ESMANoValidadoFirma, workflowid: 0}
+
 nononsense_registro_rechazar_cancelacion_firma:
     path:     /nononsense_registro_rechazar_cancelacion_firma/{stepid}
     defaults: { _controller: NononsenseHomeBundle:RegistroValidation:rechazarCancelacionFirma, stepid: 0}

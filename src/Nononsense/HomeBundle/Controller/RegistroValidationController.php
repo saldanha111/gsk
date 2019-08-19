@@ -133,7 +133,78 @@ class RegistroValidationController extends Controller
             }
 
 
+            /*
+                * Posible firma pendiente
+                */
+            $status = $element['status'];
 
+            if(in_array($status,array(7,12,13,15))){
+                // Pendiente de firma o documento o checklist probar con ambos a ver que pasa.
+                $pendingStep = $this->getDoctrine()
+                    ->getRepository('NononsenseHomeBundle:InstanciasSteps')
+                    ->findOneBy(array("workflow_id" => $idRegistro, "dependsOn" => 0));
+
+                $firma = $this->getDoctrine()
+                    ->getRepository('NononsenseHomeBundle:FirmasStep')
+                    ->findOneBy(array("step_id" => $pendingStep->getId(), "status" => 0, "userEntiy"=>$user));
+
+                if(isset($firma)){
+                    $stepid = $pendingStep->getId();
+                    $comment = 1;
+
+                    if($status == 7){
+                        $route = $this->container->get('router')->generate('nononsense_registro_verificar', array('stepid' => $stepid, 'comment' => $comment));
+                    }elseif ($status == 12){
+                        $route = $this->container->get('router')->generate('nononsense_registro_cancelar_verficiacion', array('stepid' => $stepid));
+                    }elseif ($status == 13){
+                        $route = $this->container->get('router')->generate('nononsense_registro_devolver_edicion', array('stepid' => $stepid));
+                    }elseif ($status == 15){
+                        $route = $this->container->get('router')->generate('nononsense_registro_verificar_parcial', array('stepid' => $stepid, 'comment' => $comment));
+                    }
+
+                    $element['firma'] = $route;
+                }else{
+                    $element['firma'] = '';
+                }
+
+                // Probar con checklist por si acaso
+                $pendingchecklistStep = $this->getDoctrine()
+                    ->getRepository('NononsenseHomeBundle:InstanciasSteps')
+                    ->findOneBy(array("workflow_id" => $idRegistro, "dependsOn" =>$pendingStep->getId()));
+
+                if(isset($pendingchecklistStep)){
+                    // checkear si es checklist
+                    $firmacheklist = $this->getDoctrine()
+                        ->getRepository('NononsenseHomeBundle:FirmasStep')
+                        ->findOneBy(array("step_id" => $pendingchecklistStep->getId(), "status" => 0, "userEntiy"=>$user));
+                    if(isset( $firmacheklist )){
+                        $stepid = $pendingchecklistStep->getId();
+                        $comment = 1;
+
+                        if($status == 7){
+                            $route = $this->container->get('router')->generate('nononsense_registro_verificar', array('stepid' => $stepid, 'comment' => $comment));
+                        }elseif ($status == 12){
+                            $route = $this->container->get('router')->generate('nononsense_registro_cancelar_verficiacion', array('stepid' => $stepid));
+                        }elseif ($status == 13){
+                            $route = $this->container->get('router')->generate('nononsense_registro_devolver_edicion', array('stepid' => $stepid));
+                        }elseif ($status == 15){
+                            $route = $this->container->get('router')->generate('nononsense_registro_verificar_parcial', array('stepid' => $stepid, 'comment' => $comment));
+                        }
+
+                        $element['firmachecklist'] = $route;
+                    }else{
+                        $element['firmachecklist'] = '';
+                    }
+
+
+                }else{
+                    $element['firmachecklist'] = '';
+                }
+
+            }else{
+                $element['firma'] = '';
+                $element['firmachecklist'] = '';
+            }
 
         }
 
@@ -170,6 +241,40 @@ class RegistroValidationController extends Controller
                 $element2['reconciliacion'] = 'NO';
             }
 
+            /*
+             * Posible firma pendiente
+             */
+            $status = $element2['status'];
+
+            if(in_array($status,array(1,2,3))){
+                // Pendiente de firma
+                $pendingStep = $this->getDoctrine()
+                    ->getRepository('NononsenseHomeBundle:InstanciasSteps')
+                    ->findOneBy(array("workflow_id" => $idRegistro, "dependsOn" => 0));
+
+                $firma = $this->getDoctrine()
+                    ->getRepository('NononsenseHomeBundle:FirmasStep')
+                    ->findOneBy(array("step_id" => $pendingStep->getId(), "status" => 0, "userEntiy"=>$user));
+
+                if(isset($firma)){
+                    $stepid = $pendingStep->getId();
+                    $comment = 1;
+                    if($status == 1){
+                        $route = $this->container->get('router')->generate('nononsense_contrato_registro_completado', array('stepid' => $stepid, 'comment' => $comment));
+                    }elseif ($status == 2){
+                        $route = $this->container->get('router')->generate('nononsense_contrato_registro_completado', array('stepid' => $stepid, 'comment' => $comment));
+                    }elseif ($status == 3){
+                        $route = $this->container->get('router')->generate('nononsense_registro_cancelar', array('stepid' => $stepid));
+                    }
+
+                    $element2['firma'] = $route;
+                }else{
+                    $element2['firma'] = '';
+                }
+            }else{
+                $element2['firma'] = '';
+            }
+
         }
 
         foreach ($documentosInProcessParcial as &$element3) {
@@ -190,6 +295,40 @@ class RegistroValidationController extends Controller
 
             }else{
                 $element3['reconciliacion'] = 'NO';
+            }
+
+            /*
+ * Posible firma pendiente
+ */
+            $status = $element2['status'];
+
+            if(in_array($status,array(1,2,3))){
+                // Pendiente de firma
+                $pendingStep = $this->getDoctrine()
+                    ->getRepository('NononsenseHomeBundle:InstanciasSteps')
+                    ->findOneBy(array("workflow_id" => $idRegistro, "dependsOn" => 0));
+
+                $firma = $this->getDoctrine()
+                    ->getRepository('NononsenseHomeBundle:FirmasStep')
+                    ->findOneBy(array("step_id" => $pendingStep->getId(), "status" => 0, "userEntiy"=>$user));
+
+                if(isset($firma)){
+                    $stepid = $pendingStep->getId();
+                    $comment = 1;
+                    if($status == 1){
+                        $route = $this->container->get('router')->generate('nononsense_contrato_registro_completado', array('stepid' => $stepid, 'comment' => $comment));
+                    }elseif ($status == 2){
+                        $route = $this->container->get('router')->generate('nononsense_contrato_registro_completado', array('stepid' => $stepid, 'comment' => $comment));
+                    }elseif ($status == 3){
+                        $route = $this->container->get('router')->generate('nononsense_registro_cancelar', array('stepid' => $stepid));
+                    }
+
+                    $element2['firma'] = $route;
+                }else{
+                    $element2['firma'] = '';
+                }
+            }else{
+                $element2['firma'] = '';
             }
 
         }
@@ -751,21 +890,37 @@ class RegistroValidationController extends Controller
 
         /*
          * Guardar evidencia de registro verificado
-         */
+         *
         $evidencia = new EvidenciasStep();
         $evidencia->setStepEntity($step);
         $evidencia->setStatus(1);
         $evidencia->setUserEntiy($registro->getUserCreatedEntiy());
         $evidencia->setToken($step->getToken());
         $evidencia->setStepDataValue($step->getStepDataValue());
+*/
 
         /*
-         * Guardar firma
+         * Obtener firma pendiente y firmar
          */
-        $firmas = $this->getDoctrine()
+        $firma = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:FirmasStep')
-            ->findBy(array("step_id" => $step->getId()));
+            ->findOneBy(array("step_id" => $step->getId(), "status" => 0, "userEntiy" => $user));
 
+        if (isset($firma)) {
+            $firma->setFirma($firmaImagen);
+            $firma->setAccion("Verificación positiva: " . $comentario);
+            $firma->setStatus(1); // Firmado
+
+        } else {
+            // No debería estar aquí
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                'No tiene firma pendiente para este paso.'
+            );
+            $route = $this->container->get('router')->generate('nononsense_home_homepage');
+            return $this->redirect($route);
+        }
+/*
         $counter = count($firmas) + 1;
 
         $firma = new FirmasStep();
@@ -776,9 +931,9 @@ class RegistroValidationController extends Controller
         $firma->setNumber($counter);
 
         $evidencia->setFirmaEntity($firma);
-
+*/
         $em->persist($firma);
-        $em->persist($evidencia);
+//        $em->persist($evidencia);
         $em->flush();
 
         return $this->render('NononsenseHomeBundle:Contratos:registro_validado.html.twig', array(
@@ -814,21 +969,37 @@ class RegistroValidationController extends Controller
 
         /*
          * Guardar evidencia de registro verificado
-         */
+         *
         $evidencia = new EvidenciasStep();
         $evidencia->setStepEntity($step);
         $evidencia->setStatus(1);
         $evidencia->setUserEntiy($registro->getUserCreatedEntiy());
         $evidencia->setToken($step->getToken());
         $evidencia->setStepDataValue($step->getStepDataValue());
+*/
 
         /*
-         * Guardar firma
+         * Obtener firma pendiente y firmar
          */
-        $firmas = $this->getDoctrine()
+        $firma = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:FirmasStep')
-            ->findBy(array("step_id" => $step->getId()));
+            ->findOneBy(array("step_id" => $step->getId(), "status" => 0, "userEntiy" => $user));
 
+        if (isset($firma)) {
+            $firma->setFirma($firmaImagen);
+            $firma->setAccion("Verificación parcial: " . $comentario);
+            $firma->setStatus(1); // Firmado
+
+        } else {
+            // No debería estar aquí
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                'No tiene firma pendiente para este paso.'
+            );
+            $route = $this->container->get('router')->generate('nononsense_home_homepage');
+            return $this->redirect($route);
+        }
+/*
         $counter = count($firmas) + 1;
 
         $firma = new FirmasStep();
@@ -839,9 +1010,9 @@ class RegistroValidationController extends Controller
         $firma->setNumber($counter);
 
         $evidencia->setFirmaEntity($firma);
-
+*/
         $em->persist($firma);
-        $em->persist($evidencia);
+//        $em->persist($evidencia);
         $em->flush();
 
         return $this->render('NononsenseHomeBundle:Contratos:registro_validado_parcial.html.twig', array(
@@ -877,21 +1048,39 @@ class RegistroValidationController extends Controller
 
         /*
          * Guardar evidencia de registro verificado
-         */
+         *
         $evidencia = new EvidenciasStep();
         $evidencia->setStepEntity($step);
         $evidencia->setStatus(1);
         $evidencia->setUserEntiy($registro->getUserCreatedEntiy());
         $evidencia->setToken($step->getToken());
         $evidencia->setStepDataValue($step->getStepDataValue());
-
+        */
         /*
          * Guardar firma
          */
-        $firmas = $this->getDoctrine()
+        /*
+         * Obtener firma pendiente y firmar
+         */
+        $firma = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:FirmasStep')
-            ->findBy(array("step_id" => $step->getId()));
+            ->findOneBy(array("step_id" => $step->getId(), "status" => 0, "userEntiy" => $user));
 
+        if (isset($firma)) {
+            $firma->setFirma($firmaImagen);
+            $firma->setAccion("Verificación negativa: " . $comentario);
+            $firma->setStatus(1); // Firmado
+
+        } else {
+            // No debería estar aquí
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                'No tiene firma pendiente para este paso.'
+            );
+            $route = $this->container->get('router')->generate('nononsense_home_homepage');
+            return $this->redirect($route);
+        }
+/*
         $counter = count($firmas) + 1;
 
         $firma = new FirmasStep();
@@ -902,9 +1091,9 @@ class RegistroValidationController extends Controller
         $firma->setNumber($counter);
 
         $evidencia->setFirmaEntity($firma);
-
+*/
         $em->persist($firma);
-        $em->persist($evidencia);
+//        $em->persist($evidencia);
         $em->flush();
 
         $route = $this->container->get('router')->generate('nononsense_registro_enproceso');
@@ -939,23 +1128,41 @@ class RegistroValidationController extends Controller
 
         /*
          * Guardar evidencia de registro verificado
-         */
+         *
         $evidencia = new EvidenciasStep();
         $evidencia->setStepEntity($step);
         $evidencia->setStatus(1);
         $evidencia->setUserEntiy($registro->getUserCreatedEntiy());
         $evidencia->setToken($step->getToken());
         $evidencia->setStepDataValue($step->getStepDataValue());
-
+*/
         /*
          * Guardar firma
          */
-        $firmas = $this->getDoctrine()
+        /*
+         * Obtener firma pendiente y firmar
+         */
+        $firma = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:FirmasStep')
-            ->findBy(array("step_id" => $step->getId()));
+            ->findOneBy(array("step_id" => $step->getId(), "status" => 0, "userEntiy" => $user));
 
-        $counter = count($firmas) + 1;
+        if (isset($firma)) {
+            $firma->setFirma($firmaImagen);
+            $firma->setAccion("Devuelto para edición: " . $comentario);
+            $firma->setStatus(1); // Firmado
 
+        } else {
+            // No debería estar aquí
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                'No tiene firma pendiente para este paso.'
+            );
+            $route = $this->container->get('router')->generate('nononsense_home_homepage');
+            return $this->redirect($route);
+        }
+
+
+/*
         $firma = new FirmasStep();
         $firma->setAccion("Devuelto para edición: " . $comentario);
         $firma->setStepEntity($step);
@@ -964,9 +1171,9 @@ class RegistroValidationController extends Controller
         $firma->setNumber($counter);
 
         $evidencia->setFirmaEntity($firma);
-
+*/
         $em->persist($firma);
-        $em->persist($evidencia);
+  //      $em->persist($evidencia);
         $em->flush();
 
         /*
@@ -1093,21 +1300,39 @@ class RegistroValidationController extends Controller
 
         /*
          * Guardar evidencia de cabcekacuib rechazada
-         */
+         *
         $evidencia = new EvidenciasStep();
         $evidencia->setStepEntity($step);
         $evidencia->setStatus(1);
         $evidencia->setUserEntiy($registro->getUserCreatedEntiy());
         $evidencia->setToken($step->getToken());
         $evidencia->setStepDataValue($step->getStepDataValue());
-
+*/
         /*
          * Guardar firma
          */
-        $firmas = $this->getDoctrine()
+        /*
+         * Obtener firma pendiente y firmar
+         */
+        $firma = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:FirmasStep')
-            ->findBy(array("step_id" => $step->getId()));
+            ->findOneBy(array("step_id" => $step->getId(), "status" => 0, "userEntiy" => $user));
 
+        if (isset($firma)) {
+            $firma->setFirma($firmaImagen);
+            $firma->setAccion("Rechazada la cancelación: " . $comentario);
+            $firma->setStatus(1); // Firmado
+
+        } else {
+            // No debería estar aquí
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                'No tiene firma pendiente para este paso.'
+            );
+            $route = $this->container->get('router')->generate('nononsense_home_homepage');
+            return $this->redirect($route);
+        }
+/*
         $counter = count($firmas) + 1;
 
         $firma = new FirmasStep();
@@ -1118,9 +1343,9 @@ class RegistroValidationController extends Controller
         $firma->setNumber($counter);
 
         $evidencia->setFirmaEntity($firma);
-
+*/
         $em->persist($firma);
-        $em->persist($evidencia);
+//        $em->persist($evidencia);
         $em->flush();
 
         return $this->render('NononsenseHomeBundle:Contratos:registro_cancelacion_rechazada.html.twig', array(
@@ -1181,21 +1406,37 @@ class RegistroValidationController extends Controller
 
         /*
          * Guardar evidencia de cabcekacuib rechazada
-         */
+         *
         $evidencia = new EvidenciasStep();
         $evidencia->setStepEntity($step);
         $evidencia->setStatus(1);
         $evidencia->setUserEntiy($registro->getUserCreatedEntiy());
         $evidencia->setToken($step->getToken());
         $evidencia->setStepDataValue($step->getStepDataValue());
+*/
 
         /*
-         * Guardar firma
+         * Obtener firma pendiente y firmar
          */
-        $firmas = $this->getDoctrine()
+        $firma = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:FirmasStep')
-            ->findBy(array("step_id" => $step->getId()));
+            ->findOneBy(array("step_id" => $step->getId(), "status" => 0, "userEntiy" => $user));
 
+        if (isset($firma)) {
+            $firma->setFirma($firmaImagen);
+            $firma->setAccion("Aprobada la cancelación: " . $comentario);
+            $firma->setStatus(1); // Firmado
+
+        } else {
+            // No debería estar aquí
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                'No tiene firma pendiente para este paso.'
+            );
+            $route = $this->container->get('router')->generate('nononsense_home_homepage');
+            return $this->redirect($route);
+        }
+/*
         $counter = count($firmas) + 1;
 
         $firma = new FirmasStep();
@@ -1206,9 +1447,9 @@ class RegistroValidationController extends Controller
         $firma->setNumber($counter);
 
         $evidencia->setFirmaEntity($firma);
-
+*/
         $em->persist($firma);
-        $em->persist($evidencia);
+//        $em->persist($evidencia);
         $em->flush();
 
         return $this->render('NononsenseHomeBundle:Contratos:registro_cancelacion_aprobada.html.twig', array(
@@ -1252,21 +1493,36 @@ class RegistroValidationController extends Controller
 
         /*
          * Guardar evidencia de registro completado pero cancelado en edicion
-         */
+         *
         $evidencia = new EvidenciasStep();
         $evidencia->setStepEntity($step);
         $evidencia->setStatus(5);
         $evidencia->setUserEntiy($registro->getUserCreatedEntiy());
         $evidencia->setToken($step->getToken());
         $evidencia->setStepDataValue($step->getStepDataValue());
-
+*/
         /*
          * Guardar firma
          */
-        $firmas = $this->getDoctrine()
+        $firma = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:FirmasStep')
-            ->findBy(array("step_id" => $step->getId()));
+            ->findOneBy(array("step_id" => $step->getId(), "status" => 0, "userEntiy"=>$user));
 
+        if(isset($firma)){
+            $firma->setFirma($firmaImagen);
+            $firma->setAccion("Solicitud cancelacion: " . $comentario);
+            $firma->setStatus(1); // Firmado
+
+        }else{
+            // No debería estar aquí
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                'No tiene firma pendiente para este paso.'
+            );
+            $route = $this->container->get('router')->generate('nononsense_home_homepage');
+            return $this->redirect($route);
+        }
+/*
         $counter = count($firmas) + 1;
 
         $firma = new FirmasStep();
@@ -1277,9 +1533,9 @@ class RegistroValidationController extends Controller
         $firma->setNumber($counter);
 
         $evidencia->setFirmaEntity($firma);
-
+*/
         $em->persist($firma);
-        $em->persist($evidencia);
+        //$em->persist($evidencia);
         $em->flush();
 
         return $this->render('NononsenseHomeBundle:Contratos:registro_canceladoenviado.html.twig', array(

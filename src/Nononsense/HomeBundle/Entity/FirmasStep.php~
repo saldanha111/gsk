@@ -37,6 +37,13 @@ class FirmasStep
     protected $step_id;
 
     /**
+     * @var integer
+     *
+     * @ORM\Column(name="status", type="integer")
+     */
+    protected $status;
+
+    /**
      * @var string
      *
      * @ORM\Column(name="firma", type="text")
