@@ -20,6 +20,7 @@ use Nononsense\UserBundle\Entity\Users;
 use Nononsense\HomeBundle\Entity\InstanciasWorkflows;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Nononsense\HomeBundle\Entity\InstanciasSteps;
+use Nononsense\HomeBundle\Entity\ActivityUser;
 
 use Nononsense\UtilsBundle\Classes;
 
@@ -91,6 +92,8 @@ class RegistroConcretoController extends Controller
 
     public function linkAction($stepid, $form, $revisionid, $logbook)
     {
+        $user = $this->container->get('security.context')->getToken()->getUser();
+
         $step = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:InstanciasSteps')
             ->find($stepid);
@@ -122,6 +125,8 @@ class RegistroConcretoController extends Controller
 
         }
         */
+
+
         $baseUrl = $this->getParameter("cm_installation");
 
         $options = array();
@@ -155,6 +160,8 @@ class RegistroConcretoController extends Controller
         }
         $options['custom'] = json_encode($customObject);
 
+        $accionText = '';
+
         if ($step->getMasterStep()->getChecklist() == 1) {
 
             $versionJS = filemtime(__DIR__ . "/../../../../web/js/js_templates/activity.js");
@@ -163,6 +170,7 @@ class RegistroConcretoController extends Controller
             $options['prefix'] = 'u';
             $options['responseURL'] = $baseUrl . "control_check_list/" . $stepid . "/";
 
+            $accionText = 'Completar check list';
 
         } else {
 
@@ -176,6 +184,8 @@ class RegistroConcretoController extends Controller
                 $validacionURL1 = $baseUrl . "js/js_templates/validacion.js?v=" . $versionJS;
                 $registro->setInEdition(1);
 
+                $accionText = 'Validar registro';
+
             } else if ($registro->getStatus() == -1 ||
                 $registro->getStatus() == 0) {
 
@@ -187,6 +197,7 @@ class RegistroConcretoController extends Controller
                 $options['prefix'] = 'u';
                 $options['responseURL'] = $baseUrl . "control_elaboracion/" . $stepid . "/";
 
+                $accionText = 'Elaborar registro';
 
             } else if ($registro->getStatus() == 5 || $registro->getStatus() == 14) {
                 $registro->setInEdition(1);
@@ -194,9 +205,10 @@ class RegistroConcretoController extends Controller
                 $options['prefix'] = 'show';
                 $options['responseURL'] = $baseUrl . "control_cancelacion/" . $stepid . "/";
 
-
                 $versionJS = filemtime(__DIR__ . "/../../../../web/js/js_templates/cancelacion.js");
                 $validacionURL1 = $baseUrl . "js/js_templates/cancelacion.js?v=" . $versionJS;
+
+                $accionText = 'verificar cancelacion';
 
             } else {
 
@@ -204,6 +216,8 @@ class RegistroConcretoController extends Controller
                 $options['prefix'] = 'show';
                 $versionJS = filemtime(__DIR__ . "/../../../../web/js/js_templates/show.js");
                 $validacionURL1 = $baseUrl . "js/js_templates/show.js?v=" . $versionJS;
+
+                $accionText = 'Ver registro';
             }
         }
 
@@ -236,11 +250,21 @@ class RegistroConcretoController extends Controller
         $url_edit_documento = $this->get('app.sdk')->previewDocument($options);
 
         /*
-         * Bloquear el registro
+         * Crear activity registro
          */
+        $now = new \DateTime();
+        //$now->modify("+2 hour"); // Ver tema de horarios usos
+
+        $activity = new ActivityUser();
+        $activity->setEntrada($now);
+        $activity->setStatus(0);
+        $activity->setUserEntiy($user);
+        $activity->setStepEntity($step);
+        $activity->setAccion($accionText);
 
 
         $em = $this->getDoctrine()->getManager();
+        $em->persist($activity);
         $em->persist($registro);
         $em->flush();
 
@@ -647,6 +671,8 @@ class RegistroConcretoController extends Controller
         $em->persist($registro);
         $em->flush();
 
+        $this->_registrarFinActividad($user, $step);
+
         return $this->redirect($route);
     }
 
@@ -803,6 +829,11 @@ class RegistroConcretoController extends Controller
             $em->persist($firma);
         }
 
+        /*
+         * Registrar fin actividad
+         */
+        $this->_registrarFinActividad($user, $step);
+
 
         $em->persist($registro);
         $em->flush();
@@ -894,6 +925,8 @@ class RegistroConcretoController extends Controller
         $em->persist($registro);
         $em->flush();
 
+        $this->_registrarFinActividad($user, $step);
+
         return $this->redirect($route);
     }
 
@@ -968,6 +1001,8 @@ class RegistroConcretoController extends Controller
         $em->persist($step);
         $em->persist($registro);
         $em->flush();
+
+        $this->_registrarFinActividad($user, $step);
 
         return $this->redirect($route);
     }
@@ -1204,6 +1239,25 @@ class RegistroConcretoController extends Controller
 
         $route = $this->container->get('router')->generate('nononsense_registro_enproceso');
         return $this->redirect($route);
+
+    }
+
+    private function _registrarFinActividad($user, $step)
+    {
+        $activity = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:ActivityUser')
+            ->findOneBy(array("stepEntity" => $step, "userEntiy"=>$user, "status"=>0));
+
+        $activity->setStatus(1);
+
+        $now = new \DateTime();
+        //$now->modify("+2 hour"); // Ver tema de horarios usos
+
+        $activity->setSalida($now);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($activity);
+        $em->flush();
 
     }
 

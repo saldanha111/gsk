@@ -150,6 +150,10 @@ class InstanciasSteps
      */
     protected $evidenciasStep;
 
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\ActivityUser", mappedBy="stepEntity")
+     */
+    protected $activityuser;
 
     public function __construct()
     {
@@ -680,5 +684,38 @@ class InstanciasSteps
     public function getEvidenciasStep()
     {
         return $this->evidenciasStep;
+    }
+
+    /**
+     * Add activityuser
+     *
+     * @param \Nononsense\HomeBundle\Entity\ActivityUser $activityuser
+     * @return InstanciasSteps
+     */
+    public function addActivityuser(\Nononsense\HomeBundle\Entity\ActivityUser $activityuser)
+    {
+        $this->activityuser[] = $activityuser;
+
+        return $this;
+    }
+
+    /**
+     * Remove activityuser
+     *
+     * @param \Nononsense\HomeBundle\Entity\ActivityUser $activityuser
+     */
+    public function removeActivityuser(\Nononsense\HomeBundle\Entity\ActivityUser $activityuser)
+    {
+        $this->activityuser->removeElement($activityuser);
+    }
+
+    /**
+     * Get activityuser
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getActivityuser()
+    {
+        return $this->activityuser;
     }
 }

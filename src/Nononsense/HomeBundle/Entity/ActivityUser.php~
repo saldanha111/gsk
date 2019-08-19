@@ -1,0 +1,275 @@
+<?php
+/**
+ * Created by IntelliJ IDEA.
+ * User: gushe
+ * Date: 19/08/2019
+ * Time: 12:36
+ */
+
+namespace Nononsense\HomeBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+
+/**
+ * @ORM\Entity
+ * @ORM\Table(name="activityuser")
+ * @ORM\Entity(repositoryClass="Nononsense\HomeBundle\Entity\ActivityUserRepository")
+ * @ORM\HasLifecycleCallbacks
+ */
+class ActivityUser
+{
+
+    /**
+     * @ORM\Column(type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    protected $id;
+
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    protected $created;
+
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    protected $modified;
+
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    protected $entrada;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    protected $salida;
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="status", type="integer")
+     */
+    protected $status;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="accion", type="text")
+     */
+    protected $accion;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="Activity")
+     * @ORM\JoinColumn(name="usercreatedid", referencedColumnName="id")
+     */
+    protected $userEntiy;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\InstanciasSteps", inversedBy="activityuser")
+     * @ORM\JoinColumn(name="step_id", referencedColumnName="id")
+     */
+    protected $stepEntity;
+
+    public function __construct()
+    {
+
+    }
+
+
+
+    /**
+     * @ORM\PrePersist
+     */
+    public function setCreatedValue()
+    {
+        if (!$this->created) {
+            $this->created = new \DateTime();
+        }
+        $this->modified = $this->created;
+    }
+
+    /**
+     * @ORM\PreUpdate
+     */
+    public function setModifiedValue()
+    {
+        $this->modified = new \DateTime();
+    }
+
+
+    /**
+     * Get id
+     *
+     * @return integer 
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * Set created
+     *
+     * @param \DateTime $created
+     * @return ActivityUser
+     */
+    public function setCreated($created)
+    {
+        $this->created = $created;
+
+        return $this;
+    }
+
+    /**
+     * Get created
+     *
+     * @return \DateTime 
+     */
+    public function getCreated()
+    {
+        return $this->created;
+    }
+
+    /**
+     * Set modified
+     *
+     * @param \DateTime $modified
+     * @return ActivityUser
+     */
+    public function setModified($modified)
+    {
+        $this->modified = $modified;
+
+        return $this;
+    }
+
+    /**
+     * Get modified
+     *
+     * @return \DateTime 
+     */
+    public function getModified()
+    {
+        return $this->modified;
+    }
+
+    /**
+     * Set entrada
+     *
+     * @param \DateTime $entrada
+     * @return ActivityUser
+     */
+    public function setEntrada($entrada)
+    {
+        $this->entrada = $entrada;
+
+        return $this;
+    }
+
+    /**
+     * Get entrada
+     *
+     * @return \DateTime 
+     */
+    public function getEntrada()
+    {
+        return $this->entrada;
+    }
+
+    /**
+     * Set salida
+     *
+     * @param \DateTime $salida
+     * @return ActivityUser
+     */
+    public function setSalida($salida)
+    {
+        $this->salida = $salida;
+
+        return $this;
+    }
+
+    /**
+     * Get salida
+     *
+     * @return \DateTime 
+     */
+    public function getSalida()
+    {
+        return $this->salida;
+    }
+
+    /**
+     * Set status
+     *
+     * @param integer $status
+     * @return ActivityUser
+     */
+    public function setStatus($status)
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    /**
+     * Get status
+     *
+     * @return integer 
+     */
+    public function getStatus()
+    {
+        return $this->status;
+    }
+
+    /**
+     * Set userEntiy
+     *
+     * @param \Nononsense\UserBundle\Entity\Users $userEntiy
+     * @return ActivityUser
+     */
+    public function setUserEntiy(\Nononsense\UserBundle\Entity\Users $userEntiy = null)
+    {
+        $this->userEntiy = $userEntiy;
+
+        return $this;
+    }
+
+    /**
+     * Get userEntiy
+     *
+     * @return \Nononsense\UserBundle\Entity\Users 
+     */
+    public function getUserEntiy()
+    {
+        return $this->userEntiy;
+    }
+
+    /**
+     * Set stepEntity
+     *
+     * @param \Nononsense\HomeBundle\Entity\InstanciasSteps $stepEntity
+     * @return ActivityUser
+     */
+    public function setStepEntity(\Nononsense\HomeBundle\Entity\InstanciasSteps $stepEntity = null)
+    {
+        $this->stepEntity = $stepEntity;
+
+        return $this;
+    }
+
+    /**
+     * Get stepEntity
+     *
+     * @return \Nononsense\HomeBundle\Entity\InstanciasSteps 
+     */
+    public function getStepEntity()
+    {
+        return $this->stepEntity;
+    }
+}
