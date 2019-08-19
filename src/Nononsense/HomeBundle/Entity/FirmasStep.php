@@ -37,6 +37,13 @@ class FirmasStep
     protected $step_id;
 
     /**
+     * @var integer
+     *
+     * @ORM\Column(name="status", type="integer")
+     */
+    protected $status;
+
+    /**
      * @var string
      *
      * @ORM\Column(name="firma", type="text")
@@ -326,5 +333,28 @@ class FirmasStep
     public function getNumber()
     {
         return $this->number;
+    }
+
+    /**
+     * Set status
+     *
+     * @param integer $status
+     * @return FirmasStep
+     */
+    public function setStatus($status)
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    /**
+     * Get status
+     *
+     * @return integer 
+     */
+    public function getStatus()
+    {
+        return $this->status;
     }
 }

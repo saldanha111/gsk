@@ -20,6 +20,7 @@ use Nononsense\UserBundle\Entity\Users;
 use Nononsense\HomeBundle\Entity\InstanciasWorkflows;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Nononsense\HomeBundle\Entity\InstanciasSteps;
+use Nononsense\HomeBundle\Entity\ActivityUser;
 
 use Nononsense\UtilsBundle\Classes;
 
@@ -91,11 +92,22 @@ class RegistroConcretoController extends Controller
 
     public function linkAction($stepid, $form, $revisionid, $logbook)
     {
+        $user = $this->container->get('security.context')->getToken()->getUser();
+
         $step = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:InstanciasSteps')
             ->find($stepid);
 
         $registro = $step->getInstanciaWorkflow();
+
+        if ($registro->getInEdition() == 1) {
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                'Este registro ha sido abierto por otro usuario'
+            );
+            $route = $this->container->get('router')->generate('nononsense_registro_enproceso');
+            return $this->redirect($route);
+        }
         /*
         if ($step->getStatusId() == 2 && $registro->getStatus() != 10 ) {
             // ya validado, en realidad es como algo raro esto porque en la instalación de gus no funciona pero seguro que en las otras si
@@ -113,6 +125,8 @@ class RegistroConcretoController extends Controller
 
         }
         */
+
+
         $baseUrl = $this->getParameter("cm_installation");
 
         $options = array();
@@ -146,6 +160,8 @@ class RegistroConcretoController extends Controller
         }
         $options['custom'] = json_encode($customObject);
 
+        $accionText = '';
+
         if ($step->getMasterStep()->getChecklist() == 1) {
 
             $versionJS = filemtime(__DIR__ . "/../../../../web/js/js_templates/activity.js");
@@ -154,6 +170,7 @@ class RegistroConcretoController extends Controller
             $options['prefix'] = 'u';
             $options['responseURL'] = $baseUrl . "control_check_list/" . $stepid . "/";
 
+            $accionText = 'Completar check list';
 
         } else {
 
@@ -165,9 +182,14 @@ class RegistroConcretoController extends Controller
 
                 $versionJS = filemtime(__DIR__ . "/../../../../web/js/js_templates/validacion.js");
                 $validacionURL1 = $baseUrl . "js/js_templates/validacion.js?v=" . $versionJS;
+                $registro->setInEdition(1);
+
+                $accionText = 'Validar registro';
 
             } else if ($registro->getStatus() == -1 ||
                 $registro->getStatus() == 0) {
+
+                $registro->setInEdition(1);
                 // abrir para editar
                 $versionJS = filemtime(__DIR__ . "/../../../../web/js/js_templates/activity.js");
                 $validacionURL1 = $baseUrl . "js/js_templates/activity.js?v=" . $versionJS;
@@ -175,15 +197,18 @@ class RegistroConcretoController extends Controller
                 $options['prefix'] = 'u';
                 $options['responseURL'] = $baseUrl . "control_elaboracion/" . $stepid . "/";
 
+                $accionText = 'Elaborar registro';
 
             } else if ($registro->getStatus() == 5 || $registro->getStatus() == 14) {
+                $registro->setInEdition(1);
                 // Flujos de cancelación
                 $options['prefix'] = 'show';
                 $options['responseURL'] = $baseUrl . "control_cancelacion/" . $stepid . "/";
 
-
                 $versionJS = filemtime(__DIR__ . "/../../../../web/js/js_templates/cancelacion.js");
                 $validacionURL1 = $baseUrl . "js/js_templates/cancelacion.js?v=" . $versionJS;
+
+                $accionText = 'verificar cancelacion';
 
             } else {
 
@@ -191,6 +216,8 @@ class RegistroConcretoController extends Controller
                 $options['prefix'] = 'show';
                 $versionJS = filemtime(__DIR__ . "/../../../../web/js/js_templates/show.js");
                 $validacionURL1 = $baseUrl . "js/js_templates/show.js?v=" . $versionJS;
+
+                $accionText = 'Ver registro';
             }
         }
 
@@ -223,11 +250,21 @@ class RegistroConcretoController extends Controller
         $url_edit_documento = $this->get('app.sdk')->previewDocument($options);
 
         /*
-         * Bloquear el registro
+         * Crear activity registro
          */
-        //$registro->setInEdition(1);
+        $now = new \DateTime();
+        //$now->modify("+2 hour"); // Ver tema de horarios usos
+
+        $activity = new ActivityUser();
+        $activity->setEntrada($now);
+        $activity->setStatus(0);
+        $activity->setUserEntiy($user);
+        $activity->setStepEntity($step);
+        $activity->setAccion($accionText);
+
 
         $em = $this->getDoctrine()->getManager();
+        $em->persist($activity);
         $em->persist($registro);
         $em->flush();
 
@@ -259,14 +296,14 @@ class RegistroConcretoController extends Controller
 
         /*
         * Guardar evidencia de registro completado
-        */
+        *
         $evidencia = new EvidenciasStep();
         $evidencia->setStepEntity($step);
         $evidencia->setStatus(0);
         $evidencia->setUserEntiy($registro->getUserCreatedEntiy());
         $evidencia->setToken($step->getToken());
         $evidencia->setStepDataValue($step->getStepDataValue());
-
+        */
 
         $firmaImagen = $request->query->get('firma');
         $comentario = $request->query->get('comment');
@@ -278,25 +315,42 @@ class RegistroConcretoController extends Controller
             $descp = "Guardado parcial";
         }
         /*
-         * Guardar firma
+         * Obtener firma pendiente y firmar
          */
-        $firmas = $this->getDoctrine()
+        $firma = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:FirmasStep')
-            ->findBy(array("step_id" => $step->getId()));
+            ->findOneBy(array("step_id" => $step->getId(), "status" => 0, "userEntiy" => $user));
 
-        $counter = count($firmas) + 1;
+        if (isset($firma)) {
+            $firma->setFirma($firmaImagen);
+            $firma->setAccion($descp);
+            $firma->setStatus(1); // Firmado
 
-        $firma = new FirmasStep();
-        $firma->setAccion($descp);
-        $firma->setStepEntity($step);
-        $firma->setUserEntiy($user);
-        $firma->setFirma($firmaImagen);
-        $firma->setNumber($counter);
+        } else {
+            // No debería estar aquí
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                'No tiene firma pendiente para este paso.'
+            );
+            $route = $this->container->get('router')->generate('nononsense_home_homepage');
+            return $this->redirect($route);
+        }
+        /*
+                $counter = count($firmas) + 1;
 
-        $evidencia->setFirmaEntity($firma);
+                $firma = new FirmasStep();
+                $firma->setAccion($descp);
+                $firma->setStepEntity($step);
+                $firma->setUserEntiy($user);
+                $firma->setFirma($firmaImagen);
+                $firma->setNumber($counter);
+
+                $evidencia->setFirmaEntity($firma);
 
 
-        $em->persist($evidencia);
+                $em->persist($evidencia);
+        */
+
         $em->persist($firma);
         $em->flush();
 
@@ -343,61 +397,63 @@ class RegistroConcretoController extends Controller
             $type = $groupMe->getGroup()->getId();
         }
 
+        /*
+         * Obsoleto
+         *
+                switch ($validationType) {
+                    case "FLL":
+                        $type = 5;
+                        $registro->setStatus(8);
+                        break;
+                    case "mantenimiento":
+                        /*
+                         * Si valor mantenimineto en el datos del step el type es 2, sino es 1
+                         * varValues
+                         *
+                        $data = $step->getStepDataValue();
+                        $dataJson = json_decode($data);
 
-        switch ($validationType) {
-            case "FLL":
-                $type = 5;
-                $registro->setStatus(8);
-                break;
-            case "mantenimiento":
-                /*
-                 * Si valor mantenimineto en el datos del step el type es 2, sino es 1
-                 * varValues
-                 */
-                $data = $step->getStepDataValue();
-                $dataJson = json_decode($data);
+                        $u_accion = $dataJson->varValues->u_accion;
+                        if (in_array("Mantenimiento", $u_accion)) {
+                            $type = 5;
+                        }
+                        break;
+                    case "intervencion":
+                        /*
+                         * Si u_accion es intervención.
+                         * Bloquear la plantilla.
+                         *
+                         *
+                        $data = $step->getStepDataValue();
+                        $dataJson = json_decode($data);
 
-                $u_accion = $dataJson->varValues->u_accion;
-                if (in_array("Mantenimiento", $u_accion)) {
-                    $type = 5;
+                        $u_accion = $dataJson->varValues->u_accion;
+                        //var_dump($u_accion);
+                        //exit;
+                        if (in_array("Intervenci%C3%B3n", $u_accion)) {
+                            $metaData = $this->getDoctrine()
+                                ->getRepository('NononsenseHomeBundle:MetaData')
+                                ->findOneBy(array("workflow_id" => $registro->getId()));
+
+                            $equipo = $metaData->getEquipo();
+                            $type = 5;
+
+                            $now = new \DateTime();
+                            $now->modify("+2 hour"); // Ver tema de horarios usos
+
+                            $bloqueoMasterWorkflow = new BloqueoMasterWorkflow();
+                            $bloqueoMasterWorkflow->setStatus(0);
+                            $bloqueoMasterWorkflow->setEquipo($equipo);
+                            $bloqueoMasterWorkflow->setMasterWorkflowId($registro->getMasterWorkflowEntity()->getId());
+                            $bloqueoMasterWorkflow->setFechaInicioBloqueo($now);
+                            $bloqueoMasterWorkflow->setRegistroId($registro->getId());
+
+                            $em->persist($bloqueoMasterWorkflow);
+
+                        }
+                        break;
                 }
-                break;
-            case "intervencion":
-                /*
-                 * Si u_accion es intervención.
-                 * Bloquear la plantilla.
-                 *
-                 */
-                $data = $step->getStepDataValue();
-                $dataJson = json_decode($data);
-
-                $u_accion = $dataJson->varValues->u_accion;
-                //var_dump($u_accion);
-                //exit;
-                if (in_array("Intervenci%C3%B3n", $u_accion)) {
-                    $metaData = $this->getDoctrine()
-                        ->getRepository('NononsenseHomeBundle:MetaData')
-                        ->findOneBy(array("workflow_id" => $registro->getId()));
-
-                    $equipo = $metaData->getEquipo();
-                    $type = 5;
-
-                    $now = new \DateTime();
-                    $now->modify("+2 hour"); // Ver tema de horarios usos
-
-                    $bloqueoMasterWorkflow = new BloqueoMasterWorkflow();
-                    $bloqueoMasterWorkflow->setStatus(0);
-                    $bloqueoMasterWorkflow->setEquipo($equipo);
-                    $bloqueoMasterWorkflow->setMasterWorkflowId($registro->getMasterWorkflowEntity()->getId());
-                    $bloqueoMasterWorkflow->setFechaInicioBloqueo($now);
-                    $bloqueoMasterWorkflow->setRegistroId($registro->getId());
-
-                    $em->persist($bloqueoMasterWorkflow);
-
-                }
-                break;
-        }
-
+        */
 
         $revisionInstanciaWorkflowEntity = new RevisionInstanciaWorkflow();
         $revisionInstanciaWorkflowEntity->setStatus(0);
@@ -423,36 +479,56 @@ class RegistroConcretoController extends Controller
 
         /*
          * Guardar evidencia de registro completado
-         */
+         *
         $evidencia = new EvidenciasStep();
         $evidencia->setStepEntity($step);
         $evidencia->setStatus(0);
         $evidencia->setUserEntiy($registro->getUserCreatedEntiy());
         $evidencia->setToken($step->getToken());
         $evidencia->setStepDataValue($step->getStepDataValue());
-
+*/
         $documentName = $step->getMasterStep()->getName();
 
         /*
          * Guardar firma
          */
-        $firmas = $this->getDoctrine()
-            ->getRepository('NononsenseHomeBundle:FirmasStep')
-            ->findBy(array("step_id" => $step->getId()));
 
-        $counter = count($firmas) + 1;
+
+        $firma = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:FirmasStep')
+            ->findOneBy(array("step_id" => $step->getId(), "status" => 0, "userEntiy" => $user));
 
         $firmaImagen = $request->query->get('firma');
-        $firma = new FirmasStep();
-        $firma->setAccion("Guardado y enviado a validación");
-        $firma->setStepEntity($step);
-        $firma->setUserEntiy($user);
-        $firma->setFirma($firmaImagen);
-        $firma->setNumber($counter);
 
-        $evidencia->setFirmaEntity($firma);
+        if (isset($firma)) {
+            $firma->setFirma($firmaImagen);
+            $firma->setAccion("Guardado y enviado a validación. " . $comentario);
+            $firma->setStatus(1); // Firmado
 
-        $em->persist($evidencia);
+        } else {
+            // No debería estar aquí
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                'No tiene firma pendiente para este paso.'
+            );
+            $route = $this->container->get('router')->generate('nononsense_home_homepage');
+            return $this->redirect($route);
+        }
+        /*
+                $counter = count($firmas) + 1;
+
+
+                $firma = new FirmasStep();
+                $firma->setAccion("Guardado y enviado a validación");
+                $firma->setStepEntity($step);
+                $firma->setUserEntiy($user);
+                $firma->setFirma($firmaImagen);
+                $firma->setNumber($counter);
+
+                $evidencia->setFirmaEntity($firma);
+
+                $em->persist($evidencia);
+                */
         $em->persist($firma);
         $em->flush();
 
@@ -465,13 +541,17 @@ class RegistroConcretoController extends Controller
 
         if (count($userGroupVerificacion) == 1) {
             // Enviar notificación al único usuario del grupo
+            // {{path('nononsense_ver_registro', {'revisionid': plantilla.registroid})}}
+            $route = $this->container->get('router')->generate('nononsense_ver_registro', array('revisionid'=>$registro->getId()));
+            $route = 'registro_ver/'.$registro->getId();
 
             $groupUsers = $userGroupVerificacion[0];
             $userVerificacion = $groupUsers->getUser();
 
             $mailTo = $userVerificacion->getEmail();
             $baseURL = $this->container->getParameter('cm_installation');
-            $link = $baseURL . "registro_process";
+            $link = $baseURL . $route;
+
             $logo = '';
             $accion = 'notificarVerficiacion';
             $subject = 'Tiene un registro pendiente de verificar';
@@ -494,6 +574,7 @@ class RegistroConcretoController extends Controller
                 * parcial
                 * enviar
                 */
+        $user = $this->container->get('security.context')->getToken()->getUser();
         $em = $this->getDoctrine()->getManager();
 
         $step = $this->getDoctrine()
@@ -503,19 +584,25 @@ class RegistroConcretoController extends Controller
         $registro = $step->getInstanciaWorkflow();
         $registro->setInEdition(0);
 
+        $debeFirmar = true;
+
         if ($action == 'cancelar') {
             $registro->setStatus(3);
             $route = $this->container->get('router')->generate('nononsense_registro_cancelar', array('stepid' => $stepid));
+            $descp = 'Pendiente firma cancelación checklist';
 
         } elseif ($action == 'parcial') {
-            //$registro->setStatus(1);
+            $registro->setStatus(15);
 
             $route = $this->container->get('router')->generate('nononsense_contrato_registro_completado', array('stepid' => $stepid, 'comment' => $comment));
+            $descp = 'Pendiente firma completado parcial checklist';
 
         } elseif ($action == 'enviar') {
             /*
              * Para llegar a este punto REAL el usuario debe haber verificado el ES-MA. Si no lo ha hecho mostrar un mensaje de error
              */
+            $descp = 'Pendiente firma envio verificación completo checklist';
+            $registro->setStatus(7);
             $stepList = $this->getDoctrine()
                 ->getRepository('NononsenseHomeBundle:InstanciasSteps')
                 ->findBy(array("workflow_id" => $registro->getId()));
@@ -535,26 +622,60 @@ class RegistroConcretoController extends Controller
                 $step->setStatusId(2); // verificado
                 $route = $this->container->get('router')->generate('nononsense_registro_verificar', array('stepid' => $stepid, 'comment' => $comment));
             } else {
+                $registro->setStatus(15);
                 $route = $this->container->get('router')->generate('nononsense_esma_no_validado', array('workflowid' => $registro->getId()));
             }
 
 
         } else if ($action == 'cerrar') {
-
+            $debeFirmar = false;
             $route = base64_decode($urlaux);
 
 
         } else {
             // Error... go inbox
+            $debeFirmar = false;
             echo 'No deberías haber llegado aquí. Error desconocido';
             var_dump($action);
             exit;
 
         }
 
+        if ($debeFirmar) {
+            $evidencia = new EvidenciasStep();
+            $evidencia->setStepEntity($step);
+            $evidencia->setStatus(0);
+            $evidencia->setUserEntiy($registro->getUserCreatedEntiy());
+            $evidencia->setToken($step->getToken());
+            $evidencia->setStepDataValue($step->getStepDataValue());
+
+            $firmas = $this->getDoctrine()
+                ->getRepository('NononsenseHomeBundle:FirmasStep')
+                ->findBy(array("step_id" => $step->getId()));
+
+            $counter = count($firmas) + 1;
+
+            $firma = new FirmasStep();
+            $firma->setAccion($descp);
+            $firma->setStepEntity($step);
+            $firma->setUserEntiy($user);
+            $firma->setFirma("");
+            $firma->setStatus(0); //Pendiente
+            $firma->setNumber($counter);
+
+            $evidencia->setFirmaEntity($firma);
+
+
+            $em->persist($evidencia);
+            $em->persist($firma);
+        }
+
+
         $em->persist($step);
         $em->persist($registro);
         $em->flush();
+
+        $this->_registrarFinActividad($user, $step);
 
         return $this->redirect($route);
     }
@@ -573,6 +694,62 @@ class RegistroConcretoController extends Controller
         ));
     }
 
+    public function ESMANoValidadoFirmaAction($stepid, Request $request)
+    {
+        /*
+        * Guardar firma
+        */
+
+        $user = $this->container->get('security.context')->getToken()->getUser();
+        $step = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:InstanciasSteps')
+            ->find($stepid);
+
+        $em = $this->getDoctrine()->getManager();
+
+        $registro = $step->getInstanciaWorkflow();
+
+        $em->persist($registro);
+        $em->flush();
+
+        $firmaImagen = $request->query->get('firma');
+        $comentario = $request->query->get('comment');
+
+        if (!empty($comentario)) {
+            $descp = "Guardado parcial. " . $comentario;
+
+        } else {
+            $descp = "Guardado parcial";
+        }
+        /*
+         * Obtener firma pendiente y firmar
+         */
+        $firma = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:FirmasStep')
+            ->findOneBy(array("step_id" => $step->getId(), "status" => 0, "userEntiy" => $user));
+
+        if (isset($firma)) {
+            $firma->setFirma($firmaImagen);
+            $firma->setAccion($descp);
+            $firma->setStatus(1); // Firmado
+
+        } else {
+            // No debería estar aquí
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                'No tiene firma pendiente para este paso.'
+            );
+            $route = $this->container->get('router')->generate('nononsense_home_homepage');
+            return $this->redirect($route);
+        }
+
+        $em->persist($firma);
+        $em->flush();
+
+        $route = $this->container->get('router')->generate('nononsense_registro_enproceso');
+        return $this->redirect($route);
+    }
+
     public function controlElaboracionAction($stepid, $action, $comment, $urlaux)
     {
         /*
@@ -580,7 +757,13 @@ class RegistroConcretoController extends Controller
          * cancelar
          * parcial
          * enviar
+         *
+         * Crear aquí la entidad de la firma, y luego en la parte de recoger la firma simplemente actualizar.
+         * En la interfaz se puede poner "firmar" si el usuario en cuestión es el mismo.
+         *
          */
+        $user = $this->container->get('security.context')->getToken()->getUser();
+
         $em = $this->getDoctrine()->getManager();
 
         $step = $this->getDoctrine()
@@ -591,21 +774,26 @@ class RegistroConcretoController extends Controller
         $registro->setInEdition(0);
         //var_dump($action);
 
+        $debeFirmar = true;
+
+
         if ($action == 'cancelar') {
             $registro->setStatus(3);
+            $descp = 'Solicitud cancelacion: ';
             $route = $this->container->get('router')->generate('nononsense_registro_cancelar', array('stepid' => $stepid));
 
         } elseif ($action == 'parcial') {
             $registro->setStatus(1);
-
+            $descp = 'Guardado parcial';
             $route = $this->container->get('router')->generate('nononsense_contrato_registro_completado', array('stepid' => $stepid, 'comment' => $comment));
 
         } elseif ($action == 'enviar') {
             $registro->setStatus(2);
+            $descp = 'Guardado y enviado a validación';
             $route = $this->container->get('router')->generate('nononsense_contrato_registro_completado', array('stepid' => $stepid, 'comment' => $comment));
 
         } else if ($action == 'cerrar') {
-
+            $debeFirmar = false;
             $route = base64_decode($urlaux);
 
 
@@ -616,6 +804,40 @@ class RegistroConcretoController extends Controller
             exit;
 
         }
+        if ($debeFirmar) {
+            $evidencia = new EvidenciasStep();
+            $evidencia->setStepEntity($step);
+            $evidencia->setStatus(0);
+            $evidencia->setUserEntiy($registro->getUserCreatedEntiy());
+            $evidencia->setToken($step->getToken());
+            $evidencia->setStepDataValue($step->getStepDataValue());
+
+            $firmas = $this->getDoctrine()
+                ->getRepository('NononsenseHomeBundle:FirmasStep')
+                ->findBy(array("step_id" => $step->getId()));
+
+            $counter = count($firmas) + 1;
+
+            $firma = new FirmasStep();
+            $firma->setAccion($descp);
+            $firma->setStepEntity($step);
+            $firma->setUserEntiy($user);
+            $firma->setFirma("");
+            $firma->setStatus(0); //Pendiente
+            $firma->setNumber($counter);
+
+            $evidencia->setFirmaEntity($firma);
+
+
+            $em->persist($evidencia);
+            $em->persist($firma);
+        }
+
+        /*
+         * Registrar fin actividad
+         */
+        $this->_registrarFinActividad($user, $step);
+
 
         $em->persist($registro);
         $em->flush();
@@ -637,41 +859,77 @@ class RegistroConcretoController extends Controller
         $em->persist($registro);
         $em->flush();
 
+        $debeFirmar = true;
+        $user = $this->container->get('security.context')->getToken()->getUser();
         if ($action == 'cancelar') {
             $registro->setStatus(12);
             $route = $this->container->get('router')->generate('nononsense_registro_cancelar_verficiacion', array('stepid' => $stepid));
+            $descp = 'Pendiente firma de solicitar cancelación en verificación';
 
         } elseif ($action == 'verificar') {
             $step->setStatusId(2); // verificado
             $registro->setStatus(7);
             $route = $this->container->get('router')->generate('nononsense_registro_verificar', array('stepid' => $stepid, 'comment' => $comment));
-
+            $descp = 'Pendiente firma de verificación total';
 
         } elseif ($action == 'devolver') {
             $registro->setStatus(13);
             $route = $this->container->get('router')->generate('nononsense_registro_devolver_edicion', array('stepid' => $stepid));
-
+            $descp = 'Pendiente firma para enviar a devolución';
 
         } else if ($action == 'cerrar') {
-
+            $debeFirmar = false;
             $route = base64_decode($urlaux);
 
 
         } else if ($action == 'verificarparcial') {
             $registro->setStatus(15);
             $route = $this->container->get('router')->generate('nononsense_registro_verificar_parcial', array('stepid' => $stepid, 'comment' => $comment));
+            $descp = 'Pendiente firma verificación parical';
 
         } else {
             // Error... go inbox
+            $debeFirmar = false;
             echo 'No deberías haber llegado aquí. Error desconocido';
             var_dump($action);
             exit;
 
         }
 
+        if ($debeFirmar) {
+            $evidencia = new EvidenciasStep();
+            $evidencia->setStepEntity($step);
+            $evidencia->setStatus(0);
+            $evidencia->setUserEntiy($registro->getUserCreatedEntiy());
+            $evidencia->setToken($step->getToken());
+            $evidencia->setStepDataValue($step->getStepDataValue());
+
+            $firmas = $this->getDoctrine()
+                ->getRepository('NononsenseHomeBundle:FirmasStep')
+                ->findBy(array("step_id" => $step->getId()));
+
+            $counter = count($firmas) + 1;
+
+            $firma = new FirmasStep();
+            $firma->setAccion($descp);
+            $firma->setStepEntity($step);
+            $firma->setUserEntiy($user);
+            $firma->setFirma("");
+            $firma->setStatus(0); //Pendiente
+            $firma->setNumber($counter);
+
+            $evidencia->setFirmaEntity($firma);
+
+
+            $em->persist($evidencia);
+            $em->persist($firma);
+        }
+
         $em->persist($step);
         $em->persist($registro);
         $em->flush();
+
+        $this->_registrarFinActividad($user, $step);
 
         return $this->redirect($route);
     }
@@ -679,6 +937,7 @@ class RegistroConcretoController extends Controller
     public function controlCancelacionAction($stepid, $action, $urlaux)
     {
         $em = $this->getDoctrine()->getManager();
+        $user = $this->container->get('security.context')->getToken()->getUser();
 
         $step = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:InstanciasSteps')
@@ -689,32 +948,65 @@ class RegistroConcretoController extends Controller
 
         $em->persist($registro);
         $em->flush();
-
+        $debeFirmar = true;
         if ($action == 'rechazar') {
 
             $route = $this->container->get('router')->generate('nononsense_registro_rechazar_cancelacion_firma', array('stepid' => $stepid));
+            $descp = 'Pendiente firma rechazar cancelación';
 
         } elseif ($action == 'aprobar') {
 
             $route = $this->container->get('router')->generate('nononsense_registro_aprobar_cancelacion_firma', array('stepid' => $stepid));
-
+            $descp = 'Pendiente firmar aprobar cancelación';
 
         } else if ($action == 'cerrar') {
-
+            $debeFirmar = false;
             $route = base64_decode($urlaux);
 
 
         } else {
             // Error... go inbox
+            $debeFirmar = false;
             echo 'No deberías haber llegado aquí. Error desconocido';
             var_dump($action);
             exit;
 
         }
 
+        if ($debeFirmar) {
+            $evidencia = new EvidenciasStep();
+            $evidencia->setStepEntity($step);
+            $evidencia->setStatus(0);
+            $evidencia->setUserEntiy($registro->getUserCreatedEntiy());
+            $evidencia->setToken($step->getToken());
+            $evidencia->setStepDataValue($step->getStepDataValue());
+
+            $firmas = $this->getDoctrine()
+                ->getRepository('NononsenseHomeBundle:FirmasStep')
+                ->findBy(array("step_id" => $step->getId()));
+
+            $counter = count($firmas) + 1;
+
+            $firma = new FirmasStep();
+            $firma->setAccion($descp);
+            $firma->setStepEntity($step);
+            $firma->setUserEntiy($user);
+            $firma->setFirma("");
+            $firma->setStatus(0); //Pendiente
+            $firma->setNumber($counter);
+
+            $evidencia->setFirmaEntity($firma);
+
+
+            $em->persist($evidencia);
+            $em->persist($firma);
+        }
+
         $em->persist($step);
         $em->persist($registro);
         $em->flush();
+
+        $this->_registrarFinActividad($user, $step);
 
         return $this->redirect($route);
     }
@@ -822,37 +1114,37 @@ class RegistroConcretoController extends Controller
         $documentsReconciliacion = array();
         $procesarReconciliaciones = true;
 
-        while($procesarReconciliaciones){
-            if($registroViejo != null){
+        while ($procesarReconciliaciones) {
+            if ($registroViejo != null) {
 
                 $subcat = $registroViejo->getMasterWorkflowEntity()->getCategory()->getName();
                 $name = $registroViejo->getMasterWorkflowEntity()->getName();
 
                 $element = array(
-                    "id"=> $registroViejo->getId(),
+                    "id" => $registroViejo->getId(),
                     "subcat" => $subcat,
                     "name" => $name,
                     "status" => $registroViejo->getStatus(),
-                    "fecha" =>$registroViejo->getModified()
+                    "fecha" => $registroViejo->getModified()
                 );
                 $documentsReconciliacion[] = $element;
-            }else{
+            } else {
                 $procesarReconciliaciones = false;
             }
 
             // Ver una posible reconciliación del registro viejo
             $peticionReconciliacionAntigua = $this->getDoctrine()
                 ->getRepository('NononsenseHomeBundle:ReconciliacionRegistro')
-                ->findOneBy(array("registro_nuevo_id"=>$registroViejo->getId()));
+                ->findOneBy(array("registro_nuevo_id" => $registroViejo->getId()));
 
-            if(isset($peticionReconciliacionAntigua)){
+            if (isset($peticionReconciliacionAntigua)) {
 
                 $registroViejoId = $peticionReconciliacionAntigua->getRegistroViejoId();
                 $registroViejo = $this->getDoctrine()
                     ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
                     ->find($registroViejoId);
 
-            }else{
+            } else {
                 $registroViejo = null;
                 $procesarReconciliaciones = false;
             }
@@ -884,7 +1176,7 @@ class RegistroConcretoController extends Controller
 
         $step = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:InstanciasSteps')
-            ->findOneBy(array("workflow_id" => $registroViejoId, "dependsOn"=>0));
+            ->findOneBy(array("workflow_id" => $registroViejoId, "dependsOn" => 0));
 
         /*
          * Guardar firma
@@ -909,7 +1201,7 @@ class RegistroConcretoController extends Controller
         $comentario = $request->query->get('comment');
         $accion = $request->query->get('accion');
 
-        if($accion == 'autorizar'){
+        if ($accion == 'autorizar') {
             $descp = "Petición de reconciliación autorizada. " . $comentario;
             $registroViejo->setStatus(10);
             $peticionEntity->setStatus(1);
@@ -920,7 +1212,7 @@ class RegistroConcretoController extends Controller
             $registroNuevo->setStatus(0);
             $em->persist($registroNuevo);
 
-        }else{
+        } else {
             $descp = "Petición de reconciliación no autorizada. " . $comentario;
             $peticionEntity->setStatus(2);
         }
@@ -951,6 +1243,25 @@ class RegistroConcretoController extends Controller
 
         $route = $this->container->get('router')->generate('nononsense_registro_enproceso');
         return $this->redirect($route);
+
+    }
+
+    private function _registrarFinActividad($user, $step)
+    {
+        $activity = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:ActivityUser')
+            ->findOneBy(array("stepEntity" => $step, "userEntiy"=>$user, "status"=>0));
+
+        $activity->setStatus(1);
+
+        $now = new \DateTime();
+        //$now->modify("+2 hour"); // Ver tema de horarios usos
+
+        $activity->setSalida($now);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($activity);
+        $em->flush();
 
     }
 

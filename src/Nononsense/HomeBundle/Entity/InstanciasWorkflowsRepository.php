@@ -236,7 +236,7 @@ class InstanciasWorkflowsRepository extends EntityRepository
             ->leftJoin("n.Master_Workflow_Entity", "ms")
             ->leftJoin("ms.category", "c")
             ->innerJoin("n.metaData", "mt")
-            ->andWhere('n.status in (0,1,5,6,4,16)')
+            ->andWhere('n.status in (0,1,2,3,5,4,16)')
             ->andWhere('n.usercreatedid = :user')
             ->setParameter('user', $user_logged)
             ->orderBy('n.id', 'DESC');
@@ -253,7 +253,7 @@ class InstanciasWorkflowsRepository extends EntityRepository
             ->leftJoin("n.Master_Workflow_Entity", "ms")
             ->leftJoin("ms.category", "c")
             ->leftJoin("n.metaData", "mt")
-            ->andWhere('n.status in (0,6)')
+            ->andWhere('n.status in (0,1,2,3,5,4,16)')
             ->orderBy('n.id', 'DESC');
 
         if($idregistro != "-1"){
@@ -349,7 +349,7 @@ class InstanciasWorkflowsRepository extends EntityRepository
             ->leftJoin("ms.category", "c")
             ->leftJoin("n.userCreatedEntiy", "u")
             ->innerJoin("n.metaData", "mt")
-            ->andWhere('n.status in (5,4,14)')
+            ->andWhere('n.status in (5,4,14,7,12,13,15)')
             ->andWhere('n.usercreatedid != :user')
             ->andWhere('ms.group_id in (:groupsuser)')
             ->setParameter('user', $user_logged)

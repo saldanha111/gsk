@@ -267,6 +267,7 @@ function customOnLoad() {
         console.log(historyObj);
 
         var responseURL = $('#responseURL').val();
+        responseURL = limpiarResponseUrl(responseURL);
         responseURL += 'cerrar%2F0%2F';
         responseURL += historyObj;
         console.log(responseURL);
@@ -365,14 +366,21 @@ function customOnLoad() {
 
     function limpiarResponseUrl(url){
         var urlLimpia = url;
+        urlLimpia = urlLimpia.replace(/devolver%2F1/g, "");
+        urlLimpia = urlLimpia.replace(/devolver%2F0/g, "");
+        urlLimpia = urlLimpia.replace(/devolver/g, "");
         urlLimpia = urlLimpia.replace(/cancelar%2F1/g, "");
         urlLimpia = urlLimpia.replace(/cancelar%2F0/g, "");
-        urlLimpia = urlLimpia.replace(/parcial%2F1/g, "");
-        urlLimpia = urlLimpia.replace(/parcial%2F0/g, "");
-        urlLimpia = urlLimpia.replace(/enviar%2F1/g, "");
-        urlLimpia = urlLimpia.replace(/enviar%2F0/g, "");
+        urlLimpia = urlLimpia.replace(/cancelar/g, "");
         urlLimpia = urlLimpia.replace(/verificarparcial%2F1/g, "");
         urlLimpia = urlLimpia.replace(/verificarparcial%2F0/g, "");
+        urlLimpia = urlLimpia.replace(/verificarparcial/g, "");
+        urlLimpia = urlLimpia.replace(/parcial%2F1/g, "");
+        urlLimpia = urlLimpia.replace(/parcial%2F0/g, "");
+        urlLimpia = urlLimpia.replace(/parcial/g, "");
+        urlLimpia = urlLimpia.replace(/enviar%2F1/g, "");
+        urlLimpia = urlLimpia.replace(/enviar%2F0/g, "");
+        urlLimpia = urlLimpia.replace(/enviar/g, "");
 
         return urlLimpia;
     }

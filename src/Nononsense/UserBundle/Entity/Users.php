@@ -190,6 +190,11 @@ class Users implements AdvancedUserInterface, \Serializable
      */
     protected $Firmas;
 
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\ActivityUser", mappedBy="userEntiy")
+     */
+    protected $Activity;
+
 
     /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\Revision", mappedBy="userRevisionEntiy")
@@ -1401,5 +1406,38 @@ class Users implements AdvancedUserInterface, \Serializable
     public function getRecordsSignatures()
     {
         return $this->recordsSignatures;
+    }
+
+    /**
+     * Add Activity
+     *
+     * @param \Nononsense\HomeBundle\Entity\ActivityUser $activity
+     * @return Users
+     */
+    public function addActivity(\Nononsense\HomeBundle\Entity\ActivityUser $activity)
+    {
+        $this->Activity[] = $activity;
+
+        return $this;
+    }
+
+    /**
+     * Remove Activity
+     *
+     * @param \Nononsense\HomeBundle\Entity\ActivityUser $activity
+     */
+    public function removeActivity(\Nononsense\HomeBundle\Entity\ActivityUser $activity)
+    {
+        $this->Activity->removeElement($activity);
+    }
+
+    /**
+     * Get Activity
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getActivity()
+    {
+        return $this->Activity;
     }
 }

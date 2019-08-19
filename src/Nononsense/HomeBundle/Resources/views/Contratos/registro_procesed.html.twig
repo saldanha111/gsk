@@ -56,6 +56,7 @@
     tbody tr td.pdte-ok {
         color: #00cc00;
     }
+    .not-allowed     { cursor: not-allowed; }
 
     a.btn-table {
         background: #0fba40;
@@ -345,11 +346,15 @@
                                 {% endif %}
                             </td>
                             {% else %}
-                            <td><a class="btn btn-xs btn-secondary" name="completarregistro"><i class="fa fa-lock"> </i>
+                            <td><a class="btn btn-xs btn-secondary not-allowed"><i class="fa fa-lock"> </i>
                                 {{'En edicion'|trans}}</a></td>
                             {% endif %}
                             {% else %}
-                            <td></td>
+                            <td>                            {% if plantilla.firma != '' %}
+                                <a class="btn btn-xs btn-warning" name="firmar"
+                                   href="{{plantilla.firma}}"
+                                   target="_self">{{'Firmar'|trans}}</a>
+                                {% endif %}</td>
                             {% endif %}
                         </tr>
                         {% endfor %}
@@ -415,7 +420,7 @@
                         <td class="pdte">{{plantilla.status}}</td>
                         {% endif %}
                         <td>{{plantilla.fecha | date('d-m-Y H:i:s') }}</td>
-                        {% if plantilla.status == 0 or plantilla.status == 6 %}
+                        {% if plantilla.status == 0  %}
                         {% if plantilla.in_edition == 0%}
                         <td><a class="btn btn-xs btn-primary" name="completarregistro"
                                data-template="{{plantilla.id}}"
@@ -428,11 +433,17 @@
                             {% endif %}
                         </td>
                         {% else %}
-                        <td><a class="btn btn-xs btn-secondary" name="completarregistro"><i class="fa fa-lock"> </i>
+                        <td><a class="btn btn-xs btn-secondary not-allowed"><i class="fa fa-lock"> </i>
                             {{'En edicion'|trans}}</a></td>
                         {% endif %}
                         {% else %}
-                        <td></td>
+                        <td>
+                            {% if plantilla.firma != '' %}
+                            <a class="btn btn-xs btn-warning" name="firmar"
+                               href="{{plantilla.firma}}"
+                               target="_self">{{'Firmar'|trans}}</a>
+                            {% endif %}
+                        </td>
                         {% endif %}
                     </tr>
                     {% endfor %}
@@ -510,22 +521,31 @@
                         <td class="pdte">{{plantilla.status}}</td>
                         {% endif %}
                         <td>
+                            {% if plantilla.status == 4 or plantilla.status == 5 or plantilla.status == 14 %}
                             {% if plantilla.in_edition == 0 %}
                             <a class="btn btn-xs btn-primary" name="verregistro"
                                href="{{path('nononsense_ver_registro', {'revisionid': plantilla.registroid})}}"
                                target="_self">{{'Ver'|trans}}</a>
                             {% else %}
-                        <a class="btn btn-xs btn-secondary" name="completarregistro"><i class="fa fa-lock"> </i>
+                        <a class="btn btn-xs btn-secondary not-allowed"><i class="fa fa-lock"> </i>
                             {{'En revision'|trans}}</a>
                         {% endif %}
+                            {% endif %}
+
                             {% if plantilla.reconciliacion != 'NO' %}
                             <a class="btn btn-xs btn-primary" name="verregistro"
                                href="{{path('nononsense_ver_registro', {'revisionid': plantilla.reconciliacion})}}"
                                target="_blank">{{'Ver reconciliado'|trans}}</a>
                             {% endif %}
+                            {% if plantilla.firma != '' %}
+                            <a class="btn btn-xs btn-warning" name="firmar"
+                               href="{{plantilla.firma}}"
+                               target="_self">{{'Firmar'|trans}}</a>
+
+                            {% endif %}
                         </td>
                     </tr>
-                    {% if plantilla.checklist == 1 and plantilla.status == 4 %}
+                    {% if plantilla.checklist == 1 and ( plantilla.status == 4 or plantilla.status == 7 or  plantilla.status == 12 or plantilla.status == 15) %}
                     <tr>
                         <td>{{plantilla.registroid}}</td>
                         <td>{{plantilla.companyName}}</td>
@@ -573,9 +593,19 @@
                         {% else %}
                         <td class="pdte">{{plantilla.status}}</td>
                         {% endif %}
-                        <td><a class="btn btn-xs btn-primary" name="verregistro"
+                        <td>
+                            {% if plantilla.status == 4 %}
+                            <a class="btn btn-xs btn-primary" name="verregistro"
                                href="{{path('nononsense_ver_checklist', {'revisionid': plantilla.registroid})}}"
-                               target="_self">{{'Ver checklist'|trans}}</a></td>
+                               target="_self">{{'Ver checklist'|trans}}</a>
+                            {% endif %}
+                            {% if plantilla.firmachecklist != '' %}
+                            <a class="btn btn-xs btn-warning" name="firmar"
+                               href="{{plantilla.firmachecklist}}"
+                               target="_self">{{'Firmar'|trans}}</a>
+                            {% endif %}
+
+                        </td>
                     </tr>
                     {% endif %}
                     {% endfor %}
