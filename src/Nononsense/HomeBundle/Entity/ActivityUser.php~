@@ -272,4 +272,27 @@ class ActivityUser
     {
         return $this->stepEntity;
     }
+
+    /**
+     * Set accion
+     *
+     * @param string $accion
+     * @return ActivityUser
+     */
+    public function setAccion($accion)
+    {
+        $this->accion = $accion;
+
+        return $this;
+    }
+
+    /**
+     * Get accion
+     *
+     * @return string 
+     */
+    public function getAccion()
+    {
+        return $this->accion;
+    }
 }

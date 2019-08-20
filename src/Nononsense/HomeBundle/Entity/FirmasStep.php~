@@ -87,7 +87,7 @@ class FirmasStep
     protected $modified;
 
     /**
-     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\InstanciasSteps", inversedBy="evidenciasStep")
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\InstanciasSteps", inversedBy="firmasStep")
      * @ORM\JoinColumn(name="step_id", referencedColumnName="id")
      */
     protected $stepEntity;

@@ -276,7 +276,7 @@ class RegistroValidationController extends Controller
             }
 
         }
-        echo 'No problem';
+
         //var_dump($documentosInProcessParcial);
         foreach ($documentosInProcessParcial as &$element3) {
             //echo 'problem';
