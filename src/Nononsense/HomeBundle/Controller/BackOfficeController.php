@@ -58,7 +58,7 @@ class BackOfficeController extends Controller
 
     public function setGrupoVerificadorAction(Request $request){
         $grupo = $request->query->get('gruposDisponiblesSelect');
-        $master = $request->query->get('PlantillasSelect');
+        $master = $request->query->get('plantillaSeleccionada');
 
         $MasterWorkflowEntity = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:MasterWorkflows')
