@@ -357,3 +357,24 @@ nononsense_records_requet_data:
 nononsense_records_return_data:
     path:     /dataRecords/returnData/{id}
     defaults: { _controller: NononsenseHomeBundle:Records:returnData, id: 0}
+
+
+nononsense_backoffice_standby_documents_list:
+    path:     /backoffice_standby_documents_list
+    defaults: { _controller: NononsenseHomeBundle:BackOffice:standByDocumentsList}
+
+nononsense_backoffice_standby_document:
+    path:     /backoffice_standby_document/{idRegistro}
+    defaults: { _controller: NononsenseHomeBundle:BackOffice:standByDocument, idRegistro: 0}
+
+nononsense_backoffice_standby_document_FLL_accion:
+    path:     /backoffice_standby_document_FLL_accion/{idRegistro}
+    defaults: { _controller: NononsenseHomeBundle:BackOffice:standByDocumentFLLAccion, idRegistro: 0}
+
+nononsense_backoffice_standby_document_eco:
+    path:     /backoffice_standby_document_eco/{idRegistro}
+    defaults: { _controller: NononsenseHomeBundle:BackOffice:standByDocumentECO, idRegistro: 0}
+
+nononsense_backoffice_standby_document_ECO_accion:
+    path:     /backoffice_standby_document_ECO_accion/{idRegistro}
+    defaults: { _controller: NononsenseHomeBundle:BackOffice:standByDocumentECOAccion, idRegistro: 0}

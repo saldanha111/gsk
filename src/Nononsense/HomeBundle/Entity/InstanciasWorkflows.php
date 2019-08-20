@@ -134,6 +134,7 @@ class InstanciasWorkflows
      * 9 -> Archivado
      * 10 -> Reconciliado
      * 11 -> Bloqueado
+     * 17 ->Bloqueado- esperando ECO
      */
     protected $status;
 
@@ -229,11 +230,10 @@ class InstanciasWorkflows
     }
 
 
-
     /**
      * Get id
      *
-     * @return integer 
+     * @return integer
      */
     public function getId()
     {
@@ -256,7 +256,7 @@ class InstanciasWorkflows
     /**
      * Get master_workflow
      *
-     * @return integer 
+     * @return integer
      */
     public function getMasterWorkflow()
     {
@@ -279,7 +279,7 @@ class InstanciasWorkflows
     /**
      * Get description
      *
-     * @return string 
+     * @return string
      */
     public function getDescription()
     {
@@ -302,7 +302,7 @@ class InstanciasWorkflows
     /**
      * Get masterDataValues
      *
-     * @return string 
+     * @return string
      */
     public function getMasterDataValues()
     {
@@ -325,7 +325,7 @@ class InstanciasWorkflows
     /**
      * Get files
      *
-     * @return string 
+     * @return string
      */
     public function getFiles()
     {
@@ -348,7 +348,7 @@ class InstanciasWorkflows
     /**
      * Get created
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getCreated()
     {
@@ -371,7 +371,7 @@ class InstanciasWorkflows
     /**
      * Get modified
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getModified()
     {
@@ -394,7 +394,7 @@ class InstanciasWorkflows
     /**
      * Get fecha_firma
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getFechaFirma()
     {
@@ -417,7 +417,7 @@ class InstanciasWorkflows
     /**
      * Get fecha_grabado_borrador
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getFechaGrabadoBorrador()
     {
@@ -440,7 +440,7 @@ class InstanciasWorkflows
     /**
      * Get isActive
      *
-     * @return boolean 
+     * @return boolean
      */
     public function getIsActive()
     {
@@ -463,7 +463,7 @@ class InstanciasWorkflows
     /**
      * Get in_edition
      *
-     * @return boolean 
+     * @return boolean
      */
     public function getInEdition()
     {
@@ -486,7 +486,7 @@ class InstanciasWorkflows
     /**
      * Get observaciones
      *
-     * @return string 
+     * @return string
      */
     public function getObservaciones()
     {
@@ -509,7 +509,7 @@ class InstanciasWorkflows
     /**
      * Get signvalues
      *
-     * @return string 
+     * @return string
      */
     public function getSignvalues()
     {
@@ -532,7 +532,7 @@ class InstanciasWorkflows
     /**
      * Get status
      *
-     * @return integer 
+     * @return integer
      */
     public function getStatus()
     {
@@ -542,7 +542,7 @@ class InstanciasWorkflows
     public function getStatusString()
     {
         $result = "";
-        switch ($this->status){
+        switch ($this->status) {
             case -2:
                 $result = "Iniciado sin datos";
                 break;
@@ -597,6 +597,12 @@ class InstanciasWorkflows
             case 15:
                 $result = "Esperando firma verificación parcial";
                 break;
+            case 16:
+                $result = "Esperando autorizacion para reconciliacion";
+                break;
+            case 17:
+                $result = "Bloqueado, esperando ECO";
+                break;
 
 
         }
@@ -619,7 +625,7 @@ class InstanciasWorkflows
     /**
      * Get year
      *
-     * @return integer 
+     * @return integer
      */
     public function getYear()
     {
@@ -642,7 +648,7 @@ class InstanciasWorkflows
     /**
      * Get departamento
      *
-     * @return integer 
+     * @return integer
      */
     public function getDepartamento()
     {
@@ -665,7 +671,7 @@ class InstanciasWorkflows
     /**
      * Get usercreatedid
      *
-     * @return integer 
+     * @return integer
      */
     public function getUsercreatedid()
     {
@@ -688,7 +694,7 @@ class InstanciasWorkflows
     /**
      * Get Master_Workflow_Entity
      *
-     * @return \Nononsense\HomeBundle\Entity\MasterWorkflows 
+     * @return \Nononsense\HomeBundle\Entity\MasterWorkflows
      */
     public function getMasterWorkflowEntity()
     {
@@ -721,7 +727,7 @@ class InstanciasWorkflows
     /**
      * Get Steps
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return \Doctrine\Common\Collections\Collection
      */
     public function getSteps()
     {
@@ -754,7 +760,7 @@ class InstanciasWorkflows
     /**
      * Get metaData
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return \Doctrine\Common\Collections\Collection
      */
     public function getMetaData()
     {
@@ -787,7 +793,7 @@ class InstanciasWorkflows
     /**
      * Get metaFirmantes
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return \Doctrine\Common\Collections\Collection
      */
     public function getMetaFirmantes()
     {
@@ -810,7 +816,7 @@ class InstanciasWorkflows
     /**
      * Get userCreatedEntiy
      *
-     * @return \Nononsense\UserBundle\Entity\Users 
+     * @return \Nononsense\UserBundle\Entity\Users
      */
     public function getUserCreatedEntiy()
     {
@@ -843,7 +849,7 @@ class InstanciasWorkflows
     /**
      * Get Revisions
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return \Doctrine\Common\Collections\Collection
      */
     public function getRevisions()
     {

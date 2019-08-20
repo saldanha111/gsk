@@ -416,6 +416,8 @@
                         <td>Esperando firma verificación parcial</td>
                         {% elseif plantilla.status == 16 %}
                         <td>Esperando autorización para reconciliación</td>
+                        {% elseif plantilla.status == 17 %}
+                        <td>Bloqueado, esperando decisión de ECO</td>
                         {% else %}
                         <td class="pdte">{{plantilla.status}}</td>
                         {% endif %}
@@ -517,6 +519,8 @@
                         <td>Pendiente de cancelación en verificación</td>
                         {% elseif plantilla.status == 15 %}
                         <td>Esperando firma verificación parcial</td>
+                        {% elseif plantilla.status == 17 %}
+                        <td>Bloqueado, esperando decisión de ECO</td>
                         {% else %}
                         <td class="pdte">{{plantilla.status}}</td>
                         {% endif %}
@@ -590,6 +594,8 @@
                         <td>Pendiente de cancelación en verificación</td>
                         {% elseif plantilla.status == 15 %}
                         <td>Esperando firma verificación parcial</td>
+                        {% elseif plantilla.status == 17 %}
+                        <td>Bloqueado, esperando decisión de ECO</td>
                         {% else %}
                         <td class="pdte">{{plantilla.status}}</td>
                         {% endif %}

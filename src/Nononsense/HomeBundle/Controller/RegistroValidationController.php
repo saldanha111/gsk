@@ -276,10 +276,12 @@ class RegistroValidationController extends Controller
             }
 
         }
-
+        echo 'No problem';
+        //var_dump($documentosInProcessParcial);
         foreach ($documentosInProcessParcial as &$element3) {
+            //echo 'problem';
             $idRegistro = $element3['id'];
-
+            //echo 'problem 2';
             $reconciliacionElement = $this->getDoctrine()
                 ->getRepository('NononsenseHomeBundle:ReconciliacionRegistro')
                 ->findOneBy(array("registro_nuevo_id" => $idRegistro));
@@ -300,7 +302,7 @@ class RegistroValidationController extends Controller
             /*
  * Posible firma pendiente
  */
-            $status = $element2['status'];
+            $status = $element3['status'];
 
             if(in_array($status,array(1,2,3))){
                 // Pendiente de firma
@@ -323,12 +325,12 @@ class RegistroValidationController extends Controller
                         $route = $this->container->get('router')->generate('nononsense_registro_cancelar', array('stepid' => $stepid));
                     }
 
-                    $element2['firma'] = $route;
+                    $element3['firma'] = $route;
                 }else{
-                    $element2['firma'] = '';
+                    $element3['firma'] = '';
                 }
             }else{
-                $element2['firma'] = '';
+                $element3['firma'] = '';
             }
 
         }

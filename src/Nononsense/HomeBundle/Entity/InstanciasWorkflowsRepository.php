@@ -236,9 +236,24 @@ class InstanciasWorkflowsRepository extends EntityRepository
             ->leftJoin("n.Master_Workflow_Entity", "ms")
             ->leftJoin("ms.category", "c")
             ->innerJoin("n.metaData", "mt")
-            ->andWhere('n.status in (0,1,2,3,5,4,16)')
+            ->andWhere('n.status in (0,1,2,3,5,4,16,11,17)')
             ->andWhere('n.usercreatedid = :user')
             ->setParameter('user', $user_logged)
+            ->orderBy('n.id', 'DESC');
+
+        $query = $list->getQuery();
+
+        return $query->getResult();
+    }
+
+    public function listStandBy()
+    {
+        $list = $this->createQueryBuilder('n')
+            ->select('n.id', 'ms.name', 'ms.description', 'c.name as companyName', 'n.status', 'mt.fechainicio as fecha','n.in_edition','ms.id as masterworkflowid','ms.logbook')
+            ->leftJoin("n.Master_Workflow_Entity", "ms")
+            ->leftJoin("ms.category", "c")
+            ->innerJoin("n.metaData", "mt")
+            ->andWhere('n.status in (11,17)')
             ->orderBy('n.id', 'DESC');
 
         $query = $list->getQuery();
@@ -249,7 +264,8 @@ class InstanciasWorkflowsRepository extends EntityRepository
     public function listProcessParcial($page,$max,$idregistro, $idcodigomaterial, $idlote, $idcodigoequipo,$idworkordersap, $idcodigodocumento)
     {
         $list = $this->createQueryBuilder('n')
-            //->select('n.id', 'ms.name', 'ms.description', 'c.name as companyName', 'n.status', 'mt.fechainicio as fecha')
+//            ->select('n.id as id', 'ms.name', 'ms.description', 'c.name as companyName', 'n.status', 'mt.fechainicio as fecha')
+            ->select('n.id', 'ms.name', 'ms.description', 'c.name as companyName', 'n.status', 'mt.fechainicio as fecha','n.in_edition','ms.id as masterworkflowid','ms.logbook')
             ->leftJoin("n.Master_Workflow_Entity", "ms")
             ->leftJoin("ms.category", "c")
             ->leftJoin("n.metaData", "mt")

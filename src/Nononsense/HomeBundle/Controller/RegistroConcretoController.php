@@ -1230,6 +1230,7 @@ class RegistroConcretoController extends Controller
         $firma->setStepEntity($step);
         $firma->setUserEntiy($user);
         $firma->setFirma($firmaImagen);
+        $firma->setStatus(1);
         $firma->setNumber($counter);
 
         $evidencia->setFirmaEntity($firma);
