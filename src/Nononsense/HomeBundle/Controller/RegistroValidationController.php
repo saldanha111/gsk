@@ -121,10 +121,12 @@ class RegistroValidationController extends Controller
                 ->findOneBy(array("registro_nuevo_id" => $idRegistro));
             if(isset($reconciliacionElement)){
                 $registroReconciliadoId = $reconciliacionElement->getRegistroViejoId();
-
+                /*
                 $registroReconciliado = $this->getDoctrine()
                     ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
                     ->find($registroReconciliadoId);
+                */
+                $registroReconciliado = $reconciliacionElement->getRegistroViejoEntity();
 
                 $element['reconciliacion'] = $registroReconciliado->getId();
 
@@ -230,10 +232,12 @@ class RegistroValidationController extends Controller
 
             if(isset($reconciliacionElement)){
                 $registroReconciliadoId = $reconciliacionElement->getRegistroViejoId();
-
+/*
                 $registroReconciliado = $this->getDoctrine()
                     ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
                     ->find($registroReconciliadoId);
+  */
+                $registroReconciliado = $reconciliacionElement->getRegistroViejoEntity();
 
                 $element2['reconciliacion'] = $registroReconciliado->getId();
 
@@ -288,10 +292,12 @@ class RegistroValidationController extends Controller
 
             if(isset($reconciliacionElement)){
                 $registroReconciliadoId = $reconciliacionElement->getRegistroViejoId();
-
+/*
                 $registroReconciliado = $this->getDoctrine()
                     ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
                     ->find($registroReconciliadoId);
+  */
+                $registroReconciliado = $reconciliacionElement->getRegistroViejoEntity();
 
                 $element3['reconciliacion'] = $registroReconciliado->getId();
 

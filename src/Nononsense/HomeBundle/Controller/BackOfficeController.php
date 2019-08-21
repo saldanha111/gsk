@@ -110,10 +110,12 @@ class BackOfficeController extends Controller
 
             if (isset($reconciliacionElement)) {
                 $registroReconciliadoId = $reconciliacionElement->getRegistroViejoId();
-
+/*
                 $registroReconciliado = $this->getDoctrine()
                     ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
                     ->find($registroReconciliadoId);
+  */
+                $registroReconciliado = $reconciliacionElement->getRegistroViejoEntity();
 
                 $element2['reconciliacion'] = $registroReconciliado->getId();
 

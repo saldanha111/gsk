@@ -462,14 +462,22 @@ class NuevoRegistroController extends Controller
             ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
             ->find($registroid);
 
+        $registroNuevo = $reconciliacionRegistro = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
+            ->find($nuevoregistroid);
+
+
         /*
          * Creacion de la entidad de control reconciliacionRegistro
          */
         $reconciliacionRegistro = new ReconciliacionRegistro();
         $reconciliacionRegistro->setStatus(-1); // Estado pendiente
-        $reconciliacionRegistro->setRegistroViejoId($registroid);
-        $reconciliacionRegistro->setRegistroNuevoId($nuevoregistroid);
-        $reconciliacionRegistro->setUserId($user->getId());
+        //$reconciliacionRegistro->setRegistroViejoId($registroid);
+        //$reconciliacionRegistro->setRegistroNuevoId($nuevoregistroid);
+        $reconciliacionRegistro->setRegistroViejoEntity($registroViejo);
+        $reconciliacionRegistro->setRegistroNuevoEntity($registroNuevo);
+        //$reconciliacionRegistro->setUserId($user->getId());
+        $reconciliacionRegistro->setUserEntiy($user);
         $reconciliacionRegistro->setDescription("Petición en estado pendiente");
 
         $em->persist($reconciliacionRegistro);
@@ -502,11 +510,13 @@ class NuevoRegistroController extends Controller
             ->find($peticionid);
 
         $registroViejoId = $peticionEntity->getRegistroViejoId();
-        $registroNuevoId = $peticionEntity->getRegistroNuevoId();
-
+        //$registroNuevoId = $peticionEntity->getRegistroNuevoId();
+/*
         $registroNuevo = $reconciliacionRegistro = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
             ->find($registroNuevoId);
+  */
+        $registroNuevo = $peticionEntity->getRegistroNuevoEntity();
 
         $step = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:InstanciasSteps')
@@ -552,6 +562,7 @@ class NuevoRegistroController extends Controller
         $firma->setStepEntity($step);
         $firma->setUserEntiy($user);
         $firma->setFirma($firmaImagen);
+        $firma->setStatus(1);
         $firma->setNumber($counter);
 
         $evidencia->setFirmaEntity($firma);

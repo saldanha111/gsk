@@ -194,11 +194,20 @@ class InstanciasWorkflows
      */
     protected $userCreatedEntiy;
 
-
     /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\RevisionInstanciaWorkflow", mappedBy="instanciaWorkflowEntity")
      */
     protected $Revisions;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\ReconciliacionRegistro", mappedBy="registroViejoEntity")
+     */
+    protected $ReconciliadoA;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\ReconciliacionRegistro", mappedBy="registroNuevoEntity")
+     */
+    protected $ReconciliadoDe;
 
 
     /**
@@ -854,5 +863,71 @@ class InstanciasWorkflows
     public function getRevisions()
     {
         return $this->Revisions;
+    }
+
+    /**
+     * Add ReconciliadoA
+     *
+     * @param \Nononsense\HomeBundle\Entity\ReconciliacionRegistro $reconciliadoA
+     * @return InstanciasWorkflows
+     */
+    public function addReconciliadoA(\Nononsense\HomeBundle\Entity\ReconciliacionRegistro $reconciliadoA)
+    {
+        $this->ReconciliadoA[] = $reconciliadoA;
+
+        return $this;
+    }
+
+    /**
+     * Remove ReconciliadoA
+     *
+     * @param \Nononsense\HomeBundle\Entity\ReconciliacionRegistro $reconciliadoA
+     */
+    public function removeReconciliadoA(\Nononsense\HomeBundle\Entity\ReconciliacionRegistro $reconciliadoA)
+    {
+        $this->ReconciliadoA->removeElement($reconciliadoA);
+    }
+
+    /**
+     * Get ReconciliadoA
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getReconciliadoA()
+    {
+        return $this->ReconciliadoA;
+    }
+
+    /**
+     * Add ReconciliadoDe
+     *
+     * @param \Nononsense\HomeBundle\Entity\ReconciliacionRegistro $reconciliadoDe
+     * @return InstanciasWorkflows
+     */
+    public function addReconciliadoDe(\Nononsense\HomeBundle\Entity\ReconciliacionRegistro $reconciliadoDe)
+    {
+        $this->ReconciliadoDe[] = $reconciliadoDe;
+
+        return $this;
+    }
+
+    /**
+     * Remove ReconciliadoDe
+     *
+     * @param \Nononsense\HomeBundle\Entity\ReconciliacionRegistro $reconciliadoDe
+     */
+    public function removeReconciliadoDe(\Nononsense\HomeBundle\Entity\ReconciliacionRegistro $reconciliadoDe)
+    {
+        $this->ReconciliadoDe->removeElement($reconciliadoDe);
+    }
+
+    /**
+     * Get ReconciliadoDe
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getReconciliadoDe()
+    {
+        return $this->ReconciliadoDe;
     }
 }
