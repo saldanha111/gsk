@@ -1051,14 +1051,18 @@ class RegistroConcretoController extends Controller
 
         foreach ($peticionesReconciliacion as $peticion) {
             $registroViejoId = $peticion->getRegistroViejoId();
-
+/*
             $registroViejo = $this->getDoctrine()
                 ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
                 ->find($registroViejoId);
-
+            */
+            $registroViejo = $peticion->getRegistroViejoEntity();
+/*
             $userSolicitud = $this->getDoctrine()
                 ->getRepository('NononsenseUserBundle:Users')
                 ->find($peticion->getUserId());
+            */
+            $userSolicitud = $peticion->getUserEntiy();
 
             $subcat = $registroViejo->getMasterWorkflowEntity()->getCategory()->getName();
             $nombre_usuario = $userSolicitud->getName();
@@ -1088,14 +1092,18 @@ class RegistroConcretoController extends Controller
             ->find($peticionid);
 
         $registroViejoId = $peticionEntity->getRegistroViejoId();
-
+/*
         $registroViejo = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
             ->find($registroViejoId);
-
+  */
+        $registroViejo = $peticionEntity->getRegistroViejoEntity();
+/*
         $userSolicitud = $this->getDoctrine()
             ->getRepository('NononsenseUserBundle:Users')
             ->find($peticionEntity->getUserId());
+  */
+        $userSolicitud = $peticionEntity->getUserEntiy();
 
         $subcat = $registroViejo->getMasterWorkflowEntity()->getCategory()->getName();
         $nombre_usuario = $userSolicitud->getName();
@@ -1140,9 +1148,12 @@ class RegistroConcretoController extends Controller
             if (isset($peticionReconciliacionAntigua)) {
 
                 $registroViejoId = $peticionReconciliacionAntigua->getRegistroViejoId();
+                /*
                 $registroViejo = $this->getDoctrine()
                     ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
                     ->find($registroViejoId);
+                */
+                $registroViejo = $peticionReconciliacionAntigua->getRegistroViejoEntity();
 
             } else {
                 $registroViejo = null;
@@ -1169,10 +1180,12 @@ class RegistroConcretoController extends Controller
 
         $registroViejoId = $peticionEntity->getRegistroViejoId();
         $registroNuevoId = $peticionEntity->getRegistroNuevoId();
-
+/*
         $registroViejo = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
             ->find($registroViejoId);
+*/
+        $registroViejo = $peticionEntity->getRegistroViejoEntity();
 
         $step = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:InstanciasSteps')
@@ -1230,6 +1243,7 @@ class RegistroConcretoController extends Controller
         $firma->setStepEntity($step);
         $firma->setUserEntiy($user);
         $firma->setFirma($firmaImagen);
+        $firma->setStatus(1);
         $firma->setNumber($counter);
 
         $evidencia->setFirmaEntity($firma);

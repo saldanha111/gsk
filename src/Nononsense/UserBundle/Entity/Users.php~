@@ -212,6 +212,11 @@ class Users implements AdvancedUserInterface, \Serializable
     protected $sections;
 
     /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\ReconciliacionRegistro", mappedBy="userEntiy")
+     */
+    protected $Reconciliaciones;
+
+    /**
      * Users constructor.
      */
     

@@ -212,6 +212,11 @@ class Users implements AdvancedUserInterface, \Serializable
     protected $sections;
 
     /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\ReconciliacionRegistro", mappedBy="userEntiy")
+     */
+    protected $Reconciliaciones;
+
+    /**
      * Users constructor.
      */
     
@@ -1439,5 +1444,38 @@ class Users implements AdvancedUserInterface, \Serializable
     public function getActivity()
     {
         return $this->Activity;
+    }
+
+    /**
+     * Add Reconciliaciones
+     *
+     * @param \Nononsense\HomeBundle\Entity\ReconciliacionRegistro $reconciliaciones
+     * @return Users
+     */
+    public function addReconciliacione(\Nononsense\HomeBundle\Entity\ReconciliacionRegistro $reconciliaciones)
+    {
+        $this->Reconciliaciones[] = $reconciliaciones;
+
+        return $this;
+    }
+
+    /**
+     * Remove Reconciliaciones
+     *
+     * @param \Nononsense\HomeBundle\Entity\ReconciliacionRegistro $reconciliaciones
+     */
+    public function removeReconciliacione(\Nononsense\HomeBundle\Entity\ReconciliacionRegistro $reconciliaciones)
+    {
+        $this->Reconciliaciones->removeElement($reconciliaciones);
+    }
+
+    /**
+     * Get Reconciliaciones
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getReconciliaciones()
+    {
+        return $this->Reconciliaciones;
     }
 }

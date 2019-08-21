@@ -134,6 +134,7 @@ class InstanciasWorkflows
      * 9 -> Archivado
      * 10 -> Reconciliado
      * 11 -> Bloqueado
+     * 17 ->Bloqueado- esperando ECO
      */
     protected $status;
 
@@ -193,11 +194,20 @@ class InstanciasWorkflows
      */
     protected $userCreatedEntiy;
 
-
     /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\RevisionInstanciaWorkflow", mappedBy="instanciaWorkflowEntity")
      */
     protected $Revisions;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\ReconciliacionRegistro", mappedBy="registroViejoEntity")
+     */
+    protected $ReconciliadoA;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\ReconciliacionRegistro", mappedBy="registroNuevoEntity")
+     */
+    protected $ReconciliadoDe;
 
 
     /**
@@ -229,11 +239,10 @@ class InstanciasWorkflows
     }
 
 
-
     /**
      * Get id
      *
-     * @return integer 
+     * @return integer
      */
     public function getId()
     {
@@ -256,7 +265,7 @@ class InstanciasWorkflows
     /**
      * Get master_workflow
      *
-     * @return integer 
+     * @return integer
      */
     public function getMasterWorkflow()
     {
@@ -279,7 +288,7 @@ class InstanciasWorkflows
     /**
      * Get description
      *
-     * @return string 
+     * @return string
      */
     public function getDescription()
     {
@@ -302,7 +311,7 @@ class InstanciasWorkflows
     /**
      * Get masterDataValues
      *
-     * @return string 
+     * @return string
      */
     public function getMasterDataValues()
     {
@@ -325,7 +334,7 @@ class InstanciasWorkflows
     /**
      * Get files
      *
-     * @return string 
+     * @return string
      */
     public function getFiles()
     {
@@ -348,7 +357,7 @@ class InstanciasWorkflows
     /**
      * Get created
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getCreated()
     {
@@ -371,7 +380,7 @@ class InstanciasWorkflows
     /**
      * Get modified
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getModified()
     {
@@ -394,7 +403,7 @@ class InstanciasWorkflows
     /**
      * Get fecha_firma
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getFechaFirma()
     {
@@ -417,7 +426,7 @@ class InstanciasWorkflows
     /**
      * Get fecha_grabado_borrador
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getFechaGrabadoBorrador()
     {
@@ -440,7 +449,7 @@ class InstanciasWorkflows
     /**
      * Get isActive
      *
-     * @return boolean 
+     * @return boolean
      */
     public function getIsActive()
     {
@@ -463,7 +472,7 @@ class InstanciasWorkflows
     /**
      * Get in_edition
      *
-     * @return boolean 
+     * @return boolean
      */
     public function getInEdition()
     {
@@ -486,7 +495,7 @@ class InstanciasWorkflows
     /**
      * Get observaciones
      *
-     * @return string 
+     * @return string
      */
     public function getObservaciones()
     {
@@ -509,7 +518,7 @@ class InstanciasWorkflows
     /**
      * Get signvalues
      *
-     * @return string 
+     * @return string
      */
     public function getSignvalues()
     {
@@ -532,7 +541,7 @@ class InstanciasWorkflows
     /**
      * Get status
      *
-     * @return integer 
+     * @return integer
      */
     public function getStatus()
     {
@@ -542,7 +551,7 @@ class InstanciasWorkflows
     public function getStatusString()
     {
         $result = "";
-        switch ($this->status){
+        switch ($this->status) {
             case -2:
                 $result = "Iniciado sin datos";
                 break;
@@ -597,6 +606,12 @@ class InstanciasWorkflows
             case 15:
                 $result = "Esperando firma verificación parcial";
                 break;
+            case 16:
+                $result = "Esperando autorizacion para reconciliacion";
+                break;
+            case 17:
+                $result = "Bloqueado, esperando ECO";
+                break;
 
 
         }
@@ -619,7 +634,7 @@ class InstanciasWorkflows
     /**
      * Get year
      *
-     * @return integer 
+     * @return integer
      */
     public function getYear()
     {
@@ -642,7 +657,7 @@ class InstanciasWorkflows
     /**
      * Get departamento
      *
-     * @return integer 
+     * @return integer
      */
     public function getDepartamento()
     {
@@ -665,7 +680,7 @@ class InstanciasWorkflows
     /**
      * Get usercreatedid
      *
-     * @return integer 
+     * @return integer
      */
     public function getUsercreatedid()
     {
@@ -688,7 +703,7 @@ class InstanciasWorkflows
     /**
      * Get Master_Workflow_Entity
      *
-     * @return \Nononsense\HomeBundle\Entity\MasterWorkflows 
+     * @return \Nononsense\HomeBundle\Entity\MasterWorkflows
      */
     public function getMasterWorkflowEntity()
     {
@@ -721,7 +736,7 @@ class InstanciasWorkflows
     /**
      * Get Steps
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return \Doctrine\Common\Collections\Collection
      */
     public function getSteps()
     {
@@ -754,7 +769,7 @@ class InstanciasWorkflows
     /**
      * Get metaData
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return \Doctrine\Common\Collections\Collection
      */
     public function getMetaData()
     {
@@ -787,7 +802,7 @@ class InstanciasWorkflows
     /**
      * Get metaFirmantes
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return \Doctrine\Common\Collections\Collection
      */
     public function getMetaFirmantes()
     {
@@ -810,7 +825,7 @@ class InstanciasWorkflows
     /**
      * Get userCreatedEntiy
      *
-     * @return \Nononsense\UserBundle\Entity\Users 
+     * @return \Nononsense\UserBundle\Entity\Users
      */
     public function getUserCreatedEntiy()
     {
@@ -843,10 +858,76 @@ class InstanciasWorkflows
     /**
      * Get Revisions
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return \Doctrine\Common\Collections\Collection
      */
     public function getRevisions()
     {
         return $this->Revisions;
+    }
+
+    /**
+     * Add ReconciliadoA
+     *
+     * @param \Nononsense\HomeBundle\Entity\ReconciliacionRegistro $reconciliadoA
+     * @return InstanciasWorkflows
+     */
+    public function addReconciliadoA(\Nononsense\HomeBundle\Entity\ReconciliacionRegistro $reconciliadoA)
+    {
+        $this->ReconciliadoA[] = $reconciliadoA;
+
+        return $this;
+    }
+
+    /**
+     * Remove ReconciliadoA
+     *
+     * @param \Nononsense\HomeBundle\Entity\ReconciliacionRegistro $reconciliadoA
+     */
+    public function removeReconciliadoA(\Nononsense\HomeBundle\Entity\ReconciliacionRegistro $reconciliadoA)
+    {
+        $this->ReconciliadoA->removeElement($reconciliadoA);
+    }
+
+    /**
+     * Get ReconciliadoA
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getReconciliadoA()
+    {
+        return $this->ReconciliadoA;
+    }
+
+    /**
+     * Add ReconciliadoDe
+     *
+     * @param \Nononsense\HomeBundle\Entity\ReconciliacionRegistro $reconciliadoDe
+     * @return InstanciasWorkflows
+     */
+    public function addReconciliadoDe(\Nononsense\HomeBundle\Entity\ReconciliacionRegistro $reconciliadoDe)
+    {
+        $this->ReconciliadoDe[] = $reconciliadoDe;
+
+        return $this;
+    }
+
+    /**
+     * Remove ReconciliadoDe
+     *
+     * @param \Nononsense\HomeBundle\Entity\ReconciliacionRegistro $reconciliadoDe
+     */
+    public function removeReconciliadoDe(\Nononsense\HomeBundle\Entity\ReconciliacionRegistro $reconciliadoDe)
+    {
+        $this->ReconciliadoDe->removeElement($reconciliadoDe);
+    }
+
+    /**
+     * Get ReconciliadoDe
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getReconciliadoDe()
+    {
+        return $this->ReconciliadoDe;
     }
 }

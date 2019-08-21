@@ -41,7 +41,7 @@
                     <select id="PlantillasSelect" form="setGroupForm" name="PlantillasSelect">
                         <option value="0">Seleccione una plantilla:</option>
                         {% for plantilla in listadoPlantillas %}
-                        <option value="{{plantilla.getGroupId}}"
+                        <option value="{{plantilla.getGroupId}}" data-plantilla-id="{{plantilla.id}}"
                                 data-group-name="{{plantilla.getGrupoVerificacion.getName}}" data-plantilla-name="{{plantilla.name}}">{{plantilla.name}}
                         </option>
                         {% endfor %}
@@ -83,6 +83,7 @@
                                     <option value="{{grupo.id}}">{{grupo.name}}</option>
                                     {% endfor %}
                                 </select>
+                                <input type="hidden" name="plantillaSeleccionada" id="plantillaSeleccionada">
                                 <a class="btn btn-primary" id="addGroup">Modificar</a>
                             </form>
                         </div>
@@ -135,7 +136,7 @@
 
         //nononsense_backoffice_set_group
         $('#addGroup').on('click',function () {
-            var plantillaSelected = $("#PlantillasSelect option:selected").val();
+            var plantillaSelected = $("#PlantillasSelect option:selected").attr('data-plantilla-id');
             if(plantillaSelected == 0){
                 toastr.error("Debe seleccionar una plantilla",'aviso');
             }else{
@@ -143,6 +144,8 @@
                 if(grupoSelected == 0){
                     toastr.error("Debe seleccionar un grupo",'aviso');
                 }else{
+                    console.log(plantillaSelected)
+                    $('#plantillaSeleccionada').val(plantillaSelected);
                     $('#setGroupForm').submit();
                 }
 

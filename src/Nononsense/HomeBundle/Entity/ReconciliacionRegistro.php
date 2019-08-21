@@ -81,6 +81,25 @@ class ReconciliacionRegistro
     protected $modified;
 
 
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\InstanciasWorkflows", inversedBy="ReconciliadoA")
+     * @ORM\JoinColumn(name="registro_viejo_id", referencedColumnName="id")
+     */
+    protected $registroViejoEntity;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\InstanciasWorkflows", inversedBy="ReconciliadoDe")
+     * @ORM\JoinColumn(name="registro_nuevo_id", referencedColumnName="id")
+     */
+    protected $registroNuevoEntity;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="Reconciliaciones")
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
+     */
+    protected $userEntiy;
+
+
     public function __construct()
     {
 
@@ -277,5 +296,74 @@ class ReconciliacionRegistro
     public function getUserId()
     {
         return $this->user_id;
+    }
+
+    /**
+     * Set registroViejoEntity
+     *
+     * @param \Nononsense\HomeBundle\Entity\InstanciasWorkflows $registroViejoEntity
+     * @return ReconciliacionRegistro
+     */
+    public function setRegistroViejoEntity(\Nononsense\HomeBundle\Entity\InstanciasWorkflows $registroViejoEntity = null)
+    {
+        $this->registroViejoEntity = $registroViejoEntity;
+
+        return $this;
+    }
+
+    /**
+     * Get registroViejoEntity
+     *
+     * @return \Nononsense\HomeBundle\Entity\InstanciasWorkflows 
+     */
+    public function getRegistroViejoEntity()
+    {
+        return $this->registroViejoEntity;
+    }
+
+    /**
+     * Set registroNuevoEntity
+     *
+     * @param \Nononsense\HomeBundle\Entity\InstanciasWorkflows $registroNuevoEntity
+     * @return ReconciliacionRegistro
+     */
+    public function setRegistroNuevoEntity(\Nononsense\HomeBundle\Entity\InstanciasWorkflows $registroNuevoEntity = null)
+    {
+        $this->registroNuevoEntity = $registroNuevoEntity;
+
+        return $this;
+    }
+
+    /**
+     * Get registroNuevoEntity
+     *
+     * @return \Nononsense\HomeBundle\Entity\InstanciasWorkflows 
+     */
+    public function getRegistroNuevoEntity()
+    {
+        return $this->registroNuevoEntity;
+    }
+
+    /**
+     * Set userEntiy
+     *
+     * @param \Nononsense\UserBundle\Entity\Users $userEntiy
+     * @return ReconciliacionRegistro
+     */
+    public function setUserEntiy(\Nononsense\UserBundle\Entity\Users $userEntiy = null)
+    {
+        $this->userEntiy = $userEntiy;
+
+        return $this;
+    }
+
+    /**
+     * Get userEntiy
+     *
+     * @return \Nononsense\UserBundle\Entity\Users 
+     */
+    public function getUserEntiy()
+    {
+        return $this->userEntiy;
     }
 }
