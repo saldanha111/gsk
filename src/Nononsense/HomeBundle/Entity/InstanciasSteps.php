@@ -151,6 +151,11 @@ class InstanciasSteps
     protected $evidenciasStep;
 
     /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\FirmasStep", mappedBy="stepEntity")
+     */
+    protected $firmasStep;
+
+    /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\ActivityUser", mappedBy="stepEntity")
      */
     protected $activityuser;
@@ -717,5 +722,38 @@ class InstanciasSteps
     public function getActivityuser()
     {
         return $this->activityuser;
+    }
+
+    /**
+     * Add firmasStep
+     *
+     * @param \Nononsense\HomeBundle\Entity\FirmasStep $firmasStep
+     * @return InstanciasSteps
+     */
+    public function addFirmasStep(\Nononsense\HomeBundle\Entity\FirmasStep $firmasStep)
+    {
+        $this->firmasStep[] = $firmasStep;
+
+        return $this;
+    }
+
+    /**
+     * Remove firmasStep
+     *
+     * @param \Nononsense\HomeBundle\Entity\FirmasStep $firmasStep
+     */
+    public function removeFirmasStep(\Nononsense\HomeBundle\Entity\FirmasStep $firmasStep)
+    {
+        $this->firmasStep->removeElement($firmasStep);
+    }
+
+    /**
+     * Get firmasStep
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getFirmasStep()
+    {
+        return $this->firmasStep;
     }
 }

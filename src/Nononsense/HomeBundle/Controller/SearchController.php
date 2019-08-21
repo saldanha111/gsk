@@ -33,6 +33,11 @@ class SearchController extends Controller
         $filters2=Array();
         $types=array();
 
+        $filters["user"]=$user;
+        $filters2["user"]=$user;
+
+        $array_item["suser"]["id"]=$user->getId();
+
         if(!$request->get("export_excel")){
             if($request->get("page")){
                 $filters["limit_from"]=$request->get("page")-1;

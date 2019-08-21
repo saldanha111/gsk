@@ -102,7 +102,7 @@
                                 <td>{{item.created|date("d/m/Y")}}</td>
                                 <td>
                                 {% if item.status is defined and item.status==1 and suser.id==item.usercreatedid %}
-                                    <a href="{{path('nononsense_records_edit', {'id': item.id}) }}" class="btn btn-xs btn-primary"><i class="fa fa-lock"> </i> Completar registro</a>
+                                    <a href="{{path('nononsense_records_edit', {'id': item.id}) }}" class="btn btn-xs btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i> Completar registro</a>
                                 {% endif %}
 
                                 {% if item.status is defined and item.status==2 and not (suser.id==item.idNextSigner or item.idNextSignerGroup in suser.groups) %}

@@ -371,19 +371,34 @@ class InstanciasWorkflowsRepository extends EntityRepository
         switch($type){
             case "list":
                 $list = $this->createQueryBuilder('i')
-                    ->select('i.id', 'i.usercreatedid','ms.name','u.name as creator','i.created','m.modified','m.lote','m.material','m.equipo','m.workordersap','ms.logbook','i.status');
+                    ->select('i.id', 'i.usercreatedid','ms.name','u.name as creator','i.created','m.modified','m.lote','m.material','m.equipo','m.workordersap','ms.logbook','i.status','s.id as step','i.in_edition','ms.logbook','us.id as idNextSigner');
+                $list->leftJoin("i.Master_Workflow_Entity", "ms")
+                    ->leftJoin("ms.category", "c")
+                    ->leftJoin("i.userCreatedEntiy", "u")
+                    ->leftJoin("i.metaData", "m")
+                    ->leftJoin("i.Steps", "s")
+                    ->leftJoin("s.firmasStep", "f")
+                    ->leftJoin("f.userEntiy", "us")
+                    ->andWhere('i.status>=0')
+                    ->andWhere('s.dependsOn=0')
+                    ->andWhere('f.id IS NULL OR f.id IN (SELECT MAX(aux.id) FROM Nononsense\HomeBundle\Entity\FirmasStep aux WHERE aux.step_id=f.step_id)')
+                    ->orderBy('i.id', 'DESC');
                 break;
             case "count":
                 $list = $this->createQueryBuilder('i')
                     ->select('COUNT(i.id) as conta');
+                $list->leftJoin("i.Master_Workflow_Entity", "ms")
+                    ->leftJoin("ms.category", "c")
+                    ->leftJoin("i.userCreatedEntiy", "u")
+                    ->leftJoin("i.metaData", "m")
+                    ->leftJoin("i.Steps", "s")
+                    ->leftJoin("s.firmasStep", "f")
+                    ->leftJoin("f.userEntiy", "us")
+                    ->andWhere('i.status>=0')
+                    ->andWhere('s.dependsOn=0')
+                    ->orderBy('i.id', 'DESC');
                 break;
-        }
-
-        $list->leftJoin("i.Master_Workflow_Entity", "ms")
-            ->leftJoin("ms.category", "c")
-            ->leftJoin("i.userCreatedEntiy", "u")
-            ->leftJoin("i.metaData", "m")
-            ->orderBy('i.id', 'DESC');
+        }   
 
 
         if(!empty($filters)){
@@ -441,14 +456,42 @@ class InstanciasWorkflowsRepository extends EntityRepository
             /*if(isset($filters["type"])){
                 $list->andWhere('r.type=:type');
                 $list->setParameter('type', $filters["type"]);
-            }
+            }*/
 
             if(isset($filters["status"])){
-                $list->andWhere('r.status=:status');
-                $list->setParameter('status', $filters["status"]);
+                switch($filters["status"]){
+                    case 1:
+                        $list->andWhere('i.status=0 OR i.status=1 OR i.status=2 OR i.status=3');
+                        break;
+                    case 2:
+                        $list->andWhere('i.status=5');
+                        break;
+                    case 3:
+                        $list->andWhere('i.status=6');
+                        break;
+                    case 4:
+                        $list->andWhere('i.status=4 OR i.status=15 OR i.status=12 OR i.status=7 or i.status=13');
+                        break;
+                    case 5:
+                        $list->andWhere('i.status=14');
+                        break;
+                    case 6:
+                        $list->andWhere('i.status=8');
+                        break;
+                    case 7:
+                        $list->andWhere('i.status=9');
+                        break;
+                    case 8:
+                        $list->andWhere('i.status=10');
+                        break;
+                    case 9:
+                        $list->andWhere('i.status=11');
+                        break;
+                }
+                
             }
 
-            if (isset($filters["pending_for_me"])) {
+            /*if (isset($filters["pending_for_me"])) {
                 $list->andWhere('(r.status=1 AND r.usercreatedid=:user_id) OR (r.status=2 AND (s.userid=:user_id OR s.groupid IN (:groups)))');
                 $list->setParameter('user_id', $user->getId());
                 $list->setParameter('groups', $groups);

@@ -87,7 +87,7 @@ class FirmasStep
     protected $modified;
 
     /**
-     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\InstanciasSteps", inversedBy="evidenciasStep")
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\InstanciasSteps", inversedBy="firmasStep")
      * @ORM\JoinColumn(name="step_id", referencedColumnName="id")
      */
     protected $stepEntity;
@@ -267,29 +267,6 @@ class FirmasStep
     }
 
     /**
-     * Set stepEntity
-     *
-     * @param \Nononsense\HomeBundle\Entity\InstanciasSteps $stepEntity
-     * @return FirmasStep
-     */
-    public function setStepEntity(\Nononsense\HomeBundle\Entity\InstanciasSteps $stepEntity = null)
-    {
-        $this->stepEntity = $stepEntity;
-
-        return $this;
-    }
-
-    /**
-     * Get stepEntity
-     *
-     * @return \Nononsense\HomeBundle\Entity\InstanciasSteps 
-     */
-    public function getStepEntity()
-    {
-        return $this->stepEntity;
-    }
-
-    /**
      * Add Firma
      *
      * @param \Nononsense\HomeBundle\Entity\EvidenciasStep $firma
@@ -356,5 +333,28 @@ class FirmasStep
     public function getStatus()
     {
         return $this->status;
+    }
+
+    /**
+     * Set stepEntity
+     *
+     * @param \Nononsense\HomeBundle\Entity\InstanciasSteps $stepEntity
+     * @return FirmasStep
+     */
+    public function setStepEntity(\Nononsense\HomeBundle\Entity\InstanciasSteps $stepEntity = null)
+    {
+        $this->stepEntity = $stepEntity;
+
+        return $this;
+    }
+
+    /**
+     * Get stepEntity
+     *
+     * @return \Nononsense\HomeBundle\Entity\InstanciasSteps 
+     */
+    public function getStepEntity()
+    {
+        return $this->stepEntity;
     }
 }
