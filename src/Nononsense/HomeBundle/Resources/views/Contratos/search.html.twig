@@ -14,6 +14,13 @@
                 <div class="row">
                     <form class="form-horizontal" id="form_item" action="{{ path('nononsense_search')}}" method="GET">
                         <div class="form-group">
+                            <label class="col-sm-1 control-label">Contenido</label>
+                            <div class="col-sm-9 item_filter">
+                                <input type="text" name="content" class="form-control" value="{{filters.content is defined ? filters.content : ''}}">
+                            </div>
+
+                        </div>
+                        <div class="form-group">
                             <label class="col-sm-1 control-label">ID</label>
                             <div class="col-sm-1 item_filter">
                                 <input type="number" name="id" class="form-control" value="{{filters.id is defined ? filters.id : ''}}">
@@ -55,8 +62,8 @@
                                     <option value="4" {{filters.status is defined and filters.status == 4 ? 'selected="selected"' : ''}}>Verificación</option>
                                     <option value="5" {{filters.status is defined and filters.status == 5 ? 'selected="selected"' : ''}}>Pendiente cancelación en verificación</option>
                                     <option value="6" {{filters.status is defined and filters.status == 6 ? 'selected="selected"' : ''}}>Cancelado en verificación</option>
-                                    <option value="7" {{filters.status is defined and filters.status == 7 ? 'selected="selected"' : ''}}>Archivado</option>
-                                    <option value="8" {{filters.status is defined and filters.status == 8 ? 'selected="selected"' : ''}}>Reconciliación</option>
+                                    <option value="7" {{filters.status is defined and filters.status == 7 ? 'selected="selected"' : ''}}>Completado</option>
+                                    <option value="8" {{filters.status is defined and filters.status == 8 ? 'selected="selected"' : ''}}>Reconciliado</option>
                                     <option value="9" {{filters.status is defined and filters.status == 9 ? 'selected="selected"' : ''}}>Bloqueado</option>
                                   </select>
                             </div>
@@ -118,12 +125,18 @@
                             <th>Num.equipo</th>
                             <th></th>
                             <th>Estado</th>
+                            <th>Reconc.</th>
+                            <th>Audit Trail</th>
                         </tr>
                         </thead>
                         {% if items is defined %}
                             {% for item in items %}
                             <tr>
-                                <td>{{item.id}}</td>
+                                <td>
+                                    {{item.id}}{% if item.checklist == 1 %}
+                                        <i class="fa fa-angle-double-down" aria-hidden="true"></i>
+                                    {% endif %}
+                                </td>
                                 <td>{{item.name}}</td>
                                 <td>{{item.creator}}</td>
                                 <td>{{ item.created is defined ? item.created|date("d/m/Y") : '' }}</td>
@@ -179,9 +192,9 @@
                                         {% endif %}
                                     {% endif %}
 
-                                    {% if item.status == 0 or item.status == 6 %}
+                                    {% if item.status == 0 %}
                                         {% if item.in_edition == 0 %}
-                                            <a class="btn btn-xs btn-primary"  name="completarregistro" data-template="{{item.id}}" data-loogbook="{{item.logbook}}"><i class="fa fa-pencil" aria-hidden="true"></i> Completar</a>
+                                            <a class="btn btn-xs btn-danger"  name="completarregistro" data-template="{{item.id}}" data-loogbook="{{item.logbook}}"><i class="fa fa-file-o" aria-hidden="true"></i> Completar</a>
                                         {% else %}
                                             <a class="btn btn-xs btn-secondary not-allowed"><i class="fa fa-lock"> </i> {{'En edicion'|trans}}</a>
                                         {% endif %}
@@ -220,8 +233,98 @@
                                             <a href="#" class="btn btn-xs btn-warning disabled"><i class="fa fa-pencil" aria-hidden="true"></i> Pendiente de firma</a>
                                         {% endif %}
                                     {% endif %}
+
+                                    {% if item.status == 6 %}
+                                        <a  name="verRegistro" href="{{path('nononsense_archivo_ver', {'registroid': item.id})}}" class="btn btn-xs btn-default"><i class="fa fa-times" aria-hidden="true"></i> Cancelado</a>
+                                    {% endif %}
+
+                                    {% if item.status == 8 %}
+                                        <a  name="verRegistro" href="{{path('nononsense_archivo_ver', {'registroid': item.id})}}" class="btn btn-xs btn-default"><i class="fa fa-times" aria-hidden="true"></i> Cancelado</a>
+                                    {% endif %}
+
+                                    {% if item.status == 9 or item.status == 10 %}
+                                        <a class="btn btn-xs btn-info" name="verRegistro" href="{{path('nononsense_archivo_ver', {'registroid': item.id})}}" target="_blank"><i class="fa fa-eye" aria-hidden="true"></i> {{'Ver registro'|trans}}</a>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if item.id_reconciliado is defined and item.id_reconciliado is not empty %}
+                                        <a class="btn btn-xs btn-primary" name="verregistro" href="{{path('nononsense_ver_registro', {'revisionid': item.id_reconciliado})}}" target="_blank">{{'Ver reconciliado'|trans}}</a>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if item.status == 9 or item.status == 6 or item.status == 8 or item.status == 10 %}
+                                        <a class="btn btn-xs btn-info" name="verRegistro" href="{{path('nononsense_archivo_ver_historico', {'registroid': item.id})}}" target="_blank"><i class="fa fa-book" aria-hidden="true"></i> Audit Trail</a>
+                                    {% endif %}
                                 </td>
                             </tr>
+
+                            {% if item.checklist == 1 and (item.status == 4 or item.status == 7 or  item.status == 12 or item.status == 13 or item.status == 15 or item.status == 9 or item.status == 10) %}
+                                <tr style="background-color:#FFFFDD">
+                                    <td></td>
+                                    <td>{{item.chname}}</td>
+                                    <td>{{item.creator}}</td>
+                                    <td>{{ item.created is defined ? item.created|date("d/m/Y") : '' }}</td>
+                                    <td>{{ item.modified is defined ? item.modified|date("d/m/Y H:i:s") : '' }}</td>
+                                    
+                                    <td>{{item.lote}}</td>
+                                    <td>{{item.equipo}}</td>
+                                    <td>{{item.material}}</td>
+                                    <td>{{item.workordersap}}</td>
+                                    <td>
+                                    {% if item.status == 4 %}
+                                    En verificación
+                                    {% elseif item.status == 7 %}
+                                    Esperando firma verificación total
+                                    {% elseif item.status == 12 %}
+                                    Esperando firma cancelación en verificación
+                                    {% elseif item.status == 15 %}
+                                    Esperando firma verificación parcial
+                                    {% elseif item.status == 9 %}
+                                    Archivado
+                                    {% elseif item.status == 10 %}
+                                    Reconciliado
+                                    {% else %}
+                                    {{item.status}}
+                                    {% endif %}
+                                    </td>
+                                    <td>
+                                    {% if item.status == 4 %}
+                                        <a class="btn btn-xs btn-danger" name="verregistro" href="{{path('nononsense_ver_checklist', {'revisionid': item.id})}}" target="_self"><i class="fa fa-check" aria-hidden="true"></i> {{'Ver checklist'|trans}}</a>
+                                    {% endif %}
+
+                                    {% if item.status == 7 or item.status == 12 or item.status == 13 or item.status == 15 %}
+                                        {% if item.idNextSigner is defined  and suser.id==item.idNextSigner %}
+                                            
+
+                                            {% if item.status == 7 %}
+                                                <a class="btn btn-xs btn-danger" href="{{path('nononsense_registro_verificar', {'stepid': item.chstep, 'comment' : '1'})}}" target="_self"><i class="fa fa-pencil" aria-hidden="true"></i> {{'Firmar'|trans}}</a>
+                                            {% endif %}
+
+                                            {% if item.status == 12 %}
+                                                <a class="btn btn-xs btn-danger" href="{{path('nononsense_registro_cancelar_verficiacion', {'stepid': item.chstep})}}" target="_self"><i class="fa fa-pencil" aria-hidden="true"></i> {{'Firmar'|trans}}</a>
+                                            {% endif %}
+
+                                            {% if item.status == 13 %}
+                                                <a class="btn btn-xs btn-danger" href="{{path('nononsense_registro_devolver_edicion', {'stepid': item.chstep})}}" target="_self"><i class="fa fa-pencil" aria-hidden="true"></i> {{'Firmar'|trans}}</a>
+                                            {% endif %}
+
+                                            {% if item.status == 15 %}
+                                                <a class="btn btn-xs btn-danger" href="{{path('nononsense_registro_verificar_parcial', {'stepid': item.chstep})}}" target="_self"><i class="fa fa-pencil" aria-hidden="true"></i> {{'Firmar'|trans}}</a>
+                                            {% endif %}
+                                        {% else %}
+                                            <a href="#" class="btn btn-xs btn-warning disabled"><i class="fa fa-pencil" aria-hidden="true"></i> Pendiente de firma</a>
+                                        {% endif %}
+                                    {% endif %}
+
+                                    {% if item.status == 9 or item.status == 10 %}
+                                        <a class="btn btn-xs btn-info" name="verRegistro" href="{{path('nononsense_ver_checklist', {'registroid': item.id})}}" target="_blank"><i class="fa fa-eye" aria-hidden="true"></i> {{'Ver registro'|trans}}</a>
+                                    {% endif %}
+
+                                    </td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                {% endif %}
                             {% endfor %}
                         {% endif %}
                     </table>
