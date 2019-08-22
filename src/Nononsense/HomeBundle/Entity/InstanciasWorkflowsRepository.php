@@ -383,10 +383,18 @@ class InstanciasWorkflowsRepository extends EntityRepository
     {
         $em = $this->getEntityManager();
 
+        if(!empty($filters)){
+            if (isset($filters["user"])) {
+                $user = $filters["user"];
+            }
+        }
+
         switch($type){
             case "list":
                 $list = $this->createQueryBuilder('i')
                     ->select('i.id', 'i.usercreatedid','mw.name','u.name as creator','i.created','m.modified','m.lote','m.material','m.equipo','m.workordersap','mw.logbook','i.status','s.id as step','i.in_edition','mw.logbook','us.id as idNextSigner','r.registro_viejo_id as id_reconciliado','mw.checklist as checklist','ch.id as chstep','ms.name as chname');
+                $list->addSelect("CASE  WHEN (SELECT COUNT(ela.step_id) FROM Nononsense\HomeBundle\Entity\FirmasStep ela WHERE ela.userEntiy=:el_user AND ela.step_id=s.id AND ela.elaboracion=1)>0 THEN 0 ELSE 1 AS validate");
+                $list->setParameter('el_user', $user);
 
                 break;
             case "count":
@@ -410,11 +418,8 @@ class InstanciasWorkflowsRepository extends EntityRepository
             ->orderBy('i.id', 'DESC');
 
 
-        if(!empty($filters)){
 
-            if (isset($filters["user"])) {
-                $user = $filters["user"];
-            }
+        if(!empty($filters)){
 
             if(isset($filters["id"])){
                 $list->andWhere('i.id=:id');
@@ -504,8 +509,9 @@ class InstanciasWorkflowsRepository extends EntityRepository
             }
 
             if (isset($filters["pending_for_me"])) {
-                $list->andWhere('(i.status IN (1,2,3,7,12,13,15) AND us.id=:user_id) OR (i.status IN (4,5,14) OR i.status=0)');
+                $list->andWhere('(i.status IN (1,2,3,7,12,13,15) AND us.id=:user_id) OR (i.status IN (4,5,14) AND s.id NOT IN (SELECT el.step_id FROM Nononsense\HomeBundle\Entity\FirmasStep el WHERE el.userEntiy=:el_user_aux AND el.step_id=s.id AND el.elaboracion=1)) OR i.status=0');
                 $list->setParameter('user_id', $user->getId());
+                $list->setParameter('el_user_aux', $user);
             }
 
 

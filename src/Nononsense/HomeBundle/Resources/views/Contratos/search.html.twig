@@ -185,10 +185,14 @@
                                 </td>
                                 <td>
                                     {% if item.status == 4 or item.status == 5 or item.status == 14 %}
-                                        {% if item.in_edition == 0 %}
-                                            <a class="btn btn-xs btn-danger" name="verregistro" href="{{path('nononsense_ver_registro', {'revisionid': item.id})}}" target="_self"><i class="fa fa-check" aria-hidden="true"></i> Verificar</a>
+                                        {% if item.validate == 1 %}
+                                            {% if item.in_edition == 0 %}
+                                                <a class="btn btn-xs btn-danger" name="verregistro" href="{{path('nononsense_ver_registro', {'revisionid': item.id})}}" target="_self"><i class="fa fa-check" aria-hidden="true"></i> Verificar</a>
+                                            {% else %}
+                                                <a class="btn btn-xs btn-secondary not-allowed"><i class="fa fa-lock"> </i> {{'En revision'|trans}}</a>
+                                            {% endif %}
                                         {% else %}
-                                            <a class="btn btn-xs btn-secondary not-allowed"><i class="fa fa-lock"> </i> {{'En revision'|trans}}</a>
+                                            <a href="#" class="btn btn-xs btn-warning disabled"><i class="fa fa-check" aria-hidden="true"></i> En verificación</a>
                                         {% endif %}
                                     {% endif %}
 

@@ -20,9 +20,9 @@
         "sensio/framework-extra-bundle": "~3.0,>=3.0.2",
         "tivoka/tivoka":"*",
         "pulpmedia/p3pcookiebundle": "~1.0@dev",
-        "symfony/ldap": "^3.2",
         "endroid/qrcode": "*",
-        "liuggio/excelbundle": "^2.1"
+        "liuggio/excelbundle": "^2.1",
+        "whiteoctober/tcpdf-bundle": "^1.1"
     },
     "require-dev": {
         "sensio/generator-bundle": "~2.3"
