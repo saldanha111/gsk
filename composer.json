@@ -21,7 +21,8 @@
         "tivoka/tivoka":"*",
         "pulpmedia/p3pcookiebundle": "~1.0@dev",
         "symfony/ldap": "^3.2",
-        "endroid/qrcode": "*"
+        "endroid/qrcode": "*",
+        "liuggio/excelbundle": "^2.1"
     },
     "require-dev": {
         "sensio/generator-bundle": "~2.3"

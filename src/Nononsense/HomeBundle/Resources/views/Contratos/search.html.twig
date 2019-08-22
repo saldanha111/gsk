@@ -120,11 +120,11 @@
                             <th>Fecha inicio</th>
                             <th>Ultima modificación</th>
                             <th>Lote</th>
+                            <th>Num.equipo</th>
                             <th>Material</th>
                             <th>WO.SAP</th>
-                            <th>Num.equipo</th>
-                            <th></th>
                             <th>Estado</th>
+                            <th>Acción</th>
                             <th>Reconc.</th>
                             <th>Audit Trail</th>
                         </tr>
@@ -329,11 +329,14 @@
                         {% endif %}
                     </table>
 
-                    {% if count==0 %}
-                        <br><b>No se han encontrado datos disponibles</b>
-                    {% endif %}
+                    
                     {% if pagination is defined and pagination.needed %}
                         {% include '::pagination2.html.twig' %}
+                        <a href="{{pagination.url}}{{pagination.character}}export_excel=1" target="_blank" class="btn btn-primary pull-right"><i class="fa fa-file-excel-o" aria-hidden="true"></i> Exportar a Excel</a>
+                    {% endif %}
+                    
+                    {% if count==0 %}
+                        <br><b>No se han encontrado datos disponibles</b>
                     {% endif %}
                     
                 </div>
