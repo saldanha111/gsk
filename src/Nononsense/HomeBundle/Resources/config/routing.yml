@@ -295,7 +295,7 @@ nononsense_peticion_reconciliacion_accion_solicitar:
 
 
 nononsense_search:
-    path: /search
+    path: /searcher
     defaults: { _controller: NononsenseHomeBundle:Search:list}
 
 nononsense_documents:
