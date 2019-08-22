@@ -150,7 +150,7 @@ class InstanciasWorkflowsRepository extends EntityRepository
             ->leftJoin("n.Master_Workflow_Entity", "ms")
             ->leftJoin("ms.category", "c")
             ->leftJoin("n.userCreatedEntiy", "u")
-            ->andWhere('n.status in (2,3,5)')
+            ->andWhere('n.status in (6,8,9,10)')
 //            ->andWhere('n.usercreatedid = :user')
             //          ->setParameter('user',$user_logged)
             ->orderBy('n.id', 'DESC');
@@ -232,7 +232,7 @@ class InstanciasWorkflowsRepository extends EntityRepository
     public function listProcess($user_logged)
     {
         $list = $this->createQueryBuilder('n')
-            ->select('n.id', 'ms.name', 'ms.description', 'c.name as companyName', 'n.status', 'mt.fechainicio as fecha','n.in_edition','ms.id as masterworkflowid','ms.logbook')
+            ->select('n.id', 'ms.name', 'ms.description', 'c.name as companyName', 'n.status', 'mt.fechainicio as fecha', 'n.in_edition', 'ms.id as masterworkflowid', 'ms.logbook')
             ->leftJoin("n.Master_Workflow_Entity", "ms")
             ->leftJoin("ms.category", "c")
             ->innerJoin("n.metaData", "mt")
@@ -246,14 +246,15 @@ class InstanciasWorkflowsRepository extends EntityRepository
         return $query->getResult();
     }
 
-    public function listStandBy()
+    public function listStandBy($status)
     {
         $list = $this->createQueryBuilder('n')
-            ->select('n.id', 'ms.name', 'ms.description', 'c.name as companyName', 'n.status', 'mt.fechainicio as fecha','n.in_edition','ms.id as masterworkflowid','ms.logbook')
+            ->select('n.id', 'ms.name', 'ms.description', 'c.name as companyName', 'n.status', 'mt.fechainicio as fecha', 'n.in_edition', 'ms.id as masterworkflowid', 'ms.logbook')
             ->leftJoin("n.Master_Workflow_Entity", "ms")
             ->leftJoin("ms.category", "c")
             ->innerJoin("n.metaData", "mt")
-            ->andWhere('n.status in (11,17)')
+            ->andWhere('n.status in (:stst)')
+            ->setParameter('stst', $status)
             ->orderBy('n.id', 'DESC');
 
         $query = $list->getQuery();
@@ -261,43 +262,43 @@ class InstanciasWorkflowsRepository extends EntityRepository
         return $query->getResult();
     }
 
-    public function listProcessParcial($page,$max,$idregistro, $idcodigomaterial, $idlote, $idcodigoequipo,$idworkordersap, $idcodigodocumento)
+    public function listProcessParcial($page, $max, $idregistro, $idcodigomaterial, $idlote, $idcodigoequipo, $idworkordersap, $idcodigodocumento)
     {
         $list = $this->createQueryBuilder('n')
 //            ->select('n.id as id', 'ms.name', 'ms.description', 'c.name as companyName', 'n.status', 'mt.fechainicio as fecha')
-            ->select('n.id', 'ms.name', 'ms.description', 'c.name as companyName', 'n.status', 'mt.fechainicio as fecha','n.in_edition','ms.id as masterworkflowid','ms.logbook')
+            ->select('n.id', 'ms.name', 'ms.description', 'c.name as companyName', 'n.status', 'mt.fechainicio as fecha', 'n.in_edition', 'ms.id as masterworkflowid', 'ms.logbook')
             ->leftJoin("n.Master_Workflow_Entity", "ms")
             ->leftJoin("ms.category", "c")
             ->leftJoin("n.metaData", "mt")
             ->andWhere('n.status in (0,1,2,3,5,4,16)')
             ->orderBy('n.id', 'DESC');
 
-        if($idregistro != "-1"){
+        if ($idregistro != "-1") {
             $list->andWhere('n.id = :iden');
             $list->setParameter('iden', $idregistro);
         }
 
-        if($idcodigomaterial != -1){
+        if ($idcodigomaterial != -1) {
 
             $list->andWhere('mt.material = :iducodigomaterial');
             $list->setParameter('iducodigomaterial', $idcodigomaterial);
         }
-        if($idlote != -1){
+        if ($idlote != -1) {
 
             $list->andWhere('mt.lote = :idlote');
             $list->setParameter('idlote', $idlote);
         }
-        if($idcodigoequipo != -1){
+        if ($idcodigoequipo != -1) {
 
             $list->andWhere('mt.equipo = :idcodigoequipo ');
             $list->setParameter('idcodigoequipo', $idcodigoequipo);
         }
-        if($idworkordersap != -1){
+        if ($idworkordersap != -1) {
 
             $list->andWhere('mt.workordersap = :idworkorder ');
             $list->setParameter('idworkorder', $idworkordersap);
         }
-        if($idcodigodocumento != -1){
+        if ($idcodigodocumento != -1) {
 
             $list->andWhere('mt.codigo_documento_lote = :iddocumentolote ');
             $list->setParameter('iddocumentolote', $idcodigodocumento);
@@ -360,7 +361,7 @@ class InstanciasWorkflowsRepository extends EntityRepository
     {
 
         $list = $this->createQueryBuilder('n')
-            ->select('ms.name', 'ms.description', 'c.name as companyName', 'n.id as registroid', 'mt.fechainicio as fecha', 'mt.lote', 'mt.material as codigo', 'u.name as namecreated','n.in_edition','ms.checklist as checklist','n.status','ms.id as masterworkflowid')
+            ->select('ms.name', 'ms.description', 'c.name as companyName', 'n.id as registroid', 'mt.fechainicio as fecha', 'mt.lote', 'mt.material as codigo', 'u.name as namecreated', 'n.in_edition', 'ms.checklist as checklist', 'n.status', 'ms.id as masterworkflowid')
             ->leftJoin("n.Master_Workflow_Entity", "ms")
             ->leftJoin("ms.category", "c")
             ->leftJoin("n.userCreatedEntiy", "u")
@@ -369,9 +370,8 @@ class InstanciasWorkflowsRepository extends EntityRepository
             ->andWhere('n.usercreatedid != :user')
             ->andWhere('ms.group_id in (:groupsuser)')
             ->setParameter('user', $user_logged)
-            ->setParameter('groupsuser',$arrayGroupsUser)
+            ->setParameter('groupsuser', $arrayGroupsUser)
             ->orderBy('n.id', 'DESC');
-
 
 
         $query = $list->getQuery();
@@ -380,14 +380,14 @@ class InstanciasWorkflowsRepository extends EntityRepository
 
     }
 
-    public function search($type,$filters)
+    public function search($type, $filters)
     {
         $em = $this->getEntityManager();
 
-        switch($type){
+        switch ($type) {
             case "list":
                 $list = $this->createQueryBuilder('i')
-                    ->select('i.id', 'i.usercreatedid','ms.name','u.name as creator','i.created','m.modified','m.lote','m.material','m.equipo','m.workordersap','ms.logbook','i.status');
+                    ->select('i.id', 'i.usercreatedid', 'ms.name', 'u.name as creator', 'i.created', 'm.modified', 'm.lote', 'm.material', 'm.equipo', 'm.workordersap', 'ms.logbook', 'i.status');
                 break;
             case "count":
                 $list = $this->createQueryBuilder('i')
@@ -402,7 +402,7 @@ class InstanciasWorkflowsRepository extends EntityRepository
             ->orderBy('i.id', 'DESC');
 
 
-        if(!empty($filters)){
+        if (!empty($filters)) {
             /*if (isset($filters["groups"])) {
                 $groups = $filters["groups"];
             }*/
@@ -411,45 +411,45 @@ class InstanciasWorkflowsRepository extends EntityRepository
                 $user = $filters["user"];
             }*/
 
-            if(isset($filters["id"])){
+            if (isset($filters["id"])) {
                 $list->andWhere('i.id=:id');
                 $list->setParameter('id', $filters["id"]);
             }
 
-            if(isset($filters["name"])){
+            if (isset($filters["name"])) {
                 $terms = explode(" ", $filters["name"]);
-                foreach($terms as $key => $term){
-                    $list->andWhere('ms.name LIKE :name'.$key);
-                    $list->setParameter('name'.$key, '%' . $term. '%');
+                foreach ($terms as $key => $term) {
+                    $list->andWhere('ms.name LIKE :name' . $key);
+                    $list->setParameter('name' . $key, '%' . $term . '%');
                 }
-                
+
             }
 
-            if(isset($filters["creator"])){
+            if (isset($filters["creator"])) {
                 $terms = explode(" ", $filters["creator"]);
-                foreach($terms as $key => $term){
-                    $list->andWhere('u.name LIKE :creator'.$key);
-                    $list->setParameter('creator'.$key, '%' . $term. '%');
+                foreach ($terms as $key => $term) {
+                    $list->andWhere('u.name LIKE :creator' . $key);
+                    $list->setParameter('creator' . $key, '%' . $term . '%');
                 }
-                
+
             }
 
-            if(isset($filters["lot"])){
+            if (isset($filters["lot"])) {
                 $list->andWhere('m.lote=:lot');
                 $list->setParameter('lot', $filters["lot"]);
             }
 
-            if(isset($filters["material"])){
+            if (isset($filters["material"])) {
                 $list->andWhere('m.material=:material');
                 $list->setParameter('material', $filters["material"]);
             }
 
-            if(isset($filters["equipment_number"])){
+            if (isset($filters["equipment_number"])) {
                 $list->andWhere('m.equipo=:equipment_number');
                 $list->setParameter('equipment_number', $filters["equipment_number"]);
             }
 
-            if(isset($filters["sap"])){
+            if (isset($filters["sap"])) {
                 $list->andWhere('m.workordersap=:sap');
                 $list->setParameter('sap', $filters["sap"]);
             }
@@ -471,26 +471,26 @@ class InstanciasWorkflowsRepository extends EntityRepository
             }
             */
 
-            if(isset($filters["from"])){
+            if (isset($filters["from"])) {
                 $list->andWhere('i.created>=:from');
                 $list->setParameter('from', $filters["from"]);
             }
 
-            if(isset($filters["until"])){
+            if (isset($filters["until"])) {
                 $list->andWhere('i.created<=:until');
-                $list->setParameter('until', $filters["until"]." 23:59:00");
+                $list->setParameter('until', $filters["until"] . " 23:59:00");
             }
         }
 
 
-        if(isset($filters["limit_from"])){
-            $list->setFirstResult($filters["limit_from"]*$filters["limit_many"])->setMaxResults($filters["limit_many"]);
+        if (isset($filters["limit_from"])) {
+            $list->setFirstResult($filters["limit_from"] * $filters["limit_many"])->setMaxResults($filters["limit_many"]);
         }
 
         $query = $list->getQuery();
 
 
-        switch($type){
+        switch ($type) {
             case "list":
                 return $query->getResult();
                 break;

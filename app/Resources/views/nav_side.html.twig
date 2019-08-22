@@ -2,14 +2,19 @@
 
 {% set groups = app.user.getGroups    %}
 {% set FLL = "0" %}
+{% set ECO = "0" %}
 
 {% if groups|length > 0 %}
 {% for group in groups %}
 {% set type = group.group.tipo %}
 
-{% if type == 'FLL' or type == 'ECO' %}
+{% if type == 'FLL' %}
 {% set FLL = "1" %}
 {% endif %}
+{% if type == 'ECO' %}
+{% set ECO = "1" %}
+{% endif %}
+
 {% endfor %}
 {% endif %}
 
@@ -39,9 +44,12 @@
             <li id="docxpresso_archivo">
                 <a href="{{path('nononsense_registro_archivo')}}"><i class="fa fa-folder"></i> <span class="nav-label">{{'Archivo'|trans}}</span></a>
             </li>
+            {% if FLL == 1 or ECO == 1 %}
+
             <li id="docxpresso_standby">
                 <a href="{{path('nononsense_backoffice_standby_documents_list')}}"><i class="fa fa-exclamation-triangle"></i> <span class="nav-label">{{'Documentos Stand By'|trans}}</span></a>
             </li>
+            {% endif %}
 
             <li id="docxpresso_archivo">
                 <a href="{{path('nononsense_documents')}}"><i class="fa fa-cogs" aria-hidden="true"></i> <span class="nav-label">Plantillas Doc.</span></a>

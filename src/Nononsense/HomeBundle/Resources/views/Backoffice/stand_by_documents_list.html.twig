@@ -296,7 +296,7 @@
                         <td>{{plantilla.fecha | date('d-m-Y H:i:s') }}</td>
 
                         <td>
-                            {% if plantilla.status == 10 %}
+                            {% if plantilla.status == 11 %}
                             <a class="btn btn-xs btn-primary" name="verregistro"
                                href="{{path('nononsense_backoffice_standby_document', {'idRegistro': plantilla.id})}}"
                                target="_self">{{'Gestionar'|trans}}</a>

@@ -352,15 +352,41 @@
                         {% if plantilla.status == 0 %}
                         <td>Iniciado</td>
                         {% elseif plantilla.status == 1 %}
-                        <td>Pendiente de validar</td>
+                        <td>Esperando firma guardado parcial</td>
                         {% elseif plantilla.status == 2 %}
-                        <td class="pdte">Cancelado por validador</td>
+                        <td>Esperando firma envío</td>
                         {% elseif plantilla.status == 3 %}
-                        <td>Validado</td>
+                        <td>Esperando firma cancelación</td>
+                        {% elseif plantilla.status == 4 %}
+                        <td>En verificación</td>
                         {% elseif plantilla.status == 5 %}
-                        <td class="pdte">Cancelado por editor</td>
+                        <td>Pendiente cancelación en edición</td>
+                        {% elseif plantilla.status == 6 %}
+                        <td class="pdte">Cancelado en edición</td>
                         {% elseif plantilla.status == 7 %}
-                        <td class="pdte">Cancelación rechazada por FLL</td>
+                        <td class="pdte">Esperando firma verificación total</td>
+                        {% elseif plantilla.status == 8 %}
+                        <td class="pdte">Cancelado</td>
+                        {% elseif plantilla.status == 9 %}
+                        <td>Archivado</td>
+                        {% elseif plantilla.status == 10 %}
+                        <td>Reconciliado</td>
+                        {% elseif plantilla.status == 11 %}
+                        <td class="pdte">Bloqueado</td>
+                        {% elseif plantilla.status == 12 %}
+                        <td>Esperando firma cancelación en verificación</td>
+                        {% elseif plantilla.status == 13 %}
+                        <td>Esperando firma devolución a edición</td>
+                        {% elseif plantilla.status == 14 %}
+                        <td>Pendiente de cancelación en verificación</td>
+                        {% elseif plantilla.status == 15 %}
+                        <td>Esperando firma verificación parcial</td>
+                        {% elseif plantilla.status == 16 %}
+                        <td>Esperando autorización para reconciliación</td>
+                        {% elseif plantilla.status == 17 %}
+                        <td>Bloqueado, esperando decisión de ECO</td>
+                        {% else %}
+                        <td class="pdte">{{plantilla.status}}</td>
                         {% endif %}
                         <td><a class="btn btn-xs btn-primary" name="verRegistro"
                                href="{{path('nononsense_archivo_ver', {'registroid': plantilla.id})}}" target="_blank">{{'Ver

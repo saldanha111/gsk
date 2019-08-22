@@ -94,11 +94,34 @@ class BackOfficeController extends Controller
 
     public function standByDocumentsListAction()
     {
-        $documentsProcess = array();
+        $user = $this->container->get('security.context')->getToken()->getUser();
+        $grupos = array('FLL', 'ECO');
+
+        if (!$this->_grantUser($user, $grupos)) {
+
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                'No tiene permisos para entrar aquí'
+            );
+            $route = $this->container->get('router')->generate('nononsense_home_homepage');
+            return $this->redirect($route);
+        }
+
+        $status = array();
+        foreach ($user->getGroups() as $groupMe) {
+            $type = $groupMe->getGroup()->getTipo();
+
+            if ($type == 'FLL') {
+                $status[] = 11;
+            }
+            if ($type == 'ECO') {
+                $status[] = 17;
+            }
+        }
 
         $documentsProcess = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
-            ->listStandBy();
+            ->listStandBy($status);
 
         foreach ($documentsProcess as &$element2) {
             $idRegistro = $element2['id'];
@@ -110,11 +133,11 @@ class BackOfficeController extends Controller
 
             if (isset($reconciliacionElement)) {
                 $registroReconciliadoId = $reconciliacionElement->getRegistroViejoId();
-/*
-                $registroReconciliado = $this->getDoctrine()
-                    ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
-                    ->find($registroReconciliadoId);
-  */
+                /*
+                                $registroReconciliado = $this->getDoctrine()
+                                    ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
+                                    ->find($registroReconciliadoId);
+                  */
                 $registroReconciliado = $reconciliacionElement->getRegistroViejoEntity();
 
                 $element2['reconciliacion'] = $registroReconciliado->getId();
@@ -133,6 +156,21 @@ class BackOfficeController extends Controller
 
     public function standByDocumentAction($idRegistro)
     {
+        /*
+    FLL
+    */
+        $user = $this->container->get('security.context')->getToken()->getUser();
+        $grupos = array('FLL');
+
+        if (!$this->_grantUser($user, $grupos)) {
+
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                'No tiene permisos para entrar aquí'
+            );
+            $route = $this->container->get('router')->generate('nononsense_home_homepage');
+            return $this->redirect($route);
+        }
         $documents = array();
 
         $registro = $this->getDoctrine()
@@ -160,6 +198,20 @@ class BackOfficeController extends Controller
 
     public function standByDocumentECOAction($idRegistro)
     {
+
+        $user = $this->container->get('security.context')->getToken()->getUser();
+        $grupos = array('ECO');
+
+        if (!$this->_grantUser($user, $grupos)) {
+
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                'No tiene permisos para entrar aquí'
+            );
+            $route = $this->container->get('router')->generate('nononsense_home_homepage');
+            return $this->redirect($route);
+        }
+
         $documents = array();
 
         $registro = $this->getDoctrine()
@@ -196,9 +248,9 @@ class BackOfficeController extends Controller
 
         $counter = count($firmas);
 
-        foreach ($firmas as $firma){
+        foreach ($firmas as $firma) {
             $number = $firma->getNumber();
-            if($counter == $number){
+            if ($counter == $number) {
                 $comentarioFLL = $firma->getAccion();
                 $nombreFLL = $firma->getUserEntiy()->getName();
             }
@@ -364,8 +416,17 @@ class BackOfficeController extends Controller
         return $this->redirect($route);
     }
 
-    private function _grantUser($user)
+    private function _grantUser($user, $arrayGrupos)
     {
-        // isAdmimn
+        //Detectar si el type del grupo está en array grupos
+        $autorizado = false;
+
+        foreach ($user->getGroups() as $groupMe) {
+            $type = $groupMe->getGroup()->getTipo();
+            if (in_array($type, $arrayGrupos)) {
+                $autorizado = true;
+            }
+        }
+        return $autorizado;
     }
 }

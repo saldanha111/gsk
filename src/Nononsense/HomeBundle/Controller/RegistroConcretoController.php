@@ -1376,4 +1376,28 @@ class RegistroConcretoController extends Controller
         }
 
     }
+
+    private function puedeValidar($step){
+        $resultado = true;
+
+        $registro = $step->getInstanciaWorkflow();
+
+        $user = $this->container->get('security.context')->getToken()->getUser();
+        $userCreated = $registro->getUserCreatedEntiy();
+
+        if($user ==  $userCreated){
+            $resultado = false;
+        }
+
+        if($resultado){
+
+            // Obtener todas las firmas
+            $firmas = $this->getDoctrine()
+                ->getRepository('NononsenseHomeBundle:FirmasStep')
+                ->findBy(array("step_id" => $step->getId()));
+
+        }
+
+        return $resultado;
+    }
 }

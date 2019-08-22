@@ -178,7 +178,15 @@ class RegistroArchivoController extends Controller
         return $this->redirect($url_edit_documento);
     }
 
-    function verRegistroHistoricoInterfaceAction($registroid)
+    public function verRegistroHistoricoInterfaceAction($registroid)
+    {
+
+        $route = $this->container->get('router')->generate('nononsense_ver_registro', array('revisionid' => $registroid));
+
+        return $this->redirect($route);
+    }
+
+    function oldverRegistroHistoricoInterfaceAction($registroid)
     {
         $rootdir = $this->get('kernel')->getRootDir();
         $rootdirFiles = $rootdir . "/../web/Files";
