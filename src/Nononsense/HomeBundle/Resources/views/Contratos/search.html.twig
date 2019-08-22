@@ -47,16 +47,17 @@
 
                             <label class="col-sm-1 control-label">Estado</label>
                             <div class="col-sm-2 item_filter">
-                                <select class="form-control" style="width: 100%;" name="state">
+                                <select class="form-control" style="width: 100%;" name="status">
                                     <option value=""></option>
-                                    <option value="1">Iniciado</option>
-                                    <option value="2">Pendiente cancelación en edición</option>
-                                    <option value="3">Cancelado en edición</option>
-                                    <option value="4">Verificación</option>
-                                    <option value="5">Pendiente cancelación en verificación</option>
-                                    <option value="6">Cancelado en verificación</option>
-                                    <option value="7">Archivado</option>
-                                    <option value="8">Reconciliación</option>
+                                    <option value="1" {{filters.status is defined and filters.status == 1 ? 'selected="selected"' : ''}}>Iniciado</option>
+                                    <option value="2" {{filters.status is defined and filters.status == 2 ? 'selected="selected"' : ''}}>Pendiente cancelación en edición</option>
+                                    <option value="3" {{filters.status is defined and filters.status == 3 ? 'selected="selected"' : ''}}>Cancelado en edición</option>
+                                    <option value="4" {{filters.status is defined and filters.status == 4 ? 'selected="selected"' : ''}}>Verificación</option>
+                                    <option value="5" {{filters.status is defined and filters.status == 5 ? 'selected="selected"' : ''}}>Pendiente cancelación en verificación</option>
+                                    <option value="6" {{filters.status is defined and filters.status == 6 ? 'selected="selected"' : ''}}>Cancelado en verificación</option>
+                                    <option value="7" {{filters.status is defined and filters.status == 7 ? 'selected="selected"' : ''}}>Archivado</option>
+                                    <option value="8" {{filters.status is defined and filters.status == 8 ? 'selected="selected"' : ''}}>Reconciliación</option>
+                                    <option value="9" {{filters.status is defined and filters.status == 9 ? 'selected="selected"' : ''}}>Bloqueado</option>
                                   </select>
                             </div>
 
@@ -111,12 +112,12 @@
                             <th>Iniciado por</th>
                             <th>Fecha inicio</th>
                             <th>Ultima modificación</th>
-                            <th>Estado</th>
                             <th>Lote</th>
                             <th>Material</th>
                             <th>WO.SAP</th>
                             <th>Num.equipo</th>
                             <th></th>
+                            <th>Estado</th>
                         </tr>
                         </thead>
                         {% if items is defined %}
@@ -127,53 +128,98 @@
                                 <td>{{item.creator}}</td>
                                 <td>{{ item.created is defined ? item.created|date("d/m/Y") : '' }}</td>
                                 <td>{{ item.modified is defined ? item.modified|date("d/m/Y H:i:s") : '' }}</td>
-                                <td>...</td>
+                                
                                 <td>{{item.lote}}</td>
                                 <td>{{item.equipo}}</td>
                                 <td>{{item.material}}</td>
                                 <td>{{item.workordersap}}</td>
                                 <td>
-
-                                {% if item.status == 0 or item.status == 1 or item.status == 2 or item.status == 3 %}
-                                    {% if suser.id==item.usercreatedid %}
-                                        <a class="btn btn-xs btn-primary" name="completarregistro" data-template="{{item.id}}" data-loogbook="{{item.logbook}}">{{'Completar registro'|trans}}</a>
-                                    {% else %}
-                                        Iniciado
+                                {% if item.status == 0 %}
+                                Iniciado
+                                {% elseif item.status == 1 %}
+                                Esperando firma guardado parcial
+                                {% elseif item.status == 2 %}
+                                Esperando firma envío
+                                {% elseif item.status == 3 %}
+                                Esperando firma cancelación
+                                {% elseif item.status == 4 %}
+                                En verificación
+                                {% elseif item.status == 5 %}
+                                Pendiente cancelación en edición
+                                {% elseif item.status == 6 %}
+                                Cancelado en edición
+                                {% elseif item.status == 7 %}
+                                Esperando firma verificación total
+                                {% elseif item.status == 8 %}
+                                Cancelado
+                                {% elseif item.status == 9 %}
+                                Archivado
+                                {% elseif item.status == 10 %}
+                                Reconciliado
+                                {% elseif item.status == 11 %}
+                                Bloqueado
+                                {% elseif item.status == 12 %}
+                                Esperando firma cancelación en verificación
+                                {% elseif item.status == 13 %}
+                                Esperando firma devolución a edición
+                                {% elseif item.status == 14 %}
+                                Pendiente de cancelación en verificación
+                                {% elseif item.status == 15 %}
+                                Esperando firma verificación parcial
+                                {% else %}
+                                {{item.status}}
+                                {% endif %}
+                                </td>
+                                <td>
+                                    {% if item.status == 4 or item.status == 5 or item.status == 14 %}
+                                        {% if item.in_edition == 0 %}
+                                            <a class="btn btn-xs btn-danger" name="verregistro" href="{{path('nononsense_ver_registro', {'revisionid': item.id})}}" target="_self"><i class="fa fa-check" aria-hidden="true"></i> Verificar</a>
+                                        {% else %}
+                                            <a class="btn btn-xs btn-secondary not-allowed"><i class="fa fa-lock"> </i> {{'En revision'|trans}}</a>
+                                        {% endif %}
                                     {% endif %}
-                                {% endif %}
 
-                                {% if item.status == 4 or item.status == 15 or item.status == 13 or item.status == 7 or item.status == 12 %}
-                                    {% if verified is defined %}
-                                        <a class="btn btn-xs btn-primary" href="#">Verificar</a>
-                                    {% else %}
-                                        En verificación
+                                    {% if item.status == 0 or item.status == 6 %}
+                                        {% if item.in_edition == 0 %}
+                                            <a class="btn btn-xs btn-primary"  name="completarregistro" data-template="{{item.id}}" data-loogbook="{{item.logbook}}"><i class="fa fa-pencil" aria-hidden="true"></i> Completar</a>
+                                        {% else %}
+                                            <a class="btn btn-xs btn-secondary not-allowed"><i class="fa fa-lock"> </i> {{'En edicion'|trans}}</a>
+                                        {% endif %}
                                     {% endif %}
-                                {% endif %}
 
-                                {% if item.status == 5 %}
-                                    Pendiente cancelación en edición
-                                {% endif %}
+                                    {% if item.status == 1 or item.status == 2 or item.status == 3 or item.status == 7 or item.status == 12 or item.status == 13 or item.status == 15 %}
+                                        {% if item.idNextSigner is defined  and suser.id==item.idNextSigner %}
+                                            {% if item.status == 1 %}
+                                                <a class="btn btn-xs btn-danger" href="{{path('nononsense_contrato_registro_completado', {'stepid': item.step, 'comment' : '1'})}}" target="_self"><i class="fa fa-pencil" aria-hidden="true"></i> {{'Firmar'|trans}}</a>
+                                            {% endif %}
 
-                                {% if item.status == 6 %}
-                                    Cancelado en edición
-                                {% endif %}
+                                           {% if item.status == 2 %}
+                                                <a class="btn btn-xs btn-danger" href="{{path('nononsense_contrato_registro_completado', {'stepid': item.step, 'comment' : '1'})}}" target="_self"><i class="fa fa-pencil" aria-hidden="true"></i> {{'Firmar'|trans}}</a>
+                                            {% endif %}
 
-                                {% if item.status == 14 %}
-                                    Pendiente cancelación en verificación
-                                {% endif %}
+                                            {% if item.status == 3 %}
+                                                <a class="btn btn-xs btn-danger" href="{{path('nononsense_registro_cancelar', {'stepid': item.step})}}" target="_self"><i class="fa fa-pencil" aria-hidden="true"></i> {{'Firmar'|trans}}</a>
+                                            {% endif %}
 
-                                {% if item.status == 8 %}
-                                    Cancelado en verificación
-                                {% endif %}
+                                            {% if item.status == 7 %}
+                                                <a class="btn btn-xs btn-danger" href="{{path('nononsense_registro_verificar', {'stepid': item.step, 'comment' : '1'})}}" target="_self"><i class="fa fa-pencil" aria-hidden="true"></i> {{'Firmar'|trans}}</a>
+                                            {% endif %}
 
-                                {% if item.status == 11 %}
-                                    Bloqueado
-                                {% endif %}
+                                            {% if item.status == 12 %}
+                                                <a class="btn btn-xs btn-danger" href="{{path('nononsense_registro_cancelar_verficiacion', {'stepid': item.step})}}" target="_self"><i class="fa fa-pencil" aria-hidden="true"></i> {{'Firmar'|trans}}</a>
+                                            {% endif %}
 
-                                {% if item.status == 9 or item.status == 10 %}
-                                    Archivado
-                                {% endif %}
+                                            {% if item.status == 13 %}
+                                                <a class="btn btn-xs btn-danger" href="{{path('nononsense_registro_devolver_edicion', {'stepid': item.step})}}" target="_self"><i class="fa fa-pencil" aria-hidden="true"></i> {{'Firmar'|trans}}</a>
+                                            {% endif %}
 
+                                            {% if item.status == 15 %}
+                                                <a class="btn btn-xs btn-danger" href="{{path('nononsense_registro_verificar_parcial', {'stepid': item.step})}}" target="_self"><i class="fa fa-pencil" aria-hidden="true"></i> {{'Firmar'|trans}}</a>
+                                            {% endif %}
+                                        {% else %}
+                                            <a href="#" class="btn btn-xs btn-warning disabled"><i class="fa fa-pencil" aria-hidden="true"></i> Pendiente de firma</a>
+                                        {% endif %}
+                                    {% endif %}
                                 </td>
                             </tr>
                             {% endfor %}
@@ -198,6 +244,36 @@
         <input type="hidden" name="logbook" id="logbookForm">
     </form>
 </div>
+<div class="modal" id="editModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <h4>Número de registros del logbook </h4>
+                <p>Introduzca el número de registros anteriores que quiere ver en el logbook</p>
+                <p>
+                    Nombre: <input id="logbook" name="logbook" type="number"
+                                   min="0"
+                                   max="10"
+                                   step="1"
+                                   value=""
+                                   class="form-control"></br>
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" id="editBtnNo"
+                        data-dismiss="modal">
+                    <i class="fa fa-ban" aria-hidden="true"></i> Cancelar
+                </button>
+                <a
+                        class="btn btn-success" id="editBtnYes"
+                        data-dismiss="modal">
+                    <i class="fa fa-paper-plane" aria-hidden="true"></i>
+                    Aceptar
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 {% block scripts %}
 {{ parent() }}
@@ -218,6 +294,11 @@
       language: 'es'
     });
 
+    $('#factBtnNo').click(function () {
+        $("#factModal").hide();
+
+    });
+
     $('[name="completarregistro"]').click(function () {
         console.log("click yeah!")
 
@@ -235,6 +316,21 @@
             $('#logbookForm').val(0);
             $('#createRegistro').submit();
         }
+
+    });
+
+    $('#editBtnNo').click(function () {
+        $("#editModal").hide();
+
+    });
+
+    $('#editBtnYes').click(function () {
+
+        var logbook = $('#logbook').val();
+
+        $('#logbookForm').val(logbook);
+        $('#createRegistro').submit();
+
 
     });
   });

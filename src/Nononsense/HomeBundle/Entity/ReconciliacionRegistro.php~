@@ -343,4 +343,27 @@ class ReconciliacionRegistro
     {
         return $this->registroNuevoEntity;
     }
+
+    /**
+     * Set userEntiy
+     *
+     * @param \Nononsense\UserBundle\Entity\Users $userEntiy
+     * @return ReconciliacionRegistro
+     */
+    public function setUserEntiy(\Nononsense\UserBundle\Entity\Users $userEntiy = null)
+    {
+        $this->userEntiy = $userEntiy;
+
+        return $this;
+    }
+
+    /**
+     * Get userEntiy
+     *
+     * @return \Nononsense\UserBundle\Entity\Users 
+     */
+    public function getUserEntiy()
+    {
+        return $this->userEntiy;
+    }
 }

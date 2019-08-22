@@ -108,6 +108,18 @@ class RegistroConcretoController extends Controller
             $route = $this->container->get('router')->generate('nononsense_registro_enproceso');
             return $this->redirect($route);
         }
+
+        if ($registro->getStatus() == 4 || $registro->getStatus() == 5 || $registro->getStatus() == 14) {
+            // En verficiación, comprobar que puede verificar
+            if (!$this->puedeValidar($step)) {
+                $this->get('session')->getFlashBag()->add(
+                    'error',
+                    'No puede validar este registro porque ha participado en la elaboración'
+                );
+                $route = $this->container->get('router')->generate('nononsense_registro_enproceso');
+                return $this->redirect($route);
+            }
+        }
         /*
         if ($step->getStatusId() == 2 && $registro->getStatus() != 10 ) {
             // ya validado, en realidad es como algo raro esto porque en la instalación de gus no funciona pero seguro que en las otras si
@@ -542,8 +554,8 @@ class RegistroConcretoController extends Controller
         if (count($userGroupVerificacion) == 1) {
             // Enviar notificación al único usuario del grupo
             // {{path('nononsense_ver_registro', {'revisionid': plantilla.registroid})}}
-            $route = $this->container->get('router')->generate('nononsense_ver_registro', array('revisionid'=>$registro->getId()));
-            $route = 'registro_ver/'.$registro->getId();
+            $route = $this->container->get('router')->generate('nononsense_ver_registro', array('revisionid' => $registro->getId()));
+            $route = 'registro_ver/' . $registro->getId();
 
             $groupUsers = $userGroupVerificacion[0];
             $userVerificacion = $groupUsers->getUser();
@@ -661,6 +673,7 @@ class RegistroConcretoController extends Controller
             $firma->setUserEntiy($user);
             $firma->setFirma("");
             $firma->setStatus(0); //Pendiente
+            $firma->setElaboracion(0);
             $firma->setNumber($counter);
 
             $evidencia->setFirmaEntity($firma);
@@ -824,6 +837,7 @@ class RegistroConcretoController extends Controller
             $firma->setUserEntiy($user);
             $firma->setFirma("");
             $firma->setStatus(0); //Pendiente
+            $firma->setElaboracion(1);
             $firma->setNumber($counter);
 
             $evidencia->setFirmaEntity($firma);
@@ -916,6 +930,7 @@ class RegistroConcretoController extends Controller
             $firma->setUserEntiy($user);
             $firma->setFirma("");
             $firma->setStatus(0); //Pendiente
+            $firma->setElaboracion(0);
             $firma->setNumber($counter);
 
             $evidencia->setFirmaEntity($firma);
@@ -993,6 +1008,7 @@ class RegistroConcretoController extends Controller
             $firma->setUserEntiy($user);
             $firma->setFirma("");
             $firma->setStatus(0); //Pendiente
+            $firma->setElaboracion(0);
             $firma->setNumber($counter);
 
             $evidencia->setFirmaEntity($firma);
@@ -1051,17 +1067,17 @@ class RegistroConcretoController extends Controller
 
         foreach ($peticionesReconciliacion as $peticion) {
             $registroViejoId = $peticion->getRegistroViejoId();
-/*
-            $registroViejo = $this->getDoctrine()
-                ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
-                ->find($registroViejoId);
-            */
+            /*
+                        $registroViejo = $this->getDoctrine()
+                            ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
+                            ->find($registroViejoId);
+                        */
             $registroViejo = $peticion->getRegistroViejoEntity();
-/*
-            $userSolicitud = $this->getDoctrine()
-                ->getRepository('NononsenseUserBundle:Users')
-                ->find($peticion->getUserId());
-            */
+            /*
+                        $userSolicitud = $this->getDoctrine()
+                            ->getRepository('NononsenseUserBundle:Users')
+                            ->find($peticion->getUserId());
+                        */
             $userSolicitud = $peticion->getUserEntiy();
 
             $subcat = $registroViejo->getMasterWorkflowEntity()->getCategory()->getName();
@@ -1092,17 +1108,17 @@ class RegistroConcretoController extends Controller
             ->find($peticionid);
 
         $registroViejoId = $peticionEntity->getRegistroViejoId();
-/*
-        $registroViejo = $this->getDoctrine()
-            ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
-            ->find($registroViejoId);
-  */
+        /*
+                $registroViejo = $this->getDoctrine()
+                    ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
+                    ->find($registroViejoId);
+          */
         $registroViejo = $peticionEntity->getRegistroViejoEntity();
-/*
-        $userSolicitud = $this->getDoctrine()
-            ->getRepository('NononsenseUserBundle:Users')
-            ->find($peticionEntity->getUserId());
-  */
+        /*
+                $userSolicitud = $this->getDoctrine()
+                    ->getRepository('NononsenseUserBundle:Users')
+                    ->find($peticionEntity->getUserId());
+          */
         $userSolicitud = $peticionEntity->getUserEntiy();
 
         $subcat = $registroViejo->getMasterWorkflowEntity()->getCategory()->getName();
@@ -1180,11 +1196,11 @@ class RegistroConcretoController extends Controller
 
         $registroViejoId = $peticionEntity->getRegistroViejoId();
         $registroNuevoId = $peticionEntity->getRegistroNuevoId();
-/*
-        $registroViejo = $this->getDoctrine()
-            ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
-            ->find($registroViejoId);
-*/
+        /*
+                $registroViejo = $this->getDoctrine()
+                    ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
+                    ->find($registroViejoId);
+        */
         $registroViejo = $peticionEntity->getRegistroViejoEntity();
 
         $step = $this->getDoctrine()
@@ -1244,6 +1260,7 @@ class RegistroConcretoController extends Controller
         $firma->setUserEntiy($user);
         $firma->setFirma($firmaImagen);
         $firma->setStatus(1);
+        $firma->setElaboracion(0);
         $firma->setNumber($counter);
 
         $evidencia->setFirmaEntity($firma);
@@ -1264,7 +1281,7 @@ class RegistroConcretoController extends Controller
     {
         $activity = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:ActivityUser')
-            ->findOneBy(array("stepEntity" => $step, "userEntiy"=>$user, "status"=>0));
+            ->findOneBy(array("stepEntity" => $step, "userEntiy" => $user, "status" => 0));
 
         $activity->setStatus(1);
 
@@ -1377,7 +1394,8 @@ class RegistroConcretoController extends Controller
 
     }
 
-    private function puedeValidar($step){
+    private function puedeValidar($step)
+    {
         $resultado = true;
 
         $registro = $step->getInstanciaWorkflow();
@@ -1385,16 +1403,27 @@ class RegistroConcretoController extends Controller
         $user = $this->container->get('security.context')->getToken()->getUser();
         $userCreated = $registro->getUserCreatedEntiy();
 
-        if($user ==  $userCreated){
+        if ($user == $userCreated) {
             $resultado = false;
         }
 
-        if($resultado){
+        if ($resultado) {
 
-            // Obtener todas las firmas
+            // Obtener todas las firmas de este usuario
             $firmas = $this->getDoctrine()
                 ->getRepository('NononsenseHomeBundle:FirmasStep')
-                ->findBy(array("step_id" => $step->getId()));
+                ->findBy(array("step_id" => $step->getId(), "userEntiy" => $user));
+
+            foreach ($firmas as $firma) {
+
+                $elaboracion = $firma->getElaboracion();
+                if ($elaboracion) {
+                    // Este usuario ha firmado y además una firma de elaboración
+                    $resultado = false;
+                }
+
+
+            }
 
         }
 

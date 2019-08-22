@@ -65,6 +65,14 @@ class FirmasStep
     protected $number;
 
     /**
+     * @var boolean $isActive
+     *
+     * @ORM\Column(name="elaboracion", type="boolean",  options={"default" = false})
+     */
+
+    protected $elaboracion;
+
+    /**
      * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="Firmas")
      * @ORM\JoinColumn(name="usercreatedid", referencedColumnName="id")
      */
@@ -267,29 +275,6 @@ class FirmasStep
     }
 
     /**
-     * Set stepEntity
-     *
-     * @param \Nononsense\HomeBundle\Entity\InstanciasSteps $stepEntity
-     * @return FirmasStep
-     */
-    public function setStepEntity(\Nononsense\HomeBundle\Entity\InstanciasSteps $stepEntity = null)
-    {
-        $this->stepEntity = $stepEntity;
-
-        return $this;
-    }
-
-    /**
-     * Get stepEntity
-     *
-     * @return \Nononsense\HomeBundle\Entity\InstanciasSteps 
-     */
-    public function getStepEntity()
-    {
-        return $this->stepEntity;
-    }
-
-    /**
      * Add Firma
      *
      * @param \Nononsense\HomeBundle\Entity\EvidenciasStep $firma
@@ -356,5 +341,51 @@ class FirmasStep
     public function getStatus()
     {
         return $this->status;
+    }
+
+    /**
+     * Set stepEntity
+     *
+     * @param \Nononsense\HomeBundle\Entity\InstanciasSteps $stepEntity
+     * @return FirmasStep
+     */
+    public function setStepEntity(\Nononsense\HomeBundle\Entity\InstanciasSteps $stepEntity = null)
+    {
+        $this->stepEntity = $stepEntity;
+
+        return $this;
+    }
+
+    /**
+     * Get stepEntity
+     *
+     * @return \Nononsense\HomeBundle\Entity\InstanciasSteps 
+     */
+    public function getStepEntity()
+    {
+        return $this->stepEntity;
+    }
+
+    /**
+     * Set elaboracion
+     *
+     * @param boolean $elaboracion
+     * @return FirmasStep
+     */
+    public function setElaboracion($elaboracion)
+    {
+        $this->elaboracion = $elaboracion;
+
+        return $this;
+    }
+
+    /**
+     * Get elaboracion
+     *
+     * @return boolean 
+     */
+    public function getElaboracion()
+    {
+        return $this->elaboracion;
     }
 }

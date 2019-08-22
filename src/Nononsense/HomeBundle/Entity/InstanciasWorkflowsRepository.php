@@ -380,14 +380,15 @@ class InstanciasWorkflowsRepository extends EntityRepository
 
     }
 
-    public function search($type, $filters)
+    public function search($type,$filters)
     {
         $em = $this->getEntityManager();
 
-        switch ($type) {
+        switch($type){
             case "list":
                 $list = $this->createQueryBuilder('i')
-                    ->select('i.id', 'i.usercreatedid', 'ms.name', 'u.name as creator', 'i.created', 'm.modified', 'm.lote', 'm.material', 'm.equipo', 'm.workordersap', 'ms.logbook', 'i.status');
+                    ->select('i.id', 'i.usercreatedid','mw.name','u.name as creator','i.created','m.modified','m.lote','m.material','m.equipo','m.workordersap','mw.logbook','i.status','s.id as step','i.in_edition','mw.logbook','us.id as idNextSigner','r.registro_viejo_id as id_reconciliado','mw.checklist as checklist','ch.id as chstep','ms.name as chname');
+
                 break;
             case "count":
                 $list = $this->createQueryBuilder('i')
@@ -395,102 +396,140 @@ class InstanciasWorkflowsRepository extends EntityRepository
                 break;
         }
 
-        $list->leftJoin("i.Master_Workflow_Entity", "ms")
-            ->leftJoin("ms.category", "c")
+        $list->leftJoin("i.Master_Workflow_Entity", "mw")
+            ->leftJoin("mw.category", "c")
             ->leftJoin("i.userCreatedEntiy", "u")
             ->leftJoin("i.metaData", "m")
+            ->leftJoin("i.Steps", "s", "WITH", 's.dependsOn=0')
+            ->leftJoin("i.Steps", "ch", "WITH", 'ch.dependsOn=s.id')
+            ->leftJoin("ch.master_step", "ms", "WITH", 'ms.checklist=1')
+            ->leftJoin("s.firmasStep", "f")
+            ->leftJoin("f.userEntiy", "us")
+            ->leftJoin("i.ReconciliadoDe","r")
+            ->andWhere('i.status>=0')
+            ->andWhere('f.id IS NULL OR f.id IN (SELECT MAX(aux.id) FROM Nononsense\HomeBundle\Entity\FirmasStep aux WHERE aux.step_id=f.step_id)')
             ->orderBy('i.id', 'DESC');
 
 
-        if (!empty($filters)) {
-            /*if (isset($filters["groups"])) {
-                $groups = $filters["groups"];
-            }*/
+        if(!empty($filters)){
 
-            /*if (isset($filters["user"])) {
+            if (isset($filters["user"])) {
                 $user = $filters["user"];
-            }*/
+            }
 
-            if (isset($filters["id"])) {
+            if(isset($filters["id"])){
                 $list->andWhere('i.id=:id');
                 $list->setParameter('id', $filters["id"]);
             }
 
-            if (isset($filters["name"])) {
+            if(isset($filters["plantilla_id"])){
+                $list->andWhere('mw.id IN (SELECT ms.workflow_id FROM Nononsense\HomeBundle\Entity\MasterSteps ms WHERE  ms.plantilla_id=:plantilla_id)');
+                $list->setParameter('plantilla_id', $filters["plantilla_id"]);
+            }
+
+            if(isset($filters["name"])){
                 $terms = explode(" ", $filters["name"]);
-                foreach ($terms as $key => $term) {
-                    $list->andWhere('ms.name LIKE :name' . $key);
-                    $list->setParameter('name' . $key, '%' . $term . '%');
+                foreach($terms as $key => $term){
+                    $list->andWhere('mw.name LIKE :name'.$key);
+                    $list->setParameter('name'.$key, '%' . $term. '%');
                 }
-
             }
 
-            if (isset($filters["creator"])) {
+            if(isset($filters["creator"])){
                 $terms = explode(" ", $filters["creator"]);
-                foreach ($terms as $key => $term) {
-                    $list->andWhere('u.name LIKE :creator' . $key);
-                    $list->setParameter('creator' . $key, '%' . $term . '%');
+                foreach($terms as $key => $term){
+                    $list->andWhere('u.name LIKE :creator'.$key);
+                    $list->setParameter('creator'.$key, '%' . $term. '%');
                 }
-
             }
 
-            if (isset($filters["lot"])) {
+            if(isset($filters["content"])){
+                $terms = explode(" ", $filters["content"]);
+                foreach($terms as $key => $term){
+                    $list->andWhere('s.stepDataValue LIKE :content'.$key);
+                    $list->setParameter('content'.$key, '%' . $term. '%');
+                }
+            }
+
+            if(isset($filters["lot"])){
                 $list->andWhere('m.lote=:lot');
                 $list->setParameter('lot', $filters["lot"]);
             }
 
-            if (isset($filters["material"])) {
+            if(isset($filters["material"])){
                 $list->andWhere('m.material=:material');
                 $list->setParameter('material', $filters["material"]);
             }
 
-            if (isset($filters["equipment_number"])) {
+            if(isset($filters["equipment_number"])){
                 $list->andWhere('m.equipo=:equipment_number');
                 $list->setParameter('equipment_number', $filters["equipment_number"]);
             }
 
-            if (isset($filters["sap"])) {
+            if(isset($filters["sap"])){
                 $list->andWhere('m.workordersap=:sap');
                 $list->setParameter('sap', $filters["sap"]);
             }
 
-            /*if(isset($filters["type"])){
-                $list->andWhere('r.type=:type');
-                $list->setParameter('type', $filters["type"]);
-            }
-
             if(isset($filters["status"])){
-                $list->andWhere('r.status=:status');
-                $list->setParameter('status', $filters["status"]);
+                switch($filters["status"]){
+                    case 1:
+                        $list->andWhere('i.status=0 OR i.status=1 OR i.status=2 OR i.status=3');
+                        break;
+                    case 2:
+                        $list->andWhere('i.status=5');
+                        break;
+                    case 3:
+                        $list->andWhere('i.status=6');
+                        break;
+                    case 4:
+                        $list->andWhere('i.status=4 OR i.status=15 OR i.status=12 OR i.status=7 or i.status=13');
+                        break;
+                    case 5:
+                        $list->andWhere('i.status=14');
+                        break;
+                    case 6:
+                        $list->andWhere('i.status=8');
+                        break;
+                    case 7:
+                        $list->andWhere('i.status=9');
+                        break;
+                    case 8:
+                        $list->andWhere('i.status=10');
+                        break;
+                    case 9:
+                        $list->andWhere('i.status=11');
+                        break;
+                }
+
             }
 
             if (isset($filters["pending_for_me"])) {
-                $list->andWhere('(r.status=1 AND r.usercreatedid=:user_id) OR (r.status=2 AND (s.userid=:user_id OR s.groupid IN (:groups)))');
+                $list->andWhere('(i.status IN (1,2,3,7,12,13,15) AND us.id=:user_id) OR (i.status IN (4,5,14) OR i.status=0)');
                 $list->setParameter('user_id', $user->getId());
-                $list->setParameter('groups', $groups);
             }
-            */
 
-            if (isset($filters["from"])) {
+
+            if(isset($filters["from"])){
                 $list->andWhere('i.created>=:from');
                 $list->setParameter('from', $filters["from"]);
             }
 
-            if (isset($filters["until"])) {
+            if(isset($filters["until"])){
                 $list->andWhere('i.created<=:until');
-                $list->setParameter('until', $filters["until"] . " 23:59:00");
+                $list->setParameter('until', $filters["until"]." 23:59:00");
             }
         }
 
 
-        if (isset($filters["limit_from"])) {
-            $list->setFirstResult($filters["limit_from"] * $filters["limit_many"])->setMaxResults($filters["limit_many"]);
+        if(isset($filters["limit_from"])){
+            $list->setFirstResult($filters["limit_from"]*$filters["limit_many"])->setMaxResults($filters["limit_many"]);
         }
 
         $query = $list->getQuery();
 
 
-        switch ($type) {
+        switch($type){
             case "list":
                 return $query->getResult();
                 break;
@@ -499,6 +538,7 @@ class InstanciasWorkflowsRepository extends EntityRepository
                 break;
         }
     }
+
 }
 
 

@@ -6,13 +6,12 @@
   <component name="ChangeListManager">
     <list default="true" id="6ed663db-a9a0-40ef-8119-691652a3a6fd" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/Resources/views/nav_side.html.twig" afterPath="$PROJECT_DIR$/app/Resources/views/nav_side.html.twig" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Nononsense/HomeBundle/Controller/BackOfficeController.php" afterPath="$PROJECT_DIR$/src/Nononsense/HomeBundle/Controller/BackOfficeController.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Nononsense/HomeBundle/Controller/RegistroArchivoController.php" afterPath="$PROJECT_DIR$/src/Nononsense/HomeBundle/Controller/RegistroArchivoController.php" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Nononsense/HomeBundle/Controller/RegistroConcretoController.php" afterPath="$PROJECT_DIR$/src/Nononsense/HomeBundle/Controller/RegistroConcretoController.php" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Nononsense/HomeBundle/Controller/SearchController.php" afterPath="$PROJECT_DIR$/src/Nononsense/HomeBundle/Controller/SearchController.php" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Nononsense/HomeBundle/Entity/FirmasStep.php" afterPath="$PROJECT_DIR$/src/Nononsense/HomeBundle/Entity/FirmasStep.php" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Nononsense/HomeBundle/Entity/InstanciasWorkflowsRepository.php" afterPath="$PROJECT_DIR$/src/Nononsense/HomeBundle/Entity/InstanciasWorkflowsRepository.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Nononsense/HomeBundle/Resources/views/Backoffice/stand_by_documents_list.html.twig" afterPath="$PROJECT_DIR$/src/Nononsense/HomeBundle/Resources/views/Backoffice/stand_by_documents_list.html.twig" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Nononsense/HomeBundle/Resources/views/Contratos/registro_archivo.html.twig" afterPath="$PROJECT_DIR$/src/Nononsense/HomeBundle/Resources/views/Contratos/registro_archivo.html.twig" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Nononsense/HomeBundle/Resources/views/Contratos/records.html.twig" afterPath="$PROJECT_DIR$/src/Nononsense/HomeBundle/Resources/views/Contratos/records.html.twig" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Nononsense/HomeBundle/Resources/views/Contratos/search.html.twig" afterPath="$PROJECT_DIR$/src/Nononsense/HomeBundle/Resources/views/Contratos/search.html.twig" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -37,31 +36,31 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file leaf-file-name="InstanciasWorkflowsRepository.php" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/Nononsense/HomeBundle/Entity/InstanciasWorkflowsRepository.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="203">
+              <caret line="376" column="35" lean-forward="true" selection-start-line="376" selection-start-column="35" selection-end-line="376" selection-end-column="35" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
       <file leaf-file-name="RegistroValidationController.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/Nononsense/HomeBundle/Controller/RegistroValidationController.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="6239">
+            <state relative-caret-position="-187">
               <caret line="391" column="53" lean-forward="false" selection-start-line="391" selection-start-column="53" selection-end-line="391" selection-end-column="53" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="InstanciasWorkflowsRepository.php" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/Nononsense/HomeBundle/Entity/InstanciasWorkflowsRepository.php">
+      <file leaf-file-name="FirmasStep.php" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/Nononsense/HomeBundle/Entity/FirmasStep.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="17">
-              <caret line="145" column="20" lean-forward="false" selection-start-line="145" selection-start-column="20" selection-end-line="145" selection-end-column="20" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="InstanciasWorkflows.php" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/Nononsense/HomeBundle/Entity/InstanciasWorkflows.php">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2396">
-              <caret line="829" column="39" lean-forward="false" selection-start-line="829" selection-start-column="20" selection-end-line="829" selection-end-column="39" />
+            <state relative-caret-position="432">
+              <caret line="374" column="34" lean-forward="false" selection-start-line="374" selection-start-column="20" selection-end-line="374" selection-end-column="34" />
               <folding />
             </state>
           </provider>
@@ -70,8 +69,8 @@
       <file leaf-file-name="routing.yml" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/Nononsense/HomeBundle/Resources/config/routing.yml">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2244">
-              <caret line="132" column="25" lean-forward="false" selection-start-line="132" selection-start-column="25" selection-end-line="132" selection-end-column="25" />
+            <state relative-caret-position="291">
+              <caret line="153" column="32" lean-forward="false" selection-start-line="153" selection-start-column="14" selection-end-line="153" selection-end-column="32" />
               <folding />
             </state>
           </provider>
@@ -80,8 +79,18 @@
       <file leaf-file-name="stand_by_documents_list.html.twig" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/Nononsense/HomeBundle/Resources/views/Backoffice/stand_by_documents_list.html.twig">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="5066">
+            <state relative-caret-position="17">
               <caret line="298" column="56" lean-forward="false" selection-start-line="298" selection-start-column="56" selection-end-line="298" selection-end-column="56" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="registro_procesed.html.twig" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/Nononsense/HomeBundle/Resources/views/Contratos/registro_procesed.html.twig">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="274">
+              <caret line="624" column="83" lean-forward="false" selection-start-line="624" selection-start-column="54" selection-end-line="624" selection-end-column="83" />
               <folding />
             </state>
           </provider>
@@ -90,18 +99,18 @@
       <file leaf-file-name="RegistroConcretoController.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/Nononsense/HomeBundle/Controller/RegistroConcretoController.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="407">
-              <caret line="1382" column="50" lean-forward="false" selection-start-line="1382" selection-start-column="50" selection-end-line="1382" selection-end-column="50" />
+            <state relative-caret-position="274">
+              <caret line="1004" column="31" lean-forward="false" selection-start-line="1004" selection-start-column="21" selection-end-line="1004" selection-end-column="31" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="BackOfficeController.php" pinned="false" current-in-tab="false">
+      <file leaf-file-name="BackOfficeController.php" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/Nononsense/HomeBundle/Controller/BackOfficeController.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="3094">
-              <caret line="193" column="79" lean-forward="false" selection-start-line="193" selection-start-column="62" selection-end-line="193" selection-end-column="79" />
+            <state relative-caret-position="334">
+              <caret line="67" column="44" lean-forward="false" selection-start-line="67" selection-start-column="44" selection-end-line="67" selection-end-column="44" />
               <folding />
             </state>
           </provider>
@@ -122,13 +131,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>firm</find>
-      <find>firmasste</find>
-      <find>evidenciasStep</find>
-      <find>no pro</find>
-      <find>getr</find>
-      <find>new recon</find>
-      <find>new firm</find>
       <find>set</find>
       <find>archivo</find>
       <find>listar</find>
@@ -146,12 +148,19 @@
       <find>grou</find>
       <find>autorizar_list</find>
       <find>historico</find>
-      <find>getus</find>
       <find>checkli</find>
       <find>userl</find>
       <find>firmas</find>
       <find>-&gt;getreg</find>
       <find>-&gt;getinstancia</find>
+      <find>getac</find>
+      <find>HEAD</find>
+      <find>bool</find>
+      <find>getus</find>
+      <find>usere</find>
+      <find>new firmas</find>
+      <find>completar</find>
+      <find>nononsense_registro_completar</find>
     </findStrings>
     <replaceStrings>
       <replace>Multiseleccion</replace>
@@ -243,7 +252,6 @@
         <option value="$PROJECT_DIR$/src/Nononsense/HomeBundle/Resources/views/Backoffice/stand_by_document.html.twig" />
         <option value="$PROJECT_DIR$/src/Nononsense/HomeBundle/Resources/config/routing.yml" />
         <option value="$PROJECT_DIR$/src/Nononsense/HomeBundle/Resources/views/Backoffice/stand_by_document_ECO.html.twig" />
-        <option value="$PROJECT_DIR$/src/Nononsense/HomeBundle/Entity/FirmasStep.php" />
         <option value="$PROJECT_DIR$/src/Nononsense/HomeBundle/Entity/InstanciasSteps.php" />
         <option value="$PROJECT_DIR$/src/Nononsense/UserBundle/Entity/Users.php" />
         <option value="$PROJECT_DIR$/src/Nononsense/HomeBundle/Entity/ReconciliacionRegistro.php" />
@@ -252,10 +260,11 @@
         <option value="$PROJECT_DIR$/src/Nononsense/HomeBundle/Resources/views/Contratos/registro_archivo.html.twig" />
         <option value="$PROJECT_DIR$/src/Nononsense/HomeBundle/Controller/RegistroArchivoController.php" />
         <option value="$PROJECT_DIR$/app/Resources/views/nav_side.html.twig" />
-        <option value="$PROJECT_DIR$/src/Nononsense/HomeBundle/Entity/InstanciasWorkflowsRepository.php" />
         <option value="$PROJECT_DIR$/src/Nononsense/HomeBundle/Controller/BackOfficeController.php" />
         <option value="$PROJECT_DIR$/src/Nononsense/HomeBundle/Resources/views/Backoffice/stand_by_documents_list.html.twig" />
         <option value="$PROJECT_DIR$/src/Nononsense/HomeBundle/Entity/InstanciasWorkflows.php" />
+        <option value="$PROJECT_DIR$/src/Nononsense/HomeBundle/Entity/InstanciasWorkflowsRepository.php" />
+        <option value="$PROJECT_DIR$/src/Nononsense/HomeBundle/Entity/FirmasStep.php" />
         <option value="$PROJECT_DIR$/src/Nononsense/HomeBundle/Controller/RegistroConcretoController.php" />
       </list>
     </option>
@@ -1202,12 +1211,12 @@
       <workItem from="1566370996759" duration="5878000" />
       <workItem from="1566380255673" duration="50000" />
       <workItem from="1566395156755" duration="1742000" />
-      <workItem from="1566456510545" duration="243000" />
+      <workItem from="1566456510545" duration="2380000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="2912051000" />
+    <option name="totallyTimeSpent" value="2914188000" />
   </component>
   <component name="TodoView" selected-index="3">
     <todo-panel id="selected-file">
@@ -1497,14 +1506,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/Nononsense/HomeBundle/Entity/FirmasStep.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="815">
-          <caret line="89" column="106" lean-forward="false" selection-start-line="89" selection-start-column="106" selection-end-line="89" selection-end-column="106" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/Nononsense/UserBundle/Entity/Users.php">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="599">
@@ -1533,13 +1534,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/Nononsense/HomeBundle/Resources/views/Contratos/registro_procesed.html.twig">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="166">
-          <caret line="384" column="24" lean-forward="false" selection-start-line="384" selection-start-column="24" selection-end-line="422" selection-end-column="35" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/Nononsense/HomeBundle/Resources/views/Contratos/registro_archivo.html.twig">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="481">
@@ -1561,58 +1555,74 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/Nononsense/HomeBundle/Controller/BackOfficeController.php">
+    <entry file="file://$PROJECT_DIR$/src/Nononsense/HomeBundle/Entity/InstanciasWorkflows.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3094">
-          <caret line="193" column="79" lean-forward="false" selection-start-line="193" selection-start-column="62" selection-end-line="193" selection-end-column="79" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/Nononsense/HomeBundle/Resources/views/Backoffice/stand_by_documents_list.html.twig">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="5066">
-          <caret line="298" column="56" lean-forward="false" selection-start-line="298" selection-start-column="56" selection-end-line="298" selection-end-column="56" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/Nononsense/HomeBundle/Resources/config/routing.yml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2244">
-          <caret line="132" column="25" lean-forward="false" selection-start-line="132" selection-start-column="25" selection-end-line="132" selection-end-column="25" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/Nononsense/HomeBundle/Controller/RegistroValidationController.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="6239">
-          <caret line="391" column="53" lean-forward="false" selection-start-line="391" selection-start-column="53" selection-end-line="391" selection-end-column="53" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/Nononsense/HomeBundle/Controller/RegistroConcretoController.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="407">
-          <caret line="1382" column="50" lean-forward="false" selection-start-line="1382" selection-start-column="50" selection-end-line="1382" selection-end-column="50" />
+        <state relative-caret-position="257">
+          <caret line="80" column="0" lean-forward="false" selection-start-line="80" selection-start-column="0" selection-end-line="86" selection-end-column="24" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/Nononsense/HomeBundle/Entity/InstanciasWorkflowsRepository.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="145" column="20" lean-forward="false" selection-start-line="145" selection-start-column="20" selection-end-line="145" selection-end-column="20" />
+        <state relative-caret-position="203">
+          <caret line="376" column="35" lean-forward="true" selection-start-line="376" selection-start-column="35" selection-end-line="376" selection-end-column="35" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/Nononsense/HomeBundle/Entity/InstanciasWorkflows.php">
+    <entry file="file://$PROJECT_DIR$/src/Nononsense/HomeBundle/Entity/FirmasStep.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2396">
-          <caret line="829" column="39" lean-forward="false" selection-start-line="829" selection-start-column="20" selection-end-line="829" selection-end-column="39" />
+        <state relative-caret-position="432">
+          <caret line="374" column="34" lean-forward="false" selection-start-line="374" selection-start-column="20" selection-end-line="374" selection-end-column="34" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Nononsense/HomeBundle/Controller/RegistroConcretoController.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="274">
+          <caret line="1004" column="31" lean-forward="false" selection-start-line="1004" selection-start-column="21" selection-end-line="1004" selection-end-column="31" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Nononsense/HomeBundle/Resources/views/Backoffice/stand_by_documents_list.html.twig">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="17">
+          <caret line="298" column="56" lean-forward="false" selection-start-line="298" selection-start-column="56" selection-end-line="298" selection-end-column="56" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Nononsense/HomeBundle/Resources/views/Contratos/registro_procesed.html.twig">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="274">
+          <caret line="624" column="83" lean-forward="false" selection-start-line="624" selection-start-column="54" selection-end-line="624" selection-end-column="83" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Nononsense/HomeBundle/Resources/config/routing.yml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="291">
+          <caret line="153" column="32" lean-forward="false" selection-start-line="153" selection-start-column="14" selection-end-line="153" selection-end-column="32" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Nononsense/HomeBundle/Controller/RegistroValidationController.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-187">
+          <caret line="391" column="53" lean-forward="false" selection-start-line="391" selection-start-column="53" selection-end-line="391" selection-end-column="53" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Nononsense/HomeBundle/Controller/BackOfficeController.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="334">
+          <caret line="67" column="44" lean-forward="false" selection-start-line="67" selection-start-column="44" selection-end-line="67" selection-end-column="44" />
           <folding />
         </state>
       </provider>
