@@ -387,57 +387,52 @@ class InstanciasWorkflowsRepository extends EntityRepository
         switch($type){
             case "list":
                 $list = $this->createQueryBuilder('i')
-                    ->select('i.id', 'i.usercreatedid','ms.name','u.name as creator','i.created','m.modified','m.lote','m.material','m.equipo','m.workordersap','ms.logbook','i.status','s.id as step','i.in_edition','ms.logbook','us.id as idNextSigner');
-                $list->leftJoin("i.Master_Workflow_Entity", "ms")
-                    ->leftJoin("ms.category", "c")
-                    ->leftJoin("i.userCreatedEntiy", "u")
-                    ->leftJoin("i.metaData", "m")
-                    ->leftJoin("i.Steps", "s")
-                    ->leftJoin("s.firmasStep", "f")
-                    ->leftJoin("f.userEntiy", "us")
-                    ->andWhere('i.status>=0')
-                    ->andWhere('s.dependsOn=0')
-                    ->andWhere('f.id IS NULL OR f.id IN (SELECT MAX(aux.id) FROM Nononsense\HomeBundle\Entity\FirmasStep aux WHERE aux.step_id=f.step_id)')
-                    ->orderBy('i.id', 'DESC');
+                    ->select('i.id', 'i.usercreatedid','mw.name','u.name as creator','i.created','m.modified','m.lote','m.material','m.equipo','m.workordersap','mw.logbook','i.status','s.id as step','i.in_edition','mw.logbook','us.id as idNextSigner','r.registro_viejo_id as id_reconciliado','mw.checklist as checklist','ch.id as chstep','ms.name as chname');
+                
                 break;
             case "count":
                 $list = $this->createQueryBuilder('i')
                     ->select('COUNT(i.id) as conta');
-                $list->leftJoin("i.Master_Workflow_Entity", "ms")
-                    ->leftJoin("ms.category", "c")
-                    ->leftJoin("i.userCreatedEntiy", "u")
-                    ->leftJoin("i.metaData", "m")
-                    ->leftJoin("i.Steps", "s")
-                    ->leftJoin("s.firmasStep", "f")
-                    ->leftJoin("f.userEntiy", "us")
-                    ->andWhere('i.status>=0')
-                    ->andWhere('s.dependsOn=0')
-                    ->orderBy('i.id', 'DESC');
                 break;
         }   
 
+        $list->leftJoin("i.Master_Workflow_Entity", "mw")
+            ->leftJoin("mw.category", "c")
+            ->leftJoin("i.userCreatedEntiy", "u")
+            ->leftJoin("i.metaData", "m")
+            ->leftJoin("i.Steps", "s", "WITH", 's.dependsOn=0')
+            ->leftJoin("i.Steps", "ch", "WITH", 'ch.dependsOn=s.id')
+            ->leftJoin("ch.master_step", "ms", "WITH", 'ms.checklist=1')
+            ->leftJoin("s.firmasStep", "f")
+            ->leftJoin("f.userEntiy", "us")
+            ->leftJoin("i.ReconciliadoDe","r")
+            ->andWhere('i.status>=0')
+            ->andWhere('f.id IS NULL OR f.id IN (SELECT MAX(aux.id) FROM Nononsense\HomeBundle\Entity\FirmasStep aux WHERE aux.step_id=f.step_id)')
+            ->orderBy('i.id', 'DESC');
+
 
         if(!empty($filters)){
-            /*if (isset($filters["groups"])) {
-                $groups = $filters["groups"];
-            }*/
 
-            /*if (isset($filters["user"])) {
+            if (isset($filters["user"])) {
                 $user = $filters["user"];
-            }*/
+            }
 
             if(isset($filters["id"])){
                 $list->andWhere('i.id=:id');
                 $list->setParameter('id', $filters["id"]);
             }
 
+            if(isset($filters["plantilla_id"])){
+                $list->andWhere('mw.id IN (SELECT ms.workflow_id FROM Nononsense\HomeBundle\Entity\MasterSteps ms WHERE  ms.plantilla_id=:plantilla_id)');
+                $list->setParameter('plantilla_id', $filters["plantilla_id"]);
+            }
+
             if(isset($filters["name"])){
                 $terms = explode(" ", $filters["name"]);
                 foreach($terms as $key => $term){
-                    $list->andWhere('ms.name LIKE :name'.$key);
+                    $list->andWhere('mw.name LIKE :name'.$key);
                     $list->setParameter('name'.$key, '%' . $term. '%');
-                }
-                
+                } 
             }
 
             if(isset($filters["creator"])){
@@ -446,7 +441,14 @@ class InstanciasWorkflowsRepository extends EntityRepository
                     $list->andWhere('u.name LIKE :creator'.$key);
                     $list->setParameter('creator'.$key, '%' . $term. '%');
                 }
-                
+            }
+
+            if(isset($filters["content"])){
+                $terms = explode(" ", $filters["content"]);
+                foreach($terms as $key => $term){
+                    $list->andWhere('s.stepDataValue LIKE :content'.$key);
+                    $list->setParameter('content'.$key, '%' . $term. '%');
+                }
             }
 
             if(isset($filters["lot"])){
@@ -468,11 +470,6 @@ class InstanciasWorkflowsRepository extends EntityRepository
                 $list->andWhere('m.workordersap=:sap');
                 $list->setParameter('sap', $filters["sap"]);
             }
-
-            /*if(isset($filters["type"])){
-                $list->andWhere('r.type=:type');
-                $list->setParameter('type', $filters["type"]);
-            }*/
 
             if(isset($filters["status"])){
                 switch($filters["status"]){
@@ -507,12 +504,11 @@ class InstanciasWorkflowsRepository extends EntityRepository
                 
             }
 
-            /*if (isset($filters["pending_for_me"])) {
-                $list->andWhere('(r.status=1 AND r.usercreatedid=:user_id) OR (r.status=2 AND (s.userid=:user_id OR s.groupid IN (:groups)))');
+            if (isset($filters["pending_for_me"])) {
+                $list->andWhere('(i.status IN (1,2,3,7,12,13,15) AND us.id=:user_id) OR (i.status IN (4,5,14) OR i.status=0)');
                 $list->setParameter('user_id', $user->getId());
-                $list->setParameter('groups', $groups);
             }
-            */
+            
 
             if(isset($filters["from"])){
                 $list->andWhere('i.created>=:from');
