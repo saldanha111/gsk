@@ -57,6 +57,14 @@ class ActivityUser
     protected $status;
 
     /**
+     * @var integer
+     *
+     * @ORM\Column(name="actionID", type="integer")
+     */
+    protected $actionID;
+
+
+    /**
      * @var string
      *
      * @ORM\Column(name="accion", type="text")
