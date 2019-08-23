@@ -266,7 +266,7 @@ class InstanciasWorkflowsRepository extends EntityRepository
     {
         $list = $this->createQueryBuilder('n')
 //            ->select('n.id as id', 'ms.name', 'ms.description', 'c.name as companyName', 'n.status', 'mt.fechainicio as fecha')
-            ->select('n.id', 'ms.name', 'ms.description', 'c.name as companyName', 'n.status', 'mt.fechainicio as fecha', 'n.in_edition', 'ms.id as masterworkflowid', 'ms.logbook')
+            ->select('n.id', 'ms.name', 'ms.description','ms.name as masterWorkflowName', 'c.name as companyName', 'n.status', 'mt.fechainicio as fecha', 'n.in_edition', 'ms.id as masterworkflowid', 'ms.logbook')
             ->leftJoin("n.Master_Workflow_Entity", "ms")
             ->leftJoin("ms.category", "c")
             ->leftJoin("n.metaData", "mt")
@@ -307,7 +307,9 @@ class InstanciasWorkflowsRepository extends EntityRepository
         $list->setFirstResult(($page - 1) * $max);
         $list->setMaxResults($max);
 
-        return new Paginator($list);
+        $query = $list->getQuery();
+        return $query->getResult();
+        //return new Paginator($list);
     }
 
 

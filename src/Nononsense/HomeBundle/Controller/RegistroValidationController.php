@@ -282,9 +282,14 @@ class RegistroValidationController extends Controller
         }
 
         //var_dump($documentosInProcessParcial);
+        // Igual como es un paginator no puede devolverse un array....
+
+
         foreach ($documentosInProcessParcial as &$element3) {
             //echo 'problem';
             $idRegistro = $element3['id'];
+            //$idRegistro = $element3->getId();
+
             //echo 'problem 2';
             $reconciliacionElement = $this->getDoctrine()
                 ->getRepository('NononsenseHomeBundle:ReconciliacionRegistro')

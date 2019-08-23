@@ -153,8 +153,15 @@ class RegistroArchivoController extends Controller
         ));
     }
 
-
     public function verRegistroAction($registroid)
+    {
+
+        $route = $this->container->get('router')->generate('nononsense_ver_registro', array('revisionid' => $registroid));
+
+        return $this->redirect($route);
+    }
+
+    public function oldverRegistroAction($registroid)
     {
 
 

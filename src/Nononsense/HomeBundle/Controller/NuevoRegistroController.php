@@ -564,6 +564,7 @@ class NuevoRegistroController extends Controller
         $firma->setFirma($firmaImagen);
         $firma->setStatus(1);
         $firma->setNumber($counter);
+        $firma->setElaboracion(0);
 
         $evidencia->setFirmaEntity($firma);
 

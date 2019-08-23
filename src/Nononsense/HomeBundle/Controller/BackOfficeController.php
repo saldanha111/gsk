@@ -333,6 +333,7 @@ class BackOfficeController extends Controller
         $firma->setUserEntiy($user);
         $firma->setFirma($firmaImagen);
         $firma->setStatus(1);
+        $firma->setElaboracion(0);
         $firma->setNumber($counter);
 
         $evidencia->setFirmaEntity($firma);
@@ -406,6 +407,7 @@ class BackOfficeController extends Controller
         $firma->setUserEntiy($user);
         $firma->setFirma($firmaImagen);
         $firma->setStatus(1);
+        $firma->setElaboracion(0);
         $firma->setNumber($counter);
 
         $evidencia->setFirmaEntity($firma);

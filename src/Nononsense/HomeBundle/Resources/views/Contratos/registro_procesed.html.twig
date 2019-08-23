@@ -320,9 +320,8 @@
                         {% for plantilla in documentsProcessParcial %}
                         <tr>
                             <td>{{plantilla.id}}</td>
-                            <td>{{plantilla.getMasterWorkflowEntity.category.name}}</td>
-                            <td>{{plantilla.getMasterWorkflowEntity.name}}</td>
-                            <!--<td>{{plantilla.getMasterWorkflowEntity.description}}</td>-->
+                            <td>{{plantilla.companyName}}</td>
+                            <td>{{plantilla.masterWorkflowName}}</td>
                             {% if plantilla.status == 0 %}
                             <td>Iniciado</td>
                             {% elseif plantilla.status == 16 %}
@@ -332,9 +331,9 @@
                             {% else %}
                             <td class="pdte">No deberías estar viendo este registro</td>
                             {% endif %}
-                            <td>{{plantilla.getMetaData[0].getFechainicio | date('d-m-Y H:i:s') }}</td>
+                            <td>{{plantilla.fecha | date('d-m-Y H:i:s') }}</td>
                             {% if plantilla.status == 0 or plantilla.status == 6 %}
-                            {% if plantilla.getInEdition == 0 %}
+                            {% if plantilla.in_edition == 0 %}
                             <td><a class="btn btn-xs btn-primary" name="completarregistro"
                                    data-template="{{plantilla.id}}"
                                    data-loogbook="{{plantilla.logbook}}">{{'Completar

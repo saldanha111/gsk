@@ -370,6 +370,14 @@ class RegistroConcretoController extends Controller
                 $em->persist($evidencia);
         */
 
+        /*
+         * Si soy la checklist debo ir al estado 4
+         */
+        if($step->getMasterStep()->getChecklist() == 1){
+            $registro->setStatus(4);
+            $em->persist($registro);
+        }
+
         $em->persist($firma);
         $em->flush();
 
@@ -824,6 +832,8 @@ class RegistroConcretoController extends Controller
             exit;
 
         }
+
+
         if ($debeFirmar) {
             $evidencia = new EvidenciasStep();
             $evidencia->setStepEntity($step);
@@ -1237,20 +1247,22 @@ class RegistroConcretoController extends Controller
         $comentario = $request->query->get('comment');
         $accion = $request->query->get('accion');
 
+        $registroNuevo = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
+            ->find($registroNuevoId);
+
         if ($accion == 'autorizar') {
             $descp = "Petición de reconciliación autorizada. " . $comentario;
             $registroViejo->setStatus(10);
             $peticionEntity->setStatus(1);
 
-            $registroNuevo = $this->getDoctrine()
-                ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
-                ->find($registroNuevoId);
             $registroNuevo->setStatus(0);
             $em->persist($registroNuevo);
 
         } else {
             $descp = "Petición de reconciliación no autorizada. " . $comentario;
             $peticionEntity->setStatus(2);
+            $registroNuevo->setStatus(8);
         }
         /*
          * Guardar firma

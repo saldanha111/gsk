@@ -394,8 +394,14 @@
 
                 var logbook = $('#logbook').val();
 
-                $('#logbookForm').val(logbook);
-                $('#createRegistro').submit();
+                if(logbook == ""){
+                    toastr.error('Debe introducir un número válido', 'Aviso');
+                    return false;
+                }else{
+                    $('#logbookForm').val(logbook);
+                    $('#createRegistro').submit();
+                }
+
 
 
             });
