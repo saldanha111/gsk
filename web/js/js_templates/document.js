@@ -142,6 +142,7 @@ function customOnLoad() {
         console.log(historyObj);
 
         var responseURL = $('#responseURL').val();
+        responseURL = limpiarResponseUrl(responseURL);
         responseURL += 'cerrar%2F';
         responseURL += historyObj;
         console.log(responseURL);
@@ -159,6 +160,7 @@ function customOnLoad() {
             // OK
             console.log(auxValuePercentage);
             var responseURL = $('#responseURL').val();
+            responseURL = limpiarResponseUrl(responseURL);
             responseURL += 'cancelar';
             $('#responseURL').val(responseURL);
             $('#download').trigger('click');
@@ -184,6 +186,7 @@ function customOnLoad() {
                 launchMessage(title, message);
             }else{
                 var responseURL = $('#responseURL').val();
+                responseURL = limpiarResponseUrl(responseURL);
                 responseURL += 'parcial';
                 $('#responseURL').val(responseURL);
                 $('#download').trigger('click');
@@ -201,6 +204,7 @@ function customOnLoad() {
             // Hacer un click sobre download
             // Poner el action cancelar
             var responseURL = $('#responseURL').val();
+            responseURL = limpiarResponseUrl(responseURL);
             responseURL += 'enviar';
             $('#responseURL').val(responseURL);
             $('#download').trigger('click');
@@ -215,6 +219,27 @@ function customOnLoad() {
         }
 
     });
+
+    function limpiarResponseUrl(url){
+        var urlLimpia = url;
+        urlLimpia = urlLimpia.replace(/devolver%2F1/g, "");
+        urlLimpia = urlLimpia.replace(/devolver%2F0/g, "");
+        urlLimpia = urlLimpia.replace(/devolver/g, "");
+        urlLimpia = urlLimpia.replace(/cancelar%2F1/g, "");
+        urlLimpia = urlLimpia.replace(/cancelar%2F0/g, "");
+        urlLimpia = urlLimpia.replace(/cancelar/g, "");
+        urlLimpia = urlLimpia.replace(/verificarparcial%2F1/g, "");
+        urlLimpia = urlLimpia.replace(/verificarparcial%2F0/g, "");
+        urlLimpia = urlLimpia.replace(/verificarparcial/g, "");
+        urlLimpia = urlLimpia.replace(/parcial%2F1/g, "");
+        urlLimpia = urlLimpia.replace(/parcial%2F0/g, "");
+        urlLimpia = urlLimpia.replace(/parcial/g, "");
+        urlLimpia = urlLimpia.replace(/enviar%2F1/g, "");
+        urlLimpia = urlLimpia.replace(/enviar%2F0/g, "");
+        urlLimpia = urlLimpia.replace(/enviar/g, "");
+
+        return urlLimpia;
+    }
 
 }
 

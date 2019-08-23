@@ -866,7 +866,7 @@ class RecordsController extends Controller
             
 
             $subject="Documento devuelto para revisión";
-            $mensaje='El Documento con ID '.$record->getId().' ha sido devuelto y está pendiente de revisión.<br>La razón por la que se ha devuelto el documento es la siguiente: '.$request->get('comment').'.<br><br> Para poder revisar el documento puede acceder a la sección de "Mis documentos pendientes", buscar el documento y pulsar en Completar Documento';
+            $mensaje='El Documento con ID '.$record->getId().' ha sido devuelto por el usuario '.$user->getName().' y está pendiente de revisión.<br>La razón por la que se ha devuelto el documento es la siguiente: '.$request->get('comment').'.<br><br> Para poder revisar el documento puede acceder a la sección de "Mis documentos pendientes", buscar el documento y pulsar en Completar Documento';
             $baseURL=$this->container->get('router')->generate('nononsense_records_edit', array("id" => $record->getId()),TRUE);
                 
             $this->_sendNotification($email, $baseURL, "", "", $subject, $mensaje);
