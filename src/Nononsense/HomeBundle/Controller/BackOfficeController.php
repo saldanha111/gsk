@@ -16,6 +16,10 @@ use Nononsense\HomeBundle\Entity\FirmasStep;
 use Nononsense\HomeBundle\Entity\InstanciasSteps;
 use Nononsense\HomeBundle\Entity\InstanciasWorkflows;
 
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
+
 class BackOfficeController extends Controller
 {
     public function indexAction()
@@ -428,5 +432,37 @@ class BackOfficeController extends Controller
             }
         }
         return $autorizado;
+    }
+
+    public function bloquearRegistroAction(){
+        /*
+         * Bloquear aquellos registros que estén en edition desde hace +10 horas.
+         */
+        $em = $this->getDoctrine()->getManager();
+
+        $posiblesRegistrosArray = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
+            ->findBy(array("in_edition"=>1));
+
+        $now = new \DateTime();
+        $now->modify("-8 hour"); // Intervalo
+
+        foreach ($posiblesRegistrosArray as $registro){
+            $fechaModificacion = $registro->getModified();
+            if($fechaModificacion < $now){
+                $registro->setInEdition(0);
+                $registro->setStatus(11);
+
+                $em->persist($registro);
+            }
+
+        }
+
+        $em->flush();
+
+        $responseAction = new Response();
+        $responseAction->setStatusCode(200);
+        $responseAction->setContent("OK");
+        return $responseAction;
     }
 }

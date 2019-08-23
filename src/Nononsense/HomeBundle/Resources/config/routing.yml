@@ -378,3 +378,7 @@ nononsense_backoffice_standby_document_eco:
 nononsense_backoffice_standby_document_ECO_accion:
     path:     /backoffice_standby_document_ECO_accion/{idRegistro}
     defaults: { _controller: NononsenseHomeBundle:BackOffice:standByDocumentECOAccion, idRegistro: 0}
+
+nononsense_bloquear_registros:
+    path:     /backoffice_bloquear_registros
+    defaults: { _controller: NononsenseHomeBundle:BackOffice:bloquearRegistro}
