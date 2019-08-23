@@ -57,6 +57,14 @@ class ActivityUser
     protected $status;
 
     /**
+     * @var integer
+     *
+     * @ORM\Column(name="actionID", type="integer")
+     */
+    protected $actionID;
+
+
+    /**
      * @var string
      *
      * @ORM\Column(name="accion", type="text")
@@ -294,5 +302,28 @@ class ActivityUser
     public function getAccion()
     {
         return $this->accion;
+    }
+
+    /**
+     * Set actionID
+     *
+     * @param integer $actionID
+     * @return ActivityUser
+     */
+    public function setActionID($actionID)
+    {
+        $this->actionID = $actionID;
+
+        return $this;
+    }
+
+    /**
+     * Get actionID
+     *
+     * @return integer 
+     */
+    public function getActionID()
+    {
+        return $this->actionID;
     }
 }

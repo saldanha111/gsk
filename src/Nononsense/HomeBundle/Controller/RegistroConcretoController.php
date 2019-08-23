@@ -183,6 +183,7 @@ class RegistroConcretoController extends Controller
             $options['responseURL'] = $baseUrl . "control_check_list/" . $stepid . "/";
 
             $accionText = 'Completar check list';
+            $actionId = 4;
 
         } else {
 
@@ -197,6 +198,7 @@ class RegistroConcretoController extends Controller
                 $registro->setInEdition(1);
 
                 $accionText = 'Validar registro';
+                $actionId = 2;
 
             } else if ($registro->getStatus() == -1 ||
                 $registro->getStatus() == 0) {
@@ -210,6 +212,7 @@ class RegistroConcretoController extends Controller
                 $options['responseURL'] = $baseUrl . "control_elaboracion/" . $stepid . "/";
 
                 $accionText = 'Elaborar registro';
+                $actionId = 1;
 
             } else if ($registro->getStatus() == 5 || $registro->getStatus() == 14) {
                 $registro->setInEdition(1);
@@ -221,6 +224,7 @@ class RegistroConcretoController extends Controller
                 $validacionURL1 = $baseUrl . "js/js_templates/cancelacion.js?v=" . $versionJS;
 
                 $accionText = 'verificar cancelacion';
+                $actionId = 5;
 
             } else {
 
@@ -230,6 +234,8 @@ class RegistroConcretoController extends Controller
                 $validacionURL1 = $baseUrl . "js/js_templates/show.js?v=" . $versionJS;
 
                 $accionText = 'Ver registro';
+                $actionId = 3;
+
             }
         }
 
@@ -273,6 +279,7 @@ class RegistroConcretoController extends Controller
         $activity->setUserEntiy($user);
         $activity->setStepEntity($step);
         $activity->setAccion($accionText);
+        $activity->setActionID($actionId);
 
 
         $em = $this->getDoctrine()->getManager();

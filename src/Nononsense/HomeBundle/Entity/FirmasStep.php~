@@ -365,4 +365,27 @@ class FirmasStep
     {
         return $this->stepEntity;
     }
+
+    /**
+     * Set elaboracion
+     *
+     * @param boolean $elaboracion
+     * @return FirmasStep
+     */
+    public function setElaboracion($elaboracion)
+    {
+        $this->elaboracion = $elaboracion;
+
+        return $this;
+    }
+
+    /**
+     * Get elaboracion
+     *
+     * @return boolean 
+     */
+    public function getElaboracion()
+    {
+        return $this->elaboracion;
+    }
 }
