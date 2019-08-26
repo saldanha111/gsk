@@ -391,6 +391,91 @@ class RegistroArchivoController extends Controller
         }
     }
 
+    public function reconciliacionHistoryAction($id){
+        $registroViejo = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
+            ->find($id);
+
+        $name=$registroViejo->getMasterWorkflowEntity()->getName();
+
+        $procesarReconciliaciones=TRUE;
+        $i=0;
+        while ($procesarReconciliaciones) {
+            if ($registroViejo != null) {
+
+                $subcat = $registroViejo->getMasterWorkflowEntity()->getCategory()->getName();
+                $name = $registroViejo->getMasterWorkflowEntity()->getName();
+
+                $element = array(
+                    "id" => $registroViejo->getId(),
+                    "subcat" => $subcat,
+                    "name" => $name,
+                    "status" => $registroViejo->getStatus(),
+                    "fecha" => $registroViejo->getModified()
+                );
+                $documentsReconciliacion[$i] = $element;
+            } else {
+                $procesarReconciliaciones = false;
+            }
+
+            // Ver una posible reconciliación del registro viejo
+            $peticionReconciliacionAntigua = $this->getDoctrine()
+                ->getRepository('NononsenseHomeBundle:ReconciliacionRegistro')
+                ->findOneBy(array("registro_nuevo_id" => $registroViejo->getId()));
+
+            if (isset($peticionReconciliacionAntigua)) {
+                $registroViejo = $peticionReconciliacionAntigua->getRegistroViejoEntity();
+
+            } else {
+                $registroViejo = null;
+                $procesarReconciliaciones = false;
+            }
+
+            $i--;
+        }
+
+        $registroViejo = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
+            ->find($id);
+
+        $procesarReconciliaciones=TRUE;
+        $i=1;
+
+        while ($procesarReconciliaciones) {
+            // Ver una posible reconciliación del registro viejo
+            $peticionReconciliacionAntigua = $this->getDoctrine()
+                ->getRepository('NononsenseHomeBundle:ReconciliacionRegistro')
+                ->findOneBy(array("registro_viejo_id" => $registroViejo->getId()));
+
+            if (isset($peticionReconciliacionAntigua)) {
+                $registroViejo = $peticionReconciliacionAntigua->getRegistroViejoEntity();
+
+                $subcat = $registroViejo->getMasterWorkflowEntity()->getCategory()->getName();
+                $name = $registroViejo->getMasterWorkflowEntity()->getName();
+
+                $element = array(
+                    "id" => $registroViejo->getId(),
+                    "subcat" => $subcat,
+                    "name" => $name,
+                    "status" => $registroViejo->getStatus(),
+                    "fecha" => $registroViejo->getModified()
+                );
+                $documentsReconciliacion[$i] = $element;
+
+            } else {
+                $registroViejo = null;
+                $procesarReconciliaciones = false;
+            }
+
+            $i++;
+        }
+        
+        return $this->render('NononsenseHomeBundle:Contratos:reconciliacion_history.html.twig', array(
+            "documentsReconciliacion" => $documentsReconciliacion,
+            "name" => $name,
+            "id" => $id));
+    }
+
     private function createPDF($filenamedownloadpdf, $firststep, $stepDataValuesJSON)
     {
         /*

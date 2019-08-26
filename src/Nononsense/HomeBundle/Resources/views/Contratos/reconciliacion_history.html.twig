@@ -1,0 +1,87 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}DOCXPRESSO | {{'Homepage'|trans}} {% endblock %}
+{% block head %}
+{{ parent() }}
+
+{% endblock %}
+{% block main_title %} Historial de reconciliación{% endblock %}
+{% block content %}
+
+
+<div class="wrapper wrapper-content">
+    {% for flashMessage in app.session.flashbag.get('error') %}
+    <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+        <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+        {{ flashMessage }}
+    </div>
+    {% endfor %}
+    <h1>Reconciliación del registro {{id}} - {{name}}</h1>
+    <div class="row">
+        <div class="col-sm-12">
+            <table id="inProcess2" class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Nº</th>
+                    <th>SubCategoria</th>
+                    <th>Nombre</th>
+                    <th>Estado</th>
+                    <th>Fecha Finalización</th>
+                    <th>Acción</th>
+                </tr>
+                </thead>
+                {% for key,plantilla in documentsReconciliacion %}
+                <tr {{ key == 0 ? 'style="font-weight:bold"' : '' }}>
+                    <td>{{plantilla.id}}</td>
+                    <td>{{plantilla.subcat}}</td>
+                    <td>{{plantilla.name}}</td>
+                    {% if plantilla.status == 0 %}
+                    <td>Iniciado</td>
+                    {% elseif plantilla.status == 1 %}
+                    <td>Esperando firma guardado parcial</td>
+                    {% elseif plantilla.status == 2 %}
+                    <td>Esperando firma envío</td>
+                    {% elseif plantilla.status == 3 %}
+                    <td>Esperando firma cancelación</td>
+                    {% elseif plantilla.status == 4 %}
+                    <td>En verificación</td>
+                    {% elseif plantilla.status == 5 %}
+                    <td>Pendiente cancelación en edición</td>
+                    {% elseif plantilla.status == 6 %}
+                    <td class="pdte">Cancelado en edición</td>
+                    {% elseif plantilla.status == 7 %}
+                    <td class="pdte">Esperando firma verificación total</td>
+                    {% elseif plantilla.status == 8 %}
+                    <td class="pdte">Cancelado</td>
+                    {% elseif plantilla.status == 9 %}
+                    <td>Archivado</td>
+                    {% elseif plantilla.status == 10 %}
+                    <td>Reconciliado</td>
+                    {% elseif plantilla.status == 11 %}
+                    <td class="pdte">Bloqueado</td>
+                    {% elseif plantilla.status == 12 %}
+                    <td>Esperando firma cancelación en verificación</td>
+                    {% elseif plantilla.status == 13 %}
+                    <td>Esperando firma devolución a edición</td>
+                    {% elseif plantilla.status == 14 %}
+                    <td>Pendiente de cancelación en verificación</td>
+                    {% elseif plantilla.status == 15 %}
+                    <td>Esperando firma verificación parcial</td>
+                    {% elseif plantilla.status == 16 %}
+                    <td>Esperando autorización para reconciliación</td>
+                    {% else %}
+                    <td class="pdte">{{plantilla.status}}</td>
+                    {% endif %}
+                    <td>{{plantilla.fecha | date('d-m-Y H:i:s') }}</td>
+                    <td><a class="btn btn-xs btn-primary" name="verregistro"
+                           href="{{path('nononsense_ver_registro', {'revisionid': plantilla.id})}}"
+                           target="_blank">{{'Ver'|trans}}</a></td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+{{ parent() }}
+{% endblock %}

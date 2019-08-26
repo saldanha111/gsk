@@ -198,18 +198,18 @@
                         <a class="btn btn-primary" href="{{path('nononsense_nuevo_contrato')}}">{{'Empezar'|trans}}</a>
                     </div>
                 </div>
-                <div class="col-sm-3 block-wrapper">
-                    <div class="block-content" style="text-align: -webkit-center;">
-                        <h3 class="title-block"><a href="{{path('nononsense_registro_enproceso')}}">{{'En proceso'|trans}}</a></h3>
-                        <a href="{{path('nononsense_registro_enproceso')}}"><img src="/img/icono-archivo.png"/></a>
-                        <a class="btn btn-primary" href="{{path('nononsense_registro_enproceso')}}">{{'Continuar'|trans}}</a>
-                    </div>
-                </div>
                 <div class="col-sm-3 block-wrapper" style="text-align: -webkit-center;">
                     <div class="block-content">
-                        <h3 class="title-block"><a href="{{path('nononsense_registro_archivo')}}">{{'Archivo'|trans}}</a></h3>
-                        <a href="{{path('nononsense_registro_archivo')}}"><img src="/img/icono-archivo.png"/></a>
-                        <a class="btn btn-primary" href="{{path('nononsense_registro_archivo')}}">{{'Ver archivo'|trans}}</a>
+                        <h3 class="title-block"><a href="{{path('nononsense_search')}}">Buscador</a></h3>
+                        <a href="{{path('nononsense_search')}}"><img src="/img/icono-search.png"/></a>
+                        <a class="btn btn-primary" href="{{path('nononsense_search')}}">Buscar registros</a>
+                    </div>
+                </div>
+                <div class="col-sm-3 block-wrapper">
+                    <div class="block-content" style="text-align: -webkit-center;">
+                        <h3 class="title-block"><a href="{{path('nononsense_search')}}?pending_for_me=1">{{'En proceso'|trans}}</a></h3>
+                        <a href="{{path('nononsense_search')}}?pending_for_me=1"><img src="/img/icono-archivo.png"/></a>
+                        <a class="btn btn-primary" href="{{path('nononsense_search')}}?pending_for_me=1">{{'Continuar'|trans}}</a>
                     </div>
                 </div>
             </div>

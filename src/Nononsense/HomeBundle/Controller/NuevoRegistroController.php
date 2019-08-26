@@ -581,7 +581,7 @@ class NuevoRegistroController extends Controller
             "Creada la solicitud de reconciliación. Cuando se la autoricen podrá comenzar la elaboración del registro: " . $registroNuevo->getId()
         );
 
-        $route = $this->container->get('router')->generate('nononsense_registro_enproceso');
+        $route = $this->container->get('router')->generate('nononsense_search');
         return $this->redirect($route);
 
 

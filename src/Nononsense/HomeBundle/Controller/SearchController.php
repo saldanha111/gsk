@@ -29,6 +29,16 @@ class SearchController extends Controller
     public function listAction(Request $request)
     {
         $user = $this->container->get('security.context')->getToken()->getUser();
+        $fll=false;
+        foreach ($user->getGroups() as $groupMe) {
+            $type = $groupMe->getGroup()->getTipo();
+            if ($type == 'FLL') {
+                $fll = true;
+            }
+        }
+
+        $array_item["fll"]=$fll;
+
         $filters=Array();
         $filters2=Array();
         $types=array();
@@ -38,6 +48,9 @@ class SearchController extends Controller
 
         $filters["user"]=$user;
         $filters2["user"]=$user;
+
+        $filters["fll"]=$fll;
+        $filters2["fll"]=$fll;
 
         $array_item["suser"]["id"]=$user->getId();
 

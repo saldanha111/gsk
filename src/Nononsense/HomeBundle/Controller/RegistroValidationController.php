@@ -1109,7 +1109,7 @@ class RegistroValidationController extends Controller
 //        $em->persist($evidencia);
         $em->flush();
 
-        $route = $this->container->get('router')->generate('nononsense_registro_enproceso');
+        $route = $this->container->get('router')->generate('nononsense_search');
 
         return $this->redirect($route);
 
@@ -1204,7 +1204,7 @@ class RegistroValidationController extends Controller
         $this->_sendNotification($emailTo, $linkToEnProcess, $logo, $accion, $subject, $message);
 
 
-        $route = $this->container->get('router')->generate('nononsense_registro_enproceso');
+        $route = $this->container->get('router')->generate('nononsense_search');
 
         return $this->redirect($route);
 

@@ -105,7 +105,7 @@ class RegistroConcretoController extends Controller
                 'error',
                 'Este registro ha sido abierto por otro usuario'
             );
-            $route = $this->container->get('router')->generate('nononsense_registro_enproceso');
+            $route = $this->container->get('router')->generate('nononsense_search');
             return $this->redirect($route);
         }
 
@@ -116,7 +116,7 @@ class RegistroConcretoController extends Controller
                     'error',
                     'No puede validar este registro porque ha participado en la elaboración'
                 );
-                $route = $this->container->get('router')->generate('nononsense_registro_enproceso');
+                $route = $this->container->get('router')->generate('nononsense_search');
                 return $this->redirect($route);
             }
         }
@@ -131,7 +131,7 @@ class RegistroConcretoController extends Controller
                 'error',
                 'No puede ver este registro aquí porque ya ha sido validado'
             );
-            $route = $this->container->get('router')->generate('nononsense_registro_enproceso');
+            $route = $this->container->get('router')->generate('nononsense_search');
             return $this->redirect($route);
             *
 
@@ -381,7 +381,7 @@ class RegistroConcretoController extends Controller
         $em->persist($firma);
         $em->flush();
 
-        $route = $this->container->get('router')->generate('nononsense_registro_enproceso');
+        $route = $this->container->get('router')->generate('nononsense_search');
         return $this->redirect($route);
 
     }
@@ -774,7 +774,7 @@ class RegistroConcretoController extends Controller
         $em->persist($firma);
         $em->flush();
 
-        $route = $this->container->get('router')->generate('nononsense_registro_enproceso');
+        $route = $this->container->get('router')->generate('nononsense_search');
         return $this->redirect($route);
     }
 
@@ -1291,7 +1291,7 @@ class RegistroConcretoController extends Controller
         $em->persist($registroViejo);
         $em->flush();
 
-        $route = $this->container->get('router')->generate('nononsense_registro_enproceso');
+        $route = $this->container->get('router')->generate('nononsense_search');
         return $this->redirect($route);
 
     }

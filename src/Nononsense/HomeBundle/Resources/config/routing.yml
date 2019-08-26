@@ -293,6 +293,10 @@ nononsense_peticion_reconciliacion_accion_solicitar:
     path:     /peticion_reconciliacion_accion_solicitar/{peticionid}
     defaults: { _controller: NononsenseHomeBundle:NuevoRegistro:SolicitarPeticion, peticionid: 0}
 
+nononsense_reconciliacion_history:
+    path:     /reconciliacion/history/{id}
+    defaults: { _controller: NononsenseHomeBundle:RegistroArchivo:reconciliacionHistory, id: 0}
+
 
 nononsense_search:
     path: /searcher
