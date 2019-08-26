@@ -434,7 +434,7 @@ class RegistroArchivoController extends Controller
             $i--;
         }
 
-        $registroViejo = $this->getDoctrine()
+        $registroNuevo = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
             ->find($id);
 
@@ -443,27 +443,27 @@ class RegistroArchivoController extends Controller
 
         while ($procesarReconciliaciones) {
             // Ver una posible reconciliación del registro viejo
-            $peticionReconciliacionAntigua = $this->getDoctrine()
+            $peticionReconciliacionNueva = $this->getDoctrine()
                 ->getRepository('NononsenseHomeBundle:ReconciliacionRegistro')
-                ->findOneBy(array("registro_viejo_id" => $registroViejo->getId()));
+                ->findOneBy(array("registro_viejo_id" => $registroNuevo->getId()));
 
-            if (isset($peticionReconciliacionAntigua)) {
-                $registroViejo = $peticionReconciliacionAntigua->getRegistroViejoEntity();
+            if (isset($peticionReconciliacionNueva)) {
+                $registroNuevo = $peticionReconciliacionNueva->getRegistroNuevoEntity();
 
-                $subcat = $registroViejo->getMasterWorkflowEntity()->getCategory()->getName();
-                $name = $registroViejo->getMasterWorkflowEntity()->getName();
+                $subcat = $registroNuevo->getMasterWorkflowEntity()->getCategory()->getName();
+                $name = $registroNuevo->getMasterWorkflowEntity()->getName();
 
                 $element = array(
-                    "id" => $registroViejo->getId(),
+                    "id" => $registroNuevo->getId(),
                     "subcat" => $subcat,
                     "name" => $name,
-                    "status" => $registroViejo->getStatus(),
-                    "fecha" => $registroViejo->getModified()
+                    "status" => $registroNuevo->getStatus(),
+                    "fecha" => $registroNuevo->getModified()
                 );
                 $documentsReconciliacion[$i] = $element;
 
             } else {
-                $registroViejo = null;
+                $registroNuevo = null;
                 $procesarReconciliaciones = false;
             }
 
