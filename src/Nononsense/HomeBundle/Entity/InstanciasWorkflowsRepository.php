@@ -395,8 +395,9 @@ class InstanciasWorkflowsRepository extends EntityRepository
             case "list":
                 $list = $this->createQueryBuilder('i')
                     ->select('i.id', 'i.usercreatedid','mw.name','u.name as creator','i.created','m.modified','m.lote','m.material','m.equipo','m.workordersap','mw.logbook','i.status','s.id as step','i.in_edition','mw.logbook','us.id as idNextSigner','r.registro_nuevo_id as id_reconciliado','mw.checklist as checklist','ch.id as chstep','ms.name as chname');
-                $list->addSelect("CASE  WHEN (SELECT COUNT(ela.step_id) FROM Nononsense\HomeBundle\Entity\FirmasStep ela WHERE ela.userEntiy=:el_user AND ela.step_id=s.id AND ela.elaboracion=1)>0 THEN 0 ELSE 1 AS validate");
+                $list->addSelect("CASE  WHEN ((SELECT COUNT(ela.step_id) FROM Nononsense\HomeBundle\Entity\FirmasStep ela WHERE ela.userEntiy=:el_user AND ela.step_id=s.id AND ela.elaboracion=1)>0 AND i.usercreatedid!=:el_user_id) THEN 0 ELSE 1 AS validate");
                 $list->setParameter('el_user', $user);
+                $list->setParameter('el_user_id', $user->getId());
 
                 break;
             case "count":
