@@ -29,7 +29,7 @@
                     <th>Acción</th>
                 </tr>
                 </thead>
-                {% for key,plantilla in documentsReconciliacion|ksort %}
+                {% for key,plantilla in documentsReconciliacion %}
                 <tr {{ key == 0 ? 'style="font-weight:bold"' : '' }}>
                     <td>{{plantilla.id}}</td>
                     <td>{{plantilla.subcat}}</td>
