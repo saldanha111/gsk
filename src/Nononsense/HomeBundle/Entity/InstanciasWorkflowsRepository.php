@@ -519,8 +519,9 @@ class InstanciasWorkflowsRepository extends EntityRepository
             }
 
             if (isset($filters["pending_for_me"])) {
-                $list->andWhere('(i.status IN (1,2,3,7,12,13,15) AND us.id=:user_id) OR ((i.status IN (4,5) OR (i.status=14 AND :fll=1)) AND s.id NOT IN (SELECT el.step_id FROM Nononsense\HomeBundle\Entity\FirmasStep el WHERE el.userEntiy=:el_user_aux AND el.step_id=s.id AND el.elaboracion=1)) OR i.status=0');
+                $list->andWhere('(i.status IN (1,2,3,7,12,13,15) AND us.id=:user_id) OR ((i.status IN (4,5) OR (i.status=14 AND :fll=1)) AND s.id NOT IN (SELECT el.step_id FROM Nononsense\HomeBundle\Entity\FirmasStep el WHERE el.userEntiy=:el_user_aux AND el.step_id=s.id AND el.elaboracion=1) AND i.usercreatedid!=:user_id2) OR i.status=0');
                 $list->setParameter('user_id', $user->getId());
+                $list->setParameter('user_id2', $user->getId());
                 $list->setParameter('el_user_aux', $user);
                 $list->setParameter('fll', $fll);
             }
