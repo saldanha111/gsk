@@ -478,7 +478,7 @@ class InstanciasWorkflowsRepository extends EntityRepository
                 $list->setParameter('sap', $filters["sap"]);
             }
 
-            if(isset($filters["fll"])){
+            if(isset($filters["fll"]) && $filters["fll"]=="1"){
                 $fll=1;
             }
             else{

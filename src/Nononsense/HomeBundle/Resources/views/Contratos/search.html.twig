@@ -12,13 +12,13 @@
     <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
         <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
         {{ flashMessage }}
-    </div>
+    </div><br>
     {% endfor %}
     {% for flashMessage in app.session.flashbag.get('success') %}
     <div class="alert alert-success alert-dismissable" style="margin: 10px 16px 0 16px">
         <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
         {{ flashMessage }}
-    </div>
+    </div><br>
     {% endfor %}
     <div class="row">
         <div class="col-sm-12">
@@ -210,8 +210,8 @@
                                         {% endif %}
                                     {% endif %}
 
-                                    {% if item.status == 14 and fll %}
-                                        {% if item.validate == 1 %}
+                                    {% if item.status == 14 %}
+                                        {% if item.validate == 1  and fll %}
                                             {% if item.in_edition == 0 %}
                                                 <a class="btn btn-xs btn-danger" name="verregistro" href="{{path('nononsense_ver_registro', {'revisionid': item.id})}}" target="_self"><i class="fa fa-check" aria-hidden="true"></i> Verificar</a>
                                             {% else %}

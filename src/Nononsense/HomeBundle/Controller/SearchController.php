@@ -36,7 +36,7 @@ class SearchController extends Controller
                 $fll = true;
             }
         }
-
+        
         $array_item["fll"]=$fll;
 
         $filters=Array();
