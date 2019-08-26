@@ -469,6 +469,8 @@ class RegistroArchivoController extends Controller
 
             $i++;
         }
+
+        ksort($documentsReconciliacion);
         
         return $this->render('NononsenseHomeBundle:Contratos:reconciliacion_history.html.twig', array(
             "documentsReconciliacion" => $documentsReconciliacion,
