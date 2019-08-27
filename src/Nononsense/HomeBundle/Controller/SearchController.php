@@ -54,7 +54,7 @@ class SearchController extends Controller
 
         $array_item["suser"]["id"]=$user->getId();
 
-        if(!$request->get("export_excel")){
+        if(!$request->get("export_excel") && !$request->get("export_pdf")){
             if($request->get("page")){
                 $filters["limit_from"]=$request->get("page")-1;
             }
@@ -85,26 +85,33 @@ class SearchController extends Controller
         }
         $array_item["pagination"]=\Nononsense\UtilsBundle\Classes\Utils::paginador($filters["limit_many"],$request,$url,$array_item["count"],"/", $parameters);
 
-        if(!$request->get("export_excel")){
+        if(!$request->get("export_excel") && !$request->get("export_pdf")){
             return $this->render('NononsenseHomeBundle:Contratos:search.html.twig',$array_item);
         }
         else{
             //Exportamos a Excel
+
+          if($request->get("export_excel")){
             $phpExcelObject = $this->get('phpexcel')->createPHPExcelObject();
 
-           $phpExcelObject->getProperties();
-           $phpExcelObject->setActiveSheetIndex(0)
-               ->setCellValue('A1', 'Nº')
-               ->setCellValue('B1', 'Nombre')
-               ->setCellValue('C1', 'Iniciado por')
-               ->setCellValue('D1', 'Fecha inicio')
-               ->setCellValue('E1', 'Ultima modificación')
-               ->setCellValue('F1', 'Lote')
-               ->setCellValue('G1', 'Num.equipo')
-               ->setCellValue('H1', 'Material')
-               ->setCellValue('I1', 'WO.SAP')
-               ->setCellValue('J1', 'Estado')
-               ->setCellValue('K1', 'Reconciliado');
+            $phpExcelObject->getProperties();
+            $phpExcelObject->setActiveSheetIndex(0)
+                 ->setCellValue('A1', 'Nº')
+                 ->setCellValue('B1', 'Nombre')
+                 ->setCellValue('C1', 'Iniciado por')
+                 ->setCellValue('D1', 'Fecha inicio')
+                 ->setCellValue('E1', 'Ultima modificación')
+                 ->setCellValue('F1', 'Lote')
+                 ->setCellValue('G1', 'Num.equipo')
+                 ->setCellValue('H1', 'Material')
+                 ->setCellValue('I1', 'WO.SAP')
+                 ->setCellValue('J1', 'Estado')
+                 ->setCellValue('K1', 'Reconciliado');
+          }
+
+          if($request->get("export_pdf")){
+            $html="<table style='font-size:11px;width:100%'><tr><th>Nº</th><th>Nombre</th><th>Iniciado por</th><th>Fecha inicio</th><th>Ultima modificación</th><th>Lote</th><th>Num.equipo</th><th>Material</th><th>WO.SAP</th><th>Estado</th><th>Reconciliado</th></tr>";
+          }
 
             $i=2;
             foreach($array_item["items"] as $item){
@@ -128,38 +135,49 @@ class SearchController extends Controller
                     default: $status="Desconocido";
                 }
 
-                $phpExcelObject->getActiveSheet()
-                ->setCellValue('A'.$i, $item["id"])
-               ->setCellValue('B'.$i, $item["name"])
-               ->setCellValue('C'.$i, $item["creator"])
-               ->setCellValue('D'.$i, ($item["created"]) ? $item["created"] : '')
-               ->setCellValue('E'.$i, ($item["modified"]) ? $item["modified"] : '')
-               ->setCellValue('F'.$i, $item["lote"])
-               ->setCellValue('G'.$i, $item["equipo"])
-               ->setCellValue('H'.$i, $item["material"])
-               ->setCellValue('I'.$i, $item["workordersap"])
-               ->setCellValue('J'.$i, $status)
-               ->setCellValue('K'.$i, $item["id_reconciliado"])
-               ;
+                if($request->get("export_excel")){
+                  $phpExcelObject->getActiveSheet()
+                  ->setCellValue('A'.$i, $item["id"])
+                 ->setCellValue('B'.$i, $item["name"])
+                 ->setCellValue('C'.$i, $item["creator"])
+                 ->setCellValue('D'.$i, ($item["created"]) ? $item["created"] : '')
+                 ->setCellValue('E'.$i, ($item["modified"]) ? $item["modified"] : '')
+                 ->setCellValue('F'.$i, $item["lote"])
+                 ->setCellValue('G'.$i, $item["equipo"])
+                 ->setCellValue('H'.$i, $item["material"])
+                 ->setCellValue('I'.$i, $item["workordersap"])
+                 ->setCellValue('J'.$i, $status)
+                 ->setCellValue('K'.$i, $item["id_reconciliado"]);
+               }
+               if($request->get("export_pdf")){
+                $html.='<tr><td>'.$item["id"].'</td><td>'.$item["name"].'</td><td>'.$item["creator"].'</td><td>'.(($item["created"]) ? $item["created"] : '').'</td><td>'.(($item["modified"]) ? $item["modified"] : '').'</td><td>'.$item["lote"].'</td><td>'.$item["equipo"].'</td><td>'.$item["material"].'</td><td>'.$item["workordersap"].'</td><td>'.$status.'</td><td>'.$item["id_reconciliado"].'</td></tr>';
+               }
                 $i++;
             }
-           $phpExcelObject->getActiveSheet()->setTitle('Listado de registros');
-           // Set active sheet index to the first sheet, so Excel opens this as the first sheet
-           $phpExcelObject->setActiveSheetIndex(0);
 
-            // create the writer
-            $writer = $this->get('phpexcel')->createWriter($phpExcelObject, 'Excel2007');
-            // create the response
-            $response = $this->get('phpexcel')->createStreamedResponse($writer);
-            // adding headers
-            $dispositionHeader = $response->headers->makeDisposition(
-                ResponseHeaderBag::DISPOSITION_ATTACHMENT,
-                'list_records.xlsx'
-            );
-            $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
-            $response->headers->set('Pragma', 'public');
-            $response->headers->set('Cache-Control', 'maxage=1');
-            $response->headers->set('Content-Disposition', $dispositionHeader);
+            if($request->get("export_excel")){
+              $phpExcelObject->getActiveSheet()->setTitle('Listado de registros');
+              // Set active sheet index to the first sheet, so Excel opens this as the first sheet
+              $phpExcelObject->setActiveSheetIndex(0);
+
+              // create the writer
+              $writer = $this->get('phpexcel')->createWriter($phpExcelObject, 'Excel2007');
+              // create the response
+              $response = $this->get('phpexcel')->createStreamedResponse($writer);
+              // adding headers
+              $dispositionHeader = $response->headers->makeDisposition(
+                  ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+                  'list_records.xlsx'
+              );
+              $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
+              $response->headers->set('Pragma', 'public');
+              $response->headers->set('Cache-Control', 'maxage=1');
+              $response->headers->set('Content-Disposition', $dispositionHeader);
+            }
+
+            if($request->get("export_pdf")){
+              $html.="</table>";
+            }
 
             return $response; 
         }
