@@ -218,7 +218,7 @@
                                                 <a class="btn btn-xs btn-secondary not-allowed"><i class="fa fa-lock"> </i> {{'En revision'|trans}}</a>
                                             {% endif %}
                                         {% else %}
-                                            <a href="#" class="btn btn-xs btn-warning disabled"><i class="fa fa-check" aria-hidden="true"></i> En verificación</a>
+                                            <a href="#" class="btn btn-xs btn-warning disabled"><i class="fa fa-check" aria-hidden="true"></i> En verificación FLL</a>
                                         {% endif %}
                                     {% endif %}
 
@@ -290,7 +290,7 @@
 
                             {% if item.checklist == 1 and (item.status == 4 or item.status == 7 or  item.status == 12 or item.status == 13 or item.status == 15 or item.status == 9 or item.status == 10) %}
                                 <tr style="background-color:#FFFFDD">
-                                    <td></td>
+                                    <td>{{item.id}}-CH1</td>
                                     <td>{{item.chname}}</td>
                                     <td>{{item.creator}}</td>
                                     <td>{{ item.created is defined ? item.created|date("d/m/Y") : '' }}</td>
@@ -368,7 +368,8 @@
                     
                     {% if pagination is defined and pagination.needed %}
                         {% include '::pagination2.html.twig' %}
-                        <a href="{{pagination.url}}{{pagination.character}}export_excel=1" target="_blank" class="btn btn-primary pull-right"><i class="fa fa-file-excel-o" aria-hidden="true"></i> Exportar a Excel</a>
+                        <a href="{{pagination.url}}{{pagination.character}}export_excel=1" target="_blank" class="btn btn-primary pull-right"><i class="fa fa-file-excel-o" aria-hidden="true"></i> Excel</a> 
+                        <a href="{{pagination.url}}{{pagination.character}}export_pdf=1" target="_blank" class="btn btn-primary pull-right" style="margin-right:1px"><i class="fa fa-file-pdf-o" aria-hidden="true"></i> PDF</a> 
                     {% endif %}
                     
                     {% if count==0 %}

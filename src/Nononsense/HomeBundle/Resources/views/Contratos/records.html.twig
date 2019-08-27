@@ -14,6 +14,12 @@
                 <div class="row">
                     <form class="form-horizontal" id="form_item" action="{{ path('nononsense_records')}}" method="GET">
                         <div class="form-group">
+                            <label class="col-sm-1 control-label">Contenido</label>
+                            <div class="col-sm-9 item_filter">
+                                <input type="text" name="content" class="form-control" value="{{filters.content is defined ? filters.content : ''}}">
+                            </div>
+                        </div>
+                        <div class="form-group">
 
                             <label class="col-sm-1 control-label item_filter">Nombre</label>
                             <div class="col-sm-2 item_filter">

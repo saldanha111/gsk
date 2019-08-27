@@ -48,6 +48,14 @@ class RecordsDocumentsRepository extends EntityRepository
                 
             }
 
+            if(isset($filters["content"])){
+                $terms = explode(" ", $filters["content"]);
+                foreach($terms as $key => $term){
+                    $list->andWhere('r.stepDataValue LIKE :content'.$key);
+                    $list->setParameter('content'.$key, '%' . $term. '%');
+                }
+            }
+
             if(isset($filters["type"])){
                 $list->andWhere('r.type=:type');
                 $list->setParameter('type', $filters["type"]);

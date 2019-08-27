@@ -14,6 +14,7 @@ use Nononsense\HomeBundle\Entity\RecordsDocuments;
 use Nononsense\HomeBundle\Entity\DocumentsSignatures;
 use Nononsense\HomeBundle\Entity\RecordsSignatures;
 use Nononsense\HomeBundle\Entity\Types;
+use Nononsense\GroupBundle\Entity\GroupUsers;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Nononsense\HomeBundle\Form\Type as FormProveedor;
@@ -74,6 +75,10 @@ class RecordsController extends Controller
             $filters["limit_many"]=99999999999;
         }
 
+        if($request->get("content")){
+            $filters["content"]=$request->get("content");
+            $filters2["content"]=$request->get("content");
+        }
 
         if($request->get("name")){
             $filters["name"]=$request->get("name");
@@ -496,6 +501,10 @@ class RecordsController extends Controller
             ->find($id);
 
         if(!$record){
+            $this->get('session')->getFlashBag()->add(
+                    'error',
+                    "Error desconocido al intentar guardar los datos del documento"
+            );
             return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
         }
 
@@ -520,6 +529,10 @@ class RecordsController extends Controller
                 ->findOneBy(array("record"=>$record,"next"=>1));
 
             if(!$signature){
+                $this->get('session')->getFlashBag()->add(
+                    'error',
+                    "No puede firmar este documento. Es posible que el documento ya haya sido firmado por otro usuario"
+                );
                 return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
             }
 
@@ -539,10 +552,18 @@ class RecordsController extends Controller
             }
 
             if(!$can_sign){
+                $this->get('session')->getFlashBag()->add(
+                    'error',
+                    "No puede firmar este documento. Es posible que el documento ya haya sido firmado por otro usuario"
+                );
                 return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
             }
 
             if($record->getStatus()!=2){
+                $this->get('session')->getFlashBag()->add(
+                    'error',
+                    "No puede firmar este documento. Es posible que el documento ya haya sido firmado por otro usuario"
+                );
                 return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
             }
 
@@ -595,6 +616,10 @@ class RecordsController extends Controller
                     ->findOneBy(array("record"=>$record,"next"=>1));
 
                 if(!$signature){
+                    $this->get('session')->getFlashBag()->add(
+                        'error',
+                        "No puede firmar este documento. Es posible que el documento ya haya sido firmado por otro usuario"
+                    );
                     return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
                 }
 
@@ -615,6 +640,10 @@ class RecordsController extends Controller
 
                 if(!$can_sign){
                     if($record->getStatus()==2){
+                        $this->get('session')->getFlashBag()->add(
+                            'error',
+                            "No puede firmar este documento. Es posible que el documento ya haya sido firmado por otro usuario"
+                        );
                         return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
                     }
                     else{
@@ -686,6 +715,10 @@ class RecordsController extends Controller
             ->findOneBy(array("id" => $id, "status" => 2));
 
         if(!$record){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                "No puede firmar este documento. Es posible que el documento ya haya sido firmado por otro usuario"
+            );
             return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
         }
 
@@ -694,6 +727,10 @@ class RecordsController extends Controller
             ->findOneBy(array("record"=>$record,"next"=>1));
 
         if(!$signature){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                "No puede firmar este documento. Es posible que el documento ya haya sido firmado por otro usuario"
+            );
             return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
         }
 
@@ -713,11 +750,19 @@ class RecordsController extends Controller
         }
 
         if(!$can_sign){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                "No puede firmar este documento. Es posible que el documento ya haya sido firmado por otro usuario"
+            );
             return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
         }
 
         if($signature->getAttachment()){
             if(!$request->files->get('anexo')){
+                $this->get('session')->getFlashBag()->add(
+                    'error',
+                    "Es necesario adjuntar un anexo para poder firmar este documento"
+                );
                 return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
             }
             else{
@@ -743,22 +788,29 @@ class RecordsController extends Controller
             $send_email=0;
             if($signature2->getUserEntiy()){
                 $send_email=1;
-                $email=$signature2->getUserEntiy()->getEmail();
-                
+                $emails[]=$signature2->getUserEntiy()->getEmail();
             }
             else{
                 if($signature2->getEmail()){
                    $send_email=1; 
-                   $email=$signature2->getEmail();
+                   $emails[]=$signature2->getEmail();
+                }
+                else{
+                    $aux_users = $em->getRepository(GroupUsers::class)->findBy(["group" => $signature2->getGroupEntiy()]);
+                    foreach ($aux_users as $aux_user) {
+                        $emails[]=$aux_user->getUser()->getEmail();
+                    }
                 }
             }
 
             if($send_email==1){
-                $subject="Documento pendiente de firma";
-                $mensaje='El Documento con ID '.$record->getId().' está pendiente de firmar por su parte. Para hacerlo puede acceder a "Mis documentos pendientes", buscar el documento y pulsar en Firmar';
-                $baseURL=$this->container->get('router')->generate('nononsense_records_edit', array("id" => $record->getId()),TRUE);
-                
-                $this->_sendNotification($email, $baseURL, "", "", $subject, $mensaje);
+                foreach($emails as $email){
+                    $subject="Documento pendiente de firma";
+                    $mensaje='El Documento con ID '.$record->getId().' está pendiente de revisión por su parte. Para poder revisarlo puede acceder a "Mis documentos pendientes", buscar el documento y pulsar en Firmar';
+                    $baseURL=$this->container->get('router')->generate('nononsense_records_edit', array("id" => $record->getId()),TRUE);
+                    
+                    $this->_sendNotification($email, $baseURL, "", "", $subject, $mensaje);
+                }
             }
         }
         else{
@@ -1090,57 +1142,58 @@ class RecordsController extends Controller
         $step3=0;
         $step4=0;
         
+        foreach($dataJson->varValues->u_tipo_material as $key => $material_value){
+            if(urldecode($dataJson->varValues->u_check3[1])!="" && urldecode($dataJson->varValues->u_check4[1])==""){
+                $anexo=1;
+            }
 
-        if(urldecode($dataJson->varValues->u_check3[1])!="" && urldecode($dataJson->varValues->u_check4[1])==""){
-            $anexo=1;
-        }
+            if(urldecode($dataJson->varValues->u_check4[2])!="" && (urldecode($dataJson->varValues->u_check3[3])!="" || urldecode($dataJson->varValues->u_check3[4])!="") && urldecode($dataJson->varValues->u_tipo_material[$key])!="ZINT REG" && urldecode($dataJson->varValues->u_tipo_material[$key])!="ZCOM NO Impreso"){
+                $anexo=1;
+            }
 
-        if(urldecode($dataJson->varValues->u_check4[2])!="" && (urldecode($dataJson->varValues->u_check3[3])!="" || urldecode($dataJson->varValues->u_check3[4])!="") && urldecode($dataJson->varValues->u_tipo_material[0])!="ZINT REG" && urldecode($dataJson->varValues->u_tipo_material[0])!="ZCOM NO Impreso"){
-            $anexo=1;
-        }
-
-        switch(urldecode($dataJson->varValues->u_tipo_material[0])){
-            case "ZINT REG":
-            case "ZINT PRU":
-                $step4=1;
-                break;
-            case "ZNBW":
-                $almacen=1;
-                $responsable_almacen=1;
-                break;
-            case "ZCOM Impreso":
-                if(urldecode($dataJson->varValues->u_check2[0])!=""){
+            switch(urldecode($dataJson->varValues->u_tipo_material[$key])){
+                case "ZINT REG":
+                case "ZINT PRU":
                     $step4=1;
+                    break;
+                case "ZNBW":
+                    $almacen=1;
+                    $responsable_almacen=1;
+                    break;
+                case "ZCOM Impreso":
+                    if(urldecode($dataJson->varValues->u_check2[$key])=="Si"){
+                        $step4=1;
+                    }
+                    else{
+                        $logistica=1;
+                        $step4=1;
+                    }
+                    break;
+                default:
+                    $step3=1;
+                    break;
+            }
+
+            if($step3){
+                if(urldecode($dataJson->varValues->u_check3[2])!="" && urldecode($dataJson->varValues->u_check4[0])==""){
+                    $almacen=1;
+                    $responsable_almacen=1;
                 }
                 else{
                     $logistica=1;
                     $step4=1;
                 }
-                break;
-            default:
-                $step3=1;
-                break;
-        }
+            }
 
-        if($step3){
-            if(urldecode($dataJson->varValues->u_check3[2])!="" && urldecode($dataJson->varValues->u_check4[0])==""){
-                $almacen=1;
-                $responsable_almacen=1;
-            }
-            else{
-                $logistica=1;
-                $step4=1;
-            }
-        }
-
-        /* Miramos Logística */
-        if($step4){
-            if(urldecode($dataJson->varValues->u_check4[0])!="" && urldecode($dataJson->varValues->u_check3[2])!=""){
-                $calidad=1;
-            }
-            else{
-                $almacen=1;
-                $responsable_almacen=1;
+            /* Miramos Logística */
+            if($step4){
+                if(urldecode($dataJson->varValues->u_check4[0])!="" && urldecode($dataJson->varValues->u_check3[2])!=""){
+                    $calidad=1;
+                }
+                else{
+                    $almacen=1;
+                    $responsable_almacen=1;
+                }
             }
         }
 

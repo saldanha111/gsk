@@ -26,8 +26,8 @@ use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 class SearchController extends Controller
 {
-    public function listAction(Request $request)
-    {
+    public function listAction(Request $request){
+
         $user = $this->container->get('security.context')->getToken()->getUser();
         $fll=false;
         foreach ($user->getGroups() as $groupMe) {
@@ -36,7 +36,7 @@ class SearchController extends Controller
                 $fll = true;
             }
         }
-        
+
         $array_item["fll"]=$fll;
 
         $filters=Array();
@@ -68,7 +68,7 @@ class SearchController extends Controller
             $filters["limit_many"]=99999999999;
         }
 
-        
+
         $array_item["suser"]["id"]=$user->getId();
         $array_item["filters"]=$filters;
         $array_item["items"] = $this->getDoctrine()->getRepository(InstanciasWorkflows::class)->search("list",$filters);
@@ -91,11 +91,11 @@ class SearchController extends Controller
         else{
             //Exportamos a Excel
 
-          if($request->get("export_excel")){
-            $phpExcelObject = $this->get('phpexcel')->createPHPExcelObject();
+            if($request->get("export_excel")){
+                $phpExcelObject = $this->get('phpexcel')->createPHPExcelObject();
 
-            $phpExcelObject->getProperties();
-            $phpExcelObject->setActiveSheetIndex(0)
+                $phpExcelObject->getProperties();
+                $phpExcelObject->setActiveSheetIndex(0)
                  ->setCellValue('A1', 'Nº')
                  ->setCellValue('B1', 'Nombre')
                  ->setCellValue('C1', 'Iniciado por')
@@ -107,11 +107,11 @@ class SearchController extends Controller
                  ->setCellValue('I1', 'WO.SAP')
                  ->setCellValue('J1', 'Estado')
                  ->setCellValue('K1', 'Reconciliado');
-          }
+            }
 
-          if($request->get("export_pdf")){
-            $html="<table style='font-size:11px;width:100%'><tr><th>Nº</th><th>Nombre</th><th>Iniciado por</th><th>Fecha inicio</th><th>Ultima modificación</th><th>Lote</th><th>Num.equipo</th><th>Material</th><th>WO.SAP</th><th>Estado</th><th>Reconciliado</th></tr>";
-          }
+            if($request->get("export_pdf")){
+                $html='<html><body style="font-size:8px;width:100%"><table autosize="1" style="overflow:wrap;width:100%"><tr style="font-size:8px;width:100%"><th style="font-size:8px;width:6%">Nº</th><th style="font-size:8px;width:49%">Nombre</th><th style="font-size:8px;width:10%">Iniciado por</th><th style="font-size:8px;width:10%">F. inicio</th><th style="font-size:8px;width:10%">F. modific.</th><th style="font-size:8px;width:10%">Estado</th><th style="font-size:8px;width:5%">Reconc.</th></tr>';
+            }
 
             $i=2;
             foreach($array_item["items"] as $item){
@@ -136,52 +136,94 @@ class SearchController extends Controller
                 }
 
                 if($request->get("export_excel")){
-                  $phpExcelObject->getActiveSheet()
-                  ->setCellValue('A'.$i, $item["id"])
-                 ->setCellValue('B'.$i, $item["name"])
-                 ->setCellValue('C'.$i, $item["creator"])
-                 ->setCellValue('D'.$i, ($item["created"]) ? $item["created"] : '')
-                 ->setCellValue('E'.$i, ($item["modified"]) ? $item["modified"] : '')
-                 ->setCellValue('F'.$i, $item["lote"])
-                 ->setCellValue('G'.$i, $item["equipo"])
-                 ->setCellValue('H'.$i, $item["material"])
-                 ->setCellValue('I'.$i, $item["workordersap"])
-                 ->setCellValue('J'.$i, $status)
-                 ->setCellValue('K'.$i, $item["id_reconciliado"]);
-               }
-               if($request->get("export_pdf")){
-                $html.='<tr><td>'.$item["id"].'</td><td>'.$item["name"].'</td><td>'.$item["creator"].'</td><td>'.(($item["created"]) ? $item["created"] : '').'</td><td>'.(($item["modified"]) ? $item["modified"] : '').'</td><td>'.$item["lote"].'</td><td>'.$item["equipo"].'</td><td>'.$item["material"].'</td><td>'.$item["workordersap"].'</td><td>'.$status.'</td><td>'.$item["id_reconciliado"].'</td></tr>';
-               }
+                    $phpExcelObject->getActiveSheet()
+                    ->setCellValue('A'.$i, $item["id"])
+                    ->setCellValue('B'.$i, $item["name"])
+                    ->setCellValue('C'.$i, $item["creator"])
+                    ->setCellValue('D'.$i, ($item["created"]) ? $item["created"] : '')
+                    ->setCellValue('E'.$i, ($item["modified"]) ? $item["modified"] : '')
+                    ->setCellValue('F'.$i, $item["lote"])
+                    ->setCellValue('G'.$i, $item["equipo"])
+                    ->setCellValue('H'.$i, $item["material"])
+                    ->setCellValue('I'.$i, $item["workordersap"])
+                    ->setCellValue('J'.$i, $status)
+                    ->setCellValue('K'.$i, $item["id_reconciliado"]);
+
+                    if($item["checklist"] == 1 && ($item["status"] == 4 || $item["status"] == 7 || $item["status"] == 12 || $item["status"] == 13 || $item["status"] == 15 || $item["status"] == 9 || $item["status"] == 10)){
+                        $i++;
+                        $phpExcelObject->getActiveSheet()
+                            ->setCellValue('A'.$i, $item["id"]."-CH1")
+                            ->setCellValue('B'.$i, $item["chname"])
+                            ->setCellValue('C'.$i, $item["creator"])
+                            ->setCellValue('D'.$i, ($item["created"]) ? $item["created"] : '')
+                            ->setCellValue('E'.$i, ($item["modified"]) ? $item["modified"] : '')
+                            ->setCellValue('F'.$i, $item["lote"])
+                            ->setCellValue('G'.$i, $item["equipo"])
+                            ->setCellValue('H'.$i, $item["material"])
+                            ->setCellValue('I'.$i, $item["workordersap"])
+                            ->setCellValue('J'.$i, $status)
+                            ->setCellValue('K'.$i, '');
+                    }
+                }
+
+                if($request->get("export_pdf")){
+                    $html.='<tr style="font-size:8px"><td>'.$item["id"].'</td><td>'.$item["name"].'</td><td>'.$item["creator"].'</td><td>'.(($item["created"]) ? $item["created"]->format('Y-m-d H:i:s') : '').'</td><td>'.(($item["modified"]) ? $item["modified"]->format('Y-m-d H:i:s') : '').'</td><td>'.$status.'</td><td>'.$item["id_reconciliado"].'</td></tr>';
+                    if($item["checklist"] == 1 && ($item["status"] == 4 || $item["status"] == 7 || $item["status"] == 12 || $item["status"] == 13 || $item["status"] == 15 || $item["status"] == 9 || $item["status"] == 10)){
+                        $i++;
+                        $html.='<tr style="font-size:8px"><td>'.$item["id"].'-CH1</td><td>'.$item["chname"].'</td><td>'.$item["creator"].'</td><td>'.(($item["created"]) ? $item["created"]->format('Y-m-d H:i:s') : '').'</td><td>'.(($item["modified"]) ? $item["modified"]->format('Y-m-d H:i:s') : '').'</td><td>'.$status.'</td><td></td></tr>';
+                    }
+                }
+
                 $i++;
             }
 
             if($request->get("export_excel")){
-              $phpExcelObject->getActiveSheet()->setTitle('Listado de registros');
-              // Set active sheet index to the first sheet, so Excel opens this as the first sheet
-              $phpExcelObject->setActiveSheetIndex(0);
+                $phpExcelObject->getActiveSheet()->setTitle('Listado de registros');
+                // Set active sheet index to the first sheet, so Excel opens this as the first sheet
+                $phpExcelObject->setActiveSheetIndex(0);
 
-              // create the writer
-              $writer = $this->get('phpexcel')->createWriter($phpExcelObject, 'Excel2007');
-              // create the response
-              $response = $this->get('phpexcel')->createStreamedResponse($writer);
-              // adding headers
-              $dispositionHeader = $response->headers->makeDisposition(
+                // create the writer
+                $writer = $this->get('phpexcel')->createWriter($phpExcelObject, 'Excel2007');
+                // create the response
+                $response = $this->get('phpexcel')->createStreamedResponse($writer);
+                // adding headers
+                $dispositionHeader = $response->headers->makeDisposition(
                   ResponseHeaderBag::DISPOSITION_ATTACHMENT,
                   'list_records.xlsx'
-              );
-              $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
-              $response->headers->set('Pragma', 'public');
-              $response->headers->set('Cache-Control', 'maxage=1');
-              $response->headers->set('Content-Disposition', $dispositionHeader);
+                );
+                $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
+                $response->headers->set('Pragma', 'public');
+                $response->headers->set('Cache-Control', 'maxage=1');
+                $response->headers->set('Content-Disposition', $dispositionHeader);
+
+                return $response; 
             }
 
             if($request->get("export_pdf")){
-              $html.="</table>";
+                $html.='</table></body></html>';
+                $this->returnPDFResponseFromHTML($html);
             }
-
-            return $response; 
         }
-        
-        
+    }
+
+    private function returnPDFResponseFromHTML($html){
+        //set_time_limit(30); uncomment this line according to your needs
+        // If you are not in a controller, retrieve of some way the service container and then retrieve it
+        //$pdf = $this->container->get("white_october.tcpdf")->create('vertical', PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+        //if you are in a controlller use :
+        $pdf = $this->get("white_october.tcpdf")->create('horizontal', PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+        $pdf->SetAuthor('GSK');
+        $pdf->SetTitle(('Registros GSK'));
+        $pdf->SetSubject('Registros GSK');
+        $pdf->setFontSubsetting(true);
+        $pdf->SetFont('helvetica', '', 9, '', true);
+        //$pdf->SetMargins(20,20,40, true);
+        $pdf->AddPage('L', 'A4');
+
+
+        $filename = 'list_records';
+
+        $pdf->writeHTMLCell($w = 0, $h = 0, $x = '', $y = '', $html, $border = 0, $ln = 1, $fill = 0, $reseth = true, $align = '', $autopadding = true);
+        $pdf->Output($filename.".pdf",'I'); // This will output the PDF as a response directly
     }
 }
