@@ -33,6 +33,10 @@ class ActivityController extends Controller
 
         $user = $this->container->get('security.context')->getToken()->getUser();
 
+        if (false === $this->get('security.authorization_checker')->isGranted('ROLE_ADMIN')) {
+            return $this->redirect($this->generateUrl('nononsense_groups_homepage'));
+        }
+
         $filters=Array();
         $filters2=Array();
         $types=array();
@@ -53,11 +57,17 @@ class ActivityController extends Controller
             else{
                 $filters["limit_from"]=0;
             }
-            $filters["limit_many"]=15;
+
+            if($request->get("malimit_manyny")){
+                $filters["limit_many"]=$request->get("limit_many");
+            }
+            else{
+               $filters["limit_many"]=99999999999999; 
+            }
         }
         else{
             $filters["limit_from"]=0;
-            $filters["limit_many"]=99999999999;
+            $filters["limit_many"]=99999999999999;
         }
 
 

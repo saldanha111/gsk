@@ -1,8 +1,8 @@
 <table id="inProcessParcial" class="table table-striped">
     <thead>
     <tr>
-        <th>Plantilla</th>
         <th>Usuario</th>
+        <th>Plantilla</th>
         <th>Acción</th>
         <th>Tiempo</th>
     </tr>
@@ -10,8 +10,8 @@
     {% if items is defined %}
         {% for item in items %}
             <tr>
-                <td>{{item.name}}</td>
                 <td>{{item.creator}}</td>
+                <td>{{item.name}}</td>
                 <td>{{item.accion|capitalize}}</td>
                 <td>{{item.formatDuration}}</td>
             </tr>
