@@ -58,7 +58,7 @@ class ActivityController extends Controller
                 $filters["limit_from"]=0;
             }
 
-            if($request->get("malimit_manyny")){
+            if($request->get("limit_many")){
                 $filters["limit_many"]=$request->get("limit_many");
             }
             else{
