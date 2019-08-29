@@ -169,12 +169,14 @@
                             <br><b>No se han encontrado datos disponibles</b>
                         {% endif %}
                     </div>
-                    <div class="col-sm-8 col-sm-offset-2">
-                        <br><br>
-                        <div class="box-body">
-                            <canvas id="pieChart" style="height:250px"></canvas>
+                    {% if items is defined and filters.group is defined %}
+                        <div class="col-sm-8 col-sm-offset-2">
+                            <br><br>
+                            <div class="box-body">
+                                <canvas id="pieChart" style="height:250px"></canvas>
+                            </div>
                         </div>
-                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
