@@ -10,7 +10,7 @@ namespace Nononsense\HomeBundle\Entity;
 
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Tools\Pagination\Paginator;
-
+use DoctrineExtensions\Query\Mysql;
 
 /**
  * ActivityUserRepository
@@ -21,5 +21,207 @@ use Doctrine\ORM\Tools\Pagination\Paginator;
 class ActivityUserRepository extends EntityRepository
 {
 
+	public function search($type,$filters)
+    {
+        $em = $this->getEntityManager();
 
+        if(!empty($filters)){
+            if (isset($filters["user"])) {
+                $user = $filters["user"];
+            }
+        }
+
+        switch($type){
+            case "list":
+	            if(isset($filters["group"])){
+	                switch($filters["group"]){
+	                	case 1: 
+	                		$list = $this->createQueryBuilder('a')
+		                    	->select('a.accion','COUNT(a.id) as conta');
+		                	$list->addSelect("SUM(TIME_TO_SEC(TIME_DIFF(a.salida,a.entrada))) as duration");
+	                		break;
+	                	case 2:
+	                		$list = $this->createQueryBuilder('a')
+		                    	->select('i.usercreatedid','u.name as creator','COUNT(a.id) as conta');
+		                	$list->addSelect("SUM(TIME_TO_SEC(TIME_DIFF(a.salida,a.entrada))) as duration");
+	                		break;
+	                	case 3:
+	                		$list = $this->createQueryBuilder('a')
+		                    	->select('ms.id','ms.name','COUNT(a.id) as conta');
+		                	$list->addSelect("SUM(TIME_TO_SEC(TIME_DIFF(a.salida,a.entrada))) as duration");
+	                		break;
+	                	case 4:
+	                		$list = $this->createQueryBuilder('a')
+		                    	->select('a.accion','i.usercreatedid','u.name as creator','COUNT(a.id) as conta');
+		                	$list->addSelect("SUM(TIME_TO_SEC(TIME_DIFF(a.salida,a.entrada))) as duration");
+	                		break;
+	                	case 5:
+	                		$list = $this->createQueryBuilder('a')
+		                    	->select('a.accion','ms.id','ms.name','COUNT(a.id) as conta');
+		                	$list->addSelect("SUM(TIME_TO_SEC(TIME_DIFF(a.salida,a.entrada))) as duration");
+	                		break;
+	                	case 6:
+	                		$list = $this->createQueryBuilder('a')
+		                    	->select('ms.id','ms.name','i.usercreatedid','u.name as creator','COUNT(a.id) as conta');
+		                	$list->addSelect("SUM(TIME_TO_SEC(TIME_DIFF(a.salida,a.entrada))) as duration");
+	                		break;
+	                	case 7:
+	                		$list = $this->createQueryBuilder('a')
+		                    	->select('a.accion','ms.id','ms.name','i.usercreatedid','u.name as creator','COUNT(a.id) as conta');
+		                	$list->addSelect("SUM(TIME_TO_SEC(TIME_DIFF(a.salida,a.entrada))) as duration");
+	                		break;
+	                }
+	            }
+	            else{
+                	$list = $this->createQueryBuilder('a')
+                    	->select('a.id','i.id id_reg', 'i.usercreatedid','ms.name','u.name as creator','a.entrada','a.salida','m.lote','m.material','m.equipo','m.workordersap','i.status','s.id as step','i.in_edition','a.accion');
+                	$list->addSelect("TIME_TO_SEC(TIME_DIFF(a.salida,a.entrada)) as duration");
+                }
+
+                break;
+            case "count":
+                $list = $this->createQueryBuilder('a')
+                    ->select('COUNT(a.id) as conta');
+                    
+                break;
+        }
+
+        $list->leftJoin("a.stepEntity", "s")
+        	->leftJoin("s.instancia_workflow", "i")
+            ->leftJoin("s.master_step", "ms")
+            ->leftJoin("a.userEntiy", "u")
+            ->leftJoin("i.metaData", "m")
+            ->andWhere('a.actionID>0')
+            ->andWhere('a.status=1')
+            ->orderBy('i.id', 'DESC');
+
+
+
+        if(!empty($filters)){
+
+            if(isset($filters["id"])){
+                $list->andWhere('i.id=:id');
+                $list->setParameter('id', $filters["id"]);
+            }
+
+            if(isset($filters["plantilla_id"])){
+                $list->andWhere('ms.plantilla_id=:plantilla_id');
+                $list->setParameter('plantilla_id', $filters["plantilla_id"]);
+            }
+
+            if(isset($filters["name"])){
+                $terms = explode(" ", $filters["name"]);
+                foreach($terms as $key => $term){
+                    $list->andWhere('ms.name LIKE :name'.$key);
+                    $list->setParameter('name'.$key, '%' . $term. '%');
+                }
+            }
+
+            if(isset($filters["creator"])){
+                $terms = explode(" ", $filters["creator"]);
+                foreach($terms as $key => $term){
+                    $list->andWhere('u.name LIKE :creator'.$key);
+                    $list->setParameter('creator'.$key, '%' . $term. '%');
+                }
+            }
+
+            if(isset($filters["content"])){
+                $terms = explode(" ", $filters["content"]);
+                foreach($terms as $key => $term){
+                    $list->andWhere('s.stepDataValue LIKE :content'.$key);
+                    $list->setParameter('content'.$key, '%' . $term. '%');
+                }
+            }
+
+            if(isset($filters["lot"])){
+                $list->andWhere('m.lote=:lot');
+                $list->setParameter('lot', $filters["lot"]);
+            }
+
+            if(isset($filters["material"])){
+                $list->andWhere('m.material=:material');
+                $list->setParameter('material', $filters["material"]);
+            }
+
+            if(isset($filters["equipment_number"])){
+                $list->andWhere('m.equipo=:equipment_number');
+                $list->setParameter('equipment_number', $filters["equipment_number"]);
+            }
+
+            if(isset($filters["sap"])){
+                $list->andWhere('m.workordersap=:sap');
+                $list->setParameter('sap', $filters["sap"]);
+            }
+
+
+            if(isset($filters["action"])){
+                $list->andWhere('a.actionID=:action');
+                $list->setParameter('action', $filters["action"]);
+            }
+
+            if(isset($filters["from"])){
+                $list->andWhere('a.entrada>=:from');
+                $list->setParameter('from', $filters["from"]);
+            }
+
+            if(isset($filters["until"])){
+                $list->andWhere('a.salida<=:until');
+                $list->setParameter('until', $filters["until"]." 23:59:00");
+            }
+
+            if(isset($filters["group"])){
+                switch($filters["group"]){
+                	case 1: 
+                		$list->groupBy('a.actionID');
+                		break;
+                	case 2:
+                		$list->groupBy('i.usercreatedid');
+                		break;
+                	case 3:
+                		$list->groupBy('ms.id');
+                		break;
+                	case 4:
+                		$list->groupBy('a.actionID')
+                			->addGroupBy('i.usercreatedid');
+                		break;
+                	case 5:
+                		$list->groupBy('a.actionID')
+                			->addGroupBy('ms.id');
+                		break;
+                	case 6:
+                		$list->groupBy('i.usercreatedid')
+                			->addGroupBy('ms.id');
+                		break;
+                	case 7:
+                		$list->groupBy('i.usercreatedid')
+                			->addGroupBy('ms.id')
+                			->addGroupBy('a.actionID');
+                		break;
+                }
+            }
+
+        }
+
+
+        if(isset($filters["limit_from"])){
+            $list->setFirstResult($filters["limit_from"]*$filters["limit_many"])->setMaxResults($filters["limit_many"]);
+        }
+
+        $query = $list->getQuery();
+
+
+        switch($type){
+            case "list":
+                return $query->getResult();
+                break;
+            case "count":
+            	if(!isset($filters["group"])){
+	                return $query->getSingleResult()["conta"];
+	            }
+	            else{
+	            	return count($query->getResult());
+	            }
+                break;
+        }
+    }
 }
