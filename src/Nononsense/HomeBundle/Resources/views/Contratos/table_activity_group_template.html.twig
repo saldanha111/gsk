@@ -1,0 +1,18 @@
+<table id="inProcessParcial" class="table table-striped">
+    <thead>
+    <tr>
+        <th>Plantilla</th>
+        <th>Tiempo</th>
+        <th>Número de acciones<th>
+    </tr>
+    </thead>
+    {% if items is defined %}
+        {% for item in items %}
+            <tr>
+                <td>{{item.name}}</td>
+                <td>{{item.formatDuration}}</td>
+                <td>{{item.conta}}</td>
+            </tr>
+        {% endfor %}
+    {% endif %}
+</table>

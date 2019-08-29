@@ -95,6 +95,10 @@ doctrine:
     orm:
         auto_generate_proxy_classes: "%kernel.debug%"
         auto_mapping: true
+        dql:
+            datetime_functions:
+                time_diff: DoctrineExtensions\Query\Mysql\TimeDiff
+                time_to_sec: DoctrineExtensions\Query\Mysql\TimeToSec 
 
 # Swiftmailer Configuration
 swiftmailer:

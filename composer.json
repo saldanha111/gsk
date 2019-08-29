@@ -22,7 +22,8 @@
         "pulpmedia/p3pcookiebundle": "~1.0@dev",
         "endroid/qrcode": "*",
         "liuggio/excelbundle": "^2.1",
-        "whiteoctober/tcpdf-bundle": "^1.1"
+        "whiteoctober/tcpdf-bundle": "^1.1",
+        "beberlei/doctrineextensions": "^1.2"
     },
     "require-dev": {
         "sensio/generator-bundle": "~2.3"
