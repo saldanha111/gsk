@@ -42,7 +42,7 @@ class ActivityUserRepository extends EntityRepository
 	                		break;
 	                	case 2:
 	                		$list = $this->createQueryBuilder('a')
-		                    	->select('i.usercreatedid','u.name as creator','COUNT(a.id) as conta');
+		                    	->select('u.id as usercreatedid','u.name as creator','COUNT(a.id) as conta');
 		                	$list->addSelect("SUM(TIME_TO_SEC(TIME_DIFF(a.salida,a.entrada))) as duration");
 	                		break;
 	                	case 3:
@@ -52,7 +52,7 @@ class ActivityUserRepository extends EntityRepository
 	                		break;
 	                	case 4:
 	                		$list = $this->createQueryBuilder('a')
-		                    	->select('a.accion','i.usercreatedid','u.name as creator','COUNT(a.id) as conta');
+		                    	->select('a.accion','u.id as usercreatedid','u.name as creator','COUNT(a.id) as conta');
 		                	$list->addSelect("SUM(TIME_TO_SEC(TIME_DIFF(a.salida,a.entrada))) as duration");
 	                		break;
 	                	case 5:
@@ -62,12 +62,12 @@ class ActivityUserRepository extends EntityRepository
 	                		break;
 	                	case 6:
 	                		$list = $this->createQueryBuilder('a')
-		                    	->select('ms.id','ms.name','i.usercreatedid','u.name as creator','COUNT(a.id) as conta');
+		                    	->select('ms.id','ms.name','u.id as usercreatedid','u.name as creator','COUNT(a.id) as conta');
 		                	$list->addSelect("SUM(TIME_TO_SEC(TIME_DIFF(a.salida,a.entrada))) as duration");
 	                		break;
 	                	case 7:
 	                		$list = $this->createQueryBuilder('a')
-		                    	->select('a.accion','ms.id','ms.name','i.usercreatedid','u.name as creator','COUNT(a.id) as conta');
+		                    	->select('a.accion','ms.id','ms.name','u.id as usercreatedid','u.name as creator','COUNT(a.id) as conta');
 		                	$list->addSelect("SUM(TIME_TO_SEC(TIME_DIFF(a.salida,a.entrada))) as duration");
 	                		break;
 	                }
