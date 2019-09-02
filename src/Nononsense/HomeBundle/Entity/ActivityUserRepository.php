@@ -175,25 +175,25 @@ class ActivityUserRepository extends EntityRepository
                 		$list->groupBy('a.actionID');
                 		break;
                 	case 2:
-                		$list->groupBy('i.usercreatedid');
+                		$list->groupBy('u.id');
                 		break;
                 	case 3:
                 		$list->groupBy('ms.id');
                 		break;
                 	case 4:
                 		$list->groupBy('a.actionID')
-                			->addGroupBy('i.usercreatedid');
+                			->addGroupBy('u.id');
                 		break;
                 	case 5:
                 		$list->groupBy('a.actionID')
                 			->addGroupBy('ms.id');
                 		break;
                 	case 6:
-                		$list->groupBy('i.usercreatedid')
+                		$list->groupBy('u.id')
                 			->addGroupBy('ms.id');
                 		break;
                 	case 7:
-                		$list->groupBy('i.usercreatedid')
+                		$list->groupBy('u.id')
                 			->addGroupBy('ms.id')
                 			->addGroupBy('a.actionID');
                 		break;

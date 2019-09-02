@@ -108,7 +108,6 @@ class DataDocumentController extends Controller
          */
 
         $now = new \DateTime();
-        $now->modify("+2 hour"); // Ver tema de horarios usos
 
 
         if ($instancia_workflow->getMasterWorkflow() == 16) {

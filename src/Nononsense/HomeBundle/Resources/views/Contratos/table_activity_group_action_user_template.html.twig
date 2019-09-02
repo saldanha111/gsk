@@ -5,6 +5,7 @@
         <th>Plantilla</th>
         <th>Acción</th>
         <th>Tiempo</th>
+        <th>Número de acciones<th>
     </tr>
     </thead>
     {% if items is defined %}
@@ -14,6 +15,7 @@
                 <td>{{item.name}}</td>
                 <td>{{item.accion|capitalize}}</td>
                 <td>{{item.formatDuration}}</td>
+                <td>{{item.conta}}</td>
             </tr>
         {% endfor %}
     {% endif %}

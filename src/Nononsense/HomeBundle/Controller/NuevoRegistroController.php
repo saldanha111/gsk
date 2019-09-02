@@ -216,7 +216,6 @@ class NuevoRegistroController extends Controller
         $metaData = new MetaData();
         $metaData->setInstanciaWorkflow($instanciaWorkflow);
         $now = new \DateTime();
-        $now->modify("+2 hour"); // Ver tema de horarios usos
         $metaData->setFechainicio($now);
 
         $em->persist($metaData);

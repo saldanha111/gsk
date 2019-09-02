@@ -271,7 +271,6 @@ class RegistroConcretoController extends Controller
          * Crear activity registro
          */
         $now = new \DateTime();
-        //$now->modify("+2 hour"); // Ver tema de horarios usos
 
         $activity = new ActivityUser();
         $activity->setEntrada($now);
@@ -466,7 +465,6 @@ class RegistroConcretoController extends Controller
                             $type = 5;
 
                             $now = new \DateTime();
-                            $now->modify("+2 hour"); // Ver tema de horarios usos
 
                             $bloqueoMasterWorkflow = new BloqueoMasterWorkflow();
                             $bloqueoMasterWorkflow->setStatus(0);
@@ -497,7 +495,6 @@ class RegistroConcretoController extends Controller
                 $metaData->setInstanciaWorkflow($registro);
                 $metaData->setDataname("Fecha Registro Completado");
                 $now = new \DateTime();
-                $now->modify("+2 hour"); // Ver tema de horarios usos
                 $metaData->setFecha($now);
 
                 $em->persist($metaData);
@@ -1064,7 +1061,6 @@ class RegistroConcretoController extends Controller
             );
             $route = $this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
-
         }
 
         $documentsProcess = array();
@@ -1305,7 +1301,6 @@ class RegistroConcretoController extends Controller
         $activity->setStatus(1);
 
         $now = new \DateTime();
-        //$now->modify("+2 hour"); // Ver tema de horarios usos
 
         $activity->setSalida($now);
 

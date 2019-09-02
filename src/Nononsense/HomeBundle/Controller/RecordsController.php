@@ -400,7 +400,6 @@ class RecordsController extends Controller
          */
 
         $now = new \DateTime();
-        $now->modify("+2 hour"); // Ver tema de horarios usos
 
         /*
          * Actualizar metaData según variables

@@ -43,7 +43,7 @@
                                 <input type="number" name="plantilla_id" class="form-control" value="{{filters.plantilla_id is defined ? filters.plantilla_id : ''}}">
                             </div>
 
-                            <label class="col-sm-1 control-label">Nombre</label>
+                            <label class="col-sm-1 control-label">Plantilla</label>
                             <div class="col-sm-2 item_filter">
                                 <input type="text" name="name" class="form-control" value="{{filters.name is defined ? filters.name : ''}}">
                             </div>
@@ -107,9 +107,6 @@
                                     <option value="100" {{filters.limit_many is defined and filters.limit_many == 100 ? 'selected="selected"' : ''}}>100</option>
                                     <option value="500" {{filters.limit_many is defined and filters.limit_many == 500 ? 'selected="selected"' : ''}}>500</option>
                                   </select>
-                            </div>
-                            <div class="col-sm-1">
-                                <button type="submit" class="btn btn-primary pull-right">Filtrar</button>
                             </div>
                         </div>
 

@@ -32,9 +32,22 @@ class ActivityController extends Controller
     public function listAction(Request $request){
 
         $user = $this->container->get('security.context')->getToken()->getUser();
+        $can_be = false;
 
-        if (false === $this->get('security.authorization_checker')->isGranted('ROLE_ADMIN')) {
-            return $this->redirect($this->generateUrl('nononsense_groups_homepage'));
+        foreach ($user->getGroups() as $groupMe) {
+            $type = $groupMe->getGroup()->getTipo();
+            if ($type == 'FLL') {
+                $can_be = true;
+            }
+        }
+
+        if (!$can_be) {
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                'No tiene permisos para acceder a esta sección'
+            );
+            $route = $this->container->get('router')->generate('nononsense_home_homepage');
+            return $this->redirect($route);
         }
 
         $filters=Array();
