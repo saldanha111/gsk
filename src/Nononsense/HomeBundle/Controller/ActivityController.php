@@ -31,6 +31,8 @@ class ActivityController extends Controller
 {
     public function listAction(Request $request){
 
+        var_dump(date());die();
+
         $user = $this->container->get('security.context')->getToken()->getUser();
         $can_be = false;
 
