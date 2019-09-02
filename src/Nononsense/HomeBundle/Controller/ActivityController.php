@@ -31,9 +31,7 @@ class ActivityController extends Controller
 {
     public function listAction(Request $request){
 
-        $now = new DateTime();
-echo $now->format('Y-m-d H:i:s');    // MySQL datetime format
-echo $now->getTimestamp();die();
+        echo date("Y-m-d H:i:s"); die();
 
         $user = $this->container->get('security.context')->getToken()->getUser();
         $can_be = false;
