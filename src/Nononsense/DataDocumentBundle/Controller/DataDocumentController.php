@@ -221,7 +221,7 @@ class DataDocumentController extends Controller
         return $responseAction;
     }
 
-    public function RequestDataAction($instancia_step_id, $logbook)
+    public function RequestDataAction($instancia_step_id, $logbook,$modo)
     {
         /*
          * Get Value from JSON to put into document
@@ -254,7 +254,7 @@ class DataDocumentController extends Controller
             // first usage
             $data = new \stdClass();
             $varValues = new \stdClass();
-            $varValues->u_id_cumplimentacion = array($instancia_workflow->getId());
+            $varValues->u_id_cumplimentacion = array($step->getId());
 
             if (isset($workflowMasterDataJSON)) {
                 foreach ($workflowMasterDataJSON as $variable) {
@@ -301,7 +301,12 @@ class DataDocumentController extends Controller
              * Tendría que haber un protocolo para diferenciar cuando se imprimen sólo las firmas o el histórico completo:
              */
 
-            $completo = true;
+            if($modo == 0){
+                $completo = true;
+            }else{
+                $completo = false;
+            }
+
             if ($completo) {
                 $data->varValues->dxo_gsk_audit_trail_bloque = array("Si");
                 $data->varValues->dxo_gsk_audit_trail = array($this->_construirHistorico($step));
@@ -629,6 +634,7 @@ class DataDocumentController extends Controller
                 $dataJson = json_decode($dataString);
 
                 $currentVarValues = $dataJson->varValues;
+
 
                 $dataString = $lastEvidencia->getStepDataValue();
                 $dataJson = json_decode($dataString);

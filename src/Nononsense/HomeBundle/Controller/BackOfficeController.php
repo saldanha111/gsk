@@ -130,6 +130,12 @@ class BackOfficeController extends Controller
         foreach ($documentsProcess as &$element2) {
             $idRegistro = $element2['id'];
 
+            $step = $this->getDoctrine()
+                ->getRepository('NononsenseHomeBundle:InstanciasSteps')
+                ->findOneBy(array("workflow_id" => $idRegistro, "dependsOn" => 0));
+
+            $element2['idcumplimentacion'] = $step->getId();
+
 
             $reconciliacionElement = $this->getDoctrine()
                 ->getRepository('NononsenseHomeBundle:ReconciliacionRegistro')
@@ -184,8 +190,12 @@ class BackOfficeController extends Controller
         $subcat = $registro->getMasterWorkflowEntity()->getCategory()->getName();
         $name = $registro->getMasterWorkflowEntity()->getName();
 
+        $step = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:InstanciasSteps')
+            ->findOneBy(array("workflow_id" => $registro->getId(), "dependsOn" => 0));
+
         $element = array(
-            "id" => $registro->getId(),
+            "id" => $step->getId(),
             "subcat" => $subcat,
             "name" => $name,
             "status" => $registro->getStatus(),
@@ -233,8 +243,9 @@ class BackOfficeController extends Controller
          * Habría que obtener el comentario y el nombre del FLL que lo ha autorizado
          */
 
+
         $element = array(
-            "id" => $registro->getId(),
+            "id" => $step->getId(),
             "subcat" => $subcat,
             "name" => $name,
             "status" => $registro->getStatus(),

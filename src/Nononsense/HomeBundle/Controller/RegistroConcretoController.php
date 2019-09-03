@@ -90,7 +90,7 @@ class RegistroConcretoController extends Controller
         return $this->redirect($url_edit_documento);
     }
 
-    public function linkAction($stepid, $form, $revisionid, $logbook)
+    public function linkAction($stepid, $form, $revisionid, $logbook,$modo)
     {
         $user = $this->container->get('security.context')->getToken()->getUser();
 
@@ -174,7 +174,7 @@ class RegistroConcretoController extends Controller
 
         $accionText = '';
 
-        if ($step->getMasterStep()->getChecklist() == 1) {
+        if ($step->getMasterStep()->getChecklist() == 1 && $registro->getStatus() == 4) {
 
             $versionJS = filemtime(__DIR__ . "/../../../../web/js/js_templates/activity.js");
             $validacionURL1 = $baseUrl . "js/js_templates/activity.js?v=" . $versionJS;
@@ -257,7 +257,7 @@ class RegistroConcretoController extends Controller
 
         $options['requestExternalJS'] = $validacionURL1;
         $url_resp_data_uri = $baseUrl . 'data/get_data_from_document/' . $stepid;
-        $url_requesetData = $baseUrl . 'data/requestData/' . $step->getId() . '/' . $logbook;
+        $url_requesetData = $baseUrl . 'data/requestData/' . $step->getId() . '/' . $logbook.'/'.$modo;
 
         $options['responseDataURI'] = $url_resp_data_uri;
         $options['requestDataURI'] = $url_requesetData;
@@ -714,8 +714,22 @@ class RegistroConcretoController extends Controller
 
         $documentName = $registro->getMasterWorkflowEntity()->getName();
 
+        $stepsList = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:InstanciasSteps')
+            ->findBy(array("workflow_id" => $registro->getId()));
+
+        $stepCheckList = null;
+
+        foreach ($stepsList as $oneStep) {
+            if ($oneStep->getMasterStep()->getChecklist() == 1) {
+                $stepCheckList = $oneStep;
+            }
+        }
+
+
         return $this->render('NononsenseHomeBundle:Contratos:registro_esma_no_validado.html.twig', array(
-            "documentName" => $documentName
+            "documentName" => $documentName,
+            "stepid" => $stepCheckList->getId()
         ));
     }
 
@@ -733,6 +747,7 @@ class RegistroConcretoController extends Controller
         $em = $this->getDoctrine()->getManager();
 
         $registro = $step->getInstanciaWorkflow();
+        $registro->setStatus(4);
 
         $em->persist($registro);
         $em->flush();
@@ -1098,9 +1113,13 @@ class RegistroConcretoController extends Controller
             $name = $registroViejo->getMasterWorkflowEntity()->getName();
             $fecha = $peticion->getCreated();
 
+            $step = $this->getDoctrine()
+                ->getRepository('NononsenseHomeBundle:InstanciasSteps')
+                ->findOneBy(array("workflow_id" => $registroViejoId, "dependsOn" => 0));
+
             $element = array(
                 "id" => $peticion->getId(),
-                "idafectado" => $registroViejoId,
+                "idafectado" => $step->getId(),
                 "subcat" => $subcat,
                 "name" => $name,
                 "fecha" => $fecha,
@@ -1139,9 +1158,13 @@ class RegistroConcretoController extends Controller
         $name = $registroViejo->getMasterWorkflowEntity()->getName();
         $fecha = $peticionEntity->getCreated();
 
+        $stepViejo = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:InstanciasSteps')
+            ->findOneBy(array("workflow_id" => $registroViejoId, "dependsOn" => 0));
+
         $peticion = array(
             "id" => $peticionEntity->getId(),
-            "idafectado" => $registroViejoId,
+            "idafectado" => $stepViejo->getId(),
             "subcat" => $subcat,
             "name" => $name,
             "fecha" => $fecha,
@@ -1157,8 +1180,12 @@ class RegistroConcretoController extends Controller
                 $subcat = $registroViejo->getMasterWorkflowEntity()->getCategory()->getName();
                 $name = $registroViejo->getMasterWorkflowEntity()->getName();
 
+                $stepViejo = $this->getDoctrine()
+                    ->getRepository('NononsenseHomeBundle:InstanciasSteps')
+                    ->findOneBy(array("workflow_id" => $registroViejo->getId(), "dependsOn" => 0));
+
                 $element = array(
-                    "id" => $registroViejo->getId(),
+                    "id" => $stepViejo->getId(),
                     "subcat" => $subcat,
                     "name" => $name,
                     "status" => $registroViejo->getStatus(),

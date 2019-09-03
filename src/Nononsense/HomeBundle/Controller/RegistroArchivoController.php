@@ -156,8 +156,15 @@ class RegistroArchivoController extends Controller
     public function verRegistroAction($registroid)
     {
 
-        $route = $this->container->get('router')->generate('nononsense_ver_registro', array('revisionid' => $registroid));
+        $registro = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
+            ->find($registroid);
 
+        $firstStep = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:InstanciasSteps')
+            ->findOneBy(array("workflow_id" => $registro->getId(), "dependsOn" => 0));
+
+        $route = $this->container->get('router')->generate('nononsense_registro_concreto_link', array("stepid" => $firstStep->getId(), "form" => 0, "revisionid" => $registroid, "modo"=>1));
         return $this->redirect($route);
     }
 

@@ -86,7 +86,7 @@
 
             console.log(text);
 
-            if (text == "" && comment == 1){
+            if (text.trim() == "" && comment == 1){
                 toastr.error("Debe escribir un motivo, no puede dejar el cuadro en blanco",'aviso');
             }else if(signaturePad.isEmpty()){
                 toastr.error("Debe rellenar una fima, no puede dejar el cuadro en blanco",'aviso');

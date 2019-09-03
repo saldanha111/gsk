@@ -486,9 +486,13 @@ class NuevoRegistroController extends Controller
         $name = $registroViejo->getMasterWorkflowEntity()->getName();
         $fecha = $reconciliacionRegistro->getCreated();
 
+        $fisrtStep =  $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:InstanciasSteps')
+            ->findOneBy(array("workflow_id" => $registroid, "dependsOn" => 0));
+
         $peticion = array(
             "id" => $reconciliacionRegistro->getId(),
-            "idafectado" => $registroid,
+            "idafectado" => $fisrtStep->getId(),
             "subcat" => $subcat,
             "name" => $name,
             "fecha" => $fecha,
@@ -575,9 +579,13 @@ class NuevoRegistroController extends Controller
         $em->persist($registroNuevo);
         $em->flush();
 
+        $step = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:InstanciasSteps')
+            ->findOneBy(array("workflow_id" => $registroNuevo->getId(), "dependsOn" => 0));
+
         $this->get('session')->getFlashBag()->add(
             'success',
-            "Creada la solicitud de reconciliación. Cuando se la autoricen podrá comenzar la elaboración del registro: " . $registroNuevo->getId()
+            "Creada la solicitud de reconciliación. Cuando se la autoricen podrá comenzar la elaboración del registro: " . $step->getId()
         );
 
         $route = $this->container->get('router')->generate('nononsense_search');

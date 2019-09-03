@@ -99,8 +99,8 @@ nononsense_contrato_control_validacion:
     defaults: { _controller: NononsenseHomeBundle:RegistroConcreto:controlValidacion, stepid: 0, action: 0, comment: 0, urlaux: 0}
 
 nononsense_registro_concreto_link:
-    path:     /registro_link/{stepid}/{form}/{revisionid}/{logbook}
-    defaults: { _controller: NononsenseHomeBundle:RegistroConcreto:link, stepid: 0, form: 0, revisionid: 0, logbook: 0}
+    path:     /registro_link/{stepid}/{form}/{revisionid}/{logbook}/{modo}
+    defaults: { _controller: NononsenseHomeBundle:RegistroConcreto:link, stepid: 0, form: 0, revisionid: 0, logbook: 0, modo: 0}
 
 nononsense_registro_concreto_guardar_enviar:
     path:     /registro_save_send/{stepid}
@@ -258,8 +258,8 @@ nononsense_esma_no_validado:
     defaults: { _controller: NononsenseHomeBundle:RegistroConcreto:ESMANoValidado, workflowid: 0}
 
 nononsense_registro_esma_no_valido_firma:
-    path:     /nononsense_esma_no_validado_firma/{workflowid}
-    defaults: { _controller: NononsenseHomeBundle:RegistroConcreto:ESMANoValidadoFirma, workflowid: 0}
+    path:     /nononsense_esma_no_validado_firma/{stepid}
+    defaults: { _controller: NononsenseHomeBundle:RegistroConcreto:ESMANoValidadoFirma, stepid: 0}
 
 nononsense_registro_rechazar_cancelacion_firma:
     path:     /nononsense_registro_rechazar_cancelacion_firma/{stepid}

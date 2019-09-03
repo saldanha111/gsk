@@ -38,7 +38,7 @@
                 <input type="hidden" id="firma" name="firma" />
                 <a name="borrarFirmar" class="btn btn-primary" id="borrarFirmar">Limpiar firma</a>
                 <a name="cancelarRegistro" class="btn btn-danger" id="backButton">Volver</a>
-                <a name="guardarRegistro" class="btn btn-danger">Cancelar verificación</a>
+                <a name="guardarRegistro" class="btn btn-danger">Guardar verificación</a>
             </form>
         </div>
     </div>
@@ -46,6 +46,7 @@
 {% endblock %}
 {% block scripts %}
 {{ parent() }}
+<script src="/js/plugins/signature-pad/signature-pad.min.js"></script>
 <script>
 
 
@@ -83,7 +84,7 @@
 
             console.log(text);
 
-            if (text == ""){
+            if (text.trim() == ""){
                 toastr.error("Debe escribir un motivo, no puede dejar el cuadro en blanco",'aviso');
             }else if(signaturePad.isEmpty()){
                 toastr.error("Debe rellenar una fima, no puede dejar el cuadro en blanco",'aviso');
