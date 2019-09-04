@@ -1341,6 +1341,7 @@ class RegistroConcretoController extends Controller
     {
         /*
          * Comprueba si ha habido alguna modificación en los valores imputados
+         * Como se modificó lo de las evidencias, ahora lastEvidencia no es "last" sino dos anteriores.
          */
         $resultado = false;
 
@@ -1350,10 +1351,13 @@ class RegistroConcretoController extends Controller
 
         if (!empty($evidencias)) {
             $lastEvidencia = null;
+            $lastSecondEvidencia = null;
+
             $currentId = 0;
 
             foreach ($evidencias as $evidenciaElement) {
                 if ($currentId < $evidenciaElement->getId()) {
+                    $lastSecondEvidencia = $lastEvidencia;
                     $lastEvidencia = $evidenciaElement;
                     $currentId = $evidenciaElement->getId();
                 }
@@ -1361,6 +1365,7 @@ class RegistroConcretoController extends Controller
 
             if ($currentId != 0) {
                 // Comparar varValues not empties
+                $lastEvidencia = $lastSecondEvidencia;
                 $currentDataJson = json_decode($dataString);
                 $lastDataJson = json_decode($lastEvidencia->getStepDataValue());
 

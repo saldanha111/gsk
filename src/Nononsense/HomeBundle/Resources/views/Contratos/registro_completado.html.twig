@@ -117,7 +117,7 @@
             var comentarioCompulsory = "{{devolucion}}"
             if (comentarioCompulsory == 1) {
                 var comment = $('#comment').val()
-                if(comment == ""){
+                if(comment.trim() == ""){
                     // error
                     toastr.error("Debe escribir una justificación del cambio realizado, no puede dejar el cuadro en blanco", 'aviso');
                     return false;
