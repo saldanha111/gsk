@@ -301,10 +301,6 @@ nononsense_search:
     path: /searcher
     defaults: { _controller: NononsenseHomeBundle:Search:list}
 
-nononsense_search2:
-    path: /searcher2
-    defaults: { _controller: NononsenseHomeBundle:Search:list2}
-
 nononsense_activity:
     path: /activity
     defaults: { _controller: NononsenseHomeBundle:Activity:list}
