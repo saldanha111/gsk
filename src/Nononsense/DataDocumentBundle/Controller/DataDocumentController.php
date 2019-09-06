@@ -407,7 +407,7 @@ class DataDocumentController extends Controller
                             }
                             $estadoString = $this->processRowValue($InstanciaWorkflowAMostrar->getStatusString());
 
-                            $fullText .= '<tr><td>' . $idMostrar . '</td><td>' . $estadoString . '</td>';
+                            $fullText .= '<tr><td>' . $instanciaStepAMostrar->getId() . '</td><td>' . $estadoString . '</td>';
                             foreach ($varValuesMostrar as $prop => $value) {
                                 $position = strpos($prop, "u_");
 

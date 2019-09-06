@@ -1365,7 +1365,10 @@ class RegistroConcretoController extends Controller
 
             if ($currentId != 0) {
                 // Comparar varValues not empties
-                $lastEvidencia = $lastSecondEvidencia;
+                if($lastSecondEvidencia != null){
+                    $lastEvidencia = $lastSecondEvidencia;
+                }
+
                 $currentDataJson = json_decode($dataString);
                 $lastDataJson = json_decode($lastEvidencia->getStepDataValue());
 
