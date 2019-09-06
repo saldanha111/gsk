@@ -297,7 +297,6 @@ nononsense_reconciliacion_history:
     path:     /reconciliacion/history/{id}
     defaults: { _controller: NononsenseHomeBundle:RegistroArchivo:reconciliacionHistory, id: 0}
 
-
 nononsense_search:
     path: /searcher
     defaults: { _controller: NononsenseHomeBundle:Search:list}

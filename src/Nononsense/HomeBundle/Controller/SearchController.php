@@ -10,6 +10,7 @@ namespace Nononsense\HomeBundle\Controller;
 
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Nononsense\HomeBundle\Entity\InstanciasWorkflows;
+use Nononsense\HomeBundle\Entity\InstanciasSteps;
 use Nononsense\UtilsBundle\Classes;
 
 
@@ -71,8 +72,8 @@ class SearchController extends Controller
 
         $array_item["suser"]["id"]=$user->getId();
         $array_item["filters"]=$filters;
-        $array_item["items"] = $this->getDoctrine()->getRepository(InstanciasWorkflows::class)->search("list",$filters);
-        $array_item["count"] = $this->getDoctrine()->getRepository(InstanciasWorkflows::class)->search("count",$filters2);
+        $array_item["items"] = $this->getDoctrine()->getRepository(InstanciasSteps::class)->search("list",$filters);
+        $array_item["count"] = $this->getDoctrine()->getRepository(InstanciasSteps::class)->search("count",$filters2);
 
         $url=$this->container->get('router')->generate('nononsense_search');
         $params=$request->query->all();
@@ -105,12 +106,11 @@ class SearchController extends Controller
                  ->setCellValue('G1', 'Num.equipo')
                  ->setCellValue('H1', 'Material')
                  ->setCellValue('I1', 'WO.SAP')
-                 ->setCellValue('J1', 'Estado')
-                 ->setCellValue('K1', 'Reconciliado');
+                 ->setCellValue('J1', 'Estado');
             }
 
             if($request->get("export_pdf")){
-                $html='<html><body style="font-size:8px;width:100%"><table autosize="1" style="overflow:wrap;width:100%"><tr style="font-size:8px;width:100%"><th style="font-size:8px;width:6%">Nº</th><th style="font-size:8px;width:49%">Nombre</th><th style="font-size:8px;width:10%">Iniciado por</th><th style="font-size:8px;width:10%">F. inicio</th><th style="font-size:8px;width:10%">F. modific.</th><th style="font-size:8px;width:10%">Estado</th><th style="font-size:8px;width:5%">Reconc.</th></tr>';
+                $html='<html><body style="font-size:8px;width:100%"><table autosize="1" style="overflow:wrap;width:100%"><tr style="font-size:8px;width:100%"><th style="font-size:8px;width:6%">Nº</th><th style="font-size:8px;width:49%">Nombre</th><th style="font-size:8px;width:10%">Iniciado por</th><th style="font-size:8px;width:10%">F. inicio</th><th style="font-size:8px;width:10%">F. modific.</th><th style="font-size:8px;width:10%">Estado</th></tr>';
             }
 
             $i=2;
@@ -134,11 +134,17 @@ class SearchController extends Controller
                     case 15: $status="Esperando firma verificación parcial";break;
                     default: $status="Desconocido";
                 }
+                if($item["id_grid"]==0){
+                    $name=$item["name"];
+                }
+                else{
+                    $name=$item["name2"];
+                }
 
                 if($request->get("export_excel")){
                     $phpExcelObject->getActiveSheet()
-                    ->setCellValue('A'.$i, $item["id"])
-                    ->setCellValue('B'.$i, $item["name"])
+                    ->setCellValue('A'.$i, $item["id_grid"])
+                    ->setCellValue('B'.$i, $name)
                     ->setCellValue('C'.$i, $item["creator"])
                     ->setCellValue('D'.$i, ($item["created"]) ? $item["created"] : '')
                     ->setCellValue('E'.$i, ($item["modified"]) ? $item["modified"] : '')
@@ -146,32 +152,11 @@ class SearchController extends Controller
                     ->setCellValue('G'.$i, $item["equipo"])
                     ->setCellValue('H'.$i, $item["material"])
                     ->setCellValue('I'.$i, $item["workordersap"])
-                    ->setCellValue('J'.$i, $status)
-                    ->setCellValue('K'.$i, $item["id_reconciliado"]);
-
-                    if($item["checklist"] == 1 && ($item["status"] == 4 || $item["status"] == 7 || $item["status"] == 12 || $item["status"] == 13 || $item["status"] == 15 || $item["status"] == 9 || $item["status"] == 10)){
-                        $i++;
-                        $phpExcelObject->getActiveSheet()
-                            ->setCellValue('A'.$i, $item["id"]."-CH1")
-                            ->setCellValue('B'.$i, $item["chname"])
-                            ->setCellValue('C'.$i, $item["creator"])
-                            ->setCellValue('D'.$i, ($item["created"]) ? $item["created"] : '')
-                            ->setCellValue('E'.$i, ($item["modified"]) ? $item["modified"] : '')
-                            ->setCellValue('F'.$i, $item["lote"])
-                            ->setCellValue('G'.$i, $item["equipo"])
-                            ->setCellValue('H'.$i, $item["material"])
-                            ->setCellValue('I'.$i, $item["workordersap"])
-                            ->setCellValue('J'.$i, $status)
-                            ->setCellValue('K'.$i, '');
-                    }
+                    ->setCellValue('J'.$i, $status);
                 }
 
                 if($request->get("export_pdf")){
-                    $html.='<tr style="font-size:8px"><td>'.$item["id"].'</td><td>'.$item["name"].'</td><td>'.$item["creator"].'</td><td>'.(($item["created"]) ? $item["created"]->format('Y-m-d H:i:s') : '').'</td><td>'.(($item["modified"]) ? $item["modified"]->format('Y-m-d H:i:s') : '').'</td><td>'.$status.'</td><td>'.$item["id_reconciliado"].'</td></tr>';
-                    if($item["checklist"] == 1 && ($item["status"] == 4 || $item["status"] == 7 || $item["status"] == 12 || $item["status"] == 13 || $item["status"] == 15 || $item["status"] == 9 || $item["status"] == 10)){
-                        $i++;
-                        $html.='<tr style="font-size:8px"><td>'.$item["id"].'-CH1</td><td>'.$item["chname"].'</td><td>'.$item["creator"].'</td><td>'.(($item["created"]) ? $item["created"]->format('Y-m-d H:i:s') : '').'</td><td>'.(($item["modified"]) ? $item["modified"]->format('Y-m-d H:i:s') : '').'</td><td>'.$status.'</td><td></td></tr>';
-                    }
+                    $html.='<tr style="font-size:8px"><td>'.$item["id"].'</td><td>'.$name.'</td><td>'.$item["creator"].'</td><td>'.(($item["created"]) ? $item["created"]->format('Y-m-d H:i:s') : '').'</td><td>'.(($item["modified"]) ? $item["modified"]->format('Y-m-d H:i:s') : '').'</td><td>'.$status.'</td></tr>';
                 }
 
                 $i++;

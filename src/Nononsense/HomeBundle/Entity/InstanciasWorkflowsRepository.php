@@ -381,6 +381,7 @@ class InstanciasWorkflowsRepository extends EntityRepository
         return $query->getResult();
 
     }
+    
     public function search($type,$filters)
     {
         $em = $this->getEntityManager();
@@ -556,8 +557,4 @@ class InstanciasWorkflowsRepository extends EntityRepository
                 break;
         }
     }
-
-
 }
-
-
