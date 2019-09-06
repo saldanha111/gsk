@@ -290,7 +290,7 @@
                                             {% endif %}
                                         {% endif %}
                                         {% if item.status == 7 or item.status == 12 or item.status == 13 or item.status == 15 %}
-                                            {% if padre.idNextSigner is defined  and suser.id==padre.idNextSigner %}
+                                            {% if item.idNextSigner is defined  and suser.id==item.idNextSigner %}
                                                 {% if item.status == 7 %}
                                                     <a class="btn btn-xs btn-danger" href="{{path('nononsense_registro_verificar', {'stepid': item.id_grid, 'comment' : '1'})}}" target="_self"><i class="fa fa-pencil" aria-hidden="true"></i> {{'Firmar'|trans}}</a>
                                                 {% endif %}
