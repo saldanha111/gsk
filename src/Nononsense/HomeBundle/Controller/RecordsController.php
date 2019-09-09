@@ -492,7 +492,7 @@ class RecordsController extends Controller
          * parcial
          * enviar
          */
-        $urlaux=str_replace("##", "/", $urlaux);
+        $urlaux=str_replace("--", "/", $urlaux);
         $em = $this->getDoctrine()->getManager();
         $user = $this->container->get('security.context')->getToken()->getUser();
 

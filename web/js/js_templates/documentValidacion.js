@@ -50,7 +50,7 @@ function customOnLoad() {
     $('body').on('click', 'button[id="gskclose"]', function () {
         console.log("Boton cerrar de GSK");
         var historyObj = btoa(document.referrer);
-        historyObj=historyObj.replace("\/", "##");
+        historyObj=historyObj.replace("\/", "--");
         console.log(historyObj);
 
         var responseURL = $('#responseURL').val();

@@ -598,7 +598,7 @@ class RegistroConcretoController extends Controller
                 * parcial
                 * enviar
                 */
-        $urlaux=str_replace("##", "/", $urlaux);
+        $urlaux=str_replace("--", "/", $urlaux);
         $user = $this->container->get('security.context')->getToken()->getUser();
         $em = $this->getDoctrine()->getManager();
 
@@ -803,7 +803,7 @@ class RegistroConcretoController extends Controller
          * En la interfaz se puede poner "firmar" si el usuario en cuestión es el mismo.
          *
          */
-        $urlaux=str_replace("##", "/", $urlaux);
+        $urlaux=str_replace("--", "/", $urlaux);
         $user = $this->container->get('security.context')->getToken()->getUser();
 
         $em = $this->getDoctrine()->getManager();
@@ -892,7 +892,7 @@ class RegistroConcretoController extends Controller
 
     public function controlValidacionAction($stepid, $action, $comment, $urlaux)
     {
-        $urlaux=str_replace("##", "/", $urlaux);
+        $urlaux=str_replace("--", "/", $urlaux);
         $em = $this->getDoctrine()->getManager();
 
         $step = $this->getDoctrine()
@@ -983,7 +983,7 @@ class RegistroConcretoController extends Controller
 
     public function controlCancelacionAction($stepid, $action, $urlaux)
     {
-        $urlaux=str_replace("##", "/", $urlaux);
+        $urlaux=str_replace("--", "/", $urlaux);
         $em = $this->getDoctrine()->getManager();
         $user = $this->container->get('security.context')->getToken()->getUser();
 

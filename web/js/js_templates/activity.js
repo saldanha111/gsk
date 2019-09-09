@@ -283,7 +283,7 @@ function customOnLoad() {
         // Es necesario desbloquear el uso, habría que ir a algún sitio. ¿? Usar un redirect en vez de un back.
         //window.history.back();
         var historyObj = btoa(document.referrer);
-        historyObj=historyObj.replace("\/", "##");
+        historyObj=historyObj.replace("\/", "--");
         console.log(historyObj);
 
         var responseURL = $('#responseURL').val();
