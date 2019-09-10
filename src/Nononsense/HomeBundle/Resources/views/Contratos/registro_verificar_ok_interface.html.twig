@@ -36,8 +36,8 @@
                         <canvas width="300" height="150" style="touch-action: none; border: 2px solid #eee; box-shadow: 0px 0px 6px 1px rgba(80, 90, 100, 0.5)"></canvas>
                     </div>
                     <input type="hidden" id="firma" name="firma" />
+                    <a name="cancelarRegistro" class="btn btn-default" id="backButton">Volver</a>
                     <a name="borrarFirmar" class="btn btn-primary" id="borrarFirmar">Limpiar firma</a>
-                    <a name="cancelarRegistro" class="btn btn-danger" id="backButton">Volver</a>
                     <a name="guardarRegistro" class="btn btn-success">Verificar registro</a>
                 </form>
             </div>
@@ -79,7 +79,9 @@
         $('a[name="guardarRegistro"]').on('click', function () {
             var valueSelect = $("#motivoSelect").val();
             var text = $("#comment").val();
-
+            if(text  == null){
+                text="";
+            }
             var comment = "{{comment}}";
 
             $("#firma").val(signaturePad.toDataURL()); // save image as PNG

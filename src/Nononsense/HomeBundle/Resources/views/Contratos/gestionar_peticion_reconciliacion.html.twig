@@ -315,8 +315,8 @@
             </div>
             <input type="hidden" id="firma" name="firma" />
             <input type="hidden" id="accion" name="accion" />
+            <a name="volver" class="btn btn-default" id="backButton">Volver</a>
             <a name="borrarFirmar" class="btn btn-primary" id="borrarFirmar">Limpiar firma</a>
-            <a name="volver" class="btn btn-danger" id="backButton">Volver</a>
             <a name="autorizarPeticion" class="btn btn-success">Autorizar Petición</a>
             <a name="cancelarPeticion" class="btn btn-danger">Cancelar Petición</a>
         </form>
@@ -379,7 +379,9 @@
         $('a[name="autorizarPeticion"]').on('click', function () {
             var valueSelect = $("#motivoSelect").val();
             var text = $("#comment").val();
-
+            if(text  == null){
+                text="";
+            }
 
             $("#firma").val(signaturePad.toDataURL()); // save image as PNG
             $("#accion").val('autorizar'); // accion a procesar

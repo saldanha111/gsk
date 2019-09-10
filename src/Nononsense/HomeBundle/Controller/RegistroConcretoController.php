@@ -1251,6 +1251,10 @@ class RegistroConcretoController extends Controller
             ->getRepository('NononsenseHomeBundle:InstanciasSteps')
             ->findOneBy(array("workflow_id" => $registroViejoId, "dependsOn" => 0));
 
+        $new_step = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:InstanciasSteps')
+            ->findOneBy(array("workflow_id" => $registroNuevoId, "dependsOn" => 0));
+
         /*
          * Guardar firma
          */
@@ -1285,11 +1289,16 @@ class RegistroConcretoController extends Controller
 
             $registroNuevo->setStatus(0);
             $em->persist($registroNuevo);
+            $desc_action="autorizada";
+            $si_no="";
 
         } else {
             $descp = "Petición de reconciliación no autorizada. " . $comentario;
             $peticionEntity->setStatus(2);
             $registroNuevo->setStatus(8);
+
+            $desc_action="no autorizada";
+            $si_no="no";
         }
         /*
          * Guardar firma
@@ -1316,7 +1325,14 @@ class RegistroConcretoController extends Controller
         $em->persist($peticionEntity);
         $em->persist($firma);
         $em->persist($registroViejo);
+
+        $email=$peticionEntity->getUserEntiy()->getEmail();
+        $subject="Reconciliación ".$desc_action;
+        $mensaje='La reconciliación para el documento '.$new_step->getId().' '.$si_no.' ha sido autorizada.';
+        $baseURL=$this->container->get('router')->generate('nononsense_search', array(),TRUE);
         $em->flush();
+
+        $this->_sendNotification($email, $baseURL, "", "", $subject, $mensaje);
 
         $route = $this->container->get('router')->generate('nononsense_search');
         return $this->redirect($route);

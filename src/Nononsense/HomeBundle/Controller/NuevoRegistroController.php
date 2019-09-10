@@ -15,6 +15,8 @@ use Nononsense\HomeBundle\Entity\MetaData;
 use Nononsense\HomeBundle\Entity\EvidenciasStep;
 use Nononsense\HomeBundle\Entity\FirmasStep;
 use Nononsense\HomeBundle\Entity\ReconciliacionRegistro;
+use Nononsense\GroupBundle\Entity\GroupUsers;
+use Nononsense\GroupBundle\Entity\Groups;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Nononsense\HomeBundle\Form\Type as FormProveedor;
@@ -588,6 +590,24 @@ class NuevoRegistroController extends Controller
             "Creada la solicitud de reconciliación. Cuando se la autoricen podrá comenzar la elaboración del registro: " . $step->getId()
         );
 
+        $groups = $em->getRepository(Groups::class)->findBy(["tipo" => "FLL"]);
+        foreach($groups as $group){
+            $aux_users = $em->getRepository(GroupUsers::class)->findBy(["group" => $group]);
+            foreach ($aux_users as $aux_user) {
+                $emails[]=$aux_user->getUser()->getEmail();
+            }
+        }
+
+        $unique_emails = array_unique($emails);
+
+        foreach($unique_emails as $email){
+            $subject="Solicitud de reconciliación";
+            $mensaje='Se ha solicitado una reconciliación con ID '.$peticionEntity->getId().'. Para poder confirmarla puede acceder a "Actividad de área"';
+            $baseURL=$this->container->get('router')->generate('nononsense_registro_autorizar_list',array(),TRUE);
+            
+            $this->_sendNotification($email, $baseURL, "", "", $subject, $mensaje);
+        }
+
         $route = $this->container->get('router')->generate('nononsense_search');
         return $this->redirect($route);
 
@@ -863,4 +883,32 @@ class NuevoRegistroController extends Controller
         return $valido;
     }
 
+    private function _sendNotification($mailTo, $link, $logo, $accion, $subject, $message)
+    {
+        $mailLogger = new \Swift_Plugins_Loggers_ArrayLogger();
+        $this->get('mailer')->registerPlugin(new \Swift_Plugins_LoggerPlugin($mailLogger));
+        $email = \Swift_Message::newInstance()
+            ->setSubject($subject)
+            ->setFrom($this->container->getParameter('mailer_user'))
+            ->setTo($mailTo)
+            ->setBody(
+                $this->renderView(
+                    'NononsenseHomeBundle:Email:notificationUser.html.twig', array(
+                    'logo' => $logo,
+                    'accion' => $accion,
+                    'message' => $message,
+                    'link' => $link
+                )),
+                'text/html'
+            );
+        if ($this->get('mailer')->send($email)) {
+            //echo '[SWIFTMAILER] sent email to ' . $mailTo;
+            //echo 'LOG: ' . $mailLogger->dump();
+            return true;
+        } else {
+            //echo '[SWIFTMAILER] not sending email: ' . $mailLogger->dump();
+            return false;
+        }
+
+    }
 }

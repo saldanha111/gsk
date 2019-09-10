@@ -791,8 +791,8 @@ class RecordsController extends Controller
                 $emails[]=$signature2->getUserEntiy()->getEmail();
             }
             else{
+                $send_email=1;
                 if($signature2->getEmail()){
-                   $send_email=1; 
                    $emails[]=$signature2->getEmail();
                 }
                 else{
