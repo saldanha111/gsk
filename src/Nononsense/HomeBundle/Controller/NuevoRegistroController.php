@@ -332,11 +332,8 @@ class NuevoRegistroController extends Controller
                             //echo "posible reconciliación, he encontrado el siguiente id: " . $registroM->getId(). " con el siguiente estado: ".$registroM->getStatus(). "<br />";
 
                             // posible reconciliación
-                            if ($registroM->getStatus() != 6 &&
-                                $registroM->getStatus() != 8 &&
-                                $registroM->getStatus() != 9 &&
-                                $registroM->getStatus() != 10
-                            ) {
+                            //if ($registroM->getStatus() != 6 && $registroM->getStatus() != 8 && $registroM->getStatus() != 9 && $registroM->getStatus() != 10) {
+                            if($registroM->getStatus()<0){
                                 // En proceso, ya no es valido
                                 $valido = false;
                                 $registroViejoReconciliacionId = $registroM->getId();

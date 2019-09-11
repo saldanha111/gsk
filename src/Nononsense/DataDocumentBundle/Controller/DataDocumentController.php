@@ -630,10 +630,10 @@ class DataDocumentController extends Controller
 
             } else {
                 // Primero descifrar si ha habido cambios.
-                $dataString = $evidenciaElement->getStepDataValue();
-                $dataJson = json_decode($dataString);
+                $dataStringCurrent = $evidenciaElement->getStepDataValue();
+                $dataJsonCurrent = json_decode($dataStringCurrent);
 
-                $currentVarValues = $dataJson->varValues;
+                $currentVarValues = $dataJsonCurrent->varValues;
 
 
                 $dataString = $lastEvidencia->getStepDataValue();
@@ -655,7 +655,15 @@ class DataDocumentController extends Controller
                         $currentValue = trim(implode("", $value));
 
                         if ($lastValue != "") {
-                            if ($lastValue != $currentValue) {
+                            $audittrail=1;
+                            foreach($dataJsonCurrent->data as $field){
+                                if($field->name==$prop){
+                                    if($lastValue == $field->label){
+                                        $audittrail=0;
+                                    }
+                                }
+                            }
+                            if ($lastValue != $currentValue && $audittrail) {
                                 // Modificado
                                 $counterModified++;
                                 $modified = true;
