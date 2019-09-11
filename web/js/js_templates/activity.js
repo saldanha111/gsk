@@ -244,6 +244,29 @@ function checkCommentCompulsory(element){
     }
 }
 
+function checkCompulsorydifferentCheckBoxes(check1,check2){
+    var check1 = $('input[data-name="' + check1 + '"]');
+    var check2 = $('input[data-name="' + check2 + '"]');
+
+    var valido = false;
+
+    check1.each(function () {
+        if($(this).is(':checked')){
+            valido = true;
+        }
+    });
+
+    if(!valido){
+        check2.each(function () {
+            if($(this).is(':checked')){
+                valido = true;
+            }
+        });
+    }
+
+    return valido;
+}
+
 function customOnValidate(val, name) {
     switch (name) {
         case "u_limpieza":
@@ -404,31 +427,4 @@ function customOnLoad() {
 
         return urlLimpia;
     }
-
-    function checkCompulsorydifferentCheckBoxes(check1,check2){
-        var check1 = $('input[data-name="' + check1 + '"]');
-        var check2 = $('input[data-name="' + check2 + '"]');
-
-        var valido = false;
-
-        check1.each(function () {
-            if($(this).is(':checked')){
-                valido = true;
-            }
-        });
-
-        if(!valido){
-            check2.each(function () {
-                if($(this).is(':checked')){
-                    valido = true;
-                }
-            });
-        }
-
-        return valido;
-    }
-
 }
-
-
-
