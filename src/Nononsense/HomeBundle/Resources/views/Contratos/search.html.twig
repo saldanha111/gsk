@@ -154,7 +154,7 @@
                                 </td>
                                 <td>{{ item.dependsOn==0 ? item.name : item.name2 }}</td>
                                 <td>{{item.creator}}</td>
-                                <td>{{ item.created is defined ? item.created|date("d/m/Y") : '' }}</td>
+                                <td>{{ item.created is defined ? item.created|date("d/m/Y H:i:s") : '' }}</td>
                                 <td>{{ item.modified is defined ? item.modified|date("d/m/Y H:i:s") : '' }}</td>
                                 
                                 <td>{{item.lote}}</td>

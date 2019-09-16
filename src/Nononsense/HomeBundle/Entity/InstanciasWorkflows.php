@@ -60,7 +60,7 @@ class InstanciasWorkflows
     protected $files;
 
     /**
-     * @ORM\Column(type="date")
+     * @ORM\Column(type="datetime")
      */
     protected $created;
 

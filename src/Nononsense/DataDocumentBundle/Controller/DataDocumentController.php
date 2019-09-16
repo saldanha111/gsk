@@ -659,7 +659,7 @@ class DataDocumentController extends Controller
                             foreach($dataJsonCurrent->data as $field){
                                 if($field->name==$prop){
                                     if($lastValue == $field->label){
-                                        $audittrail=0;
+                                        $lastValue="";
                                     }
                                 }
                             }
