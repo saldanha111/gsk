@@ -820,30 +820,47 @@ class NuevoRegistroController extends Controller
          */
 
         $equipo = $request->query->get('equipo');
-        $pesa = $request->query->get('pesa');
-        $control = $request->query->get('control');
-        $aviso = $request->query->get('aviso');
+
+        $sap = $request->query->get('sap');
+        $ubicacion= $request->query->get('ubicacion');
+        $decimales = $request->query->get('decimales');
+        $legibilidad = $request->query->get('legibilidad');
+        $pesada_maxima = $request->query->get('pesada_maxima');
+        $pesada_minima= $request->query->get('pesada_minima');
+        $pesa_chequeo_sensibilidad = $request->query->get('pesa_chequeo_sensibilidad');
+        $cl = $request->query->get('cl');
+        $cl_sup = $request->query->get('cl_sup');
+        $cl_inf = $request->query->get('cl_inf');
+        $wl = $request->query->get('wl');
+        $wl_sup = $request->query->get('wl_sup');
+        $wl_inf = $request->query->get('wl_inf');
+        $peso_chequeo_repetibilidad= $request->query->get('peso_chequeo_repetibilidad');
+        $cl_desv_std = $request->query->get('$¡cl_desv_std');
+        $wl_desv_std= $request->query->get('wl_desv_std');
 
         $masterData = new \stdClass();
-        $masterData->u_pesa = new \stdClass();
-        $masterData->u_pesa->nameVar = "u_pesa";
-        $masterData->u_pesa->valueVar = array($pesa);
-        $masterData->u_pesa->step = "";
 
         $masterData->u_equipo = new \stdClass();
         $masterData->u_equipo->nameVar = "u_equipo";
         $masterData->u_equipo->valueVar = array($equipo);
         $masterData->u_equipo->step = "";
 
-        $masterData->u_limite_control = new \stdClass();
-        $masterData->u_limite_control->nameVar = "u_limite_control";
-        $masterData->u_limite_control->valueVar = array($control);
-        $masterData->u_limite_control->step = "";
-
-        $masterData->u_limite_aviso = new \stdClass();
-        $masterData->u_limite_aviso->nameVar = "u_limite_aviso";
-        $masterData->u_limite_aviso->valueVar = array($aviso);
-        $masterData->u_limite_aviso->step = "";
+        $this->createMasterValue($masterData,"sap",$sap);
+        $this->createMasterValue($masterData,"ubicacion",$ubicacion);
+        $this->createMasterValue($masterData,"decimales",$decimales);
+        $this->createMasterValue($masterData,"legibilidad",$legibilidad);
+        $this->createMasterValue($masterData,"pesada_maxima",$pesada_maxima);
+        $this->createMasterValue($masterData,"pesada_minima",$pesada_minima);
+        $this->createMasterValue($masterData,"pesa_chequeo_sensibilidad",$pesa_chequeo_sensibilidad);
+        $this->createMasterValue($masterData,"cl",$cl);
+        $this->createMasterValue($masterData,"cl_sup",$cl_sup);
+        $this->createMasterValue($masterData,"cl_inf",$cl_inf);
+        $this->createMasterValue($masterData,"wl",$wl);
+        $this->createMasterValue($masterData,"wl_sup",$wl_sup);
+        $this->createMasterValue($masterData,"wl_inf",$wl_inf);
+        $this->createMasterValue($masterData,"peso_chequeo_repetibilidad",$peso_chequeo_repetibilidad);
+        $this->createMasterValue($masterData,"cl_desv_std",$cl_desv_std);
+        $this->createMasterValue($masterData,"wl_desv_std",$wl_desv_std);
 
         $registro->setMasterDataValues(json_encode($masterData));
 
@@ -870,6 +887,13 @@ class NuevoRegistroController extends Controller
 
         $route = $this->container->get('router')->generate('nononsense_prevalidation_creation', array("registroid" => $registro->getId(), "stepid" => $firststep->getId()));
         return $this->redirect($route);
+    }
+
+    private function createMasterValue(&$masterData, $varName, $varValue){
+        $masterData->{$varName} = new \stdClass();
+        $masterData->{$varName}->nameVar = $varName;
+        $masterData->{$varName}->valueVar = array($varValue);
+        $masterData->{$varName}->step = "";
     }
 
     private function checkValid($tipoContrato, $mse_sms, &$sections, $cif, $cma, $arrayTipoProductos, $codigo_proveedor)

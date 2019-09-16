@@ -303,4 +303,27 @@ class ActivityUser
     {
         return $this->accion;
     }
+
+    /**
+     * Set actionID
+     *
+     * @param integer $actionID
+     * @return ActivityUser
+     */
+    public function setActionID($actionID)
+    {
+        $this->actionID = $actionID;
+
+        return $this;
+    }
+
+    /**
+     * Get actionID
+     *
+     * @return integer 
+     */
+    public function getActionID()
+    {
+        return $this->actionID;
+    }
 }

@@ -38,18 +38,69 @@
                             <input type="text" placeholder="equipo" name="equipo" id="equipo" readonly>
                         </div>
                         <div class="col-sm-5">
-                            <label for="pesa"> Pesa: </label>
-                            <input type="text" placeholder="pesa" name="pesa" id="pesa" readonly>
+                            <label for="equipo"> SAP: </label>
+                            <input type="text" placeholder="sap" name="sap" id="sap" readonly>
                         </div>
                         <div class="col-sm-5">
-                            <label for="control"> Limite control: </label>
-                            <input type="text" placeholder="control" name="control" id="control" readonly>
+                            <label for="ubicacion"> Ubicación: </label>
+                            <input type="text" placeholder="ubicacion" name="ubicacion" id="ubicacion" readonly>
                         </div>
                         <div class="col-sm-5">
-                            <label for="aviso"> Limite aviso: </label>
-                            <input type="text" placeholder="aviso" name="aviso" id="aviso" readonly>
+                            <label for="decimales"> Decimales </label>
+                            <input type="text" placeholder="decimales" name="decimales" id="decimales" readonly>
                         </div>
-
+                        <div class="col-sm-5">
+                            <label for="legibilidad"> Legibilidad: </label>
+                            <input type="text" placeholder="legibilidad" name="legibilidad" id="legibilidad" readonly>
+                        </div>
+                        <div class="col-sm-5">
+                            <label for="pesada_maxima"> Pesada máxima: </label>
+                            <input type="text" placeholder="pesada_maxima" name="pesada_maxima" id="pesada_maxima" readonly>
+                        </div>
+                        <div class="col-sm-5">
+                            <label for="pesada_minima"> Pesada mínima: </label>
+                            <input type="text" placeholder="pesada_minima" name="pesada_minima" id="pesada_minima" readonly>
+                        </div>
+                        <div class="col-sm-5">
+                            <label for="pesa_chequeo_sensibilidad"> Peso chquero Sensibilidad (diario): </label>
+                            <input type="text" placeholder="pesa_chequeo_sensibilidad" name="pesa_chequeo_sensibilidad" id="pesa_chequeo_sensibilidad" readonly>
+                        </div>
+                        <div class="col-sm-5">
+                            <label for="cl"> CL </label>
+                            <input type="text" placeholder="cl" name="cl" id="cl" readonly>
+                        </div>
+                        <div class="col-sm-5">
+                            <label for="cl_sup"> CLsup: </label>
+                            <input type="text" placeholder="cl_sup" name="cl_sup" id="cl_sup" readonly>
+                        </div>
+                        <div class="col-sm-5">
+                            <label for="cl_inf"> Clinf: </label>
+                            <input type="text" placeholder="cl_inf" name="cl_inf" id="cl_inf" readonly>
+                        </div>
+                        <div class="col-sm-5">
+                            <label for="wl"> WL: </label>
+                            <input type="text" placeholder="wl" name="wl" id="wl" readonly>
+                        </div>
+                        <div class="col-sm-5">
+                            <label for="wl_sup"> WLsup: </label>
+                            <input type="text" placeholder="wl_sup" name="wl_sup" id="wl_sup" readonly>
+                        </div>
+                        <div class="col-sm-5">
+                            <label for="wl_inf"> WFinf: </label>
+                            <input type="text" placeholder="wl_inf" name="wl_inf" id="wl_inf" readonly>
+                        </div>
+                        <div class="col-sm-5">
+                            <label for="peso_chequeo_repetibilidad"> Pesa chequeo Repetibilidad (mensual): </label>
+                            <input type="text" placeholder="peso_chequeo_repetibilidad" name="peso_chequeo_repetibilidad" id="peso_chequeo_repetibilidad" readonly>
+                        </div>
+                        <div class="col-sm-5">
+                            <label for="cl_desv_std"> CL (desv std): </label>
+                            <input type="text" placeholder="cl_desv_std" name="cl_desv_std" id="cl_desv_std" readonly>
+                        </div>
+                        <div class="col-sm-5">
+                            <label for="wl_desv_std"> WL (desc std): </label>
+                            <input type="text" placeholder="wl_desv_std" name="wl_desv_std" id="wl_desv_std" readonly>
+                        </div>
                     </div>
                     <div class="row">
                         <a name="guardarRegistro" class="btn btn-success">Iniciar</a>
@@ -113,9 +164,22 @@
         console.log("funcion callback: " + a);
         var objet = JSON.parse(a);
         $('#equipo').val(objet.name);
-        $('#pesa').val(objet.pesa);
-        $('#control').val(objet.control);
-        $('#aviso').val(objet.aviso);
+        $('#sap').val(objet.sap);
+        $('#ubicacion').val(objet.ubicacion);
+        $('#decimales').val(objet.decimales);
+        $('#legibilidad').val(objet.legibilidad);
+        $('#pesada_maxima').val(objet.pesada_maxima);
+        $('#pesada_minima').val(objet.pesada_minima);
+        $('#pesa_chequeo_sensibilidad').val(objet.pesa_chequeo_sensibilidad);
+        $('#cl').val(objet.cl);
+        $('#cl_sup').val(objet.cl_sup);
+        $('#cl_inf').val(objet.cl_inf);
+        $('#wl').val(objet.wl);
+        $('#wl_sup').val(objet.wl_sup);
+        $('#wl_inf').val(objet.wl_inf);
+        $('#peso_chequeo_repetibilidad').val(objet.peso_chequeo_repetibilidad);
+        $('#cl_desv_std').val(objet.cl_desv_std);
+        $('#wl_desv_std').val(objet.wl_desv_std);
 
         if(!checkQRValue(objet.name)){
             toastr.error("El Código escaneado no se corresponde con esta plantilla.", 'aviso');
@@ -165,7 +229,7 @@
 
         if (master == 4 || master == 5) {
             valoresAdmitidos = [
-                "SARTORIUS MSA6 29305085",
+                "Mettler XP205DR 1126360856",
                 "METTLER XP205DR 1126360856",
                 "METTLER XP205DR 1128391731",
                 "METTLER PR8002 1118121361",
