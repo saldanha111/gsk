@@ -148,11 +148,11 @@ class RegistroConcretoController extends Controller
         $versionJS = filemtime(__DIR__ . "/../../../../web/js/js_templates/activity.js");
         $validacionURL1 = $baseUrl . "js/js_templates/activity.js?v=" . $versionJS;
         */
+        $validacionURL2 = '';
 
-        $validacionURL2 = $baseUrl . "js/js_templates/pesos.js";
 
         $validacionURL1 = '';
-        $validacionURL2 = '';
+
 
         /*
          * Custom variable:
@@ -247,6 +247,10 @@ class RegistroConcretoController extends Controller
             ->getRepository('NononsenseHomeBundle:RevisionInstanciaWorkflow')
             ->find($revisionid);
 
+        if($step->getMasterStep()->getId() == 6 || $step->getMasterStep()->getId() == 7){
+            $validacionURL2 = $baseUrl . "js/js_templates/pesos.js";
+        }
+
 
         if ($validacionURL2 != "") {
             $options['requestExternalJS'] = $validacionURL1 . ";" . $validacionURL2 . "?v=" . time();
@@ -255,7 +259,7 @@ class RegistroConcretoController extends Controller
         }
 
 
-        $options['requestExternalJS'] = $validacionURL1;
+        //$options['requestExternalJS'] = $validacionURL1;
         $url_resp_data_uri = $baseUrl . 'data/get_data_from_document/' . $stepid;
         $url_requesetData = $baseUrl . 'data/requestData/' . $step->getId() . '/' . $logbook.'/'.$modo;
 

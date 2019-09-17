@@ -1,3 +1,15 @@
+//Variables globales para este script
+var numFormatWeight = [',', '.'];
+var numDecimals = 5;
+var patron = '^[0-9]+,[0-9]{' + numDecimals + '}$';
+var patronrx = new RegExp(patron);
+var rounder = Math.pow(10, numDecimals)
+var limit_inf;
+var limit_sup;
+var limit_warning;
+var pesa_emplear;
+
+
 function customOnFullyLoaded() {
     /***** Create new buttons ******/
     var sendAndSignButton = $('#download');
@@ -157,6 +169,33 @@ function customOnFullyLoaded() {
     window.arrayPreLoad = arrayPreLoad;
     //console.log(arrayPreLoad);
 
+    $('select[data-list="u_cumple"]').prop('disabled', true);
+
+    $('span[data-name^="u_valor_pesada"]').keypress(function(){
+        window.pesada = $(this).attr('data-name');
+    });
+    $('span[data-name^="u_valor_pesada"]').blur(function(){
+        /*var format = [',', '.'];
+        var valor = string2number($(this).text(), format);
+        var newVal = (Math.round(valor * rounder))/rounder;
+        var number = newVal.toLocaleString('es-ES', { minimumFractionDigits: 5, maximumFractionDigits: 5 });
+        $(this).text(number);*/
+        if (typeof window.pesada != 'undefined' && window.pesada == $(this).attr('data-name')){
+            var correctValue = validateRange($(this).text());
+            var wRex = patronrx.test($(this).text());
+            if (correctValue && wRex){
+                //it seems OK
+            } else {
+                //get the last char of window.pesada
+                var lastChar = window.pesada.replace(/\D/g,'');;
+                var errorMessage = 'La pesada número: ' + lastChar + '('+$(this).text()+') debe estar comprendida entre ' + limit_inf + ' y ' + limit_sup;
+
+
+                toastr.error(errorMessage, 'Error formato peso');
+            }
+        }
+    });
+
 }
 /*
  * Comprobar si valToCheck está en la variable, el dilema son los checkboxes (estos habría que tratarlos quizás como vacíos.
@@ -279,6 +318,15 @@ function customOnValidate(val, name) {
                 showOnValidationPanel('u_limpieza', true);
                 showOnValidationPanel('u_limpieza_semanal', true);
                 return false;
+            }
+            break;
+        case "u_valor_pesada":
+            if (name.slice(0, -1) == 'u_valor_pesada'){
+                //esta validación requiere que todas las pesadas
+                //se hallen comprendidas entre los valores inf y sup admitidos
+                return validateRange(val);
+            } else {
+                return true;
             }
             break;
         default:
@@ -427,4 +475,107 @@ function customOnLoad() {
 
         return urlLimpia;
     }
+
+
+
+}
+
+//validar pesos
+function validarArrayPesos (p){
+    pesos = convert2Numbers(p);
+    var error = false;
+    var len = pesos.length;
+    for (var j = 0; j < len; j++){
+        if (errorPeso(pesos[j])){
+            error = true;
+            break;
+        }
+    }
+    return error;
+}
+
+function errorPeso (peso){
+    if (isNaN(peso)){
+        return true;
+    } else {
+        return false;
+    }
+}
+
+function convert2Numbers (w){
+    var format = [',', '.'];
+    var len = w.length;
+    var res = [];
+    for (var j = 0; j < len; j++){
+        //usamos string2number que esta definido en Docxpresso
+        valnum = string2number(w[j], format);
+        res[j] = (Math.round(valnum * rounder))/rounder;
+    }
+    return res;
+}
+
+function getSum(total, num) {
+    return total + num;
+}
+
+function validateRange(val){
+    //update data
+    getValuesFromTemplate();
+    console.log('limit_inf: ' + limit_inf);
+    console.log('limit_sup: ' + limit_sup);
+    var valor = string2number(val, numFormatWeight);
+    console.log('valor: ' + valor);
+    if (!isNaN(valor) && valor <= limit_sup && valor >= limit_inf){
+        //we have to check that the string has 5 decimals
+        var wRex = patronrx.test(val);
+        console.log('patron: ' + patron);
+        console.log(wRex);
+        if (wRex){
+            return true;
+        } else {
+            console.log("error en patron");
+            return false;
+        }
+
+    } else {
+        if(valor <= limit_sup){
+            console.log("limite superior correcto");
+        }else{
+            console.log("error: "+valor+" es mayor que  "+limit_sup);
+        }
+        if(valor >= limit_inf){
+            console.log("limite inferior correcto");
+        }else{
+            console.log('error: '+valor+" es menor que  "+limit_inf);
+        }
+        if(!isNaN(valor)){
+            console.log("cosa rara funcion isNAN correcta");
+        }else{
+            console.log("cosa rara funcion isNAN error");
+
+        }
+        return false;
+    }
+}
+
+function getValuesFromTemplate(){
+    //Esta funciónn extrae los datos del QR para la validación
+    //Las variables relevates son:
+    //pesa asociada a u_pesa (pero esta creo que no se necesita utilizar)
+    //rango asociada a u_limite_control que tenemos que dividir luego en limite_inf y limite_sup
+    //aviso asociada a u_limite_aviso y que debe disparar la alerta asociada a la desviación cuadrática media
+    //IMPORTANTE: todos los valores númericos deben estar en gramos
+    //pesa
+    var prepesa_emplear = $('span[data-name="u_pesa"]').text().trim();
+    pesa_emplear = string2number(prepesa_emplear, numFormatWeight);
+    //rangos
+    var rango = $('span[data-name="u_limite_control"]').text().trim();
+    var rangoArray = rango.split('-');
+    if (rangoArray.length > 1){ //solo para evitar errores en la carga
+        limit_inf = string2number(rangoArray[0].trim(), numFormatWeight);
+        limit_sup = string2number(rangoArray[1].trim(), numFormatWeight);
+    }
+    //aviso
+    var prelimit_warning = $('span[data-name="u_limite_aviso"]').text().trim();
+    limit_warning = string2number(prelimit_warning, numFormatWeight);
 }

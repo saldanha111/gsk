@@ -265,6 +265,36 @@ class DataDocumentController extends Controller
                 }
             }
 
+            /*
+             * SENSIBILIDAD
+             * 	//IMPORTANTE: todos los valores númericos deben estar en gramos
+             */
+            if($step->getMasterStepId() == 6){
+                $cl_sup = $workflowMasterDataJSON->cl_sup->valueVar[0];
+                $cl_inf = $workflowMasterDataJSON->cl_inf->valueVar[0];
+                $limite_control = $cl_inf . " - " . $cl_sup;
+
+                $varValues->u_limite_control = array($limite_control);
+
+                $wl_sup = $workflowMasterDataJSON->wl_sup->valueVar[0];
+                $wl_inf = $workflowMasterDataJSON->wl_inf->valueVar[0];
+                $u_limite_aviso = $wl_inf . " - " . $wl_sup;
+
+                $varValues->u_limite_aviso = array($u_limite_aviso);
+
+                $pesa_chequeo_sensibilidad = $workflowMasterDataJSON->pesa_chequeo_sensibilidad->valueVar[0];
+                $varValues->u_pesa = array($pesa_chequeo_sensibilidad);
+
+
+            }
+            /*
+             * Repetibilidad
+             */
+            if($step->getMasterStepId() == 7){
+
+            }
+
+
             $varValues->historico_steps = array("     ");
             $data->varValues = $varValues;
 
