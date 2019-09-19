@@ -20,7 +20,7 @@
         <div>
             <div class="col-sm-5 ">
                 <h1>Verificar datos</h1>
-                <form id="cancelform" action="{{path('nononsense_registro_devolver_edicion_accion', {'stepid': stepid})}}">
+                <form id="cancelform" action="{{path('nononsense_registro_devolver_edicion_accion', {'stepid': stepid})}}" method="POST" enctype="multipart/form-data">
                     <div class="input-group">
                         <span class="input-group-addon"
                               style="background-color: #62bbe2; color: #fff"> Indicar motivo</span>

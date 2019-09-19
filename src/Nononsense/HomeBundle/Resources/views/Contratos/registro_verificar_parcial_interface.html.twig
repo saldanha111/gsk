@@ -20,7 +20,7 @@
         <div>
             <div class="col-sm-5 ">
                 <h1>Verificar datos</h1>
-                <form id="cancelform" action="{{path('nononsense_registro_verificado_parcial', {'stepid': stepid})}}">
+                <form id="cancelform" action="{{path('nononsense_registro_verificado_parcial', {'stepid': stepid})}}" method="POST" enctype="multipart/form-data">
                     <div class="input-group">
                         {% if comment == 1 %}
                         <div id="comentario" class="input-group">

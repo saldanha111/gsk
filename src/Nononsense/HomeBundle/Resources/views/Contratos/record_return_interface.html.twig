@@ -20,7 +20,7 @@
         <div>
             <div class="col-sm-5 ">
                 <h1>Devolución de documento</h1>
-                <form id="cancelform" action="{{path('nononsense_record_return', {'id': id})}}">
+                <form id="cancelform" action="{{path('nononsense_record_return', {'id': id})}}" method="POST" enctype="multipart/form-data">
                     
                     <div class="input-group">
                         <textarea id="comment" name="comment" form="cancelform" rows="10" cols="91"></textarea>

@@ -23,8 +23,8 @@ class AppKernel extends Kernel
             new Nononsense\NotificationsBundle\NononsenseNotificationsBundle(),
             new Nononsense\UtilsBundle\NononsenseUtilsBundle(),
             new Nononsense\DataDocumentBundle\NononsenseDataDocumentBundle(),
-            new Liuggio\ExcelBundle\LiuggioExcelBundle(),
-            new WhiteOctober\TCPDFBundle\WhiteOctoberTCPDFBundle()
+            //new Liuggio\ExcelBundle\LiuggioExcelBundle(),
+            //new WhiteOctober\TCPDFBundle\WhiteOctoberTCPDFBundle()
 
         );
 

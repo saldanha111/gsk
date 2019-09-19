@@ -19,7 +19,7 @@
     <div class="row">
         <div>
             <h1>Ha verificado un documento del tipo: IT-C-OP-144 sin haber verificado el ES-MA: {{documentName}} eso debe ser un error</h1>
-            <form id="cancelform" action="{{path('nononsense_registro_esma_no_valido_firma', {'stepid': stepid})}}">
+            <form id="cancelform" action="{{path('nononsense_registro_esma_no_valido_firma', {'stepid': stepid})}}" method="POST" enctype="multipart/form-data">
                 <div class="input-group">
                         <span class="input-group-addon"
                               style="background-color: #62bbe2; color: #fff"> Indicar motivo</span>

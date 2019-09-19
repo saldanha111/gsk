@@ -291,7 +291,14 @@ class DataDocumentController extends Controller
              * Repetibilidad
              */
             if($step->getMasterStepId() == 7){
+                $pesa_chequeo_sensibilidad = $workflowMasterDataJSON->peso_chequeo_repetibilidad->valueVar[0];
+                $varValues->u_pesa = array($pesa_chequeo_sensibilidad);
 
+                $limite_control = $workflowMasterDataJSON->cl_desv_std->valueVar[0];
+                $varValues->u_limite_control = array($limite_control);
+
+                $u_limite_aviso = $workflowMasterDataJSON->wl_desv_std->valueVar[0];
+                $varValues->u_limite_aviso = array($u_limite_aviso);
             }
 
 
@@ -691,13 +698,23 @@ class DataDocumentController extends Controller
                                     if($lastValue == $field->label){
                                         $lastValue="";
                                     }
+                                    if($currentValue == $field->label){
+                                        $currentValue="";
+                                    }
+
+                                    if($field->tip!=""){
+                                        $info=$field->tip;
+                                    }
+                                    else{
+                                        $info=$prop;
+                                    }
                                 }
                             }
                             if ($lastValue != $currentValue && $audittrail) {
                                 // Modificado
                                 $counterModified++;
                                 $modified = true;
-                                $bloqueHTML .= "<tr><td>" . $prop . "</td><td>" . $lastValue . "</td><td>" . $currentValue . "</td></tr>";
+                                $bloqueHTML .= "<tr><td>" . $info . "</td><td>" . $lastValue . "</td><td>" . $currentValue . "</td></tr>";
                             }
                         }
                     }

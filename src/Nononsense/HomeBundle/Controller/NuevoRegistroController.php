@@ -542,8 +542,8 @@ class NuevoRegistroController extends Controller
         $evidencia->setToken($step->getToken());
         $evidencia->setStepDataValue($step->getStepDataValue());
 
-        $firmaImagen = $request->query->get('firma');
-        $comentario = $request->query->get('comment');
+        $firmaImagen = $request->get('firma');
+        $comentario = $request->get('comment');
 
         $descp = "Petición de reconciliación solicitada. " . $comentario;
 
@@ -835,7 +835,7 @@ class NuevoRegistroController extends Controller
         $wl_sup = $request->query->get('wl_sup');
         $wl_inf = $request->query->get('wl_inf');
         $peso_chequeo_repetibilidad= $request->query->get('peso_chequeo_repetibilidad');
-        $cl_desv_std = $request->query->get('$¡cl_desv_std');
+        $cl_desv_std = $request->query->get('cl_desv_std');
         $wl_desv_std= $request->query->get('wl_desv_std');
 
         $masterData = new \stdClass();

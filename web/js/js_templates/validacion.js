@@ -3,6 +3,7 @@ function customOnFullyLoaded() {
     var sendAndSignButton = $('#download');
     $('#download').hide();
     $('#cancel').hide();
+    ocultar_indices();
 
     var divButtons = sendAndSignButton.parents('div:first');
 
@@ -275,6 +276,14 @@ function customOnLoad() {
 
         return urlLimpia;
     }
+}
+
+function ocultar_indices(){
+    $("span[data-name*='in_']" ).each(function() {
+        if($(this).html()=="Índice"){
+            $(this).hide();
+        }
+    });
 }
 
 

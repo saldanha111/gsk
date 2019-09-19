@@ -478,6 +478,8 @@ function customOnLoad() {
     }
 
 
+<<<<<<< HEAD
+
 }
 
 //validar pesos
@@ -590,4 +592,5 @@ function ocultar_indices(){
 
 function ocultar_validaciones(){
     $("span[data-name*='verchk_']" ).hide();
+>>>>>>> a9035e3b6ec123ee0e19bedbb6aa199e8420e91b
 }

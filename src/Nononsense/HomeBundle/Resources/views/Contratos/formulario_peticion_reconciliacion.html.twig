@@ -251,7 +251,7 @@
                 </tr>
             </table>
         </div>
-        <form id="accionform" action="{{path('nononsense_peticion_reconciliacion_accion_solicitar', {'peticionid': peticion.id})}}">
+        <form id="accionform" action="{{path('nononsense_peticion_reconciliacion_accion_solicitar', {'peticionid': peticion.id})}}" method="POST" enctype="multipart/form-data">
             <textarea id="comment" name="comment" form="accionform" rows="10" cols="91"></textarea>
             <div id="signature-pad" class="input-group">
                 <h2>Introduzca su firma</h2>
