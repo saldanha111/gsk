@@ -876,8 +876,8 @@ class RegistroValidationController extends Controller
             ->getRepository('NononsenseHomeBundle:InstanciasSteps')
             ->find($stepid);
 
-        $comentario = $request->query->get('comment');
-        $firmaImagen = $request->query->get('firma');
+        $comentario = $request->get('comment');
+        $firmaImagen = $request->get('firma');
 
         $documentName = $step->getMasterStep()->getName();
 
@@ -965,8 +965,8 @@ class RegistroValidationController extends Controller
             ->getRepository('NononsenseHomeBundle:InstanciasSteps')
             ->find($stepid);
 
-        $comentario = $request->query->get('comment');
-        $firmaImagen = $request->query->get('firma');
+        $comentario = $request->get('comment');
+        $firmaImagen = $request->get('firma');
 
         $documentName = $step->getMasterStep()->getName();
 
@@ -1044,8 +1044,8 @@ class RegistroValidationController extends Controller
             ->getRepository('NononsenseHomeBundle:InstanciasSteps')
             ->find($stepid);
 
-        $comentario = $request->query->get('comment');
-        $firmaImagen = $request->query->get('firma');
+        $comentario = $request->get('comment');
+        $firmaImagen = $request->get('firma');
 
         $documentName = $step->getMasterStep()->getName();
 
@@ -1124,8 +1124,8 @@ class RegistroValidationController extends Controller
             ->getRepository('NononsenseHomeBundle:InstanciasSteps')
             ->find($stepid);
 
-        $comentario = $request->query->get('comment');
-        $firmaImagen = $request->query->get('firma');
+        $comentario = $request->get('comment');
+        $firmaImagen = $request->get('firma');
 
         $documentName = $step->getMasterStep()->getName();
 
@@ -1290,8 +1290,8 @@ class RegistroValidationController extends Controller
             ->getRepository('NononsenseHomeBundle:InstanciasSteps')
             ->find($stepid);
 
-        $comentario = $request->query->get('comment');
-        $firmaImagen = $request->query->get('firma');
+        $comentario = $request->get('comment');
+        $firmaImagen = $request->get('firma');
 
         $documentName = $step->getMasterStep()->getName();
 
@@ -1397,8 +1397,8 @@ class RegistroValidationController extends Controller
             ->getRepository('NononsenseHomeBundle:InstanciasSteps')
             ->find($stepid);
 
-        $comentario = $request->query->get('comment');
-        $firmaImagen = $request->query->get('firma');
+        $comentario = $request->get('comment');
+        $firmaImagen = $request->get('firma');
 
         $documentName = $step->getMasterStep()->getName();
 
@@ -1487,8 +1487,8 @@ class RegistroValidationController extends Controller
         //$cancelacionStep->setStatus(0);
         //$cancelacionStep->setStep($step);
 
-        $comentario = $request->query->get('comment');
-        $firmaImagen = $request->query->get('firma');
+        $comentario = $request->get('comment');
+        $firmaImagen = $request->get('firma');
         //$cancelacionStep->setRevisiontext($comentario);
 
         $documentName = $step->getMasterStep()->getName();

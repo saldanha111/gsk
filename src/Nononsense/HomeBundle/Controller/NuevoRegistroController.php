@@ -542,8 +542,8 @@ class NuevoRegistroController extends Controller
         $evidencia->setToken($step->getToken());
         $evidencia->setStepDataValue($step->getStepDataValue());
 
-        $firmaImagen = $request->query->get('firma');
-        $comentario = $request->query->get('comment');
+        $firmaImagen = $request->get('firma');
+        $comentario = $request->get('comment');
 
         $descp = "Petición de reconciliación solicitada. " . $comentario;
 

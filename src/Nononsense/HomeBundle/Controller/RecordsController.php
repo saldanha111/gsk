@@ -857,7 +857,7 @@ class RecordsController extends Controller
 
         $user = $this->container->get('security.context')->getToken()->getUser();
         
-        $comentario = $request->query->get('comment');
+        $comentario = $request->get('comment');
 
         $record = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:RecordsDocuments')

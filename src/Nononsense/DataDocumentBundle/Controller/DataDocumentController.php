@@ -661,13 +661,23 @@ class DataDocumentController extends Controller
                                     if($lastValue == $field->label){
                                         $lastValue="";
                                     }
+                                    if($currentValue == $field->label){
+                                        $currentValue="";
+                                    }
+
+                                    if($field->tip!=""){
+                                        $info=$field->tip;
+                                    }
+                                    else{
+                                        $info=$prop;
+                                    }
                                 }
                             }
                             if ($lastValue != $currentValue && $audittrail) {
                                 // Modificado
                                 $counterModified++;
                                 $modified = true;
-                                $bloqueHTML .= "<tr><td>" . $prop . "</td><td>" . $lastValue . "</td><td>" . $currentValue . "</td></tr>";
+                                $bloqueHTML .= "<tr><td>" . $info . "</td><td>" . $lastValue . "</td><td>" . $currentValue . "</td></tr>";
                             }
                         }
                     }
