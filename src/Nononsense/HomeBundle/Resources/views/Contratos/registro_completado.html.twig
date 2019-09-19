@@ -22,7 +22,7 @@
         {% if validated == 1 %}
         <h1>El registro está completado</h1>
         <form id="guardarenviarForm"
-              action="{{path('nononsense_registro_concreto_guardar_enviar', {'stepid': stepid})}}">
+              action="{{path('nononsense_registro_concreto_guardar_enviar', {'stepid': stepid})}}" method="POST" enctype="multipart/form-data">
             <div id="signature-pad" class="input-group">
                 <h2>Introduzca su firma</h2>
                 <canvas width="300" height="150"
@@ -36,7 +36,7 @@
             <h1>El registro está Incompleto</h1>
             <p>Se ha rellenado el {{percentageCompleted}} % del documento</p>
             <form id="guardarRegistroForm"
-                  action="{{path('nononsense_registro_concreto_guardar', {'stepid': stepid})}}">
+                  action="{{path('nononsense_registro_concreto_guardar', {'stepid': stepid})}}" method="POST" enctype="multipart/form-data">
                 {% if devolucion == 1 %}
                 <div id="comentario" class="input-group">
                     <p>Ha modificado valores previamente imputados. Explique por qué</p>

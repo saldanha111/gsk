@@ -323,8 +323,8 @@ class RegistroConcretoController extends Controller
         $evidencia->setStepDataValue($step->getStepDataValue());
         */
 
-        $firmaImagen = $request->query->get('firma');
-        $comentario = $request->query->get('comment');
+        $firmaImagen = $request->get('firma');
+        $comentario = $request->get('comment');
 
         if (!empty($comentario)) {
             $descp = "Guardado parcial. " . $comentario;
@@ -388,7 +388,7 @@ class RegistroConcretoController extends Controller
     public
     function saveAndSendAction($stepid, Request $request)
     {
-        $comentario = $request->query->get('comment');
+        $comentario = $request->get('comment');
 
         $step = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:InstanciasSteps')
@@ -522,7 +522,7 @@ class RegistroConcretoController extends Controller
             ->getRepository('NononsenseHomeBundle:FirmasStep')
             ->findOneBy(array("step_id" => $step->getId(), "status" => 0, "userEntiy" => $user));
 
-        $firmaImagen = $request->query->get('firma');
+        $firmaImagen = $request->get('firma');
 
         if (isset($firma)) {
             $firma->setFirma($firmaImagen);
@@ -753,8 +753,8 @@ class RegistroConcretoController extends Controller
         $em->persist($registro);
         $em->flush();
 
-        $firmaImagen = $request->query->get('firma');
-        $comentario = $request->query->get('comment');
+        $firmaImagen = $request->get('firma');
+        $comentario = $request->get('comment');
 
         if (!empty($comentario)) {
             $descp = "Guardado parcial. " . $comentario;
@@ -1274,9 +1274,9 @@ class RegistroConcretoController extends Controller
         $evidencia->setStepDataValue($step->getStepDataValue());
 
 
-        $firmaImagen = $request->query->get('firma');
-        $comentario = $request->query->get('comment');
-        $accion = $request->query->get('accion');
+        $firmaImagen = $request->get('firma');
+        $comentario = $request->get('comment');
+        $accion = $request->get('accion');
 
         $registroNuevo = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')

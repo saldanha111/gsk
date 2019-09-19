@@ -3,7 +3,8 @@ function customOnFullyLoaded() {
     var sendAndSignButton = $('#download');
     $('#download').hide();
     $('#cancel').hide();
-
+    ocultar_indices();
+    ocultar_validaciones();
     var divButtons = sendAndSignButton.parents('div:first');
 
     var htmlButton = '<button type="submit" id="download2" class="btn btn-warning btn-sm btn-small" onclick="return false;" style="margin-left: 8px;"><i class="fa fa-save" aria-hidden="true"> </i> <span class="buttonTop">Guardar y firmar</span></button>';
@@ -427,4 +428,18 @@ function customOnLoad() {
 
         return urlLimpia;
     }
+
+
+}
+
+function ocultar_indices(){
+    $("span[data-name*='in_']" ).each(function() {
+        if($(this).html()=="Índice"){
+            $(this).hide();
+        }
+    });
+}
+
+function ocultar_validaciones(){
+    $("span[data-name*='verchk_']" ).hide();
 }

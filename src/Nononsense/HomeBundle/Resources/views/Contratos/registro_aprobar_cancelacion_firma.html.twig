@@ -20,7 +20,7 @@
         <div>
             <div class="col-sm-5 ">
                 <h1>Aprobar la cancelación del registro</h1>
-                <form id="cancelform" action="{{path('nononsense_cancelacion_aprobada', {'stepid': stepid})}}">
+                <form id="cancelform" action="{{path('nononsense_cancelacion_aprobada', {'stepid': stepid})}}" method="POST" enctype="multipart/form-data">
                     <div id="comentario" class="input-group">
                         <p>Escriba sus motivos:</p>
 
