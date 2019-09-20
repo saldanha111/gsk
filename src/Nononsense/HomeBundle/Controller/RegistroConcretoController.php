@@ -150,9 +150,7 @@ class RegistroConcretoController extends Controller
         */
         $validacionURL2 = '';
 
-
         $validacionURL1 = '';
-
 
         /*
          * Custom variable:
@@ -168,7 +166,23 @@ class RegistroConcretoController extends Controller
          */
         $precreationValue = $registro->getMasterWorkflowEntity()->getPrecreation();
         if ($precreationValue != "default") {
-            $customObject->activate = 'activate';
+            /*
+             * Si ya tuviera una firma asignada no haría falta hacer esto
+             */
+
+            $firma = $this->getDoctrine()
+                ->getRepository('NononsenseHomeBundle:FirmasStep')
+                ->findOneBy(array("step_id" => $step->getId()));
+
+            if(!isset($firma)){
+                /*
+                 * No existe firma, por tanto primer uso.
+                 */
+                $customObject->activate = 'activate';
+            }
+
+
+
         }
         $options['custom'] = json_encode($customObject);
 

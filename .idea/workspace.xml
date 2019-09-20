@@ -5,7 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6ed663db-a9a0-40ef-8119-691652a3a6fd" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/AppKernel.php" afterPath="$PROJECT_DIR$/app/AppKernel.php" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Nononsense/HomeBundle/Controller/RegistroConcretoController.php" afterPath="$PROJECT_DIR$/src/Nononsense/HomeBundle/Controller/RegistroConcretoController.php" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -33,7 +34,7 @@
       <file leaf-file-name="NuevoRegistroController.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/Nononsense/HomeBundle/Controller/NuevoRegistroController.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="262">
+            <state relative-caret-position="13923">
               <caret line="837" column="45" lean-forward="false" selection-start-line="837" selection-start-column="45" selection-end-line="837" selection-end-column="45" />
               <folding>
                 <element signature="e#6#92#0#PHP" expanded="true" />
@@ -45,7 +46,7 @@
       <file leaf-file-name="DataDocumentController.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/Nononsense/DataDocumentBundle/Controller/DataDocumentController.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="606">
+            <state relative-caret-position="4862">
               <caret line="299" column="65" lean-forward="false" selection-start-line="299" selection-start-column="65" selection-end-line="299" selection-end-column="65" />
               <folding />
             </state>
@@ -65,7 +66,7 @@
       <file leaf-file-name="AppKernel.php" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/app/AppKernel.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="425">
+            <state relative-caret-position="424">
               <caret line="26" column="12" lean-forward="false" selection-start-line="26" selection-start-column="12" selection-end-line="26" selection-end-column="12" />
               <folding />
             </state>
@@ -75,51 +76,11 @@
       <file leaf-file-name="RegistroConcretoController.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/Nononsense/HomeBundle/Controller/RegistroConcretoController.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="3876">
-              <caret line="253" column="0" lean-forward="false" selection-start-line="253" selection-start-column="0" selection-end-line="253" selection-end-column="0" />
+            <state relative-caret-position="495">
+              <caret line="176" column="28" lean-forward="false" selection-start-line="176" selection-start-column="28" selection-end-line="176" selection-end-column="28" />
               <folding>
-                <marker date="1568905500978" expanded="true" signature="1093:52855" ph="{...}" />
-                <marker date="1568905500978" expanded="true" signature="10514:11471" ph="{...}" />
-                <marker date="1568905500978" expanded="true" signature="45477:47533" ph="{...}" />
-                <marker date="1568905500978" expanded="true" signature="45569:45611" ph="..." />
-                <marker date="1568905500978" expanded="true" signature="45632:45648" ph="..." />
-                <marker date="1568905500978" expanded="true" signature="45689:46010" ph="..." />
-                <marker date="1568905500978" expanded="true" signature="46018:46261" ph="..." />
-                <marker date="1568905500978" expanded="true" signature="46273:46308" ph="..." />
-                <marker date="1568905500978" expanded="true" signature="46378:46411" ph="..." />
-                <marker date="1568905500978" expanded="true" signature="46434:46468" ph="..." />
-                <marker date="1568905500978" expanded="true" signature="47592:48013" ph="{...}" />
-                <marker date="1568905500978" expanded="true" signature="47668:47703" ph="..." />
-                <marker date="1568905500978" expanded="true" signature="47729:47794" ph="..." />
-                <marker date="1568905500978" expanded="true" signature="48064:50771" ph="{...}" />
-                <marker date="1568905500978" expanded="true" signature="48081:48274" ph="..." />
-                <marker date="1568905500978" expanded="true" signature="48455:50681" ph="..." />
-                <marker date="1568905500978" expanded="true" signature="48618:48888" ph="..." />
-                <marker date="1568905500978" expanded="true" signature="48681:48874" ph="..." />
-                <marker date="1568905500978" expanded="true" signature="48925:50669" ph="..." />
-                <marker date="1568905500978" expanded="true" signature="49025:49101" ph="..." />
-                <marker date="1568905500978" expanded="true" signature="49436:50655" ph="..." />
-                <marker date="1568905500978" expanded="true" signature="49592:50636" ph="..." />
-                <marker date="1568905500978" expanded="true" signature="50062:50278" ph="..." />
-                <marker date="1568905500978" expanded="true" signature="50125:50252" ph="..." />
-                <marker date="1568905500978" expanded="true" signature="50306:50613" ph="..." />
-                <marker date="1568905500978" expanded="true" signature="50689:50736" ph="..." />
-                <marker date="1568905500978" expanded="true" signature="50863:51891" ph="{...}" />
-                <marker date="1568905500978" expanded="true" signature="51098:51106" ph="..." />
-                <marker date="1568905500978" expanded="true" signature="51130:51175" ph="..." />
-                <marker date="1568905500978" expanded="true" signature="51197:51204" ph="..." />
-                <marker date="1568905500978" expanded="true" signature="51228:51565" ph="..." />
-                <marker date="1568905500978" expanded="true" signature="51263:51522" ph="..." />
-                <marker date="1568905500978" expanded="true" signature="51347:51521" ph="..." />
-                <marker date="1568905500978" expanded="true" signature="51617:51762" ph="..." />
-                <marker date="1568905500978" expanded="true" signature="51770:51883" ph="..." />
-                <marker date="1568905500978" expanded="true" signature="51933:52853" ph="{...}" />
-                <marker date="1568905500978" expanded="true" signature="52196:52237" ph="..." />
-                <marker date="1568905500978" expanded="true" signature="52265:52818" ph="..." />
-                <marker date="1568905500978" expanded="true" signature="52398:52431" ph="..." />
-                <marker date="1568905500978" expanded="true" signature="52458:52514" ph="..." />
-                <marker date="1568905500978" expanded="true" signature="52559:52807" ph="..." />
-                <marker date="1568905500978" expanded="true" signature="52653:52791" ph="..." />
+                <marker date="1568967646708" expanded="true" signature="10943:11900" ph="{...}" />
+                <marker date="1568967646708" expanded="true" signature="45906:47962" ph="{...}" />
               </folding>
             </state>
           </provider>
@@ -128,8 +89,8 @@
       <file leaf-file-name="pesos.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/web/js/js_templates/pesos.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="255">
-              <caret line="15" column="37" lean-forward="false" selection-start-line="15" selection-start-column="20" selection-end-line="15" selection-end-column="37" />
+            <state relative-caret-position="611">
+              <caret line="36" column="23" lean-forward="true" selection-start-line="36" selection-start-column="23" selection-end-line="36" selection-end-column="23" />
               <folding />
             </state>
           </provider>
@@ -138,8 +99,8 @@
       <file leaf-file-name="activity.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/web/js/js_templates/activity.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1583">
-              <caret line="478" column="0" lean-forward="false" selection-start-line="478" selection-start-column="0" selection-end-line="478" selection-end-column="0" />
+            <state relative-caret-position="274">
+              <caret line="563" column="24" lean-forward="false" selection-start-line="563" selection-start-column="24" selection-end-line="563" selection-end-column="24" />
               <folding />
             </state>
           </provider>
@@ -148,7 +109,7 @@
       <file leaf-file-name="_activity.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/web/js/js_templates/_activity.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="291">
+            <state relative-caret-position="8925">
               <caret line="525" column="37" lean-forward="false" selection-start-line="525" selection-start-column="37" selection-end-line="525" selection-end-column="37" />
               <folding />
             </state>
@@ -170,8 +131,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>registroCompletadoact</find>
-      <find>nononsense_contrato_registro_completado</find>
       <find>registro_verificar_parcial_firma</find>
       <find>verificarParcialInterface</find>
       <find>comment</find>
@@ -197,9 +156,11 @@
       <find>error formato peso</find>
       <find>validateRange</find>
       <find>toast</find>
-      <find>validarArrayPesos</find>
       <find>getValuesFromTemplate</find>
       <find>getvalues</find>
+      <find>validarArrayPesos</find>
+      <find>u_desviacion</find>
+      <find>firma</find>
     </findStrings>
     <replaceStrings>
       <replace>Multiseleccion</replace>
@@ -298,12 +259,12 @@
         <option value="$PROJECT_DIR$/src/Nononsense/HomeBundle/Resources/views/Contratos/testJson.fxml" />
         <option value="$PROJECT_DIR$/src/Nononsense/HomeBundle/Resources/views/Contratos/registro_creacion_equipo_pesa_qr.html.twig" />
         <option value="$PROJECT_DIR$/src/Nononsense/HomeBundle/Resources/views/Contratos/testjson.json" />
-        <option value="$PROJECT_DIR$/src/Nononsense/HomeBundle/Controller/RegistroConcretoController.php" />
         <option value="$PROJECT_DIR$/web/js/js_templates/pesos.js" />
         <option value="$PROJECT_DIR$/src/Nononsense/DataDocumentBundle/Controller/DataDocumentController.php" />
         <option value="$PROJECT_DIR$/web/js/js_templates/_activity.js" />
         <option value="$PROJECT_DIR$/web/js/js_templates/activity.js" />
         <option value="$PROJECT_DIR$/src/Nononsense/HomeBundle/Controller/NuevoRegistroController.php" />
+        <option value="$PROJECT_DIR$/src/Nononsense/HomeBundle/Controller/RegistroConcretoController.php" />
         <option value="$PROJECT_DIR$/app/AppKernel.php" />
       </list>
     </option>
@@ -689,7 +650,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="PackagesPane" />
       <pane id="ProjectPane">
         <subPane>
@@ -707,8 +667,9 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scratches" />
       <pane id="AndroidView" />
+      <pane id="Scratches" />
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -1262,12 +1223,14 @@
       <workItem from="1568614126367" duration="602000" />
       <workItem from="1568631800774" duration="3498000" />
       <workItem from="1568707455307" duration="5450000" />
-      <workItem from="1568905557132" duration="1287000" />
+      <workItem from="1568905557132" duration="1934000" />
+      <workItem from="1568961573720" duration="602000" />
+      <workItem from="1568964568913" duration="2255000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="2952827000" />
+    <option name="totallyTimeSpent" value="2956331000" />
   </component>
   <component name="TodoView" selected-index="3">
     <todo-panel id="selected-file">
@@ -1294,9 +1257,9 @@
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32936078" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25426438" sideWeight="0.51" order="0" side_tool="false" content_ui="combo" x="716" y="192" width="487" height="655" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2595949" sideWeight="0.5011111" order="0" side_tool="false" content_ui="combo" x="716" y="192" width="487" height="655" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32995737" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25426438" sideWeight="0.49" order="1" side_tool="true" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2595949" sideWeight="0.49888888" order="1" side_tool="true" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Theme Preview" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -1615,13 +1578,13 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/Nononsense/HomeBundle/Resources/views/Contratos/testJson.fxml">
-      <provider editor-type-id="JavaFX-Scene-Builder">
-        <state />
-      </provider>
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="99" lean-forward="false" selection-start-line="0" selection-start-column="99" selection-end-line="0" selection-end-column="99" />
         </state>
+      </provider>
+      <provider editor-type-id="JavaFX-Scene-Builder">
+        <state />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/Nononsense/HomeBundle/Resources/views/Contratos/registro_creacion_equipo_pesa_qr.html.twig">
@@ -1639,84 +1602,17 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/Nononsense/HomeBundle/Controller/RegistroConcretoController.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3876">
-          <caret line="253" column="0" lean-forward="false" selection-start-line="253" selection-start-column="0" selection-end-line="253" selection-end-column="0" />
-          <folding>
-            <marker date="1568905500978" expanded="true" signature="1093:52855" ph="{...}" />
-            <marker date="1568905500978" expanded="true" signature="10514:11471" ph="{...}" />
-            <marker date="1568905500978" expanded="true" signature="45477:47533" ph="{...}" />
-            <marker date="1568905500978" expanded="true" signature="45569:45611" ph="..." />
-            <marker date="1568905500978" expanded="true" signature="45632:45648" ph="..." />
-            <marker date="1568905500978" expanded="true" signature="45689:46010" ph="..." />
-            <marker date="1568905500978" expanded="true" signature="46018:46261" ph="..." />
-            <marker date="1568905500978" expanded="true" signature="46273:46308" ph="..." />
-            <marker date="1568905500978" expanded="true" signature="46378:46411" ph="..." />
-            <marker date="1568905500978" expanded="true" signature="46434:46468" ph="..." />
-            <marker date="1568905500978" expanded="true" signature="47592:48013" ph="{...}" />
-            <marker date="1568905500978" expanded="true" signature="47668:47703" ph="..." />
-            <marker date="1568905500978" expanded="true" signature="47729:47794" ph="..." />
-            <marker date="1568905500978" expanded="true" signature="48064:50771" ph="{...}" />
-            <marker date="1568905500978" expanded="true" signature="48081:48274" ph="..." />
-            <marker date="1568905500978" expanded="true" signature="48455:50681" ph="..." />
-            <marker date="1568905500978" expanded="true" signature="48618:48888" ph="..." />
-            <marker date="1568905500978" expanded="true" signature="48681:48874" ph="..." />
-            <marker date="1568905500978" expanded="true" signature="48925:50669" ph="..." />
-            <marker date="1568905500978" expanded="true" signature="49025:49101" ph="..." />
-            <marker date="1568905500978" expanded="true" signature="49436:50655" ph="..." />
-            <marker date="1568905500978" expanded="true" signature="49592:50636" ph="..." />
-            <marker date="1568905500978" expanded="true" signature="50062:50278" ph="..." />
-            <marker date="1568905500978" expanded="true" signature="50125:50252" ph="..." />
-            <marker date="1568905500978" expanded="true" signature="50306:50613" ph="..." />
-            <marker date="1568905500978" expanded="true" signature="50689:50736" ph="..." />
-            <marker date="1568905500978" expanded="true" signature="50863:51891" ph="{...}" />
-            <marker date="1568905500978" expanded="true" signature="51098:51106" ph="..." />
-            <marker date="1568905500978" expanded="true" signature="51130:51175" ph="..." />
-            <marker date="1568905500978" expanded="true" signature="51197:51204" ph="..." />
-            <marker date="1568905500978" expanded="true" signature="51228:51565" ph="..." />
-            <marker date="1568905500978" expanded="true" signature="51263:51522" ph="..." />
-            <marker date="1568905500978" expanded="true" signature="51347:51521" ph="..." />
-            <marker date="1568905500978" expanded="true" signature="51617:51762" ph="..." />
-            <marker date="1568905500978" expanded="true" signature="51770:51883" ph="..." />
-            <marker date="1568905500978" expanded="true" signature="51933:52853" ph="{...}" />
-            <marker date="1568905500978" expanded="true" signature="52196:52237" ph="..." />
-            <marker date="1568905500978" expanded="true" signature="52265:52818" ph="..." />
-            <marker date="1568905500978" expanded="true" signature="52398:52431" ph="..." />
-            <marker date="1568905500978" expanded="true" signature="52458:52514" ph="..." />
-            <marker date="1568905500978" expanded="true" signature="52559:52807" ph="..." />
-            <marker date="1568905500978" expanded="true" signature="52653:52791" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/web/js/js_templates/pesos.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="255">
-          <caret line="15" column="37" lean-forward="false" selection-start-line="15" selection-start-column="20" selection-end-line="15" selection-end-column="37" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/web/js/js_templates/_activity.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="291">
+        <state relative-caret-position="8925">
           <caret line="525" column="37" lean-forward="false" selection-start-line="525" selection-start-column="37" selection-end-line="525" selection-end-column="37" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/web/js/js_templates/activity.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1583">
-          <caret line="478" column="0" lean-forward="false" selection-start-line="478" selection-start-column="0" selection-end-line="478" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/Nononsense/HomeBundle/Controller/NuevoRegistroController.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="262">
+        <state relative-caret-position="13923">
           <caret line="837" column="45" lean-forward="false" selection-start-line="837" selection-start-column="45" selection-end-line="837" selection-end-column="45" />
           <folding>
             <element signature="e#6#92#0#PHP" expanded="true" />
@@ -1726,15 +1622,42 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/Nononsense/DataDocumentBundle/Controller/DataDocumentController.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="606">
+        <state relative-caret-position="4862">
           <caret line="299" column="65" lean-forward="false" selection-start-line="299" selection-start-column="65" selection-end-line="299" selection-end-column="65" />
           <folding />
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/web/js/js_templates/activity.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="274">
+          <caret line="563" column="24" lean-forward="false" selection-start-line="563" selection-start-column="24" selection-end-line="563" selection-end-column="24" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/web/js/js_templates/pesos.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="611">
+          <caret line="36" column="23" lean-forward="true" selection-start-line="36" selection-start-column="23" selection-end-line="36" selection-end-column="23" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Nononsense/HomeBundle/Controller/RegistroConcretoController.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="495">
+          <caret line="176" column="28" lean-forward="false" selection-start-line="176" selection-start-column="28" selection-end-line="176" selection-end-column="28" />
+          <folding>
+            <marker date="1568967646708" expanded="true" signature="10943:11900" ph="{...}" />
+            <marker date="1568967646708" expanded="true" signature="45906:47962" ph="{...}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/app/AppKernel.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="425">
+        <state relative-caret-position="424">
           <caret line="26" column="12" lean-forward="false" selection-start-line="26" selection-start-column="12" selection-end-line="26" selection-end-column="12" />
           <folding />
         </state>
