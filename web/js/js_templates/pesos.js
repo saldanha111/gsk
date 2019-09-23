@@ -7,6 +7,7 @@ $(document).ready(function () {
 	setInterval(desviacionCuadratica, 1000);
 	//main function
 	function desviacionCuadratica(){
+		console.log("Calcular la desviacion");
 		var base = 'u_valor_pesada';
 		var pesos = [];
 		for (var k = 0; k < 10; k++){
@@ -29,14 +30,22 @@ $(document).ready(function () {
 			for (var j = 0; j < 10; j++){
 				deviation += Math.pow(weights[j] - mean, 2);
 			}
-			var prequad = Math.sqrt(deviation/10);
+			var prequad = Math.sqrt(deviation/9);
 			//aqui 6 decimales
-			var quad = (Math.round(prequad * rounder))/rounder;
+			//var quad = (Math.round(prequad * rounder))/rounder;
 			//console.log('quad: ' + quad);
+			// Cambio 2019-09-20
+
+            var prelimit_warning = $('span[data-name="u_limite_control"]').text().trim();
+            limit_warning = string2number(prelimit_warning, numFormatWeight);
+
+            quad = prequad;
 			$('span[data-name="u_desviacion"]').text(quad.toLocaleString('es-ES', { minimumFractionDigits: numDecimals + 1, maximumFractionDigits: numDecimals + 1 }));
 			if (quad > limit_warning || isNaN(quad)){
+				console.log("No cumple: "+quad +" > " + limit_warning);
 				$('select[data-list="u_cumple"]').val('No');
 			} else {
+				console.log("Si cumple porque: "+isNaN(quad)+" y "+ quad  +" < "+ limit_warning);
 				$('select[data-list="u_cumple"]').val('Sí');
 			}
 		}

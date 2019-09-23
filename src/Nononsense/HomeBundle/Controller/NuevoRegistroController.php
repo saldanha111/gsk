@@ -690,12 +690,23 @@ class NuevoRegistroController extends Controller
 
         $master = $registro->getMasterWorkflowEntity()->getId();
 
+        $valoresAdmitidos = array();
+        $listadoPesas = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:PesasQR')
+            ->findAll();
+
+        foreach ($listadoPesas as $pesa){
+            $valoresAdmitidos[] = $pesa->getSap();
+        }
+
+
         return $this->render('NononsenseHomeBundle:Contratos:registro_creacion_equipo_pesa_qr.html.twig', array(
             "registroid" => $registroid,
             "documentName" => $documentName,
             "subCat" => $subCat,
             "master" => $master,
-            "logbook" => $logbook
+            "logbook" => $logbook,
+            "valoresAdmitidos" => $valoresAdmitidos
         ));
     }
 
@@ -817,11 +828,38 @@ class NuevoRegistroController extends Controller
 
         /*
          * Guardar el master data values
+         * Obtener los valores de la entidad PESASQR a partir del SAP.
          */
+        $sap = $request->query->get('sap');
 
+        $PesasQr = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:PesasQR')
+            ->findOneBy(array("sap"=>$sap));
+
+
+
+        $equipo = $PesasQr->getEquipo();
+
+        $ubicacion= $PesasQr->getUbicacion();
+        $decimales = $PesasQr->getDecimales();
+        $legibilidad = $PesasQr->getLegibilidad();
+        $pesada_maxima = $PesasQr->getPesadaMaxima();
+        $pesada_minima= $PesasQr->getPesadaMinima();
+        $pesa_chequeo_sensibilidad = $PesasQr->getPesaChequeoSensibilidad();
+        $cl = $PesasQr->getCL();
+        $cl_sup = $PesasQr->getCLSup();
+        $cl_inf = $PesasQr->getCLInf();
+        $wl = $PesasQr->getWL();
+        $wl_sup = $PesasQr->getWLSup();
+        $wl_inf = $PesasQr->getWLInf();
+        $peso_chequeo_repetibilidad= $PesasQr->getPesaChequeoRepetibilidad();
+        $cl_desv_std = $PesasQr->getCLDev();
+        $wl_desv_std= $PesasQr->getWLDev();
+
+
+/*
         $equipo = $request->query->get('equipo');
 
-        $sap = $request->query->get('sap');
         $ubicacion= $request->query->get('ubicacion');
         $decimales = $request->query->get('decimales');
         $legibilidad = $request->query->get('legibilidad');
@@ -837,7 +875,7 @@ class NuevoRegistroController extends Controller
         $peso_chequeo_repetibilidad= $request->query->get('peso_chequeo_repetibilidad');
         $cl_desv_std = $request->query->get('cl_desv_std');
         $wl_desv_std= $request->query->get('wl_desv_std');
-
+*/
         $masterData = new \stdClass();
 
         $masterData->u_equipo = new \stdClass();
