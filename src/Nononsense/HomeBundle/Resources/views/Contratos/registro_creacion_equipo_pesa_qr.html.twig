@@ -41,6 +41,7 @@
                             <label for="equipo"> SAP: </label>
                             <input type="text" placeholder="sap" name="sap" id="sap" readonly>
                         </div>
+                        <!--
                         <div class="col-sm-5">
                             <label for="ubicacion"> Ubicación: </label>
                             <input type="text" placeholder="ubicacion" name="ubicacion" id="ubicacion" readonly>
@@ -101,13 +102,18 @@
                             <label for="wl_desv_std"> WL (desc std): </label>
                             <input type="text" placeholder="wl_desv_std" name="wl_desv_std" id="wl_desv_std" readonly>
                         </div>
+                        -->
                     </div>
                     <div class="row">
                         <a name="guardarRegistro" class="btn btn-success">Iniciar</a>
                     </div>
-
                 </form>
             </div>
+            {% for itemPESA in valoresAdmitidos %}
+
+            <input type="hidden" name="sap_admitido" value="{{itemPESA}}" class="sap_admitido">
+
+            {% endfor %}
         </div>
     </div>
 </div>
@@ -135,6 +141,7 @@
 
 
     $(document).ready(function () {
+
 
         toastr.options = {
             "closeButton": true,
@@ -165,6 +172,7 @@
         var objet = JSON.parse(a);
         $('#equipo').val(objet.name);
         $('#sap').val(objet.sap);
+        /*
         $('#ubicacion').val(objet.ubicacion);
         $('#decimales').val(objet.decimales);
         $('#legibilidad').val(objet.legibilidad);
@@ -180,8 +188,8 @@
         $('#peso_chequeo_repetibilidad').val(objet.peso_chequeo_repetibilidad);
         $('#cl_desv_std').val(objet.cl_desv_std);
         $('#wl_desv_std').val(objet.wl_desv_std);
-
-        if(!checkQRValue(objet.name)){
+        */
+        if(!checkQRValue(objet.sap)){
             toastr.error("El Código escaneado no se corresponde con esta plantilla.", 'aviso');
         }
     }
@@ -208,11 +216,11 @@
 
     $('a[name="guardarRegistro"]').on('click', function () {
 
-        var equipo = $("#equipo").val();
-        console.log(equipo);
+        var sap = $("#sap").val();
+        console.log(sap);
         if (equipo == "") {
             toastr.error("Debe escanear un código QR para completar el valor de equipo.", 'aviso');
-        } else if (checkQRValue(equipo)) {
+        } else if (checkQRValue(sap)) {
             $("#createform").submit();
         } else {
             toastr.error("El Código escaneado no se corresponde con esta plantilla.", 'aviso');
@@ -228,16 +236,11 @@
         var valoresAdmitidos = [];
 
         if (master == 4 || master == 5) {
-            valoresAdmitidos = [
-                "Mettler XP205DR 1126360856",
-                "METTLER XP205DR 1126360856",
-                "METTLER XP205DR 1128391731",
-                "METTLER PR8002 1118121361",
-                "METTLER PM2500 1114292831",
-                "Balanza MPM AG285",
-                "Balanza MPM  PG802-S Cabina muestreo 1",
-                "Balanza MPM  PG802-S Cabina  muestreo 2"
-            ]
+
+            //sap_admitido
+            $("input[name='sap_admitido']" ).each(function() {
+                valoresAdmitidos.push($(this).val());
+            });
 
         }
 
