@@ -711,7 +711,6 @@ class DataDocumentController extends Controller
                                 }
                             }
                             if ($lastValue != $currentValue && $audittrail) {
-                                // Modificado
                                 $counterModified++;
                                 $modified = true;
                                 $bloqueHTML .= "<tr><td>" . $info . "</td><td>" . $lastValue . "</td><td>" . $currentValue . "</td></tr>";

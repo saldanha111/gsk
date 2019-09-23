@@ -73,6 +73,7 @@
                                     <option value="3" {{filters.action is defined and filters.action == 3 ? 'selected="selected"' : ''}}>Ver</option>
                                     <option value="4" {{filters.action is defined and filters.action == 4 ? 'selected="selected"' : ''}}>Completar checklist</option>
                                     <option value="5" {{filters.action is defined and filters.action == 5 ? 'selected="selected"' : ''}}>Verificar cancelación</option>
+                                    <option value="6" {{filters.action is defined and filters.action == 6 ? 'selected="selected"' : ''}}>Proceso de firma completo</option>
                                   </select>
                             </div>
                         </div>
@@ -115,13 +116,19 @@
                             <div class="col-sm-2 item_filter">
                                 <select class="form-control" style="width: 100%;" name="group">
                                     <option value=""></option>
-                                    <option value="1" {{filters.group is defined and filters.group == 1 ? 'selected="selected"' : ''}}>Acción</option>
+                                    {% if filters.action is not defined or filters.action != 6 %}
+                                        <option value="1" {{filters.group is defined and filters.group == 1 ? 'selected="selected"' : ''}}>Acción</option>
+                                    {% endif %}
                                     <option value="2" {{filters.group is defined and filters.group == 2 ? 'selected="selected"' : ''}}>Usuario</option>
                                     <option value="3" {{filters.group is defined and filters.group == 3 ? 'selected="selected"' : ''}}>Plantilla</option>
+                                    {% if filters.action is not defined or filters.action != 6 %}
                                     <option value="4" {{filters.group is defined and filters.group == 4 ? 'selected="selected"' : ''}}>Acción+Usuario</option>
                                     <option value="5" {{filters.group is defined and filters.group == 5 ? 'selected="selected"' : ''}}>Acción+Plantilla</option>
+                                    {% endif %}
                                     <option value="6" {{filters.group is defined and filters.group == 6 ? 'selected="selected"' : ''}}>Usuario+Plantilla</option>
+                                    {% if filters.action is not defined or filters.action != 6 %}
                                     <option value="7" {{filters.group is defined and filters.group == 7 ? 'selected="selected"' : ''}}>Usuario+Plantilla+Acción</option>
+                                    {% endif %}
                                   </select>
                             </div>
                             <div class="col-sm-1">

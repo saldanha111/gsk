@@ -155,8 +155,15 @@ class ActivityUserRepository extends EntityRepository
 
 
             if(isset($filters["action"])){
-                $list->andWhere('a.actionID=:action');
-                $list->setParameter('action', $filters["action"]);
+                switch($filters["action"]){
+                    case 6: 
+                        $list->andWhere('a.actionID IN (1,2,4,5)');
+                        break;
+                    default:
+                        $list->andWhere('a.actionID=:action');
+                        $list->setParameter('action', $filters["action"]);
+                }
+                
             }
 
             if(isset($filters["from"])){

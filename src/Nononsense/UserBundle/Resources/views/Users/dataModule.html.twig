@@ -216,11 +216,8 @@
                     <div class="col-sm-10">
                         <select class="form-control" name="account">
                             <option value="3" {% if rol == 3 %}selected{% endif %}>{{'Administrator'|trans}}</option>
-                            <option value="2" {% if rol == 2 %}selected{% endif %}>{{'Editor'|trans}}</option>
-                            <option value="1" {% if rol == 1 %}selected{% endif %}>{{'User'|trans}}</option>
-                            <option value="0" {% if rol == 0 %}selected{% endif %}>{{'External user'|trans}}</option>
+                            <option value="2" {% if rol == 2 %}selected{% endif %}>{{'User'|trans}}</option>
                         </select>
-
                     </div>
                 </div>
                 {% endif %}

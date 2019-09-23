@@ -86,7 +86,7 @@
                                             <a href="mailto:{{item.email}}" style="text-decoration: underline">{{item.email}}</a><br>
                                             {{ item.phone }}
                                         </address>
-                                        {% if is_granted('ROLE_ADMIN') %}
+                                        {% if app.user.id==1 or  app.user.id==2 or  app.user.id==3  or  app.user.id==4  %}
                                         <p class="m-t-lg">
                                             <a href="{{ path('nononsense_home_homepage', {'_switch_user': item.email}) }}" class="btn btn-danger btn-sm"  style="color: white"><i class="fa fa-users"> </i> Impersonate</a>
                                         </p>

@@ -57,6 +57,19 @@ class ActivityController extends Controller
         $filters=array_filter($request->query->all());
         $filters2=array_filter($request->query->all());
 
+        if(isset($filters["action"]) && $filters["action"]==6){
+            if(isset($filters["group"]) && ($filters["group"]==1 || $filters["group"]==4 || $filters["group"]==5 || $filters["group"]==7)){
+                unset($filters["action"]);
+                unset($filters2["action"]);
+            }
+            else{
+                if(!isset($filters["group"])){
+                    $filters["group"]=2;
+                    $filters2["group"]=2;
+                }
+            }
+        }
+
         $filters["user"]=$user;
         $filters2["user"]=$user;
 
