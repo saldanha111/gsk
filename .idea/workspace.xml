@@ -5,14 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6ed663db-a9a0-40ef-8119-691652a3a6fd" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/Nononsense/HomeBundle/Entity/PesasQR.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/Nononsense/HomeBundle/Entity/PesasQRRepository.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/AppKernel.php" afterPath="$PROJECT_DIR$/app/AppKernel.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Nononsense/HomeBundle/Controller/NuevoRegistroController.php" afterPath="$PROJECT_DIR$/src/Nononsense/HomeBundle/Controller/NuevoRegistroController.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Nononsense/HomeBundle/Resources/views/Contratos/registro_creacion_equipo_pesa_qr.html.twig" afterPath="$PROJECT_DIR$/src/Nononsense/HomeBundle/Resources/views/Contratos/registro_creacion_equipo_pesa_qr.html.twig" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/web/js/js_templates/activity.js" afterPath="$PROJECT_DIR$/web/js/js_templates/activity.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/web/js/js_templates/pesos.js" afterPath="$PROJECT_DIR$/web/js/js_templates/pesos.js" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -37,11 +30,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="AppKernel.php" pinned="false" current-in-tab="false">
+      <file leaf-file-name="AppKernel.php" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/app/AppKernel.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="407">
-              <caret line="25" column="14" lean-forward="false" selection-start-line="25" selection-start-column="14" selection-end-line="25" selection-end-column="14" />
+            <state relative-caret-position="424">
+              <caret line="26" column="12" lean-forward="false" selection-start-line="26" selection-start-column="12" selection-end-line="26" selection-end-column="12" />
               <folding />
             </state>
           </provider>
@@ -103,7 +96,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="pesos.js" pinned="false" current-in-tab="true">
+      <file leaf-file-name="pesos.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/web/js/js_templates/pesos.js">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="507">
@@ -166,8 +159,8 @@
       <find>u_valor_pesada</find>
       <find>validarArrayPesos</find>
       <find>validate_ra</find>
-      <find>limit_warning</find>
       <find>limit_war</find>
+      <find>limit_warning</find>
     </findStrings>
     <replaceStrings>
       <replace>Multiseleccion</replace>
@@ -264,7 +257,6 @@
         <option value="$PROJECT_DIR$/src/Nononsense/DataDocumentBundle/Controller/DataDocumentController.php" />
         <option value="$PROJECT_DIR$/web/js/js_templates/_activity.js" />
         <option value="$PROJECT_DIR$/src/Nononsense/HomeBundle/Controller/RegistroConcretoController.php" />
-        <option value="$PROJECT_DIR$/app/AppKernel.php" />
         <option value="$PROJECT_DIR$/src/Nononsense/HomeBundle/Entity/MetaData.php" />
         <option value="$PROJECT_DIR$/src/Nononsense/HomeBundle/Entity/PesasQR.php" />
         <option value="$PROJECT_DIR$/src/Nononsense/HomeBundle/Entity/PesasQRRepository.php" />
@@ -273,6 +265,7 @@
         <option value="$PROJECT_DIR$/src/Nononsense/HomeBundle/Resources/views/Contratos/registro_creacion_equipo_pesa_qr.html.twig" />
         <option value="$PROJECT_DIR$/web/js/js_templates/activity.js" />
         <option value="$PROJECT_DIR$/web/js/js_templates/pesos.js" />
+        <option value="$PROJECT_DIR$/app/AppKernel.php" />
       </list>
     </option>
   </component>
@@ -1236,12 +1229,12 @@
       <workItem from="1568964568913" duration="2404000" />
       <workItem from="1568968443380" duration="101000" />
       <workItem from="1568978171054" duration="721000" />
-      <workItem from="1569220379436" duration="4984000" />
+      <workItem from="1569220379436" duration="5221000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="2962286000" />
+    <option name="totallyTimeSpent" value="2962523000" />
   </component>
   <component name="TodoView" selected-index="3">
     <todo-panel id="selected-file">
@@ -1589,14 +1582,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/AppKernel.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="407">
-          <caret line="25" column="14" lean-forward="false" selection-start-line="25" selection-start-column="14" selection-end-line="25" selection-end-column="14" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/Nononsense/HomeBundle/Entity/RecordsDocumentsRepository.php">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="204">
@@ -1687,6 +1672,14 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="507">
           <caret line="38" column="70" lean-forward="false" selection-start-line="38" selection-start-column="70" selection-end-line="38" selection-end-column="70" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/AppKernel.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="424">
+          <caret line="26" column="12" lean-forward="false" selection-start-line="26" selection-start-column="12" selection-end-line="26" selection-end-column="12" />
           <folding />
         </state>
       </provider>
