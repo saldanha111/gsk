@@ -31,7 +31,7 @@
                 </thead>
                 {% for key,plantilla in documentsReconciliacion %}
                 <tr {{ key == 0 ? 'style="font-weight:bold"' : '' }}>
-                    <td>{{plantilla.id}}</td>
+                    <td>{{plantilla.id_grid}}</td>
                     <td>{{plantilla.subcat}}</td>
                     <td>{{plantilla.name}}</td>
                     {% if plantilla.status == 0 %}

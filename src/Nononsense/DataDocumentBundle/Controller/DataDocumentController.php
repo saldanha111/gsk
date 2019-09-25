@@ -162,11 +162,14 @@ class DataDocumentController extends Controller
                 case "u_lote":
                     $lote = rawurldecode($value[0]);
                     break;
+                case "u_material":
+                    $material = rawurldecode($value[0]);
+                    break;
                 case "u_codigo":
                     $lote = rawurldecode($value[0]);
                     break;
                 case "u_batch":
-                    $material = rawurldecode($value[0]);
+                    $lote = rawurldecode($value[0]);
                     break;
                 case "u_SAP":
                     $workorderSAP = rawurldecode($value[0]);
@@ -349,22 +352,7 @@ class DataDocumentController extends Controller
                 $data->varValues->dxo_gsk_audit_trail = array($this->_construirHistorico($step));
                 $data->varValues->dxo_gsk_firmas_bloque = array("No");
 
-            } else {
-                /*
-            * Si hay firmas claro.
-            */
-
-                $firmas = $this->getDoctrine()
-                    ->getRepository('NononsenseHomeBundle:FirmasStep')
-                    ->findBy(array("step_id" => $step->getId()));
-
-                if (!empty($firmas)) {
-                    $data->varValues->dxo_gsk_audit_trail_bloque = array("No");
-                    $data->varValues->dxo_gsk_firmas_bloque = array("Si");
-                    $data->varValues->dxo_gsk_firmas = array($this->_construirFirmas($firmas));
-                }
             }
-
 
             $mapVariable = $this->_construirMapVariables($step);
             foreach ($mapVariable as $prop => $value) {
@@ -376,6 +364,18 @@ class DataDocumentController extends Controller
             }
 
 
+        }
+
+        $firmas = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:FirmasStep')
+            ->findBy(array("step_id" => $step->getId()));
+        /*
+        * Si hay firmas claro.
+        */
+        if (!empty($firmas)) {
+            $data->varValues->dxo_gsk_audit_trail_bloque = array("No");
+            $data->varValues->dxo_gsk_firmas_bloque = array("Si");
+            $data->varValues->dxo_gsk_firmas = array($this->_construirFirmas($firmas));
         }
         /*
         var_dump(json_encode($data));

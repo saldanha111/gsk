@@ -245,6 +245,7 @@
                 </tr>
             </table>
         </div>
+        <br>Observaciones de la solicitud: <b>{{peticion.description}}</b><br><br>
         <div class="col-sm-12">
             <table id="inProcess2" class="table table-striped">
                 <thead>
@@ -301,7 +302,7 @@
                     {% endif %}
                     <td>{{plantilla.fecha | date('d-m-Y H:i:s') }}</td>
                     <td><a class="btn btn-xs btn-primary" name="verregistro"
-                           href="{{path('nononsense_ver_registro', {'revisionid': plantilla.id})}}"
+                           href="{{path('nononsense_ver_registro', {'revisionid': plantilla.workflow})}}"
                            target="_blank">{{'Ver'|trans}}</a></td>
                 </tr>
                 {% endfor %}

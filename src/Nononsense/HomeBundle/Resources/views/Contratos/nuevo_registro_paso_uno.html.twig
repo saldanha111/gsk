@@ -437,16 +437,18 @@
 
                 $('#subCategoriasSelect').append('<option value="0">Todas</option>');
 
-                $('input[name="todascats"]').each(function () {
-                    var idCat = $(this).attr("data-id");
-                    var padreCat = $(this).attr("data-padre");
-                    var nameCat = $(this).attr("data-name");
+                if($(this).val()!="0"){
+                    $('input[name="todascats"]').each(function () {
+                        var idCat = $(this).attr("data-id");
+                        var padreCat = $(this).attr("data-padre");
+                        var nameCat = $(this).attr("data-name");
 
-                    if (padreCat == categoriaselected) {
-                        $('#subCategoriasSelect').append('<option value="' + idCat + '">' + nameCat + '</option>');
-                    }
+                        if (padreCat == categoriaselected) {
+                            $('#subCategoriasSelect').append('<option value="' + idCat + '">' + nameCat + '</option>');
+                        }
 
-                });
+                    });
+                }
 
             });
         });

@@ -214,7 +214,7 @@ class InstanciasStepsRepository extends EntityRepository
         switch($type){
             case "list":
                 $list = $this->createQueryBuilder('s')
-                    ->select('s.id as id_grid','i.id', 'i.usercreatedid','mw.name','ms.name as name2','u.name as creator','i.created','m.modified','m.lote','m.material','m.equipo','m.workordersap','mw.logbook','i.status','s.id as step','i.in_edition','mw.logbook','us.id as idNextSigner','r.registro_nuevo_id as id_reconciliado','mw.checklist as tiene_checklist','ms.checklist as es_checklist','s.dependsOn');
+                    ->select('s.id as id_grid','i.id', 'i.usercreatedid','mw.name','ms.name as name2','u.name as creator','i.created','m.modified','m.lote','m.material','m.equipo','m.workordersap','mw.logbook','i.status','s.id as step','i.in_edition','mw.logbook','us.id as idNextSigner','r.registro_viejo_id as id_reconciliado','r2.registro_nuevo_id as id_reconciliado_sig','mw.checklist as tiene_checklist','ms.checklist as es_checklist','s.dependsOn');
                 $list->addSelect("CASE WHEN ((SELECT COUNT(ela.step_id) FROM Nononsense\HomeBundle\Entity\FirmasStep ela WHERE ela.userEntiy=:el_user AND ela.step_id=s.id AND ela.elaboracion=1)>0 OR i.usercreatedid=:el_user_id) THEN 0 ELSE 1 AS validate");
                 $list->setParameter('el_user', $user);
                 $list->setParameter('el_user_id', $user->getId());
@@ -234,7 +234,8 @@ class InstanciasStepsRepository extends EntityRepository
             ->leftJoin("i.metaData", "m")
             ->leftJoin("s.firmasStep", "f")
             ->leftJoin("f.userEntiy", "us")
-            ->leftJoin("i.ReconciliadoA","r","WITH", 'r.status>0')
+            ->leftJoin("i.ReconciliadoDe","r","WITH", 'r.status>0')
+            ->leftJoin("i.ReconciliadoA","r2","WITH", 'r2.status>0')
             ->andWhere('s.status_id>=0')
             ->andWhere('i.status>=0')
             ->andWhere('ms.dependsOn=0 OR (ms.dependsOn > 0 AND (i.status = 4 or i.status = 7 or  i.status = 12 or i.status = 13 or i.status = 15 or i.status = 9 or i.status = 10))')

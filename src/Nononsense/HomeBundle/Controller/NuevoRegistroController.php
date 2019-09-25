@@ -732,10 +732,10 @@ class NuevoRegistroController extends Controller
         $lote = $request->query->get('lote');
 
         $masterData = new \stdClass();
-        $masterData->u_lote = new \stdClass();
-        $masterData->u_lote->nameVar = "u_lote";
-        $masterData->u_lote->valueVar = array($codigo);
-        $masterData->u_lote->step = "";
+        $masterData->u_material = new \stdClass();
+        $masterData->u_material->nameVar = "u_material";
+        $masterData->u_material->valueVar = array($codigo);
+        $masterData->u_material->step = "";
 
         $masterData->u_batch = new \stdClass();
         $masterData->u_batch->nameVar = "u_batch";

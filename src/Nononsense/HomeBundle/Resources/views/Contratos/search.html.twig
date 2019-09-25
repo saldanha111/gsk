@@ -320,6 +320,10 @@
                                     {% if not item.es_checklist %}
                                         {% if item.id_reconciliado is defined and item.id_reconciliado is not empty %}
                                             <a class="btn btn-xs btn-primary" name="verregistro" href="{{path('nononsense_reconciliacion_history', {'id': item.id})}}" target="_self">{{'Ver reconciliado'|trans}}</a>
+                                        {% else %}
+                                            {% if item.id_reconciliado_sig is defined and item.id_reconciliado_sig is not empty %}
+                                                <a class="btn btn-xs btn-primary" name="verregistro" href="{{path('nononsense_reconciliacion_history', {'id': item.id})}}" target="_self">Inicio reconciliación</a>
+                                            {% endif %}
                                         {% endif %}
                                     {% endif %}
                                 </td>

@@ -1190,7 +1190,8 @@ class RegistroConcretoController extends Controller
             "subcat" => $subcat,
             "name" => $name,
             "fecha" => $fecha,
-            "nameUser" => $nombre_usuario
+            "nameUser" => $nombre_usuario,
+            "description" => $peticionEntity->getDescription()
         );
 
         $documentsReconciliacion = array();
@@ -1211,7 +1212,8 @@ class RegistroConcretoController extends Controller
                     "subcat" => $subcat,
                     "name" => $name,
                     "status" => $registroViejo->getStatus(),
-                    "fecha" => $registroViejo->getModified()
+                    "fecha" => $registroViejo->getModified(),
+                    "workflow" => $stepViejo->getWorkflowId()
                 );
                 $documentsReconciliacion[] = $element;
             } else {

@@ -199,7 +199,7 @@ class BackOfficeController extends Controller
             "subcat" => $subcat,
             "name" => $name,
             "status" => $registro->getStatus(),
-            "fecha" => $registro->getModified()
+            "fecha" => $registro->getModified(),
         );
 
         $documents[] = $element;

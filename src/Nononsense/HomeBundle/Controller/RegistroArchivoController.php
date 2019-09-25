@@ -399,6 +399,10 @@ class RegistroArchivoController extends Controller
     }
 
     public function reconciliacionHistoryAction($id){
+        $step = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:InstanciasSteps')
+            ->findOneBy(array("workflow_id" => $id, "dependsOn" => 0));
+
         $registroViejo = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
             ->find($id);
@@ -418,7 +422,8 @@ class RegistroArchivoController extends Controller
                     "subcat" => $subcat,
                     "name" => $name,
                     "status" => $registroViejo->getStatus(),
-                    "fecha" => $registroViejo->getModified()
+                    "fecha" => $registroViejo->getModified(),
+                    "id_grid" => $step->getId()
                 );
                 $documentsReconciliacion[$i] = $element;
             } else {
@@ -430,8 +435,14 @@ class RegistroArchivoController extends Controller
                 ->getRepository('NononsenseHomeBundle:ReconciliacionRegistro')
                 ->findOneBy(array("registro_nuevo_id" => $registroViejo->getId()));
 
+            
+
             if (isset($peticionReconciliacionAntigua)) {
                 $registroViejo = $peticionReconciliacionAntigua->getRegistroViejoEntity();
+
+                $step = $this->getDoctrine()
+                ->getRepository('NononsenseHomeBundle:InstanciasSteps')
+                ->findOneBy(array("workflow_id" => $registroViejo->getId(), "dependsOn" => 0));
 
             } else {
                 $registroViejo = null;
@@ -457,6 +468,10 @@ class RegistroArchivoController extends Controller
             if (isset($peticionReconciliacionNueva)) {
                 $registroNuevo = $peticionReconciliacionNueva->getRegistroNuevoEntity();
 
+                $step = $this->getDoctrine()
+                ->getRepository('NononsenseHomeBundle:InstanciasSteps')
+                ->findOneBy(array("workflow_id" => $registroNuevo->getId(), "dependsOn" => 0));
+
                 $subcat = $registroNuevo->getMasterWorkflowEntity()->getCategory()->getName();
                 $name = $registroNuevo->getMasterWorkflowEntity()->getName();
 
@@ -465,7 +480,8 @@ class RegistroArchivoController extends Controller
                     "subcat" => $subcat,
                     "name" => $name,
                     "status" => $registroNuevo->getStatus(),
-                    "fecha" => $registroNuevo->getModified()
+                    "fecha" => $registroNuevo->getModified(),
+                    "id_grid" => $step->getId()
                 );
                 $documentsReconciliacion[$i] = $element;
 
