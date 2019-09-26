@@ -184,23 +184,25 @@ function customOnFullyLoaded() {
         if (typeof window.pesada != 'undefined' && window.pesada == $(this).attr('data-name')){
             var correctValue = validateRange($(this).text());
             var wRex = patronrx.test($(this).text());
-            if(wRex){
-                if (correctValue){
-                    //it seems OK
-                } else {
-                    //get the last char of window.pesada
-                    var lastChar = window.pesada.replace(/\D/g,'');;
-                    var errorMessage = 'La pesada número: ' + lastChar + '('+$(this).text()+') debe estar comprendida entre ' + limit_inf + ' y ' + limit_sup;
-
-
-                    toastr.error(errorMessage, 'Error formato peso');
+            
+            if (correctValue){
+                if(wRex){
+                //it seems OK
                 }
-            }
-            else{
+                else{
+                    //get the last char of window.pesada
+                    var errorMessage = 'El número de decimales no es correcto';
+                    toastr.error(errorMessage, 'Error decimal');
+                }
+            } else {
                 //get the last char of window.pesada
-                var errorMessage = 'El número de decimales no es correcto';
-                toastr.error(errorMessage, 'Error decimal');
+                var lastChar = window.pesada.replace(/\D/g,'');;
+                var errorMessage = 'La pesada número: ' + lastChar + '('+$(this).text()+') debe estar comprendida entre ' + limit_inf + ' y ' + limit_sup;
+
+
+                toastr.error(errorMessage, 'Error formato peso');
             }
+            
         }
     });
 
