@@ -821,6 +821,7 @@ class RegistroConcretoController extends Controller
          * En la interfaz se puede poner "firmar" si el usuario en cuestión es el mismo.
          *
          */
+        
         $urlaux=str_replace("--", "/", $urlaux);
         $user = $this->container->get('security.context')->getToken()->getUser();
 
@@ -853,8 +854,15 @@ class RegistroConcretoController extends Controller
             $route = $this->container->get('router')->generate('nononsense_contrato_registro_completado', array('stepid' => $stepid, 'comment' => $comment));
 
         } else if ($action == 'cerrar') {
+            $firmas = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:FirmasStep')
+            ->findBy(array("stepEntity" => $step));
+            if(empty($firmas)){
+                $registro->setStatus(-1);
+            }
             $debeFirmar = false;
             $route = base64_decode($urlaux);
+            
 
 
         } else {
