@@ -1,4 +1,5 @@
 function customOnFullyLoaded() {
+    $('html, body').css('overscroll-behavior', 'auto'); 
     /***** Create new buttons ******/
     var sendAndSignButton = $('#download');
     $('#download').hide();
