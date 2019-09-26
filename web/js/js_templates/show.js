@@ -6,5 +6,9 @@ function customOnFullyLoaded() {
 }
 
 function ocultar_indices(){
-    $("span[data-name*='in_']" ).hide();
+    $("span[data-name*='in_']" ).each(function() {
+        if($(this).html()=="Índice"){
+            $(this).hide();
+        }
+    });
 }
