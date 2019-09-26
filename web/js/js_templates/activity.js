@@ -184,25 +184,19 @@ function customOnFullyLoaded() {
         if (typeof window.pesada != 'undefined' && window.pesada == $(this).attr('data-name')){
             var correctValue = validateRange($(this).text());
             var wRex = patronrx.test($(this).text());
-            
-            if (correctValue){
-                if(wRex){
-                //it seems OK
-                }
-                else{
-                    //get the last char of window.pesada
-                    var errorMessage = 'El número de decimales no es correcto';
-                    toastr.error(errorMessage, 'Error decimal');
-                }
+            if(wRex && correctValue){
+                $('select[data-list="u_cumple"]').val('Sí');
             } else {
-                //get the last char of window.pesada
-                var lastChar = window.pesada.replace(/\D/g,'');;
-                var errorMessage = 'La pesada número: ' + lastChar + '('+$(this).text()+') debe estar comprendida entre ' + limit_inf + ' y ' + limit_sup;
+                $('select[data-list="u_cumple"]').val('No');
+                if(correctValue!=-1){
+                    //get the last char of window.pesada
+                    var lastChar = window.pesada.replace(/\D/g,'');;
+                    var errorMessage = 'La pesada número: ' + lastChar + '('+$(this).text()+') debe estar comprendida entre ' + limit_inf + ' y ' + limit_sup;
 
-
-                toastr.error(errorMessage, 'Error formato peso');
+                    
+                    toastr.error(errorMessage, 'Error formato peso');
+                }
             }
-            
         }
     });
 
@@ -532,7 +526,12 @@ function validateRange(val){
     getValuesFromTemplate();
     console.log('limit_inf: ' + limit_inf);
     console.log('limit_sup: ' + limit_sup);
+    if(val.includes(".")){
+        toastr.error("La acotación decimal debe ser con ','", 'Error');
+        return -1;
+    }
     var valor = string2number(val, numFormatWeight);
+
     console.log('valor: ' + valor);
     if (!isNaN(valor) && valor <= limit_sup && valor >= limit_inf){
         //we have to check that the string has 5 decimals
@@ -543,7 +542,8 @@ function validateRange(val){
             return true;
         } else {
             console.log("error en patron");
-            return false;
+            toastr.error("El número debe tener 5 decimales", 'Error');
+            return -1;
         }
 
     } else {

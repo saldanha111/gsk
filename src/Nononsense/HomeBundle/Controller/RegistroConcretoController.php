@@ -261,7 +261,7 @@ class RegistroConcretoController extends Controller
             ->getRepository('NononsenseHomeBundle:RevisionInstanciaWorkflow')
             ->find($revisionid);
 
-        if($step->getMasterStep()->getId() == 6 || $step->getMasterStep()->getId() == 7){
+        if($step->getMasterStep()->getId() == 7){
             $validacionURL2 = $baseUrl . "js/js_templates/pesos.js";
         }
 
