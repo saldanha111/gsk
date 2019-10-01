@@ -421,24 +421,11 @@ class RegistroValidationController extends Controller
             ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
             ->find($revisionid);
 
-        //$registro = $revisionWorkflow->getInstanciaWorkflowEntity();
-
         $firstStep = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:InstanciasSteps')
             ->findOneBy(array("workflow_id" => $registro->getId(), "dependsOn" => 0));
 
-        //$baseUrl = $this->getParameter("cm_installation");
 
-        //$options = array();
-
-        //$options['template'] = $firstStep->getMasterStep()->getPlantillaId();
-
-        //$url_requesetData = $baseUrl . 'data/requestData/' . $firstStep->getId();
-
-        //$options['requestDataURI'] = $url_requesetData;
-        //$options['token'] = $firstStep->getToken();
-
-        //$url_edit_documento = $this->get('app.sdk')->viewDocument($options);
         $route = $this->container->get('router')->generate('nononsense_registro_concreto_link', array("stepid" => $firstStep->getId(), "form" => 0, "revisionid" => $revisionid));
         return $this->redirect($route);
     }

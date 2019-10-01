@@ -229,6 +229,10 @@ nononsense_archivo_ver_historico:
     path:     /archivo_ver_historico/{registroid}
     defaults: { _controller: NononsenseHomeBundle:RegistroArchivo:verRegistroHistoricoInterface, registroid: 0 }
 
+nononsense_archivo_ver_checklist_historico:
+    path:     /archivo_ver_checklist_historico/{registroid}
+    defaults: { _controller: NononsenseHomeBundle:RegistroArchivo:verRegistroHistoricoInterfaceCheckList, registroid: 0 }
+
 nononsense_prevalidation_creation:
     path:     /prevalidation_creation/{registroid}/{stepid}/{logbook}
     defaults: { _controller: NononsenseHomeBundle:NuevoRegistro:checkPreValidationRegistro, registroid: 0, stepid: 0, logbook: 0 }

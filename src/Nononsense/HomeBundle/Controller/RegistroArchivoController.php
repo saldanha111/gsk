@@ -200,6 +200,14 @@ class RegistroArchivoController extends Controller
         return $this->redirect($route);
     }
 
+    public function verRegistroHistoricoInterfaceCheckListAction($registroid)
+    {
+
+        $route = $this->container->get('router')->generate('nononsense_ver_checklist', array('revisionid' => $registroid));
+
+        return $this->redirect($route);
+    }
+
     function oldverRegistroHistoricoInterfaceAction($registroid)
     {
         $rootdir = $this->get('kernel')->getRootDir();

@@ -328,9 +328,11 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    {% if not item.es_checklist %}
-                                        {% if item.status == 9 or item.status == 6 or item.status == 8 or item.status == 10 %}
+                                    {% if item.status == 9 or item.status == 6 or item.status == 8 or item.status == 10 %}
+                                        {% if not item.es_checklist %}
                                             <a class="btn btn-xs btn-info" name="verRegistro" href="{{path('nononsense_archivo_ver_historico', {'registroid': item.id})}}" target="_self"><i class="fa fa-book" aria-hidden="true"></i> Audit Trail</a>
+                                        {% else %}
+                                            <a class="btn btn-xs btn-info" name="verRegistro" href="{{path('nononsense_archivo_ver_checklist_historico', {'registroid': item.id})}}" target="_self"><i class="fa fa-book" aria-hidden="true"></i> Audit Trail</a>
                                         {% endif %}
                                     {% endif %}
                                 </td>

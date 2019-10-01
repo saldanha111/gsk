@@ -248,8 +248,9 @@ class InstanciasStepsRepository extends EntityRepository
         if(!empty($filters)){
 
             if(isset($filters["id"])){
-                $list->andWhere('s.id=:id');
+                $list->andWhere('s.id=:id OR s.dependsOn=:dependOn');
                 $list->setParameter('id', $filters["id"]);
+                $list->setParameter('dependOn', $filters["id"]);
             }
 
             if(isset($filters["plantilla_id"])){

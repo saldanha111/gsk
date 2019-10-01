@@ -243,6 +243,7 @@ class RegistroConcretoController extends Controller
             } else {
 
                 // No abrir para editar ... usar el método show
+                $options['responseURL'] = $baseUrl . "control_elaboracion/" . $stepid . "/";
                 $options['prefix'] = 'show';
                 $versionJS = filemtime(__DIR__ . "/../../../../web/js/js_templates/show.js");
                 $validacionURL1 = $baseUrl . "js/js_templates/show.js?v=" . $versionJS;
@@ -857,7 +858,7 @@ class RegistroConcretoController extends Controller
             $firmas = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:FirmasStep')
             ->findBy(array("stepEntity" => $step));
-            if(empty($firmas)){
+            if(empty($firmas) && $registro->getStatus()<=0){
                 $registro->setStatus(-1);
             }
             $debeFirmar = false;
@@ -1169,6 +1170,17 @@ class RegistroConcretoController extends Controller
             ->getRepository('NononsenseHomeBundle:ReconciliacionRegistro')
             ->find($peticionid);
 
+        $user = $this->container->get('security.context')->getToken()->getUser();
+
+        if ($user->getId() == $peticionEntity->getUserId()) {
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                'No puede gestionar una solicitud que ha solicitado usted mismo'
+            );
+            $route = $this->container->get('router')->generate('nononsense_registro_autorizar_list');
+            return $this->redirect($route);
+        }
+
         $registroViejoId = $peticionEntity->getRegistroViejoId();
         /*
                 $registroViejo = $this->getDoctrine()
@@ -1265,6 +1277,17 @@ class RegistroConcretoController extends Controller
         $peticionEntity = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:ReconciliacionRegistro')
             ->find($peticionid);
+
+        $user = $this->container->get('security.context')->getToken()->getUser();
+
+        if ($user->getId() == $peticionEntity->getUserId()) {
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                'No puede gestionar una solicitud que ha solicitado usted mismo'
+            );
+            $route = $this->container->get('router')->generate('nononsense_registro_autorizar_list');
+            return $this->redirect($route);
+        }
 
         $registroViejoId = $peticionEntity->getRegistroViejoId();
         $registroNuevoId = $peticionEntity->getRegistroNuevoId();
