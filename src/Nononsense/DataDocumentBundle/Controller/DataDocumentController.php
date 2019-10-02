@@ -252,6 +252,7 @@ class DataDocumentController extends Controller
         $data = new \stdClass();
         $varValues = new \stdClass();
         $data->varValues = $varValues;
+        $completo=0;
 
         if ($step->getStatusId() == 0) {
             // first usage
@@ -372,7 +373,7 @@ class DataDocumentController extends Controller
         /*
         * Si hay firmas claro.
         */
-        if (!empty($firmas)) {
+        if (!empty($firmas) && !$completo) {
             $data->varValues->dxo_gsk_audit_trail_bloque = array("No");
             $data->varValues->dxo_gsk_firmas_bloque = array("Si");
             $data->varValues->dxo_gsk_firmas = array($this->_construirFirmas($firmas));
@@ -710,6 +711,7 @@ class DataDocumentController extends Controller
                                     }
                                 }
                             }
+
                             if ($lastValue != $currentValue && $audittrail) {
                                 $counterModified++;
                                 $modified = true;
@@ -718,8 +720,7 @@ class DataDocumentController extends Controller
                         }
                     }
                 }
-
-
+                
                 if ($modified) {
                     $bloqueHTML = str_replace('###NUMBERREPLACE###', $counterModified, $bloqueHTML);
                     $fullText .= $bloqueHTML;
@@ -739,7 +740,6 @@ class DataDocumentController extends Controller
         }
 
         $fullText .= "</table>";
-
         return $fullText;
     }
 

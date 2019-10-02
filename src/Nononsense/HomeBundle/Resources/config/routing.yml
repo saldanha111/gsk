@@ -185,6 +185,7 @@ nononsense_registro_verificado:
 nononsense_registro_verificado_parcial:
     path:     /registro_verificado_parcial/{stepid}
     defaults: { _controller: NononsenseHomeBundle:RegistroValidation:verificarParcialStep, stepid: 0 }
+    
 nononsense_registro_cancelar_verificado:
     path:     /registro_cancelar_verificado/{stepid}
     defaults: { _controller: NononsenseHomeBundle:RegistroValidation:verificarKoStep, stepid: 0 }
