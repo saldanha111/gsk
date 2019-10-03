@@ -18,6 +18,14 @@ nononsense_nuevo_contrato:
     path:     /nuevoregistropasouno
     defaults: { _controller: NononsenseHomeBundle:NuevoRegistro:pasouno}
 
+nononsense_templates_edit:
+    path: /templates/{id}
+    defaults: { _controller: NononsenseHomeBundle:NuevoRegistro:edit}
+
+nononsense_templates_update:
+    path: /templates/{id}/save
+    defaults: { _controller: NononsenseHomeBundle:NuevoRegistro:update}
+
 nononsense_nuevo_contrato_add_validadores:
     path:     /nuevocontratovalidadores/{workflowid}
     defaults: { _controller: NononsenseHomeBundle:NuevoRegistro:pasovalidadores, workflowid:0}

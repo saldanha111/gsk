@@ -258,10 +258,13 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="m-t-sm">
+                    <div class="col-sm-6">
                         <button class="btn btn-sm btn-primary" id="searchButton" onclick="return false"><i
                                 class="fa fa-search"> </i> {{'Buscar Documento'|trans}}
                         </button>
+                    </div>
+                    <div class="col-sm-6">
+                        <a href="{{ path('nononsense_templates_edit',{'id': '0'}) }}" class="btn btn-primary pull-right"><i class="fa fa-plus"></i> Nueva plantilla</a>
                     </div>
                 </div>
             </form>

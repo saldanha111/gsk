@@ -11,6 +11,8 @@ namespace Nononsense\HomeBundle\Controller;
 
 use Nononsense\HomeBundle\Entity\InstanciasSteps;
 use Nononsense\HomeBundle\Entity\InstanciasWorkflows;
+use Nononsense\HomeBundle\Entity\MasterWorkflows;
+use Nononsense\HomeBundle\Entity\MasterSteps;
 use Nononsense\HomeBundle\Entity\MetaData;
 use Nononsense\HomeBundle\Entity\EvidenciasStep;
 use Nononsense\HomeBundle\Entity\FirmasStep;
@@ -124,6 +126,134 @@ class NuevoRegistroController extends Controller
             "categorias" => $categorias,
             "todasCat" => $allCategorias,
         ));
+    }
+
+    public function editAction(Request $request, string $id)
+    {
+        $serializer = $this->get('serializer');
+
+        $array_item["categorias"] = $this->getDoctrine()->getRepository('NononsenseHomeBundle:Categories')->findBy(array("padre" => 0));
+        $array_item["subcategorias"] = $this->getDoctrine()->getRepository('NononsenseHomeBundle:Categories')->findAll();
+
+        if($id!=0){
+            $array_item["item"]  = $this->getDoctrine()->getRepository(MasterWorkflows::class)->detail($id);
+            if(empty($array_item["item"])){
+                return $this->redirect($this->container->get('router')->generate('nononsense_nuevo_contrato'));
+            }
+            
+            $records = $this->getDoctrine()->getRepository(InstanciasSteps::class)->search("count",array("master_step_id"=>$array_item["item"]["stepId"]));
+            if($records>0){
+                $array_item["not_update"]=1;
+            }
+        }
+
+        return $this->render('NononsenseHomeBundle:Contratos:template.html.twig',$array_item);
+    }
+
+    public function updateAction(Request $request, string $id)
+    {   
+        $em = $this->getDoctrine()->getManager();
+
+        try {
+            $not_update=0;
+            if($id!=0){
+                $mw = $this->getDoctrine()->getRepository(MasterWorkflows::class)->findOneById($id);
+                $ms = $this->getDoctrine()->getRepository(MasterSteps::class)->findOneBy(array("workflow_id"=>$id,"dependsOn"=>0));
+
+                $records = $this->getDoctrine()->getRepository(InstanciasSteps::class)->search("count",array("master_step_id"=>$ms->getId()));
+                if($records>0){
+                    $not_update=1;
+                }
+            }
+            else{
+                $mw = new MasterWorkflows();
+                $ms = new MasterSteps();
+            }
+
+            
+            echo $not_update;die();
+            
+
+            if(!$not_update){
+                /*$type = $this->getDoctrine()->getRepository(Types::class)->find($request->get("type"));
+                $document->setType($type);
+                $document->setPlantillaId($request->get("plantilla_id"));*/
+            }
+
+            /*$document->setName($request->get("name"));
+            $document->setDescription($request->get("description"));
+            $document->setPosition(1);
+            $document->setBlock(1);
+            $document->setOptional(0);
+            $document->setDependsOn(0);
+            $document->setCreated(new \DateTime());
+            $document->setModified(new \DateTime());
+
+            if($request->get("is_active")){
+                $document->setIsActive(1);
+            }
+            else{
+                $document->setIsActive(0);
+            }
+
+            if($request->get("sign_creator")){
+                $document->setSignCreator(1);
+            }
+            else{
+                $document->setSignCreator(0);
+            }
+
+            if($request->get("attachment") && $request->get("sign_creator")){
+                $document->setAttachment(1);
+            }
+            else{
+                $document->setAttachment(0);
+            }
+
+            if($request->get("relationals")){
+                $order=1;
+                foreach($request->get("relationals") as $key => $relational){
+                    $signature = new DocumentsSignatures();
+
+                    if($request->get("types")[$key]=="1"){
+                        $group = $this->getDoctrine()->getRepository(Groups::class)->find($relational);
+                        $signature->setGroupEntiy($group);
+                        $signature->setEmail($request->get("emails")[$key]);
+                    }
+                    else{
+                        $user = $this->getDoctrine()->getRepository(Users::class)->find($relational);
+                        $signature->setUserEntiy($user);
+                    }
+
+                    $signature->setDocument($document);
+                    $signature->setCreated(new \DateTime());
+                    $signature->setModified(new \DateTime());
+                    $signature->setNumber($order);
+                    $signature->setAttachment(0);
+                    $em->persist($signature);
+
+                    $order++;
+                }
+            }
+
+            $em->persist($document);
+            $em->flush();*/
+
+        }catch (\Exception $e) {
+            $this->get('session')->getFlashBag()->add(
+                    'error',
+                    "Error desconocido al intentar guardar los datos de la plantilla".$e->getMessage()
+                );
+            $route = $this->container->get('router')->generate('nononsense_templates_edit', array("id" => $id));
+        
+            return $this->redirect($route);
+        }
+
+        
+
+        $route = $this->container->get('router')->generate('nononsense_documents');
+        
+        return $this->redirect($route);
     }
 
     public function createAction($templateid, Request $request)

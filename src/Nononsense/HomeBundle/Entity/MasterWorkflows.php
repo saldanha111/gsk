@@ -6,6 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity
@@ -19,6 +20,7 @@ class MasterWorkflows
      * @ORM\Column(type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @Groups({"detail_document"})
      */
     protected $id;
     
@@ -27,6 +29,7 @@ class MasterWorkflows
      *
      * @ORM\Column(name="name", type="string", length=200)
      * @Assert\NotBlank(message = "You shoud insert a name")
+     * @Groups({"detail_document"})
      */
     protected $name;
 
@@ -35,6 +38,7 @@ class MasterWorkflows
      *
      * @ORM\Column(name="description", type="string", length=200)
      * @Assert\NotBlank(message = "You shoud insert a description")
+     * @Groups({"detail_document"})
      */
     protected $description;
 
@@ -90,6 +94,7 @@ class MasterWorkflows
      * @var boolean $isActive
      *
      * @ORM\Column(name="is_active", type="boolean",  nullable=true, options={"default" = false})
+     * @Groups({"detail_document"})
      */
 
     protected $isActive;
@@ -98,14 +103,15 @@ class MasterWorkflows
      * @var boolean $logbook
      *
      * @ORM\Column(name="logbook", type="boolean",  options={"default" = false})
+     * @Groups({"detail_document"})
      */
-
     protected $logbook;
 
     /**
      * @var boolean $checklist
      *
      * @ORM\Column(name="checklist", type="boolean",  options={"default" = false})
+     * @Groups({"detail_document"})
      */
 
     protected $checklist;
@@ -114,6 +120,7 @@ class MasterWorkflows
      * @var integer
      *
      * @ORM\Column(name="category_id", type="integer")
+     * @Groups({"detail_document"})
      */
     protected $category_id;
 

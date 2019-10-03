@@ -61,4 +61,22 @@ class MasterWorkflowsRepository extends EntityRepository
 
         return $query->getResult();
     }
+
+    public function detail($id)
+    {
+        $list = $this->createQueryBuilder('n')
+            ->select('n.id', 'n.name', 'n.description', 'c.name as subCatName', 'c.padre as dependId', 'n.logbook', 'n.isActive','n.checklist','s.plantilla_id','s.id stepId')
+            ->leftJoin("n.category", "c")
+            ->leftJoin("n.MasterSteps", "s", "WITH", 's.dependsOn=0')
+            ->andWhere('n.isActive = 1');
+
+        if ($id != "") {
+            $list->andWhere('n.id=:id');
+            $list->setParameter('id', $id);
+        }
+
+        $query = $list->getQuery();
+
+        return $query->getOneOrNullResult();
+    }
 }
