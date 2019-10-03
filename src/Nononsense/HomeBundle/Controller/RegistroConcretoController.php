@@ -404,8 +404,7 @@ class RegistroConcretoController extends Controller
 
     }
 
-    public
-    function saveAndSendAction($stepid, Request $request)
+    public function saveAndSendAction($stepid, Request $request)
     {
         $comentario = $request->get('comment');
 
@@ -437,6 +436,7 @@ class RegistroConcretoController extends Controller
 
         $user = $this->container->get('security.context')->getToken()->getUser();
 
+        $type=1;
         // Sólo debería tener uno ...
         foreach ($user->getGroups() as $groupMe) {
             $type = $groupMe->getGroup()->getId();
