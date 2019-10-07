@@ -16,6 +16,7 @@ use Nononsense\HomeBundle\Entity\MasterSteps;
 use Nononsense\HomeBundle\Entity\MetaData;
 use Nononsense\HomeBundle\Entity\EvidenciasStep;
 use Nononsense\HomeBundle\Entity\FirmasStep;
+use Nononsense\HomeBundle\Entity\Categories;
 use Nononsense\HomeBundle\Entity\ReconciliacionRegistro;
 use Nononsense\GroupBundle\Entity\GroupUsers;
 use Nononsense\GroupBundle\Entity\Groups;
@@ -156,88 +157,150 @@ class NuevoRegistroController extends Controller
 
         try {
             $not_update=0;
+            $category = $this->getDoctrine()->getRepository(Categories::class)->findOneById($request->get("category_id"));
+            $group = $this->getDoctrine()->getRepository(Groups::class)->findOneById(1);
+
             if($id!=0){
                 $mw = $this->getDoctrine()->getRepository(MasterWorkflows::class)->findOneById($id);
                 $ms = $this->getDoctrine()->getRepository(MasterSteps::class)->findOneBy(array("workflow_id"=>$id,"dependsOn"=>0));
+                $ms2 = $this->getDoctrine()->getRepository(MasterSteps::class)->findOneBy(array("workflow_id"=>$id,"dependsOn"=>$ms->getId()));
 
                 $records = $this->getDoctrine()->getRepository(InstanciasSteps::class)->search("count",array("master_step_id"=>$ms->getId()));
                 if($records>0){
                     $not_update=1;
                 }
+                else{
+                    if(!empty($ms)){
+                        $em->remove($ms);
+                        $ms=NULL;
+                    }
+                    if(!empty($ms2)){
+                        $em->remove($ms2);
+                        $ms2=NULL;
+                    }
+                }
             }
             else{
                 $mw = new MasterWorkflows();
+                
+                $mw->setMasterData("");
+                $mw->setConfig("");
+                $mw->setOrdersteps("");
+                $mw->setCreated(new \DateTime());
+                $mw->setValidation("default");
                 $ms = new MasterSteps();
             }
 
-            
-            echo $not_update;die();
-            
+            $mw->setGrupoVerificacion($group);
 
             if(!$not_update){
-                /*$type = $this->getDoctrine()->getRepository(Types::class)->find($request->get("type"));
-                $document->setType($type);
-                $document->setPlantillaId($request->get("plantilla_id"));*/
-            }
+                $mw->setPrecreation($request->get("precreation"));
 
-            /*$document->setName($request->get("name"));
-            $document->setDescription($request->get("description"));
-            $document->setPosition(1);
-            $document->setBlock(1);
-            $document->setOptional(0);
-            $document->setDependsOn(0);
-            $document->setCreated(new \DateTime());
-            $document->setModified(new \DateTime());
+                if($request->get("precreation")=="codigolote"){
+                    $mw->setPrevalidation("codigoloteunico");
+                }
+                else{
+                    $mw->setPrevalidation("default");
+                }
+                
+                
 
-            if($request->get("is_active")){
-                $document->setIsActive(1);
-            }
-            else{
-                $document->setIsActive(0);
-            }
+                $ms = new MasterSteps();
+                $ms->setMasterWorkflow($mw);
+                $ms->setGroups($group);
+                $ms->setPlantillaId($request->get("plantilla_id"));
+                $ms->setPosition(1);
+                $ms->setBlock(1);
+                $ms->setOptional(0);
+                $ms->setDependsOn(0);
+                $ms->setNotification(1);
+                $ms->setCloneable(0);
+                $ms->setName($request->get("name"));
+                $ms->setStatusId(1);
+                $ms->setCreated(new \DateTime());
+                $ms->setModified(new \DateTime());
+                $ms->setChecklist(0);
+                $ms->setPlantillaPrefix("");
+                $ms->setRules("");
+                $ms->setStepData("");
+                $ms->setValidation("self");
 
-            if($request->get("sign_creator")){
-                $document->setSignCreator(1);
-            }
-            else{
-                $document->setSignCreator(0);
-            }
+                if($request->get("tiene_checklist")){
+                    $mw->setChecklist(1);
+                    $ms2 = new MasterSteps();
 
-            if($request->get("attachment") && $request->get("sign_creator")){
-                $document->setAttachment(1);
-            }
-            else{
-                $document->setAttachment(0);
-            }
-
-            if($request->get("relationals")){
-                $order=1;
-                foreach($request->get("relationals") as $key => $relational){
-                    $signature = new DocumentsSignatures();
-
-                    if($request->get("types")[$key]=="1"){
-                        $group = $this->getDoctrine()->getRepository(Groups::class)->find($relational);
-                        $signature->setGroupEntiy($group);
-                        $signature->setEmail($request->get("emails")[$key]);
-                    }
-                    else{
-                        $user = $this->getDoctrine()->getRepository(Users::class)->find($relational);
-                        $signature->setUserEntiy($user);
-                    }
-
-                    $signature->setDocument($document);
-                    $signature->setCreated(new \DateTime());
-                    $signature->setModified(new \DateTime());
-                    $signature->setNumber($order);
-                    $signature->setAttachment(0);
-                    $em->persist($signature);
-
-                    $order++;
+                    $ms2->setMasterWorkflow($mw);
+                    $ms2->setGroups($group);
+                    $ms2->setPlantillaId(23);
+                    $ms2->setPosition(1);
+                    $ms2->setBlock(1);
+                    $ms2->setOptional(0);
+                    $ms2->setDependsOn(0);
+                    $ms2->setNotification(1);
+                    $ms2->setCloneable(0);
+                    $ms2->setName("IT-C-OP-144ANEXO5");
+                    $ms2->setStatusId(1);
+                    $ms2->setCreated(new \DateTime());
+                    $ms2->setModified(new \DateTime());
+                    $ms2->setChecklist(1);
+                    $ms2->setValidation("self");
+                    $ms2->setPlantillaPrefix("");
+                    $ms2->setRules("");
+                    $ms2->setStepData("");
+                }
+                else{
+                    $mw->setChecklist(0);
+                    $ms->setValidation("self");
                 }
             }
 
-            $em->persist($document);
-            $em->flush();*/
+            $mw->setModified(new \DateTime());
+
+            
+            $mw->setCategory($category);
+
+            if($request->get("is_active")){
+                $mw->setIsActive(1);
+            }
+            else{
+                $mw->setIsActive(0);
+            }
+
+            if($request->get("logbook")){
+                $mw->setLogbook(1);
+            }
+            else{
+                $mw->setLogbook(0);
+            }
+
+
+            $mw->setName($request->get("name"));
+            $mw->setDescription($request->get("description"));
+
+            if(!empty($mw)){
+                $em->persist($mw);
+            }
+            if(!empty($ms)){
+                $em->persist($ms);
+            }
+            if(!empty($ms2)){
+                $em->persist($ms2);
+            }
+            
+            $em->flush();
+            
+            if($request->get("tiene_checklist")){
+                $ms->setValidation($ms2->getId());
+                $ms2->setDependsOn($ms->getId());
+            }
+            
+            if(!empty($ms)){
+                $em->persist($ms);
+            }
+            if(!empty($ms2)){
+                $em->persist($ms2);
+            }
+            $em->flush();
 
         }catch (\Exception $e) {
             $this->get('session')->getFlashBag()->add(
@@ -251,8 +314,7 @@ class NuevoRegistroController extends Controller
 
         
 
-        $route = $this->container->get('router')->generate('nononsense_documents');
-        
+        $route = $this->container->get('router')->generate('nononsense_nuevo_contrato');
         return $this->redirect($route);
     }
 

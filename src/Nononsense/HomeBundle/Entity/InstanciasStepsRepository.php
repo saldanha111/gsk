@@ -253,6 +253,13 @@ class InstanciasStepsRepository extends EntityRepository
                 $list->setParameter('dependOn', $filters["id"]);
             }
 
+            if(isset($filters["master_step_id"])){
+                $list->andWhere('s.master_step_id=:master_step_id');
+                $list->setParameter('master_step_id', $filters["master_step_id"]);
+            }
+
+            
+
             if(isset($filters["plantilla_id"])){
                 $list->andWhere('ms.plantilla_id=:plantilla_id');
                 $list->setParameter('plantilla_id', $filters["plantilla_id"]);

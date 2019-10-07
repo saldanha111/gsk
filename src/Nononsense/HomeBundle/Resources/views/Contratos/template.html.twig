@@ -26,8 +26,29 @@
                         </div>  
 
                         <div class="form-group">
+                            <label class="col-sm-3 control-label">Categoría</label>
+                            <div class="col-sm-3">
+                                <select class="form-control" id="categoriasSelect" name="categoriasSelect">
+                                    <option value="0">Todas</option>
+                                    {% for cat in categorias %}
+                                    <option value="{{cat.id}}" data-id="{{cat.id}}" {% if item.categoryId is defined and  item.categoryId == cat.id %} selected="selected" {% endif %}>{{cat.name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-sm-4">
+                                <select class="form-control" id="subCategoriasSelect" name="category_id" required="required">
+                                    {% for subcat in subcategorias %}
+                                        {% if item.categoryId is defined and subcat.padre == item.categoryId %}
+                                            <option value="{{subcat.id}}" data-id="{{subcat.id}}" {% if item.subcategoryId is defined and  item.subcategoryId == subcat.id %} selected="selected" {% endif %}>{{subcat.name}}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
                             <label class="col-sm-3 control-label">ID. Plantilla</label>
-                            <div class="col-sm-7">
+                            <div class="col-sm-2">
                                 <input type="number" {% if not_update is defined %} readonly="readonly" {% else %} name="plantilla_id" {% endif %} class="form-control" value="{{item.plantilla_id is defined ? item.plantilla_id : ''}}"  required="required">
                             </div>
                         </div>   
@@ -36,13 +57,36 @@
                             <div class="col-sm-7">
                                 <textarea name="description" rows="10" cols="40" required="required">{{item.description is defined ? item.description : ''}}</textarea>
                             </div>
-                        </div>  
+                        </div>
+
+                        <div class="form-group">
+                                <label class="col-sm-3 control-label">Typo</label>
+                                <div class="col-sm-7">
+                                  <select class="form-control" {% if not_update is defined %} disabled="disabled" {% else %} name="precreation" {% endif %} style="width: 100%;" required="required">
+                                    <option value=""></option>
+                                    <option value="equipoqr" {% if item.precreation is defined and  item.precreation == "equipoqr" %} selected="selected" {% endif %}>EQUIPO QR</option>
+                                    <option value="equipopesaqr" {% if item.precreation is defined and  item.precreation == "equipopesaqr" %} selected="selected" {% endif %}>PESAS</option>
+                                    <option value="codigolote"  {% if item.precreation is defined and  item.precreation == "codigolote" %} selected="selected" {% endif %}>CODIGO LOTE</option>
+                                    <option value="default" {% if item.precreation is defined and  item.precreation == "default" %} selected="selected" {% endif %}>DEFAULT</option>
+                                  </select>
+                                </div>
+                            </div> 
                         
                         <div class="form-group">
                             <div class="col-sm-7 col-sm-offset-3">
                                 <div class="checkbox">
                                     <label>
                                         <input id="tiene_checklist" {% if not_update is defined %} disabled="disabled" {% else %} name="tiene_checklist" {% endif %} value="1" type="checkbox" {% if item is defined and  item.checklist == 1 %} checked="checked" {% endif %}> Tiene validación de IT-C-OP-144ANEXO5
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-sm-7 col-sm-offset-3">
+                                <div class="checkbox">
+                                    <label>
+                                        <input name="logbook" value="1" type="checkbox" {% if item is not defined or (item.logbook is defined and  item.logbook == 1) %} checked="checked" {% endif %}> Logbook
                                     </label>
                                 </div>
                             </div>
@@ -61,6 +105,13 @@
                 </div>
             </div>
 
+            <div style="display: none">
+                {% for catelement in subcategorias %}
+                <input name="todascats" data-id="{{catelement.id}}" data-name="{{catelement.name}}"
+                       data-padre="{{catelement.padre}}">
+                {% endfor %}
+            </div>
+
             <div class="row">
                 <div class="col-sm-11">
                     <button type="submit" class="btn btn-primary  pull-right"><i class="fa fa-floppy-o" aria-hidden="true"></i> Guardar</button>
@@ -75,8 +126,35 @@
     {{ parent() }}
     <script>
     $( document ).ready(function() {
-
+        $('#categoriasSelect').on('change', function () {
+                
+            update_categories($(this));
+        });
+        //update_categories($('#categoriasSelect'));
     });
+
+    function update_categories(element){
+        var categoriaselected = $("#categoriasSelect option:selected").val();
+        console.log("seleccionado la categoria: " + categoriaselected);
+
+
+        $('#subCategoriasSelect').empty();
+
+        $('#subCategoriasSelect').append('<option value="0">Todas</option>');
+
+        if(element.val()!="0"){
+            $('input[name="todascats"]').each(function () {
+
+                var idCat = $(this).attr("data-id");
+                var padreCat = $(this).attr("data-padre");
+                var nameCat = $(this).attr("data-name");
+                if (padreCat == categoriaselected) {
+                    $('#subCategoriasSelect').append('<option value="' + idCat + '">' + nameCat + '</option>');
+                }
+
+            });
+        }
+    }
     </script>
 {% endblock %}
 

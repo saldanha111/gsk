@@ -285,7 +285,7 @@
                         <tr>
                             <td>{{plantilla.category}}</td>
                             <td>{{plantilla.subCatName}}</td>
-                            <td>{{plantilla.name}}</td>
+                            <td><a href="{{ path('nononsense_templates_edit',{'id': plantilla.id}) }}">{{plantilla.name}}</a></td>
                             <td><a class="btn btn-xs btn-primary crearregistro" name="crearregistro" data-template="{{plantilla.id}}"
                                    data-loogbook="{{plantilla.logbook}}">{{'Crear
                                 Registro'|trans}}</a></td>

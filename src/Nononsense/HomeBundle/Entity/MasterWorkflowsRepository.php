@@ -65,7 +65,7 @@ class MasterWorkflowsRepository extends EntityRepository
     public function detail($id)
     {
         $list = $this->createQueryBuilder('n')
-            ->select('n.id', 'n.name', 'n.description', 'c.name as subCatName', 'c.padre as dependId', 'n.logbook', 'n.isActive','n.checklist','s.plantilla_id','s.id stepId')
+            ->select('n.id', 'n.name', 'n.description', 'c.id as subcategoryId', 'c.padre as categoryId', 'n.logbook', 'n.isActive','n.checklist','s.plantilla_id','s.id stepId','n.precreation')
             ->leftJoin("n.category", "c")
             ->leftJoin("n.MasterSteps", "s", "WITH", 's.dependsOn=0')
             ->andWhere('n.isActive = 1');
