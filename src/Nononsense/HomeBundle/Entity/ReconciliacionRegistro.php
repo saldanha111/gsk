@@ -80,6 +80,12 @@ class ReconciliacionRegistro
      */
     protected $modified;
 
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="txhash", type="string", length=255, nullable=true)
+     */
+    protected $txhash;
 
     /**
      * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\InstanciasWorkflows", inversedBy="ReconciliadoA")
@@ -365,5 +371,28 @@ class ReconciliacionRegistro
     public function getUserEntiy()
     {
         return $this->userEntiy;
+    }
+
+    /**
+     * Set txhash
+     *
+     * @param string $txhash
+     * @return ReconciliacionRegistro
+     */
+    public function setTxhash($txhash)
+    {
+        $this->txhash = $txhash;
+
+        return $this;
+    }
+
+    /**
+     * Get txhash
+     *
+     * @return string 
+     */
+    public function getTxhash()
+    {
+        return $this->txhash;
     }
 }

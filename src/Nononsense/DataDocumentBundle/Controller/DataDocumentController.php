@@ -360,9 +360,42 @@ class DataDocumentController extends Controller
 
                 $varIndiceName = str_replace("u_", "in_", $prop);
                 $varIndiceName = str_replace("verchk_", "in_verchk_", $varIndiceName);
-
                 $data->varValues->{$varIndiceName} = array($value->firma);
+
+                /*$data->varValues->{$varIndiceName}[0] = $value->firma[0];
+                $data->varValues->{$varIndiceName}[1] = $value->firma[1];
+                $data->varValues->{$varIndiceName}[2] = $value->firma[2];*/
+
+                    /*if(isset($data->varValues->{$varIndiceName})){
+                        if(is_array($data->varValues->{$varIndiceName})){
+                            foreach($data->varValues->{$varIndiceName} as $key => $indice){
+                                if(isset($value->firma[$key])){
+                                    $data->varValues->{$varIndiceName}[$key] = $value->firma[$key];
+                                }
+                            }
+                        }
+                        else{
+                            
+                        }
+                    }*/
+
             }
+
+            /*$varIndiceName = str_replace("u_", "in_", $prop);
+                $varIndiceName = str_replace("verchk_", "in_verchk_", $varIndiceName);
+
+                foreach($data->varValues->{$varIndiceName} as $key => $indice){
+                    $data->varValues->{$varIndiceName}[$key] = $value->firma[$key];
+                }*/
+
+                /*
+                $clave=0;
+                foreach($data->varValues->{$varIndiceName} as $sup_indice){
+                    $data->varValues->{$varIndiceName}[$clave] = $value->firma[$clave];
+                    $clave++;
+                }
+                */
+
 
 
         }
@@ -788,7 +821,7 @@ class DataDocumentController extends Controller
 
             if ($first) {
 
-                foreach ($varValues as $prop => $value) {
+                foreach ($varValues as $prop => $values) {
                     $position = strpos($prop, "u_");
                     $positionV = strpos($prop, "verchk_");
 
@@ -802,8 +835,16 @@ class DataDocumentController extends Controller
                         if (isset($mapVariable->{$prop}->valor)) {
                             $mapVariable->{$prop}->valor = new \stdClass();
                         }
-                        $mapVariable->{$prop}->valor = $value;
-                        $mapVariable->{$prop}->firma = $firmaId;
+
+                        if (isset($mapVariable->{$prop}->firma)) {
+                            $mapVariable->{$prop}->firma = new \stdClass();
+                        }
+
+                        $mapVariable->{$prop}->valor = $values;
+                        foreach($values as $key => $value){
+                            $mapVariable->{$prop}->firma=array($firmaId);
+                        }
+                        //$mapVariable->{$prop}->firma = $firmaId;
                     }
 
                 }
@@ -811,17 +852,34 @@ class DataDocumentController extends Controller
                 $first = false;
             } else {
 
-                foreach ($varValues as $prop => $value) {
+                foreach ($varValues as $prop => $values) {
                     $position = strpos($prop, "u_");
                     $positionV = strpos($prop, "verchk_");
 
                     if ($position === 0 || $positionV === 0) {
                         // variable válida.
-                        $currentValue = $mapVariable->{$prop}->valor[0]; // solo se están guardando los valores unitarios
-                        if ($currentValue != $value[0]) {
-                            // Modificado
-                            $mapVariable->{$prop}->valor = $value;
-                            $mapVariable->{$prop}->firma = $firmaId;
+                        $modificado=-1;
+                        foreach($values as $key => $value){
+                            
+                            if(isset($mapVariable->{$prop}->valor[$key])){
+                                $currentValue = $mapVariable->{$prop}->valor[$key]; // solo se están guardando los valores unitarios
+                            }
+                            else{
+                                $currentValue="";
+                            }
+                            if ($currentValue != $value) {
+                                // Modificado
+                                $modificado=$key;
+                                //$mapVariable->{$prop}->firma = $firmaId;
+                            }
+
+                            /*if(urldecode($value)=="chalet 5"){
+                                var_dump($modificado);die();
+                            }*/
+                        }
+                        if($modificado>-1){
+                           $mapVariable->{$prop}->valor = $values; 
+                           $mapVariable->{$prop}->firma[$modificado]=$firmaId;
                         }
                     }
                 }

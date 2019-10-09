@@ -75,6 +75,11 @@
                     <td><a class="btn btn-xs btn-primary" name="verregistro"
                            href="{{path('nononsense_ver_registro', {'revisionid': plantilla.id})}}"
                            target="_blank">{{'Ver'|trans}}</a></td>
+                    <td>
+                        {% if plantilla.txhash is defined and plantilla.txhash !="" %}
+                            <a class="btn btn-xs btn-primary" name="verregistro" href="{{url_scagle}}{{plantilla.txhash}}" target="_blank">Blockchain</a>
+                        {% endif %}
+                    </td>
                 </tr>
                 {% endfor %}
             </table>

@@ -238,7 +238,7 @@ class InstanciasStepsRepository extends EntityRepository
             ->leftJoin("i.ReconciliadoA","r2","WITH", 'r2.status>0')
             ->andWhere('s.status_id>=0')
             ->andWhere('i.status>=0')
-            ->andWhere('ms.dependsOn=0 OR (ms.dependsOn > 0 AND (i.status = 4 or i.status = 7 or  i.status = 12 or i.status = 13 or i.status = 15 or i.status = 9 or i.status = 10))')
+            ->andWhere('ms.dependsOn=0 OR (ms.dependsOn > 0 AND (i.status = 6 or i.status = 4 or i.status = 7 or  i.status = 12 or i.status = 13 or i.status = 15 or i.status = 9 or i.status = 10))')
             ->andWhere('f.id IS NULL OR f.id = (SELECT MAX(aux.id) FROM Nononsense\HomeBundle\Entity\FirmasStep aux WHERE aux.step_id=f.step_id)')
             ->orderBy('s.workflow_id', 'DESC')
             ->addOrderBy('s.dependsOn', 'ASC');

@@ -1318,11 +1318,11 @@ class RegistroConcretoController extends Controller
         * Guardar evidencia un paso "mas" auxiliar
         */
         $evidencia = new EvidenciasStep();
-        $evidencia->setStepEntity($step);
+        $evidencia->setStepEntity($new_step);
         $evidencia->setStatus(0);
         $evidencia->setUserEntiy($user);
-        $evidencia->setToken($step->getToken());
-        $evidencia->setStepDataValue($step->getStepDataValue());
+        $evidencia->setToken($new_step->getToken());
+        $evidencia->setStepDataValue($new_step->getStepDataValue());
 
 
         $firmaImagen = $request->get('firma');
@@ -1362,7 +1362,7 @@ class RegistroConcretoController extends Controller
 
         $firma = new FirmasStep();
         $firma->setAccion($descp);
-        $firma->setStepEntity($step);
+        $firma->setStepEntity($new_step);
         $firma->setUserEntiy($user);
         $firma->setFirma($firmaImagen);
         $firma->setStatus(1);
@@ -1381,6 +1381,55 @@ class RegistroConcretoController extends Controller
         $subject="Reconciliación ".$desc_action;
         $mensaje='La reconciliación para el documento '.$new_step->getId().' '.$si_no.' ha sido autorizada.';
         $baseURL=$this->container->get('router')->generate('nononsense_search', array(),TRUE);
+
+
+        /* ENVIAMOS LA RECONCILIACION A BLOCKCHAIN */
+
+        $api_terceros = $this->getParameter('url_api_3');
+        $params = array();
+
+        $info=array(
+            "id_usuario_solicitante"=>$peticionEntity->getUserId(),
+            "id_viejo"=>$step->getId(),
+            "id_nuevo"=>$new_step->getId(),
+            "texto_solicitud"=>$peticionEntity->getDescription(),
+            "respuesta"=>$desc_action,
+            "texto_respuesta"=>$request->get('comment'),
+            "id_usuario_autorizador"=>$user->getId(),
+            "fecha"=>date("d/m/Y H:i:s")
+        );
+
+        $params['json'] = json_encode($info);
+        
+
+        $url = $api_terceros.'/json';
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_HTTPHEADER,array("apiKey: ".$this->getParameter('api_key_api_3')));
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $params);    
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        $response = curl_exec($ch);
+        $httpcode = strval(curl_getinfo($ch, CURLINFO_HTTP_CODE));
+        curl_close($ch);
+
+        if($httpcode[0]==2){
+            $array_response = json_decode($response, true);
+            $peticionEntity->setTxhash($array_response["tx_hash"]);
+            $em->persist($peticionEntity);
+        }
+        else{
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                'La solicitud de reconciliación no se ha podido gestionar. Error al enviar los datos a blockchain'
+            );
+            $route = $this->container->get('router')->generate('nononsense_registro_autorizar_list');
+            return $this->redirect($route);
+        }
+        /* FIN ENVIO RECONCILIACION A BLOCKCHAIN */
+
         $em->flush();
 
         $this->_sendNotification($email, $baseURL, "", "", $subject, $mensaje);

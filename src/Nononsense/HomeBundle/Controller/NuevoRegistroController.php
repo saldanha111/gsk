@@ -571,7 +571,11 @@ class NuevoRegistroController extends Controller
 
                 //var_dump($it);
                 if (!$valido) {
-                    $causa = "Ya existe un registro (" . $registroViejoReconciliacionId . ") para el Código Material: " . $material . " Lote: " . $lote;
+                    $step = $this->getDoctrine()
+                        ->getRepository('NononsenseHomeBundle:InstanciasSteps')
+                        ->findOneBy(array("workflow_id" => $registroViejoReconciliacionId, "dependsOn" => 0));
+
+                    $causa = "Ya existe un registro (" . $step->getId(). ") para el Código Material: " . $material . " Lote: " . $lote;
                     //echo 'registro no válido por: '. $causa;
                 } else {
                     //echo 'registro válido<br/>';
@@ -716,6 +720,10 @@ class NuevoRegistroController extends Controller
             ->getRepository('NononsenseHomeBundle:InstanciasSteps')
             ->findOneBy(array("workflow_id" => $registroViejoId, "dependsOn"=>0));
 
+        $step_nuevo = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:InstanciasSteps')
+            ->findOneBy(array("workflow_id" => $registroNuevo, "dependsOn"=>0));
+
         /*
          * Guardar firma
          */
@@ -728,11 +736,11 @@ class NuevoRegistroController extends Controller
         * Guardar evidencia un paso "mas" auxiliar
         */
         $evidencia = new EvidenciasStep();
-        $evidencia->setStepEntity($step);
+        $evidencia->setStepEntity($step_nuevo);
         $evidencia->setStatus(0);
         $evidencia->setUserEntiy($user);
-        $evidencia->setToken($step->getToken());
-        $evidencia->setStepDataValue($step->getStepDataValue());
+        $evidencia->setToken($step_nuevo->getToken());
+        $evidencia->setStepDataValue($step_nuevo->getStepDataValue());
 
         $firmaImagen = $request->get('firma');
         $comentario = $request->get('comment');
@@ -747,13 +755,13 @@ class NuevoRegistroController extends Controller
         */
         $firmas = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:FirmasStep')
-            ->findBy(array("step_id" => $step->getId()));
+            ->findBy(array("step_id" => $step_nuevo->getId()));
 
         $counter = count($firmas) + 1;
 
         $firma = new FirmasStep();
         $firma->setAccion($descp);
-        $firma->setStepEntity($step);
+        $firma->setStepEntity($step_nuevo);
         $firma->setUserEntiy($user);
         $firma->setFirma($firmaImagen);
         $firma->setStatus(1);

@@ -417,11 +417,16 @@ class RegistroArchivoController extends Controller
 
         $name=$registroViejo->getMasterWorkflowEntity()->getName();
 
+        $peticionReconciliacionAntigua=NULL;
+        $txhash="";
+
         $procesarReconciliaciones=TRUE;
         $i=0;
         while ($procesarReconciliaciones) {
             if ($registroViejo != null) {
-
+                if($peticionReconciliacionAntigua){
+                    $txhash=$peticionReconciliacionAntigua->getTxhash();
+                }
                 $subcat = $registroViejo->getMasterWorkflowEntity()->getCategory()->getName();
                 $name = $registroViejo->getMasterWorkflowEntity()->getName();
 
@@ -431,7 +436,8 @@ class RegistroArchivoController extends Controller
                     "name" => $name,
                     "status" => $registroViejo->getStatus(),
                     "fecha" => $registroViejo->getModified(),
-                    "id_grid" => $step->getId()
+                    "id_grid" => $step->getId(),
+                    "txhash" => $txhash
                 );
                 $documentsReconciliacion[$i] = $element;
             } else {
@@ -489,7 +495,8 @@ class RegistroArchivoController extends Controller
                     "name" => $name,
                     "status" => $registroNuevo->getStatus(),
                     "fecha" => $registroNuevo->getModified(),
-                    "id_grid" => $step->getId()
+                    "id_grid" => $step->getId(),
+                    "txhash" => $peticionReconciliacionNueva->getTxhash()
                 );
                 $documentsReconciliacion[$i] = $element;
 
@@ -505,6 +512,7 @@ class RegistroArchivoController extends Controller
         
         return $this->render('NononsenseHomeBundle:Contratos:reconciliacion_history.html.twig', array(
             "documentsReconciliacion" => $documentsReconciliacion,
+            "url_scagle" =>  $this->getParameter('url_scagle'),
             "name" => $name,
             "id" => $id));
     }

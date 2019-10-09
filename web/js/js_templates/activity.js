@@ -9,6 +9,40 @@ var limit_sup;
 var limit_warning;
 var pesa_emplear;
 
+function customOnClone(){
+    $("span[data-name='u_date']" ).each(function() {
+        if($(this).html()=="Fecha"){
+            var today = new Date();
+            var dd = today.getDate();
+            var mm = today.getMonth()+1; 
+            var yyyy = today.getFullYear();
+            if(dd<10) 
+            {
+                dd='0'+dd;
+            } 
+
+            if(mm<10) 
+            {
+                mm='0'+mm;
+            } 
+
+            $(this).html(dd+'/'+mm+'/'+yyyy);
+        }
+    });
+
+    $("span[data-name='u_hora']" ).each(function() {
+        if($(this).html()=="NA"){
+            var today = new Date();
+            var seconds = today.getSeconds();
+            var minutes = today.getMinutes();
+            var hour = today.getHours();
+
+            $(this).html(hour+':'+minutes+':'+seconds);
+        }
+    });
+}
+
+    
 
 function customOnFullyLoaded() {
     /***** Create new buttons ******/

@@ -80,6 +80,12 @@ class ReconciliacionRegistro
      */
     protected $modified;
 
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="txhash", type="string", length=255, nullable=true)
+     */
+    protected $txhash;
 
     /**
      * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\InstanciasWorkflows", inversedBy="ReconciliadoA")
