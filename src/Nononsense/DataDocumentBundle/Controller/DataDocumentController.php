@@ -382,6 +382,14 @@ class DataDocumentController extends Controller
             $data->varValues->dxo_gsk_firmas_bloque = array("Si");
             $data->varValues->dxo_gsk_firmas = array($this->_construirFirmas($firmas));
         }
+
+        $reconciliation=$this->_construirReconciliacion($step);
+        if($reconciliation!=""){
+            $data->varValues->dxo_gsk_firmas[0].=$reconciliation;
+        }
+
+        /*
+        $fullText.=$reconciliation."****";
         /*
         var_dump(json_encode($data));
                 exit;
@@ -643,7 +651,6 @@ class DataDocumentController extends Controller
 
     private function _construirHistorico($step)
     {
-
         /*
          * Similar al de las firmas
          * Se obtiene el listado de "evidencias"
@@ -744,7 +751,189 @@ class DataDocumentController extends Controller
         }
 
         $fullText .= "</table>";
+
         return $fullText;
+    }
+
+    private function _construirReconciliacion($step){
+        $id=$step->getWorkflowId();
+        $current_id=$step->getId();
+
+        $registroViejo = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
+            ->find($id);
+
+        $name=$registroViejo->getMasterWorkflowEntity()->getName();
+        $documentsReconciliacion=array();
+        $peticionReconciliacionAntigua=NULL;
+
+        $procesarReconciliaciones=TRUE;
+        $i=0;
+        $txhash="";
+        while ($procesarReconciliaciones) {
+            if ($registroViejo != null) {
+                if($peticionReconciliacionAntigua){
+                    $txhash=$peticionReconciliacionAntigua->getTxhash();
+                }
+                $subcat = $registroViejo->getMasterWorkflowEntity()->getCategory()->getName();
+                $name = $registroViejo->getMasterWorkflowEntity()->getName();
+
+                $element = array(
+                    "id" => $registroViejo->getId(),
+                    "subcat" => $subcat,
+                    "name" => $name,
+                    "status" => $registroViejo->getStatus(),
+                    "fecha" => $registroViejo->getModified(),
+                    "id_grid" => $step->getId(),
+                    "txhash" => $txhash
+                );
+                $documentsReconciliacion[$i] = $element;
+            } else {
+                $procesarReconciliaciones = false;
+            }
+
+            // Ver una posible reconciliación del registro viejo
+            $peticionReconciliacionAntigua = $this->getDoctrine()
+                ->getRepository('NononsenseHomeBundle:ReconciliacionRegistro')
+                ->findOneBy(array("registro_nuevo_id" => $registroViejo->getId()));
+
+            
+
+            if (isset($peticionReconciliacionAntigua)) {
+                $registroViejo = $peticionReconciliacionAntigua->getRegistroViejoEntity();
+
+                $step = $this->getDoctrine()
+                ->getRepository('NononsenseHomeBundle:InstanciasSteps')
+                ->findOneBy(array("workflow_id" => $registroViejo->getId(), "dependsOn" => 0));
+
+            } else {
+                $registroViejo = null;
+                $procesarReconciliaciones = false;
+            }
+
+            $i--;
+        }
+
+        $registroNuevo = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
+            ->find($id);
+
+        $procesarReconciliaciones=TRUE;
+        $i=1;
+
+        while ($procesarReconciliaciones) {
+            // Ver una posible reconciliación del registro viejo
+            $peticionReconciliacionNueva = $this->getDoctrine()
+                ->getRepository('NononsenseHomeBundle:ReconciliacionRegistro')
+                ->findOneBy(array("registro_viejo_id" => $registroNuevo->getId()));
+
+            if (isset($peticionReconciliacionNueva)) {
+                $registroNuevo = $peticionReconciliacionNueva->getRegistroNuevoEntity();
+
+                $step = $this->getDoctrine()
+                ->getRepository('NononsenseHomeBundle:InstanciasSteps')
+                ->findOneBy(array("workflow_id" => $registroNuevo->getId(), "dependsOn" => 0));
+
+                $subcat = $registroNuevo->getMasterWorkflowEntity()->getCategory()->getName();
+                $name = $registroNuevo->getMasterWorkflowEntity()->getName();
+
+                $element = array(
+                    "id" => $registroNuevo->getId(),
+                    "subcat" => $subcat,
+                    "name" => $name,
+                    "status" => $registroNuevo->getStatus(),
+                    "fecha" => $registroNuevo->getModified(),
+                    "id_grid" => $step->getId(),
+                    "txhash" => $peticionReconciliacionNueva->getTxhash()
+                );
+                $documentsReconciliacion[$i] = $element;
+
+            } else {
+                $registroNuevo = null;
+                $procesarReconciliaciones = false;
+            }
+
+            $i++;
+        }
+
+        $html="";
+
+        if(count($documentsReconciliacion)>1){
+
+            ksort($documentsReconciliacion);
+
+            $html="<br><br><table class='table table-striped' style='font-size:11px'><tr><th colspan='4'>Reconciliación</th></tr><tr><td>Nº</td><td>Nombre</td><td>Estado</td><td>Fecha</td></tr>";
+            foreach($documentsReconciliacion as $key => $element){
+                $url=$this->container->get('router')->generate('nononsense_ver_registro', array('revisionid' => $element["id"]),TRUE);
+                if($current_id!=$element["id_grid"]){
+                    $html.="<tr><td>".$element["id_grid"]."</td><td><a href='".$url."' target='_blank'>".$element["name"]."</a></td>";
+                }
+                else{
+                    $html.="<tr><td>".$element["id_grid"]."</td><td><b>".$element["name"]."</b></td>";
+                }
+                    if($element["status"]==0){
+                        $html.='<td>Iniciado</td>';
+                    }
+                    elseif($element["status"]==1){
+                        $html.='<td>Esperando firma guardado parcial</td>';
+                    }
+                    elseif($element["status"]==2){
+                        $html.='<td>Esperando firma envío</td>';
+                    }
+                    elseif($element["status"]==3){
+                        $html.='<td>Esperando firma cancelación</td>';
+                    }
+                    elseif($element["status"]==4){
+                        $html.='<td>En verificación</td>';
+                    }
+                    elseif($element["status"]==5){
+                        $html.='<td>Pendiente cancelación en edición</td>';
+                    }
+                    elseif($element["status"]==6){
+                        $html.='<td>Cancelado en edición</td>';
+                    }
+                    elseif($element["status"]==7){
+                        $html.='<td>Esperando firma verificación total</td>';
+                    }
+                    elseif($element["status"]==8){
+                        $html.='<td>Cancelado</td>';
+                    }
+                    elseif($element["status"]==9){
+                        $html.='<td>Archivado</td>';
+                    }
+                    elseif($element["status"]==10){
+                        $html.='<td>Reconciliado</td>';
+                    }
+                    elseif($element["status"]==11){
+                        $html.='<td>Bloqueado</td>';
+                    }
+                    elseif($element["status"]==12){
+                        $html.='<td>Esperando firma cancelación en verificación</td>';
+                    }
+                    elseif($element["status"]==13){
+                        $html.='<td>Esperando firma devolución a edición</td>';
+                    }
+                    elseif($element["status"]==14){
+                        $html.='<td>Pendiente de cancelación en verificación</td>';
+                    }
+                    elseif($element["status"]==15){
+                        $html.='<td>Esperando firma verificación parcial</td>';
+                    }
+                    elseif($element["status"]==16){
+                        $html.='<td>Esperando autorización para reconciliación</td>';
+                    }
+                    else{
+                        $html.='<td>'.$element["status"].'</td>';
+                    }
+
+                    $html.='<td>'.$element["fecha"]->format('d/m/Y H:i:s').'</td>';
+
+                $html.='</tr>';
+            }   
+            $html.='</table>';
+        }
+
+        return $html;
     }
 
     private function _construirFirmas($firmas)
