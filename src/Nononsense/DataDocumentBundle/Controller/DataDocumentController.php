@@ -357,47 +357,18 @@ class DataDocumentController extends Controller
 
             $mapVariable = $this->_construirMapVariables($step);
             foreach ($mapVariable as $prop => $value) {
-
+                
                 $varIndiceName = str_replace("u_", "in_", $prop);
                 $varIndiceName = str_replace("verchk_", "in_verchk_", $varIndiceName);
-                $data->varValues->{$varIndiceName} = array($value->firma);
 
-                /*$data->varValues->{$varIndiceName}[0] = $value->firma[0];
-                $data->varValues->{$varIndiceName}[1] = $value->firma[1];
-                $data->varValues->{$varIndiceName}[2] = $value->firma[2];*/
+                foreach($value->firma as $key => $indice){
+                    if(isset($value->firma[$key])){
+                        $data->varValues->{$varIndiceName}[$key] = $value->firma[$key];
+                    }
+                }
 
-                    /*if(isset($data->varValues->{$varIndiceName})){
-                        if(is_array($data->varValues->{$varIndiceName})){
-                            foreach($data->varValues->{$varIndiceName} as $key => $indice){
-                                if(isset($value->firma[$key])){
-                                    $data->varValues->{$varIndiceName}[$key] = $value->firma[$key];
-                                }
-                            }
-                        }
-                        else{
-                            
-                        }
-                    }*/
 
             }
-
-            /*$varIndiceName = str_replace("u_", "in_", $prop);
-                $varIndiceName = str_replace("verchk_", "in_verchk_", $varIndiceName);
-
-                foreach($data->varValues->{$varIndiceName} as $key => $indice){
-                    $data->varValues->{$varIndiceName}[$key] = $value->firma[$key];
-                }*/
-
-                /*
-                $clave=0;
-                foreach($data->varValues->{$varIndiceName} as $sup_indice){
-                    $data->varValues->{$varIndiceName}[$clave] = $value->firma[$clave];
-                    $clave++;
-                }
-                */
-
-
-
         }
 
         $firmas = $this->getDoctrine()
@@ -851,7 +822,7 @@ class DataDocumentController extends Controller
 
                 $first = false;
             } else {
-
+                //$fin=0;
                 foreach ($varValues as $prop => $values) {
                     $position = strpos($prop, "u_");
                     $positionV = strpos($prop, "verchk_");
@@ -869,23 +840,19 @@ class DataDocumentController extends Controller
                             }
                             if ($currentValue != $value) {
                                 // Modificado
-                                $modificado=$key;
-                                //$mapVariable->{$prop}->firma = $firmaId;
+                                if($firmaId>$mapVariable->{$prop}->firma[$key]){
+                                    $modificado=$key;
+                                    $mapVariable->{$prop}->firma[$modificado]=$firmaId;
+                                }
                             }
-
-                            /*if(urldecode($value)=="chalet 5"){
-                                var_dump($modificado);die();
-                            }*/
                         }
                         if($modificado>-1){
                            $mapVariable->{$prop}->valor = $values; 
-                           $mapVariable->{$prop}->firma[$modificado]=$firmaId;
                         }
                     }
                 }
             }
         }
-
 
         return $mapVariable;
 

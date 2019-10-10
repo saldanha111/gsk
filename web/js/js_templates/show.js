@@ -2,6 +2,7 @@ function customOnFullyLoaded() {
     /***** Create new buttons ******/
     var sendAndSignButton = $('#download');
     $('#download').hide();
+    $('#cancel').hide();
     ocultar_indices();
     var divButtons = sendAndSignButton.parents('div:first');
 
