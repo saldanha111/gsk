@@ -83,4 +83,17 @@
   margin: 0;
 }
 
+@media print { 
+   .noprint { 
+      display: none; 
+   } 
+  @page  
+  { 
+      size: auto;   /* auto is the initial value */ 
+
+      /* this affects the margin in the printer settings */ 
+      margin: 25mm 25mm 25mm 25mm;  
+  }
+} 
+
 

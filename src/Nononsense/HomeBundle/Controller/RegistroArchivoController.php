@@ -211,7 +211,7 @@ class RegistroArchivoController extends Controller
     function oldverRegistroHistoricoInterfaceAction($registroid)
     {
         $rootdir = $this->get('kernel')->getRootDir();
-        $rootdirFiles = $rootdir . "/../web/Files";
+        $rootdirFiles = $rootdir . "/../app/files";
 
         $registro = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
@@ -417,8 +417,13 @@ class RegistroArchivoController extends Controller
 
         $name=$registroViejo->getMasterWorkflowEntity()->getName();
 
-        $peticionReconciliacionAntigua=NULL;
+        $peticionReconciliacionAntigua = $this->getDoctrine()
+                ->getRepository('NononsenseHomeBundle:ReconciliacionRegistro')
+                ->findOneBy(array("registro_nuevo_id" => $registroViejo->getId()));
+
         $txhash="";
+        $solicitante="";
+        $autorizante="";
 
         $procesarReconciliaciones=TRUE;
         $i=0;
@@ -426,6 +431,13 @@ class RegistroArchivoController extends Controller
             if ($registroViejo != null) {
                 if($peticionReconciliacionAntigua){
                     $txhash=$peticionReconciliacionAntigua->getTxhash();
+                    $solicitante=$peticionReconciliacionAntigua->getUserEntiy()->getName();
+                    $autorizante=$peticionReconciliacionAntigua->getUserValidationEntiy()->getName();
+                }
+                else{
+                    $txhash="";
+                    $solicitante="";
+                    $autorizante="";
                 }
                 $subcat = $registroViejo->getMasterWorkflowEntity()->getCategory()->getName();
                 $name = $registroViejo->getMasterWorkflowEntity()->getName();
@@ -437,17 +449,16 @@ class RegistroArchivoController extends Controller
                     "status" => $registroViejo->getStatus(),
                     "fecha" => $registroViejo->getModified(),
                     "id_grid" => $step->getId(),
-                    "txhash" => $txhash
+                    "txhash" => $txhash,
+                    "solicitante" => $solicitante,
+                    "autorizante" => $autorizante,
                 );
                 $documentsReconciliacion[$i] = $element;
             } else {
                 $procesarReconciliaciones = false;
             }
 
-            // Ver una posible reconciliación del registro viejo
-            $peticionReconciliacionAntigua = $this->getDoctrine()
-                ->getRepository('NononsenseHomeBundle:ReconciliacionRegistro')
-                ->findOneBy(array("registro_nuevo_id" => $registroViejo->getId()));
+            
 
             
 
@@ -463,8 +474,20 @@ class RegistroArchivoController extends Controller
                 $procesarReconciliaciones = false;
             }
 
+            if($registroViejo){
+                // Ver una posible reconciliación del registro viejo
+                $peticionReconciliacionAntigua = $this->getDoctrine()
+                    ->getRepository('NononsenseHomeBundle:ReconciliacionRegistro')
+                    ->findOneBy(array("registro_nuevo_id" => $registroViejo->getId()));
+            }
+            else{
+                $peticionReconciliacionAntigua=NULL;
+            }
+
             $i--;
         }
+
+
 
         $registroNuevo = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
@@ -489,6 +512,12 @@ class RegistroArchivoController extends Controller
                 $subcat = $registroNuevo->getMasterWorkflowEntity()->getCategory()->getName();
                 $name = $registroNuevo->getMasterWorkflowEntity()->getName();
 
+                if($peticionReconciliacionNueva->getUserValidationEntiy()){
+                    $autorizante=$peticionReconciliacionNueva->getUserValidationEntiy()->getName();
+                }
+                else{
+                    $autorizante="";
+                }
                 $element = array(
                     "id" => $registroNuevo->getId(),
                     "subcat" => $subcat,
@@ -496,7 +525,9 @@ class RegistroArchivoController extends Controller
                     "status" => $registroNuevo->getStatus(),
                     "fecha" => $registroNuevo->getModified(),
                     "id_grid" => $step->getId(),
-                    "txhash" => $peticionReconciliacionNueva->getTxhash()
+                    "txhash" => $peticionReconciliacionNueva->getTxhash(),
+                    "solicitante" => $peticionReconciliacionNueva->getUserEntiy()->getName(),
+                    "autorizante" => $autorizante,
                 );
                 $documentsReconciliacion[$i] = $element;
 

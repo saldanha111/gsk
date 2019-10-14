@@ -1351,6 +1351,9 @@ class RegistroConcretoController extends Controller
             $desc_action="no autorizada";
             $si_no="no";
         }
+
+        $peticionEntity->setDescValidation($comentario);
+        $peticionEntity->setUserValidationEntiy($user);
         /*
          * Guardar firma
          */
@@ -1380,7 +1383,7 @@ class RegistroConcretoController extends Controller
         $email=$peticionEntity->getUserEntiy()->getEmail();
         $subject="Reconciliación ".$desc_action;
         $mensaje='La reconciliación para el documento '.$new_step->getId().' '.$si_no.' ha sido autorizada.';
-        $baseURL=$this->container->get('router')->generate('nononsense_search', array(),TRUE);
+        $baseURL=$this->container->get('router')->generate('nononsense_search', array(),TRUE)."?id=".$new_step->getId();
 
 
         /* ENVIAMOS LA RECONCILIACION A BLOCKCHAIN */

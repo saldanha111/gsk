@@ -111,6 +111,8 @@ function customOnFullyLoaded() {
         }
     };
 
+    $(".h5p_leftTools").remove();
+    $(".h5p_rightTools").remove();
 }
 
 /*

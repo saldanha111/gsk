@@ -764,16 +764,28 @@ class DataDocumentController extends Controller
             ->find($id);
 
         $name=$registroViejo->getMasterWorkflowEntity()->getName();
-        $documentsReconciliacion=array();
-        $peticionReconciliacionAntigua=NULL;
+
+        $peticionReconciliacionAntigua = $this->getDoctrine()
+                ->getRepository('NononsenseHomeBundle:ReconciliacionRegistro')
+                ->findOneBy(array("registro_nuevo_id" => $registroViejo->getId()));
+
+        $txhash="";
+        $solicitante="";
+        $autorizante="";
 
         $procesarReconciliaciones=TRUE;
         $i=0;
-        $txhash="";
         while ($procesarReconciliaciones) {
             if ($registroViejo != null) {
                 if($peticionReconciliacionAntigua){
                     $txhash=$peticionReconciliacionAntigua->getTxhash();
+                    $solicitante=$peticionReconciliacionAntigua->getUserEntiy()->getName();
+                    $autorizante=$peticionReconciliacionAntigua->getUserValidationEntiy()->getName();
+                }
+                else{
+                    $txhash="";
+                    $solicitante="";
+                    $autorizante="";
                 }
                 $subcat = $registroViejo->getMasterWorkflowEntity()->getCategory()->getName();
                 $name = $registroViejo->getMasterWorkflowEntity()->getName();
@@ -785,17 +797,16 @@ class DataDocumentController extends Controller
                     "status" => $registroViejo->getStatus(),
                     "fecha" => $registroViejo->getModified(),
                     "id_grid" => $step->getId(),
-                    "txhash" => $txhash
+                    "txhash" => $txhash,
+                    "solicitante" => $solicitante,
+                    "autorizante" => $autorizante,
                 );
                 $documentsReconciliacion[$i] = $element;
             } else {
                 $procesarReconciliaciones = false;
             }
 
-            // Ver una posible reconciliación del registro viejo
-            $peticionReconciliacionAntigua = $this->getDoctrine()
-                ->getRepository('NononsenseHomeBundle:ReconciliacionRegistro')
-                ->findOneBy(array("registro_nuevo_id" => $registroViejo->getId()));
+            
 
             
 
@@ -811,8 +822,20 @@ class DataDocumentController extends Controller
                 $procesarReconciliaciones = false;
             }
 
+            if($registroViejo){
+                // Ver una posible reconciliación del registro viejo
+                $peticionReconciliacionAntigua = $this->getDoctrine()
+                    ->getRepository('NononsenseHomeBundle:ReconciliacionRegistro')
+                    ->findOneBy(array("registro_nuevo_id" => $registroViejo->getId()));
+            }
+            else{
+                $peticionReconciliacionAntigua=NULL;
+            }
+
             $i--;
         }
+
+
 
         $registroNuevo = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
@@ -837,6 +860,12 @@ class DataDocumentController extends Controller
                 $subcat = $registroNuevo->getMasterWorkflowEntity()->getCategory()->getName();
                 $name = $registroNuevo->getMasterWorkflowEntity()->getName();
 
+                if($peticionReconciliacionNueva->getUserValidationEntiy()){
+                    $autorizante=$peticionReconciliacionNueva->getUserValidationEntiy()->getName();
+                }
+                else{
+                    $autorizante="";
+                }
                 $element = array(
                     "id" => $registroNuevo->getId(),
                     "subcat" => $subcat,
@@ -844,7 +873,9 @@ class DataDocumentController extends Controller
                     "status" => $registroNuevo->getStatus(),
                     "fecha" => $registroNuevo->getModified(),
                     "id_grid" => $step->getId(),
-                    "txhash" => $peticionReconciliacionNueva->getTxhash()
+                    "txhash" => $peticionReconciliacionNueva->getTxhash(),
+                    "solicitante" => $peticionReconciliacionNueva->getUserEntiy()->getName(),
+                    "autorizante" => $autorizante,
                 );
                 $documentsReconciliacion[$i] = $element;
 
@@ -862,7 +893,7 @@ class DataDocumentController extends Controller
 
             ksort($documentsReconciliacion);
 
-            $html="<br><br><table class='table table-striped' style='font-size:11px'><tr><th colspan='4'>Reconciliación</th></tr><tr><td>Nº</td><td>Nombre</td><td>Estado</td><td>Fecha</td></tr>";
+            $html="<br><br><table class='table table-striped' style='font-size:11px'><tr><th colspan='4'>Reconciliación (".count($documentsReconciliacion)." registros reconciliados)</th></tr><tr><td>Nº</td><td>Nombre</td><td>Estado</td><td>Fecha</td></tr>";
             foreach($documentsReconciliacion as $key => $element){
                 $url=$this->container->get('router')->generate('nononsense_ver_registro', array('revisionid' => $element["id"]),TRUE);
                 if($current_id!=$element["id_grid"]){

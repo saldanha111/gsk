@@ -58,6 +58,20 @@ class ReconciliacionRegistro
     protected $description;
 
     /**
+     * @var integer
+     *
+     * @ORM\Column(name="user_validation", type="integer", nullable=true)
+     */
+    protected $user_validation;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="desc_validation", type="string", length=200, nullable=true)
+     */
+    protected $desc_validation;
+
+    /**
      * @var string
      *
      * @ORM\Column(name="status", type="integer")
@@ -104,6 +118,12 @@ class ReconciliacionRegistro
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
      */
     protected $userEntiy;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="ReconciliacionesValidations")
+     * @ORM\JoinColumn(name="user_validation", referencedColumnName="id")
+     */
+    protected $userValidationEntiy;
 
 
     public function __construct()
@@ -394,5 +414,74 @@ class ReconciliacionRegistro
     public function getTxhash()
     {
         return $this->txhash;
+    }
+
+    /**
+     * Set user_validation
+     *
+     * @param integer $userValidation
+     * @return ReconciliacionRegistro
+     */
+    public function setUserValidation($userValidation)
+    {
+        $this->user_validation = $userValidation;
+
+        return $this;
+    }
+
+    /**
+     * Get user_validation
+     *
+     * @return integer 
+     */
+    public function getUserValidation()
+    {
+        return $this->user_validation;
+    }
+
+    /**
+     * Set desc_validation
+     *
+     * @param string $descValidation
+     * @return ReconciliacionRegistro
+     */
+    public function setDescValidation($descValidation)
+    {
+        $this->desc_validation = $descValidation;
+
+        return $this;
+    }
+
+    /**
+     * Get desc_validation
+     *
+     * @return string 
+     */
+    public function getDescValidation()
+    {
+        return $this->desc_validation;
+    }
+
+    /**
+     * Set userValidationEntiy
+     *
+     * @param \Nononsense\UserBundle\Entity\Users $userValidationEntiy
+     * @return ReconciliacionRegistro
+     */
+    public function setUserValidationEntiy(\Nononsense\UserBundle\Entity\Users $userValidationEntiy = null)
+    {
+        $this->userValidationEntiy = $userValidationEntiy;
+
+        return $this;
+    }
+
+    /**
+     * Get userValidationEntiy
+     *
+     * @return \Nononsense\UserBundle\Entity\Users 
+     */
+    public function getUserValidationEntiy()
+    {
+        return $this->userValidationEntiy;
     }
 }

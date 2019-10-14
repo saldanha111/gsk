@@ -58,6 +58,20 @@ class ReconciliacionRegistro
     protected $description;
 
     /**
+     * @var integer
+     *
+     * @ORM\Column(name="user_validation", type="integer", nullable=true)
+     */
+    protected $user_validation;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="desc_validation", type="string", length=200, nullable=true)
+     */
+    protected $desc_validation;
+
+    /**
      * @var string
      *
      * @ORM\Column(name="status", type="integer")
@@ -104,6 +118,12 @@ class ReconciliacionRegistro
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
      */
     protected $userEntiy;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="ReconciliacionesValidations")
+     * @ORM\JoinColumn(name="user_validation", referencedColumnName="id")
+     */
+    protected $userValidationEntiy;
 
 
     public function __construct()
@@ -371,5 +391,28 @@ class ReconciliacionRegistro
     public function getUserEntiy()
     {
         return $this->userEntiy;
+    }
+
+    /**
+     * Set txhash
+     *
+     * @param string $txhash
+     * @return ReconciliacionRegistro
+     */
+    public function setTxhash($txhash)
+    {
+        $this->txhash = $txhash;
+
+        return $this;
+    }
+
+    /**
+     * Get txhash
+     *
+     * @return string 
+     */
+    public function getTxhash()
+    {
+        return $this->txhash;
     }
 }

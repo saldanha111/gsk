@@ -217,6 +217,11 @@ class Users implements AdvancedUserInterface, \Serializable
     protected $Reconciliaciones;
 
     /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\ReconciliacionRegistro", mappedBy="userValidationEntiy")
+     */
+    protected $ReconciliacionesValidations;
+
+    /**
      * Users constructor.
      */
     

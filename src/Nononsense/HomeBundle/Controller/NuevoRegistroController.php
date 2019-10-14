@@ -799,8 +799,8 @@ class NuevoRegistroController extends Controller
 
         foreach($unique_emails as $email){
             $subject="Solicitud de reconciliación";
-            $mensaje='Se ha solicitado una reconciliación con ID '.$peticionEntity->getId().'. Para poder confirmarla puede acceder a "Actividad de área"';
-            $baseURL=$this->container->get('router')->generate('nononsense_registro_autorizar_list',array(),TRUE);
+            $mensaje='Se ha solicitado una reconciliación de ID '.$peticionEntity->getId().' con el motivo:<br> <b>'.$peticionEntity->getDescription().'</b>.<br><br> Para poder gestionarla pulse en el siguiente link';
+            $baseURL=$this->container->get('router')->generate('nononsense_autorizar_peticion',array("peticionid"=>$peticionid),TRUE);
             
             $this->_sendNotification($email, $baseURL, "", "", $subject, $mensaje);
         }
