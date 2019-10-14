@@ -385,7 +385,12 @@ class DataDocumentController extends Controller
 
         $reconciliation=$this->_construirReconciliacion($step);
         if($reconciliation!=""){
-            $data->varValues->dxo_gsk_firmas[0].=$reconciliation;
+            if(!$completo){
+                $data->varValues->dxo_gsk_firmas[0].=$reconciliation;
+            }
+            else{
+                $data->varValues->dxo_gsk_audit_trail[0].=$reconciliation;
+            }
         }
 
         /*
@@ -397,7 +402,7 @@ class DataDocumentController extends Controller
         if (isset($data->custom)) {
             unset($data->custom);
         }
-
+        //echo $data->varValues->dxo_gsk_firmas[0]."**";die();
 
         /*
          * Generar los cuatro últimos, si logbook
@@ -488,6 +493,7 @@ class DataDocumentController extends Controller
             //$data->varValues->dxp_gsk_logbook_bloque = array('1');
 
         }
+
         //var_dump(json_encode($data));
         //echo 'venga ya!';
         //exit;
@@ -890,8 +896,6 @@ class DataDocumentController extends Controller
         $html="";
 
         if(count($documentsReconciliacion)>1){
-
-            ksort($documentsReconciliacion);
 
             $html="<br><br><table class='table table-striped' style='font-size:11px'><tr><th colspan='4'>Reconciliación (".count($documentsReconciliacion)." registros reconciliados)</th></tr><tr><td>Nº</td><td>Nombre</td><td>Estado</td><td>Fecha</td></tr>";
             foreach($documentsReconciliacion as $key => $element){
