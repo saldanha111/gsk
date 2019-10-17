@@ -215,8 +215,10 @@ class InstanciasStepsRepository extends EntityRepository
             case "list":
                 $list = $this->createQueryBuilder('s')
                     ->select('s.id as id_grid','i.id', 'i.usercreatedid','mw.name','ms.name as name2','u.name as creator','i.created','m.modified','m.lote','m.material','m.equipo','m.workordersap','mw.logbook','i.status','s.id as step','i.in_edition','mw.logbook','us.id as idNextSigner','r.registro_viejo_id as id_reconciliado','r2.registro_nuevo_id as id_reconciliado_sig','mw.checklist as tiene_checklist','ms.checklist as es_checklist','s.dependsOn');
-                $list->addSelect("CASE WHEN ((SELECT COUNT(ela.step_id) FROM Nononsense\HomeBundle\Entity\FirmasStep ela WHERE ela.userEntiy=:el_user AND ela.step_id=s.id AND ela.elaboracion=1)>0 OR i.usercreatedid=:el_user_id) THEN 0 ELSE 1 AS validate");
+                $list->addSelect("CASE WHEN ((SELECT COUNT(ela.step_id) FROM Nononsense\HomeBundle\Entity\FirmasStep ela WHERE ela.userEntiy=:el_user AND ela.step_id=s.id AND (ela.elaboracion=1 OR (ela.accion LIKE 'Cancelado en verificación:%' AND i.status=14)))>0 OR i.usercreatedid=:el_user_id) THEN 0 ELSE 1 AS validate");
+                $list->addSelect("CASE WHEN ((SELECT COUNT(elac.step_id) FROM Nononsense\HomeBundle\Entity\FirmasStep elac WHERE elac.userEntiy=:el_userc AND elac.step_id=s.id AND elac.elaboracion=0)>0) THEN 0 ELSE 1 AS cumpliment");
                 $list->setParameter('el_user', $user);
+                $list->setParameter('el_userc', $user);
                 $list->setParameter('el_user_id', $user->getId());
 
                 break;
@@ -352,10 +354,14 @@ class InstanciasStepsRepository extends EntityRepository
             }
 
             if (isset($filters["pending_for_me"])) {
-                $list->andWhere('(i.status IN (1,2,3,7,12,13,15) AND us.id=:user_id AND f.status=0) OR ((i.status IN (4,5) OR (i.status=14 AND :fll=1)) AND s.id NOT IN (SELECT el.step_id FROM Nononsense\HomeBundle\Entity\FirmasStep el WHERE el.userEntiy=:el_user_aux AND el.step_id=s.id AND el.elaboracion=1) AND i.usercreatedid!=:user_id2) OR i.status=0');
+                $list->andWhere('(i.status IN (1,2,3,7,12,13,15) AND us.id=:user_id AND f.status=0) OR ((i.status IN (4,5) OR (i.status=14 AND :fll=1)) AND s.id NOT IN (SELECT el.step_id FROM Nononsense\HomeBundle\Entity\FirmasStep el WHERE el.userEntiy=:el_user_aux AND el.step_id=s.id AND  (el.elaboracion=1 OR (el.accion LIKE :return_verify AND i.status=14))) AND i.usercreatedid!=:user_id2) OR (i.status=0 AND s.id NOT IN (SELECT elc.step_id FROM Nononsense\HomeBundle\Entity\FirmasStep elc WHERE elc.userEntiy=:el_user_auxc AND elc.step_id=s.id AND elc.elaboracion=0))');
+
+
                 $list->setParameter('user_id', $user->getId());
                 $list->setParameter('user_id2', $user->getId());
                 $list->setParameter('el_user_aux', $user);
+                $list->setParameter('el_user_auxc', $user);
+                $list->setParameter('return_verify', 'Cancelado en verificación:%');
                 $list->setParameter('fll', $fll);
             }
 

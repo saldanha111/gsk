@@ -23,6 +23,13 @@
         <h1>El registro está completado</h1>
         <form id="guardarenviarForm"
               action="{{path('nononsense_registro_concreto_guardar_enviar', {'stepid': stepid})}}" method="POST" enctype="multipart/form-data">
+              {% if devolucion == 1 %}
+                <div id="comentario" class="input-group">
+                    <p>Ha modificado valores previamente imputados. Explique por qué</p>
+                    <textarea id="comment" name="comment" form="guardarenviarForm" rows="10" cols="91"></textarea>
+
+                </div>
+                {% endif %}
             <div id="signature-pad" class="input-group">
                 <h2>Introduzca su firma</h2>
                 <canvas width="300" height="150"
@@ -103,6 +110,15 @@
         });
 
         $('#guardarenviar').on('click', function () {
+            var comentarioCompulsory = "{{devolucion}}"
+            if (comentarioCompulsory == 1) {
+                var comment = $('#comment').val()
+                if(comment.trim() == ""){
+                    // error
+                    toastr.error("Debe escribir una justificación del cambio realizado, no puede dejar el cuadro en blanco", 'aviso');
+                    return false;
+                }
+            }
             $("#firma").val(signaturePad.toDataURL()) // save image as PNG
             if (signaturePad.isEmpty()) {
                 toastr.error("Debe rellenar una fima, no puede dejar el cuadro en blanco", 'aviso');

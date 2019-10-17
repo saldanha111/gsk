@@ -1068,7 +1068,7 @@ class RegistroValidationController extends Controller
 
         if (isset($firma)) {
             $firma->setFirma($firmaImagen);
-            $firma->setAccion("Verificación negativa: " . $comentario);
+            $firma->setAccion("Cancelado en verificación: " . $comentario);
             $firma->setStatus(1); // Firmado
 
         } else {
@@ -1181,7 +1181,7 @@ class RegistroValidationController extends Controller
          */
         $emailTo = $registro->getUserCreatedEntiy()->getEmail();
         $baseUrl = $this->getParameter("cm_installation");
-        $linkToEnProcess = $baseUrl . "registro_process";
+        $linkToEnProcess = $this->container->get('router')->generate('nononsense_search', array(),TRUE);
         $logo = "";
         $accion = "devolverEdicion";
         $subject = "Registro devuelto para edición";
@@ -1229,7 +1229,7 @@ class RegistroValidationController extends Controller
         $arrayEnviosHechos = array();
 
         $baseUrl = $this->getParameter("cm_installation");
-        $linkToEnProcess = $baseUrl . "registro_process";
+        $linkToEnProcess = $this->container->get('router')->generate('nononsense_search', array(),TRUE);
 
         foreach ($enviosUser as $email) {
             if ($this->_sendNotification($email, $linkToEnProcess, "", "", $subject, $mensaje)) {

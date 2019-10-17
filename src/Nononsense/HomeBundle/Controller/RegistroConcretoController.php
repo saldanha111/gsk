@@ -50,6 +50,7 @@ class RegistroConcretoController extends Controller
         $percentageCompleted = $validations->percentage;
         $validated = $validations->validated;
 
+        //var_dump($this->_checkModifyVariables($step));die();
         /*
          * Revisar si ha habido algún cambio en las variables para que muestre el campo de texto.
          */
@@ -107,6 +108,18 @@ class RegistroConcretoController extends Controller
             );
             $route = $this->container->get('router')->generate('nononsense_search');
             return $this->redirect($route);
+        }
+
+        if ($registro->getStatus() == 0) {
+            // En verficiación, comprobar que puede verificar
+            if (!$this->puedeCumplimentar($step)) {
+                $this->get('session')->getFlashBag()->add(
+                    'error',
+                    'No puede cumplimentar este registro porque ha participado en la verificación'
+                );
+                $route = $this->container->get('router')->generate('nononsense_search');
+                return $this->redirect($route);
+            }
         }
 
         if ($registro->getStatus() == 4 || $registro->getStatus() == 5 || $registro->getStatus() == 14) {
@@ -417,7 +430,7 @@ class RegistroConcretoController extends Controller
         $registro = $step->getInstanciaWorkflow();
         $registro->setStatus(4);
 
-        if (isset($comentario)) {
+        /*if (isset($comentario)) {
             // Devolución
             $revisionInstanciaWorkflowEntityAux = new RevisionInstanciaWorkflow();
             $revisionInstanciaWorkflowEntityAux->setStatus(3);
@@ -427,7 +440,7 @@ class RegistroConcretoController extends Controller
 
             $revisionInstanciaWorkflowEntityAux->setType(1);
             $em->persist($revisionInstanciaWorkflowEntityAux);
-        }
+        }*/
         /*
          * Crea la validación, asignar grupo si es específico.
          */
@@ -545,7 +558,7 @@ class RegistroConcretoController extends Controller
 
         if (isset($firma)) {
             $firma->setFirma($firmaImagen);
-            $firma->setAccion("Guardado y enviado a validación. " . $comentario);
+            $firma->setAccion("Guardado y enviado a verificación. " . $comentario);
             $firma->setStatus(1); // Firmado
 
         } else {
@@ -851,7 +864,7 @@ class RegistroConcretoController extends Controller
 
         } elseif ($action == 'enviar') {
             $registro->setStatus(2);
-            $descp = 'Guardado y enviado a validación';
+            $descp = 'Guardado y enviado a verificación';
             $route = $this->container->get('router')->generate('nononsense_contrato_registro_completado', array('stepid' => $stepid, 'comment' => $comment));
 
         } else if ($action == 'cerrar') {
@@ -1587,16 +1600,37 @@ class RegistroConcretoController extends Controller
                 ->findBy(array("step_id" => $step->getId(), "userEntiy" => $user));
 
             foreach ($firmas as $firma) {
-
-                $elaboracion = $firma->getElaboracion();
-                if ($elaboracion) {
+                if ($firma->getElaboracion() || (!$firma->getElaboracion() && strpos($firma->getAccion(), 'Cancelado en verificación:') !== false)) {
                     // Este usuario ha firmado y además una firma de elaboración
                     $resultado = false;
                 }
-
-
             }
+        }
+        return $resultado;
+    }
 
+    private function puedeCumplimentar($step)
+    {
+        $resultado = true;
+
+        $registro = $step->getInstanciaWorkflow();
+
+        $user = $this->container->get('security.context')->getToken()->getUser();
+
+        if ($resultado) {
+            // Obtener todas las firmas de este usuario
+            $firmas = $this->getDoctrine()
+                ->getRepository('NononsenseHomeBundle:FirmasStep')
+                ->findBy(array("step_id" => $step->getId(), "userEntiy" => $user));
+
+            foreach ($firmas as $firma) {
+
+                $elaboracion = $firma->getElaboracion();
+                if (!$elaboracion) {
+                    // Este usuario ha firmado y además una firma de elaboración
+                    $resultado = false;
+                }
+            }
         }
 
         return $resultado;
