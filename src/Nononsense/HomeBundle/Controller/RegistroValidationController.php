@@ -1096,6 +1096,19 @@ class RegistroValidationController extends Controller
 //        $em->persist($evidencia);
         $em->flush();
 
+        /*
+         * Envío por email a creador del documento
+         */
+        $emailTo = $registro->getUserCreatedEntiy()->getEmail();
+        $linkToEnProcess = $this->container->get('router')->generate('nononsense_search', array(),TRUE)."?id=".$stepid;
+        $logo = "";
+        $accion = "canceladoVerificacion";
+        $subject = "Registro cancelado en verificación";
+        $message = "El registro con Id: " . $stepid . " ha sido cancelado en verificación, por favor revíselo o notifique a otro usuario para que revise dicha cancelación";
+
+
+        $this->_sendNotification($emailTo, $linkToEnProcess, $logo, $accion, $subject, $message);
+
         $route = $this->container->get('router')->generate('nononsense_search');
 
         return $this->redirect($route);
@@ -1181,11 +1194,11 @@ class RegistroValidationController extends Controller
          */
         $emailTo = $registro->getUserCreatedEntiy()->getEmail();
         $baseUrl = $this->getParameter("cm_installation");
-        $linkToEnProcess = $this->container->get('router')->generate('nononsense_search', array(),TRUE);
+        $linkToEnProcess = $this->container->get('router')->generate('nononsense_search', array(),TRUE)."?id=".$stepid;
         $logo = "";
         $accion = "devolverEdicion";
         $subject = "Registro devuelto para edición";
-        $message = "El registro con Id: " . $registro->getId() . " ha sido devuelto para edición, por favor revíselo o notifique a otro usuario para que revise dicha cumplimentación";
+        $message = "El registro con Id: " . $stepid . " ha sido devuelto para edición, por favor revíselo o notifique a otro usuario para que revise dicha cumplimentación";
 
 
         $this->_sendNotification($emailTo, $linkToEnProcess, $logo, $accion, $subject, $message);

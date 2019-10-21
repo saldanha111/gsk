@@ -41,6 +41,7 @@ $(document).ready(function () {
 
             quad = prequad;
 			$('span[data-name="u_desviacion"]').text(quad.toLocaleString('es-ES', { minimumFractionDigits: numDecimals + 1, maximumFractionDigits: numDecimals + 1 }));
+			$('span[data-name="u_desviacion"]').blur(); 
 			if (quad > limit_warning || isNaN(quad)){
 				console.log("No cumple: "+quad +" > " + limit_warning);
 				$('select[data-list="u_cumple"]').val('No');

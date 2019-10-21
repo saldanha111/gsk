@@ -36,59 +36,65 @@
                     </tr>
                     </thead>
                     {% for key,plantilla in documentsReconciliacion %}
-                    <tr {{ key == 0 ? 'style="font-weight:bold"' : '' }}>
-                        <td>{{plantilla.id_grid}}</td>
-                        <td>{{plantilla.subcat}}</td>
-                        <td>{{plantilla.name}}</td>
-                        <td>{{plantilla.solicitante}}</td>
-                        <td>{{plantilla.autorizante}}</td>
-                        {% if plantilla.status == 0 %}
-                        <td>Iniciado</td>
-                        {% elseif plantilla.status == 1 %}
-                        <td>Esperando firma guardado parcial</td>
-                        {% elseif plantilla.status == 2 %}
-                        <td>Esperando firma envío</td>
-                        {% elseif plantilla.status == 3 %}
-                        <td>Esperando firma cancelación</td>
-                        {% elseif plantilla.status == 4 %}
-                        <td>En verificación</td>
-                        {% elseif plantilla.status == 5 %}
-                        <td>Pendiente cancelación en edición</td>
-                        {% elseif plantilla.status == 6 %}
-                        <td class="pdte">Cancelado en edición</td>
-                        {% elseif plantilla.status == 7 %}
-                        <td class="pdte">Esperando firma verificación total</td>
-                        {% elseif plantilla.status == 8 %}
-                        <td class="pdte">Cancelado</td>
-                        {% elseif plantilla.status == 9 %}
-                        <td>Archivado</td>
-                        {% elseif plantilla.status == 10 %}
-                        <td>Reconciliado</td>
-                        {% elseif plantilla.status == 11 %}
-                        <td class="pdte">Bloqueado</td>
-                        {% elseif plantilla.status == 12 %}
-                        <td>Esperando firma cancelación en verificación</td>
-                        {% elseif plantilla.status == 13 %}
-                        <td>Esperando firma devolución a edición</td>
-                        {% elseif plantilla.status == 14 %}
-                        <td>Pendiente de cancelación en verificación</td>
-                        {% elseif plantilla.status == 15 %}
-                        <td>Esperando firma verificación parcial</td>
-                        {% elseif plantilla.status == 16 %}
-                        <td>Esperando autorización para reconciliación</td>
-                        {% else %}
-                        <td class="pdte">{{plantilla.status}}</td>
-                        {% endif %}
-                        <td>{{plantilla.fecha | date('d-m-Y H:i:s') }}</td>
-                        <td class="noprint"><a class="btn btn-xs btn-primary" name="verregistro"
-                               href="{{path('nononsense_ver_registro', {'revisionid': plantilla.id})}}"
-                               target="_blank">{{'Ver'|trans}}</a></td>
-                        <td class="noprint">
-                            {% if plantilla.txhash is defined and plantilla.txhash !="" %}
-                                <a class="btn btn-xs btn-primary" name="verregistro" href="{{url_scagle}}{{plantilla.txhash}}" target="_blank">Blockchain</a>
+                        <tr {{ key == 0 ? 'style="font-weight:bold"' : '' }}>
+                            <td>{{plantilla.id_grid}}</td>
+                            <td>{{plantilla.subcat}}</td>
+                            <td>{{plantilla.name}}</td>
+                            <td>{{plantilla.solicitante}}</td>
+                            <td>{{plantilla.autorizante}}</td>
+                            {% if plantilla.status == 0 %}
+                            <td>Iniciado</td>
+                            {% elseif plantilla.status == 1 %}
+                            <td>Esperando firma guardado parcial</td>
+                            {% elseif plantilla.status == 2 %}
+                            <td>Esperando firma envío</td>
+                            {% elseif plantilla.status == 3 %}
+                            <td>Esperando firma cancelación</td>
+                            {% elseif plantilla.status == 4 %}
+                            <td>En verificación</td>
+                            {% elseif plantilla.status == 5 %}
+                            <td>Pendiente cancelación en edición</td>
+                            {% elseif plantilla.status == 6 %}
+                            <td class="pdte">Cancelado en edición</td>
+                            {% elseif plantilla.status == 7 %}
+                            <td class="pdte">Esperando firma verificación total</td>
+                            {% elseif plantilla.status == 8 %}
+                            <td class="pdte">Cancelado</td>
+                            {% elseif plantilla.status == 9 %}
+                            <td>Archivado</td>
+                            {% elseif plantilla.status == 10 %}
+                            <td>Reconciliado</td>
+                            {% elseif plantilla.status == 11 %}
+                            <td class="pdte">Bloqueado</td>
+                            {% elseif plantilla.status == 12 %}
+                            <td>Esperando firma cancelación en verificación</td>
+                            {% elseif plantilla.status == 13 %}
+                            <td>Esperando firma devolución a edición</td>
+                            {% elseif plantilla.status == 14 %}
+                            <td>Pendiente de cancelación en verificación</td>
+                            {% elseif plantilla.status == 15 %}
+                            <td>Esperando firma verificación parcial</td>
+                            {% elseif plantilla.status == 16 %}
+                            <td>Esperando autorización para reconciliación</td>
+                            {% else %}
+                            <td class="pdte">{{plantilla.status}}</td>
                             {% endif %}
-                        </td>
-                    </tr>
+                            <td>{{plantilla.fecha | date('d-m-Y H:i:s') }}</td>
+                            <td class="noprint"><a class="btn btn-xs btn-primary" name="verregistro"
+                                   href="{{path('nononsense_ver_registro', {'revisionid': plantilla.id})}}"
+                                   target="_blank">{{'Ver'|trans}}</a></td>
+                            <td class="noprint">
+                                {% if plantilla.txhash is defined and plantilla.txhash !="" %}
+                                    <a class="btn btn-xs btn-primary" name="verregistro" href="{{url_scagle}}{{plantilla.txhash}}" target="_blank">Blockchain</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% if loop.index > 1 %} 
+                        <tr>
+                            <td colspan="7"><b>Solicitud:</b> {{plantilla.desc1}}<br><b>Motivo:</b> {{plantilla.desc2}}</td>
+                            <td class="noprint" colspan="2"></td>
+                        </tr>
+                        {% endif %}
                     {% endfor %}
                 </table>
                 <b>{{documentsReconciliacion|length}} Registros reconciliados - {{ "now"|date("d/m/Y H:i:s") }}</b>

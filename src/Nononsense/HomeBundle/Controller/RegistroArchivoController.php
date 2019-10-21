@@ -424,6 +424,8 @@ class RegistroArchivoController extends Controller
         $txhash="";
         $solicitante="";
         $autorizante="";
+        $desc1="";
+        $desc2="";
 
         $procesarReconciliaciones=TRUE;
         $i=0;
@@ -433,11 +435,15 @@ class RegistroArchivoController extends Controller
                     $txhash=$peticionReconciliacionAntigua->getTxhash();
                     $solicitante=$peticionReconciliacionAntigua->getUserEntiy()->getName();
                     $autorizante=$peticionReconciliacionAntigua->getUserValidationEntiy()->getName();
+                    $desc1=$peticionReconciliacionAntigua->getDescription();
+                    $desc2=$peticionReconciliacionAntigua->getDescValidation();
                 }
                 else{
                     $txhash="";
                     $solicitante="";
                     $autorizante="";
+                    $desc1="";
+                    $desc2="";
                 }
                 $subcat = $registroViejo->getMasterWorkflowEntity()->getCategory()->getName();
                 $name = $registroViejo->getMasterWorkflowEntity()->getName();
@@ -452,6 +458,8 @@ class RegistroArchivoController extends Controller
                     "txhash" => $txhash,
                     "solicitante" => $solicitante,
                     "autorizante" => $autorizante,
+                    "desc1" => $desc1,
+                    "desc2" => $desc2
                 );
                 $documentsReconciliacion[$i] = $element;
             } else {
@@ -514,9 +522,11 @@ class RegistroArchivoController extends Controller
 
                 if($peticionReconciliacionNueva->getUserValidationEntiy()){
                     $autorizante=$peticionReconciliacionNueva->getUserValidationEntiy()->getName();
+                    $desc2=$peticionReconciliacionNueva->getDescValidation();
                 }
                 else{
                     $autorizante="";
+                    $desc2="";
                 }
                 $element = array(
                     "id" => $registroNuevo->getId(),
@@ -528,6 +538,8 @@ class RegistroArchivoController extends Controller
                     "txhash" => $peticionReconciliacionNueva->getTxhash(),
                     "solicitante" => $peticionReconciliacionNueva->getUserEntiy()->getName(),
                     "autorizante" => $autorizante,
+                    "desc1" => $peticionReconciliacionNueva->getDescription(),
+                    "desc2" => $desc2
                 );
                 $documentsReconciliacion[$i] = $element;
 

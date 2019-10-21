@@ -363,6 +363,9 @@ class DataDocumentController extends Controller
 
                 foreach($value->firma as $key => $indice){
                     if(isset($value->firma[$key])){
+                        if(isset($data->varValues->{$varIndiceName})){
+                            $data->varValues->{$varIndiceName}=json_decode(json_encode($data->varValues->{$varIndiceName}),TRUE);
+                        }
                         $data->varValues->{$varIndiceName}[$key] = $value->firma[$key];
                     }
                 }
@@ -1064,6 +1067,10 @@ class DataDocumentController extends Controller
                             }
                             if ($currentValue != $value) {
                                 // Modificado
+                                if(!array_key_exists($key,$mapVariable->{$prop}->firma)){
+                                    $mapVariable->{$prop}->firma[$key]=0;
+                                }
+
                                 if($firmaId>$mapVariable->{$prop}->firma[$key]){
                                     $modificado=$key;
                                     $mapVariable->{$prop}->firma[$modificado]=$firmaId;

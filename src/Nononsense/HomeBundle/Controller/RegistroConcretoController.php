@@ -1348,7 +1348,7 @@ class RegistroConcretoController extends Controller
 
         if ($accion == 'autorizar') {
             $descp = "Petición de reconciliación autorizada. " . $comentario;
-            $registroViejo->setStatus(10);
+            //$registroViejo->setStatus(10);
             $peticionEntity->setStatus(1);
 
             $registroNuevo->setStatus(0);
