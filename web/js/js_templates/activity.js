@@ -8,6 +8,7 @@ var limit_inf;
 var limit_sup;
 var limit_warning;
 var pesa_emplear;
+var last_field;
 
 function customOnClone(){
     $("span[data-name='u_date']" ).each(function() {
@@ -82,6 +83,7 @@ function customOnFullyLoaded() {
     //first define some global variables
     window.globalClick = false;
     window.globalChange = false;
+    window.globalBlur = false;
     window.globalKeypress = false;
     window.onActivityChange = true;
     window.lastUpdated = Date.now();
@@ -122,8 +124,7 @@ function customOnFullyLoaded() {
             console.log('click');
             onChangeActivity('click');
             checkCommentCompulsory($(this));
-
-
+            console.log("**1**"+$(this).data("name")+"**1**");
         });
         mainDXO.on('keypress', '*[contenteditable], note-editable, input, select', function () {
             window.globalKeypress = true;
@@ -131,6 +132,7 @@ function customOnFullyLoaded() {
             console.log('keypress');
             onChangeActivity('keypress');
             checkCommentCompulsory($(this));
+            console.log("**2**"+$(this).data("name")+"**2**");
 
         });
         mainDXO.on('change', 'input, select', function () {
@@ -140,7 +142,7 @@ function customOnFullyLoaded() {
             console.log('change');
             onChangeActivity('change');
             checkCommentCompulsory($(this));
-
+            console.log("**3**"+$(this).data("name")+"**3**");
         });
     }
 
@@ -259,7 +261,7 @@ function checkVarValue(name, valToCheck){
     var resultado = true;
 
     //var variable = $('span[data-name="' + name + '"]');
-    if($('input[data-list="' + name + '"]') == undefined){
+    if(!$('input[data-list="' + name + '"]').length){
 
         $('span[data-name="' + name + '"]').each(function () {
             var value = $(this).text();
@@ -315,25 +317,43 @@ function checkVarValue(name, valToCheck){
 }
 
 function checkCommentCompulsory(element){
-    var varName = "";
-    if(element.attr('data-name') == undefined){
-        varName = element.attr('data-reference');
-    }else{
-        varName = element.attr('data-name');
+    current_field="";
+    if(element.data("name")!== undefined){
+        current_field=element.data("name");
     }
+    else{
+        if(element.data("reference")!== undefined){
+           current_field=element.data("reference"); 
+        }
+    }
+    
+    if(current_field!=""){
+        var varName = "";
+        if(element.attr('data-name') == undefined){
+            varName = element.attr('data-reference');
+        }else{
+            varName = element.attr('data-name');
+        }
 
-    if(window.arrayPreLoad[varName]){
-//        console.log("valor de preload: "+window.arrayPreLoad[varName]);
-        window.commentCompulsory = true;
-        //console.log("Se ha interactuado con un elemento pre-cargado!!!! El comentario es obligatorio");
+        if(window.arrayPreLoad[varName]){
+            if(current_field!=last_field){
+                //console.log("valor de preload: "+window.arrayPreLoad[varName]);
+                window.commentCompulsory = true;
+                //console.log("Se ha interactuado con un elemento pre-cargado!!!! El comentario es obligatorio");
 
-        var title = "Se ha interactuado con una variable rellenada anteriormente. ";
-        var message = "<p>Ha interactuado con la variable <strong>"+varName+"</strong>. Se le solicitará un comentario obligatorio al firmar</p>";
-        message += '<p style="text-align: center"></p>';
+                var title = "Se ha modificado un valor cumplimentado anteriormente. ";
+                var message = "<p>Está modificando un dato guardado previamente, se le solicitará la justificación del cambio al guardar y firmar el registro</p>";
+                message += '<p style="text-align: center"></p>';
 
-        launchMessage(title, message);
-    }else{
-        //console.log("valor de preload: "+window.arrayPreLoad[varName]);
+                launchMessage(title, message);
+
+                last_field=current_field;
+            }
+        }else{
+            //console.log("valor de preload: "+window.arrayPreLoad[varName]);
+        }
+
+
     }
 }
 

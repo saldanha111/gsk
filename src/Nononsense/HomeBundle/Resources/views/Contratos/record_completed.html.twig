@@ -20,32 +20,39 @@
 
 
         {% if validated == 1 %}
-        <h1>El documento está completado</h1>
-        <form method="POST" id="guardarenviarForm" action="{{path('nononsense_record_save_send', {'id': id})}}" enctype="multipart/form-data">
+            <h1>El documento está completado</h1>
+            <form method="POST" id="guardarenviarForm" action="{{path('nononsense_record_save_send', {'id': id})}}" enctype="multipart/form-data">
+
+            {% if anexo == 1 %}
+                <h2>Adjuntar anexo</h2>
+                <input type='file' name="anexo" id="anexo" /><br>
+            {% else %}
+                <input type="hidden" value="1" id="no_anexo">
+            {% endif %}  
+
             {% if can_sign == 1 %}
-                {% if anexo == 1 %}
-                    <h2>Adjuntar anexo</h2>
-                    <input type='file' name="anexo" id="anexo" />
-                {% else %}
-                    <input type="hidden" value="1" id="no_anexo">
-                {% endif %}  
                 <div id="signature-pad" class="input-group">
                     <h2>Introduzca su firma{{can_sign}}</h2>
                     <canvas width="300" height="150" style="touch-action: none; border: 2px solid #eee; box-shadow: 0px 0px 6px 1px rgba(80, 90, 100, 0.5)"></canvas>
                 </div>
+            {% endif %} 
+
+            {% if can_sign == 1 or anexo == 1 %}
                 <input type="hidden" id="firma" name="firma"/>
                 <a class="btn btn-default" href="{{path('nononsense_records')}}" name="volver">Volver</a>
-                <a name="borrarFirmar" class="btn btn-primary" id="borrarFirmar">Limpiar firma</a>
+                {% if can_sign == 1 %}
+                    <a name="borrarFirmar" class="btn btn-primary" id="borrarFirmar">Limpiar firma</a>
+                {% endif %} 
                 <a class="btn btn-success" name="guardarenviar" id="guardarenviar">Enviar</a>
 
             {% endif %} 
-            {% elseif validated == 2 %}
+        {% elseif validated == 2 %}
             <h1>Documento firmado!</h1>
             El documento ha sido firmado
-            {% else %}
+        {% else %}
             <h1>Documento guardado!</h1>
             El documento está a la espera de ser completado
-            {% endif %}
+        {% endif %}
     </form>
     </div>
     <hr>
@@ -79,7 +86,9 @@
 
         var canvas = document.querySelector("canvas");
 
-        var signaturePad = new SignaturePad(canvas);
+        if($("#signature-pad").length){
+            var signaturePad = new SignaturePad(canvas);
+        }
 
         ActivateMenu('docxpresso_home');
         $('#side-menu').metisMenu();
@@ -96,12 +105,17 @@
 
         $('#guardarenviar').on('click', function () {
             if($('#anexo').val() || $('#no_anexo').val()){
-                $("#firma").val(signaturePad.toDataURL()); // save image as PNG
-                if (signaturePad.isEmpty()) {
-                    toastr.error("Debe rellenar una fima, no puede dejar el cuadro en blanco", 'aviso');
+                if($("#signature-pad").length){
+                    $("#firma").val(signaturePad.toDataURL()); // save image as PNG
+                    if (signaturePad.isEmpty()) {
+                        toastr.error("Debe rellenar una fima, no puede dejar el cuadro en blanco", 'aviso');
 
-                } else {
-                    console.log(signaturePad.toDataURL());
+                    } else {
+                        console.log(signaturePad.toDataURL());
+                        $("#guardarenviarForm").submit();
+                    }
+                }
+                else{
                     $("#guardarenviarForm").submit();
                 }
             }
@@ -120,12 +134,17 @@
                     return false;
                 }
             }
-            $("#firma").val(signaturePad.toDataURL()) // save image as PNG
-            if (signaturePad.isEmpty()) {
-                toastr.error("Debe rellenar una fima, no puede dejar el cuadro en blanco", 'aviso');
+            if($("#signature-pad").length){
+                $("#firma").val(signaturePad.toDataURL()) // save image as PNG
+                if (signaturePad.isEmpty()) {
+                    toastr.error("Debe rellenar una fima, no puede dejar el cuadro en blanco", 'aviso');
 
-            } else {
-                console.log(signaturePad.toDataURL());
+                } else {
+                    console.log(signaturePad.toDataURL());
+                    $("#guardarRegistroForm").submit();
+                }
+            }
+            else{
                 $("#guardarRegistroForm").submit();
             }
 
@@ -133,7 +152,9 @@
 
 
         $('#borrarFirmar').on('click', function () {
-            signaturePad.clear();
+            if($("#signature-pad").length){
+                signaturePad.clear();
+            }
         });
     });
 

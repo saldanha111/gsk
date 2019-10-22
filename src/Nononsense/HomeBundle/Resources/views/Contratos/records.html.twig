@@ -127,6 +127,14 @@
                                     <a href="#" class="btn btn-xs btn-default disabled"> Cancelado</a>
                                 {% endif %}
 
+                                {% if item.status is defined and item.status==5 %}
+                                    {% if suser.id==item.usercreatedid %}
+                                        <a href="{{path('nononsense_records_edit', {'id': item.id}) }}" class="btn btn-xs btn-danger"><i class="fa fa-paperclip" aria-hidden="true"></i> Anexo</a>
+                                    {% else %}
+                                        <a href="#" class="btn btn-xs btn-warning disabled"><i class="fa fa-paperclip" aria-hidden="true"></i> Pendiente de anexo</a>
+                                    {% endif %}
+                                {% endif %}
+
                                 </td>
                                 <td>
                                     {% if item.files is defined and item.files is not empty %}

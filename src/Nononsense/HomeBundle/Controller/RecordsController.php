@@ -140,10 +140,6 @@ class RecordsController extends Controller
 
         /* Para testear */
 
-        $record = $this->getDoctrine()
-            ->getRepository('NononsenseHomeBundle:RecordsDocuments')
-            ->find(55);
-
         $user = $this->container->get('security.context')->getToken()->getUser();
         $em = $this->getDoctrine()->getManager();
 
@@ -230,7 +226,7 @@ class RecordsController extends Controller
                 $validacionURL1 = $baseUrl . "js/js_templates/documentClosed.js?v=" . $versionJS; 
             }
 
-        } else if ($record->getStatus() == -1 || $record->getStatus() == 0  || $record->getStatus() == 1) {
+        } else if ($record->getStatus() == -1 || $record->getStatus() == 0  || $record->getStatus() == 1   || $record->getStatus() == 5) {
             // abrir para editar
             $versionJS = filemtime(__DIR__ . "/../../../../web/js/js_templates/document.js");
             $validacionURL1 = $baseUrl . "js/js_templates/document.js?v=" . $versionJS;
@@ -610,61 +606,108 @@ class RecordsController extends Controller
             $validated = $validations->validated;
 
             if($validations->percentage==100){
-
-                $signature = $this->getDoctrine()
+                $total_signatures = $this->getDoctrine()
                     ->getRepository('NononsenseHomeBundle:RecordsSignatures')
-                    ->findOneBy(array("record"=>$record,"next"=>1));
+                    ->findOneBy(array("record"=>$record));
 
-                if(!$signature){
-                    $this->get('session')->getFlashBag()->add(
-                        'error',
-                        "No puede firmar este documento. Es posible que el documento ya haya sido firmado por otro usuario"
-                    );
-                    return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
-                }
-
-                $can_sign=0;
-                if($signature->getGroupEntiy()){
-                    $isGroup = $this->getDoctrine()
-                    ->getRepository('NononsenseGroupBundle:GroupUsers')
-                    ->findOneBy(array("group"=>$signature->getGroupEntiy(),"user"=>$user));
-                    if($isGroup){
-                        $can_sign=1;
+                if($total_signatures){
+                    if(!$record->getDocument()->getSignCreator() && ($record->getStatus()==0 || $record->getStatus()==1 || $record->getStatus()==5)){
+                        $can_sign=0;
+                        if($record->getDocument()->getAttachment()){
+                            $anexo=1;
+                            $validated=1;
+                            $record->setStatus(5);
+                        }
+                        else{
+                            $anexo=0;
+                            $record->setStatus(2);
+                        }
                     }
+                    else{
+                        $signature = $this->getDoctrine()
+                            ->getRepository('NononsenseHomeBundle:RecordsSignatures')
+                            ->findOneBy(array("record"=>$record,"next"=>1));
+
+                        if(!$signature){
+                            $this->get('session')->getFlashBag()->add(
+                                'error',
+                                "No puede firmar este documento. Es posible que el documento ya haya sido firmado por otro usuario"
+                            );
+                            return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
+                        }
+
+                        $can_sign=0;
+                        if($signature->getGroupEntiy()){
+                            $isGroup = $this->getDoctrine()
+                            ->getRepository('NononsenseGroupBundle:GroupUsers')
+                            ->findOneBy(array("group"=>$signature->getGroupEntiy(),"user"=>$user));
+                            if($isGroup){
+                                $can_sign=1;
+                            }
+                        }
+                        else{
+                            if($signature->getUserEntiy()->getId()==$user->getId()){
+                                $can_sign=1;
+                            }  
+                        }
+
+                        if(!$can_sign){
+                            if($record->getStatus()==2){
+                                $this->get('session')->getFlashBag()->add(
+                                    'error',
+                                    "No puede firmar este documento. Es posible que el documento ya haya sido firmado por otro usuario"
+                                );
+                                return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
+                            }
+                            else{
+                                $can_sign=0;
+                            }
+                        }
+
+                        $signature = $this->getDoctrine()
+                        ->getRepository('NononsenseHomeBundle:RecordsSignatures')
+                        ->findOneBy(array("record"=>$record,"next"=>1));
+                        
+                        if($signature->getAttachment()){
+                            $anexo=1;
+                        }
+                        else{
+                            $anexo=0;
+                        }
+                        $record->setStatus(2);
+                    }
+ 
                 }
                 else{
-                    if($signature->getUserEntiy()->getId()==$user->getId()){
-                        $can_sign=1;
-                    }  
-                }
+                    // Para aquellos documentos donde no hay workflow y el primer firmante no firma
+                    if(!$record->getDocument()->getSignCreator() && ($record->getStatus()==0 || $record->getStatus()==1 || $record->getStatus()==5)){
+                        $can_sign=0;
+                        if($record->getDocument()->getAttachment()){
+                            $anexo=1;
+                            $validated=1;
+                            $record->setStatus(5);
+                        }
+                        else{
+                            $anexo=0;
+                            $record->setStatus(3);
+                        }
+                        $can_sign=0;
 
-                if(!$can_sign){
-                    if($record->getStatus()==2){
+                    }
+                    else{
                         $this->get('session')->getFlashBag()->add(
                             'error',
                             "No puede firmar este documento. Es posible que el documento ya haya sido firmado por otro usuario"
                         );
                         return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
                     }
-                    else{
-                        $can_sign=0;
-                    }
                 }
 
-                $record->setStatus(2);
+                
                 $em->persist($record);
                 $em->flush();
 
-                $signature = $this->getDoctrine()
-                ->getRepository('NononsenseHomeBundle:RecordsSignatures')
-                ->findOneBy(array("record"=>$record,"next"=>1));
                 
-                if($signature->getAttachment()){
-                    $anexo=1;
-                }
-                else{
-                    $anexo=0;
-                }
             
                 /*
                  * Revisar si ha habido algún cambio en las variables para que muestre el campo de texto.
@@ -712,9 +755,9 @@ class RecordsController extends Controller
 
         $record = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:RecordsDocuments')
-            ->findOneBy(array("id" => $id, "status" => 2));
+            ->findOneBy(array("id" => $id));
 
-        if(!$record){
+        if($record->getStatus()!=2 && $record->getStatus()!=5){
             $this->get('session')->getFlashBag()->add(
                 'error',
                 "No puede firmar este documento. Es posible que el documento ya haya sido firmado por otro usuario"
@@ -722,42 +765,68 @@ class RecordsController extends Controller
             return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
         }
 
-        $signature = $this->getDoctrine()
-            ->getRepository('NononsenseHomeBundle:RecordsSignatures')
-            ->findOneBy(array("record"=>$record,"next"=>1));
+        if($record->getStatus()==2){
+            $signature = $this->getDoctrine()
+                ->getRepository('NononsenseHomeBundle:RecordsSignatures')
+                ->findOneBy(array("record"=>$record,"next"=>1));
 
-        if(!$signature){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                "No puede firmar este documento. Es posible que el documento ya haya sido firmado por otro usuario"
-            );
-            return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
-        }
-
-        $can_sign=0;
-        if($signature->getGroupEntiy()){
-            $isGroup = $this->getDoctrine()
-            ->getRepository('NononsenseGroupBundle:GroupUsers')
-            ->findOneBy(array("group"=>$signature->getGroupEntiy(),"user"=>$user));
-            if($isGroup){
-                $can_sign=1;
+            if(!$signature){
+                $this->get('session')->getFlashBag()->add(
+                    'error',
+                    "No puede firmar este documento. Es posible que el documento ya haya sido firmado por otro usuario"
+                );
+                return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
             }
+
+            $can_sign=0;
+            if($signature->getGroupEntiy()){
+                $isGroup = $this->getDoctrine()
+                ->getRepository('NononsenseGroupBundle:GroupUsers')
+                ->findOneBy(array("group"=>$signature->getGroupEntiy(),"user"=>$user));
+                if($isGroup){
+                    $can_sign=1;
+                }
+            }
+            else{
+                if($signature->getUserEntiy()->getId()==$user->getId()){
+                    $can_sign=1;
+                }  
+            }
+
+            if(!$can_sign){
+                $this->get('session')->getFlashBag()->add(
+                    'error',
+                    "No puede firmar este documento. Es posible que el documento ya haya sido firmado por otro usuario"
+                );
+                return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
+            }
+
+            if($signature->getAttachment()){
+                if(!$request->files->get('anexo')){
+                    $this->get('session')->getFlashBag()->add(
+                        'error',
+                        "Es necesario adjuntar un anexo para poder firmar este documento"
+                    );
+                    return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
+                }
+                else{
+                    $file = $this->uploadFile($request, $record->getId());
+                    $record->setFiles($file["name"]);
+                }
+            }
+
+            $signature->setFirma($request->get('firma'));
+            $signature->setNext(0);
+            $signature->setUserEntiy($user);
+            $signature->setModified(new \DateTime());
+
+        
+
+            $signature2 = $this->getDoctrine()
+                ->getRepository('NononsenseHomeBundle:RecordsSignatures')
+                ->findOneBy(array("record"=>$record,"firma"=>null,"next" => 0), array('number' => 'ASC'));
         }
         else{
-            if($signature->getUserEntiy()->getId()==$user->getId()){
-                $can_sign=1;
-            }  
-        }
-
-        if(!$can_sign){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                "No puede firmar este documento. Es posible que el documento ya haya sido firmado por otro usuario"
-            );
-            return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
-        }
-
-        if($signature->getAttachment()){
             if(!$request->files->get('anexo')){
                 $this->get('session')->getFlashBag()->add(
                     'error',
@@ -769,18 +838,13 @@ class RecordsController extends Controller
                 $file = $this->uploadFile($request, $record->getId());
                 $record->setFiles($file["name"]);
             }
+
+            $record->setStatus(2);
+            $signature = $this->getDoctrine()
+                ->getRepository('NononsenseHomeBundle:RecordsSignatures')
+                ->findOneBy(array("record"=>$record,"firma"=>null,"next" => 1), array('number' => 'ASC'));
+            $signature2=$signature;
         }
-
-        $signature->setFirma($request->get('firma'));
-        $signature->setNext(0);
-        $signature->setUserEntiy($user);
-        $signature->setModified(new \DateTime());
-
-        
-
-        $signature2 = $this->getDoctrine()
-            ->getRepository('NononsenseHomeBundle:RecordsSignatures')
-            ->findOneBy(array("record"=>$record,"firma"=>null,"next" => 0), array('number' => 'ASC'));
 
         if($signature2){
             $signature2->setNext(1);
@@ -814,9 +878,10 @@ class RecordsController extends Controller
             }
         }
         else{
+            if($signature){
+                $record->setLastSign($signature->getId());
+            }
             $record->setStatus(3);
-            $record->setLastSign($signature->getId());
-            
         }
         
         
@@ -840,7 +905,9 @@ class RecordsController extends Controller
 
         $record->setStepDataValue($data);
         $em->persist($record);
-        $em->persist($signature);
+        if($signature){
+            $em->persist($signature);
+        }
         $em->flush();
 
         $route = $this->container->get('router')->generate('nononsense_record_sent', array("id" => $record->getId()));
