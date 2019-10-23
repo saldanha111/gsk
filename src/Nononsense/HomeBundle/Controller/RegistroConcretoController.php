@@ -1461,15 +1461,15 @@ class RegistroConcretoController extends Controller
             ->getRepository('NononsenseHomeBundle:ActivityUser')
             ->findOneBy(array("stepEntity" => $step, "userEntiy" => $user, "status" => 0));
 
-        $activity->setStatus(1);
+        if($activity){
+            $activity->setStatus(1);
+            $now = new \DateTime();
+            $activity->setSalida($now);
 
-        $now = new \DateTime();
-
-        $activity->setSalida($now);
-
-        $em = $this->getDoctrine()->getManager();
-        $em->persist($activity);
-        $em->flush();
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($activity);
+            $em->flush();
+        }
 
     }
 

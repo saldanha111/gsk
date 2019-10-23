@@ -7,7 +7,7 @@
 
 </style>
 {% endblock %}
-{% block main_title %} Se ha validado el registro del documento {{documentName}}{% endblock %}
+{% block main_title %} Se ha verificado el registro del documento {{documentName}}{% endblock %}
 {% block content %}
 <div class="wrapper wrapper-content">
     {% for flashMessage in app.session.flashbag.get('error') %}
@@ -18,7 +18,7 @@
     {% endfor %}
     <div class="row">
         <div>
-            <h1>El registro está validado</h1>
+            <h1>El registro está verificado</h1>
         </div>
 
     </div>

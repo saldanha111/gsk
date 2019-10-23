@@ -463,70 +463,72 @@ function customOnLoad() {
 
     });
     $('body').on('click', 'button[id="download2"]', function () {
-        console.log("Boton guardar y firmar de GSK");
-        var auxValuePercentage = $('#percentComp').val();
-        console.log(auxValuePercentage);
+        setTimeout(function(){ 
+            console.log("Boton guardar y firmar de GSK");
+            var auxValuePercentage = $('#percentComp').val();
+            console.log(auxValuePercentage);
 
-        if(auxValuePercentage == 100){
-            // No se puede hacer un guardado parcial
-            var title = "No puede realizar esta acción porque el documento ya está al 100%";
-            var message = "<p>El documento está rellenado al <strong>100%</strong> y no se puede realizar un guardado parcial. Debe realizar un envío a verificación</p>";
-            launchMessage(title, message);
-            return false;
-        }else{
-            // Realizar envío parcial
-            // Comprobar si ha habido actividad:
-            console.log(window.onActivityChange);
-            if(window.onActivityChange){
-                var title = "No puede realizar esta acción porque no ha modificado nada del documento";
-                var message = "<p>El documento no ha sido modificado entonces no se puede realizar un guardado parcial.</p>";
+            if(auxValuePercentage == 100){
+                // No se puede hacer un guardado parcial
+                var title = "No puede realizar esta acción porque el documento ya está al 100%";
+                var message = "<p>El documento está rellenado al <strong>100%</strong> y no se puede realizar un guardado parcial. Debe realizar un envío a verificación</p>";
                 launchMessage(title, message);
+                return false;
             }else{
+                // Realizar envío parcial
+                // Comprobar si ha habido actividad:
+                console.log(window.onActivityChange);
+                if(window.onActivityChange){
+                    var title = "No puede realizar esta acción porque no ha modificado nada del documento";
+                    var message = "<p>El documento no ha sido modificado entonces no se puede realizar un guardado parcial.</p>";
+                    launchMessage(title, message);
+                }else{
+                    var responseURL = $('#responseURL').val();
+                    responseURL = limpiarResponseUrl(responseURL);
+                    responseURL += 'parcial';
+                    if(window.commentCompulsory){
+                        responseURL += '%2F1';
+                    }else{
+                        responseURL += '%2F0';
+                    }
+                    $('#responseURL').val(responseURL);
+                    $('#download').trigger('click');
+                }
+            }
+        }, 1000);
+
+    });
+
+    $('body').on('click', 'button[id="downloadsend"]', function () {
+        setTimeout(function(){ 
+            console.log("Boton enviar y firmar de GSK");
+            var auxValuePercentage = $('#percentComp').val();
+            console.log(auxValuePercentage);
+
+            if(auxValuePercentage == 100){
+                // Hacer un click sobre download
+                // Poner el action cancelar
                 var responseURL = $('#responseURL').val();
                 responseURL = limpiarResponseUrl(responseURL);
-                responseURL += 'parcial';
+                responseURL += 'enviar';
                 if(window.commentCompulsory){
                     responseURL += '%2F1';
                 }else{
                     responseURL += '%2F0';
                 }
                 $('#responseURL').val(responseURL);
+                console.log(responseURL);
                 $('#download').trigger('click');
-            }
-        }
 
-    });
 
-    $('body').on('click', 'button[id="downloadsend"]', function () {
-        console.log("Boton enviar y firmar de GSK");
-        var auxValuePercentage = $('#percentComp').val();
-        console.log(auxValuePercentage);
-
-        if(auxValuePercentage == 100){
-            // Hacer un click sobre download
-            // Poner el action cancelar
-            var responseURL = $('#responseURL').val();
-            responseURL = limpiarResponseUrl(responseURL);
-            responseURL += 'enviar';
-            if(window.commentCompulsory){
-                responseURL += '%2F1';
             }else{
-                responseURL += '%2F0';
+                // mostrar aviso
+                var title = "No puede realizar esta acción porque el documento no está aún al 100%";
+                var message = "<p>El documento está rellenado al <strong>"+auxValuePercentage+"%</strong> y no se puede realizar un envío a verificación</p>";
+                launchMessage(title, message);
+                // si pudiera mostrar aquí panel de validación, hacer el click
             }
-            $('#responseURL').val(responseURL);
-            console.log(responseURL);
-            $('#download').trigger('click');
-
-
-        }else{
-            // mostrar aviso
-            var title = "No puede realizar esta acción porque el documento no está aún al 100%";
-            var message = "<p>El documento está rellenado al <strong>"+auxValuePercentage+"%</strong> y no se puede realizar un envío a verificación</p>";
-            launchMessage(title, message);
-            // si pudiera mostrar aquí panel de validación, hacer el click
-        }
-
-
+        }, 1000);
     });
 
     function limpiarResponseUrl(url){
