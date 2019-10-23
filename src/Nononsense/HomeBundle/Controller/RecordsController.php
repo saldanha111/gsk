@@ -1122,7 +1122,7 @@ class RecordsController extends Controller
         $dataDXO = json_encode($stepDataValuesJSON);
 
         $options['data'] = $dataDXO;
-        $options['docFormat'] = 'pdf';
+        $options['format'] = 'pdf';
         $options['name'] = $filenamepdf . '.pdf';
         $options['reference'] = $filenamepdf;
 
