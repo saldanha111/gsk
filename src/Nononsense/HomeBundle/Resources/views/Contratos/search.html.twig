@@ -452,9 +452,14 @@
     });
 
     $('#editBtnYes').click(function () {
-
-        var logbook = $('#logbook').val();
-
+        var logbook;
+        if($('#logbook').val()){
+            logbook = $('#logbook').val();
+        }
+        else{
+            logbook = 0;
+        }
+        
         $('#logbookForm').val(logbook);
         $('#createRegistro').submit();
 

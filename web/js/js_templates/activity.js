@@ -195,8 +195,6 @@ function customOnFullyLoaded() {
         }
     };
 
-    /****** ArrayPreLoad ******/
-    var arrayPreLoad = [];
 
     for(var varName in refData){
         var value = decodeURI(refData[varName]);
@@ -208,19 +206,12 @@ function customOnFullyLoaded() {
                 // radio button or checkbox
                 value = "";
             }
-            if(checkVarValue(varName,value)){
-                arrayPreLoad[varName] = false;
-            }else{
-                arrayPreLoad[varName] = true;
-            }
+            checkVarValue(varName,value);
 
         }
 
     }
     window.commentCompulsory = false;
-    window.arrayPreLoad = arrayPreLoad;
-
-    //console.log(arrayPreLoad);
 
     $('select[data-list="u_cumple"]').prop('disabled', true);
 
@@ -268,12 +259,20 @@ function checkVarValue(name, valToCheck){
             //console.log("voy a comprobar: "+valToCheck+" con: "+$(this).text());
             if(value != valToCheck){
                 //console.log("Variable "+)
-                resultado = false;
+                $(this).data("justificate",true);
             }
         });
+
+        $('select[data-list="' + name + '"]').each(function () {
+            var value = $(this).find('option:selected').text();
+            if(value != valToCheck){
+                $(this).data("justificate",true);
+            }
+        });
+        
     }else{
         if($('input[data-list="' + name + '"]').is(':checked')){
-            resultado = false;
+            $($('input[data-list="' + name + '"]')).data("justificate",true);
         }else{
 
         }
@@ -283,6 +282,7 @@ function checkVarValue(name, valToCheck){
 }
 
 function checkCommentCompulsory(element){
+    console.log(element);
     current_field="";
     if(element.data("name")!== undefined){
         current_field=element.data("name");
@@ -301,9 +301,8 @@ function checkCommentCompulsory(element){
             varName = element.attr('data-name');
         }
 
-        if(window.arrayPreLoad[varName]){
+        if(element.data("justificate")){
             if(current_field!=last_field){
-                //console.log("valor de preload: "+window.arrayPreLoad[varName]);
                 window.commentCompulsory = true;
                 //console.log("Se ha interactuado con un elemento pre-cargado!!!! El comentario es obligatorio");
 
@@ -315,8 +314,9 @@ function checkCommentCompulsory(element){
 
                 last_field=current_field;
             }
-        }else{
-            //console.log("valor de preload: "+window.arrayPreLoad[varName]);
+        }
+        else{
+            last_field=current_field;
         }
 
 
