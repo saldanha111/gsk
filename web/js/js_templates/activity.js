@@ -90,7 +90,7 @@ function customOnFullyLoaded() {
 
     //to start parse the json encoded custom data
     var customValueString = decodeURI($('#custom').val());
-    console.log(customValueString);
+    
     var customData = JSON.parse(customValueString);
 
     // Demo values
@@ -117,7 +117,7 @@ function customOnFullyLoaded() {
     function registerActivity() {
         //register clicks
         var mainDXO = $('#mainDXO');
-        console.log('registering activity');
+        
         mainDXO.on('click', '*[contenteditable], span[data-name], button, input, select, img[data-image]', function () {
             window.globalClick = true;
             window.lastUpdated = Date.now();
@@ -197,7 +197,6 @@ function customOnFullyLoaded() {
 
     /****** ArrayPreLoad ******/
     var arrayPreLoad = [];
-    console.log(refData)
 
     for(var varName in refData){
         var value = decodeURI(refData[varName]);
@@ -220,6 +219,7 @@ function customOnFullyLoaded() {
     }
     window.commentCompulsory = false;
     window.arrayPreLoad = arrayPreLoad;
+
     //console.log(arrayPreLoad);
 
     $('select[data-list="u_cumple"]').prop('disabled', true);
@@ -272,46 +272,12 @@ function checkVarValue(name, valToCheck){
             }
         });
     }else{
-
-        console.log("Voy a revisar el checkbox o radio: "+name);
-        console.log("Valor: "+ $('input[data-list="' + name + '"]').is(':checked'));
         if($('input[data-list="' + name + '"]').is(':checked')){
             resultado = false;
         }else{
 
         }
     }
-
-
-    /*
-    $('input[data-list="' + name + '"]').each(function () {
-        if($(this).is(':checked')){
-            // true, do nothing
-        }else{
-
-        }
-        checkradio = true;
-        var value = $(this).text();
-        console.log("voy a comprobar: "+valToCheck+" con: "+$(this).val());
-        if(value != valToCheck){
-            //console.log("Variable "+)
-            radioResultado = true;
-        }
-    });
-    $('input[data-list="' + name + '"]').each(function () {
-        checkradio = true;
-        var value = $(this).text();
-        console.log("voy a comprobar: "+valToCheck+" con: "+$(this).val());
-        if(value != valToCheck){
-            //console.log("Variable "+)
-            radioResultado = true;
-        }
-    });
-
-    if(checkradio){
-        resultado = radioResultado;
-    }
-    */
 
     return resultado;
 }

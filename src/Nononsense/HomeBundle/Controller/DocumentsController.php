@@ -166,7 +166,7 @@ class DocumentsController extends Controller
                 $document->setSignCreator(0);
             }
 
-            if($request->get("attachment") && $request->get("sign_creator")){
+            if($request->get("attachment")){
                 $document->setAttachment(1);
             }
             else{

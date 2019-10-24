@@ -349,6 +349,7 @@ class DataDocumentController extends Controller
             }
 
             if ($completo) {
+
                 $data->varValues->dxo_gsk_audit_trail_bloque = array("Si");
                 $data->varValues->dxo_gsk_audit_trail = array($this->_construirHistorico($step));
                 $data->varValues->dxo_gsk_firmas_bloque = array("No");
@@ -690,7 +691,7 @@ class DataDocumentController extends Controller
                 // Primero descifrar si ha habido cambios.
                 $dataStringCurrent = $evidenciaElement->getStepDataValue();
                 $dataJsonCurrent = json_decode($dataStringCurrent);
-
+                //echo $dataStringCurrent;die();
                 $currentVarValues = $dataJsonCurrent->varValues;
 
 
@@ -702,40 +703,45 @@ class DataDocumentController extends Controller
                 $modified = false;
                 $counterModified = 1;
 
-                foreach ($currentVarValues as $prop => $value) {
+                foreach ($currentVarValues as $prop => $values) {
                     $position = strpos($prop, "u_");
                     $positionV = strpos($prop, "verchk_");
 
                     if ($position === 0 || $positionV === 0) {
-                        // variable válida.
-                        $lastValue = trim(implode("", $lastVarValues->{$prop})); // Para que funcione en los "checboxes" y "radioButton" habría que hacer un implode + trim
-                        // if lastValue es un valor vacío no haría falta hacer un "modificado"
-                        $currentValue = trim(implode("", $value));
+                        foreach($values as $key => $value){
+                            if (array_key_exists($key, $lastVarValues->{$prop})) {
+                            
+                                // variable válida.
+                                $lastValue = $lastVarValues->{$prop}[$key]; // Para que funcione en los "checboxes" y "radioButton" habría que hacer un implode + trim
+                                // if lastValue es un valor vacío no haría falta hacer un "modificado"
+                                $currentValue = $value;
+                                $default_value="";
+                                if ($lastValue != "") {
+                                    $audittrail=1;
+                                    foreach($dataJsonCurrent->data as $field){
+                                        if($field->name==$prop){
+                                            $default_value=$field->label;
+                                        
+                                            if($field->tip!="" && $field->tip!=$field->label){
+                                                $info=$field->tip;
+                                            }
+                                            else{
+                                                $info=$prop;
+                                            }
 
-                        if ($lastValue != "") {
-                            $audittrail=1;
-                            foreach($dataJsonCurrent->data as $field){
-                                if($field->name==$prop){
-                                    if($lastValue == $field->label){
-                                        $lastValue="";
-                                    }
-                                    if($currentValue == $field->label){
-                                        $currentValue="";
+                                            break;
+                                        }
                                     }
 
-                                    if($field->tip!=""){
-                                        $info=$field->tip;
+                                    
+
+                                    if (urldecode($lastValue) != urldecode($currentValue) && urldecode($default_value)!=urldecode($lastValue) && $audittrail) {
+                                        $counterModified++;
+                                        $modified = true;
+                                        $bloqueHTML .= "<tr><td>" . $info . "</td><td>" . $lastValue . "</td><td>" . $currentValue . "</td></tr>";
                                     }
-                                    else{
-                                        $info=$prop;
-                                    }
+
                                 }
-                            }
-
-                            if ($lastValue != $currentValue && $audittrail) {
-                                $counterModified++;
-                                $modified = true;
-                                $bloqueHTML .= "<tr><td>" . $info . "</td><td>" . $lastValue . "</td><td>" . $currentValue . "</td></tr>";
                             }
                         }
                     }
@@ -756,6 +762,7 @@ class DataDocumentController extends Controller
                 $lastEvidencia = $evidenciaElement;
 
             }
+
 
         }
 

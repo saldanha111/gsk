@@ -1511,32 +1511,44 @@ class RegistroConcretoController extends Controller
                 $currentVarValues = $currentDataJson->varValues;
                 $lastVarValues = $lastDataJson->varValues;
 
-                foreach ($currentVarValues as $prop => $value) {
-                    $lastValues = $lastVarValues->{$prop};
-                    $position = strpos($prop, "u_");
+                foreach ($currentVarValues as $prop => $values) {
+                    foreach($values as $key => $value){
+                        if (array_key_exists($key, $lastVarValues->{$prop})) {
+                            $lastValues = $lastVarValues->{$prop}[$key];
+                            $position = strpos($prop, "u_");
 
-                    if ($position === 0) {
-                        // variable válida
-                        // variable válida.
-                        $lastValue = trim(implode("", $lastVarValues->{$prop})); // Para que funcione en los "checboxes" y "radioButton" habría que hacer un implode + trim
-                        // if lastValue es un valor vacío no haría falta hacer un "modificado"
-                        $currentValue = trim(implode("", $value));
+                            if ($position === 0) {
+                                // variable válida
+                                // variable válida.
+                                $lastValue = $lastVarValues->{$prop}[$key]; // Para que funcione en los "checboxes" y "radioButton" habría que hacer un implode + trim
+                                // if lastValue es un valor vacío no haría falta hacer un "modificado"
+                                
+                                $currentValue = $value;
 
-                        if ($lastValue != "") {
-                            if ($lastValue != $currentValue) {
-                                // Modificado
-                                $resultado = true;
+                                $default_value="";
+                                foreach($currentDataJson->data as $element){
+                                    if($element->name==$prop){
+                                        $default_value=$element->label;
+                                        break;
+                                    }
+                                }
 
+                                if ($lastValue != "") {
+                                    if (urldecode($lastValue) != urldecode($currentValue) && urldecode($default_value)!=urldecode($lastValue)) {
+                                        // Modificado
+                                        $resultado = true;
+                                    }
+                                }
+                                /*
+                                if ($value !== $lastValues) {
+                                    //   echo 'Te pillé: ';
+                                    //  var_dump($value);
+                                    //var_dump($lastValues);
+                                    $resultado = true;
+                                }
+                                */
                             }
                         }
-                        /*
-                        if ($value !== $lastValues) {
-                            //   echo 'Te pillé: ';
-                            //  var_dump($value);
-                            //var_dump($lastValues);
-                            $resultado = true;
-                        }
-                        */
                     }
 
                 }
