@@ -1319,7 +1319,7 @@ class RecordsController extends Controller
                 $fecha = $firma->getModified()->format('d-m-Y H:i:s');
                 $firma = $firma->getFirma();
 
-                $fullText .= "<b>FIRMA: " . $id . "</b><br>" . $nombre . " " . $fecha . "<br><img src='" . $firma . "' /><br><br><br>";
+                $fullText .= "<i>Documento securizado mediante registro en Blockchain</i><br>" . $nombre . " " . $fecha . "<br><img src='" . $firma . "' /><br><br><br>";
             }
         }
         

@@ -49,6 +49,11 @@
                     <a href="{{path('nononsense_activity')}}?limit_many=15"><i class="fa fa-pie-chart" aria-hidden="true"></i> <span class="nav-label">Actividad de área</span></a>
                 </li>
             {% endif %}
+            {% if FLL == 1 %}
+                <li id="docxpresso_mydocs">
+                <a href="{{path('nononsense_search')}}?destruction=1"><i class="fa fa-trash" aria-hidden="true"></i> <span class="nav-label">Retención y destrucción</span></a>
+            </li>
+            {% endif %}
             <!--<li id="docxpresso_archivo">
                 <a href="{{path('nononsense_registro_archivo')}}"><i class="fa fa-folder"></i> <span class="nav-label">{{'Archivo'|trans}}</span></a>
             </li>-->

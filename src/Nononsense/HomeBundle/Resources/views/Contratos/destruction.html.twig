@@ -1,0 +1,262 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}DOCXPRESSO | Listado de registros {% endblock %}
+{% block head %}
+{{ parent() }}
+<link rel="stylesheet" href="/css/plugins/datapicker/datepicker3.css">
+{% endblock %}
+{% block main_title %} Retención y destrucción{% endblock %}
+{% block content %}
+
+<div class="wrapper wrapper-content">
+    {% for flashMessage in app.session.flashbag.get('error') %}
+    <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+        <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+        {{ flashMessage }}
+    </div><br>
+    {% endfor %}
+    {% for flashMessage in app.session.flashbag.get('success') %}
+    <div class="alert alert-success alert-dismissable" style="margin: 10px 16px 0 16px">
+        <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+        {{ flashMessage }}
+    </div><br>
+    {% endfor %}
+    <div class="row">
+        <div class="col-sm-12">
+            <div>
+                <div class="row">
+                    <form class="form-horizontal" id="form_item" action="{{ path('nononsense_search')}}" method="GET">
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">Contenido</label>
+                            <div class="col-sm-9 item_filter">
+                                <input type="text" name="content" class="form-control" value="{{filters.content is defined ? filters.content : ''}}">
+                            </div>
+
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">ID</label>
+                            <div class="col-sm-1 item_filter">
+                                <input type="number" name="id" class="form-control" value="{{filters.id is defined ? filters.id : ''}}">
+                            </div>
+
+                            <label class="col-sm-1 control-label">ID.Plant.</label>
+                            <div class="col-sm-1 item_filter">
+                                <input type="number" name="plantilla_id" class="form-control" value="{{filters.plantilla_id is defined ? filters.plantilla_id : ''}}">
+                            </div>
+
+                            <label class="col-sm-1 control-label">Nombre</label>
+                            <div class="col-sm-2 item_filter">
+                                <input type="text" name="name" class="form-control" value="{{filters.name is defined ? filters.name : ''}}">
+                            </div>
+
+                            <label class="col-sm-1 control-label">Usuario</label>
+                            <div class="col-sm-2 item_filter">
+                                <input type="text" name="creator" class="form-control" value="{{filters.creator is defined ? filters.creator : ''}}">
+                            </div>
+                        </div>
+
+
+                        <div class="form-group">
+                            <div class="col-sm-offset-1 col-sm-9">
+                                <button type="submit" class="btn btn-primary pull-right">Filtrar</button>
+                            </div>
+                        </div>
+                        <input type="hidden" name="destruction" value="{{filters.destruction is defined ? filters.destruction : ''}}">
+                      </form>
+                </div>
+                <div class="row">
+                    <table id="inProcessParcial" class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>Nº</th>
+                            <th>Plantilla</th>
+                            <th>Fecha inicio</th>
+                            <th>Fecha archivo</th>
+                            <th>Cod. retención</th>
+                            <th>Retenido hasta</th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        {% if items is defined %}
+                            {% for item in items %}
+                                {% if item.dependsOn == 0 %}
+                                    {% set padre = item %}
+                                {% endif %}
+                            <tr {{ item.dependsOn>0 and padre is defined and item.dependsOn == padre.id_grid ? 'style="background-color:#FFFFDD"' : '' }}>
+                                <td>
+                                    {{item.id_grid}}{% if item.tiene_checklist == 1 and item.es_checklist == 0 and (item.status == 4 or item.status == 7 or  item.status == 12 or item.status == 13 or item.status == 15 or item.status == 9 or item.status == 10) %}
+                                        <i class="fa fa-angle-double-down" aria-hidden="true"></i>
+                                    {% endif %}
+                                </td>
+                                <td>{{ item.dependsOn==0 ? item.name : item.name2 }}</td>
+                                <td>{{ item.created is defined ? item.created|date("d/m/Y H:i:s") : '' }}</td>
+                                <td>{{ item.modified is defined ? item.modified|date("d/m/Y H:i:s") : '' }}</td>
+                                
+                                <td>022</td>
+                                <td>25/10/2026</td>
+                                <td><a class="btn btn-xs btn-danger" href="#"  data-toggle="modal" data-target="#removeModal"><i class="fa fa-trash" aria-hidden="true"></i> Eliminar</a></td>
+                                <td><a class="btn btn-xs btn-primary" href="#"  data-toggle="modal" data-target="#policyModal"><i class="fa fa-info-circle" aria-hidden="true"></i> Política de destrucción</a></td>
+                            </tr>
+                            {% endfor %}
+                        {% endif %}
+                    </table>
+
+                    
+                    {% if pagination is defined and pagination.needed %}
+                        {% include '::pagination2.html.twig' %}
+                    {% endif %}
+                    
+                    {% if count==0 %}
+                        <br><b>No se han encontrado datos disponibles</b>
+                    {% endif %}
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div style="display: none">
+    <form id="createRegistro" action="{{path('nononsense_registro_completar', {'registroid': 0})}}">
+        <input type="hidden" name="registroidForm" id="registroidForm">
+        <input type="hidden" name="logbook" id="logbookForm">
+    </form>
+</div>
+<div class="modal" id="removeModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <h4>INICIO PROCESO DE DESTRUCCIÓN</h4>
+                <p><b>¿Está seguro de que desea eliminar este registro permanentemente?</b></p>
+                <p>
+                   Este proceso no se puede deshacer. Quedará registro en Blockchain de todos los registros eliminados por usted
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    <i class="fa fa-times" aria-hidden="true"></i> No
+                </button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal">
+                    <i class="fa fa-trash" aria-hidden="true"></i> Si
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal" id="policyModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <h4>POLÍTICA DE DESTRUCCIÓN</h4><br>
+                <div class="row">
+                    <div class="form-group">
+                        <label class="col-sm-6 control-label">Código de retención</label>
+                        <div class="col-sm-6">
+                            <select class="form-control">
+                                <option value="010">010</option>
+                                <option value="020">020</option>
+                                <option value="022" selected="selected">022</option>
+                                <option value="027">027</option>
+                                <option value="035">035</option>
+                            </select>
+                        </div>
+                    </div>
+                </div><br>
+
+                <div class="row">
+                  <div class="form-group">
+                        <label class="col-sm-6 control-label">Tiempo de retención hasta destrucción</label>
+                        <div class="col-sm-6">
+                            <select class="form-control">
+                                <option value="7" selected="selected">7 años</option>
+                                <option value="10">10 años</option>
+                                <option value="20">20 años</option>
+                                <option value="30">30 años</option>
+                            </select>
+                        </div>
+                    </div>
+                </div><br>
+
+                <div class="row">
+                    <div class="form-group">
+                        <label class="col-sm-6 control-label">Inicio fecha eliminación</label>
+                        <div class="col-sm-6">
+                             <input type="text" class="form-control" value="25/10/2026">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">
+                    <i class="fa fa-floppy-o" aria-hidden="true"></i> Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+{{ parent() }}
+<script src="/js/plugins/datapicker/bootstrap-datepicker.js"></script>
+<script src="/js/plugins/datapicker/locales/bootstrap-datepicker.es.js" charset="UTF-8"></script>
+<script>
+  $(function () {
+    $('#from').datepicker({
+      autoclose: true,
+      orientation: 'bottom auto',
+      format: 'yyyy-mm-dd',
+      language: 'es'
+    });
+    $('#until').datepicker({
+      autoclose: true,
+      orientation: 'bottom auto',
+      format: 'yyyy-mm-dd',
+      language: 'es'
+    });
+
+    $('#factBtnNo').click(function () {
+        $("#factModal").hide();
+
+    });
+
+    $('[name="completarregistro"]').click(function () {
+        console.log("click yeah!")
+
+        var templateid = $(this).attr('data-template');
+        $('#registroidForm').val(templateid);
+        //envío de email
+        var logbookTemplate = $(this).attr('data-loogbook');
+
+        console.log(logbookTemplate);
+        if (logbookTemplate == 1) {
+            console.log('showModal!');
+            $("#editModal").show();
+        } else {
+            console.log('submit!');
+            $('#logbookForm').val(0);
+            $('#createRegistro').submit();
+        }
+
+    });
+
+    $('#editBtnNo').click(function () {
+        $("#editModal").hide();
+
+    });
+
+    $('#editBtnYes').click(function () {
+        var logbook;
+        if($('#logbook').val()){
+            logbook = $('#logbook').val();
+        }
+        else{
+            logbook = 0;
+        }
+        
+        $('#logbookForm').val(logbook);
+        $('#createRegistro').submit();
+
+
+    });
+  });
+</script>
+{% endblock %}

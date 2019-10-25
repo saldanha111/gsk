@@ -87,7 +87,12 @@ class SearchController extends Controller
         $array_item["pagination"]=\Nononsense\UtilsBundle\Classes\Utils::paginador($filters["limit_many"],$request,$url,$array_item["count"],"/", $parameters);
 
         if(!$request->get("export_excel") && !$request->get("export_pdf")){
-            return $this->render('NononsenseHomeBundle:Contratos:search.html.twig',$array_item);
+            if(!($request->query->get('destruction'))){
+                return $this->render('NononsenseHomeBundle:Contratos:search.html.twig',$array_item);
+            }
+            else{
+                return $this->render('NononsenseHomeBundle:Contratos:destruction.html.twig',$array_item);
+            }
         }
         else{
             //Exportamos a Excel

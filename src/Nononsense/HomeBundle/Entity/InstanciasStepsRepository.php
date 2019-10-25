@@ -353,6 +353,11 @@ class InstanciasStepsRepository extends EntityRepository
 
             }
 
+            if(isset($filters["destruction"])){
+                $list->andWhere('i.status=6 OR i.status=8 OR i.status=9 OR i.status=10');
+
+            }
+
             if (isset($filters["pending_for_me"])) {
                 $list->andWhere('(i.status IN (1,2,3,7,12,13,15) AND us.id=:user_id AND f.status=0) OR ((i.status IN (4,5) OR (i.status=14 AND :fll=1)) AND s.id NOT IN (SELECT el.step_id FROM Nononsense\HomeBundle\Entity\FirmasStep el WHERE el.userEntiy=:el_user_aux AND el.step_id=s.id AND  (el.elaboracion=1 OR (el.accion LIKE :return_verify AND i.status=14))) AND i.usercreatedid!=:user_id2) OR (i.status=0 AND s.id NOT IN (SELECT elc.step_id FROM Nononsense\HomeBundle\Entity\FirmasStep elc WHERE elc.userEntiy=:el_user_auxc AND elc.step_id=s.id AND elc.elaboracion=0))');
 
