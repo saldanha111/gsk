@@ -458,7 +458,7 @@ class DataDocumentController extends Controller
                                         if($field->name==$prop){
                                             $default_value=$field->label;
                                         
-                                            if($field->tip!="" && $field->tip!=$field->label){
+                                            if($field->tip!=""){
                                                 $info=$field->tip;
                                             }
                                             else{
