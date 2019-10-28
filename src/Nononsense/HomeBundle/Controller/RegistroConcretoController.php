@@ -122,12 +122,28 @@ class RegistroConcretoController extends Controller
             }
         }
 
-        if ($registro->getStatus() == 4 || $registro->getStatus() == 5 || $registro->getStatus() == 14) {
+        if ($registro->getStatus() == 4 || $registro->getStatus() == 5) {
             // En verficiación, comprobar que puede verificar
             if (!$this->puedeValidar($step)) {
                 $this->get('session')->getFlashBag()->add(
                     'error',
                     'No puede validar este registro porque ha participado en la elaboración'
+                );
+                $route = $this->container->get('router')->generate('nononsense_search');
+                return $this->redirect($route);
+            }
+        }
+
+        if ($registro->getStatus() == 14) {
+            // En verficiación, comprobar que puede verificar si está en cancelación
+            $firma = $this->getDoctrine()
+                ->getRepository('NononsenseHomeBundle:FirmasStep')
+                ->findOneBy(array("step_id" => $step->getId()),array('number' => 'DESC'));
+
+            if ($user==$firma->getUserEntiy()) {
+                $this->get('session')->getFlashBag()->add(
+                    'error',
+                    'No puede validar este registro porque ha participado en la cancelación en verificación'
                 );
                 $route = $this->container->get('router')->generate('nononsense_search');
                 return $this->redirect($route);
@@ -1612,7 +1628,7 @@ class RegistroConcretoController extends Controller
                 ->findBy(array("step_id" => $step->getId(), "userEntiy" => $user));
 
             foreach ($firmas as $firma) {
-                if ($firma->getElaboracion() || (!$firma->getElaboracion() && strpos($firma->getAccion(), 'Cancelado en verificación:') !== false)) {
+                if ($firma->getElaboracion()) {
                     // Este usuario ha firmado y además una firma de elaboración
                     $resultado = false;
                 }
