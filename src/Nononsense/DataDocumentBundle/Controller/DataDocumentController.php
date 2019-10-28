@@ -244,6 +244,10 @@ class DataDocumentController extends Controller
             ->find($step->getWorkflowId());
         $instancia_workflowAux = $instancia_workflow;
 
+        $metadata = $this->getDoctrine()
+            ->getRepository('NononsenseHomeBundle:MetaData')
+            ->findOneBy(array("instancia_workflow" => $instancia_workflow));
+
         $stepMasterData = $master_step->getStepData();
         $workflowMasterData = $instancia_workflow->getMasterDataValues();
         $workflowMasterDataJSON = json_decode($workflowMasterData);
@@ -426,11 +430,29 @@ class DataDocumentController extends Controller
 
             while ($mostrar) {
                 $idMostrar = $instancia_workflowAux->getId() - $index;
+
                 if ($idMostrar != 0) {
-                    $InstanciaWorkflowAMostrar = $this->getDoctrine()
+                    if($instancia_workflowAux->getMasterWorkflowEntity()->getPrecreation()=="equipoqr"){
+                          $query = "SELECT m
+                                FROM NononsenseHomeBundle:MetaData m
+                                INNER JOIN  m.instancia_workflow i
+                                WHERE m.equipo= '".$metadata->getEquipo()."' AND i.id=".$idMostrar." AND i.master_workflow=".$instancia_workflowAux->getMasterWorkflowEntity()->getId();
+
+                            $query = $this->getDoctrine()->getManager()->createQuery($query);
+                            $result=$query->getOneOrNullResult();
+                            if($result){
+                                $InstanciaWorkflowAMostrar=$result->getInstanciaWorkflow();
+                            }
+
+
+                    }
+                    else{
+                        $InstanciaWorkflowAMostrar = $this->getDoctrine()
                         ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
                         ->findOneBy(array('id' => $idMostrar, 'master_workflow' => $instancia_workflowAux->getMasterWorkflowEntity()->getId()));
-
+                    }
+                    
+                    //echo $InstanciaWorkflowAMostrar->getStatus();die();
                     if (isset($InstanciaWorkflowAMostrar) && $InstanciaWorkflowAMostrar->getStatus() != 20
                         && $InstanciaWorkflowAMostrar->getStatus() != -2) {
                         // registro válido que debo mostrar
@@ -438,14 +460,15 @@ class DataDocumentController extends Controller
 
                         $instanciaStepAMostrar = $this->getDoctrine()
                             ->getRepository('NononsenseHomeBundle:InstanciasSteps')
-                            ->findOneBy(array('workflow_id' => $idMostrar));
+                            ->findOneBy(array('workflow_id' => $InstanciaWorkflowAMostrar->getId()));
 
                         $stepDataValueMostrar = $instanciaStepAMostrar->getStepDataValue();
+
                         if ($stepDataValueMostrar != "") {
                             $mostrados++;
 
                             $dataMostrar = json_decode($stepDataValueMostrar);
-                            
+
 
                             $varValuesMostrar = $dataMostrar->varValues;
                             if ($first) {
