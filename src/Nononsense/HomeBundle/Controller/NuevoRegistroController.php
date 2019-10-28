@@ -691,7 +691,8 @@ class NuevoRegistroController extends Controller
             "subcat" => $subcat,
             "name" => $name,
             "fecha" => $fecha,
-            "nameUser" => $user->getName()
+            "nameUser" => $user->getName(),
+            "workflow" => $registroid
         );
 
         //Cargar interfaz para ello.

@@ -302,7 +302,7 @@
                     {% endif %}
                     <td>{{plantilla.fecha | date('d-m-Y H:i:s') }}</td>
                     <td><a class="btn btn-xs btn-primary" name="verregistro"
-                           href="{{path('nononsense_ver_registro', {'revisionid': plantilla.workflow})}}"
+                           href="{{path('nononsense_archivo_ver', {'registroid': plantilla.workflow})}}"
                            target="_blank">{{'Ver'|trans}}</a></td>
                 </tr>
                 {% endfor %}

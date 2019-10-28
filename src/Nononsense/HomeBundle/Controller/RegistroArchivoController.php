@@ -164,7 +164,7 @@ class RegistroArchivoController extends Controller
             ->getRepository('NononsenseHomeBundle:InstanciasSteps')
             ->findOneBy(array("workflow_id" => $registro->getId(), "dependsOn" => 0));
 
-        $route = $this->container->get('router')->generate('nononsense_registro_concreto_link', array("stepid" => $firstStep->getId(), "form" => 0, "revisionid" => $registroid, "modo"=>1));
+        $route = $this->container->get('router')->generate('nononsense_registro_concreto_link', array("stepid" => $firstStep->getId(), "form" => 0, "revisionid" => $registroid, "modo"=>1))."?readonly"; 
         return $this->redirect($route);
     }
 
@@ -419,7 +419,7 @@ class RegistroArchivoController extends Controller
 
         $peticionReconciliacionAntigua = $this->getDoctrine()
                 ->getRepository('NononsenseHomeBundle:ReconciliacionRegistro')
-                ->findOneBy(array("registro_nuevo_id" => $registroViejo->getId()));
+                ->findOneBy(array("registro_nuevo_id" => $registroViejo->getId()),array("id" => "DESC"));
 
         $txhash="";
         $solicitante="";
@@ -486,7 +486,7 @@ class RegistroArchivoController extends Controller
                 // Ver una posible reconciliación del registro viejo
                 $peticionReconciliacionAntigua = $this->getDoctrine()
                     ->getRepository('NononsenseHomeBundle:ReconciliacionRegistro')
-                    ->findOneBy(array("registro_nuevo_id" => $registroViejo->getId()));
+                    ->findOneBy(array("registro_nuevo_id" => $registroViejo->getId()),array("id" => "DESC"));
             }
             else{
                 $peticionReconciliacionAntigua=NULL;
@@ -508,7 +508,7 @@ class RegistroArchivoController extends Controller
             // Ver una posible reconciliación del registro viejo
             $peticionReconciliacionNueva = $this->getDoctrine()
                 ->getRepository('NononsenseHomeBundle:ReconciliacionRegistro')
-                ->findOneBy(array("registro_viejo_id" => $registroNuevo->getId()));
+                ->findOneBy(array("registro_viejo_id" => $registroNuevo->getId()),array("id" => "DESC"));
 
             if (isset($peticionReconciliacionNueva)) {
                 $registroNuevo = $peticionReconciliacionNueva->getRegistroNuevoEntity();

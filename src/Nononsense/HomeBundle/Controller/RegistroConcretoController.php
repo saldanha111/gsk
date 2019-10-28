@@ -94,6 +94,12 @@ class RegistroConcretoController extends Controller
     public function linkAction($stepid, $form, $revisionid, $logbook,$modo)
     {
         $user = $this->container->get('security.context')->getToken()->getUser();
+        if(isset($_REQUEST["readonly"])){
+            $readonly=TRUE;
+        }
+        else{
+            $readonly=FALSE;
+        }
 
         $step = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:InstanciasSteps')
@@ -101,7 +107,7 @@ class RegistroConcretoController extends Controller
 
         $registro = $step->getInstanciaWorkflow();
 
-        if ($registro->getInEdition() == 1) {
+        if ($registro->getInEdition() == 1 && !$readonly) {
             $this->get('session')->getFlashBag()->add(
                 'error',
                 'Este registro ha sido abierto por otro usuario'
@@ -110,7 +116,7 @@ class RegistroConcretoController extends Controller
             return $this->redirect($route);
         }
 
-        if ($registro->getStatus() == 0) {
+        if ($registro->getStatus() == 0 && !$readonly) {
             // En verficiación, comprobar que puede verificar
             if (!$this->puedeCumplimentar($step)) {
                 $this->get('session')->getFlashBag()->add(
@@ -122,7 +128,7 @@ class RegistroConcretoController extends Controller
             }
         }
 
-        if ($registro->getStatus() == 4 || $registro->getStatus() == 5) {
+        if (($registro->getStatus() == 4 || $registro->getStatus() == 5) && !$readonly) {
             // En verficiación, comprobar que puede verificar
             if (!$this->puedeValidar($step)) {
                 $this->get('session')->getFlashBag()->add(
@@ -134,7 +140,7 @@ class RegistroConcretoController extends Controller
             }
         }
 
-        if ($registro->getStatus() == 14) {
+        if ($registro->getStatus() == 14 && !$readonly) {
             // En verficiación, comprobar que puede verificar si está en cancelación
             $firma = $this->getDoctrine()
                 ->getRepository('NononsenseHomeBundle:FirmasStep')
@@ -217,7 +223,7 @@ class RegistroConcretoController extends Controller
 
         $accionText = '';
 
-        if ($step->getMasterStep()->getChecklist() == 1 && $registro->getStatus() == 4) {
+        if ($step->getMasterStep()->getChecklist() == 1 && $registro->getStatus() == 4  && !$readonly) {
 
             $versionJS = filemtime(__DIR__ . "/../../../../web/js/js_templates/activity.js");
             $validacionURL1 = $baseUrl . "js/js_templates/activity.js?v=" . $versionJS;
@@ -231,7 +237,7 @@ class RegistroConcretoController extends Controller
         } else {
 
 
-            if ($registro->getStatus() == 4) {
+            if ($registro->getStatus() == 4  && !$readonly) {
                 // Abrir para validar
                 $options['responseURL'] = $baseUrl . "control_validacion/" . $stepid . "/";
                 $options['prefix'] = 'verchk';
@@ -243,8 +249,7 @@ class RegistroConcretoController extends Controller
                 $accionText = 'Validar registro';
                 $actionId = 2;
 
-            } else if ($registro->getStatus() == -1 ||
-                $registro->getStatus() == 0) {
+            } else if (($registro->getStatus() == -1 || $registro->getStatus() == 0) && !$readonly) {
 
                 $registro->setInEdition(1);
                 // abrir para editar
@@ -257,7 +262,7 @@ class RegistroConcretoController extends Controller
                 $accionText = 'Elaborar registro';
                 $actionId = 1;
 
-            } else if ($registro->getStatus() == 5 || $registro->getStatus() == 14) {
+            } else if (($registro->getStatus() == 5 || $registro->getStatus() == 14) && !$readonly) {
                 $registro->setInEdition(1);
                 // Flujos de cancelación
                 $options['prefix'] = 'show';
@@ -1654,7 +1659,7 @@ class RegistroConcretoController extends Controller
             foreach ($firmas as $firma) {
 
                 $elaboracion = $firma->getElaboracion();
-                if (!$elaboracion) {
+                if (!$elaboracion  && strpos($firma->getAccion(), 'Petición de reconciliación') === false) {
                     // Este usuario ha firmado y además una firma de elaboración
                     $resultado = false;
                 }

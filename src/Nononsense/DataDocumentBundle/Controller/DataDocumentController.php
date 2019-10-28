@@ -822,7 +822,7 @@ class DataDocumentController extends Controller
 
         $peticionReconciliacionAntigua = $this->getDoctrine()
                 ->getRepository('NononsenseHomeBundle:ReconciliacionRegistro')
-                ->findOneBy(array("registro_nuevo_id" => $registroViejo->getId()));
+                ->findOneBy(array("registro_nuevo_id" => $registroViejo->getId(), "status" => array(1, 2, 3)),array("id" => "DESC"));
 
         $txhash="";
         $solicitante="";
@@ -881,7 +881,7 @@ class DataDocumentController extends Controller
                 // Ver una posible reconciliación del registro viejo
                 $peticionReconciliacionAntigua = $this->getDoctrine()
                     ->getRepository('NononsenseHomeBundle:ReconciliacionRegistro')
-                    ->findOneBy(array("registro_nuevo_id" => $registroViejo->getId()));
+                    ->findOneBy(array("registro_nuevo_id" => $registroViejo->getId(), "status" => array(1, 2, 3)),array("id" => "DESC"));
             }
             else{
                 $peticionReconciliacionAntigua=NULL;
@@ -903,7 +903,7 @@ class DataDocumentController extends Controller
             // Ver una posible reconciliación del registro viejo
             $peticionReconciliacionNueva = $this->getDoctrine()
                 ->getRepository('NononsenseHomeBundle:ReconciliacionRegistro')
-                ->findOneBy(array("registro_viejo_id" => $registroNuevo->getId()));
+                ->findOneBy(array("registro_viejo_id" => $registroNuevo->getId(), "status" => array(1, 2, 3)),array("id" => "DESC"));
 
             if (isset($peticionReconciliacionNueva)) {
                 $registroNuevo = $peticionReconciliacionNueva->getRegistroNuevoEntity();
@@ -949,72 +949,74 @@ class DataDocumentController extends Controller
             $html="<br><br><table class='table table-striped' style='font-size:11px'><tr><th colspan='4'>Reconciliación (".count($documentsReconciliacion)." registros reconciliados)</th></tr><tr><td>Nº</td><td>Nombre</td><td>Estado</td><td>Fecha</td></tr>";
             foreach($documentsReconciliacion as $key => $element){
                 $url=$this->container->get('router')->generate('nononsense_ver_registro', array('revisionid' => $element["id"]),TRUE);
+                $name=str_replace('"', '\"', $element["name"]);
                 if($current_id!=$element["id_grid"]){
-                    $html.="<tr><td>".$element["id_grid"]."</td><td><a href='".$url."' target='_blank'>".$element["name"]."</a></td>";
+                    $html.="<tr><td>".$element["id_grid"]."</td><td><a href='".$url."' target='_blank'>".$name."</a></td>";
                 }
                 else{
-                    $html.="<tr><td>".$element["id_grid"]."</td><td><b>".$element["name"]."</b></td>";
+                    $html.="<tr><td>".$element["id_grid"]."</td><td><b>".$name."</b></td>";
                 }
+
                     if($element["status"]==0){
-                        $html.='<td>Iniciado</td>';
+                        $html.="<td>Iniciado</td>";
                     }
                     elseif($element["status"]==1){
-                        $html.='<td>Esperando firma guardado parcial</td>';
+                        $html.="<td>Esperando firma guardado parcial</td>";
                     }
                     elseif($element["status"]==2){
-                        $html.='<td>Esperando firma envío</td>';
+                        $html.="<td>Esperando firma envío</td>";
                     }
                     elseif($element["status"]==3){
-                        $html.='<td>Esperando firma cancelación</td>';
+                        $html.="<td>Esperando firma cancelación</td>";
                     }
                     elseif($element["status"]==4){
-                        $html.='<td>En verificación</td>';
+                        $html.="<td>En verificación</td>";
                     }
                     elseif($element["status"]==5){
-                        $html.='<td>Pendiente cancelación en edición</td>';
+                        $html.="<td>Pendiente cancelación en edición</td>";
                     }
                     elseif($element["status"]==6){
-                        $html.='<td>Cancelado en edición</td>';
+                        $html.="<td>Cancelado en edición</td>";
                     }
                     elseif($element["status"]==7){
-                        $html.='<td>Esperando firma verificación total</td>';
+                        $html.="<td>Esperando firma verificación total</td>";
                     }
                     elseif($element["status"]==8){
-                        $html.='<td>Cancelado</td>';
+                        $html.="<td>Cancelado</td>";
                     }
                     elseif($element["status"]==9){
-                        $html.='<td>Archivado</td>';
+                        $html.="<td>Archivado</td>";
                     }
                     elseif($element["status"]==10){
-                        $html.='<td>Reconciliado</td>';
+                        $html.="<td>Reconciliado</td>";
                     }
                     elseif($element["status"]==11){
-                        $html.='<td>Bloqueado</td>';
+                        $html.="<td>Bloqueado</td>";
                     }
                     elseif($element["status"]==12){
-                        $html.='<td>Esperando firma cancelación en verificación</td>';
+                        $html.="<td>Esperando firma cancelación en verificación</td>";
                     }
                     elseif($element["status"]==13){
-                        $html.='<td>Esperando firma devolución a edición</td>';
+                        $html.="<td>Esperando firma devolución a edición</td>";
                     }
                     elseif($element["status"]==14){
-                        $html.='<td>Pendiente de cancelación en verificación</td>';
+                        $html.="<td>Pendiente de cancelación en verificación</td>";
                     }
                     elseif($element["status"]==15){
-                        $html.='<td>Esperando firma verificación parcial</td>';
+                        $html.="<td>Esperando firma verificación parcial</td>";
                     }
                     elseif($element["status"]==16){
-                        $html.='<td>Esperando autorización para reconciliación</td>';
+                        $html.="<td>Esperando autorización para reconciliación</td>";
                     }
                     else{
-                        $html.='<td>'.$element["status"].'</td>';
+                        $html.="<td>".$element["status"]."</td>";
                     }
 
-                    $html.='<td>'.$element["fecha"]->format('d/m/Y H:i:s').'</td>';
+                    $html.="<td>".$element["fecha"]->format('d/m/Y H:i:s')."</td>";
 
-                $html.='</tr>';
+                $html.="</tr>";
             }   
-            $html.='</table>';
+            $html.="</table>";
         }
 
         return $html;

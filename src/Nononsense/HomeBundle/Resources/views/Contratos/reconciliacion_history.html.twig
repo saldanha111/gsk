@@ -81,7 +81,7 @@
                             {% endif %}
                             <td>{{plantilla.fecha | date('d-m-Y H:i:s') }}</td>
                             <td class="noprint"><a class="btn btn-xs btn-primary" name="verregistro"
-                                   href="{{path('nononsense_ver_registro', {'revisionid': plantilla.id})}}"
+                                   href="{{path('nononsense_archivo_ver', {'registroid': plantilla.id})}}"
                                    target="_blank">{{'Ver'|trans}}</a></td>
                             <td class="noprint">
                                 {% if plantilla.txhash is defined and plantilla.txhash !="" %}
