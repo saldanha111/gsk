@@ -196,7 +196,7 @@ function customOnLoad() {
         if (auxValuePercentage != 100) {
             // No se puede realizar una verificación total
             var title = "No puede realizar esta acción porque el documento no está al 100% verificado";
-            var message = "<p>El documento está rellenado al <strong>+auxValuePercentage+%</strong> y no se puede realizar una verificación total. </p>";
+            var message = "<p>El documento está rellenado al <strong>"+auxValuePercentage+"%</strong> y no se puede realizar una verificación total. </p>";
             launchMessage(title, message);
             return false;
         } else {

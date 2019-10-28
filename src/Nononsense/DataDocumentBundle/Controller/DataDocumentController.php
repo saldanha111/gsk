@@ -445,6 +445,7 @@ class DataDocumentController extends Controller
                             $mostrados++;
 
                             $dataMostrar = json_decode($stepDataValueMostrar);
+                            
 
                             $varValuesMostrar = $dataMostrar->varValues;
                             if ($first) {
@@ -453,10 +454,25 @@ class DataDocumentController extends Controller
                                 foreach ($varValuesMostrar as $prop => $value) {
                                     $position = strpos($prop, "u_");
 
+                                    foreach($dataMostrar->data as $field){
+                                        if($field->name==$prop){
+                                            $default_value=$field->label;
+                                        
+                                            if($field->tip!="" && $field->tip!=$field->label){
+                                                $info=$field->tip;
+                                            }
+                                            else{
+                                                $info=$prop;
+                                            }
+
+                                            break;
+                                        }
+                                    }
+
                                     if ($position === 0) {
                                         // variable válida.
 
-                                        $fullText .= '<th>' . $prop . '</th>';
+                                        $fullText .= '<th>' . $info . '</th>';
                                     }
 
                                 }
