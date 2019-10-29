@@ -360,18 +360,50 @@ class DataDocumentController extends Controller
 
             }
 
+            
+            $auxDataValue = $step->getStepDataValue();
+            $aux_verify = json_decode($auxDataValue);
+
             $mapVariable = $this->_construirMapVariables($step);
             foreach ($mapVariable as $prop => $value) {
                 
-                $varIndiceName = str_replace("u_", "in_", $prop);
-                $varIndiceName = str_replace("verchk_", "in_verchk_", $varIndiceName);
+                
+                $varIndiceName = preg_replace('/u_/', 'in_', $prop, 1);
+                $varIndiceName = preg_replace('/verchk_/', 'in_verchk_', $varIndiceName, 1);
 
-                foreach($value->firma as $key => $indice){
-                    if(isset($value->firma[$key])){
-                        if(isset($data->varValues->{$varIndiceName})){
-                            $data->varValues->{$varIndiceName}=json_decode(json_encode($data->varValues->{$varIndiceName}),TRUE);
+                $inputs_radio=false;
+                foreach($aux_verify->data as $field){
+                    if($field->name==$prop && $field->choice=="radio"){
+                        $inputs_radio=true;
+                        break;
+                    }
+                }
+
+                if(!$inputs_radio){ // Si no es un input radio sacamos los ínidices asi para las lineas que se clonan
+                    foreach($value->firma as $key => $indice){
+                        if(isset($value->firma[$key])){
+                            if(isset($data->varValues->{$varIndiceName})){
+                                $data->varValues->{$varIndiceName}=json_decode(json_encode($data->varValues->{$varIndiceName}),TRUE);
+                            }
+                            $data->varValues->{$varIndiceName}[$key] = $value->firma[$key];
                         }
-                        $data->varValues->{$varIndiceName}[$key] = $value->firma[$key];
+                    }
+                }
+                else{
+                    // Si es un input radio lo sacamos asi. Los input radio no deberían estar en lineas clonables
+                    foreach($value->firma as $key => $indice){
+                        if(isset($value->firma[$key])){
+                            /*if(isset($data->varValues->{$varIndiceName})){
+                                $data->varValues->{$varIndiceName}=json_decode(json_encode($data->varValues->{$varIndiceName}),TRUE);
+                            }*/
+                            $max_signature=0;
+                            foreach($value->firma as $item_signature){
+                                if($item_signature>$max_signature){
+                                    $max_signature=$item_signature;
+                                }
+                            }
+                            $data->varValues->{$varIndiceName} = array($item_signature);
+                        }
                     }
                 }
 
@@ -747,41 +779,56 @@ class DataDocumentController extends Controller
                     $positionV = strpos($prop, "verchk_");
 
                     if ($position === 0 || $positionV === 0) {
-                        foreach($values as $key => $value){
-                            if (array_key_exists($key, $lastVarValues->{$prop})) {
-                            
-                                // variable válida.
-                                $lastValue = $lastVarValues->{$prop}[$key]; // Para que funcione en los "checboxes" y "radioButton" habría que hacer un implode + trim
-                                // if lastValue es un valor vacío no haría falta hacer un "modificado"
-                                $currentValue = $value;
-                                $default_value="";
-                                if ($lastValue != "") {
-                                    $audittrail=1;
-                                    foreach($dataJsonCurrent->data as $field){
-                                        if($field->name==$prop){
-                                            $default_value=$field->label;
-                                        
-                                            if($field->tip!="" && $field->tip!=$field->label){
-                                                $info=$field->tip;
-                                            }
-                                            else{
-                                                $info=$prop;
-                                            }
 
-                                            break;
-                                        }
-                                    }
+                        $inputs_radio=false;
+                        foreach($dataJsonCurrent->data as $field){
+                            if($field->name==$prop && $field->choice=="radio"){
+                                $inputs_radio=true;
+                                break;
+                            }
+                        }
 
+                        if(!$inputs_radio){ 
+                            foreach($values as $key => $value){
+                                if (array_key_exists($key, $lastVarValues->{$prop})) {
+                                
+                                    // variable válida.
+                                    $lastValue = $lastVarValues->{$prop}[$key]; // Para que funcione en los "checboxes" y "radioButton" habría que hacer un implode + trim
+                                    // if lastValue es un valor vacío no haría falta hacer un "modificado"
+                                    $currentValue = $value;
                                     
-
-                                    if (urldecode($lastValue) != urldecode($currentValue) && urldecode($default_value)!=urldecode($lastValue) && $audittrail) {
-                                        $counterModified++;
-                                        $modified = true;
-                                        $bloqueHTML .= "<tr><td>" . $info . "</td><td>" . $lastValue . "</td><td>" . $currentValue . "</td></tr>";
-                                    }
-
                                 }
                             }
+                        }
+                        else{
+                            $lastValue = trim(implode("", $lastVarValues->{$prop}));
+                            $currentValue = trim(implode("", $values));
+                        }
+
+                        $default_value="";
+                        if ($lastValue != "") {
+                            $audittrail=1;
+                            foreach($dataJsonCurrent->data as $field){
+                                if($field->name==$prop){
+                                    $default_value=$field->label;
+                                
+                                    if($field->tip!="" && $field->tip!=$field->label){
+                                        $info=$field->tip;
+                                    }
+                                    else{
+                                        $info=$prop;
+                                    }
+
+                                    break;
+                                }
+                            }
+
+                        }
+
+                        if (urldecode($lastValue) != urldecode($currentValue) && urldecode($default_value)!=urldecode($lastValue) && $audittrail) {
+                            $counterModified++;
+                            $modified = true;
+                            $bloqueHTML .= "<tr><td>" . $info . "</td><td>" . $lastValue . "</td><td>" . $currentValue . "</td></tr>";
                         }
                     }
                 }
