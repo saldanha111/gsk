@@ -15,6 +15,8 @@ use Nononsense\HomeBundle\Entity\EvidenciasStep;
 use Nononsense\HomeBundle\Entity\FirmasStep;
 use Nononsense\HomeBundle\Entity\InstanciasSteps;
 use Nononsense\HomeBundle\Entity\InstanciasWorkflows;
+use Nononsense\GroupBundle\Entity\Groups;
+use Nononsense\GroupBundle\Entity\GroupUsers;
 
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -169,6 +171,7 @@ class BackOfficeController extends Controller
         /*
     FLL
     */
+
         $user = $this->container->get('security.context')->getToken()->getUser();
         $grupos = array('FLL');
 
@@ -185,7 +188,16 @@ class BackOfficeController extends Controller
 
         $registro = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
-            ->find($idRegistro);
+            ->findOneBy(array("id" => $idRegistro, "status" => 11));
+
+        if (!$registro) {
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                'Este registro ha sido gestionado por otro usuario de FLL'
+            );
+            $route = $this->container->get('router')->generate('nononsense_backoffice_standby_documents_list');
+            return $this->redirect($route);
+        }
 
         $subcat = $registro->getMasterWorkflowEntity()->getCategory()->getName();
         $name = $registro->getMasterWorkflowEntity()->getName();
@@ -230,7 +242,16 @@ class BackOfficeController extends Controller
 
         $registro = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
-            ->find($idRegistro);
+            ->findOneBy(array("id" => $idRegistro, "status" => 17));
+        
+        if (!$registro) {
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                'Este registro ha sido gestionado por otro usuario de ECO'
+            );
+            $route = $this->container->get('router')->generate('nononsense_backoffice_standby_documents_list');
+            return $this->redirect($route);
+        }
 
         $step = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:InstanciasSteps')
@@ -281,10 +302,31 @@ class BackOfficeController extends Controller
 
     public function standByDocumentFLLAccionAction($idRegistro, Request $request)
     {
+        $user = $this->container->get('security.context')->getToken()->getUser();
+        $grupos = array('FLL');
+
+        if (!$this->_grantUser($user, $grupos)) {
+
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                'No tiene permisos para entrar aquí'
+            );
+            $route = $this->container->get('router')->generate('nononsense_home_homepage');
+            return $this->redirect($route);
+        }
 
         $registro = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
-            ->find($idRegistro);
+            ->findOneBy(array("id" => $idRegistro, "status" => 11));
+        
+        if (!$registro) {
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                'Este registro ha sido gestionado por otro usuario de FLL'
+            );
+            $route = $this->container->get('router')->generate('nononsense_backoffice_standby_documents_list');
+            return $this->redirect($route);
+        }
 
         $step = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:InstanciasSteps')
@@ -326,6 +368,24 @@ class BackOfficeController extends Controller
         } else {
             $descp = "Enviada petición a ECO sobre registro en StandBy: " . $comentario;
             $registro->setStatus(17);
+
+            $groups = $em->getRepository(Groups::class)->findBy(["tipo" => "ECO"]);
+            foreach($groups as $group){
+                $aux_users = $em->getRepository(GroupUsers::class)->findBy(["group" => $group]);
+                foreach ($aux_users as $aux_user) {
+                    $emails[]=$aux_user->getUser()->getEmail();
+                }
+            }
+
+            $unique_emails = array_unique($emails);
+
+            foreach($unique_emails as $email){
+                $subject="Registros bloqueados";
+                $mensaje='El registro '.$step->getId().' ha sido derivado a usted (o cualquier otro miembro del grupo ECO) por parte de un FLL y requiere de su gestión.<br>Justificación: '.$comentario ;
+                $baseURL=$this->container->get('router')->generate('nononsense_backoffice_standby_document_eco',array("idRegistro" => $idRegistro),TRUE);
+                
+                $this->_sendNotification($email, $baseURL, "", "", $subject, $mensaje);
+            }
         }
 
 
@@ -361,10 +421,32 @@ class BackOfficeController extends Controller
 
     public function standByDocumentECOAccionAction($idRegistro, Request $request)
     {
+        $user = $this->container->get('security.context')->getToken()->getUser();
+        $grupos = array('ECO');
+
+        if (!$this->_grantUser($user, $grupos)) {
+
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                'No tiene permisos para entrar aquí'
+            );
+            $route = $this->container->get('router')->generate('nononsense_home_homepage');
+            return $this->redirect($route);
+        }
 
         $registro = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
-            ->find($idRegistro);
+            ->findOneBy(array("id" => $idRegistro, "status" => 17));
+        
+        if (!$registro) {
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                'Este registro ha sido gestionado por otro usuario de ECO'
+            );
+            $route = $this->container->get('router')->generate('nononsense_backoffice_standby_documents_list');
+            return $this->redirect($route);
+        }
+
 
         $step = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:InstanciasSteps')
@@ -460,9 +542,17 @@ class BackOfficeController extends Controller
         $now = new \DateTime();
         $now->modify("-8 hour"); // Intervalo
 
+        $block_records=array();
+
         foreach ($posiblesRegistrosArray as $registro){
             $fechaModificacion = $registro->getModified();
             if($fechaModificacion < $now){
+                $step = $this->getDoctrine()
+                ->getRepository('NononsenseHomeBundle:InstanciasSteps')
+                ->findOneBy(array("workflow_id" => $registro->getId(), "dependsOn" => 0));
+
+                $block_records[]=$step->getId();
+
                 $registro->setInEdition(0);
                 $registro->setStatus(11);
 
@@ -471,11 +561,62 @@ class BackOfficeController extends Controller
 
         }
 
+        if (!empty($block_records)) {
+
+            $groups = $em->getRepository(Groups::class)->findBy(["tipo" => "FLL"]);
+            foreach($groups as $group){
+                $aux_users = $em->getRepository(GroupUsers::class)->findBy(["group" => $group]);
+                foreach ($aux_users as $aux_user) {
+                    $emails[]=$aux_user->getUser()->getEmail();
+                }
+            }
+
+            $unique_emails = array_unique($emails);
+            $log_records_stand_by = implode("<br>", $block_records);
+
+            foreach($unique_emails as $email){
+                $subject="Registros bloqueados";
+                $mensaje='Los siguientes registros han sido bloqueados y necesitan ser gestionados por su parte o algún otro FLL. Acceda al siguiente  Link para gestionar los bloqueos.<br><br>'.$log_records_stand_by;
+                $baseURL=$this->container->get('router')->generate('nononsense_backoffice_standby_documents_list',array(),TRUE);
+                
+                $this->_sendNotification($email, $baseURL, "", "", $subject, $mensaje);
+            }
+        }
+
         $em->flush();
 
         $responseAction = new Response();
         $responseAction->setStatusCode(200);
         $responseAction->setContent("OK");
         return $responseAction;
+    }
+
+    private function _sendNotification($mailTo, $link, $logo, $accion, $subject, $message)
+    {
+        $mailLogger = new \Swift_Plugins_Loggers_ArrayLogger();
+        $this->get('mailer')->registerPlugin(new \Swift_Plugins_LoggerPlugin($mailLogger));
+        $email = \Swift_Message::newInstance()
+            ->setSubject($subject)
+            ->setFrom($this->container->getParameter('mailer_user'))
+            ->setTo($mailTo)
+            ->setBody(
+                $this->renderView(
+                    'NononsenseHomeBundle:Email:notificationUser.html.twig', array(
+                    'logo' => $logo,
+                    'accion' => $accion,
+                    'message' => $message,
+                    'link' => $link
+                )),
+                'text/html'
+            );
+        if ($this->get('mailer')->send($email)) {
+            //echo '[SWIFTMAILER] sent email to ' . $mailTo;
+            //echo 'LOG: ' . $mailLogger->dump();
+            return true;
+        } else {
+            //echo '[SWIFTMAILER] not sending email: ' . $mailLogger->dump();
+            return false;
+        }
+
     }
 }
