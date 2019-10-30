@@ -350,9 +350,9 @@ class BackOfficeController extends Controller
         $evidencia->setStepDataValue($step->getStepDataValue());
 
 
-        $firmaImagen = $request->query->get('firma');
-        $comentario = $request->query->get('comment');
-        $accion = $request->query->get('accion');
+        $firmaImagen = $request->get('firma');
+        $comentario = $request->get('comment');
+        $accion = $request->get('accion');
 
         $registro->setInEdition(0);
 
@@ -469,10 +469,9 @@ class BackOfficeController extends Controller
         $evidencia->setToken($step->getToken());
         $evidencia->setStepDataValue($step->getStepDataValue());
 
-
-        $firmaImagen = $request->query->get('firma');
-        $comentario = $request->query->get('comment');
-        $accion = $request->query->get('accion');
+        $firmaImagen = $request->get('firma');
+        $comentario = $request->get('comment');
+        $accion = $request->get('accion');
 
         if ($accion == 'autorizar') {
             $descp = "Registro en StandBy Liberado por ECO: " . $comentario;

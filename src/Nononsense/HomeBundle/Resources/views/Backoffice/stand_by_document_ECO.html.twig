@@ -306,7 +306,7 @@
         <hr>
         <div class="col-sm-12">
             <form id="accionform"
-                  action="{{path('nononsense_backoffice_standby_document_ECO_accion', {'idRegistro': idregistro})}}">
+                  action="{{path('nononsense_backoffice_standby_document_ECO_accion', {'idRegistro': idregistro})}}"  method="POST" enctype="multipart/form-data">
                 <p>Escriba justificación:</p>
                 <textarea id="comment" name="comment" form="accionform" rows="10" cols="91"></textarea>
                 <div id="signature-pad" class="input-group">

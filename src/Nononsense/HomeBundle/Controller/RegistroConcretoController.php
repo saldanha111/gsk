@@ -1659,7 +1659,7 @@ class RegistroConcretoController extends Controller
             foreach ($firmas as $firma) {
 
                 $elaboracion = $firma->getElaboracion();
-                if (!$elaboracion  && strpos($firma->getAccion(), 'Petición de reconciliación') === false) {
+                if (!$elaboracion  && strpos($firma->getAccion(), 'Petición de reconciliación') === false  && strpos($firma->getAccion(), 'Registro en StandBy Liberado') === false) {
                     // Este usuario ha firmado y además una firma de elaboración
                     $resultado = false;
                 }

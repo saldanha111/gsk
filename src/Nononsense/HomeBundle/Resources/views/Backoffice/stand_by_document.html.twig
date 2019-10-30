@@ -285,7 +285,7 @@
                 {% endfor %}
             </table>
         </div>
-        <form id="accionform" action="{{path('nononsense_backoffice_standby_document_FLL_accion', {'idRegistro': idregistro})}}">
+        <form id="accionform" action="{{path('nononsense_backoffice_standby_document_FLL_accion', {'idRegistro': idregistro})}}"  method="POST" enctype="multipart/form-data">
             <p>Escriba justificación:</p>
             <textarea id="comment" name="comment" form="accionform" rows="10" cols="91"></textarea>
             <div id="signature-pad" class="input-group">
