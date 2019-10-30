@@ -88,7 +88,15 @@ class SearchController extends Controller
 
         if(!$request->get("export_excel") && !$request->get("export_pdf")){
             if(!($request->query->get('destruction'))){
-                return $this->render('NononsenseHomeBundle:Contratos:search.html.twig',$array_item);
+                if(!($request->query->get('record_contains'))){
+                    return $this->render('NononsenseHomeBundle:Contratos:search.html.twig',$array_item);
+                }
+                else{
+                    if(count($array_item["filters"])>5){
+                        $array_item["filters"]["showTable"]=1;
+                    }
+                    return $this->render('NononsenseHomeBundle:Contratos:search_contain.html.twig',$array_item);
+                }      
             }
             else{
                 return $this->render('NononsenseHomeBundle:Contratos:destruction.html.twig',$array_item);
