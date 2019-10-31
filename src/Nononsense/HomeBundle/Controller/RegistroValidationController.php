@@ -20,6 +20,7 @@ use Nononsense\HomeBundle\Entity\InstanciasWorkflows;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Nononsense\HomeBundle\Entity\InstanciasSteps;
 use Nononsense\HomeBundle\Entity\EvidenciasStep;
+use Nononsense\GroupBundle\Entity\Groups;
 
 use Nononsense\UtilsBundle\Classes;
 
@@ -1226,16 +1227,17 @@ class RegistroValidationController extends Controller
         /*
          * En producción habría que hacerlo por areas ahora sólo va a haber un grupo
          */
-        $groups = $this->getDoctrine()
-            ->getRepository('NononsenseGroupBundle:Groups')
-            ->findOneBy(array("id" => 11));
-
-        $groupUsers = $groups->getUsers();
-        $enviosUser = array();
-        foreach ($groupUsers as $element) {
-            $users = $element->getUser();
-            $enviosUser[] = $users->getEmail();
+        $groups = $this->getDoctrine()->getManager()->getRepository(Groups::class)->findBy(["tipo" => "FLL"]);
+        foreach($groups as $group){
+            $groupUsers = $group->getUsers();
+            $enviosUser = array();
+            foreach ($groupUsers as $element) {
+                $users = $element->getUser();
+                $enviosUser[] = $users->getEmail();
+            }
         }
+
+
 
         $subject = "Documento pendiente de verificar";
         $mensaje = "Los siguientes registros: " . $idPendientesString . " están pendientes de verificar en el sistema";
