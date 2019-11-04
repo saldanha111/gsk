@@ -12,7 +12,7 @@ var last_field;
 
 function customOnClone(){
     $("span[data-name='u_date']" ).each(function() {
-        if($(this).html()=="Fecha"){
+        if($(this).html()=="Fecha" || $(this).html()=="u_date"){
             var today = new Date();
             var dd = today.getDate();
             var mm = today.getMonth()+1; 
@@ -33,7 +33,7 @@ function customOnClone(){
     });
 
     $("span[data-name='u_hora']" ).each(function() {
-        if($(this).html()=="NA"){
+        if($(this).html()=="NA" || $(this).html()=="u_hora"){
             var today = new Date();
             var seconds = today.getSeconds();
             var minutes = today.getMinutes();
