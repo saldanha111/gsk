@@ -415,4 +415,73 @@ class ReconciliacionRegistro
     {
         return $this->txhash;
     }
+
+    /**
+     * Set user_validation
+     *
+     * @param integer $userValidation
+     * @return ReconciliacionRegistro
+     */
+    public function setUserValidation($userValidation)
+    {
+        $this->user_validation = $userValidation;
+
+        return $this;
+    }
+
+    /**
+     * Get user_validation
+     *
+     * @return integer 
+     */
+    public function getUserValidation()
+    {
+        return $this->user_validation;
+    }
+
+    /**
+     * Set desc_validation
+     *
+     * @param string $descValidation
+     * @return ReconciliacionRegistro
+     */
+    public function setDescValidation($descValidation)
+    {
+        $this->desc_validation = $descValidation;
+
+        return $this;
+    }
+
+    /**
+     * Get desc_validation
+     *
+     * @return string 
+     */
+    public function getDescValidation()
+    {
+        return $this->desc_validation;
+    }
+
+    /**
+     * Set userValidationEntiy
+     *
+     * @param \Nononsense\UserBundle\Entity\Users $userValidationEntiy
+     * @return ReconciliacionRegistro
+     */
+    public function setUserValidationEntiy(\Nononsense\UserBundle\Entity\Users $userValidationEntiy = null)
+    {
+        $this->userValidationEntiy = $userValidationEntiy;
+
+        return $this;
+    }
+
+    /**
+     * Get userValidationEntiy
+     *
+     * @return \Nononsense\UserBundle\Entity\Users 
+     */
+    public function getUserValidationEntiy()
+    {
+        return $this->userValidationEntiy;
+    }
 }

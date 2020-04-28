@@ -334,6 +334,42 @@ nononsense_records:
     path: /records
     defaults: { _controller: NononsenseHomeBundle:Records:list}
 
+nononsense_products:
+    path: /products
+    defaults: { _controller: NononsenseHomeBundle:Products:list}
+
+nononsense_products_edit:
+    path: /products/{id}
+    defaults: { _controller: NononsenseHomeBundle:Products:edit}
+
+nononsense_products_update:
+    path: /products/{id}/save
+    defaults: { _controller: NononsenseHomeBundle:Products:update}
+
+nononsense_products_inputs:
+    path: /products-inputs
+    defaults: { _controller: NononsenseHomeBundle:Products:listInputs}
+
+nononsense_products_inputs_edit:
+    path: /products-inputs/{id}
+    defaults: { _controller: NononsenseHomeBundle:Products:editInput}
+
+nononsense_products_inputs_update:
+    path: /products-inputs/{id}/save
+    defaults: { _controller: NononsenseHomeBundle:Products:updateInput}
+
+nononsense_products_outputs:
+    path: /products-outputs
+    defaults: { _controller: NononsenseHomeBundle:Products:listOutputs}
+
+nononsense_products_outputs_edit:
+    path: /products-outputs/{id}
+    defaults: { _controller: NononsenseHomeBundle:Products:editOutput}
+
+nononsense_products_outputs_update:
+    path: /products-outputs/{id}/save
+    defaults: { _controller: NononsenseHomeBundle:Products:updatOutput}
+
 nononsense_records_new:
     path: /records/document/{id}
     defaults: { _controller: NononsenseHomeBundle:Records:create, id:0}
