@@ -170,98 +170,41 @@ class RecordsController extends Controller
     /* Donde Generamos el link que llama a docxpresso */
     public function linkAction($id)
     {
+        $baseUrl = $this->getParameter("cm_installation");
+        $baseUrlAux = $this->getParameter("cm_installation_aux");
+        
+
         $record = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:RecordsDocuments')
             ->find($id);
 
-        $baseUrl = $this->getParameter("cm_installation");
-
-        $options = array();
-
-        $options['template'] = $record->getDocument()->getPlantillaId();
-        
-        /*
-        $versionJS = filemtime(__DIR__ . "/../../../../web/js/js_templates/activity.js");
-        $validacionURL1 = $baseUrl . "js/js_templates/activity.js?v=" . $versionJS;
-        */
-
-        $validacionURL2 = $baseUrl . "js/js_templates/pesos.js";
-
-        $validacionURL1 = '';
-        $validacionURL2 = '';
-
-        /*
-         * Custom variable:
-         */
-        $customObject = new \stdClass();
-        $customObject->activate = 'deactivate'; // default En caso de haber precarga de datos poner en activate (gestionar según el status...)
-        $customObject->sessionTime = '1200'; // In seconds
-        $customObject->sessionLocation = 'http://gsk.docxpresso.org/';// Dónde redirigir para el logout
-
-
-        /*
-         * Saber si hay algún precreation
-         */
-
-        $options['custom'] = json_encode($customObject);
-
         if ($record->getStatus() == 2 || $record->getStatus() == 3) {
             // Abrir para validar
-            $options['responseURL'] = $baseUrl . "records/redirectFromData/" . $id . "/";
-            
-            if ($record->getStatus() == 2){
-                if($record->getType()->getId()==1){
-                    $options['prefix'] = 'resp_alm';
-                }
-                else{
-                    $options['prefix'] = 'def_v';
-                }
-
-                $versionJS = filemtime(__DIR__ . "/../../../../web/js/js_templates/documentValidacion.js");
-                $validacionURL1 = $baseUrl . "js/js_templates/documentValidacion.js?v=" . $versionJS;   
-            }
-            else{
-                $options['prefix'] = 'closed_';
-                $versionJS = filemtime(__DIR__ . "/../../../../web/js/js_templates/documentClosed.js");
-                $validacionURL1 = $baseUrl . "js/js_templates/documentClosed.js?v=" . $versionJS; 
-            }
+            $redirectUrl = $baseUrl . "records/redirectFromData/" . $id;
 
         } else if ($record->getStatus() == -1 || $record->getStatus() == 0  || $record->getStatus() == 1   || $record->getStatus() == 5) {
-            // abrir para editar
-            $versionJS = filemtime(__DIR__ . "/../../../../web/js/js_templates/document.js");
-            $validacionURL1 = $baseUrl . "js/js_templates/document.js?v=" . $versionJS;
 
-            //$options['prefix'] = 'u';
-            $options['responseURL'] = $baseUrl . "records/redirectFromData/" . $id . "/";
+            $redirectUrl = $baseUrl . "records/redirectFromData/" . $id;
         }
 
+        $getDataUrl=$baseUrlAux."dataRecords/requestData/".$id;
+        $callbackUrl=$baseUrlAux."dataRecords/returnData/".$id;
 
-        if ($validacionURL2 != "") {
-            $options['requestExternalJS'] = $validacionURL1 . ";" . $validacionURL2 . "?v=" . time();
-        } else {
-            $options['requestExternalJS'] = $validacionURL1;
-        }
+        $base_url=$this->getParameter('api_docoaro')."/documents/".$record->getDocument()->getPlantillaId()."?getDataUrl=".$getDataUrl."&redirectUrl=".$redirectUrl."&callbackUrl=".$callbackUrl;
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $base_url);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST,"GET");
+        
 
-
-        $options['requestExternalJS'] = $validacionURL1;
-        $url_resp_data_uri = $baseUrl . 'dataRecords/returnData/' . $id;
-        $url_requesetData = $baseUrl . 'dataRecords/requestData/' . $record->getId();
-        $options['responseDataURI'] = $url_resp_data_uri;
-        $options['requestDataURI'] = $url_requesetData;
-
-        $options['enduserid'] = 'pruebadeusuario: ' . $this->getUser()->getName();
-
-        $url_edit_documento = $this->get('app.sdk')->previewDocument($options);
-
-        /*
-         * Bloquear el registro
-         */
-        /*$record->setInEdition(1);
-
-        $em = $this->getDoctrine()->getManager();
-        $em->persist($registro);
-        $em->flush();*/
-
+        curl_setopt($ch, CURLOPT_HTTPHEADER,array("Api-Key: ".$this->getParameter('api_key_docoaro')));
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, array());    
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); 
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        $raw_response = curl_exec($ch);
+        $response = json_decode($raw_response, true);
+        
+        $url_edit_documento=$response["fillInUrl"];
 
         return $this->redirect($url_edit_documento);
     }
@@ -269,9 +212,7 @@ class RecordsController extends Controller
     /* Función a la que llama docxpresso antes de abrir la vista previa para saber si necesita cargar datos en las plantillas */
     public function RequestDataAction($id)
     {
-        /*
-         * Get Value from JSON to put into document
-         */
+        $em = $this->getDoctrine()->getManager();
 
         // get the InstanciasSteps entity
         $record = $this->getDoctrine()
@@ -282,79 +223,62 @@ class RecordsController extends Controller
             ->getRepository('NononsenseHomeBundle:Documents')
             ->find($record->getDocument());
         
+        /* Prefill document */
+        if($record->getStepDataValue()){
+            $data["data"] = json_decode($record->getStepDataValue(),TRUE)["data"];
+        }
+        $data["data"]["numero_solicitud"]=$record->getId();
 
-
-        $stepMasterData = $record->getStepDataValue();
-        $recordMasterData = $record->getMasterDataValues();
-        $recordMasterDataJSON = json_decode($recordMasterData);
+        
+        
         $em = $this->getDoctrine()->getManager();
 
-        $data = new \stdClass();
-        $varValues = new \stdClass();
-        $data->varValues = $varValues;
-
         if ($record->getStatus() == 0) {
-            // first usage
-            $data = new \stdClass();
-            $varValues = new \stdClass();
-            $varValues->numero_solicitud = array($record->getId());
 
-            if (isset($recordMasterDataJSON)) {
-                foreach ($recordMasterDataJSON as $variable) {
-                    $varName = $variable->nameVar;
-                    $varValue = $variable->valueVar;
-
-                    $varValues->{$varName} = $varValue;
-                }
-            }
-
-            $varValues->historico_steps = array("     ");
-            $data->varValues = $varValues;
-
-            $data->varValues->require_sap=""; 
+            $data["data"]["require_sap"]=""; 
         } 
         else {
             // Data Ingegrity other usage
-
-            $stepDataValue = $record->getStepDataValue();
-            $data = json_decode($stepDataValue);
-
             $firmas = $this->getDoctrine()
                 ->getRepository('NononsenseHomeBundle:RecordsSignatures')
                 ->findBy(array("record" => $record));
 
             if (!empty($firmas)) {
-                $data->varValues->dxo_gsk_audit_trail_bloque = array("No");
-                $data->varValues->dxo_gsk_firmas_bloque = array("Si");
-                $data->varValues->dxo_gsk_firmas = array($this->_construirFirmas($firmas));
+                $data["data"]["dxo_gsk_audit_trail_bloque"] = "No";
+                $data["data"]["dxo_gsk_firmas_bloque"] = "Si";
+                $data["data"]["dxo_gsk_firmas"] = $this->_construirFirmas($firmas);
+            }
+
+            if($record->getStatus()==3){
+                $data["configuration"]["cancel_button"]=0;
+                $data["configuration"]["cancel_button"]=0;
+                $data["configuration"]["partial_save_button"]=0;
+                $data["configuration"]["form_readonly"]=1;
             }
 
             if($record->getType()->getId()==1){
                 if($record->getStatus()==2 || $record->getStatus()==3){
+                    $data["configuration"]["prefix_edit"]="resp_alm_SAP"; 
+                    
                     $signatures = $this->getDoctrine()
                         ->getRepository('NononsenseHomeBundle:RecordsSignatures')
                         ->findBy(array("record"=> $record->getId(), "firma" => NULL));
                     if(count($signatures)<=1){
-                        $data->varValues->require_sap="1"; 
+                        $data["data"]["require_sap"]="1";  
                     }
                     else{
-                        $data->varValues->require_sap=""; 
+                        $data["data"]["require_sap"]=""; 
                     }
                 }
                 else{
-                    $data->varValues->require_sap=""; 
+                    $data["data"]["require_sap"]=""; 
                 }
             }
 
+
+
         }
 
-        /*
-        var_dump(json_encode($data));
-                exit;
-        */
-        if(isset($data->custom)){
-            unset($data->custom);
-        }
 
         $response = new Response();
         $response->setStatusCode(200);
@@ -377,42 +301,27 @@ class RecordsController extends Controller
             ->find($record->getDocument());
 
         $request = Request::createFromGlobals();
-        $postData = $request->request->all();
+        $params = array();
+        $content = $request->getContent();
 
-        // WARGING SECURITY MISSING DONT FORGET GUS
-
-        $data = "{}";
-        foreach ($postData as $key => $value) {
-            ${$key} = $value;
+        if (!empty($content))
+        {
+            $params = json_decode($content, true); // 2nd param to get as array
         }
-        $dataJSON = json_decode($data);
 
         $em = $this->getDoctrine()->getManager();
-
-
-        /*
-         * Si el status ya es 1 es que lo que se está haciendo es validar. Ya que no se permite un segundo rellenado.
-         * Se pisan los valores y ahora el status es 2 y el workflow pasa a validado 3 . Y su validación a "validada" 2
-         */
 
         $now = new \DateTime();
 
         /*
          * Actualizar metaData según variables
          */
-        $varValues = $dataJSON->varValues;
 
-        $data = json_encode($dataJSON);
-        $record->setStepDataValue($data);
-        $record->setToken($dataJSON->token);
+
+        $record->setStepDataValue(json_encode(array("data" => $params["data"], "action" => $params["action"]), JSON_FORCE_OBJECT));
 
         $stepData = $record->getStepDataValue();
         $stepDataJSON = json_decode($stepData);
-
-        $validations = $stepDataJSON->validations;
-        $percentageCompleted = $validations->percentage;
-        $validated = $validations->validated;
-
 
         $signatures = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:RecordsSignatures')
@@ -421,7 +330,7 @@ class RecordsController extends Controller
         /* Si no está metido el workflow de las firmas lo metemos */
         if(!$signatures || $record->getComments()!=NULL){
             $record->setComments(NULL);
-            if($validated && $percentageCompleted==100){
+            if($params["action"]=="save"){
                 if($signatures){
                     $number_signatures=count($signatures);
                 }
@@ -480,7 +389,7 @@ class RecordsController extends Controller
     }
 
     /* Pagina a la que vamos tras volver de docxpresso */
-    public function redirectFromDataAction($id, $action, $urlaux)
+    public function redirectFromDataAction($id)
     {
         /*
          * cerrar
@@ -488,13 +397,16 @@ class RecordsController extends Controller
          * parcial
          * enviar
          */
-        $urlaux=str_replace("--", "/", $urlaux);
+        
         $em = $this->getDoctrine()->getManager();
         $user = $this->container->get('security.context')->getToken()->getUser();
 
         $record = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:RecordsDocuments')
             ->find($id);
+
+        $stepData = $record->getStepDataValue();
+        $stepDataJSON = json_decode($stepData, TRUE);
 
         if(!$record){
             $this->get('session')->getFlashBag()->add(
@@ -510,7 +422,7 @@ class RecordsController extends Controller
         //var_dump($action);
         $route = $this->container->get('router')->generate('nononsense_home_homepage');
 
-        if ($action == 'cancelar') {
+        if ($stepDataJSON["action"] == 'cancel') {
             $record->setStatus(4);
             $em->persist($record);
             $em->flush();
@@ -519,7 +431,7 @@ class RecordsController extends Controller
                 "documentName" => $documentName,
                 "stepid" => $id
             ));
-        } elseif ($action == 'devolver') {
+        } elseif ($stepDataJSON["action"]== 'return') {
             $signature = $this->getDoctrine()
                 ->getRepository('NononsenseHomeBundle:RecordsSignatures')
                 ->findOneBy(array("record"=>$record,"next"=>1));
@@ -568,7 +480,7 @@ class RecordsController extends Controller
                 "id" => $id
             ));
             
-        } elseif ($action == 'parcial') {
+        } elseif ($stepDataJSON["action"] == 'save_partial') {
             if(($record->getStatus()==0 || $record->getStatus()==1) && $record->getUserCreatedEntiy()==$user){
                 $record->setStatus(1);
                 $em->persist($record);
@@ -578,10 +490,6 @@ class RecordsController extends Controller
                 $stepData = $record->getStepDataValue();
                 $stepDataJSON = json_decode($stepData);
 
-                $validations = $stepDataJSON->validations;
-                $percentageCompleted = $validations->percentage;
-                $validated = $validations->validated;
-
                 /*
                  * Revisar si ha habido algún cambio en las variables para que muestre el campo de texto.
                  */
@@ -590,22 +498,19 @@ class RecordsController extends Controller
 
                 return $this->render('NononsenseHomeBundle:Contratos:record_completed.html.twig', array(
                     "documentName" => $documentName,
-                    "percentageCompleted" => $percentageCompleted,
-                    "validated" => $validated,
                     "id" => $id,
+                    "validated" => 0,
                     "devolucion" => $devolucion
                 ));
             }
 
-        } elseif ($action == 'enviar' || $action == 'verificar') {
+        } elseif ($stepDataJSON["action"] == 'save') {
             $stepData = $record->getStepDataValue();
-            $stepDataJSON = json_decode($stepData);
+            $stepDataJSON = json_decode($stepData, TRUE);
 
-            $validations = $stepDataJSON->validations;
-            $percentageCompleted = $validations->percentage;
-            $validated = $validations->validated;
+            $percentageCompleted = 100;
+            $validated = 1;
 
-            if($validations->percentage==100){
                 $total_signatures = $this->getDoctrine()
                     ->getRepository('NononsenseHomeBundle:RecordsSignatures')
                     ->findOneBy(array("record"=>$record));
@@ -724,9 +629,9 @@ class RecordsController extends Controller
                     "anexo" => $anexo,
                     "can_sign" => $can_sign
                 ));
-            }
+            
 
-        } else if ($action == 'cerrar') {
+        } else if ($stepDataJSON["action"] == 'close') {
 
             $route = base64_decode($urlaux);
 
@@ -894,11 +799,11 @@ class RecordsController extends Controller
         $stepDataValues = $record->getStepDataValue();
         $stepDataValuesJSON = json_decode($stepDataValues);
 
-        $stepDataValuesJSON->varValues->dxo_gsk_audit_trail_bloque = array("No");
-        $stepDataValuesJSON->varValues->dxo_gsk_firmas_bloque = array("Si");
+        $stepDataValuesJSON->data->dxo_gsk_audit_trail_bloque = "No";
+        $stepDataValuesJSON->data->dxo_gsk_firmas_bloque = "Si";
 
 
-        $stepDataValuesJSON->varValues->dxo_gsk_firmas[0] = $this->_construirFirmas($firmas);
+        $stepDataValuesJSON->data->dxo_gsk_firmas = $this->_construirFirmas($firmas);
 
 
         $data = json_encode($stepDataValuesJSON);
@@ -1005,11 +910,11 @@ class RecordsController extends Controller
         $stepDataValues = $record->getStepDataValue();
         $stepDataValuesJSON = json_decode($stepDataValues);
 
-        $stepDataValuesJSON->varValues->dxo_gsk_audit_trail_bloque = array("No");
-        $stepDataValuesJSON->varValues->dxo_gsk_firmas_bloque = array("Si");
+        $stepDataValuesJSON->data->dxo_gsk_audit_trail_bloque = "No";
+        $stepDataValuesJSON->data->dxo_gsk_firmas_bloque = "Si";
 
 
-        $stepDataValuesJSON->varValues->dxo_gsk_firmas[0] = $this->_construirFirmas($firmas);
+        $stepDataValuesJSON->data->dxo_gsk_firmas = $this->_construirFirmas($firmas);
 
 
         $data = json_encode($stepDataValuesJSON);
@@ -1040,17 +945,11 @@ class RecordsController extends Controller
         $record = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:RecordsDocuments')
             ->findOneBy(array("id" => $id));
-            
-        $stepData = $record->getStepDataValue();
-        $stepDataJSON = json_decode($stepData);
 
         $documentName = $record->getDocument()->getName();
-        $validations = $stepDataJSON->validations;
-        $percentageCompleted = $validations->percentage;
 
         return $this->render('NononsenseHomeBundle:Contratos:record_sent.html.twig', array(
                     "documentName" => $documentName,
-                    "percentageCompleted" => $percentageCompleted,
                     "id" => $id,
         ));
     }
@@ -1209,16 +1108,16 @@ class RecordsController extends Controller
         $step3=0;
         $step4=0;
         
-        foreach($dataJson->varValues->u_tipo_material as $key => $material_value){
-            if(urldecode($dataJson->varValues->u_check3[1])!="" && urldecode($dataJson->varValues->u_check4[1])==""){
+        foreach($dataJson->data->u_tipo_material as $key => $material_value){
+            if(urldecode($dataJson->data->u_check3)=="2" && urldecode($dataJson->data->u_check4)!="2"){
                 $anexo=1;
             }
 
-            if(urldecode($dataJson->varValues->u_check4[2])!="" && (urldecode($dataJson->varValues->u_check3[3])!="" || urldecode($dataJson->varValues->u_check3[4])!="") && urldecode($dataJson->varValues->u_tipo_material[$key])!="ZINT REG" && urldecode($dataJson->varValues->u_tipo_material[$key])!="ZCOM NO Impreso"){
+            if(urldecode($dataJson->data->u_check4)=="3" && (urldecode($dataJson->data->u_check3)=="4" || urldecode($dataJson->data->u_check3)=="5") && urldecode($dataJson->data->u_tipo_material->{$key})!="ZINT REG" && urldecode($dataJson->data->u_tipo_material->{$key})!="ZCOM NO Impreso"){
                 $anexo=1;
             }
 
-            switch(urldecode($dataJson->varValues->u_tipo_material[$key])){
+            switch(urldecode($dataJson->data->u_tipo_material->{$key})){
                 case "ZINT REG":
                 case "ZINT PRU":
                     $step4=1;
@@ -1228,7 +1127,7 @@ class RecordsController extends Controller
                     $responsable_almacen=1;
                     break;
                 case "ZCOM Impreso":
-                    if(urldecode($dataJson->varValues->u_check2[$key])=="Si"){
+                    if(urldecode($dataJson->data->u_check2->{$key})=="Si"){
                         $step4=1;
                     }
                     else{
@@ -1242,7 +1141,7 @@ class RecordsController extends Controller
             }
 
             if($step3){
-                if(urldecode($dataJson->varValues->u_check3[2])!="" && urldecode($dataJson->varValues->u_check4[0])==""){
+                if(urldecode($dataJson->data->u_check3)=="3" && urldecode($dataJson->data->u_check4)!="1"){
                     $almacen=1;
                     $responsable_almacen=1;
                 }
@@ -1254,7 +1153,7 @@ class RecordsController extends Controller
 
             /* Miramos Logística */
             if($step4){
-                if(urldecode($dataJson->varValues->u_check4[0])!="" && urldecode($dataJson->varValues->u_check3[2])!=""){
+                if(urldecode($dataJson->data->u_check4)=="1" && urldecode($dataJson->data->u_check3)=="3"){
                     $calidad=1;
                 }
                 else{

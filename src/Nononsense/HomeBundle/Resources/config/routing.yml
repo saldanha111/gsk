@@ -355,8 +355,8 @@ nononsense_records_pdf:
     defaults: { _controller: NononsenseHomeBundle:Records:downloadPdf,id: 1}
 
 nononsense_records_redirect_from_data:
-    path: /records/redirectFromData/{id}/{action}/{urlaux}
-    defaults: { _controller: NononsenseHomeBundle:Records:redirectFromData, id: 0, action: 0,urlaux: 0}
+    path: /records/redirectFromData/{id}
+    defaults: { _controller: NononsenseHomeBundle:Records:redirectFromData, id: 0}
 
 nononsense_record_save_send:
     path:     /records/save_send/{id}
