@@ -13,7 +13,7 @@
             <div>
                 <div class="row">
                     <form class="form-horizontal" id="form_item" action="{{ path('nononsense_products')}}" method="GET">
-                        <input type="hidden" id='a_excel' />
+                        <input type="hidden" id='a_excel' name='a_excel' />
                         <div class="form-group">
                             <label class="col-sm-2 control-label item_filter">Part. Number</label>
                             <div class="col-sm-2 item_filter">
@@ -49,6 +49,7 @@
                     <table id="inProcessParcial" class="table table-striped">
                         <thead>
                         <tr>
+                            <th>Id.</th>
                             <th>Part. Number</th>
                             <th>Nombre</th>
                             <th>Descripción</th>
@@ -65,6 +66,7 @@
                         {% if items is defined %}
                             {% for item in items %}
                             <tr>
+                                <td>{{item.id}}</td>
                                 <td>{{item.partNumber}}</td>
                                 <td>{{item.name}}</td>
                                 <td>{{item.description}}</td>
@@ -109,6 +111,7 @@
 
   function filtering(){
     $('#a_excel').val(0);
+    $('#form_item').attr("action","http://gsk.localhost/app_dev.php/products");
     $('#form_item').attr("target","_self");
     $('#form_item').submit();
   }

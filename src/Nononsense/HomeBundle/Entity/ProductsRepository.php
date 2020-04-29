@@ -12,7 +12,7 @@ use Doctrine\ORM\EntityRepository;
  */
 class ProductsRepository extends EntityRepository
 {
-	public function list($filters)
+	public function list($filters, $paginate=1)
     {
     	$em = $this->getEntityManager();
 
@@ -21,53 +21,9 @@ class ProductsRepository extends EntityRepository
             ->leftJoin("p.type", "t")
             ->orderBy('p.name', 'ASC');
 
-        if(!empty($filters)){
-            if(isset($filters["id"])){
-                $list->andWhere('p.id=:id');
-                $list->setParameter('id', $filters["id"]);
-            }
+        $list = self::fillFilersQuery($filters, $list);
 
-            if(isset($filters["partNumber"])){
-                $list->andWhere('p.partNumber=:partNumber');
-                $list->setParameter('partNumber', $filters["partNumber"]);
-            }
-
-            if(isset($filters["name"])){
-                $list->andWhere("p.name LIKE '%".$filters["name"]."%'");
-            }
-
-            if(isset($filters["provider"])){
-                $list->andWhere("p.provider LIKE '%".$filters["provider"]."%'");
-            }
-
-            if(isset($filters["stock_from"])){
-                $list->andWhere("p.stock>=:stock_from");
-                $list->setParameter('stock_from', $filters["stock_from"]);
-            }
-
-            if(isset($filters["stock_to"])){
-                $list->andWhere("p.stock<=:stock_to");
-                $list->setParameter('stock_to', $filters["stock_to"]);
-            }
-
-            if(isset($filters["minimum_stock_from"])){
-                $list->andWhere("p.stockMinimum>=:minimum_stock_from");
-                $list->setParameter('minimum_stock_from', $filters["minimum_stock_from"]);
-            }
-
-            if(isset($filters["minimum_stock_to"])){
-                $list->andWhere("p.stockMinimum<=:minimum_stock_to");
-                $list->setParameter('minimum_stock_to', $filters["minimum_stock_to"]);
-            }
-
-
-            if(isset($filters["type"])){
-                $list->andWhere('p.type=:type');
-                $list->setParameter('type', $filters["type"]);
-            }
-        }
-
-        if(isset($filters["limit_from"])){
+        if($paginate==1 && isset($filters["limit_from"])){
             $list->setFirstResult($filters["limit_from"]*$filters["limit_many"])->setMaxResults($filters["limit_many"]);
         }
 
@@ -84,6 +40,43 @@ class ProductsRepository extends EntityRepository
             ->select('COUNT(p.id) as conta')
             ->leftJoin("p.type", "t");
 
+        $list = self::fillFilersQuery($filters, $list);
+        
+        $query = $list->getQuery();
+
+        return $query->getSingleResult()["conta"];
+    }
+
+    public function productsForJson($filters, $paginate=1)
+    {
+        $em = $this->getEntityManager();
+
+        $list = $this->createQueryBuilder('p')
+            ->select('p.id', 'p.name AS text', 'p.partNumber', 'p.stock', 'p.provider', 'p.stockMinimum', 'p.description', 'p.presentation', 'p.analysisMethod', 't.name AS nameType', 'p.observations', 't.expirationMonths', 't.destructionMonths')
+            ->leftJoin("p.type", "t")
+            ->orderBy('p.name', 'ASC');
+
+        if(!empty($filters)){
+            if(isset($filters["partNumber"])){
+                $list->orWhere("p.partNumber LIKE '%".$filters["partNumber"]."%'");
+            }
+
+            if(isset($filters["name"])){
+                $list->orWhere("p.name LIKE '%".$filters["name"]."%'");
+            }
+        }
+
+        if($paginate==1 && isset($filters["limit_from"])){
+            $list->setFirstResult($filters["limit_from"]*$filters["limit_many"])->setMaxResults($filters["limit_many"]);
+        }
+
+        $query = $list->getQuery();
+
+        return $query->getResult();
+    }
+
+    private function fillFilersQuery($filters, $list){
+
         if(!empty($filters)){
             if(isset($filters["id"])){
                 $list->andWhere('p.id=:id');
@@ -91,8 +84,7 @@ class ProductsRepository extends EntityRepository
             }
 
             if(isset($filters["partNumber"])){
-                $list->andWhere('p.partNumber=:partNumber');
-                $list->setParameter('partNumber', $filters["partNumber"]);
+                $list->andWhere("p.partNumber LIKE '%".$filters["partNumber"]."%'");
             }
 
             if(isset($filters["name"])){
@@ -128,9 +120,7 @@ class ProductsRepository extends EntityRepository
                 $list->setParameter('type', $filters["type"]);
             }
         }
-        
-        $query = $list->getQuery();
 
-        return $query->getSingleResult()["conta"];
+        return $list;
     }
 }

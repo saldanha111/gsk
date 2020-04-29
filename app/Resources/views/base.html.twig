@@ -3,6 +3,9 @@
     <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" type="text/css" href="{{ asset('bundles/nononsensehome/css/loader-generic.css') }}">
+
     <title>{% block page_title %}GSK{% endblock %}</title>
     {% block head %}
         {% include "::head.html.twig" %}
@@ -46,5 +49,27 @@
         {% block scripts %}
             {% include "::scripts.html.twig" %}
         {% endblock %}
+
+        <div id='div_mascara' style="width: 100%; height: 100%; position: absolute; top: 0px; left: 0px; z-index: -1000;"></div>
+    
+        <div id='div_loader_admin' style="display: none;" class="ui-loader ui-corner-all ui-body-a ui-loader-verbose">
+            <span class="ui-icon-loading"></span>
+            <h1>{{ 'cargando'|trans|capitalize }}...</h1>
+        </div>
+
     </body>
+
+
 </html>
+
+<script>
+    function show_loader(){
+        $('#div_loader_admin').show();
+        $('#div_mascara').css("z-index", "10000");
+    }
+
+    function hide_loader(){
+        $('#div_mascara').css("z-index", "-1000");
+        $('#div_loader_admin').hide();
+    }
+</script>

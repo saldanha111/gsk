@@ -12,4 +12,91 @@ use Doctrine\ORM\EntityRepository;
  */
 class ProductsInputsRepository extends EntityRepository
 {
+	public function list($filters, $paginate=1)
+    {
+    	$em = $this->getEntityManager();
+
+        $list = $this->createQueryBuilder('pi')
+            ->select('pi.id', 'pi.amount', 'pi.remainingAmount', 'pi.receptionDate', 'pi.expiryDate', 'pi.openDate', 'pi.destructionDate', 'p.name AS productName', 'p.partNumber as productPartNumber')
+            ->leftJoin("pi.product", "p")
+            ->orderBy('pi.receptionDate', 'ASC');
+
+        $list = self::fillFilersQuery($filters, $list);
+
+        if($paginate==1 && isset($filters["limit_from"])){
+            $list->setFirstResult($filters["limit_from"]*$filters["limit_many"])->setMaxResults($filters["limit_many"]);
+        }
+
+        $query = $list->getQuery();
+
+        return $query->getResult();
+    }
+
+    public function count($filters = array())
+    {
+        $em = $this->getEntityManager();
+
+        $list = $this->createQueryBuilder('pi')
+            ->select('COUNT(pi.id) as conta')
+            ->leftJoin("pi.product", "p");
+
+        $list = self::fillFilersQuery($filters, $list);
+        
+        $query = $list->getQuery();
+
+        return $query->getSingleResult()["conta"];
+    }
+
+    private function fillFilersQuery($filters, $list){
+
+    	if(!empty($filters)){
+
+        	if(isset($filters["partNumber"])){
+                $list->andWhere('p.partNumber=:partNumber');
+                $list->setParameter('partNumber', $filters["partNumber"]);
+            }
+
+            if(isset($filters["name"])){
+                $list->andWhere("p.name LIKE '%".$filters["name"]."%'");
+            }
+
+            if(isset($filters["receptionDateFrom"])){
+                $list->andWhere("pi.receptionDate>=:receptionDateFrom");
+                $list->setParameter('receptionDateFrom', $filters["receptionDateFrom"]);
+            }
+            if(isset($filters["receptionDateTo"])){
+                $list->andWhere("pi.receptionDate<=:receptionDateTo");
+                $list->setParameter('receptionDateTo', $filters["receptionDateTo"]);
+            }
+
+            if(isset($filters["expiryDateFrom"])){
+                $list->andWhere("pi.expiryDate>=:expiryDateFrom");
+                $list->setParameter('expiryDateFrom', $filters["expiryDateFrom"]);
+            }
+            if(isset($filters["expiryDateTo"])){
+                $list->andWhere("pi.expiryDate<=:expiryDateTo");
+                $list->setParameter('expiryDateTo', $filters["expiryDateTo"]);
+            }
+
+            if(isset($filters["destructionDateFrom"])){
+                $list->andWhere("pi.destructionDate>=:destructionDateFrom");
+                $list->setParameter('destructionDateFrom', $filters["destructionDateFrom"]);
+            }
+            if(isset($filters["destructionDateTo"])){
+                $list->andWhere("pi.destructionDate<=:destructionDateTo");
+                $list->setParameter('destructionDateTo', $filters["destructionDateTo"]);
+            }
+
+            if(isset($filters["openDateFrom"])){
+                $list->andWhere("pi.openDate>=:openDateFrom");
+                $list->setParameter('openDateFrom', $filters["openDateFrom"]);
+            }
+            if(isset($filters["openDateTo"])){
+                $list->andWhere("pi.openDate<=:openDateTo");
+                $list->setParameter('openDateTo', $filters["openDateTo"]);
+            }
+        }
+
+    	return $list;
+    }
 }

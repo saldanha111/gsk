@@ -4,7 +4,7 @@
 {{ parent() }}
 <link rel="stylesheet" href="/css/plugins/datapicker/datepicker3.css">
 {% endblock %}
-{% block main_title %} Listado de productos{% endblock %}
+{% block main_title %} Listado de recepciones de material{% endblock %}
 {% block content %}
 
 <div class="wrapper wrapper-content">
@@ -12,28 +12,52 @@
         <div class="col-sm-12">
             <div>
                 <div class="row">
-                    <form class="form-horizontal" id="form_item" action="{{ path('nononsense_products')}}" method="GET">
-                        <input type="hidden" id='a_excel' />
+                    <form class="form-horizontal" id="form_item" action="{{ path('nononsense_products_inputs')}}" method="GET">
+                        <input type="hidden" id='a_excel' name='a_excel' />
                         <div class="form-group">
                             <label class="col-sm-2 control-label item_filter">Part. Number</label>
                             <div class="col-sm-2 item_filter">
                                 <input type="text" name="partNumber" class="form-control" value="{{filters.partNumber is defined ? filters.partNumber : ''}}">
                             </div>
 
-                            <label class="col-sm-1 control-label item_filter">Nombre</label>
+                            <label class="col-sm-2 control-label item_filter">Nombre</label>
                             <div class="col-sm-2 item_filter">
                                 <input type="text" name="name" class="form-control" value="{{filters.name is defined ? filters.name : ''}}">
                             </div>
                         </div>
-
                         <div class="form-group">
-                            <label class="col-sm-2 control-label item_filter">Stock mínimo</label>
+                            <label class="col-sm-2 control-label item_filter">Fecha recepción</label>
                             <div class="col-sm-1 item_filter">
-                                <input type="text" class="form-control pull-right" autocomplete="off" name="minimum_stock_from" id="minimum_stock_from" value="{{filters.minimum_stock_from is defined ? filters.minimum_stock_from : ''}}">
+                                <input type="text" style="width: 100px;" class="form-control my_date" autocomplete="off" name="receptionDateFrom" id="receptionDateFrom" value="{{filters.receptionDateFrom is defined ? filters.receptionDateFrom : ''}}">
+                            </div>
+                            <div class="col-sm-1 item_filter">
+                                <input type="text" style="width: 100px;" class="form-control my_date" autocomplete="off" name="receptionDateTo" id="receptionDateTo" value="{{filters.receptionDateTo is defined ? filters.receptionDateTo : ''}}">
                             </div>
 
+                            <label class="col-sm-2 control-label item_filter">Fecha caducidad</label>
                             <div class="col-sm-1 item_filter">
-                                <input type="text" class="form-control pull-right" autocomplete="off" name="minimum_stock_to" id="minimum_stock_to" value="{{filters.minimum_stock_to is defined ? filters.minimum_stock_to : ''}}">
+                                <input type="text" style="width: 100px;" class="form-control my_date" autocomplete="off" name="expiryDateFrom" id="expiryDateFrom" value="{{filters.expiryDateFrom is defined ? filters.expiryDateFrom : ''}}">
+                            </div>
+                            <div class="col-sm-1 item_filter">
+                                <input type="text" style="width: 100px;" class="form-control my_date" autocomplete="off" name="expiryDateTo" id="expiryDateTo" value="{{filters.expiryDateTo is defined ? filters.expiryDateTo : ''}}">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label item_filter">Fecha destrucción</label>
+                            <div class="col-sm-1 item_filter">
+                                <input type="text" style="width: 100px;" class="form-control my_date" autocomplete="off" name="destructionDateFrom" id="destructionDateFrom" value="{{filters.destructionDateFrom is defined ? filters.destructionDateFrom : ''}}">
+                            </div>
+                            <div class="col-sm-1 item_filter">
+                                <input type="text" style="width: 100px;" class="form-control my_date" autocomplete="off" name="destructionDateTo" id="destructionDateTo" value="{{filters.destructionDateTo is defined ? filters.destructionDateTo : ''}}">
+                            </div>
+
+                            <label class="col-sm-2 control-label item_filter">Fecha apertura</label>
+                            <div class="col-sm-1 item_filter">
+                                <input type="text" style="width: 100px;" class="form-control my_date" autocomplete="off" name="openDateFrom" id="openDateFrom" value="{{filters.openDateFrom is defined ? filters.openDateFrom : ''}}">
+                            </div>
+                            <div class="col-sm-1 item_filter">
+                                <input type="text" style="width: 100px;" class="form-control my_date" autocomplete="off" name="openDateTo" id="openDateTo" value="{{filters.openDateTo is defined ? filters.openDateTo : ''}}">
                             </div>
 
                             <div class="col-sm-1 item_filter">
@@ -44,39 +68,41 @@
                 </div>
                 <div class="row">
                     <div>
-                      <a href="{{ path('nononsense_products_edit',{'id': '0'}) }}" target="_self" class="btn btn-primary pull-right"><i class="fa fa-plus"></i> Nuevo Producto</a>
+                      <a href="{{ path('nononsense_products_inputs_edit',{'id': '0'}) }}" target="_self" class="btn btn-primary pull-right"><i class="fa fa-plus"></i> Nueva recepción</a>
                     </div><br>
                     <table id="inProcessParcial" class="table table-striped">
                         <thead>
                         <tr>
+                            <th>Id.</th>
                             <th>Part. Number</th>
                             <th>Nombre</th>
-                            <th>Descripción</th>
-                            <th>Stock</th>
-                            <th>Proveedor</th>
-                            <th>Presentación</th>
-                            <th>Stock mínimo</th>
-                            <th>Método de análisis</th>
-                            <th>Observaciones</th>
-                            <th>Tipo</th>
+                            <th>Cantidad</th>
+                            <th>Cantidad restante</th>
+                            <th>Fecha recepción</th>
+                            <th>Fecha caducidad</th>
+                            <th>Fecha destrucción</th>
+                            <th>Fecha apertura</th>
+                            <th>Qr</th>
                             <th></th>
                         </tr>
                         </thead>
                         {% if items is defined %}
                             {% for item in items %}
                             <tr>
-                                <td>{{item.partNumber}}</td>
-                                <td>{{item.name}}</td>
-                                <td>{{item.description}}</td>
-                                <td>{{item.stock}}</td>
-                                <td>{{item.provider}}</td>
-                                <td>{{item.presentation}}</td>
-                                <td>{{item.stockMinimum}}</td>  
-                                <td>{{item.analysisMethod}}</td>
-                                <td>{{item.observations}}</td>
-                                <td>{{item.nameType}}</td>
+                                <td>{{item.id}}</td>
+                                <td>{{item.productPartNumber}}</td>
+                                <td>{{item.productName}}</td>
+                                <td>{{item.amount}}</td>
+                                <td>{{item.remainingAmount}}</td>
+                                <td>{{item.receptionDate|date('Y-m-d')}}</td>
+                                <td>{{item.expiryDate|date('Y-m-d')}}</td>
+                                <td>{{item.destructionDate|date('Y-m-d')}}</td>  
+                                <td>{{item.openDate|date('Y-m-d')}}</td>
                                 <td>
-                                    <a href="{{path('nononsense_products_edit', {'id': item.id}) }}" class="btn btn-xs" target="_self"><i class="fa fa-pencil" aria-hidden="true"></i> Editar</a>
+                                    <a href="{{path('nononsense_products_inputs_view_qr', {'id': item.id}) }}" target="_blank" class="btn btn-xs"><i class="fa fa-qrcode" aria-hidden="true"></i> Ver QR</a>
+                                </td>
+                                <td>
+                                    <a href="{{path('nononsense_products_inputs_edit', {'id': item.id}) }}" class="btn btn-xs" target="_self"><i class="fa fa-pencil" aria-hidden="true"></i> Editar</a>
                                 </td>
                             </tr>
                             {% endfor %}
@@ -99,11 +125,20 @@
 {% endblock %}
 {% block scripts %}
 {{ parent() }}
+<script src="/js/plugins/datapicker/bootstrap-datepicker.js"></script>
+<script src="/js/plugins/datapicker/locales/bootstrap-datepicker.es.js" charset="UTF-8"></script>
 <script>
   $(function () {
 
     ActivateMenu('browse_product_inputs');
     $('#side-menu').metisMenu();
+
+    $('.my_date').datepicker({
+      autoclose: true,
+      orientation: 'bottom auto',
+      format: 'yyyy-mm-dd',
+      language: 'es'
+    });
 
   });
 
@@ -118,6 +153,8 @@
     $('#form_item').attr("target","_blank");
     $('#form_item').submit();
   }
+
+
 </script>
 {% endblock %}
                         

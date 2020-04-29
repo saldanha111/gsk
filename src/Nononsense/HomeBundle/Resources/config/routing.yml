@@ -338,6 +338,10 @@ nononsense_products:
     path: /products
     defaults: { _controller: NononsenseHomeBundle:Products:list}
 
+nononsense_products_json:
+    path: /products-json
+    defaults: { _controller: NononsenseHomeBundle:Products:productosJson}
+
 nononsense_products_edit:
     path: /products/{id}
     defaults: { _controller: NononsenseHomeBundle:Products:edit}
@@ -354,6 +358,10 @@ nononsense_products_inputs_edit:
     path: /products-inputs/{id}
     defaults: { _controller: NononsenseHomeBundle:Products:editInput}
 
+nononsense_products_inputs_view_qr:
+    path: /products-inputs-qr/{id}
+    defaults: { _controller: NononsenseHomeBundle:Products:inputQr}
+
 nononsense_products_inputs_update:
     path: /products-inputs/{id}/save
     defaults: { _controller: NononsenseHomeBundle:Products:updateInput}
@@ -366,9 +374,13 @@ nononsense_products_outputs_edit:
     path: /products-outputs/{id}
     defaults: { _controller: NononsenseHomeBundle:Products:editOutput}
 
+nononsense_products_inputs_get_data_json:
+    path: /products-inputs-data/{id}
+    defaults: { _controller: NononsenseHomeBundle:Products:inputDataJson}
+
 nononsense_products_outputs_update:
     path: /products-outputs/{id}/save
-    defaults: { _controller: NononsenseHomeBundle:Products:updatOutput}
+    defaults: { _controller: NononsenseHomeBundle:Products:updateOutput}
 
 nononsense_records_new:
     path: /records/document/{id}

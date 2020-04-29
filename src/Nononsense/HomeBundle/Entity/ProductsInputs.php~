@@ -29,38 +29,43 @@ class ProductsInputs
     protected $product;
 
     /**
-     * @var integer
+     * @var decimal
      *
-     * @ORM\Column(name="amount", type="integer",  nullable=true)
+     * @ORM\Column(name="amount", type="decimal", scale=2,  nullable=true)
      */
     protected $amount;
 
     /**
-     * @var integer
+     * @var decimal
      *
-     * @ORM\Column(name="remaining_amount", type="integer",  nullable=true)
+     * @ORM\Column(name="remaining_amount", type="decimal", scale=2,  nullable=true)
      */
     protected $remainingAmount;
     
     /**
-     * @ORM\Column(name="reception_date", type="datetime")
+     * @ORM\Column(name="reception_date", type="date")
      */
     protected $receptionDate;
 
     /**
-     * @ORM\Column(name="destruction_date", type="datetime")
+     * @ORM\Column(name="destruction_date", type="date")
      */
     protected $destructionDate;
 
     /**
-     * @ORM\Column(name="expiry_date", type="datetime")
+     * @ORM\Column(name="expiry_date", type="date")
      */
     protected $expiryDate;
 
     /**
-     * @ORM\Column(name="open_date", type="datetime")
+     * @ORM\Column(name="open_date", type="date")
      */
     protected $openDate;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\ProductsOutputs", mappedBy="productInput")
+     */
+    protected $productsOutputs;
 
 
 
@@ -92,6 +97,7 @@ class ProductsInputs
 
         return $this;
     }
+
 
     /**
      * Get amount
@@ -129,10 +135,10 @@ class ProductsInputs
     /**
      * Set receptionDate
      *
-     * @param \reception_date $receptionDate
+     * @param \DateTime $receptionDate
      * @return ProductsInputs
      */
-    public function setReceptionDate(\reception_date $receptionDate)
+    public function setReceptionDate($receptionDate)
     {
         $this->receptionDate = $receptionDate;
 
@@ -142,7 +148,7 @@ class ProductsInputs
     /**
      * Get receptionDate
      *
-     * @return \reception_date 
+     * @return \DateTime 
      */
     public function getReceptionDate()
     {
@@ -152,10 +158,10 @@ class ProductsInputs
     /**
      * Set destructionDate
      *
-     * @param \destruction_date $destructionDate
+     * @param \DateTime $destructionDate
      * @return ProductsInputs
      */
-    public function setDestructionDate(\destruction_date $destructionDate)
+    public function setDestructionDate($destructionDate)
     {
         $this->destructionDate = $destructionDate;
 
@@ -165,7 +171,7 @@ class ProductsInputs
     /**
      * Get destructionDate
      *
-     * @return \destruction_date 
+     * @return \DateTime 
      */
     public function getDestructionDate()
     {
@@ -175,10 +181,10 @@ class ProductsInputs
     /**
      * Set expiryDate
      *
-     * @param \expiry_date $expiryDate
+     * @param \DateTime $expiryDate
      * @return ProductsInputs
      */
-    public function setExpiryDate(\expiry_date $expiryDate)
+    public function setExpiryDate($expiryDate)
     {
         $this->expiryDate = $expiryDate;
 
@@ -188,7 +194,7 @@ class ProductsInputs
     /**
      * Get expiryDate
      *
-     * @return \expiry_date 
+     * @return \DateTime 
      */
     public function getExpiryDate()
     {
@@ -198,10 +204,10 @@ class ProductsInputs
     /**
      * Set openDate
      *
-     * @param \open_date $openDate
+     * @param \DateTime $openDate
      * @return ProductsInputs
      */
-    public function setOpenDate(\open_date $openDate)
+    public function setOpenDate($openDate)
     {
         $this->openDate = $openDate;
 
@@ -211,7 +217,7 @@ class ProductsInputs
     /**
      * Get openDate
      *
-     * @return \open_date 
+     * @return \DateTime 
      */
     public function getOpenDate()
     {
@@ -239,5 +245,38 @@ class ProductsInputs
     public function getProduct()
     {
         return $this->product;
+    }
+
+    /**
+     * Add productsOutputs
+     *
+     * @param \Nononsense\HomeBundle\Entity\ProductsOutputs $productsOutputs
+     * @return ProductsInputs
+     */
+    public function addProductsOutput(\Nononsense\HomeBundle\Entity\ProductsOutputs $productsOutputs)
+    {
+        $this->productsOutputs[] = $productsOutputs;
+
+        return $this;
+    }
+
+    /**
+     * Remove productsOutputs
+     *
+     * @param \Nononsense\HomeBundle\Entity\ProductsOutputs $productsOutputs
+     */
+    public function removeProductsOutput(\Nononsense\HomeBundle\Entity\ProductsOutputs $productsOutputs)
+    {
+        $this->productsOutputs->removeElement($productsOutputs);
+    }
+
+    /**
+     * Get productsOutputs
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getProductsOutputs()
+    {
+        return $this->productsOutputs;
     }
 }

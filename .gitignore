@@ -3,6 +3,10 @@
 /app/cache/*
 !/app/files
 /app/files/*
+!app/files/.gitkeep
+!/app/files/material_inputs_qr
+/app/files/material_inputs_qr/*
+!app/files/material_inputs_qr/.gitkeep
 !app/cache/.gitkeep
 !/app/logs
 /app/logs/*

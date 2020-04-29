@@ -47,7 +47,7 @@ class Products
     /**
      * @var integer
      *
-     * @ORM\Column(name="stock", type="integer", nullable=true)
+     * @ORM\Column(name="stock", type="decimal", scale=2, nullable=true)
      */
     protected $stock;
 
@@ -68,7 +68,7 @@ class Products
     /**
      * @var integer
      *
-     * @ORM\Column(name="stock_minimum", type="integer", nullable=true)
+     * @ORM\Column(name="stock_minimum", type="decimal", scale=2, nullable=true)
      */
     protected $stockMinimum;
 
