@@ -1,9 +1,10 @@
 {% extends '::base.html.twig' %}
-{% block page_title %}DOCXPRESSO |  Productos / {{productOutput is null ? 'Crear' : 'Editar'}} retirada {% endblock %}
+{% block page_title %}DOCXPRESSO |  Productos / {{productOutput.id is not null ? 'Editar' : 'Crear'}} retirada {% endblock %}
 {% block head %}
     {{ parent() }}
 {% endblock %}
-{% block main_title %} Productos / {{productOutput is null ? 'Crear' : 'Editar'}} retirada{% endblock %}
+{% block main_title %} Productos / {{productOutput.id is not null ? 'Editar' : 'Crear'}} retirada{% endblock %}
+
 
 {% block content %}
 
@@ -15,9 +16,9 @@
         </div>
         <br>
         {% endfor %}
-        <form class="form-horizontal" id="form_item" action="{{ path('nononsense_products_outputs_update',{'id': productOutput.id is defined ? productOutput.id : 0}) }}" method="POST">
+        <form class="form-horizontal" id="form_item" action="{{ path('nononsense_products_outputs_edit',{'id': productOutput.id is not null ? productOutput.id : 0}) }}" method="POST">
             
-            <input type="hidden" id='productInputId' value="{{ productOutput.productInput.id is defined ? productOutput.productInput.id : '' }}" />
+            <input type="hidden" id='productInputId' value="{{ productOutput.productInput.id is defined and productOutput.productInput.id is not null ? productOutput.productInput.id : '' }}" />
             <input type="hidden" id='url_get_data_input_json' value="{{ path('nononsense_products_inputs_get_data_json',{'id': 'xxx'}) }}" />
 
             <div class="row">
@@ -34,7 +35,7 @@
                             <label class="col-sm-3 control-label">Texto Qr</label>
                             <div class="col-sm-7">
                                 <div style="float: left; width: 80%;">
-                                    <input type="text" id="input_id" name="input_id" class="form-control" value="{{productOutput.productInput.id is defined ? productOutput.productInput.id : ''}}" required="required">
+                                    <input type="text" id="input_id" name="input_id" class="form-control" value="{{productOutput.productInput.id is defined and productOutput.productInput.id is not null ? productOutput.productInput.id : ''}}" required="required">
                                 </div>
                                 <div style="float: left; width: 20%;">
                                     <a href="javascript:show_data_inputs();" class="btn" target="_self"><i class="fa fa-search" aria-hidden="true"></i></a>
@@ -46,19 +47,19 @@
                             <div class="form-group">
                                 <label class="col-sm-3 control-label">Part. Number</label>
                                 <div class="col-sm-7">
-                                    <input type="text" id="partNumberProduct" class="form-control" value="{{productOutput.productInput.partNumber is defined ? productOutput.productInput.partNumber : ''}}" readonly="readonly">
+                                    <input type="text" id="partNumberProduct" class="form-control" value="{{productOutput.productInput.partNumber is defined and productOutput.productInput.partNumber is not null ? productOutput.productInput.partNumber : ''}}" readonly="readonly">
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label class="col-sm-3 control-label">Nombre</label>
                                 <div class="col-sm-7">
-                                    <input type="text" id="nameProduct" class="form-control" value="{{productOutput.productInput.name is defined ? productOutput.productInput.name : ''}}" readonly="readonly">
+                                    <input type="text" id="nameProduct" class="form-control" value="{{productOutput.productInput.name is defined and productOutput.productInput.name is not null ? productOutput.productInput.name : ''}}" readonly="readonly">
                                 </div>
                             </div> 
                             <div class="form-group">
                                 <label class="col-sm-3 control-label">Cantidad</label>
                                 <div class="col-sm-7">
-                                    <input type="text" name="amount" class="form-control" value="{{productOutput.amount is defined ? productOutput.amount : ''}}" required="required">
+                                    <input {% if productOutput.id is not null %} readonly="readonly" {% endif %} type="text" name="amount" class="form-control" required="required" value="{{productOutput.amount is not null ? productOutput.amount : ''}}">
                                 </div>
                             </div> 
                         </div>
@@ -70,7 +71,7 @@
 
             <div class="row">
                 <div class="col-sm-11">
-                    <button type="submit" class="btn btn-primary  pull-right"><i class="fa fa-floppy-o" aria-hidden="true"></i> {{productOutput is null ? 'Registrar' : 'Editar'}} retirada</button>
+                    <button type="submit" class="btn btn-primary  pull-right"><i class="fa fa-floppy-o" aria-hidden="true"></i> {{productOutput.id is not null ? 'Editar' : 'Registrar'}} retirada</button>
                 </div>
             </div>
         </form>
@@ -80,14 +81,51 @@
 
 {% block scripts %}
     {{ parent() }}
+    <script type="text/javascript" src="/js/plugins/jsqrcode-master/src/grid.js"></script>
+    <script type="text/javascript" src="/js/plugins/jsqrcode-master/src/version.js"></script>
+    <script type="text/javascript" src="/js/plugins/jsqrcode-master/src/detector.js"></script>
+    <script type="text/javascript" src="/js/plugins/jsqrcode-master/src/formatinf.js"></script>
+    <script type="text/javascript" src="/js/plugins/jsqrcode-master/src/errorlevel.js"></script>
+    <script type="text/javascript" src="/js/plugins/jsqrcode-master/src/bitmat.js"></script>
+    <script type="text/javascript" src="/js/plugins/jsqrcode-master/src/datablock.js"></script>
+    <script type="text/javascript" src="/js/plugins/jsqrcode-master/src/bmparser.js"></script>
+    <script type="text/javascript" src="/js/plugins/jsqrcode-master/src/datamask.js"></script>
+    <script type="text/javascript" src="/js/plugins/jsqrcode-master/src/rsdecoder.js"></script>
+    <script type="text/javascript" src="/js/plugins/jsqrcode-master/src/gf256poly.js"></script>
+    <script type="text/javascript" src="/js/plugins/jsqrcode-master/src/gf256.js"></script>
+    <script type="text/javascript" src="/js/plugins/jsqrcode-master/src/decoder.js"></script>
+    <script type="text/javascript" src="/js/plugins/jsqrcode-master/src/qrcode.js"></script>
+    <script type="text/javascript" src="/js/plugins/jsqrcode-master/src/findpat.js"></script>
+    <script type="text/javascript" src="/js/plugins/jsqrcode-master/src/alignpat.js"></script>
+    <script type="text/javascript" src="/js/plugins/jsqrcode-master/src/databr.js"></script>
     <script>
     $( document ).ready(function() {
-        ActivateMenu('browse_product_inputs');
+        ActivateMenu('browse_product_outputs');
         $('#side-menu').metisMenu();
 
         var productInputId = $('#productInputId').val();
         show_data_inputs(productInputId);
+
+        qrcode.callback = putQrValue;
     });
+
+    function putQrValue(a) {        
+        $('#input_id').val(a);
+        show_data_inputs();
+    }
+
+    function handleFiles(files) {
+        var o = [];
+        for (var i = 0; i < files.length; i++) {
+            var reader = new FileReader();
+            reader.onload = (function (theFile) {
+                return function (e) {
+                    var value = qrcode.decode(e.target.result);
+                };
+            })(files[i]);
+            reader.readAsDataURL(files[i]);
+        }
+    }
 
     function show_data_inputs(){
         var input_id = $('#input_id').val();

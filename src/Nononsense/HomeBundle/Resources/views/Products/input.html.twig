@@ -1,9 +1,9 @@
 {% extends '::base.html.twig' %}
-{% block page_title %}DOCXPRESSO |  Productos / {{productInput is null ? 'Crear' : 'Editar'}} recepción {% endblock %}
+{% block page_title %}DOCXPRESSO |  Productos / {{productInput.id is not null ? 'Editar' : 'Crear'}} recepción {% endblock %}
 {% block head %}
     {{ parent() }}
 {% endblock %}
-{% block main_title %} Productos / {{productInput is null ? 'Crear' : 'Editar'}} recepción{% endblock %}
+{% block main_title %} Productos / {{productInput.id is not null ? 'Editar' : 'Crear'}} recepción{% endblock %}
 
 {% block content %}
 
@@ -17,7 +17,7 @@
         </div>
         <br>
         {% endfor %}
-        <form class="form-horizontal" id="form_item" action="{{ path('nononsense_products_inputs_update',{'id': productInput.id is defined ? productInput.id : 0}) }}" method="POST">
+        <form class="form-horizontal" id="form_item" action="{{ path('nononsense_products_inputs_edit',{'id': productInput.id is not null ? productInput.id : 0}) }}" method="POST">
 
             <input type="hidden" id='url_get_products_json' value="{{ path('nononsense_products_json') }}" />
 
@@ -29,50 +29,52 @@
                             <label class="col-sm-4 control-label">Producto</label>
                             <div class="col-sm-7">
                                 <select class="form-control select_product" name="product" style="width: 100%;" required="required">
-                                    <option value=""></option>
+                                    {% if productInput.product.id is defined and productInput.product.id is not null %}
+                                        <option value="{{productInput.product.id}}" selected="selected">{{productInput.product.name}}</option>
+                                    {% endif %}
                                 </select>
                             </div>
                         </div> 
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Part. Number</label>
                             <div class="col-sm-7">
-                                <input type="text" name="partNumber" disabled="disabled" class="form-control" value="{{productInput.partNumber is defined ? productInput.partNumber : ''}}" required="required">
+                                <input type="text" name="partNumber" disabled="disabled" class="form-control" value="{{productInput.product.partNumber is defined and productInput.product.partNumber is not null ? productInput.product.partNumber : ''}}" required="required">
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Nombre</label>
                             <div class="col-sm-7">
-                                <input type="text" name="name" disabled="disabled" class="form-control" value="{{productInput.name is defined ? productInput.name : ''}}" required="required">
+                                <input type="text" name="name" disabled="disabled" class="form-control" value="{{productInput.product.name is defined and productInput.product.name is not null ? productInput.product.name : ''}}" required="required">
                             </div>
                         </div>  
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Fecha recepción</label>
                             <div class="col-sm-7">
-                                <input type="text" class="form-control pull-right my_date" disabled="disabled" autocomplete="off" name="receptionDate" id="receptionDate" value="{{productInput.receptionDate is defined ? productInput.receptionDate|date('Y-m-d') : ''}}">
+                                <input type="text" class="form-control pull-right my_date" disabled="disabled" autocomplete="off" name="receptionDate" id="receptionDate" value="{{productInput.receptionDate is not null ? productInput.receptionDate|date('Y-m-d') : ''}}">
                             </div>
                         </div>   
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Fecha caducidad</label>
                             <div class="col-sm-7">
-                                <input type="text" class="form-control pull-right my_date" autocomplete="off" name="expiryDate" id="expiryDate" value="{{productInput.expiryDate is defined ? productInput.expiryDate|date('Y-m-d') : ''}}">
+                                <input type="text" class="form-control pull-right my_date" disabled="disabled" autocomplete="off" name="expiryDate" id="expiryDate" value="{{productInput.expiryDate is not null ? productInput.expiryDate|date('Y-m-d') : ''}}">
                             </div>
                         </div>  
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Fecha destrucción</label>
                             <div class="col-sm-7">
-                                <input type="text" class="form-control pull-right my_date" autocomplete="off" name="destructionDate" id="destructionDate" value="{{productInput.destructionDate is defined ? productInput.destructionDate|date('Y-m-d') : ''}}">
+                                <input type="text" class="form-control pull-right my_date" autocomplete="off" name="destructionDate" id="destructionDate" value="{{productInput.destructionDate is not null ? productInput.destructionDate|date('Y-m-d') : ''}}">
                             </div>
                         </div>   
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Fecha apertura</label>
                             <div class="col-sm-7">
-                                <input type="text" class="form-control pull-right my_date" autocomplete="off" name="openDate" id="openDate" value="{{productInput.openDate is defined ? productInput.openDate|date('Y-m-d') : ''}}">
+                                <input type="text" class="form-control pull-right my_date" autocomplete="off" name="openDate" id="openDate" value="{{productInput.openDate is not null ? productInput.openDate|date('Y-m-d') : ''}}">
                             </div>
                         </div>   
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Cantidad</label>
                             <div class="col-sm-7">
-                                <input type="text" name="amount" class="form-control" value="{{productInput.amount is defined ? productInput.amount : ''}}" required="required">
+                                <input {% if productInput.id is not null %} readonly="readonly" {% endif %} type="text" name="amount" class="form-control" value="{{productInput.amount is not null ? productInput.amount : ''}}" required="required">
                             </div>
                         </div> 
                         
@@ -83,7 +85,7 @@
 
             <div class="row">
                 <div class="col-sm-11">
-                    <button type="submit" class="btn btn-primary  pull-right"><i class="fa fa-floppy-o" aria-hidden="true"></i> {{productInput is null ? 'Registrar' : 'Editar'}} entrada</button>
+                    <button type="submit" class="btn btn-primary  pull-right"><i class="fa fa-floppy-o" aria-hidden="true"></i> {{productInput.id is not null ? 'Editar' : 'Registrar'}} recepción</button>
                 </div>
             </div>
         </form>

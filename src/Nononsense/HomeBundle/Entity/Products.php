@@ -33,6 +33,13 @@ class Products
     /**
      * @var string
      *
+     * @ORM\Column(name="cash_number", type="string", length=255,  nullable=true)
+     */
+    protected $cashNumber;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(name="description", type="string", length=255,  nullable=true)
      */
     protected $description;
@@ -40,7 +47,7 @@ class Products
     /**
      * @var string
      *
-     * @ORM\Column(name="part_number", type="string", length=255,  nullable=true)
+     * @ORM\Column(name="part_number", type="string", length=255, unique=true)
      */
     protected $partNumber;
 
@@ -406,5 +413,28 @@ class Products
     public function getProductsInputs()
     {
         return $this->productsInputs;
+    }
+
+    /**
+     * Set cashNumber
+     *
+     * @param string $cashNumber
+     * @return Products
+     */
+    public function setCashNumber($cashNumber)
+    {
+        $this->cashNumber = $cashNumber;
+
+        return $this;
+    }
+
+    /**
+     * Get cashNumber
+     *
+     * @return string 
+     */
+    public function getCashNumber()
+    {
+        return $this->cashNumber;
     }
 }

@@ -31,7 +31,7 @@ class ProductsOutputs
     /**
      * @var decimal
      *
-     * @ORM\Column(name="amount", type="decimal", scale=2,  nullable=true)
+     * @ORM\Column(name="amount", type="decimal", scale=2)
      */
     protected $amount;
 
@@ -44,7 +44,7 @@ class ProductsOutputs
 
     public function __construct()
     {
-        $this->date = new \Datetime();
+        $this->date = new \DateTime();
     }
 
    
@@ -105,5 +105,28 @@ class ProductsOutputs
     public function getProductInput()
     {
         return $this->productInput;
+    }
+
+    /**
+     * Set date
+     *
+     * @param \DateTime $date
+     * @return ProductsOutputs
+     */
+    public function setDate($date)
+    {
+        $this->date = $date;
+
+        return $this;
+    }
+
+    /**
+     * Get date
+     *
+     * @return \DateTime 
+     */
+    public function getDate()
+    {
+        return $this->date;
     }
 }

@@ -43,22 +43,22 @@ class ProductsInputs
     protected $remainingAmount;
     
     /**
-     * @ORM\Column(name="reception_date", type="date")
+     * @ORM\Column(name="reception_date", type="datetime", nullable=true)
      */
     protected $receptionDate;
 
     /**
-     * @ORM\Column(name="destruction_date", type="date")
+     * @ORM\Column(name="destruction_date", type="datetime")
      */
     protected $destructionDate;
 
     /**
-     * @ORM\Column(name="expiry_date", type="date")
+     * @ORM\Column(name="expiry_date", type="datetime", nullable=true)
      */
     protected $expiryDate;
 
     /**
-     * @ORM\Column(name="open_date", type="date")
+     * @ORM\Column(name="open_date", type="datetime", nullable=true)
      */
     protected $openDate;
 

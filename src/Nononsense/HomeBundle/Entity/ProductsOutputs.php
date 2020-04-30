@@ -31,7 +31,7 @@ class ProductsOutputs
     /**
      * @var decimal
      *
-     * @ORM\Column(name="amount", type="decimal", scale=2,  nullable=true)
+     * @ORM\Column(name="amount", type="decimal", scale=2)
      */
     protected $amount;
 

@@ -17,7 +17,7 @@ class ProductsRepository extends EntityRepository
     	$em = $this->getEntityManager();
 
         $list = $this->createQueryBuilder('p')
-            ->select('p.id', 'p.name', 'p.partNumber', 'p.stock', 'p.provider', 'p.stockMinimum', 'p.description', 'p.presentation', 'p.analysisMethod', 't.name AS nameType', 'p.observations')
+            ->select('p.id', 'p.name', 'p.partNumber', 'p.cashNumber', 'p.stock', 'p.provider', 'p.stockMinimum', 'p.description', 'p.presentation', 'p.analysisMethod', 't.name AS nameType', 'p.observations')
             ->leftJoin("p.type", "t")
             ->orderBy('p.name', 'ASC');
 

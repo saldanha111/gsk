@@ -33,6 +33,13 @@ class Products
     /**
      * @var string
      *
+     * @ORM\Column(name="cash_number", type="string", length=255,  nullable=true)
+     */
+    protected $cashNumber;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(name="description", type="string", length=255,  nullable=true)
      */
     protected $description;
@@ -40,14 +47,14 @@ class Products
     /**
      * @var string
      *
-     * @ORM\Column(name="part_number", type="string", length=255,  nullable=true)
+     * @ORM\Column(name="part_number", type="string", length=255, unique=true)
      */
     protected $partNumber;
 
     /**
      * @var integer
      *
-     * @ORM\Column(name="stock", type="integer", nullable=true)
+     * @ORM\Column(name="stock", type="decimal", scale=2, nullable=true)
      */
     protected $stock;
 
@@ -68,7 +75,7 @@ class Products
     /**
      * @var integer
      *
-     * @ORM\Column(name="stock_minimum", type="integer", nullable=true)
+     * @ORM\Column(name="stock_minimum", type="decimal", scale=2, nullable=true)
      */
     protected $stockMinimum;
 

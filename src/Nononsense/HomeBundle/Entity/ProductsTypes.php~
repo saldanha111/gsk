@@ -31,16 +31,16 @@ class ProductsTypes
     protected $name;
 
     /**
-     * @var decimal
+     * @var integer
      *
-     * @ORM\Column(name="destruction_months", type="decimal", scale=2)
+     * @ORM\Column(name="destruction_months", type="integer")
      */
     protected $destructionMonths;
 
     /**
-     * @var decimal
+     * @var integer
      *
-     * @ORM\Column(name="expiration_months", type="decimal", scale=2)
+     * @ORM\Column(name="expiration_months", type="integer")
      */
     protected $expirationMonths;
 

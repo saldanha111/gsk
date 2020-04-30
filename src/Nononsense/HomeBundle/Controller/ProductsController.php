@@ -126,28 +126,30 @@ class ProductsController extends Controller
         $phpExcelObject->getProperties();
         $phpExcelObject->setActiveSheetIndex(0)
          ->setCellValue('A1', 'Part. Number')
-         ->setCellValue('B1', 'Nombre')
-         ->setCellValue('C1', 'Descripción')
-         ->setCellValue('D1', 'Stock')
-         ->setCellValue('E1', 'Proveedor')
-         ->setCellValue('F1', 'Stock Mínimo')
-         ->setCellValue('G1', 'Método análisis')
-         ->setCellValue('H1', 'Observaciones')
-         ->setCellValue('I1', 'Tipo de Producto');
+         ->setCellValue('B1', 'Cash Number')
+         ->setCellValue('C1', 'Nombre')
+         ->setCellValue('D1', 'Descripción')
+         ->setCellValue('E1', 'Stock')
+         ->setCellValue('F1', 'Proveedor')
+         ->setCellValue('G1', 'Stock Mínimo')
+         ->setCellValue('H1', 'Método análisis')
+         ->setCellValue('I1', 'Observaciones')
+         ->setCellValue('J1', 'Tipo de Producto');
 
         $i=2;
         foreach($items as $item){
 
             $phpExcelObject->getActiveSheet()
             ->setCellValue('A'.$i, $item["partNumber"])
-            ->setCellValue('B'.$i, $item["name"])
-            ->setCellValue('C'.$i, $item["description"])
-            ->setCellValue('D'.$i, $item["stock"])
-            ->setCellValue('E'.$i, $item["provider"])
-            ->setCellValue('F'.$i, $item["stockMinimum"])
-            ->setCellValue('G'.$i, $item["analysisMethod"])
-            ->setCellValue('H'.$i, $item["observations"])
-            ->setCellValue('I'.$i, $item["nameType"]);
+            ->setCellValue('B'.$i, $item["cashNumber"])
+            ->setCellValue('C'.$i, $item["name"])
+            ->setCellValue('D'.$i, $item["description"])
+            ->setCellValue('E'.$i, $item["stock"])
+            ->setCellValue('F'.$i, $item["provider"])
+            ->setCellValue('G'.$i, $item["stockMinimum"])
+            ->setCellValue('H'.$i, $item["analysisMethod"])
+            ->setCellValue('I'.$i, $item["observations"])
+            ->setCellValue('J'.$i, $item["nameType"]);
 
             $i++;
         }
@@ -165,14 +167,55 @@ class ProductsController extends Controller
         return $response; 
     }
 
-    public function editAction($id)
+    public function editAction(Request $request, $id)
     {
+        $em = $this->getDoctrine()->getManager();
+        $product = $em->getRepository('NononsenseHomeBundle:Products')->find($id);
+
+        if(!$product){
+            $product = new Products();
+        }
+
+        if($request->getMethod()=='POST'){
+            try{
+
+                $product->setName($request->get("name"));
+                $product->setPartNumber($request->get("partNumber"));
+                $product->setCashNumber($request->get("cashNumber"));
+                $product->setDescription($request->get("description"));
+                $product->setProvider($request->get("provider"));
+                $product->setPresentation($request->get("presentation"));
+                $product->setAnalysisMethod($request->get("analysisMethod"));
+                $product->setObservations($request->get("observations"));
+                $product->setStockMinimum($request->get("stockMinimum"));
+                
+                $type = $this->getDoctrine()->getRepository('NononsenseHomeBundle:ProductsTypes')->find($request->get("type"));
+                $product->setType($type);
+
+                $error = 0;
+                $productPartNumber = $em->getRepository('NononsenseHomeBundle:Products')->findOneByPartNumber($request->get("partNumber"));
+                if($productPartNumber && $productPartNumber->getId()!=$product->getId()){
+                    $this->get('session')->getFlashBag()->add('error', "Part. Number ya está registrado para otro producto");
+                    $error = 1;
+                }
+
+                if($error==0){
+                    $em->persist($product);
+                    $em->flush();
+                    return $this->redirect($this->generateUrl('nononsense_products'));
+                }
+            }
+            catch(\Exception $e){
+                $this->get('session')->getFlashBag()->add(
+                        'error',
+                        "Error al intentar guardar los datos del producto: ".$e->getMessage()
+                    );
+            }
+        }
 
         $array_item = array();
-
-        $product = $this->getDoctrine()->getRepository('NononsenseHomeBundle:Products')->find($id);
-
         $array_item['product'] = $product;
+        $array_item['types'] = $this->getDoctrine()->getRepository(ProductsTypes::class)->findBy([], ['name' => 'ASC']);
 
         return $this->render('NononsenseHomeBundle:Products:product.html.twig',$array_item);
     }
@@ -196,13 +239,6 @@ class ProductsController extends Controller
             $dateToday = new \DateTime();
             $products[$i]['receptionDate'] = $dateToday->format('Y-m-d');
 
-            $products[$i]['expiryDate'] = $products[$i]['receptionDate'];
-            if($expirationMonths>0){
-                $dateToday->add(new \DateInterval('P'.$expirationMonths.'M'));    
-                $products[$i]['expiryDate'] = $dateToday->format('Y-m-d');
-                $dateToday->sub(new \DateInterval('P'.$expirationMonths.'M')); 
-            }
-            
             $products[$i]['destructionDate'] = $products[$i]['receptionDate'];
             if($destructionMonths>0){
                 $dateToday->add(new \DateInterval('P'.$destructionMonths.'M'));    
@@ -212,45 +248,6 @@ class ProductsController extends Controller
         }
 
         return new JsonResponse($products);
-    }
-
-    public function updateAction(Request $request, $id)
-    {
-
-        try{
-            $product = $this->getDoctrine() ->getRepository('NononsenseHomeBundle:Products')->find($id);
-
-            if(!$product){
-                $product = new Products();
-            }
-
-            $em = $this->getDoctrine()->getManager();
-
-            $product->setName($request->get("name"));
-            $product->setPartNumber($request->get("partNumber"));
-            $product->setDescription($request->get("description"));
-            $product->setProvider($request->get("provider"));
-            $product->setPresentation($request->get("presentation"));
-            $product->setAnalysisMethod($request->get("analysisMethod"));
-            $product->setObservations($request->get("observations"));
-            $product->setStockMinimum($request->get("stockMinimum"));
-            
-            $type = $this->getDoctrine()->getRepository('NononsenseHomeBundle:ProductsTypes')->find($request->get("type"));
-            $product->setType($type);
-
-            $em->persist($product);
-            $em->flush();    
-        }
-        catch(\Exception $e){
-            $this->get('session')->getFlashBag()->add(
-                    'error',
-                    "Error al intentar guardar los datos del producto: ".$e->getMessage()
-                );
-            $route = $this->container->get('router')->generate('nononsense_products_edit', array("id" => $id));
-            return $this->redirect($route);
-        }
-
-        return $this->redirect($this->generateUrl('nononsense_products'));
     }
 
     public function listInputsAction(Request $request)
@@ -499,26 +496,135 @@ class ProductsController extends Controller
         return $response; 
     }
 
-    public function editInputAction($id)
+    public function editInputAction(Request $request, $id)
     {
+        $productInput = $this->getDoctrine() ->getRepository('NononsenseHomeBundle:ProductsInputs')->find($id);
+
+        if(!$productInput){
+            $productInput = new ProductsInputs();
+        }
+
+        if($request->getMethod()=='POST'){
+            try{
+                $em = $this->getDoctrine()->getManager();
+
+                $productInput->setReceptionDate(new \Datetime());
+                $productInput->setDestructionDate(new \Datetime($request->get("destructionDate")));
+                
+                if($request->get("expiryDate")!=''){
+                    $productInput->setExpiryDate(new \Datetime($request->get("expiryDate")));
+                }
+                
+                if($request->get("openDate")!=''){
+                    $productInput->setOpenDate(new \Datetime($request->get("openDate")));
+                }
+                
+                //actualizo amount y remainingAmount del productInput pero solo si estoy creando.
+                if(!$productInput->getId()){
+                    $productInput->setAmount($request->get("amount"));
+                    $productInput->setRemainingAmount($request->get("amount"));    
+                }
+
+                $product = $this->getDoctrine()->getRepository('NononsenseHomeBundle:Products')->find($request->get("product"));
+                if($product){
+                    $productInput->setProduct($product);
+                
+                    //actualizo stock del product pero solo si estoy creando.
+                    if(!$product->getId()){
+                        $stock = $product->getStock();
+                        $newStock = $stock + $productInput->getAmount();
+                        $product->setStock($newStock);
+                        $em->persist($product);    
+                    }
+                }
+
+
+                $em->persist($productInput);
+                $em->flush();   
+
+                self::generateQrProductInput($productInput);
+
+                return $this->redirect($this->generateUrl('nononsense_products_inputs'));
+            }
+            catch(\Exception $e){
+                $this->get('session')->getFlashBag()->add(
+                        'error',
+                        "Error al intentar guardar los datos de la recepción: ".$e->getMessage()
+                    );
+            }
+        }
+        
 
         $array_item = array();
 
-        $productInput = $this->getDoctrine()->getRepository('NononsenseHomeBundle:ProductsInputs')->find($id);
-
         $array_item['productInput'] = $productInput;
-        $array_item["products"] = $this->getDoctrine()->getRepository(Products::class)->findBy([], ['name' => 'ASC']);
-        
 
         return $this->render('NononsenseHomeBundle:Products:input.html.twig',$array_item);
     }
 
-    public function editOutputAction($id)
+    public function editOutputAction(Request $request, $id)
     {
+        $productOutput = $this->getDoctrine()->getRepository('NononsenseHomeBundle:ProductsOutputs')->find($id);
+
+        if(!$productOutput){
+            $productOutput = new ProductsOutputs();
+        }
+
+        if($request->getMethod()=='POST'){
+            try{
+                $em = $this->getDoctrine()->getManager();
+
+                //no contemplo la opción edicion
+                if(!$productOutput->getId()){
+                    $productOutput->setAmount($request->get("amount"));
+
+                    $productInput = $this->getDoctrine() ->getRepository('NononsenseHomeBundle:ProductsInputs')->find($request->get("input_id"));
+                    if($productInput){
+                        $productOutput->setProductInput($productInput);
+
+                        //actualizo remainingAmount del productInput
+                        $remainingAmount = $productInput->getRemainingAmount();
+                        $newRemainingAmount = $remainingAmount - $productOutput->getAmount();
+                        $productInput->setRemainingAmount($newRemainingAmount);
+                        $em->persist($productInput);
+
+                        //actualizo stock del product
+                        $product = $productInput->getProduct();
+                        $stock = $product->getStock();
+                        $newStock = $stock - $productOutput->getAmount();
+                        $product->setStock($newStock);
+                        $em->persist($product);
+
+                        if(!$productInput->getOpenDate()){
+                            $productInput->setOpenDate(new \DateTime());
+
+                            $expiryDate = new \DateTime();
+                            $expirationMonths = $productInput->getProduct()->getType()->getExpirationMonths();
+                            if($expirationMonths>0){
+                                $expiryDate->add(new \DateInterval('P'.$expirationMonths.'M'));    
+                            }
+
+                            $productInput->setExpiryDate($expiryDate);
+                            $em->persist($product);
+                        }
+                    }
+                    
+                    $em->persist($productOutput);
+                    $em->flush();   
+                }
+
+                
+                return $this->redirect($this->generateUrl('nononsense_products_outputs'));
+            }
+            catch(\Exception $e){
+                $this->get('session')->getFlashBag()->add(
+                        'error',
+                        "Error al intentar guardar los datos de la retirada: ".$e->getMessage()
+                    );
+            }
+        }
 
         $array_item = array();
-
-        $productOutput = $this->getDoctrine()->getRepository('NononsenseHomeBundle:ProductsOutputs')->find($id);
 
         $array_item['productOutput'] = $productOutput;
 
@@ -550,116 +656,6 @@ class ProductsController extends Controller
         return new JsonResponse($array_return);
     }
     
-
-    public function updateInputAction(Request $request, $id)
-    {
-
-        try{
-            $productInput = $this->getDoctrine() ->getRepository('NononsenseHomeBundle:ProductsInputs')->find($id);
-
-            if(!$productInput){
-                $productInput = new ProductsInputs();
-            }
-
-            $em = $this->getDoctrine()->getManager();
-
-            $productInput->setReceptionDate(new \Datetime());
-            $productInput->setDestructionDate(new \Datetime($request->get("destructionDate")));
-            
-            if($request->get("expiryDate")!=''){
-                $productInput->setExpiryDate(new \Datetime($request->get("expiryDate")));
-            }
-            
-            
-            if($request->get("openDate")!=''){
-                $productInput->setOpenDate(new \Datetime($request->get("openDate")));
-            }
-            
-            $productInput->setAmount($request->get("amount"));
-
-            //en edición de productInput no seteo el remainingAmount porque puede que ya hayan sacado alguna amount
-            if(!$productInput->getId()){
-                $productInput->setRemainingAmount($request->get("amount"));    
-            }
-
-            $product = $this->getDoctrine()->getRepository('NononsenseHomeBundle:Products')->find($request->get("product"));
-            if($product){
-                $productInput->setProduct($product);
-            
-                //actualizo stock del product
-                $stock = $product->getStock();
-                $newStock = $stock + $productInput->getAmount();
-                $product->setStock($newStock);
-                $em->persist($product);
-            }
-
-
-            $em->persist($productInput);
-            $em->flush();   
-
-            self::generateQrProductInput($productInput);
-        }
-        catch(\Exception $e){
-            $this->get('session')->getFlashBag()->add(
-                    'error',
-                    "Error al intentar guardar los datos de la recepción: ".$e->getMessage()
-                );
-            $route = $this->container->get('router')->generate('nononsense_products_inputs_edit', array("id" => $id));
-            return $this->redirect($route);
-        }
-
-        return $this->redirect($this->generateUrl('nononsense_products_inputs'));
-    }
-
-    public function updateOutputAction(Request $request, $id)
-    {
-        try{
-            $em = $this->getDoctrine()->getManager();
-
-            $productOutput = $em->getRepository('NononsenseHomeBundle:ProductsOutputs')->find($id);
-
-            if(!$productOutput){
-                $productOutput = new ProductsOutputs();
-            }
-            
-            $productOutput->setAmount($request->get("amount"));
-
-            $productInput = $this->getDoctrine() ->getRepository('NononsenseHomeBundle:ProductsInputs')->find($request->get("input_id"));
-            if($productInput){
-                $productOutput->setProductInput($productInput);
-
-                //actualizo remainingAmount del productInput
-                $remainingAmount = $productInput->getRemainingAmount();
-                $newRemainingAmount = $remainingAmount - $productOutput->getAmount();
-                $productInput->setRemainingAmount($newRemainingAmount);
-                $em->persist($productInput);
-
-                //actualizo stock del product
-                $product = $productInput->getProduct();
-                $stock = $product->getStock();
-                $newStock = $stock - $productOutput->getAmount();
-                $product->setStock($newStock);
-                $em->persist($product);
-            }
-            
-            $em->persist($productOutput);
-
-            $em->flush();   
-        }
-        catch(\Exception $e){
-            echo $e->getMessage();
-            die();
-            $this->get('session')->getFlashBag()->add(
-                    'error',
-                    "Error al intentar guardar los datos de la retirada: ".$e->getMessage()
-                );
-            $route = $this->container->get('router')->generate('nononsense_products_outputs_edit', array("id" => $id));
-            return $this->redirect($route);
-        }
-
-        return $this->redirect($this->generateUrl('nononsense_products_outputs'));
-    }
-
     private function generateQrProductInput($productInput){
         $filename = "qr_material_input_".$productInput->getId().".png";
         $rootdir = $this->get('kernel')->getRootDir();
@@ -667,8 +663,8 @@ class ProductsController extends Controller
         $qrImage = $ruta_img_qr.$filename;
 
         if (!file_exists($qrImage)) {
-            $label = 'Cad.'.$productInput->getExpiryDate()->format('Y-m-d')." - ";
-            $label .= 'Dest.'.$productInput->getDestructionDate()->format('Y-m-d');
+            //$label = 'Cad.'.$productInput->getExpiryDate()->format('Y-m-d')." - ";
+            $label = 'Dest.'.$productInput->getDestructionDate()->format('Y-m-d');
 
             $qrCode = new QrCode();
             $qrCode

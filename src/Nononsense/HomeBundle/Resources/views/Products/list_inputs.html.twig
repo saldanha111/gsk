@@ -94,10 +94,10 @@
                                 <td>{{item.productName}}</td>
                                 <td>{{item.amount}}</td>
                                 <td>{{item.remainingAmount}}</td>
-                                <td>{{item.receptionDate|date('Y-m-d')}}</td>
-                                <td>{{item.expiryDate|date('Y-m-d')}}</td>
-                                <td>{{item.destructionDate|date('Y-m-d')}}</td>  
-                                <td>{{item.openDate|date('Y-m-d')}}</td>
+                                <td>{{item.receptionDate ? item.receptionDate|date('Y-m-d')}}</td>
+                                <td>{{item.expiryDate ? item.expiryDate|date('Y-m-d')}} </td>
+                                <td>{{item.destructionDate ? item.destructionDate|date('Y-m-d')}}</td>  
+                                <td>{{item.openDate ? item.openDate|date('Y-m-d')}}</td>
                                 <td>
                                     <a href="{{path('nononsense_products_inputs_view_qr', {'id': item.id}) }}" target="_blank" class="btn btn-xs"><i class="fa fa-qrcode" aria-hidden="true"></i> Ver QR</a>
                                 </td>

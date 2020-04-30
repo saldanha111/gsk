@@ -1,9 +1,9 @@
 {% extends '::base.html.twig' %}
-{% block page_title %}DOCXPRESSO |  Productos / {{product is null ? 'Crear' : 'Editar'}} producto {% endblock %}
+{% block page_title %}DOCXPRESSO |  Productos / {{product.id is not null ? 'Editar' : 'Crear'}} producto {% endblock %}
 {% block head %}
     {{ parent() }}
 {% endblock %}
-{% block main_title %} Productos / {{product is null ? 'Crear' : 'Editar'}} producto{% endblock %}
+{% block main_title %} Productos / {{product.id is not null ? 'Editar' : 'Crear'}} producto{% endblock %}
 
 {% block content %}
 
@@ -15,69 +15,75 @@
         </div>
         <br>
         {% endfor %}
-        <form class="form-horizontal" id="form_item" action="{{ path('nononsense_products_update',{'id': product.id is defined ? product.id : 0}) }}" method="POST">
+        <form class="form-horizontal" id="form_item" action="{{ path('nononsense_products_edit',{'id': product.id is not null ? product.id : 0}) }}" method="POST">
             <div class="row">
                 <div class="col-lg-4 col-lg-offset-1">
                     <div class="row">
                         <div class="form-group">
-                            <label class="col-sm-3 control-label">Part. Number</label>
+                            <label class="col-sm-4 control-label">Part. Number</label>
                             <div class="col-sm-7">
-                                <input type="text" name="partNumber" class="form-control" value="{{product.partNumber is defined ? product.partNumber : ''}}" required="required">
+                                <input type="text" name="partNumber" class="form-control" value="{{product.partNumber is not null ? product.partNumber : ''}}" required="required">
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-3 control-label">Nombre</label>
+                            <label class="col-sm-4 control-label">Cash. Number</label>
                             <div class="col-sm-7">
-                                <input type="text" name="name" class="form-control" value="{{product.name is defined ? product.name : ''}}" required="required">
+                                <input type="text" name="cashNumber" class="form-control" value="{{product.cashNumber is not null ? product.cashNumber : ''}}" required="required">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Nombre</label>
+                            <div class="col-sm-7">
+                                <input type="text" name="name" class="form-control" value="{{product.name is not null ? product.name : ''}}" required="required">
                             </div>
                         </div>  
                         <div class="form-group">
-                            <label class="col-sm-3 control-label">Descripción</label>
+                            <label class="col-sm-4 control-label">Descripción</label>
                             <div class="col-sm-7">
-                                <textarea name="description" rows="10" cols="40" required="required">{{product.description is defined ? product.description : ''}}</textarea>
+                                <textarea name="description" rows="10" cols="40" required="required">{{product.description is not null ? product.description : ''}}</textarea>
                             </div>
                         </div>  
-                        {% if types is defined %}
+                        {% if types is not null %}
                             <div class="form-group">
-                                <label class="col-sm-3 control-label">Tipo</label>
+                                <label class="col-sm-4 control-label">Tipo</label>
                                 <div class="col-sm-7">
                                   <select class="form-control" name="type" style="width: 100%;" required="required">
                                     <option value=""></option>
                                     {% for type in types %}
-                                      <option value="{{type.id}}" {{ product.type.id is defined and product.type.id==type.id ? 'selected="selected"' : ''}}>{{type.name}}</option>
+                                      <option value="{{type.id}}" {{ product.type.id is defined and product.type.id is not null and product.type.id==type.id ? 'selected="selected"' : ''}}>{{type.name}}</option>
                                     {% endfor %}
                                   </select>
                                 </div>
                             </div> 
                         {% endif %}
                         <div class="form-group">
-                            <label class="col-sm-3 control-label">Proveedor</label>
+                            <label class="col-sm-4 control-label">Proveedor</label>
                             <div class="col-sm-7">
-                                <input type="text" name="provider" class="form-control" value="{{product.provider is defined ? product.provider : ''}}" required="required">
+                                <input type="text" name="provider" class="form-control" value="{{product.provider is not null ? product.provider : ''}}" required="required">
                             </div>
                         </div>  
                         <div class="form-group">
-                            <label class="col-sm-3 control-label">Presentación</label>
+                            <label class="col-sm-4 control-label">Presentación</label>
                             <div class="col-sm-7">
-                                <input type="text" name="presentation" class="form-control" value="{{product.presentation is defined ? product.presentation : ''}}" required="required">
+                                <input type="text" name="presentation" class="form-control" value="{{product.presentation is not null ? product.presentation : ''}}" required="required">
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-3 control-label">Método de análisis</label>
+                            <label class="col-sm-4 control-label">Método de análisis</label>
                             <div class="col-sm-7">
-                                <input type="text" name="analysisMethod" class="form-control" value="{{product.analysisMethod is defined ? product.analysisMethod : ''}}" required="required">
+                                <input type="text" name="analysisMethod" class="form-control" value="{{product.analysisMethod is not null ? product.analysisMethod : ''}}" required="required">
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-3 control-label">Stock mínimo</label>
+                            <label class="col-sm-4 control-label">Stock mínimo</label>
                             <div class="col-sm-7">
-                                <input type="text" name="stockMinimum" class="form-control" value="{{product.stockMinimum is defined ? product.stockMinimum : ''}}" required="required">
+                                <input type="text" name="stockMinimum" class="form-control" value="{{product.stockMinimum is not null ? product.stockMinimum : ''}}" required="required">
                             </div>
                         </div>  
                         <div class="form-group">
-                            <label class="col-sm-3 control-label">Observaciones</label>
+                            <label class="col-sm-4 control-label">Observaciones</label>
                             <div class="col-sm-7">
-                                <textarea name="observations" rows="10" cols="40" required="required">{{product.observations is defined ? product.observations : ''}}</textarea>
+                                <textarea name="observations" rows="10" cols="40" required="required">{{product.observations is not null ? product.observations : ''}}</textarea>
                             </div>
                         </div>  
                         
@@ -87,9 +93,10 @@
 
             <div class="row">
                 <div class="col-sm-11">
-                    <button type="submit" class="btn btn-primary  pull-right"><i class="fa fa-floppy-o" aria-hidden="true"></i> Guardar</button>
+                    <button type="submit" class="btn btn-primary  pull-right"><i class="fa fa-floppy-o" aria-hidden="true"></i> {{product.id is not null ? 'Editar' : 'Registrar'}} producto</button>
                 </div>
             </div>
+
         </form>
     </div>
     
