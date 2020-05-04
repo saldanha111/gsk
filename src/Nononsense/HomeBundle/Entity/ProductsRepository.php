@@ -17,7 +17,7 @@ class ProductsRepository extends EntityRepository
     	$em = $this->getEntityManager();
 
         $list = $this->createQueryBuilder('p')
-            ->select('p.id', 'p.name', 'p.partNumber', 'p.cashNumber', 'p.stock', 'p.provider', 'p.stockMinimum', 'p.description', 'p.presentation', 'p.analysisMethod', 't.name AS nameType', 'p.observations')
+            ->select('p.id', 'p.name', 'p.partNumber', 'p.cashNumber', 'p.active', 'p.stock', 'p.provider', 'p.stockMinimum', 'p.description', 'p.presentation', 'p.analysisMethod', 't.name AS nameType', 'p.observations')
             ->leftJoin("p.type", "t")
             ->orderBy('p.name', 'ASC');
 
@@ -56,14 +56,21 @@ class ProductsRepository extends EntityRepository
             ->leftJoin("p.type", "t")
             ->orderBy('p.name', 'ASC');
 
+        $list->andWhere("p.active=1");
+
         if(!empty($filters)){
+
+            $other_where = '';
+
             if(isset($filters["partNumber"])){
-                $list->orWhere("p.partNumber LIKE '%".$filters["partNumber"]."%'");
+                $other_where.="p.partNumber LIKE '%".$filters["partNumber"]."%'";
             }
 
             if(isset($filters["name"])){
-                $list->orWhere("p.name LIKE '%".$filters["name"]."%'");
+                $other_where.=" OR p.name LIKE '%".$filters["name"]."%'";
             }
+
+            $list->andWhere($other_where);
         }
 
         if($paginate==1 && isset($filters["limit_from"])){
@@ -95,6 +102,14 @@ class ProductsRepository extends EntityRepository
                 $list->andWhere("p.provider LIKE '%".$filters["provider"]."%'");
             }
 
+            if(isset($filters["active"])){
+                if($filters["active"]==2){
+                    $filters["active"]=0;
+                }
+                $list->andWhere("p.active=:active");
+                $list->setParameter('active', $filters["active"]);
+            }
+
             if(isset($filters["stock_from"])){
                 $list->andWhere("p.stock>=:stock_from");
                 $list->setParameter('stock_from', $filters["stock_from"]);
@@ -118,6 +133,16 @@ class ProductsRepository extends EntityRepository
             if(isset($filters["type"])){
                 $list->andWhere('p.type=:type');
                 $list->setParameter('type', $filters["type"]);
+            }
+
+            
+            if(isset($filters["underMinimumStock"])){
+                if($filters["underMinimumStock"]==1){
+                    $list->andWhere("p.stock < p.stockMinimum");
+                }
+                if($filters["underMinimumStock"]==2){
+                    $list->andWhere("p.stock >= p.stockMinimum");
+                }
             }
         }
 

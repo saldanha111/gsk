@@ -109,11 +109,19 @@ class Products
      */
     protected $productsInputs;
 
+    /**
+     * @var boolean
+     *
+     * @ORM\Column(name="active", type="boolean")
+     */
+    private $active;
+
 
     public function __construct()
     {
         $this->created = new \DateTime();
         $this->stock = 0;
+        $this->active = 1;
     }
 
    
@@ -436,5 +444,28 @@ class Products
     public function getCashNumber()
     {
         return $this->cashNumber;
+    }
+
+    /**
+     * Set active
+     *
+     * @param boolean $active
+     * @return Products
+     */
+    public function setActive($active)
+    {
+        $this->active = $active;
+
+        return $this;
+    }
+
+    /**
+     * Get active
+     *
+     * @return boolean 
+     */
+    public function getActive()
+    {
+        return $this->active;
     }
 }

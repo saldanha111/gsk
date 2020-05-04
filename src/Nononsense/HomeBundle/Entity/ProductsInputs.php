@@ -71,6 +71,7 @@ class ProductsInputs
 
     public function __construct()
     {
+        $this->productsOutputs = new ArrayCollection();
     }
 
    

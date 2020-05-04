@@ -28,19 +28,14 @@ class ProductsController extends Controller
 {
     public function listAction(Request $request)
     {
-        $user = $this->container->get('security.context')->getToken()->getUser();
+        $is_valid = self::checkPerms();
+        if(!$is_valid){
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+        }
 
-        $Egroups = $this->getDoctrine()
-            ->getRepository('NononsenseGroupBundle:GroupUsers')
-            ->findBy(array("user"=>$user));
-        
         $filters=array();
         $filters2=array();
 
-        $filters["user"]=$user;
-        $filters2["user"]=$user;
-
-        
         if($request->get("page")){
             $filters["limit_from"]=$request->get("page")-1;
         }
@@ -53,6 +48,11 @@ class ProductsController extends Controller
         if($request->get("id")){
             $filters["id"]=$request->get("id");
             $filters2["id"]=$request->get("id");
+        }
+
+        if($request->get("active")){
+            $filters["active"]=$request->get("active");
+            $filters2["active"]=$request->get("active");
         }
 
         if($request->get("partNumber")){
@@ -85,14 +85,9 @@ class ProductsController extends Controller
             $filters2["stock_to"]=$request->get("stock_to");
         }
 
-        if($request->get("minimum_stock_from")){
-            $filters["minimum_stock_from"]=$request->get("minimum_stock_from");
-            $filters2["minimum_stock_from"]=$request->get("minimum_stock_from");
-        }
-
-        if($request->get("minimum_stock_to")){
-            $filters["minimum_stock_to"]=$request->get("minimum_stock_to");
-            $filters2["minimum_stock_to"]=$request->get("minimum_stock_to");
+        if($request->get("underMinimumStock")){
+            $filters["underMinimumStock"]=$request->get("underMinimumStock");
+            $filters2["underMinimumStock"]=$request->get("underMinimumStock");
         }
 
         if($request->get("a_excel")==1){
@@ -120,55 +115,13 @@ class ProductsController extends Controller
         return $this->render('NononsenseHomeBundle:Products:index.html.twig',$array_item);
     }
 
-    private function exportExcelProducts($items){
-        $phpExcelObject = $this->get('phpexcel')->createPHPExcelObject();
-
-        $phpExcelObject->getProperties();
-        $phpExcelObject->setActiveSheetIndex(0)
-         ->setCellValue('A1', 'Part. Number')
-         ->setCellValue('B1', 'Cash Number')
-         ->setCellValue('C1', 'Nombre')
-         ->setCellValue('D1', 'Descripción')
-         ->setCellValue('E1', 'Stock')
-         ->setCellValue('F1', 'Proveedor')
-         ->setCellValue('G1', 'Stock Mínimo')
-         ->setCellValue('H1', 'Método análisis')
-         ->setCellValue('I1', 'Observaciones')
-         ->setCellValue('J1', 'Tipo de Producto');
-
-        $i=2;
-        foreach($items as $item){
-
-            $phpExcelObject->getActiveSheet()
-            ->setCellValue('A'.$i, $item["partNumber"])
-            ->setCellValue('B'.$i, $item["cashNumber"])
-            ->setCellValue('C'.$i, $item["name"])
-            ->setCellValue('D'.$i, $item["description"])
-            ->setCellValue('E'.$i, $item["stock"])
-            ->setCellValue('F'.$i, $item["provider"])
-            ->setCellValue('G'.$i, $item["stockMinimum"])
-            ->setCellValue('H'.$i, $item["analysisMethod"])
-            ->setCellValue('I'.$i, $item["observations"])
-            ->setCellValue('J'.$i, $item["nameType"]);
-
-            $i++;
-        }
-
-        $phpExcelObject->getActiveSheet()->setTitle('Listado de productos');
-        $phpExcelObject->setActiveSheetIndex(0);
-        $writer = $this->get('phpexcel')->createWriter($phpExcelObject, 'Excel2007');
-        $response = $this->get('phpexcel')->createStreamedResponse($writer);
-        $dispositionHeader = $response->headers->makeDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT,'listado_productos.xlsx');
-        $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
-        $response->headers->set('Pragma', 'public');
-        $response->headers->set('Cache-Control', 'maxage=1');
-        $response->headers->set('Content-Disposition', $dispositionHeader);
-
-        return $response; 
-    }
-
     public function editAction(Request $request, $id)
     {
+        $is_valid = self::checkPerms();
+        if(!$is_valid){
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+        }
+
         $em = $this->getDoctrine()->getManager();
         $product = $em->getRepository('NononsenseHomeBundle:Products')->find($id);
 
@@ -188,6 +141,7 @@ class ProductsController extends Controller
                 $product->setAnalysisMethod($request->get("analysisMethod"));
                 $product->setObservations($request->get("observations"));
                 $product->setStockMinimum($request->get("stockMinimum"));
+                $product->setActive($request->get("active"));
                 
                 $type = $this->getDoctrine()->getRepository('NononsenseHomeBundle:ProductsTypes')->find($request->get("type"));
                 $product->setType($type);
@@ -202,14 +156,12 @@ class ProductsController extends Controller
                 if($error==0){
                     $em->persist($product);
                     $em->flush();
+                    $this->get('session')->getFlashBag()->add('message',"El producto se ha guardado correctamente");
                     return $this->redirect($this->generateUrl('nononsense_products'));
                 }
             }
             catch(\Exception $e){
-                $this->get('session')->getFlashBag()->add(
-                        'error',
-                        "Error al intentar guardar los datos del producto: ".$e->getMessage()
-                    );
+                $this->get('session')->getFlashBag()->add('error', "Error al intentar guardar los datos del producto: ".$e->getMessage());
             }
         }
 
@@ -220,8 +172,124 @@ class ProductsController extends Controller
         return $this->render('NononsenseHomeBundle:Products:product.html.twig',$array_item);
     }
 
+    public function deleteAction(Request $request, $id)
+    {
+        $is_valid = self::checkPerms();
+        if(!$is_valid){
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+        }
+
+        try{
+            $em = $this->getDoctrine()->getManager();
+            $product = $em->getRepository('NononsenseHomeBundle:Products')->find($id);
+
+            if($product){
+                $product->setActive(false);
+                $em->persist($product);
+                $em->flush();
+                $this->get('session')->getFlashBag()->add('message',"El producto se ha inactivado correctamente");
+            }
+            else{
+                $this->get('session')->getFlashBag()->add('message',"El producto no existe");
+            }
+        }
+        catch(\Exception $e){
+            $this->get('session')->getFlashBag()->add('error',"Error al intentar inactivar el producto: ".$e->getMessage());
+        }
+
+        return $this->redirect($this->generateUrl('nononsense_products'));
+    }
+
+    public function deleteInputAction(Request $request, $id)
+    {
+        $is_valid = self::checkPerms();
+        if(!$is_valid){
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+        }
+
+        try{
+            $em = $this->getDoctrine()->getManager();
+            $productInput = $em->getRepository('NononsenseHomeBundle:ProductsInputs')->find($id);
+
+            if($productInput){
+                if(count($productInput->getProductsOutputs())>0){
+                    $this->get('session')->getFlashBag()->add('message',"La recepción de material no se puede borrar porque tiene salidas asociadas");
+                }
+                else{
+                    $em->remove($productInput);
+
+                    //actualizo stock del product
+                    $product = $productInput->getProduct();
+                    $stock = $product->getStock();
+                    $newStock = $stock - $productInput->getAmount();
+                    $product->setStock($newStock);
+                    $em->persist($product);
+
+                    $em->flush();    
+                    $this->get('session')->getFlashBag()->add('message',"La recepción de material se ha borrado correctamente");
+                }
+            }
+            else{
+                $this->get('session')->getFlashBag()->add('message',"La recepción de material no existe");
+            }
+        }
+        catch(\Exception $e){
+            $this->get('session')->getFlashBag()->add('error',"Error al intentar borrar la recepción de material: ".$e->getMessage());
+        }
+
+        return $this->redirect($this->generateUrl('nononsense_products_inputs'));
+    }
+
+    public function deleteOutputAction(Request $request, $id)
+    {
+        $is_valid = self::checkPerms();
+        if(!$is_valid){
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+        }
+
+        try{
+            $em = $this->getDoctrine()->getManager();
+            $productOutput = $em->getRepository('NononsenseHomeBundle:ProductsOutputs')->find($id);
+
+            if($productOutput){
+
+                //actualizo remainingAmount del productInput
+                $productInput = $productOutput->getProductInput();
+                $remainingAmount = $productInput->getRemainingAmount();
+                $newRemainingAmount = $remainingAmount + $productOutput->getAmount();
+                $productInput->setRemainingAmount($newRemainingAmount);
+                $em->persist($productInput);
+
+                //actualizo stock del product
+                $product = $productOutput->getProductInput()->getProduct();
+                $stock = $product->getStock();
+                $newStock = $stock + $productOutput->getAmount();
+                $product->setStock($newStock);
+                $em->persist($product);
+
+                $em->remove($productOutput);
+
+                $em->flush();    
+                $this->get('session')->getFlashBag()->add('message',"La retirada de material se ha borrado correctamente");
+            }
+            else{
+                $this->get('session')->getFlashBag()->add('message',"La retirada de material no existe");
+            }
+        }
+        catch(\Exception $e){
+            $this->get('session')->getFlashBag()->add('error',"Error al intentar borrar la retirada de material: ".$e->getMessage());
+        }
+
+        return $this->redirect($this->generateUrl('nononsense_products_outputs'));
+    }
+
     
     public function productosJsonAction(Request $request){
+        $is_valid = self::checkPerms();
+        if(!$is_valid){
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+        }
+
         $em = $this->getDoctrine()->getManager();
 
         $filters = array();
@@ -252,19 +320,14 @@ class ProductsController extends Controller
 
     public function listInputsAction(Request $request)
     {
-        $user = $this->container->get('security.context')->getToken()->getUser();
+        $is_valid = self::checkPerms();
+        if(!$is_valid){
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+        }
 
-        $Egroups = $this->getDoctrine()
-            ->getRepository('NononsenseGroupBundle:GroupUsers')
-            ->findBy(array("user"=>$user));
-        
         $filters=array();
         $filters2=array();
 
-        $filters["user"]=$user;
-        $filters2["user"]=$user;
-
-        
         if($request->get("page")){
             $filters["limit_from"]=$request->get("page")-1;
         }
@@ -351,18 +414,13 @@ class ProductsController extends Controller
 
     public function listOutputsAction(Request $request)
     {
-        $user = $this->container->get('security.context')->getToken()->getUser();
+        $is_valid = self::checkPerms();
+        if(!$is_valid){
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+        }
 
-        $Egroups = $this->getDoctrine()
-            ->getRepository('NononsenseGroupBundle:GroupUsers')
-            ->findBy(array("user"=>$user));
-        
         $filters=array();
         $filters2=array();
-
-        $filters["user"]=$user;
-        $filters2["user"]=$user;
-
         
         if($request->get("page")){
             $filters["limit_from"]=$request->get("page")-1;
@@ -418,86 +476,13 @@ class ProductsController extends Controller
         return $this->render('NononsenseHomeBundle:Products:list_outputs.html.twig',$array_item);
     }
 
-    private function exportExcelProductsInputs($items){
-        $phpExcelObject = $this->get('phpexcel')->createPHPExcelObject();
-
-        $phpExcelObject->getProperties();
-        $phpExcelObject->setActiveSheetIndex(0)
-         ->setCellValue('A1', 'Part. Number')
-         ->setCellValue('B1', 'Nombre')
-         ->setCellValue('C1', 'Unidades entrantes')
-         ->setCellValue('D1', 'Unidades restantes')
-         ->setCellValue('E1', 'Fecha recepción')
-         ->setCellValue('F1', 'Fecha caducidad')
-         ->setCellValue('G1', 'Fecha destrucción')
-         ->setCellValue('H1', 'Fecha apertura');
-
-        $i=2;
-        foreach($items as $item){
-
-            $phpExcelObject->getActiveSheet()
-            ->setCellValue('A'.$i, $item["productPartNumber"])
-            ->setCellValue('B'.$i, $item["productName"])
-            ->setCellValue('C'.$i, $item["amount"])
-            ->setCellValue('D'.$i, $item["remainingAmount"])
-            ->setCellValue('E'.$i, $item["receptionDate"]->format('Y-m-d'))
-            ->setCellValue('F'.$i, $item["expiryDate"]->format('Y-m-d'))
-            ->setCellValue('G'.$i, $item["destructionDate"]->format('Y-m-d'))
-            ->setCellValue('H'.$i, $item["openDate"]->format('Y-m-d'));
-
-            $i++;
-        }
-
-        $phpExcelObject->getActiveSheet()->setTitle('Listado recepciones material');
-        $phpExcelObject->setActiveSheetIndex(0);
-        $writer = $this->get('phpexcel')->createWriter($phpExcelObject, 'Excel2007');
-        $response = $this->get('phpexcel')->createStreamedResponse($writer);
-        $dispositionHeader = $response->headers->makeDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT,'listado_recepciones_material.xlsx');
-        $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
-        $response->headers->set('Pragma', 'public');
-        $response->headers->set('Cache-Control', 'maxage=1');
-        $response->headers->set('Content-Disposition', $dispositionHeader);
-
-        return $response; 
-    }
-
-    private function exportExcelProductsOutputs($items){
-        $phpExcelObject = $this->get('phpexcel')->createPHPExcelObject();
-
-        $phpExcelObject->getProperties();
-        $phpExcelObject->setActiveSheetIndex(0)
-         ->setCellValue('A1', 'Part. Number')
-         ->setCellValue('B1', 'Nombre')
-         ->setCellValue('C1', 'Cantidad')
-         ->setCellValue('D1', 'Fecha retirada');
-
-        $i=2;
-        foreach($items as $item){
-
-            $phpExcelObject->getActiveSheet()
-            ->setCellValue('A'.$i, $item["productPartNumber"])
-            ->setCellValue('B'.$i, $item["productName"])
-            ->setCellValue('C'.$i, $item["amount"])
-            ->setCellValue('D'.$i, $item["date"]->format('Y-m-d'));
-
-            $i++;
-        }
-
-        $phpExcelObject->getActiveSheet()->setTitle('Listado retiradas material');
-        $phpExcelObject->setActiveSheetIndex(0);
-        $writer = $this->get('phpexcel')->createWriter($phpExcelObject, 'Excel2007');
-        $response = $this->get('phpexcel')->createStreamedResponse($writer);
-        $dispositionHeader = $response->headers->makeDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT,'listado_retiradas_material.xlsx');
-        $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
-        $response->headers->set('Pragma', 'public');
-        $response->headers->set('Cache-Control', 'maxage=1');
-        $response->headers->set('Content-Disposition', $dispositionHeader);
-
-        return $response; 
-    }
-
     public function editInputAction(Request $request, $id)
     {
+        $is_valid = self::checkPerms();
+        if(!$is_valid){
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+        }
+
         $productInput = $this->getDoctrine() ->getRepository('NononsenseHomeBundle:ProductsInputs')->find($id);
 
         if(!$productInput){
@@ -525,17 +510,36 @@ class ProductsController extends Controller
                     $productInput->setRemainingAmount($request->get("amount"));    
                 }
 
-                $product = $this->getDoctrine()->getRepository('NononsenseHomeBundle:Products')->find($request->get("product"));
-                if($product){
-                    $productInput->setProduct($product);
+                $update_stock_product = 0;
+
+                //si la entrada ya tenía un product y se lo estoy cambiando en esta edicion, actualizo los stocks del producto anterior y del nuevo
+                if($productInput->getProduct()){
+                    if($request->get("product")!=$productInput->getProduct()->getId()){
+                        $product_before = $productInput->getProduct();
+                        $stock = $product_before->getStock();
+                        $newStock = $stock - $productInput->getAmount();
+                        $product_before->setStock($newStock);
+                        $em->persist($product_before);
+
+                        $update_stock_product = 1;    
+                    }    
+                }
                 
-                    //actualizo stock del product pero solo si estoy creando.
-                    if(!$product->getId()){
-                        $stock = $product->getStock();
-                        $newStock = $stock + $productInput->getAmount();
-                        $product->setStock($newStock);
-                        $em->persist($product);    
-                    }
+
+                //solo dejo modificar el producto si no tiene salidas asociadas
+                if(count($productInput->getProductsOutputs())==0){
+                    $product = $this->getDoctrine()->getRepository('NononsenseHomeBundle:Products')->find($request->get("product"));
+                    if($product){
+                        $productInput->setProduct($product);
+                    
+                        //actualizo stock del product pero solo si estoy creando o si le estoy cambiando el producto a la entrada
+                        if($update_stock_product==1 || !$productInput->getId()){
+                            $stock = $product->getStock();
+                            $newStock = $stock + $productInput->getAmount();
+                            $product->setStock($newStock);
+                            $em->persist($product);    
+                        }
+                    }    
                 }
 
 
@@ -544,13 +548,11 @@ class ProductsController extends Controller
 
                 self::generateQrProductInput($productInput);
 
+                $this->get('session')->getFlashBag()->add('message',"La recepción de material se ha guardado correctamente");
                 return $this->redirect($this->generateUrl('nononsense_products_inputs'));
             }
             catch(\Exception $e){
-                $this->get('session')->getFlashBag()->add(
-                        'error',
-                        "Error al intentar guardar los datos de la recepción: ".$e->getMessage()
-                    );
+                $this->get('session')->getFlashBag()->add('error',"Error al intentar guardar los datos de la recepción: ".$e->getMessage());
             }
         }
         
@@ -564,6 +566,11 @@ class ProductsController extends Controller
 
     public function editOutputAction(Request $request, $id)
     {
+        $is_valid = self::checkPerms();
+        if(!$is_valid){
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+        }
+
         $productOutput = $this->getDoctrine()->getRepository('NononsenseHomeBundle:ProductsOutputs')->find($id);
 
         if(!$productOutput){
@@ -613,14 +620,11 @@ class ProductsController extends Controller
                     $em->flush();   
                 }
 
-                
+                $this->get('session')->getFlashBag()->add('message',"La retirada se ha guardado correctamente");
                 return $this->redirect($this->generateUrl('nononsense_products_outputs'));
             }
             catch(\Exception $e){
-                $this->get('session')->getFlashBag()->add(
-                        'error',
-                        "Error al intentar guardar los datos de la retirada: ".$e->getMessage()
-                    );
+                $this->get('session')->getFlashBag()->add('error', "Error al intentar guardar los datos de la retirada: ".$e->getMessage());
             }
         }
 
@@ -633,6 +637,11 @@ class ProductsController extends Controller
 
     public function inputDataJsonAction($id)
     {
+        $is_valid = self::checkPerms();
+        if(!$is_valid){
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+        }
+
         $array_return = array();
         $data = array();
         $status = 500;
@@ -660,33 +669,40 @@ class ProductsController extends Controller
         $filename = "qr_material_input_".$productInput->getId().".png";
         $rootdir = $this->get('kernel')->getRootDir();
         $ruta_img_qr = $rootdir . "/files/material_inputs_qr/";
-        $qrImage = $ruta_img_qr.$filename;
 
-        if (!file_exists($qrImage)) {
-            //$label = 'Cad.'.$productInput->getExpiryDate()->format('Y-m-d')." - ";
-            $label = 'Dest.'.$productInput->getDestructionDate()->format('Y-m-d');
-
-            $qrCode = new QrCode();
-            $qrCode
-            ->setText($productInput->getId())
-            ->setSize(500)
-            ->setPadding(5)
-            ->setErrorCorrection('high')
-            ->setForegroundColor(['r' => 0, 'g' => 0, 'b' => 0, 'a' => 0])
-            ->setBackgroundColor(['r' => 255, 'g' => 255, 'b' => 255, 'a' => 0])
-            ->setLabel($label)
-            ->setLabelFontSize(14)
-            ->setImageType(QrCode::IMAGE_TYPE_PNG)
-            ;
-             
-            $qrCode->save($ruta_img_qr.$filename);
+        $cad_text = '';
+        if($productInput->getExpiryDate()){
+            $cad_text = $productInput->getExpiryDate()->format('Y-m-d');
         }
+
+        $label = 'Cad.'.$cad_text." - ";
+        $label .= 'Dest.'.$productInput->getDestructionDate()->format('Y-m-d');
+
+        $qrCode = new QrCode();
+        $qrCode
+        ->setText($productInput->getId())
+        ->setSize(500)
+        ->setPadding(5)
+        ->setErrorCorrection('high')
+        ->setForegroundColor(['r' => 0, 'g' => 0, 'b' => 0, 'a' => 0])
+        ->setBackgroundColor(['r' => 255, 'g' => 255, 'b' => 255, 'a' => 0])
+        ->setLabel($label)
+        ->setLabelFontSize(14)
+        ->setImageType(QrCode::IMAGE_TYPE_PNG)
+        ;
+         
+        $qrCode->save($ruta_img_qr.$filename);
 
         return $filename;
     }
 
     public function inputQrAction($id){
         
+        $is_valid = self::checkPerms();
+        if(!$is_valid){
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+        }
+
         $em = $this->getDoctrine()->getManager();    
 
         $productInput = null;
@@ -712,6 +728,155 @@ class ProductsController extends Controller
 
         echo "Error al generar el QR";
         exit();
+    }
+
+    private function exportExcelProducts($items){
+
+        $phpExcelObject = $this->get('phpexcel')->createPHPExcelObject();
+
+        $phpExcelObject->getProperties();
+        $phpExcelObject->setActiveSheetIndex(0)
+         ->setCellValue('A1', 'Part. Number')
+         ->setCellValue('B1', 'Cash Number')
+         ->setCellValue('C1', 'Nombre')
+         ->setCellValue('D1', 'Descripción')
+         ->setCellValue('E1', 'Stock')
+         ->setCellValue('F1', 'Proveedor')
+         ->setCellValue('G1', 'Stock Mínimo')
+         ->setCellValue('H1', 'Método análisis')
+         ->setCellValue('I1', 'Observaciones')
+         ->setCellValue('J1', 'Tipo de Producto');
+
+        $i=2;
+        foreach($items as $item){
+
+            $phpExcelObject->getActiveSheet()
+            ->setCellValue('A'.$i, $item["partNumber"])
+            ->setCellValue('B'.$i, $item["cashNumber"])
+            ->setCellValue('C'.$i, $item["name"])
+            ->setCellValue('D'.$i, $item["description"])
+            ->setCellValue('E'.$i, $item["stock"])
+            ->setCellValue('F'.$i, $item["provider"])
+            ->setCellValue('G'.$i, $item["stockMinimum"])
+            ->setCellValue('H'.$i, $item["analysisMethod"])
+            ->setCellValue('I'.$i, $item["observations"])
+            ->setCellValue('J'.$i, $item["nameType"]);
+
+            $i++;
+        }
+
+        $phpExcelObject->getActiveSheet()->setTitle('Listado de productos');
+        $phpExcelObject->setActiveSheetIndex(0);
+        $writer = $this->get('phpexcel')->createWriter($phpExcelObject, 'Excel2007');
+        $response = $this->get('phpexcel')->createStreamedResponse($writer);
+        $dispositionHeader = $response->headers->makeDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT,'listado_productos.xlsx');
+        $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
+        $response->headers->set('Pragma', 'public');
+        $response->headers->set('Cache-Control', 'maxage=1');
+        $response->headers->set('Content-Disposition', $dispositionHeader);
+
+        return $response; 
+    }
+
+    private function exportExcelProductsInputs($items){
+
+        $phpExcelObject = $this->get('phpexcel')->createPHPExcelObject();
+
+        $phpExcelObject->getProperties();
+        $phpExcelObject->setActiveSheetIndex(0)
+         ->setCellValue('A1', 'Part. Number')
+         ->setCellValue('B1', 'Nombre')
+         ->setCellValue('C1', 'Unidades entrantes')
+         ->setCellValue('D1', 'Unidades restantes')
+         ->setCellValue('E1', 'Fecha recepción')
+         ->setCellValue('F1', 'Fecha caducidad')
+         ->setCellValue('G1', 'Fecha destrucción')
+         ->setCellValue('H1', 'Fecha apertura');
+
+        $i=2;
+        foreach($items as $item){
+
+            $phpExcelObject->getActiveSheet()
+            ->setCellValue('A'.$i, $item->getProduct()->getPartNumber())
+            ->setCellValue('B'.$i, $item->getProduct()->getName())
+            ->setCellValue('C'.$i, $item->getAmount())
+            ->setCellValue('D'.$i, $item->getRemainingAmount())
+            ->setCellValue('E'.$i, $item->getReceptionDate()->format('Y-m-d H:i:s'))
+            ->setCellValue('F'.$i, $item->getExpiryDate()->format('Y-m-d H:i:s'))
+            ->setCellValue('G'.$i, $item->getDestructionDate()->format('Y-m-d H:i:s'))
+            ->setCellValue('H'.$i, $item->getOpenDate()->format('Y-m-d H:i:s'));
+
+            $i++;
+        }
+
+        $phpExcelObject->getActiveSheet()->setTitle('Listado recepciones material');
+        $phpExcelObject->setActiveSheetIndex(0);
+        $writer = $this->get('phpexcel')->createWriter($phpExcelObject, 'Excel2007');
+        $response = $this->get('phpexcel')->createStreamedResponse($writer);
+        $dispositionHeader = $response->headers->makeDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT,'listado_recepciones_material.xlsx');
+        $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
+        $response->headers->set('Pragma', 'public');
+        $response->headers->set('Cache-Control', 'maxage=1');
+        $response->headers->set('Content-Disposition', $dispositionHeader);
+
+        return $response; 
+    }
+
+    private function exportExcelProductsOutputs($items){
+
+        $phpExcelObject = $this->get('phpexcel')->createPHPExcelObject();
+
+        $phpExcelObject->getProperties();
+        $phpExcelObject->setActiveSheetIndex(0)
+         ->setCellValue('A1', 'Part. Number')
+         ->setCellValue('B1', 'Nombre')
+         ->setCellValue('C1', 'Cantidad')
+         ->setCellValue('D1', 'Fecha retirada');
+
+        $i=2;
+        foreach($items as $item){
+
+            $phpExcelObject->getActiveSheet()
+            ->setCellValue('A'.$i, $item["productPartNumber"])
+            ->setCellValue('B'.$i, $item["productName"])
+            ->setCellValue('C'.$i, $item["amount"])
+            ->setCellValue('D'.$i, $item["date"]->format('Y-m-d'));
+
+            $i++;
+        }
+
+        $phpExcelObject->getActiveSheet()->setTitle('Listado retiradas material');
+        $phpExcelObject->setActiveSheetIndex(0);
+        $writer = $this->get('phpexcel')->createWriter($phpExcelObject, 'Excel2007');
+        $response = $this->get('phpexcel')->createStreamedResponse($writer);
+        $dispositionHeader = $response->headers->makeDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT,'listado_retiradas_material.xlsx');
+        $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
+        $response->headers->set('Pragma', 'public');
+        $response->headers->set('Cache-Control', 'maxage=1');
+        $response->headers->set('Content-Disposition', $dispositionHeader);
+
+        return $response; 
+    }
+
+    private function checkPerms(){
+        
+        $is_valid = false;
+
+        $user = $this->container->get('security.context')->getToken()->getUser();
+
+        $Egroups = $this->getDoctrine()
+            ->getRepository('NononsenseGroupBundle:GroupUsers')
+            ->findBy(array("user"=>$user));
+
+        foreach ($Egroups as $egroup) {
+            if($egroup->getGroup()->getId()==16){
+                $is_valid = true;
+                break;
+            }
+            
+        }
+
+        return $is_valid;
     }
 
 }

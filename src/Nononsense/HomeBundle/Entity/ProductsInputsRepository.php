@@ -17,7 +17,7 @@ class ProductsInputsRepository extends EntityRepository
     	$em = $this->getEntityManager();
 
         $list = $this->createQueryBuilder('pi')
-            ->select('pi.id', 'pi.amount', 'pi.remainingAmount', 'pi.receptionDate', 'pi.expiryDate', 'pi.openDate', 'pi.destructionDate', 'p.name AS productName', 'p.partNumber as productPartNumber')
+            ->select('pi')
             ->leftJoin("pi.product", "p")
             ->orderBy('pi.receptionDate', 'ASC');
 

@@ -7,6 +7,9 @@
 !/app/files/material_inputs_qr
 /app/files/material_inputs_qr/*
 !app/files/material_inputs_qr/.gitkeep
+!/app/files/qrs
+/app/files/qrs/*
+!app/files/qrs/.gitkeep
 !app/cache/.gitkeep
 !/app/logs
 /app/logs/*

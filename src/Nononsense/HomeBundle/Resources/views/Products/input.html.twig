@@ -28,7 +28,7 @@
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Producto</label>
                             <div class="col-sm-7">
-                                <select class="form-control select_product" name="product" style="width: 100%;" required="required">
+                                <select class="form-control select_product" name="product" style="width: 100%;" {% if productInput.productsOutputs|length > 0 %} disabled="disabled" {% endif %} required="required">
                                     {% if productInput.product.id is defined and productInput.product.id is not null %}
                                         <option value="{{productInput.product.id}}" selected="selected">{{productInput.product.name}}</option>
                                     {% endif %}
@@ -144,7 +144,6 @@
             $('input[name="partNumber"]').val(e.params.data.partNumber);
             $('input[name="name"]').val(e.params.data.text);
             $('input[name="receptionDate"]').val(e.params.data.receptionDate);
-            $('input[name="expiryDate"]').val(e.params.data.expiryDate);
             $('input[name="destructionDate"]').val(e.params.data.destructionDate);
             
         });

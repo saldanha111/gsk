@@ -12,8 +12,23 @@
         <div class="col-sm-12">
             <div>
                 <div class="row">
+                    {% for flashMessage in app.session.flashbag.get('error') %}
+                        <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+                            <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                            {{ flashMessage }}
+                        </div>
+                        <br>
+                    {% endfor %}
+                    {% for flashMessage in app.session.flashbag.get('message') %}
+                        <div class="alert alert-success alert-dismissable" style="margin: 10px 16px 0 16px">
+                            <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                            {{ flashMessage }}
+                        </div>
+                        <br>
+                    {% endfor %}
                     <form class="form-horizontal" id="form_item" action="{{ path('nononsense_products_inputs')}}" method="GET">
                         <input type="hidden" id='a_excel' name='a_excel' />
+                        <input type="hidden" id='url_product_input_delete' value="{{ path('nononsense_products_inputs_delete',{'id': 'xxx'}) }}" />
                         <div class="form-group">
                             <label class="col-sm-2 control-label item_filter">Part. Number</label>
                             <div class="col-sm-2 item_filter">
@@ -90,8 +105,8 @@
                             {% for item in items %}
                             <tr>
                                 <td>{{item.id}}</td>
-                                <td>{{item.productPartNumber}}</td>
-                                <td>{{item.productName}}</td>
+                                <td>{{item.product.partNumber}}</td>
+                                <td>{{item.product.name}}</td>
                                 <td>{{item.amount}}</td>
                                 <td>{{item.remainingAmount}}</td>
                                 <td>{{item.receptionDate ? item.receptionDate|date('Y-m-d')}}</td>
@@ -103,6 +118,11 @@
                                 </td>
                                 <td>
                                     <a href="{{path('nononsense_products_inputs_edit', {'id': item.id}) }}" class="btn btn-xs" target="_self"><i class="fa fa-pencil" aria-hidden="true"></i> Editar</a>
+                                </td>
+                                <td>
+                                    {% if item.productsOutputs|length == 0 %}
+                                        <a href="javascript:delete_product_input({{ item.id }})" class="btn btn-xs" target="_self"><i class="fa fa-trash" aria-hidden="true"></i> Borrar</a>
+                                    {% endif %}
                                 </td>
                             </tr>
                             {% endfor %}
@@ -139,8 +159,16 @@
       format: 'yyyy-mm-dd',
       language: 'es'
     });
-
   });
+
+  function delete_product_input(id){
+    var url_product_input_delete = $('#url_product_input_delete').val();   
+    url_product_input_delete = url_product_input_delete.replace("xxx", id);
+
+    if(confirm('¿Seguro que quieres borrar la entrada?')){
+        window.location.href = url_product_input_delete;
+    }
+  }
 
   function filtering(){
     $('#a_excel').val(0);

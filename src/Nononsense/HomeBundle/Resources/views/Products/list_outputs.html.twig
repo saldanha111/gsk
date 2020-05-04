@@ -12,8 +12,23 @@
         <div class="col-sm-12">
             <div>
                 <div class="row">
+                    {% for flashMessage in app.session.flashbag.get('error') %}
+                        <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+                            <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                            {{ flashMessage }}
+                        </div>
+                        <br>
+                    {% endfor %}
+                    {% for flashMessage in app.session.flashbag.get('message') %}
+                        <div class="alert alert-success alert-dismissable" style="margin: 10px 16px 0 16px">
+                            <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                            {{ flashMessage }}
+                        </div>
+                        <br>
+                    {% endfor %}
                     <form class="form-horizontal" id="form_item" action="{{ path('nononsense_products_outputs')}}" method="GET">
                         <input type="hidden" id='a_excel' name='a_excel' />
+                        <input type="hidden" id='url_product_output_delete' value="{{ path('nononsense_products_outputs_delete',{'id': 'xxx'}) }}" />
                         <div class="form-group">
                             <label class="col-sm-2 control-label item_filter">Part. Number</label>
                             <div class="col-sm-2 item_filter">
@@ -54,6 +69,7 @@
                             <th>Nombre</th>
                             <th>Cantidad</th>
                             <th>Fecha retirada</th>
+                            <th></th>
                         </tr>
                         </thead>
                         {% if items is defined %}
@@ -65,6 +81,9 @@
                                 <td>{{item.productName}}</td>
                                 <td>{{item.amount}}</td>
                                 <td>{{item.date|date('Y-m-d')}}</td>
+                                <td>
+                                    <a href="javascript:delete_product_output({{ item.id }})" class="btn btn-xs" target="_self"><i class="fa fa-trash" aria-hidden="true"></i> Borrar</a>
+                                </td>
                             </tr>
                             {% endfor %}
                         {% endif %}
@@ -100,8 +119,16 @@
       format: 'yyyy-mm-dd',
       language: 'es'
     });
-
   });
+
+  function delete_product_output(id){
+    var url_product_output_delete = $('#url_product_output_delete').val();   
+    url_product_output_delete = url_product_output_delete.replace("xxx", id);
+
+    if(confirm('¿Seguro que quieres borrar la retirada de material?')){
+        window.location.href = url_product_output_delete;
+    }
+  }
 
   function filtering(){
     $('#a_excel').val(0);

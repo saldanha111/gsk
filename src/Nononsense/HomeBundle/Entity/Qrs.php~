@@ -1,0 +1,112 @@
+<?php
+
+namespace Nononsense\HomeBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+
+/**
+ * @ORM\Entity
+ * @ORM\Table(name="qrs")
+ * @ORM\Entity(repositoryClass="Nononsense\HomeBundle\Entity\QrsRepository")
+ * @ORM\HasLifecycleCallbacks
+ */
+class Qrs
+{
+    /**
+     * @ORM\Column(type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    protected $id;
+
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="name", type="string", length=255,  nullable=true)
+     */
+    protected $name;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\QrsFields", mappedBy="qr")
+     */
+    protected $fields;
+
+
+    public function __construct()
+    {
+        $this->fields = new ArrayCollection();
+    }
+
+   
+
+    /**
+     * Get id
+     *
+     * @return integer 
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+
+    /**
+     * Set name
+     *
+     * @param string $name
+     * @return Qrs
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    /**
+     * Get name
+     *
+     * @return string 
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * Add fields
+     *
+     * @param \Nononsense\HomeBundle\Entity\QrsFields $fields
+     * @return Qrs
+     */
+    public function addField(\Nononsense\HomeBundle\Entity\QrsFields $fields)
+    {
+        $this->fields[] = $fields;
+
+        return $this;
+    }
+
+    /**
+     * Remove fields
+     *
+     * @param \Nononsense\HomeBundle\Entity\QrsFields $fields
+     */
+    public function removeField(\Nononsense\HomeBundle\Entity\QrsFields $fields)
+    {
+        $this->fields->removeElement($fields);
+    }
+
+    /**
+     * Get fields
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getFields()
+    {
+        return $this->fields;
+    }
+}

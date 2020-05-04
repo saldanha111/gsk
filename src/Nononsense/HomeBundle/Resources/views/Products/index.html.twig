@@ -12,7 +12,23 @@
         <div class="col-sm-12">
             <div>
                 <div class="row">
+                    {% for flashMessage in app.session.flashbag.get('error') %}
+                        <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+                            <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                            {{ flashMessage }}
+                        </div>
+                        <br>
+                    {% endfor %}
+                    {% for flashMessage in app.session.flashbag.get('message') %}
+                        <div class="alert alert-success alert-dismissable" style="margin: 10px 16px 0 16px">
+                            <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                            {{ flashMessage }}
+                        </div>
+                        <br>
+                    {% endfor %}
                     <form class="form-horizontal" id="form_item" action="{{ path('nononsense_products')}}" method="GET">
+                        <input type="hidden" id='url_product_list' value="{{ path('nononsense_products')}}" />
+                        <input type="hidden" id='url_product_delete' value="{{ path('nononsense_products_delete',{'id': 'xxx'}) }}" />
                         <input type="hidden" id='a_excel' name='a_excel' />
                         <div class="form-group">
                             <label class="col-sm-2 control-label item_filter">Part. Number</label>
@@ -24,17 +40,36 @@
                             <div class="col-sm-2 item_filter">
                                 <input type="text" name="name" class="form-control" value="{{filters.name is defined ? filters.name : ''}}">
                             </div>
+
+                            <label class="col-sm-1 control-label item_filter">Activo</label>
+                            <div class="col-sm-2 item_filter">
+                                <select name="active" class="form-control pull-right">
+                                    <option {% if filters.active is not defined or filters.active == 0 %} selected="selected" {% endif %} value="0">Todos</option>
+                                    <option {% if filters.active is defined and  filters.active == 1 %} selected="selected" {% endif %} value="1">Si</option>
+                                    <option {% if filters.active is defined and  filters.active == 2 %} selected="selected" {% endif %} value="2">No</option>
+                                </select>
+                            </div>
                         </div>
 
                         <div class="form-group">
-                            <label class="col-sm-2 control-label item_filter">Stock mínimo</label>
+                            <label class="col-sm-2 control-label item_filter">Stock</label>
                             <div class="col-sm-1 item_filter">
-                                <input type="text" class="form-control pull-right" autocomplete="off" name="minimum_stock_from" id="minimum_stock_from" value="{{filters.minimum_stock_from is defined ? filters.minimum_stock_from : ''}}">
+                                <input type="text" class="form-control pull-right" autocomplete="off" name="stock_from" id="stock_from" value="{{filters.stock_from is defined ? filters.stock_from : ''}}">
                             </div>
 
                             <div class="col-sm-1 item_filter">
-                                <input type="text" class="form-control pull-right" autocomplete="off" name="minimum_stock_to" id="minimum_stock_to" value="{{filters.minimum_stock_to is defined ? filters.minimum_stock_to : ''}}">
+                                <input type="text" class="form-control pull-right" autocomplete="off" name="stock_to" id="stock_to" value="{{filters.stock_to is defined ? filters.stock_to : ''}}">
                             </div>
+
+                            <label class="col-sm-1 control-label item_filter">Por debajo de stock mínimo</label>
+                            <div class="col-sm-2 item_filter">
+                                <select name="underMinimumStock" class="form-control pull-right">
+                                    <option {% if filters.underMinimumStock is not defined or filters.underMinimumStock == 0 %} selected="selected" {% endif %} value="0">Todos</option>
+                                    <option {% if filters.underMinimumStock is defined and  filters.underMinimumStock == 1 %} selected="selected" {% endif %} value="1">Si</option>
+                                    <option {% if filters.underMinimumStock is defined and  filters.underMinimumStock == 2 %} selected="selected" {% endif %} value="2">No</option>
+                                </select>
+                            </div>
+
 
                             <div class="col-sm-1 item_filter">
                                 <button type="button" onclick="javascript:filtering();" class="btn btn-primary pull-right">Filtrar</button>
@@ -61,12 +96,14 @@
                             <th>Método de análisis</th>
                             <th>Observaciones</th>
                             <th>Tipo</th>
+                            <th>Activo</th>
+                            <th></th>
                             <th></th>
                         </tr>
                         </thead>
                         {% if items is defined %}
                             {% for item in items %}
-                            <tr>
+                            <tr {% if item.stock < item.stockMinimum %} style="background-color: red; color: white;" {% endif %}>
                                 <td>{{item.id}}</td>
                                 <td>{{item.partNumber}}</td>
                                 <td>{{item.cashNumber}}</td>
@@ -80,7 +117,19 @@
                                 <td>{{item.observations}}</td>
                                 <td>{{item.nameType}}</td>
                                 <td>
-                                    <a href="{{path('nononsense_products_edit', {'id': item.id}) }}" class="btn btn-xs" target="_self"><i class="fa fa-pencil" aria-hidden="true"></i> Editar</a>
+                                    {% if item.active %}
+                                        Si
+                                    {% else %}
+                                        No
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a {% if item.stock < item.stockMinimum %} style="color: white;" {% endif %} href="{{path('nononsense_products_edit', {'id': item.id}) }}" class="btn btn-xs" target="_self"><i class="fa fa-pencil" aria-hidden="true"></i> Editar</a>
+                                </td>
+                                <td>
+                                    {% if item.active %}
+                                        <a {% if item.stock < item.stockMinimum %} style="color: white;" {% endif %} href="javascript:delete_product({{ item.id }})" class="btn btn-xs" target="_self"><i class="fa fa-trash" aria-hidden="true"></i> Borrar</a>
+                                    {% endif %}
                                 </td>
                             </tr>
                             {% endfor %}
@@ -111,9 +160,19 @@
 
   });
 
+  function delete_product(id){
+    var url_product_delete = $('#url_product_delete').val();     
+    url_product_delete = url_product_delete.replace("xxx", id);
+
+    if(confirm('¿Seguro que quieres borrar el producto?')){
+        window.location.href = url_product_delete;
+    }
+  }
+
   function filtering(){
     $('#a_excel').val(0);
-    $('#form_item').attr("action","http://gsk.localhost/app_dev.php/products");
+    var url_product_list = $('#url_product_list').val(); 
+    $('#form_item').attr("action", url_product_list);
     $('#form_item').attr("target","_self");
     $('#form_item').submit();
   }
