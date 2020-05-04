@@ -366,6 +366,10 @@ nononsense_products_delete:
     path: /products-delete/{id}
     defaults: { _controller: NononsenseHomeBundle:Products:delete}
 
+nononsense_products_destroy:
+    path: /products-destroy/{id}
+    defaults: { _controller: NononsenseHomeBundle:Products:destroy}
+
 nononsense_products_inputs:
     path: /products-inputs
     defaults: { _controller: NononsenseHomeBundle:Products:listInputs}

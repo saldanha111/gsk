@@ -200,6 +200,34 @@ class ProductsController extends Controller
         return $this->redirect($this->generateUrl('nononsense_products'));
     }
 
+    public function destroyAction(Request $request, $id)
+    {
+        $is_valid = self::checkPerms();
+        if(!$is_valid){
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+        }
+
+        try{
+            $em = $this->getDoctrine()->getManager();
+            $product = $em->getRepository('NononsenseHomeBundle:Products')->find($id);
+
+            if($product){
+                $product->setDestroyed(true);
+                $em->persist($product);
+                $em->flush();
+                $this->get('session')->getFlashBag()->add('message',"El producto se ha destruído correctamente");
+            }
+            else{
+                $this->get('session')->getFlashBag()->add('message',"El producto no existe");
+            }
+        }
+        catch(\Exception $e){
+            $this->get('session')->getFlashBag()->add('error',"Error al intentar destruir el producto: ".$e->getMessage());
+        }
+
+        return $this->redirect($this->generateUrl('nononsense_products'));
+    }
+
     public function deleteInputAction(Request $request, $id)
     {
         $is_valid = self::checkPerms();

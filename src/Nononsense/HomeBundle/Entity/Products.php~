@@ -116,12 +116,20 @@ class Products
      */
     private $active;
 
+    /**
+     * @var boolean
+     *
+     * @ORM\Column(name="destroyed", type="boolean")
+     */
+    private $destroyed;
+
 
     public function __construct()
     {
         $this->created = new \DateTime();
         $this->stock = 0;
         $this->active = 1;
+        $this->destroyed = 0;
     }
 
    

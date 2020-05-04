@@ -66,7 +66,7 @@ class ProductsInputsRepository extends EntityRepository
             }
             if(isset($filters["receptionDateTo"])){
                 $list->andWhere("pi.receptionDate<=:receptionDateTo");
-                $list->setParameter('receptionDateTo', $filters["receptionDateTo"]);
+                $list->setParameter('receptionDateTo', $filters["receptionDateTo"]." 23:59:59");
             }
 
             if(isset($filters["expiryDateFrom"])){
@@ -75,7 +75,7 @@ class ProductsInputsRepository extends EntityRepository
             }
             if(isset($filters["expiryDateTo"])){
                 $list->andWhere("pi.expiryDate<=:expiryDateTo");
-                $list->setParameter('expiryDateTo', $filters["expiryDateTo"]);
+                $list->setParameter('expiryDateTo', $filters["expiryDateTo"]." 23:59:59");
             }
 
             if(isset($filters["destructionDateFrom"])){
@@ -84,7 +84,7 @@ class ProductsInputsRepository extends EntityRepository
             }
             if(isset($filters["destructionDateTo"])){
                 $list->andWhere("pi.destructionDate<=:destructionDateTo");
-                $list->setParameter('destructionDateTo', $filters["destructionDateTo"]);
+                $list->setParameter('destructionDateTo', $filters["destructionDateTo"]." 23:59:59");
             }
 
             if(isset($filters["openDateFrom"])){
@@ -93,7 +93,7 @@ class ProductsInputsRepository extends EntityRepository
             }
             if(isset($filters["openDateTo"])){
                 $list->andWhere("pi.openDate<=:openDateTo");
-                $list->setParameter('openDateTo', $filters["openDateTo"]);
+                $list->setParameter('openDateTo', $filters["openDateTo"]." 23:59:59");
             }
         }
 

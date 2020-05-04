@@ -29,6 +29,7 @@
                     <form class="form-horizontal" id="form_item" action="{{ path('nononsense_products')}}" method="GET">
                         <input type="hidden" id='url_product_list' value="{{ path('nononsense_products')}}" />
                         <input type="hidden" id='url_product_delete' value="{{ path('nononsense_products_delete',{'id': 'xxx'}) }}" />
+                        <input type="hidden" id='url_product_destroy' value="{{ path('nononsense_products_destroy',{'id': 'xxx'}) }}" />
                         <input type="hidden" id='a_excel' name='a_excel' />
                         <div class="form-group">
                             <label class="col-sm-2 control-label item_filter">Part. Number</label>
@@ -131,6 +132,9 @@
                                         <a {% if item.stock < item.stockMinimum %} style="color: white;" {% endif %} href="javascript:delete_product({{ item.id }})" class="btn btn-xs" target="_self"><i class="fa fa-trash" aria-hidden="true"></i> Borrar</a>
                                     {% endif %}
                                 </td>
+                                <td>
+                                    <a {% if item.stock < item.stockMinimum %} style="color: white;" {% endif %} href="javascript:destroy_product({{ item.id }})" class="btn btn-xs" target="_self"><i class="fa fa-trash" aria-hidden="true"></i> Destruir</a>
+                                </td>
                             </tr>
                             {% endfor %}
                         {% endif %}
@@ -166,6 +170,15 @@
 
     if(confirm('¿Seguro que quieres borrar el producto?')){
         window.location.href = url_product_delete;
+    }
+  }
+
+  function destroy_product(id){
+    var url_product_destroy = $('#url_product_destroy').val();     
+    url_product_destroy = url_product_destroy.replace("xxx", id);
+
+    if(confirm('¿Seguro que quieres destruir el producto?')){
+        window.location.href = url_product_destroy;
     }
   }
 

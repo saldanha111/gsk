@@ -57,6 +57,7 @@ class ProductsRepository extends EntityRepository
             ->orderBy('p.name', 'ASC');
 
         $list->andWhere("p.active=1");
+        $list->andWhere('p.destroyed=0');
 
         if(!empty($filters)){
 
@@ -83,6 +84,8 @@ class ProductsRepository extends EntityRepository
     }
 
     private function fillFilersQuery($filters, $list){
+
+        $list->andWhere('p.destroyed=0');
 
         if(!empty($filters)){
             if(isset($filters["id"])){

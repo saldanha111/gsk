@@ -116,12 +116,20 @@ class Products
      */
     private $active;
 
+    /**
+     * @var boolean
+     *
+     * @ORM\Column(name="destroyed", type="boolean")
+     */
+    private $destroyed;
+
 
     public function __construct()
     {
         $this->created = new \DateTime();
         $this->stock = 0;
         $this->active = 1;
+        $this->destroyed = 0;
     }
 
    
@@ -467,5 +475,28 @@ class Products
     public function getActive()
     {
         return $this->active;
+    }
+
+    /**
+     * Set destroyed
+     *
+     * @param boolean $destroyed
+     * @return Products
+     */
+    public function setDestroyed($destroyed)
+    {
+        $this->destroyed = $destroyed;
+
+        return $this;
+    }
+
+    /**
+     * Get destroyed
+     *
+     * @return boolean 
+     */
+    public function getDestroyed()
+    {
+        return $this->destroyed;
     }
 }
