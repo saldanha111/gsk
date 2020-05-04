@@ -20,6 +20,25 @@ class Security
         $this->expirationTime = $expirationTime;
         $this->CAcerts = $CAcerts;
     }
+
+    public function permissionSeccion($subseccion){
+
+        $is_grant = false;
+
+        $subseccionObj = $this->em->getRepository('NononsenseUserBundle:Subsecciones')->findOneByNameId($subseccion);
+
+        $Egroups =$this->em->getRepository('NononsenseGroupBundle:GroupUsers')->findBy(array("user"=>$this->user));
+        foreach ($Egroups as $groupUser) {
+
+            $groupSubseccionObj = $this->em->getRepository('NononsenseUserBundle:GroupsSubsecciones')->findBy(array('group'=>$groupUser->getGroup(), 'subseccion'=>$subseccionObj));
+            if($groupSubseccionObj){
+                $is_grant = true;
+                break;
+            }
+        }
+
+        return $is_grant;
+    }
     
     public function permission ($templateId) 
     {

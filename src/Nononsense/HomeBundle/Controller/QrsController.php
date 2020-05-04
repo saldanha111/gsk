@@ -26,7 +26,7 @@ class QrsController extends Controller
 {
     public function listAction(Request $request)
     {
-        $is_valid = self::checkPerms();
+        $is_valid = $this->get('app.security')->permissionSeccion('qrs_gestion');
         if(!$is_valid){
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
@@ -69,7 +69,7 @@ class QrsController extends Controller
 
     public function editAction(Request $request, $id)
     {
-        $is_valid = self::checkPerms();
+        $is_valid = $this->get('app.security')->permissionSeccion('qrs_gestion');
         if(!$is_valid){
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
@@ -143,7 +143,7 @@ class QrsController extends Controller
 
     public function deleteAction(Request $request, $id)
     {
-        $is_valid = self::checkPerms();
+        $is_valid = $this->get('app.security')->permissionSeccion('qrs_gestion');
         if(!$is_valid){
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
@@ -168,7 +168,7 @@ class QrsController extends Controller
 
     public function viewQrAction($id){
         
-        $is_valid = self::checkPerms();
+        $is_valid = $this->get('app.security')->permissionSeccion('qrs_gestion');
         if(!$is_valid){
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
@@ -231,31 +231,6 @@ class QrsController extends Controller
         $qrCode->save($ruta_img_qr.$filename);
 
         return $filename;
-    }
-
-    
-    private function checkPerms(){
-        
-        $is_valid = true;
-
-
-        /*
-        $user = $this->container->get('security.context')->getToken()->getUser();
-
-        $Egroups = $this->getDoctrine()
-            ->getRepository('NononsenseGroupBundle:GroupUsers')
-            ->findBy(array("user"=>$user));
-
-        foreach ($Egroups as $egroup) {
-            if($egroup->getGroup()->getId()==16){
-                $is_valid = true;
-                break;
-            }
-            
-        }
-        */
-
-        return $is_valid;
     }
 
 }

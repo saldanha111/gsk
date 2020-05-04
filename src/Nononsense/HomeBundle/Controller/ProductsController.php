@@ -28,7 +28,7 @@ class ProductsController extends Controller
 {
     public function listAction(Request $request)
     {
-        $is_valid = self::checkPerms();
+        $is_valid = $this->get('app.security')->permissionSeccion('productos_gestion');
         if(!$is_valid){
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
@@ -117,7 +117,7 @@ class ProductsController extends Controller
 
     public function editAction(Request $request, $id)
     {
-        $is_valid = self::checkPerms();
+        $is_valid = $this->get('app.security')->permissionSeccion('productos_gestion');
         if(!$is_valid){
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
@@ -174,7 +174,7 @@ class ProductsController extends Controller
 
     public function deleteAction(Request $request, $id)
     {
-        $is_valid = self::checkPerms();
+        $is_valid = $this->get('app.security')->permissionSeccion('productos_gestion');
         if(!$is_valid){
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
@@ -202,7 +202,7 @@ class ProductsController extends Controller
 
     public function destroyAction(Request $request, $id)
     {
-        $is_valid = self::checkPerms();
+        $is_valid = $this->get('app.security')->permissionSeccion('productos_gestion');
         if(!$is_valid){
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
@@ -230,7 +230,7 @@ class ProductsController extends Controller
 
     public function deleteInputAction(Request $request, $id)
     {
-        $is_valid = self::checkPerms();
+        $is_valid = $this->get('app.security')->permissionSeccion('productos_recepcion');
         if(!$is_valid){
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
@@ -270,7 +270,7 @@ class ProductsController extends Controller
 
     public function deleteOutputAction(Request $request, $id)
     {
-        $is_valid = self::checkPerms();
+        $is_valid = $this->get('app.security')->permissionSeccion('productos_retirada');
         if(!$is_valid){
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
@@ -313,11 +313,6 @@ class ProductsController extends Controller
 
     
     public function productosJsonAction(Request $request){
-        $is_valid = self::checkPerms();
-        if(!$is_valid){
-            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
-        }
-
         $em = $this->getDoctrine()->getManager();
 
         $filters = array();
@@ -348,7 +343,7 @@ class ProductsController extends Controller
 
     public function listInputsAction(Request $request)
     {
-        $is_valid = self::checkPerms();
+        $is_valid = $this->get('app.security')->permissionSeccion('productos_recepcion');
         if(!$is_valid){
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
@@ -442,7 +437,7 @@ class ProductsController extends Controller
 
     public function listOutputsAction(Request $request)
     {
-        $is_valid = self::checkPerms();
+        $is_valid = $this->get('app.security')->permissionSeccion('productos_retirada');
         if(!$is_valid){
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
@@ -506,7 +501,7 @@ class ProductsController extends Controller
 
     public function editInputAction(Request $request, $id)
     {
-        $is_valid = self::checkPerms();
+        $is_valid = $this->get('app.security')->permissionSeccion('productos_recepcion');
         if(!$is_valid){
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
@@ -594,7 +589,7 @@ class ProductsController extends Controller
 
     public function editOutputAction(Request $request, $id)
     {
-        $is_valid = self::checkPerms();
+        $is_valid = $this->get('app.security')->permissionSeccion('productos_retirada');
         if(!$is_valid){
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
@@ -665,11 +660,6 @@ class ProductsController extends Controller
 
     public function inputDataJsonAction($id)
     {
-        $is_valid = self::checkPerms();
-        if(!$is_valid){
-            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
-        }
-
         $array_return = array();
         $data = array();
         $status = 500;
@@ -726,10 +716,7 @@ class ProductsController extends Controller
 
     public function inputQrAction($id){
         
-        $is_valid = self::checkPerms();
-        if(!$is_valid){
-            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
-        }
+        $is_valid = $this->get('app.security')->permissionSeccion('productos_recepcion');
 
         $em = $this->getDoctrine()->getManager();    
 
@@ -884,27 +871,6 @@ class ProductsController extends Controller
         $response->headers->set('Content-Disposition', $dispositionHeader);
 
         return $response; 
-    }
-
-    private function checkPerms(){
-        
-        $is_valid = false;
-
-        $user = $this->container->get('security.context')->getToken()->getUser();
-
-        $Egroups = $this->getDoctrine()
-            ->getRepository('NononsenseGroupBundle:GroupUsers')
-            ->findBy(array("user"=>$user));
-
-        foreach ($Egroups as $egroup) {
-            if($egroup->getGroup()->getId()==16){
-                $is_valid = true;
-                break;
-            }
-            
-        }
-
-        return $is_valid;
     }
 
 }
