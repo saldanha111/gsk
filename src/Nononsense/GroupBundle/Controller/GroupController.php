@@ -5,6 +5,7 @@ namespace Nononsense\GroupBundle\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Nononsense\GroupBundle\Entity\Groups;
 use Nononsense\GroupBundle\Entity\GroupUsers;
+use Nononsense\UserBundle\Entity\GroupsSubsecciones;
 use Nononsense\GroupBundle\Form\Type as FormGroups;
 use Symfony\Component\HttpFoundation\Request;
 use Doctrine\ORM\Tools\Pagination\Paginator;
@@ -88,7 +89,21 @@ class GroupController extends Controller
         $form = $this->createForm(new FormGroups\GroupType(), $group);
         $form->handleRequest($request);
 
-        if ($form->isValid()) {                
+        if ($form->isValid()) {      
+
+            $query = "DELETE FROM NononsenseUserBundle:GroupsSubsecciones gs WHERE gs.group=$id";
+            $query = $em->createQuery($query);
+            $query->getResult();
+
+            $permissions = $request->get('permissions');
+
+            foreach ($permissions as $permission) {
+                $newGroupsSubsecciones = new GroupsSubsecciones();
+                $newGroupsSubsecciones->setGroup($group);
+                $newGroupsSubsecciones->setSubseccion($em->getRepository('NononsenseUserBundle:Subsecciones')->find($permission));
+                $em->persist($newGroupsSubsecciones);
+            }
+
             $em->persist($group);
             $em->flush();
             $this->get('session')->getFlashBag()->add(
@@ -98,8 +113,19 @@ class GroupController extends Controller
             return $this->redirect($this->generateUrl('nononsense_groups_homepage'));
         }
 
+        $secciones = $em->getRepository('NononsenseUserBundle:Secciones')->findBy(array(), array('name' => 'ASC'));
+
+        $subseccionesSelected = array();
+        $groupsSubsecciones = $em->getRepository('NononsenseUserBundle:GroupsSubsecciones')->findBy(array('group'=>$group));
+        foreach ($groupsSubsecciones as $groupSubseccion) {
+            array_push($subseccionesSelected, $groupSubseccion->getSubseccion()->getId());
+        }
+
+
         return $this->render('NononsenseGroupBundle:Group:edit.html.twig', array(
             'createGroup' => $form->createView(),
+            'secciones' => $secciones,
+            'subseccionesSelected' => $subseccionesSelected
         ));
     }
     

@@ -20,7 +20,7 @@
         "sensio/framework-extra-bundle": "~3.0,>=3.0.2",
         "tivoka/tivoka":"*",
         "pulpmedia/p3pcookiebundle": "~1.0@dev",
-        "endroid/qrcode": "*",
+        "endroid/qrcode": "^1.7",
         "liuggio/excelbundle": "^2.1",
         "whiteoctober/tcpdf-bundle": "^1.1",
         "beberlei/doctrineextensions": "^1.2"

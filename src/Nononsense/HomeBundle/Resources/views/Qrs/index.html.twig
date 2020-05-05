@@ -1,0 +1,115 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}DOCXPRESSO | {{'Homepage'|trans}} {% endblock %}
+{% block head %}
+{{ parent() }}
+<link rel="stylesheet" href="/css/plugins/datapicker/datepicker3.css">
+{% endblock %}
+{% block main_title %} Listado de QRs{% endblock %}
+{% block content %}
+
+<div class="wrapper wrapper-content">
+    <div class="row">
+        <div class="col-sm-12">
+            <div>
+                <div class="row">
+                    {% for flashMessage in app.session.flashbag.get('error') %}
+                        <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+                            <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                            {{ flashMessage }}
+                        </div>
+                        <br>
+                    {% endfor %}
+                    {% for flashMessage in app.session.flashbag.get('message') %}
+                        <div class="alert alert-success alert-dismissable" style="margin: 10px 16px 0 16px">
+                            <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                            {{ flashMessage }}
+                        </div>
+                        <br>
+                    {% endfor %}
+                    <form class="form-horizontal" id="form_item" action="{{ path('nononsense_qr_list')}}" method="GET">
+                        <input type="hidden" id='url_product_list' value="{{ path('nononsense_qr_list')}}" />
+                        <input type="hidden" id='url_qr_delete' value="{{ path('nononsense_qrs_delete',{'id': 'xxx'}) }}" />
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label item_filter">Nombre</label>
+                            <div class="col-sm-2 item_filter">
+                                <input type="text" name="name" class="form-control" value="{{filters.name is defined ? filters.name : ''}}">
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+                <div class="row">
+                    <div>
+                      <a href="{{ path('nononsense_qrs_edit',{'id': '0'}) }}" target="_self" class="btn btn-primary pull-right"><i class="fa fa-plus"></i> Nuevo QR</a>
+                    </div><br>
+                    <table id="inProcessParcial" class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>Id.</th>
+                            <th>Nombre</th>
+                            <th>Qr</th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        {% if items is defined %}
+                            {% for item in items %}
+                            <tr>
+                                <td>{{item.id}}</td>
+                                <td>{{item.name}}</td>
+                                <td>
+                                    <a href="{{path('nononsense_qrs_view_qr', {'id': item.id}) }}" target="_blank" class="btn btn-xs"><i class="fa fa-qrcode" aria-hidden="true"></i> Ver QR</a>
+                                </td>
+                                <td>
+                                    <a href="{{path('nononsense_qrs_edit', {'id': item.id}) }}" class="btn btn-xs" target="_self"><i class="fa fa-pencil" aria-hidden="true"></i> Editar</a>
+                                </td>
+                                <td>
+                                    <a href="javascript:delete_qr({{ item.id }})" class="btn btn-xs" target="_self"><i class="fa fa-trash" aria-hidden="true"></i> Borrar</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% endif %}
+                    </table>
+
+                    {% if count==0 %}
+                        <br><b>No se han encontrado datos disponibles</b>
+                    {% endif %}
+                    {% if pagination is defined and pagination.needed %}
+                        {% include '::pagination2.html.twig' %}
+                    {% endif %}
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+{{ parent() }}
+<script>
+  $(function () {
+
+    ActivateMenu('qr_list');
+
+  });
+
+  function delete_qr(id){
+    var url_qr_delete = $('#url_qr_delete').val();     
+    url_qr_delete = url_qr_delete.replace("xxx", id);
+
+    if(confirm('¿Seguro que quieres borrar el QR?')){
+        window.location.href = url_qr_delete;
+    }
+
+  }
+
+  function filtering(){
+    var url_product_list = $('#url_product_list').val(); 
+    $('#form_item').attr("action", url_product_list);
+    $('#form_item').attr("target","_self");
+    $('#form_item').submit();
+  }
+
+</script>
+{% endblock %}
+                        

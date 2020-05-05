@@ -100,6 +100,11 @@ class Groups
     protected $recordsSignatures;
 
     /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\UserBundle\Entity\GroupsSubsecciones", mappedBy="group")
+     */
+    protected $groupsSubsecciones;
+
+    /**
      * Get id
      *
      * @return integer 
@@ -624,5 +629,38 @@ class Groups
     public function getRecordsSignatures()
     {
         return $this->recordsSignatures;
+    }
+
+    /**
+     * Add groupsSubsecciones
+     *
+     * @param \Nononsense\UserBundle\Entity\GroupsSubsecciones $groupsSubsecciones
+     * @return Groups
+     */
+    public function addGroupsSubseccione(\Nononsense\UserBundle\Entity\GroupsSubsecciones $groupsSubsecciones)
+    {
+        $this->groupsSubsecciones[] = $groupsSubsecciones;
+
+        return $this;
+    }
+
+    /**
+     * Remove groupsSubsecciones
+     *
+     * @param \Nononsense\UserBundle\Entity\GroupsSubsecciones $groupsSubsecciones
+     */
+    public function removeGroupsSubseccione(\Nononsense\UserBundle\Entity\GroupsSubsecciones $groupsSubsecciones)
+    {
+        $this->groupsSubsecciones->removeElement($groupsSubsecciones);
+    }
+
+    /**
+     * Get groupsSubsecciones
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getGroupsSubsecciones()
+    {
+        return $this->groupsSubsecciones;
     }
 }
