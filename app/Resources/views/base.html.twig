@@ -19,7 +19,7 @@
         </div>
         <div id="wrapper" class="border-xs-top border-sm-top">
             {% block nav_side %}
-                {% include "::nav_side.html.twig" %}
+                {{ render(controller('Nononsense\HomeBundle:Default:navSide')) }}
             {% endblock %}
             <div id="page-wrapper">
                 <div class="row wrapper border-bottom white-bg page-heading">
