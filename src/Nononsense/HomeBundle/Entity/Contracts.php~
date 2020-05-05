@@ -1,0 +1,172 @@
+<?php
+
+namespace Nononsense\HomeBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Serializer\Annotation\Groups;
+
+/**
+ * @ORM\Entity
+ * @ORM\Table(name="contracts")
+ * @ORM\Entity(repositoryClass="Nononsense\HomeBundle\Entity\ContractsRepository")
+ * @ORM\HasLifecycleCallbacks
+ */
+class Contracts
+{
+    /**
+     * @ORM\Column(type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     * @Groups({"detail_contract"})
+     */
+    protected $id;
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="plantilla_id", type="integer")
+     * @Groups({"detail_contract"})
+     */
+    protected $plantilla_id;
+    
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="name", type="string", length=200)
+     * @Assert\NotBlank(message = "You shoud insert a name")
+     * @Groups({"detail_contract"})
+     */
+    protected $name;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="description", type="string", length=200)
+     * @Assert\NotBlank(message = "You shoud insert a description")
+     * @Groups({"detail_contract"})
+     */
+    protected $description;
+
+     /**
+     * @var integer
+     *
+     * @ORM\Column(name="position", type="integer")
+     */
+    protected $position;
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="block", type="integer")
+     */
+    protected $block;
+
+    /**
+     * @var boolean
+     *
+     * @ORM\Column(name="optional", type="boolean", nullable=true, options={"default" = false})
+     */
+    protected $optional;
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="dependsOn", type="integer")
+     */
+    protected $dependsOn;
+
+    /**
+     * @var boolean $isActive
+     *
+     * @ORM\Column(name="is_active", type="boolean",  nullable=true, options={"default" = false})
+     * @Groups({"detail_contract"})
+     */
+    protected $isActive;
+
+    /**
+     * @ORM\Column(type="date")
+     */
+    protected $created;
+
+    /**
+     * @ORM\Column(type="date")
+     */
+    protected $modified;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\ContractsTypes", inversedBy="Contracts")
+     * @ORM\JoinColumn(name="contract_type_id", referencedColumnName="id")
+     * @Groups({"detail_contract"})
+     */
+    protected $type;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\RecordsContracts", mappedBy="contract")
+     */
+    protected $records;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\ContractsSignatures", mappedBy="contract")
+     */
+    protected $signatures;
+
+    /**
+     * @var integer
+     * @ORM\Column(name="usercreatedid", type="integer", options={"default" = 3})
+     */
+    protected $usercreatedid;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="contracts")
+     * @ORM\JoinColumn(name="usercreatedid", referencedColumnName="id")
+     */
+    protected $userCreatedEntiy;
+
+    /**
+     * @var boolean $signCreator
+     *
+     * @ORM\Column(name="sign_creator", type="boolean",  nullable=true, options={"default" = false})
+     * @Groups({"detail_contract"})
+     */
+    protected $signCreator;
+
+    /**
+     * @var boolean $attachment
+     *
+     * @ORM\Column(name="attachment", type="boolean", options={"default" = false})
+     * @Groups({"detail_contract"})
+     */
+    protected $attachment;
+
+
+
+    public function __construct()
+    {
+
+    }
+
+    /**
+     * @ORM\PrePersist
+     */
+    public function setCreatedValue()
+    {
+        if (!$this->created) {
+            $this->created = new \DateTime();
+        }
+        $this->modified = $this->created;
+    }
+
+    /**
+     * @ORM\PreUpdate
+     */
+    public function setModifiedValue()
+    {
+        $this->modified = new \DateTime();
+    }
+
+
+  
+}

@@ -330,9 +330,25 @@ nononsense_documents_update:
     path: /documents/{id}/save
     defaults: { _controller: NononsenseHomeBundle:Documents:update}
 
+nononsense_contracts:
+    path: /contracts
+    defaults: { _controller: NononsenseHomeBundle:Contracts:list}
+
+nononsense_contracts_edit:
+    path: /contracts/{id}
+    defaults: { _controller: NononsenseHomeBundle:Contracts:edit}
+
+nononsense_contracts_update:
+    path: /contracts/{id}/save
+    defaults: { _controller: NononsenseHomeBundle:Contracts:update}
+
 nononsense_records:
     path: /records
     defaults: { _controller: NononsenseHomeBundle:Records:list}
+
+nononsense_records_contracts:
+    path: /records-contracts
+    defaults: { _controller: NononsenseHomeBundle:RecordsContracts:list}
 
 nononsense_products:
     path: /products

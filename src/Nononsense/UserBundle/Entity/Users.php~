@@ -161,9 +161,19 @@ class Users implements AdvancedUserInterface, \Serializable
     protected $documents;
 
     /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\Contracts", mappedBy="userCreatedEntiy")
+     */
+    protected $contracts;
+
+    /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\RecordsDocuments", mappedBy="userCreatedEntiy")
      */
     protected $recordsDocuments;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\RecordsContracts", mappedBy="userCreatedEntiy")
+     */
+    protected $recordsContracts;
 
     /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\DocumentsSignatures", mappedBy="userEntiy")
@@ -171,9 +181,19 @@ class Users implements AdvancedUserInterface, \Serializable
     protected $documentsSignatures;
 
     /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\ContractsSignatures", mappedBy="userEntiy")
+     */
+    protected $contractsSignatures;
+
+    /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\RecordsSignatures", mappedBy="userEntiy")
      */
     protected $recordsSignatures;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\RecordsContractsSignatures", mappedBy="userEntiy")
+     */
+    protected $recordsContractsSignatures;
 
     /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\InstanciasWorkflows", mappedBy="userCreatedEntiy")

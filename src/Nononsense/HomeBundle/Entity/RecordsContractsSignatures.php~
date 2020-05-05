@@ -1,0 +1,143 @@
+<?php
+
+namespace Nononsense\HomeBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+
+/**
+ * @ORM\Entity
+ * @ORM\Table(name="Records_contracts_signatures")
+ * @ORM\Entity(repositoryClass="Nononsense\HomeBundle\Entity\RecordsContractsSignaturesRepository")
+ * @ORM\HasLifecycleCallbacks
+ */
+class RecordsContractsSignatures
+{
+    /**
+     * @ORM\Column(type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    protected $id;
+
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    protected $created;
+
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    protected $modified;
+
+    /**
+     * @var integer
+     * @ORM\Column(name="userid", type="integer", nullable=true)
+     */
+    protected $userid;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="recordsContractsSignatures")
+     * @ORM\JoinColumn(name="userid", referencedColumnName="id")
+     */
+    protected $userEntiy;
+
+    /**
+     * @var integer
+     * @ORM\Column(name="groupid", type="integer", nullable=true)
+     */
+    protected $groupid;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\GroupBundle\Entity\Groups", inversedBy="recordsContractsSignatures")
+     * @ORM\JoinColumn(name="groupid", referencedColumnName="id")
+     */
+    protected $groupEntiy;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\RecordsContracts", inversedBy="signatures")
+     * @ORM\JoinColumn(name="record_id", referencedColumnName="id")
+     */
+    protected $record;
+
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="firma", type="text", nullable=true)
+     */
+    protected $firma;
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="number", type="integer")
+     */
+    protected $number;
+
+    /**
+     * @var boolean $next
+     *
+     * @ORM\Column(name="next", type="boolean", options={"default" = false})
+     */
+    protected $next;
+
+    /**
+     * @var boolean $attachment
+     *
+     * @ORM\Column(name="attachment", type="boolean", options={"default" = false})
+     */
+    protected $attachment;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="files", type="text", nullable=true)
+     *
+     */
+    protected $file;
+
+    /**
+     * @var string
+     * @ORM\Column(name="email", type="string", length=90, nullable=true)
+     */
+    protected $email;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="comments", type="text",  nullable=true)
+     *
+     */
+    protected $comments;
+
+
+
+    public function __construct()
+    {
+
+    }
+
+    /**
+     * @ORM\PrePersist
+     */
+    public function setCreatedValue()
+    {
+        if (!$this->created) {
+            $this->created = new \DateTime();
+        }
+        $this->modified = $this->created;
+    }
+
+    /**
+     * @ORM\PreUpdate
+     */
+    public function setModifiedValue()
+    {
+        $this->modified = new \DateTime();
+    }
+
+   
+}

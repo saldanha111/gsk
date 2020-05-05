@@ -1,0 +1,99 @@
+<?php
+
+namespace Nononsense\HomeBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Serializer\Annotation\Groups;
+
+/**
+ * @ORM\Entity
+ * @ORM\Table(name="contracts_signatures")
+ * @ORM\Entity(repositoryClass="Nononsense\HomeBundle\Entity\ContractsSignaturesRepository")
+ * @ORM\HasLifecycleCallbacks
+ */
+class ContractsSignatures
+{
+    /**
+     * @ORM\Column(type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    protected $id;
+
+    /**
+     * @ORM\Column(type="date")
+     */
+    protected $created;
+
+    /**
+     * @ORM\Column(type="date")
+     */
+    protected $modified;
+
+    /**
+     * @var integer
+     * @ORM\Column(name="userid", type="integer", nullable=true)
+     * @Groups({"list_baseS"})
+     */
+    protected $userid;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="contractsSignatures")
+     * @ORM\JoinColumn(name="userid", referencedColumnName="id")
+     * @Groups({"list_baseS"})
+     */
+    protected $userEntiy;
+
+    /**
+     * @var integer
+     * @ORM\Column(name="groupid", type="integer", nullable=true)
+     * @Groups({"list_baseS"})
+     */
+    protected $groupid;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\GroupBundle\Entity\Groups", inversedBy="contractsSignatures")
+     * @ORM\JoinColumn(name="groupid", referencedColumnName="id")
+     * @Groups({"list_baseS"})
+     */
+    protected $groupEntiy;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\Contracts", inversedBy="signatures")
+     * @ORM\JoinColumn(name="contract_id", referencedColumnName="id")
+     */
+    protected $contract;
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="number", type="integer")
+     */
+    protected $number;
+
+    /**
+     * @var boolean $attachment
+     *
+     * @ORM\Column(name="attachment", type="boolean", options={"default" = false})
+     * @Groups({"list_baseS"})
+     */
+    protected $attachment;
+
+    /**
+     * @var string
+     * @ORM\Column(name="email", type="string", length=90, nullable=true)
+     * @Groups({"list_baseS"})
+     */
+    protected $email;
+
+
+    public function __construct()
+    {
+        $this->created = new \DateTime();
+    }
+
+   
+}
