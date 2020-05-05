@@ -14,4 +14,23 @@ class DefaultController extends Controller
         return $this->render('NononsenseHomeBundle:Contratos:home.html.twig');
     }
     
+    public function navSideAction()
+    {
+    	$em = $this->getDoctrine()->getManager();
+
+		$array_subsecciones = array();        
+        $Egroups =$em->getRepository('NononsenseGroupBundle:GroupUsers')->findBy(array("user"=>$this->getUser()));
+        foreach ($Egroups as $groupUser) {
+
+            $subseccionsGroup = $em->getRepository('NononsenseUserBundle:GroupsSubsecciones')->findBy(array('group'=>$groupUser->getGroup()));
+            foreach ($subseccionsGroup as $subseccionGroup) {
+            	array_push($array_subsecciones, $subseccionGroup->getSubseccion()->getNameId());
+            }
+        }
+
+        $data = array();
+        $data['array_subsecciones'] = $array_subsecciones;
+
+        return $this->render('::nav_side.html.twig', $data);
+    }
 }
