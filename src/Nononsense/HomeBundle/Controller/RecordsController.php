@@ -168,7 +168,7 @@ class RecordsController extends Controller
     }
 
     /* Donde Generamos el link que llama a docxpresso */
-    public function linkAction($id)
+    public function linkAction(Request $request, $id)
     {
         $baseUrl = $this->getParameter("cm_installation");
         $baseUrlAux = $this->getParameter("cm_installation_aux");
@@ -181,16 +181,19 @@ class RecordsController extends Controller
         if ($record->getStatus() == 2 || $record->getStatus() == 3) {
             // Abrir para validar
             $redirectUrl = $baseUrl . "records/redirectFromData/" . $id;
+             $scriptUrl = $baseUrl . "../js/js_oarodoc/documents_validations.js?v=".uniqid();
 
         } else if ($record->getStatus() == -1 || $record->getStatus() == 0  || $record->getStatus() == 1   || $record->getStatus() == 5) {
 
             $redirectUrl = $baseUrl . "records/redirectFromData/" . $id;
+             $scriptUrl = $baseUrl . "../js/js_oarodoc/documents.js?v=".uniqid();
         }
 
+       
         $getDataUrl=$baseUrlAux."dataRecords/requestData/".$id;
         $callbackUrl=$baseUrlAux."dataRecords/returnData/".$id;
 
-        $base_url=$this->getParameter('api_docoaro')."/documents/".$record->getDocument()->getPlantillaId()."?getDataUrl=".$getDataUrl."&redirectUrl=".$redirectUrl."&callbackUrl=".$callbackUrl;
+        $base_url=$this->getParameter('api_docoaro')."/documents/".$record->getDocument()->getPlantillaId()."?getDataUrl=".$getDataUrl."&redirectUrl=".$redirectUrl."&callbackUrl=".$callbackUrl."&scriptUrl=".$scriptUrl;
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $base_url);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST,"GET");
@@ -203,9 +206,12 @@ class RecordsController extends Controller
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         $raw_response = curl_exec($ch);
         $response = json_decode($raw_response, true);
-        
-        $url_edit_documento=$response["fillInUrl"];
 
+        switch($request->get("mode")){
+            case "pdf": $url_edit_documento=$response["pdfUrl"];break;
+            default: $url_edit_documento=$response["fillInUrl"];break;
+        }
+     
         return $this->redirect($url_edit_documento);
     }
 
@@ -238,14 +244,15 @@ class RecordsController extends Controller
             $data["data"]["require_sap"]=""; 
         } 
         else {
+
             // Data Ingegrity other usage
             $firmas = $this->getDoctrine()
                 ->getRepository('NononsenseHomeBundle:RecordsSignatures')
                 ->findBy(array("record" => $record));
 
             if (!empty($firmas)) {
-                $data["data"]["dxo_gsk_audit_trail_bloque"] = "No";
-                $data["data"]["dxo_gsk_firmas_bloque"] = "Si";
+                $data["data"]["dxo_gsk_audit_trail_bloque"] = 0;
+                $data["data"]["dxo_gsk_firmas_bloque"] = 1;
                 $data["data"]["dxo_gsk_firmas"] = $this->_construirFirmas($firmas);
             }
 
@@ -776,7 +783,7 @@ class RecordsController extends Controller
                 foreach($emails as $email){
                     $subject="Documento pendiente de firma";
                     $mensaje='El Documento con ID '.$record->getId().' está pendiente de revisión por su parte. Para poder revisarlo puede acceder a "Mis documentos pendientes", buscar el documento y pulsar en Firmar';
-                    $baseURL=$this->container->get('router')->generate('nononsense_records_edit', array("id" => $record->getId()),TRUE);
+                    $baseURL=$this->container->get('router')->generate('nononsense_records_link', array("id" => $record->getId()),TRUE);
                     
                     $this->_sendNotification($email, $baseURL, "", "", $subject, $mensaje);
                 }
@@ -799,8 +806,8 @@ class RecordsController extends Controller
         $stepDataValues = $record->getStepDataValue();
         $stepDataValuesJSON = json_decode($stepDataValues);
 
-        $stepDataValuesJSON->data->dxo_gsk_audit_trail_bloque = "No";
-        $stepDataValuesJSON->data->dxo_gsk_firmas_bloque = "Si";
+        $stepDataValuesJSON->data->dxo_gsk_audit_trail_bloque = 0;
+        $stepDataValuesJSON->data->dxo_gsk_firmas_bloque = 1;
 
 
         $stepDataValuesJSON->data->dxo_gsk_firmas = $this->_construirFirmas($firmas);
@@ -891,7 +898,7 @@ class RecordsController extends Controller
 
             $subject="Documento devuelto para revisión";
             $mensaje='El Documento con ID '.$record->getId().' ha sido devuelto por el usuario '.$user->getName().' y está pendiente de revisión.<br>La razón por la que se ha devuelto el documento es la siguiente: '.$request->get('comment').'.<br><br> Para poder revisar el documento puede acceder a la sección de "Mis documentos pendientes", buscar el documento y pulsar en Completar Documento';
-            $baseURL=$this->container->get('router')->generate('nononsense_records_edit', array("id" => $record->getId()),TRUE);
+            $baseURL=$this->container->get('router')->generate('nononsense_records_link', array("id" => $record->getId()),TRUE);
                 
             $this->_sendNotification($email, $baseURL, "", "", $subject, $mensaje);
 
@@ -910,8 +917,8 @@ class RecordsController extends Controller
         $stepDataValues = $record->getStepDataValue();
         $stepDataValuesJSON = json_decode($stepDataValues);
 
-        $stepDataValuesJSON->data->dxo_gsk_audit_trail_bloque = "No";
-        $stepDataValuesJSON->data->dxo_gsk_firmas_bloque = "Si";
+        $stepDataValuesJSON->data->dxo_gsk_audit_trail_bloque = 0;
+        $stepDataValuesJSON->data->dxo_gsk_firmas_bloque = 1;
 
 
         $stepDataValuesJSON->data->dxo_gsk_firmas = $this->_construirFirmas($firmas);
@@ -954,17 +961,6 @@ class RecordsController extends Controller
         ));
     }
 
-    public function editAction($id)
-    {
-
-        $record = $this->getDoctrine()
-            ->getRepository('NononsenseHomeBundle:RecordsDocuments')
-            ->find($id);
-
-        $route = $this->container->get('router')->generate('nononsense_records_link', array("id" => $record->getId()));
-        return $this->redirect($route);
-    }
-
     public function fileAction($id)
     {
         $record = $this->getDoctrine()
@@ -972,121 +968,6 @@ class RecordsController extends Controller
             ->find($id);
 
         return new BinaryFileResponse($this->get('kernel')->getRootDir().$record->getFiles());
-    }
-
-    public function downloadPdfAction($id)
-    {
-        /*
-         *
-         */
-        
-        $dataResponse = new \stdClass();
-        $dataResponse->id = $id;
-
-        $record = $this->getDoctrine()
-            ->getRepository('NononsenseHomeBundle:RecordsDocuments')
-            ->find($id);
-
-
-        $name = $record->getDocument()->getName();
-
-        
-
-        $template = $record->getDocument()->getPlantillaId();
-
-
-        $stepDataValues = $record->getStepDataValue();
-        $stepDataValuesJSON = json_decode($stepDataValues);
-
-        $rootdir = $this->get('kernel')->getRootDir();
-        $rootdirFiles = $rootdir . "/files/documents/".$id;
-
-        $fs = new Filesystem();
-        if(!$fs->exists($rootdirFiles))
-        {
-            $fs->mkdir($rootdirFiles);
-        }
-
-        $filenamedownloadpdf = $rootdirFiles . "/" . $name . $id .".pdf";
-        $filenamepdf = $name . $id;
-        
-        $aux = new Auxiliar();
-        $utils = new Utils();
-        
-        $options = array();
-        $options['template'] = (int)$template;
-        $options['documentName'] = $filenamepdf;
-        $options['response'] = 'json';
-
-        $dataDXO = json_encode($stepDataValuesJSON);
-
-        $options['data'] = $dataDXO;
-        $options['format'] = 'pdf';
-        $options['name'] = $filenamepdf . '.pdf';
-        $options['reference'] = $filenamepdf;
-
-        $opt = $this->get('app.sdk')->base64_encode_url_safe(json_encode($options));
-        //generate security info
-        $uniqid = uniqid() . rand(99999, 9999999);
-        $timestamp = time();
-        $control = $template . '-';
-        $control .= $timestamp . '-' . $uniqid;
-        $control .= '-' . $opt;
-
-        $dataKey = sha1($control, true);
-        $masterKey = $this->getParameter('apikey');
-        $APIKEY = bin2hex($utils->sha1_hmac($masterKey, $dataKey));
-
-        //we should now redirect to Docxpresso
-        $url = $this->getParameter('docxpresso_installation') . '/documents/requestDocument/' . $template;
-        $addr = $url . '?';
-        $addr .= 'uniqid=' . $uniqid . '&';
-        $addr .= 'timestamp=' . $timestamp . '&';
-        $addr .= 'APIKEY=' . $APIKEY;
-
-        $curlResponse = $aux->curlRequest($addr, $opt);
-
-        if ($curlResponse['status'] != 'OK') {
-            //handle the error
-            //exit('error');
-            echo "</br>Error</br>";
-            print_r("</br>" . $curlResponse['externalData']);
-
-            $responseAction = new Response();
-            $responseAction->setStatusCode(500);
-            $dataResponse->feedback = "Error en la creación del fichero";
-            $responseAction->setContent(json_encode($dataResponse));
-        } else {
-            //print_r($curlResponse);
-
-            $response = json_decode($curlResponse['externalData']);
-            //print_r($response);
-
-            $usageId = $response->usageId;
-            $token = $response->token;
-            $name = $response->name;
-
-            $dataDonwload = array();
-            $dataDonwload['id'] = $template;
-            $dataDonwload['token'] = $token;
-            $documentLink = $this->get('app.sdk')->downloadDocument($dataDonwload);
-
-            if (file_exists($filenamedownloadpdf)) {
-                unlink($filenamedownloadpdf);
-            }
-
-            if (file_put_contents($filenamedownloadpdf, fopen($documentLink, 'r')) === FALSE) {
-                $responseAction = new Response();
-                $responseAction->setStatusCode(500);
-                $dataResponse->feedback = "Error en la descarga del fichero";
-                $responseAction->setContent(json_encode($dataResponse));
-
-            } else {
-                return new BinaryFileResponse($filenamedownloadpdf);
-            }
-        }
-
-        return $responseAction;
     }
 
     private function albaranAlmacen($record,$number_signatures){
