@@ -422,10 +422,6 @@ nononsense_records_new:
     path: /records/document/{id}
     defaults: { _controller: NononsenseHomeBundle:Records:create, id:0}
 
-nononsense_records_edit:
-    path:    /records/{id}
-    defaults: { _controller: NononsenseHomeBundle:Records:edit, id: 0 }
-
 nononsense_records_file:
     path:    /records/{id}/file
     defaults: { _controller: NononsenseHomeBundle:Records:file, id: 0 }
@@ -434,13 +430,9 @@ nononsense_records_link:
     path:     /records/{id}/link
     defaults: { _controller: NononsenseHomeBundle:Records:link, id: 0}
 
-nononsense_records_pdf:
-    path:     /records/{id}/pdf
-    defaults: { _controller: NononsenseHomeBundle:Records:downloadPdf,id: 1}
-
 nononsense_records_redirect_from_data:
-    path: /records/redirectFromData/{id}/{action}/{urlaux}
-    defaults: { _controller: NononsenseHomeBundle:Records:redirectFromData, id: 0, action: 0,urlaux: 0}
+    path: /records/redirectFromData/{id}
+    defaults: { _controller: NononsenseHomeBundle:Records:redirectFromData, id: 0}
 
 nononsense_record_save_send:
     path:     /records/save_send/{id}
