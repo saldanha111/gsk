@@ -91,8 +91,8 @@ nononsense_contrato_registro_completado:
     defaults: { _controller: NononsenseHomeBundle:RegistroConcreto:registroCompletado, stepid: 0, comment: 0}
 
 nononsense_contrato_control_elaboracion:
-    path: /control_elaboracion/{stepid}/{action}/{comment}/{urlaux}
-    defaults: { _controller: NononsenseHomeBundle:RegistroConcreto:controlElaboracion, stepid: 0, action: 0,comment: 0,urlaux: 0}
+    path: /control_elaboracion/{stepid}
+    defaults: { _controller: NononsenseHomeBundle:RegistroConcreto:controlElaboracion, stepid: 0}
 
 nononsense_contrato_control_cancelacion:
     path: /control_cancelacion/{stepid}/{action}/{urlaux}

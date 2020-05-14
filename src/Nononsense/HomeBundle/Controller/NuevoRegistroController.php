@@ -543,30 +543,6 @@ class NuevoRegistroController extends Controller
                         }
                     }
 
-
-                    //echo "iteración: ";
-                    //echo $registroM->getId();
-                    //echo $registroM->getStatus();
-                    /*
-                                        if ($registroM->getStatus() < 20 && $registroM->getStatus() >= 0) {
-                                            // registro válido.
-                                            if ($registroM->getStatus() != 9) {
-                                                $it++;
-                                                $registroViejoReconciliacionId = $registroM->getId();
-
-                                            } else {
-                                                // Posible Reconciliado
-                                                $posibleReconciliado = true;
-                                                $registroViejoReconciliado = $registroM->getId();
-
-
-                                            }
-
-                                            //  echo " registro activo";
-                                        }
-                    */
-
-                    //exit;
                 }
 
                 //var_dump($it);

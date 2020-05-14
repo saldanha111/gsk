@@ -46,22 +46,24 @@ class RegistroConcretoController extends Controller
         $stepData = $step->getStepDataValue();
         $stepDataJSON = json_decode($stepData);
 
-        $validations = $stepDataJSON->validations;
-        $percentageCompleted = $validations->percentage;
-        $validated = $validations->validated;
+        $percentageCompleted = $stepDataJSON->data->gsk_percent;
+
 
         //var_dump($this->_checkModifyVariables($step));die();
+        
+        $devolucion = 0;
+        $validated=0;
+
         /*
          * Revisar si ha habido algún cambio en las variables para que muestre el campo de texto.
          */
-        $devolucion = 0;
-        if ($this->_checkModifyVariables($step)) {
-            $devolucion = 1;
-        }
-        if ($comment == 1) {
+        if(property_exists($stepDataJSON->data,"gsk_comment")){
             $devolucion = 1;
         }
 
+        if($stepDataJSON->action=="save"){
+            $validated = 1;
+        }
 
         return $this->render('NononsenseHomeBundle:Contratos:registro_completado.html.twig', array(
             "documentName" => $documentName,
@@ -155,46 +157,14 @@ class RegistroConcretoController extends Controller
                 return $this->redirect($route);
             }
         }
-        /*
-        if ($step->getStatusId() == 2 && $registro->getStatus() != 10 ) {
-            // ya validado, en realidad es como algo raro esto porque en la instalación de gus no funciona pero seguro que en las otras si
-
-            $route = $this->container->get('router')->generate('nononsense_ver_step', array("stepid" => $stepid));
-            return $this->redirect($route);
-            /*
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                'No puede ver este registro aquí porque ya ha sido validado'
-            );
-            $route = $this->container->get('router')->generate('nononsense_search');
-            return $this->redirect($route);
-            *
-
-        }
-        */
 
 
         $baseUrl = $this->getParameter("cm_installation");
+        $baseUrlAux = $this->getParameter("cm_installation_aux");
 
         $options = array();
 
-        $options['template'] = $step->getMasterStep()->getPlantillaId();
-        /*
-        $versionJS = filemtime(__DIR__ . "/../../../../web/js/js_templates/activity.js");
-        $validacionURL1 = $baseUrl . "js/js_templates/activity.js?v=" . $versionJS;
-        */
-        $validacionURL2 = '';
-
-        $validacionURL1 = '';
-
-        /*
-         * Custom variable:
-         */
-        $customObject = new \stdClass();
-        $customObject->activate = 'deactivate'; // default En caso de haber precarga de datos poner en activate (gestionar según el status...)
-        $customObject->sessionTime = '1200'; // In seconds
-        $customObject->sessionLocation = 'http://gsk.docxpresso.org/';// Dónde redirigir para el logout
-
+        $scriptUrl="";
 
         /*
          * Saber si hay algún precreation
@@ -209,27 +179,17 @@ class RegistroConcretoController extends Controller
                 ->getRepository('NononsenseHomeBundle:FirmasStep')
                 ->findOneBy(array("step_id" => $step->getId()));
 
-            if(!isset($firma)){
-                /*
-                 * No existe firma, por tanto primer uso.
-                 */
-                $customObject->activate = 'activate';
-            }
-
-
-
         }
-        $options['custom'] = json_encode($customObject);
+        /*$options['custom'] = json_encode($customObject);
 
-        $accionText = '';
+        $accionText = '';*/
 
         if ($step->getMasterStep()->getChecklist() == 1 && $registro->getStatus() == 4  && !$readonly) {
 
-            $versionJS = filemtime(__DIR__ . "/../../../../web/js/js_templates/activity.js");
-            $validacionURL1 = $baseUrl . "js/js_templates/activity.js?v=" . $versionJS;
+            $scriptUrl = $baseUrl . "../js/js_oarodoc/activity.js?v=".uniqid();
 
             $options['prefix'] = 'u';
-            $options['responseURL'] = $baseUrl . "control_check_list/" . $stepid . "/";
+            $redirect_url = $baseUrl . "control_check_list/" . $stepid . "/";
 
             $accionText = 'Completar check list';
             $actionId = 4;
@@ -239,11 +199,11 @@ class RegistroConcretoController extends Controller
 
             if ($registro->getStatus() == 4  && !$readonly) {
                 // Abrir para validar
-                $options['responseURL'] = $baseUrl . "control_validacion/" . $stepid . "/";
+                $redirect_url = $baseUrl . "control_validacion/" . $stepid . "/";
                 $options['prefix'] = 'verchk';
 
-                $versionJS = filemtime(__DIR__ . "/../../../../web/js/js_templates/validacion.js");
-                $validacionURL1 = $baseUrl . "js/js_templates/validacion.js?v=" . $versionJS;
+                /*$versionJS = filemtime(__DIR__ . "/../../../../web/js/js_templates/validacion.js");
+                $validacionURL1 = $baseUrl . "js/js_templates/validacion.js?v=" . $versionJS;*/
                 $registro->setInEdition(1);
 
                 $accionText = 'Validar registro';
@@ -253,11 +213,10 @@ class RegistroConcretoController extends Controller
 
                 $registro->setInEdition(1);
                 // abrir para editar
-                $versionJS = filemtime(__DIR__ . "/../../../../web/js/js_templates/activity.js");
-                $validacionURL1 = $baseUrl . "js/js_templates/activity.js?v=" . $versionJS;
-
+                $scriptUrl = $baseUrl . "../js/js_oarodoc/activity.js?v=".uniqid();
+                
                 $options['prefix'] = 'u';
-                $options['responseURL'] = $baseUrl . "control_elaboracion/" . $stepid . "/";
+                $redirect_url = $baseUrl . "control_elaboracion/" . $stepid;
 
                 $accionText = 'Elaborar registro';
                 $actionId = 1;
@@ -266,10 +225,10 @@ class RegistroConcretoController extends Controller
                 $registro->setInEdition(1);
                 // Flujos de cancelación
                 $options['prefix'] = 'show';
-                $options['responseURL'] = $baseUrl . "control_cancelacion/" . $stepid . "/";
+                $redirect_url = $baseUrl . "control_cancelacion/" . $stepid . "/";
 
-                $versionJS = filemtime(__DIR__ . "/../../../../web/js/js_templates/cancelacion.js");
-                $validacionURL1 = $baseUrl . "js/js_templates/cancelacion.js?v=" . $versionJS;
+                /*$versionJS = filemtime(__DIR__ . "/../../../../web/js/js_templates/cancelacion.js");
+                $validacionURL1 = $baseUrl . "js/js_templates/cancelacion.js?v=" . $versionJS;*/
 
                 $accionText = 'verificar cancelacion';
                 $actionId = 5;
@@ -277,10 +236,10 @@ class RegistroConcretoController extends Controller
             } else {
 
                 // No abrir para editar ... usar el método show
-                $options['responseURL'] = $baseUrl . "control_elaboracion/" . $stepid . "/";
+                $redirect_url = $baseUrl . "control_elaboracion/" . $stepid;
                 $options['prefix'] = 'show';
-                $versionJS = filemtime(__DIR__ . "/../../../../web/js/js_templates/show.js");
-                $validacionURL1 = $baseUrl . "js/js_templates/show.js?v=" . $versionJS;
+                /*$versionJS = filemtime(__DIR__ . "/../../../../web/js/js_templates/show.js");
+                $validacionURL1 = $baseUrl . "js/js_templates/show.js?v=" . $versionJS;*/
 
                 $accionText = 'Ver registro';
                 $actionId = 3;
@@ -296,29 +255,31 @@ class RegistroConcretoController extends Controller
             ->getRepository('NononsenseHomeBundle:RevisionInstanciaWorkflow')
             ->find($revisionid);
 
-        if($step->getMasterStep()->getId() == 7){
+        /*if($step->getMasterStep()->getId() == 7){
             $validacionURL2 = $baseUrl . "js/js_templates/pesos.js";
-        }
+        }*/
 
-
-        if ($validacionURL2 != "") {
-            $options['requestExternalJS'] = $validacionURL1 . ";" . $validacionURL2 . "?v=" . time();
-        } else {
-            $options['requestExternalJS'] = $validacionURL1;
-        }
 
 
         //$options['requestExternalJS'] = $validacionURL1;
-        $url_resp_data_uri = $baseUrl . 'data/get_data_from_document/' . $stepid;
-        $url_requesetData = $baseUrl . 'data/requestData/' . $step->getId() . '/' . $logbook.'/'.$modo;
+        $callback_url = $baseUrlAux . 'data/get_data_from_document/' . $stepid;
+        $get_data_url = $baseUrlAux . 'data/requestData/' . $step->getId() . '/' . $logbook.'/'.$modo;
+        
+        $base_url=$this->getParameter('api_docoaro')."/documents/".$step->getMasterStep()->getPlantillaId()."?getDataUrl=".$get_data_url."&redirectUrl=".$redirect_url."&callbackUrl=".$callback_url."&scriptUrl=".$scriptUrl;
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $base_url);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST,"GET");
+        
 
-        $options['responseDataURI'] = $url_resp_data_uri;
-        $options['requestDataURI'] = $url_requesetData;
+        curl_setopt($ch, CURLOPT_HTTPHEADER,array("Api-Key: ".$this->getParameter('api_key_docoaro')));
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, array());    
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); 
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        $raw_response = curl_exec($ch);
+        $response = json_decode($raw_response, true);
 
-
-        $options['enduserid'] = 'pruebadeusuario: ' . $this->getUser()->getName();
-
-        $url_edit_documento = $this->get('app.sdk')->previewDocument($options);
+        $url_edit_documento=$response["fillInUrl"];
 
         /*
          * Crear activity registro
@@ -844,20 +805,14 @@ class RegistroConcretoController extends Controller
         return $this->redirect($route);
     }
 
-    public function controlElaboracionAction($stepid, $action, $comment, $urlaux)
+    public function controlElaboracionAction($stepid)
     {
         /*
-         * cerrar
-         * cancelar
-         * parcial
-         * enviar
-         *
          * Crear aquí la entidad de la firma, y luego en la parte de recoger la firma simplemente actualizar.
          * En la interfaz se puede poner "firmar" si el usuario en cuestión es el mismo.
          *
          */
         
-        $urlaux=str_replace("--", "/", $urlaux);
         $user = $this->container->get('security.context')->getToken()->getUser();
 
         $em = $this->getDoctrine()->getManager();
@@ -868,27 +823,36 @@ class RegistroConcretoController extends Controller
 
         $registro = $step->getInstanciaWorkflow();
         $registro->setInEdition(0);
-        //var_dump($action);
 
         $debeFirmar = true;
 
+        
+        $dataJson = json_decode($step->getStepDataValue());
 
-        if ($action == 'cancelar') {
+        if(property_exists($dataJson,"gsk_comment")){
+            $comment=1;
+        }
+        else{
+            $comment=0;
+        }
+
+        
+        if ($dataJson->action == 'cancel') {
             $registro->setStatus(3);
             $descp = 'Solicitud cancelacion: ';
             $route = $this->container->get('router')->generate('nononsense_registro_cancelar', array('stepid' => $stepid));
 
-        } elseif ($action == 'parcial') {
+        } elseif ($dataJson->action == 'save_partial') {
             $registro->setStatus(1);
             $descp = 'Guardado parcial';
             $route = $this->container->get('router')->generate('nononsense_contrato_registro_completado', array('stepid' => $stepid, 'comment' => $comment));
 
-        } elseif ($action == 'enviar') {
+        } elseif ($dataJson->action == 'save') {
             $registro->setStatus(2);
             $descp = 'Guardado y enviado a verificación';
             $route = $this->container->get('router')->generate('nononsense_contrato_registro_completado', array('stepid' => $stepid, 'comment' => $comment));
 
-        } else if ($action == 'cerrar') {
+        } else if ($dataJson->action == 'close') {
             $firmas = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:FirmasStep')
             ->findBy(array("stepEntity" => $step));
@@ -903,7 +867,6 @@ class RegistroConcretoController extends Controller
         } else {
             // Error... go inbox
             echo 'No deberías haber llegado aquí. Error desconocido';
-            var_dump($action);
             exit;
 
         }
@@ -934,6 +897,10 @@ class RegistroConcretoController extends Controller
 
             $evidencia->setFirmaEntity($firma);
 
+            $step->setStepDataValue(str_replace("gsk_id_firm", $counter, $step->getStepDataValue()));
+            $evidencia->setStepDataValue(str_replace("gsk_id_firm", $counter, $evidencia->getStepDataValue()));
+
+            $em->persist($step);
 
             $em->persist($evidencia);
             $em->persist($firma);
