@@ -1,0 +1,22 @@
+var gsk_comment=0;
+$( document ).ready(function() {
+	$("#btn_save").hide();
+	$("#btn_save_partial").html('<i class="fa fa-send-o"></i> Aprobar cancelación');
+	$("#btn_cancel").html('<i class="fa fa-close"></i> Rechazar cancelación');
+	
+	$("#form_fill").append('<input type="hidden" name="gsk_percent" value="'+$(".progress_document").html()+'" />');
+
+	/* Ocultamos los input pertenecientes a los ids de las firmas de la imputaciones */
+	$("input[class*='var_in_']").each(function( index ) {
+		$(this).after("<span class='view_index_cumpl'>"+$(this).val()+"</span>");
+		$(this).hide();
+	});
+
+	$("#btn_close").attr("id","btn_custom_close");
+
+	$(document).on("click","#btn_custom_close",function() {
+		if(!$(this).hasClass("disabled")){
+			send_form("close");
+		}
+	});
+});

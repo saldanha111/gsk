@@ -225,10 +225,9 @@ class RegistroConcretoController extends Controller
                 $registro->setInEdition(1);
                 // Flujos de cancelación
                 $options['prefix'] = 'show';
-                $redirect_url = $baseUrl . "control_cancelacion/" . $stepid . "/";
+                $redirect_url = $baseUrl . "control_cancelacion/" . $stepid;
 
-                /*$versionJS = filemtime(__DIR__ . "/../../../../web/js/js_templates/cancelacion.js");
-                $validacionURL1 = $baseUrl . "js/js_templates/cancelacion.js?v=" . $versionJS;*/
+                $scriptUrl = $baseUrl . "../js/js_oarodoc/validation_cancel.js?v=".uniqid();
 
                 $accionText = 'verificar cancelacion';
                 $actionId = 5;
@@ -264,6 +263,7 @@ class RegistroConcretoController extends Controller
         //$options['requestExternalJS'] = $validacionURL1;
         $callback_url = $baseUrlAux . 'data/get_data_from_document/' . $stepid;
         $get_data_url = $baseUrlAux . 'data/requestData/' . $step->getId() . '/' . $logbook.'/'.$modo;
+
         
         $base_url=$this->getParameter('api_docoaro')."/documents/".$step->getMasterStep()->getPlantillaId()."?getDataUrl=".$get_data_url."&redirectUrl=".$redirect_url."&callbackUrl=".$callback_url."&scriptUrl=".$scriptUrl;
         $ch = curl_init();
@@ -860,9 +860,7 @@ class RegistroConcretoController extends Controller
                 $registro->setStatus(-1);
             }
             $debeFirmar = false;
-            $route = base64_decode($urlaux);
-            
-
+            $route = $this->container->get('router')->generate('nononsense_search');
 
         } else {
             // Error... go inbox
@@ -1009,9 +1007,8 @@ class RegistroConcretoController extends Controller
         return $this->redirect($route);
     }
 
-    public function controlCancelacionAction($stepid, $action, $urlaux)
+    public function controlCancelacionAction($stepid)
     {
-        $urlaux=str_replace("--", "/", $urlaux);
         $em = $this->getDoctrine()->getManager();
         $user = $this->container->get('security.context')->getToken()->getUser();
 
@@ -1022,22 +1019,24 @@ class RegistroConcretoController extends Controller
         $registro = $step->getInstanciaWorkflow();
         $registro->setInEdition(0);
 
+        $dataJson = json_decode($step->getStepDataValue());
+
         $em->persist($registro);
         $em->flush();
         $debeFirmar = true;
-        if ($action == 'rechazar') {
+        if ($dataJson->action == 'cancel') {
 
             $route = $this->container->get('router')->generate('nononsense_registro_rechazar_cancelacion_firma', array('stepid' => $stepid));
             $descp = 'Pendiente firma rechazar cancelación';
 
-        } elseif ($action == 'aprobar') {
+        } elseif ($dataJson->action == 'save_partial') {
 
             $route = $this->container->get('router')->generate('nononsense_registro_aprobar_cancelacion_firma', array('stepid' => $stepid));
             $descp = 'Pendiente firmar aprobar cancelación';
 
-        } else if ($action == 'cerrar') {
+        } else if ($dataJson->action == 'close') {
             $debeFirmar = false;
-            $route = base64_decode($urlaux);
+            $route = $this->container->get('router')->generate('nononsense_search');
 
 
         } else {

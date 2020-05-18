@@ -26,6 +26,14 @@ $( document ).ready(function() {
 		$(this).after("<span class='view_index_cumpl'>"+$(this).val()+"</span>");
 		$(this).hide();
 	});
+
+	$("#btn_close").attr("id","btn_custom_close");
+
+	$(document).on("click","#btn_custom_close",function() {
+		if(!$(this).hasClass("disabled")){
+			send_form("close");
+		}
+	});
 });
 
 // Alertamos al usuario que se ha cambiado un campo previamente cargado por otro usuario y por tanto se va a pedir justificación

@@ -213,7 +213,9 @@ class DataDocumentController extends Controller
 
         $data = new \stdClass();
         $varValues = new \stdClass();
+        $cfgValues = new \stdClass();
         $data->data = $varValues;
+        $data->configuration = $cfgValues;
         $completo=0;
 
         if ($step->getStatusId() == 0) {
@@ -273,10 +275,20 @@ class DataDocumentController extends Controller
 
 
         } else {
+            
             // Data Ingegrity other usage
 
             $stepDataValue = $step->getStepDataValue();
             $data = json_decode($stepDataValue);
+
+            // Validación de cancelación
+            if ($instancia_workflow->getStatus() == 5) {
+                $data->configuration->form_readonly=1;
+                $data->configuration->prefix_view="";
+                $data->configuration->partial_save_button=1;
+                $data->configuration->cancel_button=1;
+                $data->configuration->close_button=1;
+            }
 
             $stepMasterDataJSON = json_decode($stepMasterData);
 
@@ -506,9 +518,14 @@ class DataDocumentController extends Controller
 
         }
 
+        $array_response["data"]=$data->data;
+         if(property_exists($data,"configuration")){
+            $array_response["configuration"]=$data->configuration;
+         }
+
         $response = new Response();
         $response->setStatusCode(200);
-        $response->setContent(json_encode(array("data" => $data->data)));
+        $response->setContent(json_encode($array_response));
 
         return $response;
     }
