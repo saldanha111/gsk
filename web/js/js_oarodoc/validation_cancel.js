@@ -19,4 +19,12 @@ $( document ).ready(function() {
 			send_form("close");
 		}
 	});
+
+	$("#btn_save_partial").attr("id","btn_custom_save_partial");
+	$("#btn_custom_save_partial").removeClass("disabled");
+	$(document).on("click","#btn_custom_save_partial",function() {
+		if(!$(this).hasClass("disabled")){
+			send_form("save_partial");
+		}
+	});
 });

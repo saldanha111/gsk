@@ -1,11 +1,12 @@
 var gsk_comment=0;
 $( document ).ready(function() {
-	$("#btn_save").html('<i class="fa fa-send-o"></i> Enviar y firmar');
-	$("#btn_save_partial").html('<i class="fa fa-save"></i> Guardar y firmar');
+	$("#btn_save").html('<i class="fa fa-send-o"></i> Verificación total');
+	$("#btn_save_partial").html('<i class="fa fa-save"></i> Verificación parcial');
 	
 
 	$('#form_fill').on('keyup change paste', 'input:not(:disabled):not([readonly]), select:not(:disabled):not([readonly]), textarea:not(:disabled):not([readonly])', function(){
-		$("#btn_close").addClass("disabled");
+		console.log($(this));
+		$("#btn_custom_close").addClass("disabled");
 		if(checkCommentCompulsory($(this))){
 			$("#form_fill").append('<input type="hidden" name="gsk_comment" value="1" />');
 		}
@@ -23,9 +24,7 @@ $( document ).ready(function() {
 
 	/* Ocultamos los input pertenecientes a los ids de las firmas de la imputaciones */
 	$("input[class*='var_in_']").each(function( index ) {
-		if(!$(this).is('[class^="var_in_verchk_"], [class*=" var_in_verchk_"]') ) {
-			$(this).after("<span class='view_index_cumpl'>"+$(this).val()+"</span>");
-		}
+		$(this).after("<span class='view_index_cumpl'>"+$(this).val()+"</span>");
 		$(this).hide();
 	});
 
@@ -34,6 +33,15 @@ $( document ).ready(function() {
 	$(document).on("click","#btn_custom_close",function() {
 		if(!$(this).hasClass("disabled")){
 			send_form("close");
+		}
+	});
+
+	
+	$("#btn_cancel").after('<button type="button" id="btn_return" class="btn btn-warning" style="margin-left:4px"><i class="fa fa-arrow-circle-o-left"></i> Devolver</button>');
+
+	$(document).on("click","#btn_return",function() {
+		if(!$(this).hasClass("disabled")){
+			send_form("return");
 		}
 	});
 });

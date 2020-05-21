@@ -1,0 +1,31 @@
+#tableHistorico td{
+	font-size:11px;
+}
+
+#tablefirmas td{
+	font-size:11px;
+}
+
+#tableRecon td{
+	font-size:11px;
+}
+
+#tableHistorico img{
+	height:60px;
+}
+
+#tablefirmas img{
+	height:60px;
+}
+
+#tableHistorico{
+	max-width:500px!important;
+}
+
+#tableRecon{
+	max-width:500px!important;
+}
+
+#tablefirmas{
+	max-width:500px!important;
+}

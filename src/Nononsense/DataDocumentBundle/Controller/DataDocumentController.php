@@ -222,6 +222,7 @@ class DataDocumentController extends Controller
             // first usage
             $data = new \stdClass();
             $varValues = new \stdClass();
+            $cfgValues = new \stdClass();
             $varValues->u_id_cumplimentacion = $step->getId();
 
             if (isset($workflowMasterDataJSON)) {
@@ -273,6 +274,9 @@ class DataDocumentController extends Controller
             $varValues->historico_steps = "";
             $data->data = $varValues;
 
+            $data->configuration = $cfgValues;
+            $data->configuration->prefix_view="u_;in_;dxo_";
+
 
         } else {
             
@@ -281,8 +285,11 @@ class DataDocumentController extends Controller
             $stepDataValue = $step->getStepDataValue();
             $data = json_decode($stepDataValue);
 
+            $data->configuration->prefix_view="u_;in_;dxo_";
+            $data->configuration->apply_required=1;
+
             // Validación de cancelación
-            if ($instancia_workflow->getStatus() == 5) {
+            if ($instancia_workflow->getStatus() == 5 || $instancia_workflow->getStatus() == 14) {
                 $data->configuration->form_readonly=1;
                 $data->configuration->prefix_view="";
                 $data->configuration->partial_save_button=1;
@@ -290,6 +297,23 @@ class DataDocumentController extends Controller
                 $data->configuration->close_button=1;
             }
 
+            // Verificación de cumplimentación
+            if ($instancia_workflow->getStatus() == 4) {
+                $data->configuration->prefix_view="";
+                $data->configuration->prefix_edit="verchk_;";
+                $data->configuration->partial_save_button=1;
+                $data->configuration->cancel_button=1;
+                $data->configuration->close_button=1;
+            }
+
+            if ($instancia_workflow->getStatus() == 9 || $instancia_workflow->getStatus() == 10 || $instancia_workflow->getStatus() == 11 || $instancia_workflow->getStatus() == 8 || $instancia_workflow->getStatus() == 6) {
+                $data->configuration->prefix_view="";
+                $data->configuration->form_readonly=1;
+                $data->configuration->partial_save_button=0;
+                $data->configuration->cancel_button=0;
+                $data->configuration->close_button=1;
+                $data->configuration->apply_required=0;
+            }
             $stepMasterDataJSON = json_decode($stepMasterData);
 
             $workflowMasterDataJSON = json_decode($workflowMasterData);
@@ -694,7 +718,7 @@ class DataDocumentController extends Controller
                 $comentario = $firmaAsociada->getAccion();
                 $firmaImagen = $firmaAsociada->getFirma();
 
-                $fullText .= "<tr><td>" . $id . "</td><td>" . $nombre . " " . $fecha . "</td><td>Comentarios: " . $comentario . "</td><td><img src='" . $firmaImagen . "' /></td></tr>";
+                $fullText .= "<tr><td width='5%'>" . $id . "</td><td  width='20%'>" . $nombre . " " . $fecha . "</td><td>Comentarios: " . $comentario . "</td><td  width='20%'><img src='" . $firmaImagen . "' /></td></tr>";
                 $lastEvidencia = $evidenciaElement;
                 $first = false;
 
@@ -922,7 +946,7 @@ class DataDocumentController extends Controller
 
         if(count($documentsReconciliacion)>1){
 
-            $html="<br><br><table class='table table-striped' style='font-size:11px'><tr><th colspan='4'>Reconciliación (".count($documentsReconciliacion)." registros reconciliados)</th></tr><tr><td>Nº</td><td>Nombre</td><td>Estado</td><td>Fecha</td></tr>";
+            $html="<br><br><table id='tableRecon' class='table table-striped' style='font-size:11px'><tr><th colspan='4'>Reconciliación (".count($documentsReconciliacion)." registros reconciliados)</th></tr><tr><td>Nº</td><td>Nombre</td><td>Estado</td><td>Fecha</td></tr>";
             foreach($documentsReconciliacion as $key => $element){
                 $url=$this->container->get('router')->generate('nononsense_ver_registro', array('revisionid' => $element["id"]),TRUE);
                 $name=str_replace('"', '\"', $element["name"]);
@@ -1011,7 +1035,7 @@ class DataDocumentController extends Controller
             $firma = $firma->getFirma();
 
 
-            $fullText .= "<tr><td colspan='4'>Firma</td></tr><tr><td>" . $id . "</td><td>" . $nombre . " " . $fecha . "</td><td>Comentarios: " . $comentario . "</td><td><img src='" . $firma . "' /></td></tr>";
+            $fullText .= "<tr><td colspan='4'>Firma</td></tr><tr><td width='5%'>" . $id . "</td><td width='20%'>" . $nombre . " " . $fecha . "</td><td>Comentarios: " . $comentario . "</td><td width='20%'><img src='" . $firma . "' /></td></tr>";
         }
 
         $fullText .= "</table>";
