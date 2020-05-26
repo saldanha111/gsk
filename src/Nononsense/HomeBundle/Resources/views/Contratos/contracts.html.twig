@@ -38,9 +38,13 @@
                       </form>
                 </div>
                 <div class="row">
-                    <div>
-                      <a href="{{ path('nononsense_contracts_edit',{'id': '0'}) }}" class="btn btn-primary pull-right"><i class="fa fa-plus"></i> Nueva plantilla</a>
-                    </div><br>
+                    
+                    {% if can_create_plantilla %}
+                        <div>
+                          <a href="{{ path('nononsense_contracts_edit',{'id': '0'}) }}" class="btn btn-primary pull-right"><i class="fa fa-plus"></i> Nueva plantilla</a>
+                        </div><br>
+                    {% endif %}
+
                     <table id="inProcessParcial" class="table table-striped">
                         <thead>
                         <tr>
@@ -54,9 +58,19 @@
                             {% for item in items %}
                             <tr>
                                 <td>{{item.id}}</td>
-                                <td><a href="{{path('nononsense_contracts_edit', {'id': item.id}) }}">{{item.name}}</a></td>
+                                <td>
+                                    {% if can_create_plantilla %}
+                                        <a href="{{path('nononsense_contracts_edit', {'id': item.id}) }}">{{item.name}}</a>
+                                    {% else %}
+                                        {{item.name}}
+                                    {% endif %}
+                                </td>
                                 <td>{{item.nameType}}</td>
-                                <td><a href="#" class="btn btn-xs btn-primary"><i class="fa fa-lock"> </i> Crear registro</a></td>
+                                <td>
+                                    {% if can_create_register %}
+                                        <a href="{{path('nononsense_records_contracts_new', {'id': item.id}) }}" class="btn btn-xs btn-primary"><i class="fa fa-lock"> </i> Crear registro</a>
+                                    {% endif %}
+                                </td>
                             </tr>
                             {% endfor %}
                         {% endif %}

@@ -140,4 +140,336 @@ class RecordsContractsSignatures
     }
 
    
+
+    /**
+     * Get id
+     *
+     * @return integer 
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * Set created
+     *
+     * @param \DateTime $created
+     * @return RecordsContractsSignatures
+     */
+    public function setCreated($created)
+    {
+        $this->created = $created;
+
+        return $this;
+    }
+
+    /**
+     * Get created
+     *
+     * @return \DateTime 
+     */
+    public function getCreated()
+    {
+        return $this->created;
+    }
+
+    /**
+     * Set modified
+     *
+     * @param \DateTime $modified
+     * @return RecordsContractsSignatures
+     */
+    public function setModified($modified)
+    {
+        $this->modified = $modified;
+
+        return $this;
+    }
+
+    /**
+     * Get modified
+     *
+     * @return \DateTime 
+     */
+    public function getModified()
+    {
+        return $this->modified;
+    }
+
+    /**
+     * Set userid
+     *
+     * @param integer $userid
+     * @return RecordsContractsSignatures
+     */
+    public function setUserid($userid)
+    {
+        $this->userid = $userid;
+
+        return $this;
+    }
+
+    /**
+     * Get userid
+     *
+     * @return integer 
+     */
+    public function getUserid()
+    {
+        return $this->userid;
+    }
+
+    /**
+     * Set groupid
+     *
+     * @param integer $groupid
+     * @return RecordsContractsSignatures
+     */
+    public function setGroupid($groupid)
+    {
+        $this->groupid = $groupid;
+
+        return $this;
+    }
+
+    /**
+     * Get groupid
+     *
+     * @return integer 
+     */
+    public function getGroupid()
+    {
+        return $this->groupid;
+    }
+
+    /**
+     * Set firma
+     *
+     * @param string $firma
+     * @return RecordsContractsSignatures
+     */
+    public function setFirma($firma)
+    {
+        $this->firma = $firma;
+
+        return $this;
+    }
+
+    /**
+     * Get firma
+     *
+     * @return string 
+     */
+    public function getFirma()
+    {
+        return $this->firma;
+    }
+
+    /**
+     * Set number
+     *
+     * @param integer $number
+     * @return RecordsContractsSignatures
+     */
+    public function setNumber($number)
+    {
+        $this->number = $number;
+
+        return $this;
+    }
+
+    /**
+     * Get number
+     *
+     * @return integer 
+     */
+    public function getNumber()
+    {
+        return $this->number;
+    }
+
+    /**
+     * Set next
+     *
+     * @param boolean $next
+     * @return RecordsContractsSignatures
+     */
+    public function setNext($next)
+    {
+        $this->next = $next;
+
+        return $this;
+    }
+
+    /**
+     * Get next
+     *
+     * @return boolean 
+     */
+    public function getNext()
+    {
+        return $this->next;
+    }
+
+    /**
+     * Set attachment
+     *
+     * @param boolean $attachment
+     * @return RecordsContractsSignatures
+     */
+    public function setAttachment($attachment)
+    {
+        $this->attachment = $attachment;
+
+        return $this;
+    }
+
+    /**
+     * Get attachment
+     *
+     * @return boolean 
+     */
+    public function getAttachment()
+    {
+        return $this->attachment;
+    }
+
+    /**
+     * Set file
+     *
+     * @param string $file
+     * @return RecordsContractsSignatures
+     */
+    public function setFile($file)
+    {
+        $this->file = $file;
+
+        return $this;
+    }
+
+    /**
+     * Get file
+     *
+     * @return string 
+     */
+    public function getFile()
+    {
+        return $this->file;
+    }
+
+    /**
+     * Set email
+     *
+     * @param string $email
+     * @return RecordsContractsSignatures
+     */
+    public function setEmail($email)
+    {
+        $this->email = $email;
+
+        return $this;
+    }
+
+    /**
+     * Get email
+     *
+     * @return string 
+     */
+    public function getEmail()
+    {
+        return $this->email;
+    }
+
+    /**
+     * Set comments
+     *
+     * @param string $comments
+     * @return RecordsContractsSignatures
+     */
+    public function setComments($comments)
+    {
+        $this->comments = $comments;
+
+        return $this;
+    }
+
+    /**
+     * Get comments
+     *
+     * @return string 
+     */
+    public function getComments()
+    {
+        return $this->comments;
+    }
+
+    /**
+     * Set userEntiy
+     *
+     * @param \Nononsense\UserBundle\Entity\Users $userEntiy
+     * @return RecordsContractsSignatures
+     */
+    public function setUserEntiy(\Nononsense\UserBundle\Entity\Users $userEntiy = null)
+    {
+        $this->userEntiy = $userEntiy;
+
+        return $this;
+    }
+
+    /**
+     * Get userEntiy
+     *
+     * @return \Nononsense\UserBundle\Entity\Users 
+     */
+    public function getUserEntiy()
+    {
+        return $this->userEntiy;
+    }
+
+    /**
+     * Set groupEntiy
+     *
+     * @param \Nononsense\GroupBundle\Entity\Groups $groupEntiy
+     * @return RecordsContractsSignatures
+     */
+    public function setGroupEntiy(\Nononsense\GroupBundle\Entity\Groups $groupEntiy = null)
+    {
+        $this->groupEntiy = $groupEntiy;
+
+        return $this;
+    }
+
+    /**
+     * Get groupEntiy
+     *
+     * @return \Nononsense\GroupBundle\Entity\Groups 
+     */
+    public function getGroupEntiy()
+    {
+        return $this->groupEntiy;
+    }
+
+    /**
+     * Set record
+     *
+     * @param \Nononsense\HomeBundle\Entity\RecordsContracts $record
+     * @return RecordsContractsSignatures
+     */
+    public function setRecord(\Nononsense\HomeBundle\Entity\RecordsContracts $record = null)
+    {
+        $this->record = $record;
+
+        return $this;
+    }
+
+    /**
+     * Get record
+     *
+     * @return \Nononsense\HomeBundle\Entity\RecordsContracts 
+     */
+    public function getRecord()
+    {
+        return $this->record;
+    }
 }

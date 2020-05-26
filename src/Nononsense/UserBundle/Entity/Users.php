@@ -242,6 +242,11 @@ class Users implements AdvancedUserInterface, \Serializable
     protected $ReconciliacionesValidations;
 
     /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\Tokens", mappedBy="user")
+     */
+    protected $tokens;
+
+    /**
      * Users constructor.
      */
     
@@ -1667,5 +1672,38 @@ class Users implements AdvancedUserInterface, \Serializable
     public function getRecordsContractsSignatures()
     {
         return $this->recordsContractsSignatures;
+    }
+
+    /**
+     * Add tokens
+     *
+     * @param \Nononsense\HomeBundle\Entity\Tokens $tokens
+     * @return Users
+     */
+    public function addToken(\Nononsense\HomeBundle\Entity\Tokens $tokens)
+    {
+        $this->tokens[] = $tokens;
+
+        return $this;
+    }
+
+    /**
+     * Remove tokens
+     *
+     * @param \Nononsense\HomeBundle\Entity\Tokens $tokens
+     */
+    public function removeToken(\Nononsense\HomeBundle\Entity\Tokens $tokens)
+    {
+        $this->tokens->removeElement($tokens);
+    }
+
+    /**
+     * Get tokens
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getTokens()
+    {
+        return $this->tokens;
     }
 }

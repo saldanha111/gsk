@@ -242,6 +242,11 @@ class Users implements AdvancedUserInterface, \Serializable
     protected $ReconciliacionesValidations;
 
     /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\Tokens", mappedBy="user")
+     */
+    protected $tokens;
+
+    /**
      * Users constructor.
      */
     
@@ -1535,5 +1540,137 @@ class Users implements AdvancedUserInterface, \Serializable
     public function getReconciliacionesValidations()
     {
         return $this->ReconciliacionesValidations;
+    }
+
+    /**
+     * Add contracts
+     *
+     * @param \Nononsense\HomeBundle\Entity\Contracts $contracts
+     * @return Users
+     */
+    public function addContract(\Nononsense\HomeBundle\Entity\Contracts $contracts)
+    {
+        $this->contracts[] = $contracts;
+
+        return $this;
+    }
+
+    /**
+     * Remove contracts
+     *
+     * @param \Nononsense\HomeBundle\Entity\Contracts $contracts
+     */
+    public function removeContract(\Nononsense\HomeBundle\Entity\Contracts $contracts)
+    {
+        $this->contracts->removeElement($contracts);
+    }
+
+    /**
+     * Get contracts
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getContracts()
+    {
+        return $this->contracts;
+    }
+
+    /**
+     * Add recordsContracts
+     *
+     * @param \Nononsense\HomeBundle\Entity\RecordsContracts $recordsContracts
+     * @return Users
+     */
+    public function addRecordsContract(\Nononsense\HomeBundle\Entity\RecordsContracts $recordsContracts)
+    {
+        $this->recordsContracts[] = $recordsContracts;
+
+        return $this;
+    }
+
+    /**
+     * Remove recordsContracts
+     *
+     * @param \Nononsense\HomeBundle\Entity\RecordsContracts $recordsContracts
+     */
+    public function removeRecordsContract(\Nononsense\HomeBundle\Entity\RecordsContracts $recordsContracts)
+    {
+        $this->recordsContracts->removeElement($recordsContracts);
+    }
+
+    /**
+     * Get recordsContracts
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getRecordsContracts()
+    {
+        return $this->recordsContracts;
+    }
+
+    /**
+     * Add contractsSignatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\ContractsSignatures $contractsSignatures
+     * @return Users
+     */
+    public function addContractsSignature(\Nononsense\HomeBundle\Entity\ContractsSignatures $contractsSignatures)
+    {
+        $this->contractsSignatures[] = $contractsSignatures;
+
+        return $this;
+    }
+
+    /**
+     * Remove contractsSignatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\ContractsSignatures $contractsSignatures
+     */
+    public function removeContractsSignature(\Nononsense\HomeBundle\Entity\ContractsSignatures $contractsSignatures)
+    {
+        $this->contractsSignatures->removeElement($contractsSignatures);
+    }
+
+    /**
+     * Get contractsSignatures
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getContractsSignatures()
+    {
+        return $this->contractsSignatures;
+    }
+
+    /**
+     * Add recordsContractsSignatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\RecordsContractsSignatures $recordsContractsSignatures
+     * @return Users
+     */
+    public function addRecordsContractsSignature(\Nononsense\HomeBundle\Entity\RecordsContractsSignatures $recordsContractsSignatures)
+    {
+        $this->recordsContractsSignatures[] = $recordsContractsSignatures;
+
+        return $this;
+    }
+
+    /**
+     * Remove recordsContractsSignatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\RecordsContractsSignatures $recordsContractsSignatures
+     */
+    public function removeRecordsContractsSignature(\Nononsense\HomeBundle\Entity\RecordsContractsSignatures $recordsContractsSignatures)
+    {
+        $this->recordsContractsSignatures->removeElement($recordsContractsSignatures);
+    }
+
+    /**
+     * Get recordsContractsSignatures
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getRecordsContractsSignatures()
+    {
+        return $this->recordsContractsSignatures;
     }
 }

@@ -20,7 +20,7 @@ class ContractsTypes
      * @ORM\Column(type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
-     * @Groups({"detail_document"})
+     * @Groups({"detail_contract"})
      */
     protected $id;
 
@@ -28,7 +28,7 @@ class ContractsTypes
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=90)
-     * @Groups({"detail_document"})
+     * @Groups({"detail_contract"})
      */
     protected $name;
 
@@ -156,36 +156,36 @@ class ContractsTypes
     }
 
     /**
-     * Add documents
+     * Add contracts
      *
-     * @param \Nononsense\HomeBundle\Entity\Documents $documents
+     * @param \Nononsense\HomeBundle\Entity\Documents $contracts
      * @return Types
      */
-    public function addDocument(\Nononsense\HomeBundle\Entity\Documents $documents)
+    public function addDocument(\Nononsense\HomeBundle\Entity\Documents $contracts)
     {
-        $this->documents[] = $documents;
+        $this->contracts[] = $contracts;
 
         return $this;
     }
 
     /**
-     * Remove documents
+     * Remove contracts
      *
-     * @param \Nononsense\HomeBundle\Entity\Documents $documents
+     * @param \Nononsense\HomeBundle\Entity\Documents $contracts
      */
-    public function removeDocument(\Nononsense\HomeBundle\Entity\Documents $documents)
+    public function removeDocument(\Nononsense\HomeBundle\Entity\Documents $contracts)
     {
-        $this->documents->removeElement($documents);
+        $this->contracts->removeElement($contracts);
     }
 
     /**
-     * Get documents
+     * Get contracts
      *
      * @return \Doctrine\Common\Collections\Collection 
      */
     public function getDocuments()
     {
-        return $this->documents;
+        return $this->contracts;
     }
 
     /**
@@ -219,5 +219,38 @@ class ContractsTypes
     public function getRecords()
     {
         return $this->records;
+    }
+
+    /**
+     * Add Contracts
+     *
+     * @param \Nononsense\HomeBundle\Entity\Contracts $contracts
+     * @return ContractsTypes
+     */
+    public function addContract(\Nononsense\HomeBundle\Entity\Contracts $contracts)
+    {
+        $this->Contracts[] = $contracts;
+
+        return $this;
+    }
+
+    /**
+     * Remove Contracts
+     *
+     * @param \Nononsense\HomeBundle\Entity\Contracts $contracts
+     */
+    public function removeContract(\Nononsense\HomeBundle\Entity\Contracts $contracts)
+    {
+        $this->Contracts->removeElement($contracts);
+    }
+
+    /**
+     * Get Contracts
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getContracts()
+    {
+        return $this->Contracts;
     }
 }

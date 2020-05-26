@@ -161,6 +161,22 @@ class RecordsContracts
      */
     protected $signatures;
 
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="pin", type="string", length=10, nullable=true)
+     */
+    protected $pin;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="token_public_signature", type="string", length=50, nullable=true)
+     */
+    protected $tokenPublicSignature;
+
+    
+
 
     /**
      * InstanciasWorkflows constructor.
@@ -670,5 +686,51 @@ class RecordsContracts
     public function getSignatures()
     {
         return $this->signatures;
+    }
+
+    /**
+     * Set pin
+     *
+     * @param string $pin
+     * @return RecordsContracts
+     */
+    public function setPin($pin)
+    {
+        $this->pin = $pin;
+
+        return $this;
+    }
+
+    /**
+     * Get pin
+     *
+     * @return string 
+     */
+    public function getPin()
+    {
+        return $this->pin;
+    }
+
+    /**
+     * Set tokenPublicSignature
+     *
+     * @param string $tokenPublicSignature
+     * @return RecordsContracts
+     */
+    public function setTokenPublicSignature($tokenPublicSignature)
+    {
+        $this->tokenPublicSignature = $tokenPublicSignature;
+
+        return $this;
+    }
+
+    /**
+     * Get tokenPublicSignature
+     *
+     * @return string 
+     */
+    public function getTokenPublicSignature()
+    {
+        return $this->tokenPublicSignature;
     }
 }

@@ -30,6 +30,14 @@ class ContractsController extends Controller
 {
     public function listAction(Request $request)
     {
+        $is_valid = $this->get('app.security')->permissionSeccion('plantillas_contratos_gestion');
+        if(!$is_valid){
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+        }
+
+        $can_create_plantilla = $this->get('app.security')->permissionSeccion('plantillas_crear_plantilla');
+        $can_create_register = $this->get('app.security')->permissionSeccion('contratos_crear_registro');
+
         $filters=Array();
         $filters2=Array();
         $types=array();
@@ -75,12 +83,21 @@ class ContractsController extends Controller
             $parameters=FALSE;
         }
         $array_item["pagination"]=\Nononsense\UtilsBundle\Classes\Utils::paginador($filters["limit_many"],$request,$url,$array_item["count"],"/", $parameters);
+
+        $array_item['can_create_plantilla'] = $can_create_plantilla;
+        $array_item['can_create_register'] = $can_create_register;
         
         return $this->render('NononsenseHomeBundle:Contratos:contracts.html.twig',$array_item);
     }
 
     public function editAction(Request $request, string $id)
     {
+        $is_valid = $this->get('app.security')->permissionSeccion('plantillas_crear_plantilla');
+        if(!$is_valid){
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+        }
+
+
         $serializer = $this->get('serializer');
 
         $array_item["types"] = $this->getDoctrine()->getRepository(ContractsTypes::class)->findAll();
@@ -109,6 +126,11 @@ class ContractsController extends Controller
 
     public function updateAction(Request $request, string $id)
     {   
+        $is_valid = $this->get('app.security')->permissionSeccion('plantillas_crear_plantilla');
+        if(!$is_valid){
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+        }
+
         $em = $this->getDoctrine()->getManager();
 
         try {

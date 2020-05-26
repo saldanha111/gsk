@@ -25,9 +25,9 @@ class Contracts
     protected $id;
 
     /**
-     * @var integer
+     * @var string
      *
-     * @ORM\Column(name="plantilla_id", type="integer")
+     * @ORM\Column(name="plantilla_id", type="string", length=200)
      * @Groups({"detail_contract"})
      */
     protected $plantilla_id;

@@ -42,7 +42,7 @@
                         <div class="form-group">
                             <label class="col-sm-3 control-label">ID. Plantilla</label>
                             <div class="col-sm-7">
-                                <input type="number" {% if not_update is defined %} readonly="readonly" {% else %} name="plantilla_id" {% endif %} class="form-control" value="{{item.plantilla_id is defined ? item.plantilla_id : ''}}"  required="required">
+                                <input type="text" {% if not_update is defined %} readonly="readonly" {% else %} name="plantilla_id" {% endif %} class="form-control" value="{{item.plantilla_id is defined ? item.plantilla_id : ''}}"  required="required">
                             </div>
                         </div>   
                         <div class="form-group">
