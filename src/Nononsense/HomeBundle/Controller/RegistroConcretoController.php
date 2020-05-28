@@ -191,7 +191,7 @@ class RegistroConcretoController extends Controller
 
             $scriptUrl = $baseUrl . "../js/js_oarodoc/activity.js?v=".uniqid();
 
-            $redirect_url = $baseUrl . "control_check_list/" . $stepid . "/";
+            $redirect_url = $baseUrl . "control_check_list/" . $stepid;
 
             $accionText = 'Completar check list';
             $actionId = 4;
@@ -242,7 +242,6 @@ class RegistroConcretoController extends Controller
             }
         }
 
-
         /*
          * Caso especial de firma FLL
          */
@@ -259,6 +258,11 @@ class RegistroConcretoController extends Controller
         //$options['requestExternalJS'] = $validacionURL1;
         $callback_url = $baseUrlAux . 'data/get_data_from_document/' . $stepid;
         $get_data_url = $baseUrlAux . 'data/requestData/' . $step->getId() . '/' . $logbook.'/'.$modo;
+
+        if($readonly){
+            $get_data_url.="?readonly=1";
+        }
+
         
         $base_url=$this->getParameter('api_docoaro')."/documents/".$step->getMasterStep()->getPlantillaId()."?getDataUrl=".$get_data_url."&redirectUrl=".$redirect_url."&callbackUrl=".$callback_url."&scriptUrl=".$scriptUrl."&styleUrl=".$styleUrl;
         $ch = curl_init();
@@ -599,7 +603,7 @@ class RegistroConcretoController extends Controller
 
     }
 
-    public function controlCheckListAction($stepid, $action, $comment, $urlaux)
+    public function controlCheckListAction($stepid)
     {
         /*
                 * cerrar
@@ -607,7 +611,7 @@ class RegistroConcretoController extends Controller
                 * parcial
                 * enviar
                 */
-        $urlaux=str_replace("--", "/", $urlaux);
+
         $user = $this->container->get('security.context')->getToken()->getUser();
         $em = $this->getDoctrine()->getManager();
 
@@ -620,18 +624,27 @@ class RegistroConcretoController extends Controller
 
         $debeFirmar = true;
 
-        if ($action == 'cancelar') {
+        $dataJson = json_decode($step->getStepDataValue());
+
+        if(property_exists($dataJson,"gsk_comment")){
+            $comment=1;
+        }
+        else{
+            $comment=0;
+        }
+
+        if ($dataJson->action == 'cancel') {
             $registro->setStatus(3);
             $route = $this->container->get('router')->generate('nononsense_registro_cancelar', array('stepid' => $stepid));
             $descp = 'Pendiente firma cancelación checklist';
 
-        } elseif ($action == 'parcial') {
+        } elseif ($dataJson->action == 'save_partial') {
             $registro->setStatus(15);
 
             $route = $this->container->get('router')->generate('nononsense_contrato_registro_completado', array('stepid' => $stepid, 'comment' => $comment));
             $descp = 'Pendiente firma completado parcial checklist';
 
-        } elseif ($action == 'enviar') {
+        } elseif ($dataJson->action == 'save') {
             /*
              * Para llegar a este punto REAL el usuario debe haber verificado el ES-MA. Si no lo ha hecho mostrar un mensaje de error
              */
@@ -661,9 +674,9 @@ class RegistroConcretoController extends Controller
             }
 
 
-        } else if ($action == 'cerrar') {
+        } else if ($dataJson->action == 'close') {
             $debeFirmar = false;
-            $route = base64_decode($urlaux);
+            $route = $this->container->get('router')->generate('nononsense_search');
 
 
         } else {
@@ -1396,7 +1409,7 @@ class RegistroConcretoController extends Controller
 
         /* ENVIAMOS LA RECONCILIACION A BLOCKCHAIN */
 
-        $api_terceros = $this->getParameter('url_api_3');
+        /*$api_terceros = $this->getParameter('url_api_3');
         $params = array();
 
         $info=array(
@@ -1438,7 +1451,7 @@ class RegistroConcretoController extends Controller
             );
             $route = $this->container->get('router')->generate('nononsense_registro_autorizar_list');
             return $this->redirect($route);
-        }
+        }*/
         /* FIN ENVIO RECONCILIACION A BLOCKCHAIN */
 
         $em->flush();

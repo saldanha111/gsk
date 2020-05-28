@@ -99,8 +99,8 @@ nononsense_contrato_control_cancelacion:
     defaults: { _controller: NononsenseHomeBundle:RegistroConcreto:controlCancelacion, stepid: 0}
 
 nononsense_contrato_control_check_list:
-    path: /control_check_list/{stepid}/{action}/{comment}/{urlaux}
-    defaults: { _controller: NononsenseHomeBundle:RegistroConcreto:controlCheckList, stepid: 0, action: 0,comment: 0,urlaux: 0}
+    path: /control_check_list/{stepid}
+    defaults: { _controller: NononsenseHomeBundle:RegistroConcreto:controlCheckList, stepid: 0}
 
 nononsense_contrato_control_validacion:
     path: /control_validacion/{stepid}
