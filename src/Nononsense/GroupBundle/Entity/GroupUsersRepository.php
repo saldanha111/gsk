@@ -41,6 +41,28 @@ class GroupUsersRepository extends EntityRepository
  
         return new Paginator($users);
     }
-    
+
+    public function isMemberOfAnyGroup($user_id, $groups=[]){
+      
+      $is_member = 0;
+
+      if(count($groups)>0){
+
+        $ids_groups = implode(",", $groups);
+
+        $users = $this->createQueryBuilder('g')
+                      ->where("g.user = :user_id AND g.group IN ($ids_groups)")
+                      ->setParameter('user_id', $user_id);
+
+
+        $query = $users->getQuery();
+        $users_groups = $query->getResult();
+        if(count($users_groups)>0){
+          $is_member = 1;          
+        }
+      }
+
+      return $is_member;
+    }
     
 }

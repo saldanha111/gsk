@@ -1,0 +1,91 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}DOCXPRESSO | {{'Homepage'|trans}} {% endblock %}
+{% block head %}
+{{ parent() }}
+<style>
+
+
+</style>
+{% endblock %}
+{% block main_title %} Se va a proceder a firmar el contrato {{contractName}}{% endblock %}
+{% block content %}
+<div class="wrapper wrapper-content">
+    {% for flashMessage in app.session.flashbag.get('error') %}
+    <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+        <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+        {{ flashMessage }}
+    </div>
+    {% endfor %}
+    <div class="row">
+        <div>
+            <div class="col-sm-5 ">
+                <h1>Firma de Contrato</h1>
+                <form id="signForm" action="{{path('nononsense_record_contracts_sign', {'id': id})}}" method="POST" enctype="multipart/form-data">
+                    
+                    <div id="signature-pad" class="input-group">
+                        <h2>Introduzca su firma</h2>
+                        <canvas width="300" height="150" style="touch-action: none; border: 2px solid #eee; box-shadow: 0px 0px 6px 1px rgba(80, 90, 100, 0.5)"></canvas>
+                    </div>
+                    <input type="hidden" id="firma" name="firma" />
+                    <a name="borrarFirmar" class="btn btn-primary" id="borrarFirmar">Limpiar firma</a>
+                    <a name="guardarRegistro" class="btn btn-secondary">Firmar</a>
+                </form>
+            </div>
+        </div>
+        <hr>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+{{ parent() }}
+<script src="/js/plugins/signature-pad/signature-pad.min.js"></script>
+<script>
+    $(document).ready(function () {
+
+        toastr.options = {
+            "closeButton": true,
+            "debug": false,
+            "progressBar": true,
+            "positionClass": "toast-top-center",
+            "onclick": null,
+            "showDuration": "400",
+            "hideDuration": "1000",
+            "timeOut": "7000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        }
+
+        ActivateMenu('docxpresso_home');
+        $('#side-menu').metisMenu();
+
+        var canvas = document.querySelector("canvas");
+
+        var signaturePad = new SignaturePad(canvas);
+
+
+        $('a[name="guardarRegistro"]').on('click', function () {
+
+            $("#firma").val(signaturePad.toDataURL()) // save image as PNG
+
+            if(signaturePad.isEmpty()){
+                toastr.error("Debe rellenar una firma, no puede dejar el cuadro en blanco",'aviso');
+
+            }else{
+                $("#signForm").submit();
+            }
+
+
+        });
+        $('#borrarFirmar').on('click', function () {
+            signaturePad.clear();
+        });
+
+
+
+    });
+
+</script>
+{% endblock %}

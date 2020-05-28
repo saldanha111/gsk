@@ -23,8 +23,6 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Nononsense\UtilsBundle\Classes\Auxiliar;
 use Nononsense\UtilsBundle\Classes\Utils;
 
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-
 class RecordsContractsController extends Controller
 {
     public function listAction(Request $request)
@@ -117,10 +115,12 @@ class RecordsContractsController extends Controller
         $array_item["items"] = $this->getDoctrine()->getRepository(RecordsContracts::class)->list($filters);
         $array_item["count"] = $this->getDoctrine()->getRepository(RecordsContracts::class)->count($filters2,$types);
 
-        $group_direccion_rrhh = $this->getDoctrine()->getRepository('NononsenseGroupBundle:Groups')->find(18);
+
+        
+        $group_direccion_rrhh = $this->getDoctrine()->getRepository('NononsenseGroupBundle:Groups')->find($this->getParameter("group_id_direccion_rrhh"));
         $array_item['group_direccion_rrhh'] = $group_direccion_rrhh;
 
-        $group_comite_rrhh = $this->getDoctrine()->getRepository('NononsenseGroupBundle:Groups')->find(19);
+        $group_comite_rrhh = $this->getDoctrine()->getRepository('NononsenseGroupBundle:Groups')->find($this->getParameter("group_id_comite_rrhh"));
         $array_item['group_comite_rrhh'] = $group_comite_rrhh;
 
         $url=$this->container->get('router')->generate('nononsense_records_contracts');
@@ -183,6 +183,8 @@ class RecordsContractsController extends Controller
     {
         $baseUrl = $this->getParameter("cm_installation");
         $baseUrlAux = $this->getParameter("cm_installation_aux");
+
+        $user = $this->container->get('security.context')->getToken()->getUser();
         
         $record = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:RecordsContracts')
@@ -194,10 +196,40 @@ class RecordsContractsController extends Controller
             $scriptUrl = $baseUrl . "../js/js_oarodoc/contracts_creation.js?v=".uniqid();
         }
         if ($record->getStatus()==1) {//firma por parte del director de rrhh    
-            $scriptUrl = $baseUrl . "../js/js_oarodoc/contracts_sign_director_rrhh.js?v=".uniqid();
+            $isGroup_direccion_rrhh = $this->getDoctrine()->getRepository('NononsenseGroupBundle:GroupUsers')->isMemberOfAnyGroup($user->getId(), array($this->getParameter("group_id_direccion_rrhh")));
+            if($isGroup_direccion_rrhh){
+                $scriptUrl = $baseUrl . "../js/js_oarodoc/contracts_sign_director_rrhh.js?v=".uniqid();
+            }
+            else{
+                $scriptUrl = $baseUrl . "../js/js_oarodoc/contracts_without_perms.js?v=".uniqid();
+            }
         }
         if ($record->getStatus()==2) {//firma por parte del comite de rrhh
-            $scriptUrl = $baseUrl . "../js/js_oarodoc/contracts_sign_comite_rrhh.js?v=".uniqid();
+            $isGroup_comite_rrhh = $this->getDoctrine()->getRepository('NononsenseGroupBundle:GroupUsers')->isMemberOfAnyGroup($user->getId(), array($this->getParameter("group_id_comite_rrhh")));
+            if($isGroup_comite_rrhh){
+                $scriptUrl = $baseUrl . "../js/js_oarodoc/contracts_sign_comite_rrhh.js?v=".uniqid();
+            }
+            else{
+                $scriptUrl = $baseUrl . "../js/js_oarodoc/contracts_without_perms.js?v=".uniqid();
+            }
+        }
+        if ($record->getStatus()==3) {//para enviar
+
+            $isGroup_contratos_rrhh_or_direccion_rrhh = $this->getDoctrine()->getRepository('NononsenseGroupBundle:GroupUsers')->isMemberOfAnyGroup($user->getId(), array($this->getParameter("group_id_contratos_rrhh"), $this->getParameter("group_id_direccion_rrhh")));            
+            if($isGroup_contratos_rrhh_or_direccion_rrhh){
+                $scriptUrl = $baseUrl . "../js/js_oarodoc/contracts_for_send.js?v=".uniqid();
+            }
+            else{
+                $isGroup_comite_rrhh = $this->getDoctrine()->getRepository('NononsenseGroupBundle:GroupUsers')->isMemberOfAnyGroup($user->getId(), array($this->getParameter("group_id_comite_rrhh")));
+
+                if($isGroup_comite_rrhh){
+                    $scriptUrl = $baseUrl . "../js/js_oarodoc/contracts_for_send_comite.js?v=".uniqid();
+                }
+                else{
+                    $scriptUrl = $baseUrl . "../js/js_oarodoc/contracts_without_perms.js?v=".uniqid();
+                }       
+                
+            }
         }
 
         $token_get_data = $this->get('utilities')->generateToken();
@@ -206,6 +238,8 @@ class RecordsContractsController extends Controller
         $callbackUrl=$baseUrlAux."dataRecordsContracts/returnData/".$id;
 
         $id_plantilla = $record->getContract()->getPlantillaId();
+
+        $scriptUrl = $baseUrl . "../js/js_oarodoc/contracts_sign_public_1.js?v=".uniqid();
 
         $base_url=$this->getParameter('api_docoaro')."/documents/".$id_plantilla."?getDataUrl=".$getDataUrl."&redirectUrl=".$redirectUrl."&callbackUrl=".$callbackUrl."&scriptUrl=".$scriptUrl;
         
@@ -222,7 +256,10 @@ class RecordsContractsController extends Controller
         $raw_response = curl_exec($ch);
         $response = json_decode($raw_response, true);
 
-        switch($request->get("mode")){
+        $mode = $request->get("mode");
+        //$mode = 'pdf';
+
+        switch($mode){
             case "pdf": $url_edit_documento=$response["pdfUrl"];break;
             default: $url_edit_documento=$response["fillInUrl"];break;
         }
@@ -231,7 +268,7 @@ class RecordsContractsController extends Controller
     }
 
     /* Función a la que llama docxpresso antes de abrir la vista previa para saber si necesita cargar datos en las plantillas */
-    public function RequestDataAction($id, $token)
+    public function RequestDataAction($id, $token, $sign_public_type)
     {
         $em = $this->getDoctrine()->getManager();
 
@@ -240,6 +277,7 @@ class RecordsContractsController extends Controller
             $data["expired_token"] = 1;    
         }
         else{
+
             // get the InstanciasSteps entity
             $record = $this->getDoctrine()
                 ->getRepository('NononsenseHomeBundle:RecordsContracts')
@@ -253,49 +291,32 @@ class RecordsContractsController extends Controller
             if($record->getStepDataValue()){
                 $data["data"] = json_decode($record->getStepDataValue(),TRUE)["data"];
             }
-            $data["data"]["numero_solicitud"]=$record->getId();
 
-            /*
-            else {
+            //sign_public_type es un tercer param que se pasa para generar la url de firma publica que se envia al firmante final, el empleado
+            if($record->getStatus()==2 || $sign_public_type==1 || $sign_public_type==2){//ya ha firmado direccion rrhh
+                $recordsContractsSignatures = $this->getDoctrine()
+                    ->getRepository('NononsenseHomeBundle:RecordsContractsSignatures')
+                    ->findOneBy(array('record'=>$record, 'number'=>'1'));
 
-                // Data Ingegrity other usage
-                $firmas = $this->getDoctrine()
-                    ->getRepository('NononsenseHomeBundle:RecordsSignatures')
-                    ->findBy(array("record" => $record));
-
-                if (!empty($firmas)) {
-                    $data["data"]["dxo_gsk_audit_trail_bloque"] = 0;
-                    $data["data"]["dxo_gsk_firmas_bloque"] = 1;
-                    $data["data"]["dxo_gsk_firmas"] = $this->_construirFirmas($firmas);
-                }
-
-                if($record->getStatus()==3){
-                    $data["configuration"]["cancel_button"]=0;
-                    $data["configuration"]["cancel_button"]=0;
-                    $data["configuration"]["partial_save_button"]=0;
-                    $data["configuration"]["form_readonly"]=1;
-                }
-
-                if($record->getType()->getId()==1){
-                    if($record->getStatus()==2 || $record->getStatus()==3){
-                        $data["configuration"]["prefix_edit"]="resp_alm_SAP"; 
-                        
-                        $signatures = $this->getDoctrine()
-                            ->getRepository('NononsenseHomeBundle:RecordsSignatures')
-                            ->findBy(array("record"=> $record->getId(), "firma" => NULL));
-                        if(count($signatures)<=1){
-                            $data["data"]["require_sap"]="1";  
-                        }
-                        else{
-                            $data["data"]["require_sap"]=""; 
-                        }
-                    }
-                    else{
-                        $data["data"]["require_sap"]=""; 
-                    }
+                if($recordsContractsSignatures){
+                    $firma = $recordsContractsSignatures->getFirma();
+                    $data["data"]["firma_direccion_rrhh"] = "<img src='" . $firma . "' />";    
                 }
             }
-            */
+            if($record->getStatus()==3 || $sign_public_type==2){//ya ha firmado comite rrhh
+                $recordsContractsSignatures = $this->getDoctrine()
+                    ->getRepository('NononsenseHomeBundle:RecordsContractsSignatures')
+                    ->findOneBy(array('record'=>$record, 'number'=>'2'));
+
+                if($recordsContractsSignatures){
+                    $firma = $recordsContractsSignatures->getFirma();
+                    $data["data"]["firma_comite"] = "<img src='" . $firma . "' />";    
+                }
+            }
+
+
+            $data["configuration"]["form_readonly"]=1;
+            $data["data"]["numero_solicitud"]=$record->getId();
         }
 
 
@@ -329,23 +350,9 @@ class RecordsContractsController extends Controller
 
         $em = $this->getDoctrine()->getManager();
 
+        unset($params["data"]['firma_direccion_rrhh']);
+        unset($params["data"]['firma_comite']);
         $record->setStepDataValue(json_encode(array("data" => $params["data"], "action" => $params["action"]), JSON_FORCE_OBJECT));
-
-        $status = $record->getStatus();
-
-        if($status==0 && $params["action"]=='save'){//esta pasando a firma direccion rrhh
-            $new_status = 1;
-            $record->setStatus($new_status);
-        }
-        if($status==1 && $params["action"]=='save'){//esta pasando a comite
-            $new_status = 2;
-            $record->setStatus($new_status);
-        }
-        if($status==2 && $params["action"]=='save'){//esta pasando a 'para enviar'
-            $new_status = 3;
-            $record->setStatus($new_status);
-        }
-
 
         $em->persist($record);
         $em->flush();
@@ -371,6 +378,9 @@ class RecordsContractsController extends Controller
             $this->get('session')->getFlashBag()->add('error',"Error desconocido al intentar guardar los datos del contrato");
         }
         else{
+
+            $contractName = $record->getContract()->getName();
+
             $stepData = $record->getStepDataValue();
             $stepDataJSON = json_decode($stepData, TRUE);
             $status = $record->getStatus();
@@ -379,330 +389,161 @@ class RecordsContractsController extends Controller
             if($status==0 && $action=='save_partial'){//el contrato ha sido rellenando parcialmente
                 $this->get('session')->getFlashBag()->add('message', "El contrato se ha guardado correctamente");
             }
-            if($status==1 && $action=='save'){//el contrato ha pasado a firma direccion rrhh
-                $this->get('session')->getFlashBag()->add('message', "El contrato se ha enviado para firma de dirección de RRHH");
-            } 
-            if($status==2 && $action=='save'){//el contrato ha pasado a comite
-                $this->get('session')->getFlashBag()->add('message', "El contrato se ha enviado al comité de RRHH");
+            if($status==0 && $action=='save'){//esta pasando a firma direccion rrhh
+                $new_status = 1;
+                $record->setStatus($new_status);
+                $this->get('session')->getFlashBag()->add('message', "El contrato se ha enviado a firmar a Dirección RRHH");
+
+                $users_direccion_rrhh = $em->getRepository(GroupUsers::class)->findBy(["group" => $this->getParameter("group_id_direccion_rrhh")]);
+                $subject="Contrato pendiente de firma";
+                $mensaje='El Contrato con ID '.$record->getId().' está pendiente de firma por su parte';
+                $link=$this->container->get('router')->generate('nononsense_records_contracts_link', array("id" => $record->getId()),TRUE);
+
+                foreach ($users_direccion_rrhh as $user_dir_rrhh) {
+                    $this->_sendNotification($user_dir_rrhh->getUser()->getEmail(), $link, "", "", $subject, $mensaje);
+                }
+
             }
-            if($status==3 && $action=='save'){//el contrato ha pasado a comite
-                $this->get('session')->getFlashBag()->add('message', "El contrato está listo para enviar");
-            }    
+            if($status==1 && $action=='save'){//el contrato va a firmarse por direccion rrhh
+                $can_sign=0;
+                $isGroup_direccion_rrhh = $this->getDoctrine()->getRepository('NononsenseGroupBundle:GroupUsers')->isMemberOfAnyGroup($user->getId(), array($this->getParameter("group_id_direccion_rrhh")));
+                if($isGroup_direccion_rrhh){
+                    $can_sign=1;
+                }
+                if($can_sign==1){
+                    return $this->render('NononsenseHomeBundle:Contratos:record_contract_sign.html.twig', array(
+                        "contractName" => $contractName,
+                        "id" => $id
+                    ));    
+                }
+                else{
+                    $this->get('session')->getFlashBag()->add('error',"No tienes permisos para firmar. Solo pueden firmar miembros de Dirección RRHH");
+                }
+            }
+            if($status==2 && $action=='save'){//el contrato va a firmarse por comite rrhh
+                $can_sign=0;
+                $isGroup_comite_rrhh = $this->getDoctrine()->getRepository('NononsenseGroupBundle:GroupUsers')->isMemberOfAnyGroup($user->getId(), array($this->getParameter("group_id_comite_rrhh")));
+                if($isGroup_comite_rrhh){
+                    $can_sign=1;
+                }
+                if($can_sign==1){
+                    return $this->render('NononsenseHomeBundle:Contratos:record_contract_sign.html.twig', array(
+                        "contractName" => $contractName,
+                        "id" => $id
+                    ));    
+                }
+                else{
+                    $this->get('session')->getFlashBag()->add('error',"No tienes permisos para firmar. Solo pueden firmar miembros del Comité de RRHH");
+                }
+            } 
+
+
+            $em->persist($record);
+            $em->flush();    
         }
         
 
         return $this->redirect($this->container->get('router')->generate('nononsense_records_contracts'));
     }
 
+
     /* Proceso donde firmamos los documentos */
-    public function saveAndSendAction($id, Request $request)
+    public function signAction($id, Request $request)
     {
         $em = $this->getDoctrine()->getManager();
 
         $user = $this->container->get('security.context')->getToken()->getUser();
         
-        $comentario = $request->query->get('comment');
-
-        $record = $this->getDoctrine()
-            ->getRepository('NononsenseHomeBundle:RecordsContracts')
-            ->findOneBy(array("id" => $id));
-
-        if($record->getStatus()!=2 && $record->getStatus()!=5){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                "No puede firmar este documento. Es posible que el documento ya haya sido firmado por otro usuario"
-            );
-            return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
-        }
-
-        if($record->getStatus()==2){
-            $signature = $this->getDoctrine()
-                ->getRepository('NononsenseHomeBundle:RecordsContractsSignatures')
-                ->findOneBy(array("record"=>$record,"next"=>1));
-
-            if(!$signature){
-                $this->get('session')->getFlashBag()->add(
-                    'error',
-                    "No puede firmar este documento. Es posible que el documento ya haya sido firmado por otro usuario"
-                );
-                return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
-            }
-
-            $can_sign=0;
-            if($signature->getGroupEntiy()){
-                $isGroup = $this->getDoctrine()
-                ->getRepository('NononsenseGroupBundle:GroupUsers')
-                ->findOneBy(array("group"=>$signature->getGroupEntiy(),"user"=>$user));
-                if($isGroup){
-                    $can_sign=1;
-                }
-            }
-            else{
-                if($signature->getUserEntiy()->getId()==$user->getId()){
-                    $can_sign=1;
-                }  
-            }
-
-            if(!$can_sign){
-                $this->get('session')->getFlashBag()->add(
-                    'error',
-                    "No puede firmar este documento. Es posible que el documento ya haya sido firmado por otro usuario"
-                );
-                return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
-            }
-
-            if($signature->getAttachment()){
-                if(!$request->files->get('anexo')){
-                    $this->get('session')->getFlashBag()->add(
-                        'error',
-                        "Es necesario adjuntar un anexo para poder firmar este documento"
-                    );
-                    return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
-                }
-                else{
-                    $file = $this->uploadFile($request, $record->getId());
-                    $record->setFiles($file["name"]);
-                }
-            }
-
-            $signature->setFirma($request->get('firma'));
-            $signature->setNext(0);
-            $signature->setUserEntiy($user);
-            $signature->setModified(new \DateTime());
-
-        
-
-            $signature2 = $this->getDoctrine()
-                ->getRepository('NononsenseHomeBundle:RecordsContractsSignatures')
-                ->findOneBy(array("record"=>$record,"firma"=>null,"next" => 0), array('number' => 'ASC'));
-        }
-        else{
-            if(!$request->files->get('anexo')){
-                $this->get('session')->getFlashBag()->add(
-                    'error',
-                    "Es necesario adjuntar un anexo para poder firmar este documento"
-                );
-                return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
-            }
-            else{
-                $file = $this->uploadFile($request, $record->getId());
-                $record->setFiles($file["name"]);
-            }
-
-            $record->setStatus(2);
-            $signature = $this->getDoctrine()
-                ->getRepository('NononsenseHomeBundle:RecordsContractsSignatures')
-                ->findOneBy(array("record"=>$record,"firma"=>null,"next" => 1), array('number' => 'ASC'));
-            $signature2=$signature;
-        }
-
-        if($signature2){
-            $signature2->setNext(1);
-            $em->persist($signature2);
-            $send_email=0;
-            if($signature2->getUserEntiy()){
-                $send_email=1;
-                $emails[]=$signature2->getUserEntiy()->getEmail();
-            }
-            else{
-                $send_email=1;
-                if($signature2->getEmail()){
-                   $emails[]=$signature2->getEmail();
-                }
-                else{
-                    $aux_users = $em->getRepository(GroupUsers::class)->findBy(["group" => $signature2->getGroupEntiy()]);
-                    foreach ($aux_users as $aux_user) {
-                        $emails[]=$aux_user->getUser()->getEmail();
-                    }
-                }
-            }
-
-            if($send_email==1){
-                foreach($emails as $email){
-                    $subject="Documento pendiente de firma";
-                    $mensaje='El Documento con ID '.$record->getId().' está pendiente de revisión por su parte. Para poder revisarlo puede acceder a "Mis documentos pendientes", buscar el documento y pulsar en Firmar';
-                    $baseURL=$this->container->get('router')->generate('nononsense_records_edit', array("id" => $record->getId()),TRUE);
-                    
-                    $this->_sendNotification($email, $baseURL, "", "", $subject, $mensaje);
-                }
-            }
-        }
-        else{
-            if($signature){
-                $record->setLastSign($signature->getId());
-            }
-            $record->setStatus(3);
-        }
-        
-        
-
-
-        $firmas = $this->getDoctrine()
-                ->getRepository('NononsenseHomeBundle:RecordsContractsSignatures')
-                ->findBy(array("record" => $record));
-
-        $stepDataValues = $record->getStepDataValue();
-        $stepDataValuesJSON = json_decode($stepDataValues);
-
-        $stepDataValuesJSON->varValues->dxo_gsk_audit_trail_bloque = array("No");
-        $stepDataValuesJSON->varValues->dxo_gsk_firmas_bloque = array("Si");
-
-
-        $stepDataValuesJSON->varValues->dxo_gsk_firmas[0] = $this->_construirFirmas($firmas);
-
-
-        $data = json_encode($stepDataValuesJSON);
-
-        $record->setStepDataValue($data);
-        $em->persist($record);
-        if($signature){
-            $em->persist($signature);
-        }
-        $em->flush();
-
-        $route = $this->container->get('router')->generate('nononsense_record_sent', array("id" => $record->getId()));
-        
-        return $this->redirect($route);
-
-        
-    }
-
-    /* Proceso donde firmamos los documentos */
-    public function returnAction($id, Request $request)
-    {
-        $em = $this->getDoctrine()->getManager();
-
-        $user = $this->container->get('security.context')->getToken()->getUser();
-        
-        $comentario = $request->get('comment');
-
-        $record = $this->getDoctrine()
-            ->getRepository('NononsenseHomeBundle:RecordsContracts')
-            ->findOneBy(array("id" => $id, "status" => 2));
+        $record = $this->getDoctrine()->getRepository('NononsenseHomeBundle:RecordsContracts')->find($id);
 
         if(!$record){
-            return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
-        }
-
-        $signature = $this->getDoctrine()
-            ->getRepository('NononsenseHomeBundle:RecordsContractsSignatures')
-            ->findOneBy(array("record"=>$record,"next"=>1));
-
-        if(!$signature){
-            return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
-        }
-
-        $can_sign=0;
-        if($signature->getGroupEntiy()){
-            $isGroup = $this->getDoctrine()
-            ->getRepository('NononsenseGroupBundle:GroupUsers')
-            ->findOneBy(array("group"=>$signature->getGroupEntiy(),"user"=>$user));
-            if($isGroup){
-                $can_sign=1;
-            }
+            $this->get('session')->getFlashBag()->add('error',"Error desconocido al intentar guardar los datos del contrato");
         }
         else{
-            if($signature->getUserEntiy()->getId()==$user->getId()){
-                $can_sign=1;
-            }  
-        }
-
-        if(!$can_sign){
-            return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
-        }
-
-        if($record->getStatus()!=2){
-            return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
-        }
-
-
-        $signature->setFirma($request->get('firma'));
-        $signature->setComments($request->get('comment'));
-        $signature->setNext(0);
-        $signature->setUserEntiy($user);
-        $signature->setModified(new \DateTime());
-
-        $record->setStatus(1);
-        $record->setComments($request->get('comment'));
-
-        $signature2 = $this->getDoctrine()
-            ->getRepository('NononsenseHomeBundle:RecordsContractsSignatures')
-            ->findOneBy(array("record"=>$record), array('number' => 'ASC'));
-
-        if($signature2){
-            
-            $email=$signature2->getUserEntiy()->getEmail();
-            
-
-            $subject="Documento devuelto para revisión";
-            $mensaje='El Documento con ID '.$record->getId().' ha sido devuelto por el usuario '.$user->getName().' y está pendiente de revisión.<br>La razón por la que se ha devuelto el documento es la siguiente: '.$request->get('comment').'.<br><br> Para poder revisar el documento puede acceder a la sección de "Mis documentos pendientes", buscar el documento y pulsar en Completar Documento';
-            $baseURL=$this->container->get('router')->generate('nononsense_records_edit', array("id" => $record->getId()),TRUE);
-                
-            $this->_sendNotification($email, $baseURL, "", "", $subject, $mensaje);
-
-        }
-        else{
-            return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
-        }
-        
-        
-        
-
-        $firmas = $this->getDoctrine()
+            $status = $record->getStatus();
+            if($status==1){//la firma es del director de rrhh
+                $signature = $this->getDoctrine()
                 ->getRepository('NononsenseHomeBundle:RecordsContractsSignatures')
-                ->findBy(array("record" => $record));
+                ->findOneBy(array("record"=>$record,"number"=>1));
 
-        $stepDataValues = $record->getStepDataValue();
-        $stepDataValuesJSON = json_decode($stepDataValues);
+                if(!$signature){
 
-        $stepDataValuesJSON->varValues->dxo_gsk_audit_trail_bloque = array("No");
-        $stepDataValuesJSON->varValues->dxo_gsk_firmas_bloque = array("Si");
+                    $can_sign=0;
 
+                    $isGroup_direccion_rrhh = $this->getDoctrine()->getRepository('NononsenseGroupBundle:GroupUsers')->isMemberOfAnyGroup($user->getId(), array($this->getParameter("group_id_direccion_rrhh")));
+                    if($isGroup_direccion_rrhh){
+                        $can_sign=1;
+                    }
 
-        $stepDataValuesJSON->varValues->dxo_gsk_firmas[0] = $this->_construirFirmas($firmas);
+                    if($can_sign==1){
+                        $signature = new RecordsContractsSignatures();
+                        $signature->setFirma($request->get('firma'));
+                        $signature->setNumber(1);
+                        $signature->setUserEntiy($user);
+                        $signature->setRecord($record);
+                        $em->persist($signature);
 
+                        $record->setStatus(2);
+                        $em->persist($record);              
+                        $this->get('session')->getFlashBag()->add('error',"La firma se ha grabado correctamente");      
 
-        $data = json_encode($stepDataValuesJSON);
+                        $users_comite_rrhh = $em->getRepository(GroupUsers::class)->findBy(["group" => $this->getParameter("group_id_comite_rrhh")]);
+                        $subject="Contrato pendiente de firma";
+                        $mensaje='El Contrato con ID '.$record->getId().' está pendiente de firma por su parte';
+                        $link=$this->container->get('router')->generate('nononsense_records_contracts_link', array("id" => $record->getId()),TRUE);
 
-        $record->setStepDataValue($data);
-        $em->persist($record);
-        $em->persist($signature);
+                        foreach ($users_comite_rrhh as $user_comite_rrhh) {
+                            $this->_sendNotification($user_comite_rrhh->getUser()->getEmail(), $link, "", "", $subject, $mensaje);
+                        }
 
-        $remove_signatures = $em->getRepository(RecordsContractsSignatures::class)->findBy(["record" => $record, "firma" => NULL]);
-        
-        foreach ($remove_signatures as $remove_signature) {
-            if($signature->getId()!=$remove_signature->getId()){
-                $em->remove($remove_signature);
+                    }
+                    else{
+                        $this->get('session')->getFlashBag()->add('error',"La firma no se grabó porque no tienes permisos suficientes");
+                    }
+                }
+                else{
+                    $this->get('session')->getFlashBag()->add('error',"La firma no se grabó porque este contrato ya había sido firmado por el director de RRHH");
+                }
+            }
+            if($status==2){//la firma es del comite de rrhh
+                $signature = $this->getDoctrine()
+                    ->getRepository('NononsenseHomeBundle:RecordsContractsSignatures')
+                    ->findOneBy(array("record"=>$record,"number"=>2));
+
+                if(!$signature){
+
+                    $can_sign=0;
+
+                    $isGroup_comite_rrhh = $this->getDoctrine()->getRepository('NononsenseGroupBundle:GroupUsers')->isMemberOfAnyGroup($user->getId(), array($this->getParameter("group_id_comite_rrhh")));
+                    if($isGroup_comite_rrhh){
+                        $can_sign=1;
+                    }
+
+                    if($can_sign==1){
+                        $signature = new RecordsContractsSignatures();
+                        $signature->setFirma($request->get('firma'));
+                        $signature->setNumber(2);
+                        $signature->setUserEntiy($user);
+                        $signature->setRecord($record);
+                        $em->persist($signature);
+
+                        $record->setStatus(3);
+                        $em->persist($record);              
+                        $this->get('session')->getFlashBag()->add('error',"La firma se ha grabado correctamente");      
+                    }
+                    else{
+                        $this->get('session')->getFlashBag()->add('error',"La firma no se grabó porque no tienes permisos suficientes");
+                    }
+                }
+                else{
+                    $this->get('session')->getFlashBag()->add('error',"La firma no se grabó porque este contrato ya había sido firmado por el comité de RRHH");
+                }
             }
         }
 
         $em->flush();
 
-        $route = $this->container->get('router')->generate('nononsense_record_sent', array("id" => $record->getId()));
-        
-        return $this->redirect($route);
-
-        
-    }
-
-    public function sentAction($id, Request $request)
-    {
-        $record = $this->getDoctrine()
-            ->getRepository('NononsenseHomeBundle:RecordsContracts')
-            ->findOneBy(array("id" => $id));
-            
-        $stepData = $record->getStepDataValue();
-        $stepDataJSON = json_decode($stepData);
-
-        $documentName = $record->getDocument()->getName();
-        $validations = $stepDataJSON->validations;
-        $percentageCompleted = $validations->percentage;
-
-        return $this->render('NononsenseHomeBundle:Contratos:record_sent.html.twig', array(
-                    "documentName" => $documentName,
-                    "percentageCompleted" => $percentageCompleted,
-                    "id" => $id,
-        ));
+        return $this->redirect($this->container->get('router')->generate('nononsense_records_contracts'));
     }
 
     public function editAction($id)
@@ -716,328 +557,7 @@ class RecordsContractsController extends Controller
         return $this->redirect($route);
     }
 
-    public function fileAction($id)
-    {
-        $record = $this->getDoctrine()
-            ->getRepository('NononsenseHomeBundle:RecordsContracts')
-            ->find($id);
 
-        return new BinaryFileResponse($this->get('kernel')->getRootDir().$record->getFiles());
-    }
-
-    public function downloadPdfAction($id)
-    {
-        /*
-         *
-         */
-        
-        $dataResponse = new \stdClass();
-        $dataResponse->id = $id;
-
-        $record = $this->getDoctrine()
-            ->getRepository('NononsenseHomeBundle:RecordsContracts')
-            ->find($id);
-
-
-        $name = $record->getDocument()->getName();
-
-        
-
-        $template = $record->getDocument()->getPlantillaId();
-
-
-        $stepDataValues = $record->getStepDataValue();
-        $stepDataValuesJSON = json_decode($stepDataValues);
-
-        $rootdir = $this->get('kernel')->getRootDir();
-        $rootdirFiles = $rootdir . "/files/documents/".$id;
-
-        $fs = new Filesystem();
-        if(!$fs->exists($rootdirFiles))
-        {
-            $fs->mkdir($rootdirFiles);
-        }
-
-        $filenamedownloadpdf = $rootdirFiles . "/" . $name . $id .".pdf";
-        $filenamepdf = $name . $id;
-        
-        $aux = new Auxiliar();
-        $utils = new Utils();
-        
-        $options = array();
-        $options['template'] = (int)$template;
-        $options['documentName'] = $filenamepdf;
-        $options['response'] = 'json';
-
-        $dataDXO = json_encode($stepDataValuesJSON);
-
-        $options['data'] = $dataDXO;
-        $options['format'] = 'pdf';
-        $options['name'] = $filenamepdf . '.pdf';
-        $options['reference'] = $filenamepdf;
-
-        $opt = $this->get('app.sdk')->base64_encode_url_safe(json_encode($options));
-        //generate security info
-        $uniqid = uniqid() . rand(99999, 9999999);
-        $timestamp = time();
-        $control = $template . '-';
-        $control .= $timestamp . '-' . $uniqid;
-        $control .= '-' . $opt;
-
-        $dataKey = sha1($control, true);
-        $masterKey = $this->getParameter('apikey');
-        $APIKEY = bin2hex($utils->sha1_hmac($masterKey, $dataKey));
-
-        //we should now redirect to Docxpresso
-        $url = $this->getParameter('docxpresso_installation') . '/documents/requestDocument/' . $template;
-        $addr = $url . '?';
-        $addr .= 'uniqid=' . $uniqid . '&';
-        $addr .= 'timestamp=' . $timestamp . '&';
-        $addr .= 'APIKEY=' . $APIKEY;
-
-        $curlResponse = $aux->curlRequest($addr, $opt);
-
-        if ($curlResponse['status'] != 'OK') {
-            //handle the error
-            //exit('error');
-            echo "</br>Error</br>";
-            print_r("</br>" . $curlResponse['externalData']);
-
-            $responseAction = new Response();
-            $responseAction->setStatusCode(500);
-            $dataResponse->feedback = "Error en la creación del fichero";
-            $responseAction->setContent(json_encode($dataResponse));
-        } else {
-            //print_r($curlResponse);
-
-            $response = json_decode($curlResponse['externalData']);
-            //print_r($response);
-
-            $usageId = $response->usageId;
-            $token = $response->token;
-            $name = $response->name;
-
-            $dataDonwload = array();
-            $dataDonwload['id'] = $template;
-            $dataDonwload['token'] = $token;
-            $documentLink = $this->get('app.sdk')->downloadDocument($dataDonwload);
-
-            if (file_exists($filenamedownloadpdf)) {
-                unlink($filenamedownloadpdf);
-            }
-
-            if (file_put_contents($filenamedownloadpdf, fopen($documentLink, 'r')) === FALSE) {
-                $responseAction = new Response();
-                $responseAction->setStatusCode(500);
-                $dataResponse->feedback = "Error en la descarga del fichero";
-                $responseAction->setContent(json_encode($dataResponse));
-
-            } else {
-                return new BinaryFileResponse($filenamedownloadpdf);
-            }
-        }
-
-        return $responseAction;
-    }
-
-    private function albaranAlmacen($record,$number_signatures){
-
-        $em = $this->getDoctrine()->getManager();
-        $baseSignatures = $this->getDoctrine()
-            ->getRepository('NononsenseHomeBundle:ContractsSignatures')
-            ->findBy(array("document"=> $record->getDocument()));
-
-        $data = $record->getStepDataValue();
-        $dataJson = json_decode($data);
-
-        $logistica=0;
-        $calidad=0;
-        $almacen=1;
-        $responsable_almacen=1;
-        $anexo=0;
-
-        $step3=0;
-        $step4=0;
-        
-        foreach($dataJson->varValues->u_tipo_material as $key => $material_value){
-            if(urldecode($dataJson->varValues->u_check3[1])!="" && urldecode($dataJson->varValues->u_check4[1])==""){
-                $anexo=1;
-            }
-
-            if(urldecode($dataJson->varValues->u_check4[2])!="" && (urldecode($dataJson->varValues->u_check3[3])!="" || urldecode($dataJson->varValues->u_check3[4])!="") && urldecode($dataJson->varValues->u_tipo_material[$key])!="ZINT REG" && urldecode($dataJson->varValues->u_tipo_material[$key])!="ZCOM NO Impreso"){
-                $anexo=1;
-            }
-
-            switch(urldecode($dataJson->varValues->u_tipo_material[$key])){
-                case "ZINT REG":
-                case "ZINT PRU":
-                    $step4=1;
-                    break;
-                case "ZNBW":
-                    $almacen=1;
-                    $responsable_almacen=1;
-                    break;
-                case "ZCOM Impreso":
-                    if(urldecode($dataJson->varValues->u_check2[$key])=="Si"){
-                        $step4=1;
-                    }
-                    else{
-                        $logistica=1;
-                        $step4=1;
-                    }
-                    break;
-                default:
-                    $step3=1;
-                    break;
-            }
-
-            if($step3){
-                if(urldecode($dataJson->varValues->u_check3[2])!="" && urldecode($dataJson->varValues->u_check4[0])==""){
-                    $almacen=1;
-                    $responsable_almacen=1;
-                }
-                else{
-                    $logistica=1;
-                    $step4=1;
-                }
-            }
-
-            /* Miramos Logística */
-            if($step4){
-                if(urldecode($dataJson->varValues->u_check4[0])!="" && urldecode($dataJson->varValues->u_check3[2])!=""){
-                    $calidad=1;
-                }
-                else{
-                    $almacen=1;
-                    $responsable_almacen=1;
-                }
-            }
-        }
-
-        $next=1;
-        if($record->getDocument()->getSignCreator()){
-            $sign = new RecordsContractsSignatures();
-            $sign->setUserEntiy($record->getUserCreatedEntiy());
-            $sign->setRecord($record);
-            $sign->setNumber(0+$number_signatures);
-            $sign->setAttachment($anexo);
-            $sign->setNext($next);
-            $sign->setCreated(new \DateTime());
-            $em->persist($sign); 
-            $next=0;
-        }
-
-        foreach ($baseSignatures as $key => $baseSignaturre) {
-            if(($key==0 && $logistica) || ($key==1 && $calidad) || ($key==2 && $almacen) || ($key==3 && $responsable_almacen)){
-                $sign = new RecordsContractsSignatures();
-                $sign->setUserEntiy($baseSignaturre->getUserEntiy());
-                $sign->setGroupEntiy($baseSignaturre->getGroupEntiy());
-                $sign->setRecord($record);
-                $sign->setNumber($baseSignaturre->getNumber()+$number_signatures);
-                $sign->setAttachment($baseSignaturre->getAttachment());
-                $sign->setNext($next);
-                $sign->setEmail($baseSignaturre->getEmail());
-                $sign->setCreated(new \DateTime());
-                $em->persist($sign);
-                $next=0;
-            }
-        }
-
-        $em->flush();
-    }
-
-    private function _construirFirmas($firmas)
-    {
-        //$firmas => array entidad firmas
-        $fullText="";
-        foreach ($firmas as $firma) {
-            if($firma->getFirma() && $firma->getUserEntiy()){
-                
-                $user = $this->getDoctrine()
-                ->getRepository('NononsenseUserBundle:Users')
-                ->find($firma->getUserEntiy());
-                if($user->getName()){
-                    $name=$user->getName();
-                }
-                else{
-                    $name="";
-       
-                }
-                
-                $id = $firma->getId();
-                $nombre = $name;
-                $fecha = $firma->getModified()->format('d-m-Y H:i:s');
-                $firma = $firma->getFirma();
-
-                $fullText .= "<i>Documento securizado mediante registro en Blockchain</i><br>" . $nombre . " " . $fecha . "<br><img src='" . $firma . "' /><br><br><br>";
-            }
-        }
-        
-        return $fullText;
-
-    }
-
-    private function uploadFile($request, $record_id)
-    {
-        //====================
-        // GUARDAR DOCUMENTOS
-        //====================
-
-        //--------------------
-        // url carpeta usuario
-        //--------------------
-        $ruta='/files/documents/'.$record_id.'/anexos/';
-        $full_path = $this->get('kernel')->getRootDir() . $ruta;
-
-        //---------------------------
-        // ayudante archivos Symfony
-        //---------------------------
-        $fs = new Filesystem();
-
-        //----------------------------
-        // crear carpeta si no existe
-        //----------------------------
-        if(!$fs->exists($full_path))
-        {
-            $fs->mkdir($full_path);
-        }
-
-        //----------------------
-        // nombre del documento
-        //----------------------
-        $file = $request->files->get('anexo');
-        $file_name = $file->getClientOriginalName();
-        $file_name_ = $file_name;
-
-        //--------------------------------------------------
-        // si existe documento mismo nombre, cambiar nombre
-        //--------------------------------------------------
-        if(file_exists($full_path.$file_name))
-        {
-            $i = 0;
-
-            do
-            {
-                $i++;
-                $file_name = $i.$file_name_;
-            }
-
-            while (file_exists($full_path.$file_name));
-        }
-
-        //-------------------
-        // guardar documento
-        //-------------------
-        $file->move($full_path, $file_name);
-
-        /**
-         * @return [ nombre documento, tamaño documento ]
-         */
-        return [
-            'name' => $ruta.$file_name,
-            'size' => $file->getClientSize()
-        ];
-    }
 
     /* Enviamos un email al trabajador para firma de contrato */
     public function sendEmailAction(Request $request)
@@ -1060,10 +580,42 @@ class RecordsContractsController extends Controller
                 try{
                     $em = $this->getDoctrine()->getManager();
 
+                    $baseUrl = $this->getParameter("cm_installation");
+                    $baseUrlAux = $this->getParameter("cm_installation_aux");
+
                     $token = uniqid().rand(10000,90000);
                     $pin = rand(100000, 900000);
 
-                    $link = $this->container->get('router')->generate('nononsense_records_contracts_public_sign_contract', array("token" => $token), UrlGeneratorInterface::ABSOLUTE_URL);
+                    $id_plantilla = $record->getContract()->getPlantillaId();
+
+                    $links = array();
+
+                    for($i=1;$i<=2;$i++){
+                        $token_get_data = $this->get('utilities')->generateToken();
+                        $getDataUrl=$baseUrlAux."dataRecordsContracts/requestData/".$id."/".$token_get_data."/".$i;
+                        $redirectUrl = $this->container->get('router')->generate('nononsense_records_contracts_public_sign_contract', array("token" => $record->getId()));
+
+                        $scriptUrl_link = $baseUrl . "../js/js_oarodoc/contracts_sign_public_".$i.".js?v=".uniqid();
+                        $base_url=$this->getParameter('api_docoaro')."/documents/".$id_plantilla."?getDataUrl=".$getDataUrl."&redirectUrl=".$redirectUrl."&scriptUrl=".$scriptUrl_link;
+                        $ch = curl_init();
+                        curl_setopt($ch, CURLOPT_URL, $base_url);
+                        curl_setopt($ch, CURLOPT_CUSTOMREQUEST,"GET");
+                        curl_setopt($ch, CURLOPT_HTTPHEADER,array("Api-Key: ".$this->getParameter('api_key_docoaro')));
+                        curl_setopt($ch, CURLOPT_POST, 1);
+                        curl_setopt($ch, CURLOPT_POSTFIELDS, array());    
+                        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); 
+                        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+                        $raw_response = curl_exec($ch);
+                        $response = json_decode($raw_response, true);
+                        $links[$i] = $response["pdfUrl"];
+                    }
+
+                    echo "<pre>";
+                    print_r($links);
+                    echo "</pre>";
+
+                    die();
+
 
                     $record->setTokenPublicSignature($token);
                     $record->setPin($pin);
@@ -1076,7 +628,8 @@ class RecordsContractsController extends Controller
                         ->setBody(
                             $this->renderView(
                                 'NononsenseHomeBundle:Email:requestSignContract.html.twig', array(
-                                'link' => $link,
+                                'link1' => $link1,
+                                'link2' => $link2,
                                 'pin' => $pin,
                             )),
                             'text/html'
@@ -1090,6 +643,8 @@ class RecordsContractsController extends Controller
                     }
                 }
                 catch (\Exception $e) {
+                    echo $e->getMessage();
+                    die();
                     $this->get('session')->getFlashBag()->add('error',"El contrato no se ha podido enviar para su firma");    
                 }
             }
@@ -1163,22 +718,6 @@ class RecordsContractsController extends Controller
         }
 
         throw new \Exception("Contrato no existente", 1);
-    }
-
-    public function viewContractAction(Request $request, $token){
-
-        $em = $this->getDoctrine()->getManager();
-        
-        $ruta_archivo = $this->get('kernel')->getRootDir() . "/../files/el_pdf.pdf";
-         
-        if(file_exists($ruta_archivo)){
-            $content = file_get_contents($ruta_archivo);    
-            $response = new Response($content);
-            $response->headers->set('Content-type', 'application/pdf');
-            $response->headers->set('Content-Disposition', 'inline');
-            return $response;
-        }
-
     }
 
     private function _sendNotification($mailTo, $link, $logo, $accion, $subject, $message)

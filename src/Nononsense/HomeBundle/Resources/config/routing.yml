@@ -479,8 +479,8 @@ nononsense_records_return_data:
     defaults: { _controller: NononsenseHomeBundle:Records:returnData, id: 0}
 
 nononsense_records_contracts_requet_data:
-    path:     /dataRecordsContracts/requestData/{id}/{token}
-    defaults: { _controller: NononsenseHomeBundle:RecordsContracts:RequestData, id: 0, token: null}
+    path:     /dataRecordsContracts/requestData/{id}/{token}/{sign_public_type}
+    defaults: { _controller: NononsenseHomeBundle:RecordsContracts:RequestData, id: 0, token: null, sign_public_type: null}
 
 nononsense_records_contracts_return_data:
     path:     /dataRecordsContracts/returnData/{id}
@@ -489,6 +489,10 @@ nononsense_records_contracts_return_data:
 nononsense_records_contracts_redirect_from_data:
     path: /recordsContracts/redirectFromData/{id}
     defaults: { _controller: NononsenseHomeBundle:RecordsContracts:redirectFromData, id: 0}
+
+nononsense_record_contracts_sign:
+    path:     /recordsContractsSign/{id}
+    defaults: { _controller: NononsenseHomeBundle:RecordsContracts:sign, id: 0 }
 
 nononsense_backoffice_standby_documents_list:
     path:     /backoffice_standby_documents_list
