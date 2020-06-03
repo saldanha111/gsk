@@ -30,7 +30,7 @@ class DataDocumentController extends Controller
 
     public function getDataURIRequestAction($instancia_step_id)
     {
-
+        $id_usuario=1; //Cambiar por el check token
         // get the InstanciasSteps entity
         $step = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:InstanciasSteps')
@@ -45,62 +45,12 @@ class DataDocumentController extends Controller
             ->find($step->getWorkflowId());
 
         $request = Request::createFromGlobals();
-        $postData = $request->request->all();
+        $params = array();
+        $content = $request->getContent();
 
-        // WARGING SECURITY MISSING DONT FORGET GUS
-
-        $data = "{}";
-        foreach ($postData as $key => $value) {
-            ${$key} = $value;
-        }
-        $dataJSON = json_decode($data);
+        $dataJSON = json_decode($content);
 
         $em = $this->getDoctrine()->getManager();
-
-
-        /*
-         * Update master-data if step is master of that data
-         */
-        $stepMasterData = $master_step->getStepData();
-        if (!empty($stepMasterData)) {
-            $stepMasterDataJSON = json_decode($stepMasterData);
-
-            $workflowDataMaster = $instancia_workflow->getMasterDataValues();
-            $workflowDataMasterJSON = json_decode($workflowDataMaster);
-
-            foreach ($stepMasterDataJSON as $variable) {
-
-                $nameVariable = $variable->nameVar;
-                $stepmaster = $variable->step;
-
-                if ($stepmaster == $master_step->getId()) {
-                    // this document is master of this data -> Update value
-                    // ¿error if empty?
-                    if (!empty($dataJSON->varValues->{$nameVariable})) {
-                        /*
-                         * Process values
-                         * Problem with radio button
-                         */
-                        $arrayValues = $dataJSON->varValues->{$nameVariable};
-                        /*
-                        $arrayAux = array();
-                        foreach ($arrayValues as $val) {
-                            if ($val == "") {
-                                $arrayAux[] = "    ";
-                            } else {
-                                $arrayAux[] = $val;
-                            }
-                        }
-                        */
-                        $workflowDataMasterJSON->{$nameVariable}->valueVar = $arrayValues;
-
-                    }
-                }
-            }
-
-            $workflowDataMaster = json_encode($workflowDataMasterJSON);
-            $instancia_workflow->setMasterDataValues($workflowDataMaster);
-        }
 
         /*
          * Si el status ya es 1 es que lo que se está haciendo es validar. Ya que no se permite un segundo rellenado.
@@ -110,15 +60,15 @@ class DataDocumentController extends Controller
         $now = new \DateTime();
 
 
-        if ($instancia_workflow->getMasterWorkflow() == 16) {
+        /*if ($instancia_workflow->getMasterWorkflow() == 16) {
             // Reconciliacion
             $reconciliacionRegistro = $this->getDoctrine()
                 ->getRepository('NononsenseHomeBundle:ReconciliacionRegistro')
                 ->findOneBy(array("solicitud_id" => $instancia_workflow->getId()));
 
-            if (isset($dataJSON->varValues->FLL_opt1)) {
-                $FLL_opt1 = $dataJSON->varValues->FLL_opt1;
-                $FLL_opt2 = $dataJSON->varValues->FLL_opt2;
+            if (isset($dataJSON->data->FLL_opt1)) {
+                $FLL_opt1 = $dataJSON->data->FLL_opt1;
+                $FLL_opt2 = $dataJSON->data->FLL_opt2;
 
                 if (in_array('Si', $FLL_opt1)) {
                     // O mejor por masterworkflow y poner estado "reconciliado"
@@ -140,12 +90,12 @@ class DataDocumentController extends Controller
                 }
                 $em->persist($reconciliacionRegistro);
             }
-        }
+        }*/ //Desactiva por el momento Sergio
 
         /*
          * Actualizar metaData según variables
          */
-        $varValues = $dataJSON->varValues;
+        $varValues = $dataJSON->data;
 
         $workorderSAP = "";
         $equipo = "";
@@ -154,32 +104,34 @@ class DataDocumentController extends Controller
         $codigo_documento_lote = "";
 
         foreach ($varValues as $prop => $value) {
-
-            switch ($prop) {
-                /*
-                 * Falta codigo_documento_lote
-                 */
-                case "u_lote":
-                    $lote = rawurldecode($value[0]);
-                    break;
-                case "u_material":
-                    $material = rawurldecode($value[0]);
-                    break;
-                case "u_codigo":
-                    $lote = rawurldecode($value[0]);
-                    break;
-                case "u_batch":
-                    $lote = rawurldecode($value[0]);
-                    break;
-                case "u_SAP":
-                    $workorderSAP = rawurldecode($value[0]);
-                    break;
-                case "u_equipo":
-                    $equipo = rawurldecode($value[0]);
-                    break;
-                default:
-                    // do nothing
-                    break;
+            // No tiene sentido que guardemos valores en los metadata de lineas que se pueden clonar ya que podría tener valores distintos
+            if(!is_object($value)){
+                switch ($prop) {
+                    /*
+                     * Falta codigo_documento_lote
+                     */
+                    case "u_lote":
+                        $lote = rawurldecode($value);
+                        break;
+                    case "u_material":
+                        $material = rawurldecode($value);
+                        break;
+                    case "u_codigo":
+                        $lote = rawurldecode($value);
+                        break;
+                    case "u_batch":
+                        $lote = rawurldecode($value);
+                        break;
+                    case "u_SAP":
+                        $workorderSAP = rawurldecode($value);
+                        break;
+                    case "u_equipo":
+                        $equipo = rawurldecode($value);
+                        break;
+                    default:
+                        // do nothing
+                        break;
+                }
             }
         }
 
@@ -195,8 +147,19 @@ class DataDocumentController extends Controller
 
         $em->persist($metaData);
 
-        $data = json_encode($dataJSON);
+        if (!empty($content))
+        {
+            $params = json_decode($content, true); // 2nd param to get as array
+        }
+        foreach($params["data"] as $key => $uniq_param){
+            if (strpos($key, 'dxo_') === 0) {
+                unset($params["data"][$key]);
+            }
+        }
+        $data=json_encode(array("data" => $params["data"],"configuration" => $params["configuration"], "action" => $params["action"]), JSON_FORCE_OBJECT);
         $step->setStepDataValue($data);
+
+        
         $step->setStatusId(1);
 
         /*
@@ -204,12 +167,12 @@ class DataDocumentController extends Controller
          */
         $revisionStep = new RevisionStep();
         $revisionStep->setStepDataValue($data);
-        $revisionStep->setToken($dataJSON->token);
-        $revisionStep->setUsageId($dataJSON->usageId);
+        $revisionStep->setToken($params["token"]);
+        $revisionStep->setUsageId($id_usuario);
         $revisionStep->setStepEntity($step);
 
-        $step->setToken($dataJSON->token);
-        $step->setUsageId($dataJSON->usageId);
+        $step->setToken($params["token"]);
+        $step->setUsageId($id_usuario);
 
         $em->persist($revisionStep);
         $em->persist($instancia_workflow);
@@ -229,6 +192,13 @@ class DataDocumentController extends Controller
         /*
          * Get Value from JSON to put into document
          */
+
+        if(isset($_REQUEST["readonly"])){
+            $readonly=TRUE;
+        }
+        else{
+            $readonly=FALSE;
+        }
 
         // get the InstanciasSteps entity
         $step = $this->getDoctrine()
@@ -255,19 +225,27 @@ class DataDocumentController extends Controller
 
         $data = new \stdClass();
         $varValues = new \stdClass();
-        $data->varValues = $varValues;
+        $cfgValues = new \stdClass();
+        $data->data = $varValues;
+        $data->configuration = $cfgValues;
         $completo=0;
 
         if ($step->getStatusId() == 0) {
             // first usage
             $data = new \stdClass();
             $varValues = new \stdClass();
-            $varValues->u_id_cumplimentacion = array($step->getId());
+            $cfgValues = new \stdClass();
+            $varValues->u_id_cumplimentacion = $step->getId();
 
             if (isset($workflowMasterDataJSON)) {
                 foreach ($workflowMasterDataJSON as $variable) {
                     $varName = $variable->nameVar;
-                    $varValue = $variable->valueVar;
+                    if(is_array($variable->valueVar) && count($variable->valueVar)==1){
+                        $varValue = $variable->valueVar[0];
+                    }
+                    else{
+                        $varValue = $variable->valueVar;
+                    }
 
                     $varValues->{$varName} = $varValue;
                 }
@@ -278,7 +256,7 @@ class DataDocumentController extends Controller
              * 	//IMPORTANTE: todos los valores númericos deben estar en gramos
              */
             if($step->getMasterStepId() == 6){
-                $cl_sup = $workflowMasterDataJSON->cl_sup->valueVar[0];
+                /*$cl_sup = $workflowMasterDataJSON->cl_sup->valueVar[0];
                 $cl_inf = $workflowMasterDataJSON->cl_inf->valueVar[0];
                 $limite_control = $cl_inf . " - " . $cl_sup;
 
@@ -291,7 +269,7 @@ class DataDocumentController extends Controller
                 $varValues->u_limite_aviso = array($u_limite_aviso);
 
                 $pesa_chequeo_sensibilidad = $workflowMasterDataJSON->pesa_chequeo_sensibilidad->valueVar[0];
-                $varValues->u_pesa = array($pesa_chequeo_sensibilidad);
+                $varValues->u_pesa = array($pesa_chequeo_sensibilidad);*/ //Desactiva por el momento Sergio
 
 
             }
@@ -299,49 +277,65 @@ class DataDocumentController extends Controller
              * Repetibilidad
              */
             if($step->getMasterStepId() == 7){
-                $pesa_chequeo_sensibilidad = $workflowMasterDataJSON->peso_chequeo_repetibilidad->valueVar[0];
+                /*$pesa_chequeo_sensibilidad = $workflowMasterDataJSON->peso_chequeo_repetibilidad->valueVar[0];
                 $varValues->u_pesa = array($pesa_chequeo_sensibilidad);
 
                 $limite_control = $workflowMasterDataJSON->cl_desv_std->valueVar[0];
                 $varValues->u_limite_control = array($limite_control);
 
                 $u_limite_aviso = $workflowMasterDataJSON->wl_desv_std->valueVar[0];
-                $varValues->u_limite_aviso = array($u_limite_aviso);
+                $varValues->u_limite_aviso = array($u_limite_aviso);*/ //Desactiva por el momento Sergio
             }
 
 
-            $varValues->historico_steps = array("     ");
-            $data->varValues = $varValues;
+            $varValues->historico_steps = "";
+            $data->data = $varValues;
+
+            $data->configuration = $cfgValues;
+            $data->configuration->prefix_view="u_;in_;dxo_";
+            $data->configuration->apply_required=1;
 
 
         } else {
+            
             // Data Ingegrity other usage
 
             $stepDataValue = $step->getStepDataValue();
             $data = json_decode($stepDataValue);
 
+            $data->configuration->prefix_view="u_;in_;dxo_";
+            $data->configuration->apply_required=1;
+
+            // Validación de cancelación
+            if ($instancia_workflow->getStatus() == 5 || $instancia_workflow->getStatus() == 14) {
+                $data->configuration->form_readonly=1;
+                $data->configuration->prefix_view="";
+                $data->configuration->partial_save_button=1;
+                $data->configuration->cancel_button=1;
+                $data->configuration->close_button=1;
+            }
+
+            // Verificación de cumplimentación
+            if ($instancia_workflow->getStatus() == 4) {
+                $data->configuration->prefix_view="";
+                $data->configuration->prefix_edit="verchk_;";
+                $data->configuration->partial_save_button=1;
+                $data->configuration->cancel_button=1;
+                $data->configuration->close_button=1;
+            }
+
+            if ($instancia_workflow->getStatus() == 9 || $instancia_workflow->getStatus() == 10 || $instancia_workflow->getStatus() == 11 || $instancia_workflow->getStatus() == 8 || $instancia_workflow->getStatus() == 6 || $readonly) {
+                $data->configuration->prefix_view="";
+                $data->configuration->form_readonly=1;
+                $data->configuration->partial_save_button=0;
+                $data->configuration->cancel_button=0;
+                $data->configuration->close_button=1;
+                $data->configuration->apply_required=0;
+            }
             $stepMasterDataJSON = json_decode($stepMasterData);
 
             $workflowMasterDataJSON = json_decode($workflowMasterData);
-            $flag = true;
-            if (!empty($stepMasterDataJSON) && $flag) {
-                foreach ($stepMasterDataJSON as $variables) {
-                    $nameVariable = $variables->nameVar;
-                    $fisrt = $variables->first;
 
-                    if ($fisrt == "") {
-                        if (isset($workflowMasterDataJSON->{$nameVariable})) {
-                            if ($workflowMasterDataJSON->{$nameVariable}->valueVar != "") {
-                                if ($nameVariable != "pro_razon_social") {
-                                    $data->varValues->{$nameVariable} = $workflowMasterDataJSON->{$nameVariable}->valueVar;
-                                }
-                            } else {
-                                $data->varValues->{$nameVariable} = array("     ");
-                            }
-                        }
-                    }
-                }
-            }
             /*
              * Tendría que haber un protocolo para diferenciar cuando se imprimen sólo las firmas o el histórico completo:
              */
@@ -354,17 +348,18 @@ class DataDocumentController extends Controller
 
             if ($completo) {
 
-                $data->varValues->dxo_gsk_audit_trail_bloque = array("Si");
-                $data->varValues->dxo_gsk_audit_trail = array($this->_construirHistorico($step));
-                $data->varValues->dxo_gsk_firmas_bloque = array("No");
+                $data->data->dxo_gsk_audit_trail_bloque = 1;
+                $data->data->dxo_gsk_audit_trail = $this->_construirHistorico($step);
+                $data->data->dxo_gsk_firmas_bloque = 0;
 
             }
-
+            
             
             $auxDataValue = $step->getStepDataValue();
             $aux_verify = json_decode($auxDataValue);
 
-            $mapVariable = $this->_construirMapVariables($step);
+            /*$mapVariable = $this->_construirMapVariables($step);
+
             foreach ($mapVariable as $prop => $value) {
                 
                 
@@ -382,10 +377,10 @@ class DataDocumentController extends Controller
                 if(!$inputs_radio){ // Si no es un input radio sacamos los ínidices asi para las lineas que se clonan
                     foreach($value->firma as $key => $indice){
                         if(isset($value->firma[$key])){
-                            if(isset($data->varValues->{$varIndiceName})){
-                                $data->varValues->{$varIndiceName}=json_decode(json_encode($data->varValues->{$varIndiceName}),TRUE);
+                            if(isset($data->data->{$varIndiceName})){
+                                $data->data->{$varIndiceName}=json_decode(json_encode($data->data->{$varIndiceName}),TRUE);
                             }
-                            $data->varValues->{$varIndiceName}[$key] = $value->firma[$key];
+                            $data->data->{$varIndiceName}[$key] = $value->firma[$key];
                         }
                     }
                 }
@@ -393,22 +388,19 @@ class DataDocumentController extends Controller
                     // Si es un input radio lo sacamos asi. Los input radio no deberían estar en lineas clonables
                     foreach($value->firma as $key => $indice){
                         if(isset($value->firma[$key])){
-                            /*if(isset($data->varValues->{$varIndiceName})){
-                                $data->varValues->{$varIndiceName}=json_decode(json_encode($data->varValues->{$varIndiceName}),TRUE);
-                            }*/
                             $max_signature=0;
                             foreach($value->firma as $item_signature){
                                 if($item_signature>$max_signature){
                                     $max_signature=$item_signature;
                                 }
                             }
-                            $data->varValues->{$varIndiceName} = array($item_signature);
+                            $data->data->{$varIndiceName} = $item_signature;
                         }
                     }
                 }
 
 
-            }
+            }*/
         }
 
         $firmas = $this->getDoctrine()
@@ -418,18 +410,26 @@ class DataDocumentController extends Controller
         * Si hay firmas claro.
         */
         if (!empty($firmas) && !$completo) {
-            $data->varValues->dxo_gsk_audit_trail_bloque = array("No");
-            $data->varValues->dxo_gsk_firmas_bloque = array("Si");
-            $data->varValues->dxo_gsk_firmas = array($this->_construirFirmas($firmas));
+            $data->data->dxo_gsk_audit_trail_bloque = 0;
+            $data->data->dxo_gsk_firmas_bloque = 1;
+            $data->data->dxo_gsk_firmas = $this->_construirFirmas($firmas);
+        }
+
+        if(!property_exists($data->data,"dxo_gsk_firmas")){
+            $data->data->dxo_gsk_firmas="";
+        }
+
+        if(!property_exists($data->data,"dxo_gsk_audit_trail")){
+            $data->data->dxo_gsk_audit_trail="";
         }
 
         $reconciliation=$this->_construirReconciliacion($step);
         if($reconciliation!=""){
             if(!$completo){
-                $data->varValues->dxo_gsk_firmas[0].=$reconciliation;
+                $data->data->dxo_gsk_firmas.=$reconciliation;
             }
             else{
-                $data->varValues->dxo_gsk_audit_trail[0].=$reconciliation;
+                $data->data->dxo_gsk_audit_trail.=$reconciliation;
             }
         }
 
@@ -447,7 +447,7 @@ class DataDocumentController extends Controller
         /*
          * Generar los cuatro últimos, si logbook
          */
-        $logbokk = true;
+                $logbokk = true;
         if ($instancia_workflowAux->getMasterWorkflowEntity()->getLogbook() == 1 && $logbokk && $logbook > 0) {
             /*
              * Cargar una serie de datos de registros válidos
@@ -463,6 +463,7 @@ class DataDocumentController extends Controller
             while ($mostrar) {
                 $idMostrar = $instancia_workflowAux->getId() - $index;
 
+
                 if ($idMostrar != 0) {
                     if($instancia_workflowAux->getMasterWorkflowEntity()->getPrecreation()=="equipoqr"){
                           $query = "SELECT m
@@ -474,6 +475,9 @@ class DataDocumentController extends Controller
                             $result=$query->getOneOrNullResult();
                             if($result){
                                 $InstanciaWorkflowAMostrar=$result->getInstanciaWorkflow();
+                            }
+                            else{
+                                 $InstanciaWorkflowAMostrar=NULL;
                             }
 
 
@@ -501,28 +505,27 @@ class DataDocumentController extends Controller
 
                             $dataMostrar = json_decode($stepDataValueMostrar);
 
-
-                            $varValuesMostrar = $dataMostrar->varValues;
+                            $varValuesMostrar = $dataMostrar->configuration->variables;
                             if ($first) {
                                 // pintar cabecera
                                 $fullText .= "<tr><th>id Registro</th><th>Estado</th>";
                                 foreach ($varValuesMostrar as $prop => $value) {
                                     $position = strpos($prop, "u_");
 
-                                    foreach($dataMostrar->data as $field){
-                                        if($field->name==$prop){
-                                            $default_value=$field->label;
+                                    //foreach($dataMostrar->data as $prop2 => $field){
+                                        //if($prop2==$prop){
+                                            //$default_value=$value->label;
                                         
-                                            if($field->tip!=""){
-                                                $info=$field->tip;
+                                            if($value->info!=""){
+                                                $info=$value->info;
                                             }
                                             else{
                                                 $info=$prop;
                                             }
 
-                                            break;
-                                        }
-                                    }
+                                            //break;
+                                        //}
+                                    //}
 
                                     if ($position === 0) {
                                         // variable válida.
@@ -540,11 +543,28 @@ class DataDocumentController extends Controller
                             $fullText .= '<tr><td>' . $instanciaStepAMostrar->getId() . '</td><td>' . $estadoString . '</td>';
                             foreach ($varValuesMostrar as $prop => $value) {
                                 $position = strpos($prop, "u_");
-
                                 if ($position === 0) {
-                                    // variable válida.
-                                    $valor = $value[0];
-                                    $fullText .= '<td>' . $valor . '</td>';
+                                    foreach($dataMostrar->data as $prop2 => $field){
+                                        if($prop2==$prop){
+                                            $fullText .= '<td>';
+                                            unset($row_values);
+                                            if(is_object($field)){
+                                                $row_values=$field;
+                                            }
+                                            else{
+                                                $row_values=array($field);
+                                            }
+
+                                            $line_break="";
+                                            foreach($row_values as $valor){
+                                                $fullText .= $line_break.$valor;
+                                                $line_break="<br>";
+                                            }
+
+                                            $fullText .= '</td>';
+                                            break;
+                                        }
+                                    }
                                 }
 
                             }
@@ -563,35 +583,29 @@ class DataDocumentController extends Controller
                 }
             }
             $fullText .= '</table>';
-            $data->varValues->dxo_gsk_logbook = array("Si");
-            $data->varValues->dxp_gsk_logbook_bloque = array($fullText);
-            //$data->varValues->dxp_gsk_logbook_bloque = array('1');
+            $data->data->dxo_gsk_logbook = 1;
+            $data->data->dxo_gsk_logbook_bloque = $fullText;
 
         }
-
-        //var_dump(json_encode($data));
-        //echo 'venga ya!';
-        //exit;
-
-        /*
-                var_dump($instancia_workflowAux->getMasterWorkflowEntity()->getName());
-                echo '-separate-';
-                var_dump($instancia_workflowAux->getMasterWorkflowEntity()->getLogbook());
-                var_dump($fullText);
-                exit;*/
+        else{
+            $data->data->dxo_gsk_logbook = 0;
+            $data->data->dxo_gsk_logbook_bloque = "";
+        }
+        
+        $array_response["data"]=$data->data;
+         if(property_exists($data,"configuration")){
+            $array_response["configuration"]=$data->configuration;
+         }
 
         $response = new Response();
         $response->setStatusCode(200);
-        $response->setContent(json_encode($data));
+        $response->setContent(json_encode($array_response));
 
         return $response;
     }
 
-    public function descargarpdfdocumentoAction($workflow_id, $step_id)
+    /*public function descargarpdfdocumentoAction($workflow_id, $step_id)
     {
-        /*
-         *
-         */
 
         $dataResponse = new \stdClass();
         $dataResponse->workflow_id = $workflow_id;
@@ -728,7 +742,7 @@ class DataDocumentController extends Controller
         } else {
             return $response;
         }
-    }
+    }*/ //Desactiva por el momento Sergio
 
     private function _construirHistorico($step)
     {
@@ -754,88 +768,85 @@ class DataDocumentController extends Controller
                 $comentario = $firmaAsociada->getAccion();
                 $firmaImagen = $firmaAsociada->getFirma();
 
-                $fullText .= "<tr><td>" . $id . "</td><td>" . $nombre . " " . $fecha . "</td><td>Comentarios: " . $comentario . "</td><td><img src='" . $firmaImagen . "' /></td></tr>";
+                $fullText .= "<tr><td width='5%'>" . $id . "</td><td  width='20%'>" . $nombre . " " . $fecha . "</td><td>Comentarios: " . $comentario . "</td><td  width='20%'><img src='" . $firmaImagen . "' /></td></tr>";
                 $lastEvidencia = $evidenciaElement;
                 $first = false;
 
             } else {
                 // Primero descifrar si ha habido cambios.
                 $dataStringCurrent = $evidenciaElement->getStepDataValue();
-                $dataJsonCurrent = json_decode($dataStringCurrent);
-                //echo $dataStringCurrent;die();
-                $currentVarValues = $dataJsonCurrent->varValues;
+                
+                if($evidenciaElement->getStepDataValue()){
+                    
+                    $dataJsonCurrent = json_decode($dataStringCurrent);
+                    //echo $dataStringCurrent;die();
+                    $currentVarValues = $dataJsonCurrent->data;
 
+                    $dataString = $lastEvidencia->getStepDataValue();
+                    if($lastEvidencia->getStepDataValue()){
+                        $dataJson = json_decode($dataString);
+                        $lastVarValues = $dataJson->data;
 
-                $dataString = $lastEvidencia->getStepDataValue();
-                $dataJson = json_decode($dataString);
-                $lastVarValues = $dataJson->varValues;
+                        $bloqueHTML = "<tr><td colspan='4'>Modificaciones</td></tr><tr><td rowspan='###NUMBERREPLACE###'>" . $firmaAsociada->getNumber() . "</td><td>Campo</td><td>Antes</td><td>Después</td></tr>";
+                        $modified = false;
+                        $counterModified = 1;
 
-                $bloqueHTML = "<tr><td colspan='4'>Modificaciones</td></tr><tr><td rowspan='###NUMBERREPLACE###'>" . $firmaAsociada->getNumber() . "</td><td>Campo</td><td>Antes</td><td>Después</td></tr>";
-                $modified = false;
-                $counterModified = 1;
-
-                foreach ($currentVarValues as $prop => $values) {
-                    $position = strpos($prop, "u_");
-                    $positionV = strpos($prop, "verchk_");
-
-                    if ($position === 0 || $positionV === 0) {
-
-                        $inputs_radio=false;
-                        foreach($dataJsonCurrent->data as $field){
-                            if($field->name==$prop && $field->choice=="radio"){
-                                $inputs_radio=true;
-                                break;
-                            }
-                        }
-
-                        if(!$inputs_radio){ 
-                            foreach($values as $key => $value){
-                                if (array_key_exists($key, $lastVarValues->{$prop})) {
-                                
-                                    // variable válida.
-                                    $lastValue = $lastVarValues->{$prop}[$key]; // Para que funcione en los "checboxes" y "radioButton" habría que hacer un implode + trim
-                                    // if lastValue es un valor vacío no haría falta hacer un "modificado"
-                                    $currentValue = $value;
-                                    
+                        foreach ($currentVarValues as $prop => $values) {
+                            
+                            if (strncmp($prop, "in_", 3) === 0){
+                                if(property_exists($dataJsonCurrent->configuration->variables,preg_replace('/^in_/', 'u_', $prop))){
+                                    $info_field=preg_replace('/^in_/', 'u_', $prop);
                                 }
-                            }
-                        }
-                        else{
-                            $lastValue = trim(implode("", $lastVarValues->{$prop}));
-                            $currentValue = trim(implode("", $values));
-                        }
+                                else{
+                                    $info_field=preg_replace('/^in_/', '', $prop);
+                                }
 
-                        $default_value="";
-                        if ($lastValue != "") {
-                            $audittrail=1;
-                            foreach($dataJsonCurrent->data as $field){
-                                if($field->name==$prop){
-                                    $default_value=$field->label;
                                 
-                                    if($field->tip!="" && $field->tip!=$field->label){
-                                        $info=$field->tip;
+                                if(is_object($values)){
+                                    unset($cvalues);
+                                    $cvalues=$values;
+                                    $is_object=1;
+                                }
+                                else{
+                                    $cvalues=array(0 => $values);
+                                    $is_object=0;
+                                }
+
+                                foreach($cvalues as $row => $currentValue){
+                                    if(!$is_object){
+                                        if(property_exists($lastVarValues,$prop)){
+                                            $lastValue=$lastVarValues->{$prop};
+                                        }
+                                        if(property_exists($lastVarValues,$info_field)){$lastValueReal=$lastVarValues->{$info_field};}else{$lastValueReal="";}
+                                        if(property_exists($currentVarValues,$info_field)){$currentValueReal=$currentVarValues->{$info_field};}else{$currentValueReal="";}
                                     }
                                     else{
-                                        $info=$prop;
+                                        if(property_exists($lastVarValues->{$prop},$row)){$lastValue=$lastVarValues->{$prop}->{$row};}else{$lastValue="";}
+                                        if(property_exists($lastVarValues,$info_field)){
+                                            if(property_exists($lastVarValues->{$info_field},$row)){
+                                                $lastValueReal=$lastVarValues->{$info_field}->{$row};
+                                            }
+                                            else{
+                                                $lastValueReal="";
+                                            }
+                                        }else{$lastValueReal="";}
+                                        if(property_exists($currentVarValues,$info_field)){$currentValueReal=$currentVarValues->{$info_field}->{$row};}else{$currentValueReal="";}
                                     }
+                                    if($currentValue!=$lastValue && $lastValue){
 
-                                    break;
+                                        $counterModified++;
+                                        $modified = true;
+                                        $bloqueHTML .= "<tr><td>" . $dataJsonCurrent->configuration->variables->{$info_field}->label . "</td><td>" . $lastValueReal . "</td><td>" . $currentValueReal . "</td></tr>";
+                                    }
                                 }
                             }
-
                         }
-
-                        if (urldecode($lastValue) != urldecode($currentValue) && urldecode($default_value)!=urldecode($lastValue) && $audittrail) {
-                            $counterModified++;
-                            $modified = true;
-                            $bloqueHTML .= "<tr><td>" . $info . "</td><td>" . $lastValue . "</td><td>" . $currentValue . "</td></tr>";
+                        
+                        if ($modified) {
+                            $bloqueHTML = str_replace('###NUMBERREPLACE###', $counterModified, $bloqueHTML);
+                            $fullText .= $bloqueHTML;
                         }
                     }
-                }
-                
-                if ($modified) {
-                    $bloqueHTML = str_replace('###NUMBERREPLACE###', $counterModified, $bloqueHTML);
-                    $fullText .= $bloqueHTML;
                 }
                 // Después añadir la fila de firma sin mas.
                 $id = $firmaAsociada->getNumber();
@@ -993,7 +1004,7 @@ class DataDocumentController extends Controller
 
         if(count($documentsReconciliacion)>1){
 
-            $html="<br><br><table class='table table-striped' style='font-size:11px'><tr><th colspan='4'>Reconciliación (".count($documentsReconciliacion)." registros reconciliados)</th></tr><tr><td>Nº</td><td>Nombre</td><td>Estado</td><td>Fecha</td></tr>";
+            $html="<br><br><table id='tableRecon' class='table table-striped' style='font-size:11px'><tr><th colspan='4'>Reconciliación (".count($documentsReconciliacion)." registros reconciliados)</th></tr><tr><td>Nº</td><td>Nombre</td><td>Estado</td><td>Fecha</td></tr>";
             foreach($documentsReconciliacion as $key => $element){
                 $url=$this->container->get('router')->generate('nononsense_ver_registro', array('revisionid' => $element["id"]),TRUE);
                 $name=str_replace('"', '\"', $element["name"]);
@@ -1082,7 +1093,7 @@ class DataDocumentController extends Controller
             $firma = $firma->getFirma();
 
 
-            $fullText .= "<tr><td colspan='4'>Firma</td></tr><tr><td>" . $id . "</td><td>" . $nombre . " " . $fecha . "</td><td>Comentarios: " . $comentario . "</td><td><img src='" . $firma . "' /></td></tr>";
+            $fullText .= "<tr><td colspan='4'>Firma</td></tr><tr><td width='5%'>" . $id . "</td><td width='20%'>" . $nombre . " " . $fecha . "</td><td>Comentarios: " . $comentario . "</td><td width='20%'><img src='" . $firma . "' /></td></tr>";
         }
 
         $fullText .= "</table>";
@@ -1108,7 +1119,8 @@ class DataDocumentController extends Controller
             $dataString = $evidenciaElement->getStepDataValue();
             $dataJson = json_decode($dataString);
 
-            $varValues = $dataJson->varValues;
+            $varValues = $dataJson->data;
+
 
             $firmaId = $evidenciaElement->getFirmaEntity()->getNumber();
 
@@ -1134,9 +1146,9 @@ class DataDocumentController extends Controller
                         }
 
                         $mapVariable->{$prop}->valor = $values;
-                        foreach($values as $key => $value){
-                            $mapVariable->{$prop}->firma=array($firmaId);
-                        }
+                        //foreach($values as $key => $value){
+                            $mapVariable->{$prop}->firma=$firmaId;
+                        //}
                         //$mapVariable->{$prop}->firma = $firmaId;
                     }
 
