@@ -463,13 +463,12 @@ nononsense_bloquear_registros:
     path:     /backoffice_bloquear_registros
     defaults: { _controller: NononsenseHomeBundle:BackOffice:bloquearRegistro}
 
-
 # Rutas de Material Limpio
 
-nononsense_material_limpio_material:
+nononsense_mclean_material:
     path: /mclean/materials
     defaults: { _controller: NononsenseHomeBundle:MaterialCleanMaterials:list}
 
-nononsense_material_limpio_centros:
+nononsense_mclean_centers:
     path: /mclean/centers
     defaults: { _controller: NononsenseHomeBundle:MaterialCleanCenters:list}

@@ -7,20 +7,10 @@ use Nononsense\HomeBundle\Entity\Products;
 use Nononsense\HomeBundle\Entity\ProductsTypes;
 use Nononsense\HomeBundle\Entity\ProductsInputs;
 use Nononsense\HomeBundle\Entity\ProductsOutputs;
-use Nononsense\GroupBundle\Entity\GroupUsers;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
-use Nononsense\HomeBundle\Form\Type as FormProveedor;
-
-use Nononsense\UtilsBundle\Classes;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
-use Symfony\Component\HttpFoundation\File\File;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
-
-use Nononsense\UtilsBundle\Classes\Auxiliar;
-use Nononsense\UtilsBundle\Classes\Utils;
 
 use Endroid\QrCode\QrCode;
 

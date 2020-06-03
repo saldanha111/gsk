@@ -28,91 +28,92 @@ class MaterialCleanCentersController extends Controller
 {
     public function listAction(Request $request)
     {
+        return true;
         $is_valid = $this->get('app.security')->permissionSeccion('productos_gestion');
         if(!$is_valid){
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
-
-        $filters=array();
-        $filters2=array();
-
-        if($request->get("page")){
-            $filters["limit_from"]=$request->get("page")-1;
-        }
-        else{
-            $filters["limit_from"]=0;
-        }
-        $filters["limit_many"]=15;
-
-
-        if($request->get("id")){
-            $filters["id"]=$request->get("id");
-            $filters2["id"]=$request->get("id");
-        }
-
-        if($request->get("active")){
-            $filters["active"]=$request->get("active");
-            $filters2["active"]=$request->get("active");
-        }
-
-        if($request->get("partNumber")){
-            $filters["partNumber"]=$request->get("partNumber");
-            $filters2["partNumber"]=$request->get("partNumber");
-        }        
-
-        if($request->get("name")){
-            $filters["name"]=$request->get("name");
-            $filters2["name"]=$request->get("name");
-        }
-
-        if($request->get("provider")){
-            $filters["provider"]=$request->get("provider");
-            $filters2["provider"]=$request->get("provider");
-        }
-
-        if($request->get("type")){
-            $filters["type"]=$request->get("type");
-            $filters2["type"]=$request->get("type");
-        }
-
-        if($request->get("stock_from")){
-            $filters["stock_from"]=$request->get("stock_from");
-            $filters2["stock_from"]=$request->get("stock_from");
-        }
-
-        if($request->get("stock_to")){
-            $filters["stock_to"]=$request->get("stock_to");
-            $filters2["stock_to"]=$request->get("stock_to");
-        }
-
-        if($request->get("underMinimumStock")){
-            $filters["underMinimumStock"]=$request->get("underMinimumStock");
-            $filters2["underMinimumStock"]=$request->get("underMinimumStock");
-        }
-
-        if($request->get("a_excel")==1){
-            $items = $this->getDoctrine()->getRepository(Products::class)->list($filters, 0);
-            return self::exportExcelProducts($items);
-        }
-
-        $array_item["filters"]=$filters;
-        $array_item["types"] = $this->getDoctrine()->getRepository(ProductsTypes::class)->findBy([], ['name' => 'ASC']);
-        $array_item["items"] = $this->getDoctrine()->getRepository(Products::class)->list($filters);
-        $array_item["count"] = $this->getDoctrine()->getRepository(Products::class)->count($filters2);
-
-
-        $url=$this->container->get('router')->generate('nononsense_products');
-        $params=$request->query->all();
-        unset($params["page"]);
-        if(!empty($params)){
-            $parameters=TRUE;
-        }
-        else{
-            $parameters=FALSE;
-        }
-        $array_item["pagination"]=\Nononsense\UtilsBundle\Classes\Utils::paginador($filters["limit_many"],$request,$url,$array_item["count"],"/", $parameters);
-
-        return $this->render('NononsenseHomeBundle:Products:index.html.twig',$array_item);
+//
+//        $filters=array();
+//        $filters2=array();
+//
+//        if($request->get("page")){
+//            $filters["limit_from"]=$request->get("page")-1;
+//        }
+//        else{
+//            $filters["limit_from"]=0;
+//        }
+//        $filters["limit_many"]=15;
+//
+//
+//        if($request->get("id")){
+//            $filters["id"]=$request->get("id");
+//            $filters2["id"]=$request->get("id");
+//        }
+//
+//        if($request->get("active")){
+//            $filters["active"]=$request->get("active");
+//            $filters2["active"]=$request->get("active");
+//        }
+//
+//        if($request->get("partNumber")){
+//            $filters["partNumber"]=$request->get("partNumber");
+//            $filters2["partNumber"]=$request->get("partNumber");
+//        }
+//
+//        if($request->get("name")){
+//            $filters["name"]=$request->get("name");
+//            $filters2["name"]=$request->get("name");
+//        }
+//
+//        if($request->get("provider")){
+//            $filters["provider"]=$request->get("provider");
+//            $filters2["provider"]=$request->get("provider");
+//        }
+//
+//        if($request->get("type")){
+//            $filters["type"]=$request->get("type");
+//            $filters2["type"]=$request->get("type");
+//        }
+//
+//        if($request->get("stock_from")){
+//            $filters["stock_from"]=$request->get("stock_from");
+//            $filters2["stock_from"]=$request->get("stock_from");
+//        }
+//
+//        if($request->get("stock_to")){
+//            $filters["stock_to"]=$request->get("stock_to");
+//            $filters2["stock_to"]=$request->get("stock_to");
+//        }
+//
+//        if($request->get("underMinimumStock")){
+//            $filters["underMinimumStock"]=$request->get("underMinimumStock");
+//            $filters2["underMinimumStock"]=$request->get("underMinimumStock");
+//        }
+//
+//        if($request->get("a_excel")==1){
+//            $items = $this->getDoctrine()->getRepository(Products::class)->list($filters, 0);
+//            return self::exportExcelProducts($items);
+//        }
+//
+//        $array_item["filters"]=$filters;
+//        $array_item["types"] = $this->getDoctrine()->getRepository(ProductsTypes::class)->findBy([], ['name' => 'ASC']);
+//        $array_item["items"] = $this->getDoctrine()->getRepository(Products::class)->list($filters);
+//        $array_item["count"] = $this->getDoctrine()->getRepository(Products::class)->count($filters2);
+//
+//
+//        $url=$this->container->get('router')->generate('nononsense_products');
+//        $params=$request->query->all();
+//        unset($params["page"]);
+//        if(!empty($params)){
+//            $parameters=TRUE;
+//        }
+//        else{
+//            $parameters=FALSE;
+//        }
+//        $array_item["pagination"]=\Nononsense\UtilsBundle\Classes\Utils::paginador($filters["limit_many"],$request,$url,$array_item["count"],"/", $parameters);
+//
+//        return $this->render('NononsenseHomeBundle:Products:index.html.twig',$array_item);
     }
 
     public function editAction(Request $request, $id)
