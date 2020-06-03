@@ -462,3 +462,14 @@ nononsense_backoffice_standby_document_ECO_accion:
 nononsense_bloquear_registros:
     path:     /backoffice_bloquear_registros
     defaults: { _controller: NononsenseHomeBundle:BackOffice:bloquearRegistro}
+
+
+# Rutas de Material Limpio
+
+nononsense_material_limpio_material:
+    path: /mclean/materials
+    defaults: { _controller: NononsenseHomeBundle:MaterialCleanMaterials:list}
+
+nononsense_material_limpio_centros:
+    path: /mclean/centers
+    defaults: { _controller: NononsenseHomeBundle:MaterialCleanCenters:list}
