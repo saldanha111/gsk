@@ -12,4 +12,43 @@ use Doctrine\ORM\EntityRepository;
  */
 class MaterialCleanMaterialsRepository extends EntityRepository
 {
+    public function list($filters, $paginate=1)
+    {
+        $list = $this->createQueryBuilder('m')
+            ->select('m.id', 'm.name', 'm.expirationDays', 'm.created', 'm.active')
+            ->orderBy('m.name', 'ASC');
+
+        $list = self::fillFilersQuery($filters, $list);
+
+        if($paginate==1 && isset($filters["limit_from"])){
+            $list->setFirstResult($filters["limit_from"]*$filters["limit_many"])->setMaxResults($filters["limit_many"]);
+        }
+
+        $query = $list->getQuery();
+
+        return $query->getResult();
+    }
+
+    public function count($filters = array())
+    {
+        $list = $this->createQueryBuilder('m')
+            ->select('COUNT(m.id) as conta');
+
+        $list = self::fillFilersQuery($filters, $list);
+
+        $query = $list->getQuery();
+
+        return $query->getSingleResult()["conta"];
+    }
+
+    private function fillFilersQuery($filters, $list){
+
+        if(!empty($filters)){
+            if(isset($filters["name"])){
+                $list->andWhere("m.name LIKE '%".$filters["name"]."%'");
+            }
+        }
+
+        return $list;
+    }
 }

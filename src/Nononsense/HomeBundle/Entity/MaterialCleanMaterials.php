@@ -3,9 +3,6 @@
 namespace Nononsense\HomeBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\Common\Collections\ArrayCollection;
-use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * @ORM\Entity
@@ -142,7 +139,7 @@ class MaterialCleanMaterials
      */
     public function setActive($active)
     {
-        $this->active = $active;
+        $this->active = ($active)?: false;
 
         return $this;
     }

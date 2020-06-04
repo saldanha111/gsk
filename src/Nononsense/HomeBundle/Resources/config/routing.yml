@@ -465,10 +465,14 @@ nononsense_bloquear_registros:
 
 # Rutas de Material Limpio
 
-nononsense_mclean_material:
+nononsense_mclean_materials_list:
     path: /mclean/materials
     defaults: { _controller: NononsenseHomeBundle:MaterialCleanMaterials:list}
 
-nononsense_mclean_centers:
-    path: /mclean/centers
-    defaults: { _controller: NononsenseHomeBundle:MaterialCleanCenters:list}
+nononsense_mclean_materials_edit:
+    path: /mclean/material/{id}
+    defaults: { _controller: NononsenseHomeBundle:MaterialCleanMaterials:edit}
+
+nononsense_mclean_materials_delete:
+    path: /mclean/material/delete/{id}
+    defaults: { _controller: NononsenseHomeBundle:MaterialCleanMaterials:delete}
