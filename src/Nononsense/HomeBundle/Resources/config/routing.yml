@@ -330,9 +330,25 @@ nononsense_documents_update:
     path: /documents/{id}/save
     defaults: { _controller: NononsenseHomeBundle:Documents:update}
 
+nononsense_contracts:
+    path: /contracts
+    defaults: { _controller: NononsenseHomeBundle:Contracts:list}
+
+nononsense_contracts_edit:
+    path: /contracts/{id}
+    defaults: { _controller: NononsenseHomeBundle:Contracts:edit}
+
+nononsense_contracts_update:
+    path: /contracts/{id}/save
+    defaults: { _controller: NononsenseHomeBundle:Contracts:update}
+
 nononsense_records:
     path: /records
     defaults: { _controller: NononsenseHomeBundle:Records:list}
+
+nononsense_records_contracts:
+    path: /records-contracts
+    defaults: { _controller: NononsenseHomeBundle:RecordsContracts:list}
 
 nononsense_products:
     path: /products
@@ -406,9 +422,13 @@ nononsense_records_new:
     path: /records/document/{id}
     defaults: { _controller: NononsenseHomeBundle:Records:create, id:0}
 
-nononsense_records_edit:
-    path:    /records/{id}
-    defaults: { _controller: NononsenseHomeBundle:Records:edit, id: 0 }
+nononsense_records_contracts_new:
+    path: /records/contract/{id}
+    defaults: { _controller: NononsenseHomeBundle:RecordsContracts:create, id:0}
+
+nononsense_records_contracts_sign_gsk:
+    path: /records/contract-sign/{id}
+    defaults: { _controller: NononsenseHomeBundle:RecordsContracts:signContractGsk, id:0}
 
 nononsense_records_file:
     path:    /records/{id}/file
@@ -418,13 +438,29 @@ nononsense_records_link:
     path:     /records/{id}/link
     defaults: { _controller: NononsenseHomeBundle:Records:link, id: 0}
 
-nononsense_records_pdf:
-    path:     /records/{id}/pdf
-    defaults: { _controller: NononsenseHomeBundle:Records:downloadPdf,id: 1}
+nononsense_records_contracts_link:
+    path:     /records/contract/{id}/link
+    defaults: { _controller: NononsenseHomeBundle:RecordsContracts:link, id: 0}
+
+nononsense_records_contracts_public_sign_contract:
+    path:     /sign-contract/{token}
+    defaults: { _controller: NononsenseHomeBundle:RecordsContracts:signContract, token: null}
+
+nononsense_records_contracts_public_view_contract:
+    path:     /view-contract/{token}
+    defaults: { _controller: NononsenseHomeBundle:RecordsContracts:viewContract, token: null}
+
+nononsense_records_contracts_send_sms:
+    path:     /records/contract-send-sms
+    defaults: { _controller: NononsenseHomeBundle:RecordsContracts:sendSms}
+
+nononsense_records_contracts_send_email:
+    path:     /records/contract-send-email
+    defaults: { _controller: NononsenseHomeBundle:RecordsContracts:sendEmail}
 
 nononsense_records_redirect_from_data:
-    path: /records/redirectFromData/{id}/{action}/{urlaux}
-    defaults: { _controller: NononsenseHomeBundle:Records:redirectFromData, id: 0, action: 0,urlaux: 0}
+    path: /records/redirectFromData/{id}
+    defaults: { _controller: NononsenseHomeBundle:Records:redirectFromData, id: 0}
 
 nononsense_record_save_send:
     path:     /records/save_send/{id}
@@ -446,6 +482,21 @@ nononsense_records_return_data:
     path:     /dataRecords/returnData/{id}
     defaults: { _controller: NononsenseHomeBundle:Records:returnData, id: 0}
 
+nononsense_records_contracts_requet_data:
+    path:     /dataRecordsContracts/requestData/{id}/{token}/{sign_public_type}
+    defaults: { _controller: NononsenseHomeBundle:RecordsContracts:RequestData, id: 0, token: null, sign_public_type: null}
+
+nononsense_records_contracts_return_data:
+    path:     /dataRecordsContracts/returnData/{id}
+    defaults: { _controller: NononsenseHomeBundle:RecordsContracts:returnData, id: 0}
+
+nononsense_records_contracts_redirect_from_data:
+    path: /recordsContracts/redirectFromData/{id}
+    defaults: { _controller: NononsenseHomeBundle:RecordsContracts:redirectFromData, id: 0}
+
+nononsense_record_contracts_sign:
+    path:     /recordsContractsSign/{id}
+    defaults: { _controller: NononsenseHomeBundle:RecordsContracts:sign, id: 0 }
 
 nononsense_backoffice_standby_documents_list:
     path:     /backoffice_standby_documents_list

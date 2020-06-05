@@ -23,7 +23,8 @@
         "endroid/qrcode": "^1.7",
         "liuggio/excelbundle": "^2.1",
         "whiteoctober/tcpdf-bundle": "^1.1",
-        "beberlei/doctrineextensions": "^1.2"
+        "beberlei/doctrineextensions": "^1.2",
+        "friendsofsymfony/jsrouting-bundle": "~1.5"
     },
     "require-dev": {
         "sensio/generator-bundle": "~2.3"

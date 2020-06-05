@@ -23,7 +23,7 @@ class Security
 
     public function permissionSeccion($subseccion){
 
-        $is_grant = false;
+        $is_grant = 0;
 
         $subseccionObj = $this->em->getRepository('NononsenseUserBundle:Subsecciones')->findOneByNameId($subseccion);
 
@@ -32,7 +32,7 @@ class Security
 
             $groupSubseccionObj = $this->em->getRepository('NononsenseUserBundle:GroupsSubsecciones')->findBy(array('group'=>$groupUser->getGroup(), 'subseccion'=>$subseccionObj));
             if($groupSubseccionObj){
-                $is_grant = true;
+                $is_grant = 1;
                 break;
             }
         }

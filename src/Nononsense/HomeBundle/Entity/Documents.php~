@@ -25,9 +25,9 @@ class Documents
     protected $id;
 
     /**
-     * @var integer
+     * @var string
      *
-     * @ORM\Column(name="plantilla_id", type="integer")
+     * @ORM\Column(name="plantilla_id", type="string")
      * @Groups({"detail_document"})
      */
     protected $plantilla_id;
@@ -291,29 +291,6 @@ class Documents
     public function getModified()
     {
         return $this->modified;
-    }
-
-    /**
-     * Set plantilla_id
-     *
-     * @param integer $plantillaId
-     * @return Documents
-     */
-    public function setPlantillaId($plantillaId)
-    {
-        $this->plantilla_id = $plantillaId;
-
-        return $this;
-    }
-
-    /**
-     * Get plantilla_id
-     *
-     * @return integer 
-     */
-    public function getPlantillaId()
-    {
-        return $this->plantilla_id;
     }
 
     /**
@@ -587,5 +564,28 @@ class Documents
     public function getAttachment()
     {
         return $this->attachment;
+    }
+
+    /**
+     * Set plantilla_id
+     *
+     * @param string $plantillaId
+     * @return Documents
+     */
+    public function setPlantillaId($plantillaId)
+    {
+        $this->plantilla_id = $plantillaId;
+
+        return $this;
+    }
+
+    /**
+     * Get plantilla_id
+     *
+     * @return string 
+     */
+    public function getPlantillaId()
+    {
+        return $this->plantilla_id;
     }
 }

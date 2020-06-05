@@ -67,8 +67,13 @@ class GroupController extends Controller
             return $this->redirect($this->generateUrl('nononsense_groups_homepage'));
         }
 
+        $em = $this->getDoctrine()->getManager();
+        $secciones = $em->getRepository('NononsenseUserBundle:Secciones')->findBy(array(), array('name' => 'ASC'));
+
         return $this->render('NononsenseGroupBundle:Group:create.html.twig', array(
             'createGroup' => $form->createView(),
+            'secciones' => $secciones,
+            'subseccionesSelected' => []
         ));
     }
     
