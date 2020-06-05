@@ -476,4 +476,27 @@ class Products
     {
         return $this->active;
     }
+
+    /**
+     * Set destroyed
+     *
+     * @param boolean $destroyed
+     * @return Products
+     */
+    public function setDestroyed($destroyed)
+    {
+        $this->destroyed = $destroyed;
+
+        return $this;
+    }
+
+    /**
+     * Get destroyed
+     *
+     * @return boolean 
+     */
+    public function getDestroyed()
+    {
+        return $this->destroyed;
+    }
 }

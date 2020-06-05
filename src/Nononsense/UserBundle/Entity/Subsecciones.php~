@@ -148,4 +148,27 @@ class Subsecciones
     {
         return $this->groupsSubsecciones;
     }
+
+    /**
+     * Set nameId
+     *
+     * @param string $nameId
+     * @return Subsecciones
+     */
+    public function setNameId($nameId)
+    {
+        $this->nameId = $nameId;
+
+        return $this;
+    }
+
+    /**
+     * Get nameId
+     *
+     * @return string 
+     */
+    public function getNameId()
+    {
+        return $this->nameId;
+    }
 }

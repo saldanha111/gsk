@@ -1,4 +1,8 @@
 services:
-#    nononsense_home.example:
-#        class: Nononsense\HomeBundle\Example
-#        arguments: [@service_id, "plain_value", %parameter%]
+  utilities:
+    class: Nononsense\HomeBundle\Utils\Utilities
+    arguments:
+      - "@doctrine.orm.entity_manager"
+      - "@logger"
+      - "@session"
+      - "@service_container"

@@ -75,6 +75,26 @@
             <li id="docxpresso_docs">
                 <a href="{{path('nononsense_records')}}"><i class="fa fa-file-text" aria-hidden="true"></i> <span class="nav-label">Documentos</span></a>
             </li>
+
+            {% if 'plantillas_contratos_gestion' in array_subsecciones or 'contratos_gestion' in array_subsecciones %}
+                <li>
+                    <a href="#">
+                        <i class="fa fa-file-text" aria-hidden="true"></i>
+                        <span class="nav-label">Contratos</span>
+                        <span class="fa arrow"></span>
+                    </a>
+                    <ul class="nav nav-second-level">
+                        {% if 'plantillas_contratos_gestion' in array_subsecciones %}
+                            <li id="li_plantillas_contratos"><a href="{{path('nononsense_contracts')}}"><i class="fa fa-cogs" aria-hidden="true"></i> <span class="nav-label">Plantillas Contratos</span></a></li>
+                        {% endif %}
+                        {% if 'contratos_gestion' in array_subsecciones %}
+                            <li id="li_contratos"><a href="{{path('nononsense_records_contracts')}}"><i class="fa fa-file-text" aria-hidden="true"></i> <span class="nav-label">Contratos</span></a></li>
+                        {% endif %}
+                    </ul>
+                </li>
+            {% endif %}
+
+
             <li id="docxpresso_mydocs">
                 <a href="{{path('nononsense_records')}}?pending_for_me=1"><i class="fa fa-file" aria-hidden="true"></i> <span class="nav-label">Mis Doc. Pend.</span></a>
             </li>
