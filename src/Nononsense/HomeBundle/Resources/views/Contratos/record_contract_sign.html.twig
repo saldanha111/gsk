@@ -7,7 +7,7 @@
 
 </style>
 {% endblock %}
-{% block main_title %} Se va a proceder a firmar el contrato {{contractName}}{% endblock %}
+{% block main_title %} Se va a proceder a firmar el contrato {{record.contract.name}}{% endblock %}
 {% block content %}
 <div class="wrapper wrapper-content">
     {% for flashMessage in app.session.flashbag.get('error') %}
@@ -20,7 +20,7 @@
         <div>
             <div class="col-sm-5 ">
                 <h1>Firma de Contrato</h1>
-                <form id="signForm" action="{{path('nononsense_record_contracts_sign', {'id': id})}}" method="POST" enctype="multipart/form-data">
+                <form id="signForm" action="{{path('nononsense_record_contracts_sign', {'id': record.contract.id})}}" method="POST" enctype="multipart/form-data">
                     
                     <div id="signature-pad" class="input-group">
                         <h2>Introduzca su firma</h2>

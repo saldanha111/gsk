@@ -17,8 +17,7 @@ class ContractsRepository extends EntityRepository
     	$em = $this->getEntityManager();
 
         $list = $this->createQueryBuilder('c')
-            ->select('c.id', 'c.name', 't.name as nameType')
-            ->leftJoin("c.type", "t")
+            ->select('c.id', 'c.name')
             ->andWhere('c.isActive=1')
             ->orderBy('c.id', 'DESC');
 
@@ -60,11 +59,6 @@ class ContractsRepository extends EntityRepository
                     $list->setParameter('name'.$key, '%' . $term. '%');
                 }
                 
-            }
-
-            if(isset($filters["type"])){
-                $list->andWhere('d.type=:type');
-                $list->setParameter('type', $filters["type"]);
             }
         }
 

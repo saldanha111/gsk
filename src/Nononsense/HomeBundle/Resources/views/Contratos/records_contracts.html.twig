@@ -41,18 +41,6 @@
                                 <input type="text" name="name" class="form-control" value="{{filters.name is defined ? filters.name : ''}}">
                             </div>
 
-                            {% if types is defined %}
-                                <label class="col-sm-1 control-label item_filter">Tipo</label>
-                                <div class="col-sm-2 item_filter">
-                                  <select class="form-control" style="width: 100%;" name="type">
-                                    <option value=""></option>
-                                    {% for type in types %}
-                                      <option value="{{type.id}}" {{ filters.type is defined and filters.type==type.id ? 'selected="selected"' : ''}}>{{type.name}}</option>
-                                    {% endfor %}
-                                  </select>
-                                </div>
-                            {% endif %}
-
                             {% if states is defined %}
                                 <label class="col-sm-1 control-label item_filter">Estado</label>
                                 <div class="col-sm-2 item_filter">
@@ -96,7 +84,6 @@
                             <th>Nombre</th>
                             <th>Creador</th>
                             <th>Próx.Firmante</th>
-                            <th>Tipo</th>
                             <th>Fecha</th>
                             <th>Estado</th>
                             <th></th>
@@ -116,7 +103,6 @@
                                         <i class="fa fa-users" aria-hidden="true"></i> {{ group_comite_rrhh.name }}
                                     {% endif %}
                                 </td>
-                                <td>{{item.nameType}}</td>
                                 <td>{{item.created|date("d/m/Y")}}</td>
                                 <td>
                                     {% if item.status is defined and item.status==0 %}

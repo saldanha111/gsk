@@ -105,7 +105,7 @@ class RecordsContractsController extends Controller
             $filters2["until"]=$request->get("until");
         }
 
-        $array_item["states"][1]="Pendiente de completar";
+        $array_item["states"][1]="Creado";
         $array_item["states"][2]="Pendiente de firma";
         $array_item["states"][3]="Completado";
         $array_item["states"][4]="Cancelado";
@@ -239,8 +239,6 @@ class RecordsContractsController extends Controller
 
         $id_plantilla = $record->getContract()->getPlantillaId();
 
-        $scriptUrl = $baseUrl . "../js/js_oarodoc/contracts_sign_public_1.js?v=".uniqid();
-
         $base_url=$this->getParameter('api_docoaro')."/documents/".$id_plantilla."?getDataUrl=".$getDataUrl."&redirectUrl=".$redirectUrl."&callbackUrl=".$callbackUrl."&scriptUrl=".$scriptUrl;
         
         $ch = curl_init();
@@ -310,12 +308,12 @@ class RecordsContractsController extends Controller
 
                 if($recordsContractsSignatures){
                     $firma = $recordsContractsSignatures->getFirma();
-                    $data["data"]["firma_comite"] = "<img src='" . $firma . "' />";    
+                    $data["data"]["firma_comite_rrhh"] = "<img src='" . $firma . "' />";    
                 }
             }
 
 
-            $data["configuration"]["form_readonly"]=1;
+            //$data["configuration"]["form_readonly"]=1;
             $data["data"]["numero_solicitud"]=$record->getId();
         }
 
@@ -330,6 +328,7 @@ class RecordsContractsController extends Controller
     /* Función a la que se conecta doxpresso para mandar los datos - Webhook*/
     public function returnDataAction($id)
     {
+        
         // get the InstanciasSteps entity
         $record = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:RecordsContracts')
@@ -351,7 +350,8 @@ class RecordsContractsController extends Controller
         $em = $this->getDoctrine()->getManager();
 
         unset($params["data"]['firma_direccion_rrhh']);
-        unset($params["data"]['firma_comite']);
+        unset($params["data"]['firma_comite_rrhh']);
+        unset($params["data"]['firma_trabajador']);
         $record->setStepDataValue(json_encode(array("data" => $params["data"], "action" => $params["action"]), JSON_FORCE_OBJECT));
 
         $em->persist($record);
@@ -411,10 +411,7 @@ class RecordsContractsController extends Controller
                     $can_sign=1;
                 }
                 if($can_sign==1){
-                    return $this->render('NononsenseHomeBundle:Contratos:record_contract_sign.html.twig', array(
-                        "contractName" => $contractName,
-                        "id" => $id
-                    ));    
+                    return $this->redirect($this->container->get('router')->generate('nononsense_records_contracts_sign_gsk', array("id" => $id)));    
                 }
                 else{
                     $this->get('session')->getFlashBag()->add('error',"No tienes permisos para firmar. Solo pueden firmar miembros de Dirección RRHH");
@@ -427,10 +424,7 @@ class RecordsContractsController extends Controller
                     $can_sign=1;
                 }
                 if($can_sign==1){
-                    return $this->render('NononsenseHomeBundle:Contratos:record_contract_sign.html.twig', array(
-                        "contractName" => $contractName,
-                        "id" => $id
-                    ));    
+                    return $this->redirect($this->container->get('router')->generate('nononsense_records_contracts_sign_gsk', array("id" => $id)));  
                 }
                 else{
                     $this->get('session')->getFlashBag()->add('error',"No tienes permisos para firmar. Solo pueden firmar miembros del Comité de RRHH");
@@ -446,6 +440,24 @@ class RecordsContractsController extends Controller
         return $this->redirect($this->container->get('router')->generate('nononsense_records_contracts'));
     }
 
+    public function signContractGskAction(Request $request, $id){
+
+        $is_valid = $this->get('app.security')->permissionSeccion('contratos_gestion');
+        if(!$is_valid){
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+        }
+
+        $record = $this->getDoctrine()->getRepository('NononsenseHomeBundle:RecordsContracts')->find($id);
+        if(!$record){
+            $this->get('session')->getFlashBag()->add('error',"El contrato no existe");
+            return $this->redirect($this->container->get('router')->generate('nononsense_records_contracts'));
+        }
+
+        $array_data = array();
+        $array_data['record'] = $record;
+
+        return $this->render('NononsenseHomeBundle:Contratos:record_contract_sign.html.twig',$array_data);
+    }
 
     /* Proceso donde firmamos los documentos */
     public function signAction($id, Request $request)

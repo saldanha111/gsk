@@ -56,25 +56,6 @@
                             <div class="col-sm-7 col-sm-offset-3">
                                 <div class="checkbox">
                                     <label>
-                                        <input id="sign_creator" name="sign_creator" value="1" type="checkbox" {% if item is not defined or (item.signCreator is defined and  item.signCreator == 1) %} checked="checked" {% endif %}> Firma del creador
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group" id="div_attachment">
-                            <div class="col-sm-7 col-sm-offset-3">
-                                <div class="checkbox">
-                                    <label>
-                                        <input name="attachment" id="attachment" value="1" type="checkbox" {% if item.attachment is defined and  item.attachment == 1 %} checked="checked" {% endif %}> Anexo
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <div class="col-sm-7 col-sm-offset-3">
-                                <div class="checkbox">
-                                    <label>
                                         <input name="is_active" value="1" type="checkbox" {% if item is not defined or (item.isActive is defined and  item.isActive == 1) %} checked="checked" {% endif %}> Activo
                                     </label>
                                 </div>

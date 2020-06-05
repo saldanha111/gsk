@@ -19,18 +19,6 @@
                                 <input type="text" name="name" class="form-control" value="{{filters.name is defined ? filters.name : ''}}">
                             </div>
 
-                            {% if types is defined %}
-                                <label class="col-sm-1 control-label item_filter">Tipo</label>
-                                <div class="col-sm-2 item_filter">
-                                  <select class="form-control" style="width: 100%;" name="type">
-                                    <option value=""></option>
-                                    {% for type in types %}
-                                      <option value="{{type.id}}" {{ filters.type is defined and filters.type==type.id ? 'selected="selected"' : ''}}>{{type.name}}</option>
-                                    {% endfor %}
-                                  </select>
-                                </div>
-                            {% endif %}
-
                             <div class="col-sm-1 item_filter">
                                 <button type="submit" class="btn btn-primary pull-right">Filtrar</button>
                             </div>
@@ -50,7 +38,6 @@
                         <tr>
                             <th>Nº</th>
                             <th>Nombre</th>
-                            <th>Tipo</th>
                             <th></th>
                         </tr>
                         </thead>
@@ -65,7 +52,6 @@
                                         {{item.name}}
                                     {% endif %}
                                 </td>
-                                <td>{{item.nameType}}</td>
                                 <td>
                                     {% if can_create_register %}
                                         <a href="{{path('nononsense_records_contracts_new', {'id': item.id}) }}" class="btn btn-xs btn-primary"><i class="fa fa-lock"> </i> Crear registro</a>

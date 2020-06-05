@@ -62,14 +62,8 @@ class ContractsController extends Controller
             $filters2["name"]=$request->get("name");
         }
 
-        if($request->get("type")){
-            $filters["type"]=$request->get("type");
-            $filters2["type"]=$request->get("type");
-        }
-
 
         $array_item["filters"]=$filters;
-        $array_item["types"] = $this->getDoctrine()->getRepository(ContractsTypes::class)->findAll();
         $array_item["items"] = $this->getDoctrine()->getRepository(Contracts::class)->list($filters);
         $array_item["count"] = $this->getDoctrine()->getRepository(Contracts::class)->count($filters2,$types);
 
@@ -92,6 +86,7 @@ class ContractsController extends Controller
 
     public function editAction(Request $request, string $id)
     {
+
         $is_valid = $this->get('app.security')->permissionSeccion('plantillas_crear_plantilla');
         if(!$is_valid){
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
@@ -100,7 +95,6 @@ class ContractsController extends Controller
 
         $serializer = $this->get('serializer');
 
-        $array_item["types"] = $this->getDoctrine()->getRepository(ContractsTypes::class)->findAll();
         $array_item["users"] = $this->getDoctrine()->getRepository(Users::class)->findAll();
         $array_item["groups"] = $this->getDoctrine()->getRepository(Groups::class)->findAll();
 
@@ -155,8 +149,6 @@ class ContractsController extends Controller
             }
 
             if(!$not_update){
-                $type = $this->getDoctrine()->getRepository(ContractsTypes::class)->find($request->get("type"));
-                $contract->setType($type);
                 $contract->setPlantillaId($request->get("plantilla_id"));
             }
 
@@ -174,46 +166,6 @@ class ContractsController extends Controller
             }
             else{
                 $contract->setIsActive(0);
-            }
-
-            if($request->get("sign_creator")){
-                $contract->setSignCreator(1);
-            }
-            else{
-                $contract->setSignCreator(0);
-            }
-
-            if($request->get("attachment")){
-                $contract->setAttachment(1);
-            }
-            else{
-                $contract->setAttachment(0);
-            }
-
-            if($request->get("relationals")){
-                $order=1;
-                foreach($request->get("relationals") as $key => $relational){
-                    $signature = new ContractsSignatures();
-
-                    if($request->get("types")[$key]=="1"){
-                        $group = $this->getDoctrine()->getRepository(Groups::class)->find($relational);
-                        $signature->setGroupEntiy($group);
-                        $signature->setEmail($request->get("emails")[$key]);
-                    }
-                    else{
-                        $user = $this->getDoctrine()->getRepository(Users::class)->find($relational);
-                        $signature->setUserEntiy($user);
-                    }
-
-                    $signature->setDocument($contract);
-                    $signature->setCreated(new \DateTime());
-                    $signature->setModified(new \DateTime());
-                    $signature->setNumber($order);
-                    $signature->setAttachment(0);
-                    $em->persist($signature);
-
-                    $order++;
-                }
             }
 
             $em->persist($contract);
