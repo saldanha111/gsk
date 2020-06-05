@@ -95,9 +95,19 @@ class Groups
     protected $documentsSignatures;
 
     /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\ContractsSignatures", mappedBy="groupEntiy")
+     */
+    protected $contractsSignatures;
+
+    /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\RecordsSignatures", mappedBy="groupEntiy")
      */
     protected $recordsSignatures;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\RecordsContractsSignatures", mappedBy="groupEntiy")
+     */
+    protected $recordsContractsSignatures;
 
     /**
      * @ORM\OneToMany(targetEntity="\Nononsense\UserBundle\Entity\GroupsSubsecciones", mappedBy="group")
@@ -662,5 +672,71 @@ class Groups
     public function getGroupsSubsecciones()
     {
         return $this->groupsSubsecciones;
+    }
+
+    /**
+     * Add contractsSignatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\ContractsSignatures $contractsSignatures
+     * @return Groups
+     */
+    public function addContractsSignature(\Nononsense\HomeBundle\Entity\ContractsSignatures $contractsSignatures)
+    {
+        $this->contractsSignatures[] = $contractsSignatures;
+
+        return $this;
+    }
+
+    /**
+     * Remove contractsSignatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\ContractsSignatures $contractsSignatures
+     */
+    public function removeContractsSignature(\Nononsense\HomeBundle\Entity\ContractsSignatures $contractsSignatures)
+    {
+        $this->contractsSignatures->removeElement($contractsSignatures);
+    }
+
+    /**
+     * Get contractsSignatures
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getContractsSignatures()
+    {
+        return $this->contractsSignatures;
+    }
+
+    /**
+     * Add recordsContractsSignatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\RecordsContractsSignatures $recordsContractsSignatures
+     * @return Groups
+     */
+    public function addRecordsContractsSignature(\Nononsense\HomeBundle\Entity\RecordsContractsSignatures $recordsContractsSignatures)
+    {
+        $this->recordsContractsSignatures[] = $recordsContractsSignatures;
+
+        return $this;
+    }
+
+    /**
+     * Remove recordsContractsSignatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\RecordsContractsSignatures $recordsContractsSignatures
+     */
+    public function removeRecordsContractsSignature(\Nononsense\HomeBundle\Entity\RecordsContractsSignatures $recordsContractsSignatures)
+    {
+        $this->recordsContractsSignatures->removeElement($recordsContractsSignatures);
+    }
+
+    /**
+     * Get recordsContractsSignatures
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getRecordsContractsSignatures()
+    {
+        return $this->recordsContractsSignatures;
     }
 }

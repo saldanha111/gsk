@@ -161,9 +161,19 @@ class Users implements AdvancedUserInterface, \Serializable
     protected $documents;
 
     /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\Contracts", mappedBy="userCreatedEntiy")
+     */
+    protected $contracts;
+
+    /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\RecordsDocuments", mappedBy="userCreatedEntiy")
      */
     protected $recordsDocuments;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\RecordsContracts", mappedBy="userCreatedEntiy")
+     */
+    protected $recordsContracts;
 
     /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\DocumentsSignatures", mappedBy="userEntiy")
@@ -171,9 +181,19 @@ class Users implements AdvancedUserInterface, \Serializable
     protected $documentsSignatures;
 
     /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\ContractsSignatures", mappedBy="userEntiy")
+     */
+    protected $contractsSignatures;
+
+    /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\RecordsSignatures", mappedBy="userEntiy")
      */
     protected $recordsSignatures;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\RecordsContractsSignatures", mappedBy="userEntiy")
+     */
+    protected $recordsContractsSignatures;
 
     /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\InstanciasWorkflows", mappedBy="userCreatedEntiy")
@@ -220,6 +240,11 @@ class Users implements AdvancedUserInterface, \Serializable
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\ReconciliacionRegistro", mappedBy="userValidationEntiy")
      */
     protected $ReconciliacionesValidations;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\Tokens", mappedBy="user")
+     */
+    protected $tokens;
 
     /**
      * Users constructor.
@@ -1515,5 +1540,170 @@ class Users implements AdvancedUserInterface, \Serializable
     public function getReconciliacionesValidations()
     {
         return $this->ReconciliacionesValidations;
+    }
+
+    /**
+     * Add contracts
+     *
+     * @param \Nononsense\HomeBundle\Entity\Contracts $contracts
+     * @return Users
+     */
+    public function addContract(\Nononsense\HomeBundle\Entity\Contracts $contracts)
+    {
+        $this->contracts[] = $contracts;
+
+        return $this;
+    }
+
+    /**
+     * Remove contracts
+     *
+     * @param \Nononsense\HomeBundle\Entity\Contracts $contracts
+     */
+    public function removeContract(\Nononsense\HomeBundle\Entity\Contracts $contracts)
+    {
+        $this->contracts->removeElement($contracts);
+    }
+
+    /**
+     * Get contracts
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getContracts()
+    {
+        return $this->contracts;
+    }
+
+    /**
+     * Add recordsContracts
+     *
+     * @param \Nononsense\HomeBundle\Entity\RecordsContracts $recordsContracts
+     * @return Users
+     */
+    public function addRecordsContract(\Nononsense\HomeBundle\Entity\RecordsContracts $recordsContracts)
+    {
+        $this->recordsContracts[] = $recordsContracts;
+
+        return $this;
+    }
+
+    /**
+     * Remove recordsContracts
+     *
+     * @param \Nononsense\HomeBundle\Entity\RecordsContracts $recordsContracts
+     */
+    public function removeRecordsContract(\Nononsense\HomeBundle\Entity\RecordsContracts $recordsContracts)
+    {
+        $this->recordsContracts->removeElement($recordsContracts);
+    }
+
+    /**
+     * Get recordsContracts
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getRecordsContracts()
+    {
+        return $this->recordsContracts;
+    }
+
+    /**
+     * Add contractsSignatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\ContractsSignatures $contractsSignatures
+     * @return Users
+     */
+    public function addContractsSignature(\Nononsense\HomeBundle\Entity\ContractsSignatures $contractsSignatures)
+    {
+        $this->contractsSignatures[] = $contractsSignatures;
+
+        return $this;
+    }
+
+    /**
+     * Remove contractsSignatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\ContractsSignatures $contractsSignatures
+     */
+    public function removeContractsSignature(\Nononsense\HomeBundle\Entity\ContractsSignatures $contractsSignatures)
+    {
+        $this->contractsSignatures->removeElement($contractsSignatures);
+    }
+
+    /**
+     * Get contractsSignatures
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getContractsSignatures()
+    {
+        return $this->contractsSignatures;
+    }
+
+    /**
+     * Add recordsContractsSignatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\RecordsContractsSignatures $recordsContractsSignatures
+     * @return Users
+     */
+    public function addRecordsContractsSignature(\Nononsense\HomeBundle\Entity\RecordsContractsSignatures $recordsContractsSignatures)
+    {
+        $this->recordsContractsSignatures[] = $recordsContractsSignatures;
+
+        return $this;
+    }
+
+    /**
+     * Remove recordsContractsSignatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\RecordsContractsSignatures $recordsContractsSignatures
+     */
+    public function removeRecordsContractsSignature(\Nononsense\HomeBundle\Entity\RecordsContractsSignatures $recordsContractsSignatures)
+    {
+        $this->recordsContractsSignatures->removeElement($recordsContractsSignatures);
+    }
+
+    /**
+     * Get recordsContractsSignatures
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getRecordsContractsSignatures()
+    {
+        return $this->recordsContractsSignatures;
+    }
+
+    /**
+     * Add tokens
+     *
+     * @param \Nononsense\HomeBundle\Entity\Tokens $tokens
+     * @return Users
+     */
+    public function addToken(\Nononsense\HomeBundle\Entity\Tokens $tokens)
+    {
+        $this->tokens[] = $tokens;
+
+        return $this;
+    }
+
+    /**
+     * Remove tokens
+     *
+     * @param \Nononsense\HomeBundle\Entity\Tokens $tokens
+     */
+    public function removeToken(\Nononsense\HomeBundle\Entity\Tokens $tokens)
+    {
+        $this->tokens->removeElement($tokens);
+    }
+
+    /**
+     * Get tokens
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getTokens()
+    {
+        return $this->tokens;
     }
 }
