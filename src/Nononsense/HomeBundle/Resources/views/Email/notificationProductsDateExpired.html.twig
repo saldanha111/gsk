@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>GSK</title>
+
+</head>
+
+<body>
+<h3>GSK</h3>
+
+<p>Los siguientes productos han alcanzado su fecha de caducidad</p>
+
+<table border="1">
+	<thead>
+		<th>Producto</th>
+		<th>Part. Number</th>
+		<th>Cash Number</th>
+		<th>Fecha Caducidad</th>
+	</thead>
+	<tbody>
+		{% for productInput in productsExpired %}
+			<tr>
+		        <td>{{ productInput.product.name }}</td>
+		        <td>{{ productInput.product.partNumber }}</td>
+		        <td>{{ productInput.product.cashNumber }}</td>
+		        <td>{{ productInput.expiryDate|date('Y-m-d') }}</td>
+		    </tr>
+	    {% endfor %}
+	</tbody>
+</table>
+
+<p>
+	Puedes ver el listado desde el siguiente link:<br>
+	<a href="{{cm_installation}}{{ path('nononsense_products_inputs') }}?&expiryDateTo={{ today }}"  target="_blank">{{cm_installation}}{{ path('nononsense_products_inputs') }}?&expiryDateTo={{ today }}</a>
+</p>
+
+</body>
+
+</html>
+

@@ -1,0 +1,155 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}DOCXPRESSO |  Productos / {{productInput.id is not null ? 'Editar' : 'Crear'}} recepción {% endblock %}
+{% block head %}
+    {{ parent() }}
+{% endblock %}
+{% block main_title %} Productos / {{productInput.id is not null ? 'Editar' : 'Crear'}} recepción{% endblock %}
+
+{% block content %}
+
+    <link rel="stylesheet" href="{{ asset('bundles/nononsensehome/css/select2.min.css') }}">
+
+    <div class="wrapper wrapper-content animated fadeInUp">
+        {% for flashMessage in app.session.flashbag.get('error') %}
+        <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+            <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+            {{ flashMessage }}
+        </div>
+        <br>
+        {% endfor %}
+        <form class="form-horizontal" id="form_item" action="{{ path('nononsense_products_inputs_edit',{'id': productInput.id is not null ? productInput.id : 0}) }}" method="POST">
+
+            <input type="hidden" id='url_get_products_json' value="{{ path('nononsense_products_json') }}" />
+
+            <div class="row">
+                <div class="col-lg-4 col-lg-offset-1">
+
+                    <div class="row">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Producto</label>
+                            <div class="col-sm-7">
+                                <select class="form-control select_product" name="product" style="width: 100%;" {% if productInput.productsOutputs|length > 0 %} disabled="disabled" {% endif %} required="required">
+                                    {% if productInput.product.id is defined and productInput.product.id is not null %}
+                                        <option value="{{productInput.product.id}}" selected="selected">{{productInput.product.name}}</option>
+                                    {% endif %}
+                                </select>
+                            </div>
+                        </div> 
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Part. Number</label>
+                            <div class="col-sm-7">
+                                <input type="text" name="partNumber" disabled="disabled" class="form-control" value="{{productInput.product.partNumber is defined and productInput.product.partNumber is not null ? productInput.product.partNumber : ''}}" required="required">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Nombre</label>
+                            <div class="col-sm-7">
+                                <input type="text" name="name" disabled="disabled" class="form-control" value="{{productInput.product.name is defined and productInput.product.name is not null ? productInput.product.name : ''}}" required="required">
+                            </div>
+                        </div>  
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Fecha recepción</label>
+                            <div class="col-sm-7">
+                                <input type="text" class="form-control pull-right my_date" disabled="disabled" autocomplete="off" name="receptionDate" id="receptionDate" value="{{productInput.receptionDate is not null ? productInput.receptionDate|date('Y-m-d') : ''}}">
+                            </div>
+                        </div>   
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Fecha caducidad</label>
+                            <div class="col-sm-7">
+                                <input type="text" class="form-control pull-right my_date" disabled="disabled" autocomplete="off" name="expiryDate" id="expiryDate" value="{{productInput.expiryDate is not null ? productInput.expiryDate|date('Y-m-d') : ''}}">
+                            </div>
+                        </div>  
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Fecha destrucción</label>
+                            <div class="col-sm-7">
+                                <input type="text" class="form-control pull-right my_date" autocomplete="off" name="destructionDate" id="destructionDate" value="{{productInput.destructionDate is not null ? productInput.destructionDate|date('Y-m-d') : ''}}">
+                            </div>
+                        </div>   
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Fecha apertura</label>
+                            <div class="col-sm-7">
+                                <input type="text" class="form-control pull-right my_date" autocomplete="off" name="openDate" id="openDate" value="{{productInput.openDate is not null ? productInput.openDate|date('Y-m-d') : ''}}">
+                            </div>
+                        </div>   
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Cantidad</label>
+                            <div class="col-sm-7">
+                                <input {% if productInput.id is not null %} readonly="readonly" {% endif %} type="text" name="amount" class="form-control" value="{{productInput.amount is not null ? productInput.amount : ''}}" required="required">
+                            </div>
+                        </div> 
+                        
+                    </div>  
+
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-11">
+                    <button type="submit" class="btn btn-primary  pull-right"><i class="fa fa-floppy-o" aria-hidden="true"></i> {{productInput.id is not null ? 'Editar' : 'Registrar'}} recepción</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+{% endblock %}
+
+{% block scripts %}
+    {{ parent() }}
+    <script src="/js/plugins/datapicker/bootstrap-datepicker.js"></script>
+    <script src="/js/plugins/datapicker/locales/bootstrap-datepicker.es.js" charset="UTF-8"></script>
+    <script src="{{ asset('bundles/nononsensehome/js/select2.full.min.js') }}"></script>
+    <script src="{{ asset('bundles/nononsensehome/js/i18n/es.js') }}"></script>
+    <script>
+
+    function format_provider_cliente (option) {
+        if (!option.id) { return option.text; }
+        var ob = option.text;  // replace image source with option.img (available in JSON)
+        return ob;
+    };
+
+    $( document ).ready(function() {
+        ActivateMenu('browse_product_inputs');
+        $('#side-menu').metisMenu();
+
+        $('.my_date').datepicker({
+          autoclose: true,
+          orientation: 'bottom auto',
+          format: 'yyyy-mm-dd',
+          language: 'es'
+        });
+
+        var url_get_products_json = $('#url_get_products_json').val();
+
+        $(".select_product").select2({
+          templateResult: format_provider_cliente,
+          minimumInputLength: 3,
+          language: 'es',
+            ajax: { // instead of writing the function to execute the request we use Select2's convenient helper
+              url: url_get_products_json,
+              dataType: 'json',
+              quietMillis: 250,
+              data: function (params, page) {
+                  return {
+                      name: params.term, // search term
+                  };
+                  
+              },
+              processResults: function (data, page) { // parse the results into the format expected by Select2.
+                return {results: data};
+              },
+              cache: false
+          },
+          escapeMarkup: function(m) { return m; }
+        }).on('select2:select', function (e) {
+            $('input[name="partNumber"]').val(e.params.data.partNumber);
+            $('input[name="name"]').val(e.params.data.text);
+            $('input[name="receptionDate"]').val(e.params.data.receptionDate);
+            $('input[name="destructionDate"]').val(e.params.data.destructionDate);
+            
+        });
+
+    });
+    </script>
+{% endblock %}
+
+

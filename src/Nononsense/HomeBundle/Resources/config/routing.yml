@@ -334,6 +334,74 @@ nononsense_records:
     path: /records
     defaults: { _controller: NononsenseHomeBundle:Records:list}
 
+nononsense_products:
+    path: /products
+    defaults: { _controller: NononsenseHomeBundle:Products:list}
+
+nononsense_qr_list:
+    path: /qrs
+    defaults: { _controller: NononsenseHomeBundle:Qrs:list}
+
+nononsense_qrs_edit:
+    path: /qrs/{id}
+    defaults: { _controller: NononsenseHomeBundle:Qrs:edit}
+
+nononsense_qrs_delete:
+    path: /products-qr/{id}
+    defaults: { _controller: NononsenseHomeBundle:Qrs:delete}
+
+nononsense_qrs_view_qr:
+    path: /qrs-view/{id}
+    defaults: { _controller: NononsenseHomeBundle:Qrs:viewQr}
+
+nononsense_products_json:
+    path: /products-json
+    defaults: { _controller: NononsenseHomeBundle:Products:productosJson}
+
+nononsense_products_edit:
+    path: /products/{id}
+    defaults: { _controller: NononsenseHomeBundle:Products:edit}
+
+nononsense_products_delete:
+    path: /products-delete/{id}
+    defaults: { _controller: NononsenseHomeBundle:Products:delete}
+
+nononsense_products_destroy:
+    path: /products-destroy/{id}
+    defaults: { _controller: NononsenseHomeBundle:Products:destroy}
+
+nononsense_products_inputs:
+    path: /products-inputs
+    defaults: { _controller: NononsenseHomeBundle:Products:listInputs}
+
+nononsense_products_inputs_edit:
+    path: /products-inputs/{id}
+    defaults: { _controller: NononsenseHomeBundle:Products:editInput}
+
+nononsense_products_inputs_delete:
+    path: /products-inputs-delete/{id}
+    defaults: { _controller: NononsenseHomeBundle:Products:deleteInput}
+
+nononsense_products_inputs_view_qr:
+    path: /products-inputs-qr/{id}
+    defaults: { _controller: NononsenseHomeBundle:Products:inputQr}
+
+nononsense_products_outputs:
+    path: /products-outputs
+    defaults: { _controller: NononsenseHomeBundle:Products:listOutputs}
+
+nononsense_products_outputs_edit:
+    path: /products-outputs/{id}
+    defaults: { _controller: NononsenseHomeBundle:Products:editOutput}
+
+nononsense_products_outputs_delete:
+    path: /products-outputs-delete/{id}
+    defaults: { _controller: NononsenseHomeBundle:Products:deleteOutput}
+
+nononsense_products_inputs_get_data_json:
+    path: /products-inputs-data/{id}
+    defaults: { _controller: NononsenseHomeBundle:Products:inputDataJson}
+
 nononsense_records_new:
     path: /records/document/{id}
     defaults: { _controller: NononsenseHomeBundle:Records:create, id:0}

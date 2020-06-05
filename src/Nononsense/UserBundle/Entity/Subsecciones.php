@@ -1,0 +1,174 @@
+<?php
+/**
+ * Created by IntelliJ IDEA.
+ * User: gushe
+ * Date: 26/06/2018
+ * Time: 13:03
+ */
+
+namespace Nononsense\UserBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+
+/**
+ * @ORM\Entity
+ * @ORM\Table(name="subsecciones")
+ * @ORM\Entity(repositoryClass="Nononsense\UserBundle\Entity\SubseccionesRepository")
+ * @ORM\HasLifecycleCallbacks
+ */
+class Subsecciones
+{
+    /**
+     * @ORM\Column(type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    protected $id;
+
+    /**
+     * @ORM\Column(name="name", type="string", length=90)
+     */
+    protected $name;
+
+    /**
+     * @ORM\Column(name="name_id", type="string", length=90)
+     */
+    protected $nameId;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Secciones", inversedBy="subsecciones")
+     * @ORM\JoinColumn(name="seccion_id", referencedColumnName="id")
+     */
+    protected $seccion;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\UserBundle\Entity\GroupsSubsecciones", mappedBy="subseccion")
+     */
+    protected $groupsSubsecciones;
+
+    /**
+     * Sections constructor.
+     */
+
+    public function __construct()
+    {
+
+    }
+
+   
+
+    /**
+     * Get id
+     *
+     * @return integer 
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * Set name
+     *
+     * @param string $name
+     * @return Subsecciones
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    /**
+     * Get name
+     *
+     * @return string 
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * Set seccion
+     *
+     * @param \Nononsense\UserBundle\Entity\Secciones $seccion
+     * @return Subsecciones
+     */
+    public function setSeccion(\Nononsense\UserBundle\Entity\Secciones $seccion = null)
+    {
+        $this->seccion = $seccion;
+
+        return $this;
+    }
+
+    /**
+     * Get seccion
+     *
+     * @return \Nononsense\UserBundle\Entity\Secciones 
+     */
+    public function getSeccion()
+    {
+        return $this->seccion;
+    }
+
+    /**
+     * Add groupsSubsecciones
+     *
+     * @param \Nononsense\UserBundle\Entity\GroupsSubsecciones $groupsSubsecciones
+     * @return Subsecciones
+     */
+    public function addGroupsSubseccione(\Nononsense\UserBundle\Entity\GroupsSubsecciones $groupsSubsecciones)
+    {
+        $this->groupsSubsecciones[] = $groupsSubsecciones;
+
+        return $this;
+    }
+
+    /**
+     * Remove groupsSubsecciones
+     *
+     * @param \Nononsense\UserBundle\Entity\GroupsSubsecciones $groupsSubsecciones
+     */
+    public function removeGroupsSubseccione(\Nononsense\UserBundle\Entity\GroupsSubsecciones $groupsSubsecciones)
+    {
+        $this->groupsSubsecciones->removeElement($groupsSubsecciones);
+    }
+
+    /**
+     * Get groupsSubsecciones
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getGroupsSubsecciones()
+    {
+        return $this->groupsSubsecciones;
+    }
+
+    /**
+     * Set nameId
+     *
+     * @param string $nameId
+     * @return Subsecciones
+     */
+    public function setNameId($nameId)
+    {
+        $this->nameId = $nameId;
+
+        return $this;
+    }
+
+    /**
+     * Get nameId
+     *
+     * @return string 
+     */
+    public function getNameId()
+    {
+        return $this->nameId;
+    }
+}
