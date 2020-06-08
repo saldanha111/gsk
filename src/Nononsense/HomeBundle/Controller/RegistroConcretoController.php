@@ -242,6 +242,8 @@ class RegistroConcretoController extends Controller
             }
         }
 
+        $token_get_data = $this->get('utilities')->generateToken();
+
         /*
          * Caso especial de firma FLL
          */
@@ -256,11 +258,11 @@ class RegistroConcretoController extends Controller
 
 
         //$options['requestExternalJS'] = $validacionURL1;
-        $callback_url = $baseUrlAux . 'data/get_data_from_document/' . $stepid;
-        $get_data_url = $baseUrlAux . 'data/requestData/' . $step->getId() . '/' . $logbook.'/'.$modo;
-
+        $callback_url = $baseUrlAux . 'data/get_data_from_document/' . $stepid."?token=".$token_get_data;
+        $get_data_url = $baseUrlAux . 'data/requestData/' . $step->getId() . '/' . $logbook.'/'.$modo."?token=".$token_get_data;
+        
         if($readonly){
-            $get_data_url.="?readonly=1";
+            $get_data_url.="&readonly=1";
         }
 
         
@@ -268,8 +270,6 @@ class RegistroConcretoController extends Controller
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $base_url);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST,"GET");
-        
-
         curl_setopt($ch, CURLOPT_HTTPHEADER,array("Api-Key: ".$this->getParameter('api_key_docoaro')));
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, array());    

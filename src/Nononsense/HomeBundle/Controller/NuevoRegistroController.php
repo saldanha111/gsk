@@ -22,6 +22,7 @@ use Nononsense\GroupBundle\Entity\GroupUsers;
 use Nononsense\GroupBundle\Entity\Groups;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Filesystem\Filesystem;
 use Nononsense\HomeBundle\Form\Type as FormProveedor;
 
 use Nononsense\UtilsBundle\Classes;
@@ -146,6 +147,18 @@ class NuevoRegistroController extends Controller
             if($records>0){
                 $array_item["not_update"]=1;
             }
+
+            $base_url=$this->getParameter('api_docoaro')."/documents/".$array_item["item"]["plantilla_id"];
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $base_url);
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST,"GET");
+            curl_setopt($ch, CURLOPT_HTTPHEADER,array("Api-Key: ".$this->getParameter('api_key_docoaro')));
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, array());    
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); 
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            $raw_response = curl_exec($ch);
+            $array_item["apiTemplate"] = json_decode($raw_response, true);
         }
 
         return $this->render('NononsenseHomeBundle:Contratos:template.html.twig',$array_item);
@@ -154,7 +167,7 @@ class NuevoRegistroController extends Controller
     public function updateAction(Request $request, string $id)
     {   
         $em = $this->getDoctrine()->getManager();
-
+        $update_template=0;
         try {
             $not_update=0;
             $category = $this->getDoctrine()->getRepository(Categories::class)->findOneById($request->get("category_id"));
@@ -165,9 +178,17 @@ class NuevoRegistroController extends Controller
                 $ms = $this->getDoctrine()->getRepository(MasterSteps::class)->findOneBy(array("workflow_id"=>$id,"dependsOn"=>0));
                 $ms2 = $this->getDoctrine()->getRepository(MasterSteps::class)->findOneBy(array("workflow_id"=>$id,"dependsOn"=>$ms->getId()));
 
+                if($request->files->get('template') && $request->get("template_name")){
+                    $update_template=1;
+                    $template_name=$request->get("template_name");
+                }
+
+                $base_url=$this->getParameter('api_docoaro')."/documents/".$ms->getPlantillaId();
+
                 $records = $this->getDoctrine()->getRepository(InstanciasSteps::class)->search("count",array("master_step_id"=>$ms->getId()));
                 if($records>0){
                     $not_update=1;
+
                 }
                 else{
                     if(!empty($ms)){
@@ -179,8 +200,23 @@ class NuevoRegistroController extends Controller
                         $ms2=NULL;
                     }
                 }
+
+                
             }
             else{
+
+                if(!$request->files->get('template')){
+                    $this->get('session')->getFlashBag()->add(
+                        'error',
+                        "Es necesario adjuntar un documento paga subir la plantilla"
+                    );
+                    return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
+                }
+                else{
+                    $update_template=1;
+                    $template_name=$request->get("name");
+                }
+
                 $mw = new MasterWorkflows();
                 
                 $mw->setMasterData("");
@@ -189,11 +225,17 @@ class NuevoRegistroController extends Controller
                 $mw->setCreated(new \DateTime());
                 $mw->setValidation("default");
                 $ms = new MasterSteps();
+
+                $base_url=$this->getParameter('api_docoaro')."/documents";
+                $update_template=1;
             }
 
             $mw->setGrupoVerificacion($group);
 
             if(!$not_update){
+
+                
+
                 $mw->setPrecreation($request->get("precreation"));
 
                 if($request->get("precreation")=="codigolote"){
@@ -208,7 +250,7 @@ class NuevoRegistroController extends Controller
                 $ms = new MasterSteps();
                 $ms->setMasterWorkflow($mw);
                 $ms->setGroups($group);
-                $ms->setPlantillaId($request->get("plantilla_id"));
+                //$ms->setPlantillaId($request->get("plantilla_id"));
                 $ms->setPosition(1);
                 $ms->setBlock(1);
                 $ms->setOptional(0);
@@ -225,6 +267,32 @@ class NuevoRegistroController extends Controller
                 $ms->setStepData("");
                 $ms->setValidation("self");
 
+                if($update_template==1){
+                    $fs = new Filesystem();
+                    $file = $request->files->get('template');
+                    $data_file = curl_file_create($file->getRealPath(), $file->getClientMimeType(), $file->getClientOriginalName());
+                    $post = array('name' => $template_name,'file'=> $data_file);
+                    $ch = curl_init();
+                    curl_setopt($ch, CURLOPT_URL, $base_url);
+                    curl_setopt($ch, CURLOPT_CUSTOMREQUEST,"POST");
+                    curl_setopt($ch, CURLOPT_HTTPHEADER,array("Content-Type: multipart/form-data","Api-Key: ".$this->getParameter('api_key_docoaro')));
+                    curl_setopt($ch, CURLOPT_POST, 1);
+                    curl_setopt($ch, CURLOPT_POSTFIELDS, $post);    
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); 
+                    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+                    $raw_response = curl_exec($ch);
+                    $response = json_decode($raw_response, true);
+                    
+                    if(!$response["document"]){
+                        $this->get('session')->getFlashBag()->add(
+                            'error',
+                            'Error al subir la plantilla. '.$response["message"]
+                        );
+                        return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
+                    }
+                    $ms->setPlantillaId($response["document"]["id"]);
+                }
+                
                 if($request->get("tiene_checklist")){
                     $mw->setChecklist(1);
                     $ms2 = new MasterSteps();
@@ -314,7 +382,7 @@ class NuevoRegistroController extends Controller
 
         
 
-        $route = $this->container->get('router')->generate('nononsense_nuevo_contrato');
+        $route = $this->container->get('router')->generate('nononsense_nuevo_contrato')."?categoriasSelect=0";
         return $this->redirect($route);
     }
 
