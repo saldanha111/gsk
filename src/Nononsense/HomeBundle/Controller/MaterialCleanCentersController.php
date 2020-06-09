@@ -11,7 +11,7 @@ class MaterialCleanCentersController extends Controller
 {
     public function listAction(Request $request)
     {
-        $is_valid = $this->get('app.security')->permissionSeccion('mc-centers-list');
+        $is_valid = $this->get('app.security')->permissionSeccion('mc_centers_list');
         if(!$is_valid){
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
@@ -52,7 +52,7 @@ class MaterialCleanCentersController extends Controller
 
     public function editAction(Request $request, $id)
     {
-        $is_valid = $this->get('app.security')->permissionSeccion('mc-centers-edit');
+        $is_valid = $this->get('app.security')->permissionSeccion('mc_centers_edit');
         if(!$is_valid){
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
@@ -98,7 +98,7 @@ class MaterialCleanCentersController extends Controller
 
     public function deleteAction(Request $request, $id)
     {
-        $is_valid = $this->get('app.security')->permissionSeccion('mc-centers-edit');
+        $is_valid = $this->get('app.security')->permissionSeccion('mc_centers_edit');
         if(!$is_valid){
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
