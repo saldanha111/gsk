@@ -21,4 +21,5 @@
 /vendor/
 /web/bundles/
 /web/img/users/
-/.idea/
+/.idea
+/nbproject

@@ -17,7 +17,7 @@ use Nononsense\UserBundle\Entity\Users;
 use Nononsense\GroupBundle\Entity\Groups;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Nononsense\HomeBundle\Entity\InstanciasSteps;
-
+use Symfony\Component\Filesystem\Filesystem;
 use Nononsense\UtilsBundle\Classes;
 
 
@@ -107,6 +107,18 @@ class DocumentsController extends Controller
             if($records){
                 $array_item["not_update"]=1;
             }
+
+            $base_url=$this->getParameter('api_docoaro')."/documents/".$array_item["item"]["plantilla_id"];
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $base_url);
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST,"GET");
+            curl_setopt($ch, CURLOPT_HTTPHEADER,array("Api-Key: ".$this->getParameter('api_key_docoaro')));
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, array());    
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); 
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            $raw_response = curl_exec($ch);
+            $array_item["apiTemplate"] = json_decode($raw_response, true);
         }
 
         return $this->render('NononsenseHomeBundle:Contratos:document.html.twig',$array_item);
@@ -125,11 +137,33 @@ class DocumentsController extends Controller
                 foreach ($signatures as $signature) {
                     $em->remove($signature);
                 }
+
+                if($request->files->get('template') && $request->get("template_name")){
+                    $update_template=1;
+                    $template_name=$request->get("template_name");
+                }
+
+                $base_url=$this->getParameter('api_docoaro')."/documents/".$document->getPlantillaId();
             }
             else{
                 $document = new Documents();
                 $user = $this->container->get('security.context')->getToken()->getUser();
                 $document->setUserCreatedEntiy($user);
+
+                if(!$request->files->get('template')){
+                    $this->get('session')->getFlashBag()->add(
+                        'error',
+                        "Es necesario adjuntar un documento paga subir la plantilla"
+                    );
+                    return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
+                }
+                else{
+                    $update_template=1;
+                    $template_name=$request->get("name");
+                }
+
+                $base_url=$this->getParameter('api_docoaro')."/documents";
+                $update_template=1;
             }
 
             $records = $this->getDoctrine()->getRepository(RecordsDocuments::class)->findBy(array("document" => $document));
@@ -140,7 +174,32 @@ class DocumentsController extends Controller
             if(!$not_update){
                 $type = $this->getDoctrine()->getRepository(Types::class)->find($request->get("type"));
                 $document->setType($type);
-                $document->setPlantillaId($request->get("plantilla_id"));
+
+                if($update_template==1){
+                    $fs = new Filesystem();
+                    $file = $request->files->get('template');
+                    $data_file = curl_file_create($file->getRealPath(), $file->getClientMimeType(), $file->getClientOriginalName());
+                    $post = array('name' => $template_name,'file'=> $data_file);
+                    $ch = curl_init();
+                    curl_setopt($ch, CURLOPT_URL, $base_url);
+                    curl_setopt($ch, CURLOPT_CUSTOMREQUEST,"POST");
+                    curl_setopt($ch, CURLOPT_HTTPHEADER,array("Content-Type: multipart/form-data","Api-Key: ".$this->getParameter('api_key_docoaro')));
+                    curl_setopt($ch, CURLOPT_POST, 1);
+                    curl_setopt($ch, CURLOPT_POSTFIELDS, $post);    
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); 
+                    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+                    $raw_response = curl_exec($ch);
+                    $response = json_decode($raw_response, true);
+                    
+                    if(!$response["document"]){
+                        $this->get('session')->getFlashBag()->add(
+                            'error',
+                            'Error al subir la plantilla. '.$response["message"]
+                        );
+                        return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
+                    }
+                    $document->setPlantillaId($response["document"]["id"]);
+                }
             }
 
             $document->setName($request->get("name"));

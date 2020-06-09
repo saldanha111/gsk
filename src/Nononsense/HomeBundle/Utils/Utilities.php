@@ -33,7 +33,7 @@ class Utilities{
         $tokenObj = $this->em->getRepository('NononsenseHomeBundle:Tokens')->findOneByToken($token);
         if($tokenObj){
             $token_date_created = $tokenObj->getCreated();
-            $token_date_created->modify('+5 minute');
+            $token_date_created->modify('+15 minute');
             $current_minute = date('YmdHis');
             if($current_minute > $token_date_created->format('YmdHis')){
                 $expired_token = 1;
@@ -41,6 +41,22 @@ class Utilities{
         }
 
         return $expired_token;
+    }
+
+    public function getUserByToken($token){
+        $expired_token = 0;
+        $tokenObj = $this->em->getRepository('NononsenseHomeBundle:Tokens')->findOneByToken($token);
+        if($tokenObj){
+            $token_date_created = $tokenObj->getCreated();
+            $token_date_created->modify('+5 minute');
+            $current_minute = date('YmdHis');
+            if($current_minute < $token_date_created->format('YmdHis')){
+                return $tokenObj->getUser()->getId();
+            }
+            return false;
+        }
+
+        return false;
     }
 
     

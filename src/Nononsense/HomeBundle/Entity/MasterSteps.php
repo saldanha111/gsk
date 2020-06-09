@@ -30,7 +30,7 @@ class MasterSteps
     protected $workflow_id;
 
     /**
-     * @var integer
+     * @var string
      *
      * @ORM\Column(name="plantilla_id", type="string")
      */
