@@ -192,6 +192,7 @@ class NuevoRegistroController extends Controller
                 }
                 else{
                     if(!empty($ms)){
+                        $plantilla_id=$ms->getPlantillaId();
                         $em->remove($ms);
                         $ms=NULL;
                     }
@@ -291,6 +292,9 @@ class NuevoRegistroController extends Controller
                         return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
                     }
                     $ms->setPlantillaId($response["document"]["id"]);
+                }
+                else{
+                    $ms->setPlantillaId($plantilla_id);
                 }
                 
                 if($request->get("tiene_checklist")){
