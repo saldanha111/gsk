@@ -147,6 +147,28 @@
                 </ul>
             </li>
             <li>
+                <a href="#">
+                    <i class="fa fa-shower" aria-hidden="true"></i>
+                    <span class="nav-label">{{'Material Limpio'|trans}}</span>
+                    <span class="fa arrow"></span>
+                </a>
+                <ul class="nav nav-second-level">
+                    <li>
+                        <a href="#">
+                            <i class="fa fa-user-circle" aria-hidden="true"></i>
+                            <span class="nav-label">{{'Administracion'|trans}}</span>
+                            <span class="fa arrow"></span>
+                        </a>
+                        <ul class="nav nav-third-level">
+                            <li id="admin_materials"><a href="{{path('nononsense_mclean_materials_list')}}">{{'Materiales'|trans}}</a></li>
+                        </ul>
+                    </li>
+                    {% if 'productos_retirada' in array_subsecciones %}
+                        <li id="browse_product_outputs"><a href="{{path('nononsense_products_outputs')}}">{{'Retirada de material'|trans}}</a></li>
+                    {% endif %}
+                </ul>
+            </li>
+            <li>
                 <a href="#"><i class="fa fa-users"></i> <span class="nav-label">{{'Users'|trans}}</span><span
                         class="fa arrow"></span></a>
                 <ul class="nav nav-second-level">

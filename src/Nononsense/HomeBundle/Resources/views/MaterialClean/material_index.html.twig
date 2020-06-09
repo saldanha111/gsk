@@ -1,0 +1,156 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}DOCXPRESSO | {{'Homepage'|trans}} {% endblock %}
+{% block head %}
+{{ parent() }}
+{% endblock %}
+{% block main_title %} Listado de materiales{% endblock %}
+{% block content %}
+
+<div class="wrapper wrapper-content">
+    <div class="row">
+        <div class="col-sm-12">
+            <div>
+                <div class="row">
+                    {% for flashMessage in app.session.flashbag.get('error') %}
+                        <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+                            <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                            {{ flashMessage }}
+                        </div>
+                        <br>
+                    {% endfor %}
+                    {% for flashMessage in app.session.flashbag.get('message') %}
+                        <div class="alert alert-success alert-dismissable" style="margin: 10px 16px 0 16px">
+                            <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                            {{ flashMessage }}
+                        </div>
+                        <br>
+                    {% endfor %}
+                    <div class="col-xs-12">
+                        <form class="form-horizontal" id="form_item" action="{{ path('nononsense_mclean_materials_list')}}" method="GET">
+                            <input type="hidden" id='url_mc_material_list' value="{{ path('nononsense_mclean_materials_list')}}" />
+                            <input type="hidden" id='url_mc_material_delete' value="{{ path('nononsense_mclean_materials_delete',{'id': 'xxx'}) }}" />
+                            <input type="hidden" id='url_mc_material_edit' value="{{ path('nononsense_mclean_materials_edit',{'id': 'xxx'}) }}" />
+                            <div class="form-group">
+                                <div class="col-sm-2 item_filter">
+                                    <input type="text" placeholder="Buscar" name="name" class="form-control" value="{{filters.name is defined ? filters.name : ''}}">
+                                </div>
+
+                                <div class="col-sm-1 item_filter">
+                                    <button id="btn-search" type="button" class="btn btn-primary pull-right">Buscar</button>
+                                </div>
+                                <div class="col-sm-1 item_filter">
+                                    <a href="{{path('nononsense_mclean_materials_list')}}" type="button" class="btn btn-primary pull-right">Reset</a>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div>
+                            <a href="{{ path('nononsense_mclean_materials_edit',{'id': '0'}) }}" target="_self" class="btn btn-primary pull-right"><i class="fa fa-plus"></i> Nuevo Material</a>
+                        </div>
+                        <br/>
+                        <table id="inProcessParcial" class="table table-striped">
+                            <thead>
+                            <tr>
+                                <th>Id.</th>
+                                <th>Nombre</th>
+                                <th>Cad. Limpieza (días)</th>
+                                <th>Activo</th>
+                                <th></th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            {% if items is defined %}
+                                {% for item in items %}
+                                    <tr>
+                                        <td>{{item.id}}</td>
+                                        <td>{{item.name}}</td>
+                                        <td>{{item.expirationDays}}</td>
+                                        <td>
+                                            {% if item.active %}
+                                                Si
+                                            {% else %}
+                                                No
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if item.active %}
+                                                <a href="#" data-id="{{ item.id }}" class="btn btn-xs btn-del" target="_self"><i class="fa fa-trash" aria-hidden="true"></i> Borrar</a>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <a href="#" data-id="{{ item.id }}" class="btn btn-xs btn-edit" target="_self"><i class="fa fa-pencil-square" aria-hidden="true"></i> Editar</a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            {% endif %}
+                        </table>
+
+                        {% if count==0 %}
+                            <br><b>No se han encontrado datos disponibles</b>
+                        {% endif %}
+                        {% if pagination is defined and pagination.needed %}
+                            {% include '::pagination2.html.twig' %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+{{ parent() }}
+<script>
+    $(function () {
+        ActivateMenu('admin_materials');
+        $('#side-menu').metisMenu();
+
+        $(document).on('click','#btn-search',function(){
+            filtering();
+        });
+
+        $(document).on('click','.btn-del',function(event){
+            event.preventDefault();
+            let id = $( this ).data('id');
+            delete_product(id);
+        });
+
+        $(document).on('click','.btn-edit',function(event){
+            event.preventDefault();
+            let id = $( this ).data('id');
+            edit_product(id);
+        });
+    });
+
+    function delete_product(id){
+        let url_product_delete = $('#url_mc_material_delete').val();
+        url_product_delete = url_product_delete.replace("xxx", id);
+
+        if(confirm('¿Seguro que quieres borrar el material?')){
+            window.location.href = url_product_delete;
+        }
+    }
+
+    function edit_product(id){
+        let url_product_edit = $('#url_mc_material_edit').val();
+        url_product_edit = url_product_edit.replace("xxx", id);
+
+        if(confirm('¿Seguro que quieres editar el material?')){
+            window.location.href = url_product_edit;
+        }
+    }
+
+    function filtering(){
+        let url_product_list = $('#url_mc_material_list').val();
+        let form = $('#form_item');
+        form.attr("action", url_product_list);
+        form.attr("target","_self");
+        form.submit();
+    }
+
+</script>
+{% endblock %}
+                        

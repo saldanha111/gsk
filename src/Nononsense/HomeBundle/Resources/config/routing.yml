@@ -535,3 +535,15 @@ nononsense_mclean_centers_edit:
 nononsense_mclean_centers_delete:
     path: /mclean/center/delete/{id}
     defaults: { _controller: NononsenseHomeBundle:MaterialCleanCenters:delete}
+
+nononsense_mclean_materials_list:
+    path: /mclean/materials
+    defaults: { _controller: NononsenseHomeBundle:MaterialCleanMaterials:list}
+
+nononsense_mclean_materials_edit:
+    path: /mclean/material/{id}
+    defaults: { _controller: NononsenseHomeBundle:MaterialCleanMaterials:edit}
+
+nononsense_mclean_materials_delete:
+    path: /mclean/material/delete/{id}
+    defaults: { _controller: NononsenseHomeBundle:MaterialCleanMaterials:delete}
