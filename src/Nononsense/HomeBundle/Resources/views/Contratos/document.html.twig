@@ -1,9 +1,9 @@
 {% extends '::base.html.twig' %}
-{% block page_title %}DOCXPRESSO | Documentos/Contratos {% endblock %}
+{% block page_title %}DOCXPRESSO | Documentos {% endblock %}
 {% block head %}
     {{ parent() }}
 {% endblock %}
-{% block main_title %} Documentos/Contratos {% endblock %}
+{% block main_title %} Documentos {% endblock %}
 
 {% block content %}
 
@@ -14,7 +14,7 @@
             {{ flashMessage }}
         </div>
         {% endfor %}
-        <form class="form-horizontal" id="form_item" action="{{ path('nononsense_documents_update',{'id': item.id is defined ? item.id : 0}) }}" method="POST">
+        <form class="form-horizontal" id="form_item" action="{{ path('nononsense_documents_update',{'id': item.id is defined ? item.id : 0}) }}" method="POST"  enctype="multipart/form-data">
             <div class="row">
                 <div class="col-lg-4 col-lg-offset-1">
                     <div class="row">
@@ -40,11 +40,33 @@
                         {% endif %}
 
                         <div class="form-group">
-                            <label class="col-sm-3 control-label">ID. Plantilla</label>
-                            <div class="col-sm-7">
-                                <input type="number" {% if not_update is defined %} readonly="readonly" {% else %} name="plantilla_id" {% endif %} class="form-control" value="{{item.plantilla_id is defined ? item.plantilla_id : ''}}"  required="required">
+                            {% if not_update is not defined %}
+                                {% if item.id is defined %}
+                                    <label class="col-sm-3 control-label">Versión</label>
+                                    <div class="col-sm-7">
+                                        <input type="text" name="template_name" class="form-control" value="">
+                                    </div>
+                                {% endif %}
+                                <label class="col-sm-3 control-label">Plantilla</label>
+                                <div class="col-sm-2">    
+                                    <input type='file' name="template" id="template" />
+                                </div>
+                            {% endif %}
+                        </div>  
+                        {% if apiTemplate is defined and apiTemplate.name is defined %} 
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Versión</label>
+                                <label class="col-sm-7">{{apiTemplate.version.name}}</label>
                             </div>
-                        </div>   
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Configuración</label>
+                                <label class="col-sm-7">{{apiTemplate.version.configuration.name}}</label>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-2 col-sm-offset-3"><a class="btn btn-xs btn-info pull-left" href="{{apiTemplate.configurationUrl}}" target="_blank">Configuración</a></div>
+                                <div class="col-sm-2"><a class="btn btn-xs btn-info pull-left" href="{{apiTemplate.fillInUrl}}" target="_blank">Vista previa</a></div>
+                            </div>
+                        {% endif %}   
                         <div class="form-group">
                             <label class="col-sm-3 control-label">Descripción</label>
                             <div class="col-sm-7">

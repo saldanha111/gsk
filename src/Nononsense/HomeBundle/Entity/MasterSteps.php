@@ -30,9 +30,9 @@ class MasterSteps
     protected $workflow_id;
 
     /**
-     * @var integer
+     * @var string
      *
-     * @ORM\Column(name="plantilla_id", type="integer")
+     * @ORM\Column(name="plantilla_id", type="string")
      */
     protected $plantilla_id;
 
@@ -222,29 +222,6 @@ class MasterSteps
     public function getWorkflowId()
     {
         return $this->workflow_id;
-    }
-
-    /**
-     * Set plantilla_id
-     *
-     * @param integer $plantillaId
-     * @return Master_Steps
-     */
-    public function setPlantillaId($plantillaId)
-    {
-        $this->plantilla_id = $plantillaId;
-
-        return $this;
-    }
-
-    /**
-     * Get plantilla_id
-     *
-     * @return integer 
-     */
-    public function getPlantillaId()
-    {
-        return $this->plantilla_id;
     }
 
     /**
@@ -705,5 +682,28 @@ class MasterSteps
     public function getChecklist()
     {
         return $this->checklist;
+    }
+
+    /**
+     * Set plantilla_id
+     *
+     * @param string $plantillaId
+     * @return MasterSteps
+     */
+    public function setPlantillaId($plantillaId)
+    {
+        $this->plantilla_id = $plantillaId;
+
+        return $this;
+    }
+
+    /**
+     * Get plantilla_id
+     *
+     * @return string 
+     */
+    public function getPlantillaId()
+    {
+        return $this->plantilla_id;
     }
 }
