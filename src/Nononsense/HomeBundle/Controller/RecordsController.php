@@ -188,10 +188,11 @@ class RecordsController extends Controller
             $redirectUrl = $baseUrl . "records/redirectFromData/" . $id;
              $scriptUrl = $baseUrl . "../js/js_oarodoc/documents.js?v=".uniqid();
         }
-
+        
+        $token_get_data = $this->get('utilities')->generateToken();
        
-        $getDataUrl=$baseUrlAux."dataRecords/requestData/".$id;
-        $callbackUrl=$baseUrlAux."dataRecords/returnData/".$id;
+        $getDataUrl=$baseUrlAux."dataRecords/requestData/".$id."?token=".$token_get_data;
+        $callbackUrl=$baseUrlAux."dataRecords/returnData/".$id."?token=".$token_get_data;
 
         $base_url=$this->getParameter('api_docoaro')."/documents/".$record->getDocument()->getPlantillaId()."?getDataUrl=".$getDataUrl."&redirectUrl=".$redirectUrl."&callbackUrl=".$callbackUrl."&scriptUrl=".$scriptUrl;
         $ch = curl_init();
@@ -218,181 +219,191 @@ class RecordsController extends Controller
     /* Función a la que llama docxpresso antes de abrir la vista previa para saber si necesita cargar datos en las plantillas */
     public function RequestDataAction($id)
     {
-        $em = $this->getDoctrine()->getManager();
+        $expired_token = $this->get('utilities')->tokenExpired($_REQUEST["token"]);
+        if(!$expired_token){
+            $em = $this->getDoctrine()->getManager();
 
-        // get the InstanciasSteps entity
-        $record = $this->getDoctrine()
-            ->getRepository('NononsenseHomeBundle:RecordsDocuments')
-            ->find($id);
+            // get the InstanciasSteps entity
+            $record = $this->getDoctrine()
+                ->getRepository('NononsenseHomeBundle:RecordsDocuments')
+                ->find($id);
 
-        $document = $this->getDoctrine()
-            ->getRepository('NononsenseHomeBundle:Documents')
-            ->find($record->getDocument());
-        
-        /* Prefill document */
-        if($record->getStepDataValue()){
-            $data["data"] = json_decode($record->getStepDataValue(),TRUE)["data"];
-        }
-        $data["data"]["numero_solicitud"]=$record->getId();
-
-        
-        
-        $em = $this->getDoctrine()->getManager();
-
-        if ($record->getStatus() == 0) {
-
-            $data["data"]["require_sap"]=""; 
-        } 
-        else {
-
-            // Data Ingegrity other usage
-            $firmas = $this->getDoctrine()
-                ->getRepository('NononsenseHomeBundle:RecordsSignatures')
-                ->findBy(array("record" => $record));
-
-            if (!empty($firmas)) {
-                $data["data"]["dxo_gsk_audit_trail_bloque"] = 0;
-                $data["data"]["dxo_gsk_firmas_bloque"] = 1;
-                $data["data"]["dxo_gsk_firmas"] = $this->_construirFirmas($firmas);
+            $document = $this->getDoctrine()
+                ->getRepository('NononsenseHomeBundle:Documents')
+                ->find($record->getDocument());
+            
+            /* Prefill document */
+            if($record->getStepDataValue()){
+                $data["data"] = json_decode($record->getStepDataValue(),TRUE)["data"];
             }
+            $data["data"]["numero_solicitud"]=$record->getId();
 
-            if($record->getStatus()==3){
-                $data["configuration"]["cancel_button"]=0;
-                $data["configuration"]["cancel_button"]=0;
-                $data["configuration"]["partial_save_button"]=0;
-                $data["configuration"]["form_readonly"]=1;
-            }
+            
+            
+            $em = $this->getDoctrine()->getManager();
 
-            if($record->getType()->getId()==1){
-                if($record->getStatus()==2 || $record->getStatus()==3){
-                    $data["configuration"]["prefix_edit"]="resp_alm_SAP"; 
-                    
-                    $signatures = $this->getDoctrine()
-                        ->getRepository('NononsenseHomeBundle:RecordsSignatures')
-                        ->findBy(array("record"=> $record->getId(), "firma" => NULL));
-                    if(count($signatures)<=1){
-                        $data["data"]["require_sap"]="1";  
+            if ($record->getStatus() == 0) {
+
+                $data["data"]["require_sap"]=""; 
+            } 
+            else {
+
+                // Data Ingegrity other usage
+                $firmas = $this->getDoctrine()
+                    ->getRepository('NononsenseHomeBundle:RecordsSignatures')
+                    ->findBy(array("record" => $record));
+
+                if (!empty($firmas)) {
+                    $data["data"]["dxo_gsk_audit_trail_bloque"] = 0;
+                    $data["data"]["dxo_gsk_firmas_bloque"] = 1;
+                    $data["data"]["dxo_gsk_firmas"] = $this->_construirFirmas($firmas);
+                }
+
+                if($record->getStatus()==3){
+                    $data["configuration"]["cancel_button"]=0;
+                    $data["configuration"]["cancel_button"]=0;
+                    $data["configuration"]["partial_save_button"]=0;
+                    $data["configuration"]["form_readonly"]=1;
+                }
+
+                if($record->getType()->getId()==1){
+                    if($record->getStatus()==2 || $record->getStatus()==3){
+                        $data["configuration"]["prefix_edit"]="resp_alm_SAP"; 
+                        
+                        $signatures = $this->getDoctrine()
+                            ->getRepository('NononsenseHomeBundle:RecordsSignatures')
+                            ->findBy(array("record"=> $record->getId(), "firma" => NULL));
+                        if(count($signatures)<=1){
+                            $data["data"]["require_sap"]="1";  
+                        }
+                        else{
+                            $data["data"]["require_sap"]=""; 
+                        }
                     }
                     else{
                         $data["data"]["require_sap"]=""; 
                     }
                 }
-                else{
-                    $data["data"]["require_sap"]=""; 
-                }
+
+
+
             }
 
 
+            $response = new Response();
+            $response->setStatusCode(200);
+            $response->setContent(json_encode($data));
 
+            return $response;
         }
-
-
-        $response = new Response();
-        $response->setStatusCode(200);
-        $response->setContent(json_encode($data));
-
-        return $response;
     }
 
     /* Función a la que se conecta doxpresso para mandar los datos - Webhook*/
     public function returnDataAction($id)
     {
 
-        // get the InstanciasSteps entity
-        $record = $this->getDoctrine()
-            ->getRepository('NononsenseHomeBundle:RecordsDocuments')
-            ->find($id);
+        $expired_token = $this->get('utilities')->tokenExpired($_REQUEST["token"]);
+        if(!$expired_token){
 
-        $document = $this->getDoctrine()
-            ->getRepository('NononsenseHomeBundle:Documents')
-            ->find($record->getDocument());
+            // get the InstanciasSteps entity
+            $record = $this->getDoctrine()
+                ->getRepository('NononsenseHomeBundle:RecordsDocuments')
+                ->find($id);
 
-        $request = Request::createFromGlobals();
-        $params = array();
-        $content = $request->getContent();
+            $document = $this->getDoctrine()
+                ->getRepository('NononsenseHomeBundle:Documents')
+                ->find($record->getDocument());
 
-        if (!empty($content))
-        {
-            $params = json_decode($content, true); // 2nd param to get as array
-        }
+            $request = Request::createFromGlobals();
+            $params = array();
+            $content = $request->getContent();
 
-        $em = $this->getDoctrine()->getManager();
+            if (!empty($content))
+            {
+                $params = json_decode($content, true); // 2nd param to get as array
+            }
 
-        $now = new \DateTime();
+            $em = $this->getDoctrine()->getManager();
 
-        /*
-         * Actualizar metaData según variables
-         */
+            $now = new \DateTime();
+
+            /*
+             * Actualizar metaData según variables
+             */
 
 
-        $record->setStepDataValue(json_encode(array("data" => $params["data"], "action" => $params["action"]), JSON_FORCE_OBJECT));
+            $record->setStepDataValue(json_encode(array("data" => $params["data"], "action" => $params["action"]), JSON_FORCE_OBJECT));
 
-        $stepData = $record->getStepDataValue();
-        $stepDataJSON = json_decode($stepData);
+            $stepData = $record->getStepDataValue();
+            $stepDataJSON = json_decode($stepData);
 
-        $signatures = $this->getDoctrine()
-            ->getRepository('NononsenseHomeBundle:RecordsSignatures')
-            ->findBy(array("record"=> $record->getId()));
+            $signatures = $this->getDoctrine()
+                ->getRepository('NononsenseHomeBundle:RecordsSignatures')
+                ->findBy(array("record"=> $record->getId()));
 
-        /* Si no está metido el workflow de las firmas lo metemos */
-        if(!$signatures || $record->getComments()!=NULL){
-            $record->setComments(NULL);
-            if($params["action"]=="save"){
-                if($signatures){
-                    $number_signatures=count($signatures);
-                }
-                else{
-                    $number_signatures=0;
-                }
-                switch($record->getType()->getId()){
-                    //Caso especial para los registros de tipo Albarán Almacén
-                    case "1": $this->albaranAlmacen($record,$number_signatures);
-                            break;
-                    default:
-                            $record->setModified(date("Y-m-d"));
-                            $baseSignatures = $this->getDoctrine()
-                                ->getRepository('NononsenseHomeBundle:DocumentsSignatures')
-                                ->findBy(array("document"=> $record->getDocument()));
+            /* Si no está metido el workflow de las firmas lo metemos */
+            if(!$signatures || $record->getComments()!=NULL){
+                $record->setComments(NULL);
+                if($params["action"]=="save"){
+                    if($signatures){
+                        $number_signatures=count($signatures);
+                    }
+                    else{
+                        $number_signatures=0;
+                    }
+                    switch($record->getType()->getId()){
+                        //Caso especial para los registros de tipo Albarán Almacén
+                        case "1": $this->albaranAlmacen($record,$number_signatures);
+                                break;
+                        default:
+                                $record->setModified(date("Y-m-d"));
+                                $baseSignatures = $this->getDoctrine()
+                                    ->getRepository('NononsenseHomeBundle:DocumentsSignatures')
+                                    ->findBy(array("document"=> $record->getDocument()));
 
-                            $next=1;
-                            if($record->getDocument()->getSignCreator()){
-                                $sign = new RecordsSignatures();
-                                $sign->setUserEntiy($record->getUserCreatedEntiy());
-                                $sign->setRecord($record);
-                                $sign->setNumber(0+$number_signatures);
-                                $sign->setAttachment($record->getDocument()->getAttachment());
-                                $sign->setNext($next);
-                                $sign->setCreated(new \DateTime());
-                                $em->persist($sign); 
-                                $next=0;
-                            }
-                            foreach ($baseSignatures as $baseSignaturre) {
-                                $sign = new RecordsSignatures();
-                                $sign->setUserEntiy($baseSignaturre->getUserEntiy());
-                                $sign->setGroupEntiy($baseSignaturre->getGroupEntiy());
-                                $sign->setRecord($record);
-                                $sign->setNumber($baseSignaturre->getNumber()+$number_signatures);
-                                $sign->setAttachment($baseSignaturre->getAttachment());
-                                $sign->setEmail($baseSignaturre->getEmail());
-                                $sign->setNext($next);
-                                $sign->setCreated(new \DateTime());
-                                $em->persist($sign);
-                                $next=0;
-                            }
-                            break;
+                                $next=1;
+                                if($record->getDocument()->getSignCreator()){
+                                    $sign = new RecordsSignatures();
+                                    $sign->setUserEntiy($record->getUserCreatedEntiy());
+                                    $sign->setRecord($record);
+                                    $sign->setNumber(0+$number_signatures);
+                                    $sign->setAttachment($record->getDocument()->getAttachment());
+                                    $sign->setNext($next);
+                                    $sign->setCreated(new \DateTime());
+                                    $em->persist($sign); 
+                                    $next=0;
+                                }
+                                foreach ($baseSignatures as $baseSignaturre) {
+                                    $sign = new RecordsSignatures();
+                                    $sign->setUserEntiy($baseSignaturre->getUserEntiy());
+                                    $sign->setGroupEntiy($baseSignaturre->getGroupEntiy());
+                                    $sign->setRecord($record);
+                                    $sign->setNumber($baseSignaturre->getNumber()+$number_signatures);
+                                    $sign->setAttachment($baseSignaturre->getAttachment());
+                                    $sign->setEmail($baseSignaturre->getEmail());
+                                    $sign->setNext($next);
+                                    $sign->setCreated(new \DateTime());
+                                    $em->persist($sign);
+                                    $next=0;
+                                }
+                                break;
+                    }
                 }
             }
+
+            $em->persist($record);
+
+            $em->flush();
+
+            //return $this->render('NononsenseDataDocumentBundle:Default:index.html.twig', array('name' => $instancia_step_id));
+            $responseAction = new Response();
+            $responseAction->setStatusCode(200);
+            $responseAction->setContent("OK");
+            return $responseAction;
         }
-
-        $em->persist($record);
-
-        $em->flush();
-
-        //return $this->render('NononsenseDataDocumentBundle:Default:index.html.twig', array('name' => $instancia_step_id));
-        $responseAction = new Response();
-        $responseAction->setStatusCode(200);
-        $responseAction->setContent("OK");
-        return $responseAction;
+        else{
+            return false;
+        }
     }
 
     /* Pagina a la que vamos tras volver de docxpresso */

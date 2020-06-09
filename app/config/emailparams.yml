@@ -5,9 +5,8 @@ parameters:
     #mailer_password: 6102saasnononsense
     #SendGrid
     mailer_transport: smtp
-    mailer_user: noreply@docxpresso.net
-    mailer_host: smtp.sendgrid.net
-    mailer_port: 587
-    mailer_encryption: ~
-    mailer_username: EduardoRamos
-    mailer_password: $docxsend2001$
+    mailer_host: smtp.mailtrap.io
+    mailer_user: 9d8e1a5ad2a6ed
+    mailer_password: d2726463f74977
+    mailer_encryption: null
+    mailer_username: soporte@oaro.net

@@ -30,161 +30,165 @@ class DataDocumentController extends Controller
 
     public function getDataURIRequestAction($instancia_step_id)
     {
-        $id_usuario=1; //Cambiar por el check token
-        // get the InstanciasSteps entity
-        $step = $this->getDoctrine()
-            ->getRepository('NononsenseHomeBundle:InstanciasSteps')
-            ->find($instancia_step_id);
+        $expired_token = $this->get('utilities')->tokenExpired($_REQUEST["token"]);
+        if(!$expired_token){
+            $id_usuario = $this->get('utilities')->getUserByToken($_REQUEST["token"]);
 
-        $master_step = $this->getDoctrine()
-            ->getRepository('NononsenseHomeBundle:MasterSteps')
-            ->find($step->getMasterStepId());
+            // get the InstanciasSteps entity
+            $step = $this->getDoctrine()
+                ->getRepository('NononsenseHomeBundle:InstanciasSteps')
+                ->find($instancia_step_id);
 
-        $instancia_workflow = $this->getDoctrine()
-            ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
-            ->find($step->getWorkflowId());
+            $master_step = $this->getDoctrine()
+                ->getRepository('NononsenseHomeBundle:MasterSteps')
+                ->find($step->getMasterStepId());
 
-        $request = Request::createFromGlobals();
-        $params = array();
-        $content = $request->getContent();
+            $instancia_workflow = $this->getDoctrine()
+                ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
+                ->find($step->getWorkflowId());
 
-        $dataJSON = json_decode($content);
+            $request = Request::createFromGlobals();
+            $params = array();
+            $content = $request->getContent();
 
-        $em = $this->getDoctrine()->getManager();
+            $dataJSON = json_decode($content);
 
-        /*
-         * Si el status ya es 1 es que lo que se está haciendo es validar. Ya que no se permite un segundo rellenado.
-         * Se pisan los valores y ahora el status es 2 y el workflow pasa a validado 3 . Y su validación a "validada" 2
-         */
+            $em = $this->getDoctrine()->getManager();
 
-        $now = new \DateTime();
+            /*
+             * Si el status ya es 1 es que lo que se está haciendo es validar. Ya que no se permite un segundo rellenado.
+             * Se pisan los valores y ahora el status es 2 y el workflow pasa a validado 3 . Y su validación a "validada" 2
+             */
+
+            $now = new \DateTime();
 
 
-        /*if ($instancia_workflow->getMasterWorkflow() == 16) {
-            // Reconciliacion
-            $reconciliacionRegistro = $this->getDoctrine()
-                ->getRepository('NononsenseHomeBundle:ReconciliacionRegistro')
-                ->findOneBy(array("solicitud_id" => $instancia_workflow->getId()));
+            /*if ($instancia_workflow->getMasterWorkflow() == 16) {
+                // Reconciliacion
+                $reconciliacionRegistro = $this->getDoctrine()
+                    ->getRepository('NononsenseHomeBundle:ReconciliacionRegistro')
+                    ->findOneBy(array("solicitud_id" => $instancia_workflow->getId()));
 
-            if (isset($dataJSON->data->FLL_opt1)) {
-                $FLL_opt1 = $dataJSON->data->FLL_opt1;
-                $FLL_opt2 = $dataJSON->data->FLL_opt2;
+                if (isset($dataJSON->data->FLL_opt1)) {
+                    $FLL_opt1 = $dataJSON->data->FLL_opt1;
+                    $FLL_opt2 = $dataJSON->data->FLL_opt2;
 
-                if (in_array('Si', $FLL_opt1)) {
-                    // O mejor por masterworkflow y poner estado "reconciliado"
+                    if (in_array('Si', $FLL_opt1)) {
+                        // O mejor por masterworkflow y poner estado "reconciliado"
 
-                    $registroViejoId = $reconciliacionRegistro->getRegistroViejoId();
+                        $registroViejoId = $reconciliacionRegistro->getRegistroViejoId();
 
-                    $registroViejo = $this->getDoctrine()
-                        ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
-                        ->find($registroViejoId);
+                        $registroViejo = $this->getDoctrine()
+                            ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
+                            ->find($registroViejoId);
 
-                    $registroViejo->setStatus(9);
-                    $reconciliacionRegistro->setStatus(1);
+                        $registroViejo->setStatus(9);
+                        $reconciliacionRegistro->setStatus(1);
 
-                    $em->persist($registroViejo);
+                        $em->persist($registroViejo);
 
+                    }
+                    if (in_array('No', $FLL_opt2)) {
+                        $reconciliacionRegistro->setStatus(2);
+                    }
+                    $em->persist($reconciliacionRegistro);
                 }
-                if (in_array('No', $FLL_opt2)) {
-                    $reconciliacionRegistro->setStatus(2);
-                }
-                $em->persist($reconciliacionRegistro);
-            }
-        }*/ //Desactiva por el momento Sergio
+            }*/ //Desactiva por el momento Sergio
 
-        /*
-         * Actualizar metaData según variables
-         */
-        $varValues = $dataJSON->data;
+            /*
+             * Actualizar metaData según variables
+             */
+            $varValues = $dataJSON->data;
 
-        $workorderSAP = "";
-        $equipo = "";
-        $lote = "";
-        $material = "";
-        $codigo_documento_lote = "";
+            $workorderSAP = "";
+            $equipo = "";
+            $lote = "";
+            $material = "";
+            $codigo_documento_lote = "";
 
-        foreach ($varValues as $prop => $value) {
-            // No tiene sentido que guardemos valores en los metadata de lineas que se pueden clonar ya que podría tener valores distintos
-            if(!is_object($value)){
-                switch ($prop) {
-                    /*
-                     * Falta codigo_documento_lote
-                     */
-                    case "u_lote":
-                        $lote = rawurldecode($value);
-                        break;
-                    case "u_material":
-                        $material = rawurldecode($value);
-                        break;
-                    case "u_codigo":
-                        $lote = rawurldecode($value);
-                        break;
-                    case "u_batch":
-                        $lote = rawurldecode($value);
-                        break;
-                    case "u_SAP":
-                        $workorderSAP = rawurldecode($value);
-                        break;
-                    case "u_equipo":
-                        $equipo = rawurldecode($value);
-                        break;
-                    default:
-                        // do nothing
-                        break;
+            foreach ($varValues as $prop => $value) {
+                // No tiene sentido que guardemos valores en los metadata de lineas que se pueden clonar ya que podría tener valores distintos
+                if(!is_object($value)){
+                    switch ($prop) {
+                        /*
+                         * Falta codigo_documento_lote
+                         */
+                        case "u_lote":
+                            $lote = rawurldecode($value);
+                            break;
+                        case "u_material":
+                            $material = rawurldecode($value);
+                            break;
+                        case "u_codigo":
+                            $lote = rawurldecode($value);
+                            break;
+                        case "u_batch":
+                            $lote = rawurldecode($value);
+                            break;
+                        case "u_SAP":
+                            $workorderSAP = rawurldecode($value);
+                            break;
+                        case "u_equipo":
+                            $equipo = rawurldecode($value);
+                            break;
+                        default:
+                            // do nothing
+                            break;
+                    }
                 }
             }
-        }
 
-        $metaData = $this->getDoctrine()
-            ->getRepository('NononsenseHomeBundle:MetaData')
-            ->findOneBy(array("workflow_id" => $instancia_workflow->getId()));
+            $metaData = $this->getDoctrine()
+                ->getRepository('NononsenseHomeBundle:MetaData')
+                ->findOneBy(array("workflow_id" => $instancia_workflow->getId()));
 
-        $metaData->setWorkordersap($workorderSAP);
-        $metaData->setLote($lote);
-        $metaData->setMaterial($material);
-        $metaData->setEquipo($equipo);
-        $metaData->setCodigoDocumentoLote($codigo_documento_lote);
+            $metaData->setWorkordersap($workorderSAP);
+            $metaData->setLote($lote);
+            $metaData->setMaterial($material);
+            $metaData->setEquipo($equipo);
+            $metaData->setCodigoDocumentoLote($codigo_documento_lote);
 
-        $em->persist($metaData);
+            $em->persist($metaData);
 
-        if (!empty($content))
-        {
-            $params = json_decode($content, true); // 2nd param to get as array
-        }
-        foreach($params["data"] as $key => $uniq_param){
-            if (strpos($key, 'dxo_') === 0) {
-                unset($params["data"][$key]);
+            if (!empty($content))
+            {
+                $params = json_decode($content, true); // 2nd param to get as array
             }
+            foreach($params["data"] as $key => $uniq_param){
+                if (strpos($key, 'dxo_') === 0) {
+                    unset($params["data"][$key]);
+                }
+            }
+            $data=json_encode(array("data" => $params["data"],"configuration" => $params["configuration"], "action" => $params["action"]), JSON_FORCE_OBJECT);
+            $step->setStepDataValue($data);
+
+            
+            $step->setStatusId(1);
+
+            /*
+             * Historial real de revisiones.
+             */
+            $revisionStep = new RevisionStep();
+            $revisionStep->setStepDataValue($data);
+            $revisionStep->setToken($params["token"]);
+            $revisionStep->setUsageId($id_usuario);
+            $revisionStep->setStepEntity($step);
+
+            $step->setToken($params["token"]);
+            $step->setUsageId($id_usuario);
+
+            $em->persist($revisionStep);
+            $em->persist($instancia_workflow);
+            $em->persist($step);
+
+            $em->flush();
+
+            //return $this->render('NononsenseDataDocumentBundle:Default:index.html.twig', array('name' => $instancia_step_id));
+            $responseAction = new Response();
+            $responseAction->setStatusCode(200);
+            $responseAction->setContent("OK");
+            return $responseAction;
         }
-        $data=json_encode(array("data" => $params["data"],"configuration" => $params["configuration"], "action" => $params["action"]), JSON_FORCE_OBJECT);
-        $step->setStepDataValue($data);
-
-        
-        $step->setStatusId(1);
-
-        /*
-         * Historial real de revisiones.
-         */
-        $revisionStep = new RevisionStep();
-        $revisionStep->setStepDataValue($data);
-        $revisionStep->setToken($params["token"]);
-        $revisionStep->setUsageId($id_usuario);
-        $revisionStep->setStepEntity($step);
-
-        $step->setToken($params["token"]);
-        $step->setUsageId($id_usuario);
-
-        $em->persist($revisionStep);
-        $em->persist($instancia_workflow);
-        $em->persist($step);
-
-        $em->flush();
-
-        //return $this->render('NononsenseDataDocumentBundle:Default:index.html.twig', array('name' => $instancia_step_id));
-        $responseAction = new Response();
-        $responseAction->setStatusCode(200);
-        $responseAction->setContent("OK");
-        return $responseAction;
     }
 
     public function RequestDataAction($instancia_step_id, $logbook,$modo)
@@ -192,416 +196,419 @@ class DataDocumentController extends Controller
         /*
          * Get Value from JSON to put into document
          */
+        $expired_token = $this->get('utilities')->tokenExpired($_REQUEST["token"]);
+        if(!$expired_token){
+            if(isset($_REQUEST["readonly"])){
+                $readonly=TRUE;
+            }
+            else{
+                $readonly=FALSE;
+            }
 
-        if(isset($_REQUEST["readonly"])){
-            $readonly=TRUE;
-        }
-        else{
-            $readonly=FALSE;
-        }
+            // get the InstanciasSteps entity
+            $step = $this->getDoctrine()
+                ->getRepository('NononsenseHomeBundle:InstanciasSteps')
+                ->find($instancia_step_id);
 
-        // get the InstanciasSteps entity
-        $step = $this->getDoctrine()
-            ->getRepository('NononsenseHomeBundle:InstanciasSteps')
-            ->find($instancia_step_id);
+            $master_step = $this->getDoctrine()
+                ->getRepository('NononsenseHomeBundle:MasterSteps')
+                ->find($step->getMasterStepId());
 
-        $master_step = $this->getDoctrine()
-            ->getRepository('NononsenseHomeBundle:MasterSteps')
-            ->find($step->getMasterStepId());
+            $instancia_workflow = $this->getDoctrine()
+                ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
+                ->find($step->getWorkflowId());
+            $instancia_workflowAux = $instancia_workflow;
 
-        $instancia_workflow = $this->getDoctrine()
-            ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
-            ->find($step->getWorkflowId());
-        $instancia_workflowAux = $instancia_workflow;
+            $metadata = $this->getDoctrine()
+                ->getRepository('NononsenseHomeBundle:MetaData')
+                ->findOneBy(array("instancia_workflow" => $instancia_workflow));
 
-        $metadata = $this->getDoctrine()
-            ->getRepository('NononsenseHomeBundle:MetaData')
-            ->findOneBy(array("instancia_workflow" => $instancia_workflow));
+            $stepMasterData = $master_step->getStepData();
+            $workflowMasterData = $instancia_workflow->getMasterDataValues();
+            $workflowMasterDataJSON = json_decode($workflowMasterData);
+            $em = $this->getDoctrine()->getManager();
 
-        $stepMasterData = $master_step->getStepData();
-        $workflowMasterData = $instancia_workflow->getMasterDataValues();
-        $workflowMasterDataJSON = json_decode($workflowMasterData);
-        $em = $this->getDoctrine()->getManager();
-
-        $data = new \stdClass();
-        $varValues = new \stdClass();
-        $cfgValues = new \stdClass();
-        $data->data = $varValues;
-        $data->configuration = $cfgValues;
-        $completo=0;
-
-        if ($step->getStatusId() == 0) {
-            // first usage
             $data = new \stdClass();
             $varValues = new \stdClass();
             $cfgValues = new \stdClass();
-            $varValues->u_id_cumplimentacion = $step->getId();
-
-            if (isset($workflowMasterDataJSON)) {
-                foreach ($workflowMasterDataJSON as $variable) {
-                    $varName = $variable->nameVar;
-                    if(is_array($variable->valueVar) && count($variable->valueVar)==1){
-                        $varValue = $variable->valueVar[0];
-                    }
-                    else{
-                        $varValue = $variable->valueVar;
-                    }
-
-                    $varValues->{$varName} = $varValue;
-                }
-            }
-
-            /*
-             * SENSIBILIDAD
-             * 	//IMPORTANTE: todos los valores númericos deben estar en gramos
-             */
-            if($step->getMasterStepId() == 6){
-                /*$cl_sup = $workflowMasterDataJSON->cl_sup->valueVar[0];
-                $cl_inf = $workflowMasterDataJSON->cl_inf->valueVar[0];
-                $limite_control = $cl_inf . " - " . $cl_sup;
-
-                $varValues->u_limite_control = array($limite_control);
-
-                $wl_sup = $workflowMasterDataJSON->wl_sup->valueVar[0];
-                $wl_inf = $workflowMasterDataJSON->wl_inf->valueVar[0];
-                $u_limite_aviso = $wl_inf . " - " . $wl_sup;
-
-                $varValues->u_limite_aviso = array($u_limite_aviso);
-
-                $pesa_chequeo_sensibilidad = $workflowMasterDataJSON->pesa_chequeo_sensibilidad->valueVar[0];
-                $varValues->u_pesa = array($pesa_chequeo_sensibilidad);*/ //Desactiva por el momento Sergio
-
-
-            }
-            /*
-             * Repetibilidad
-             */
-            if($step->getMasterStepId() == 7){
-                /*$pesa_chequeo_sensibilidad = $workflowMasterDataJSON->peso_chequeo_repetibilidad->valueVar[0];
-                $varValues->u_pesa = array($pesa_chequeo_sensibilidad);
-
-                $limite_control = $workflowMasterDataJSON->cl_desv_std->valueVar[0];
-                $varValues->u_limite_control = array($limite_control);
-
-                $u_limite_aviso = $workflowMasterDataJSON->wl_desv_std->valueVar[0];
-                $varValues->u_limite_aviso = array($u_limite_aviso);*/ //Desactiva por el momento Sergio
-            }
-
-
-            $varValues->historico_steps = "";
             $data->data = $varValues;
-
             $data->configuration = $cfgValues;
-            $data->configuration->prefix_view="u_;in_;dxo_";
-            $data->configuration->apply_required=1;
+            $completo=0;
 
+            if ($step->getStatusId() == 0) {
+                // first usage
+                $data = new \stdClass();
+                $varValues = new \stdClass();
+                $cfgValues = new \stdClass();
+                $varValues->u_id_cumplimentacion = $step->getId();
 
-        } else {
-            
-            // Data Ingegrity other usage
+                if (isset($workflowMasterDataJSON)) {
+                    foreach ($workflowMasterDataJSON as $variable) {
+                        $varName = $variable->nameVar;
+                        if(is_array($variable->valueVar) && count($variable->valueVar)==1){
+                            $varValue = $variable->valueVar[0];
+                        }
+                        else{
+                            $varValue = $variable->valueVar;
+                        }
 
-            $stepDataValue = $step->getStepDataValue();
-            $data = json_decode($stepDataValue);
-
-            $data->configuration->prefix_view="u_;in_;dxo_";
-            $data->configuration->apply_required=1;
-
-            // Validación de cancelación
-            if ($instancia_workflow->getStatus() == 5 || $instancia_workflow->getStatus() == 14) {
-                $data->configuration->form_readonly=1;
-                $data->configuration->prefix_view="";
-                $data->configuration->partial_save_button=1;
-                $data->configuration->cancel_button=1;
-                $data->configuration->close_button=1;
-            }
-
-            // Verificación de cumplimentación
-            if ($instancia_workflow->getStatus() == 4) {
-                $data->configuration->prefix_view="";
-                $data->configuration->prefix_edit="verchk_;";
-                $data->configuration->partial_save_button=1;
-                $data->configuration->cancel_button=1;
-                $data->configuration->close_button=1;
-            }
-
-            if ($instancia_workflow->getStatus() == 9 || $instancia_workflow->getStatus() == 10 || $instancia_workflow->getStatus() == 11 || $instancia_workflow->getStatus() == 8 || $instancia_workflow->getStatus() == 6 || $readonly) {
-                $data->configuration->prefix_view="";
-                $data->configuration->form_readonly=1;
-                $data->configuration->partial_save_button=0;
-                $data->configuration->cancel_button=0;
-                $data->configuration->close_button=1;
-                $data->configuration->apply_required=0;
-            }
-            $stepMasterDataJSON = json_decode($stepMasterData);
-
-            $workflowMasterDataJSON = json_decode($workflowMasterData);
-
-            /*
-             * Tendría que haber un protocolo para diferenciar cuando se imprimen sólo las firmas o el histórico completo:
-             */
-
-            if($modo == 0){
-                $completo = true;
-            }else{
-                $completo = false;
-            }
-
-            if ($completo) {
-
-                $data->data->dxo_gsk_audit_trail_bloque = 1;
-                $data->data->dxo_gsk_audit_trail = $this->_construirHistorico($step);
-                $data->data->dxo_gsk_firmas_bloque = 0;
-
-            }
-            
-            
-            $auxDataValue = $step->getStepDataValue();
-            $aux_verify = json_decode($auxDataValue);
-
-            /*$mapVariable = $this->_construirMapVariables($step);
-
-            foreach ($mapVariable as $prop => $value) {
-                
-                
-                $varIndiceName = preg_replace('/u_/', 'in_', $prop, 1);
-                $varIndiceName = preg_replace('/verchk_/', 'in_verchk_', $varIndiceName, 1);
-
-                $inputs_radio=false;
-                foreach($aux_verify->data as $field){
-                    if($field->name==$prop && $field->choice=="radio"){
-                        $inputs_radio=true;
-                        break;
+                        $varValues->{$varName} = $varValue;
                     }
                 }
 
-                if(!$inputs_radio){ // Si no es un input radio sacamos los ínidices asi para las lineas que se clonan
-                    foreach($value->firma as $key => $indice){
-                        if(isset($value->firma[$key])){
-                            if(isset($data->data->{$varIndiceName})){
-                                $data->data->{$varIndiceName}=json_decode(json_encode($data->data->{$varIndiceName}),TRUE);
-                            }
-                            $data->data->{$varIndiceName}[$key] = $value->firma[$key];
+                /*
+                 * SENSIBILIDAD
+                 * 	//IMPORTANTE: todos los valores númericos deben estar en gramos
+                 */
+                if($step->getMasterStepId() == 6){
+                    /*$cl_sup = $workflowMasterDataJSON->cl_sup->valueVar[0];
+                    $cl_inf = $workflowMasterDataJSON->cl_inf->valueVar[0];
+                    $limite_control = $cl_inf . " - " . $cl_sup;
+
+                    $varValues->u_limite_control = array($limite_control);
+
+                    $wl_sup = $workflowMasterDataJSON->wl_sup->valueVar[0];
+                    $wl_inf = $workflowMasterDataJSON->wl_inf->valueVar[0];
+                    $u_limite_aviso = $wl_inf . " - " . $wl_sup;
+
+                    $varValues->u_limite_aviso = array($u_limite_aviso);
+
+                    $pesa_chequeo_sensibilidad = $workflowMasterDataJSON->pesa_chequeo_sensibilidad->valueVar[0];
+                    $varValues->u_pesa = array($pesa_chequeo_sensibilidad);*/ //Desactiva por el momento Sergio
+
+
+                }
+                /*
+                 * Repetibilidad
+                 */
+                if($step->getMasterStepId() == 7){
+                    /*$pesa_chequeo_sensibilidad = $workflowMasterDataJSON->peso_chequeo_repetibilidad->valueVar[0];
+                    $varValues->u_pesa = array($pesa_chequeo_sensibilidad);
+
+                    $limite_control = $workflowMasterDataJSON->cl_desv_std->valueVar[0];
+                    $varValues->u_limite_control = array($limite_control);
+
+                    $u_limite_aviso = $workflowMasterDataJSON->wl_desv_std->valueVar[0];
+                    $varValues->u_limite_aviso = array($u_limite_aviso);*/ //Desactiva por el momento Sergio
+                }
+
+
+                $varValues->historico_steps = "";
+                $data->data = $varValues;
+
+                $data->configuration = $cfgValues;
+                $data->configuration->prefix_view="u_;in_;dxo_";
+                $data->configuration->apply_required=1;
+
+
+            } else {
+                
+                // Data Ingegrity other usage
+
+                $stepDataValue = $step->getStepDataValue();
+                $data = json_decode($stepDataValue);
+
+                $data->configuration->prefix_view="u_;in_;dxo_";
+                $data->configuration->apply_required=1;
+
+                // Validación de cancelación
+                if ($instancia_workflow->getStatus() == 5 || $instancia_workflow->getStatus() == 14) {
+                    $data->configuration->form_readonly=1;
+                    $data->configuration->prefix_view="";
+                    $data->configuration->partial_save_button=1;
+                    $data->configuration->cancel_button=1;
+                    $data->configuration->close_button=1;
+                }
+
+                // Verificación de cumplimentación
+                if ($instancia_workflow->getStatus() == 4) {
+                    $data->configuration->prefix_view="";
+                    $data->configuration->prefix_edit="verchk_;";
+                    $data->configuration->partial_save_button=1;
+                    $data->configuration->cancel_button=1;
+                    $data->configuration->close_button=1;
+                }
+
+                if ($instancia_workflow->getStatus() == 9 || $instancia_workflow->getStatus() == 10 || $instancia_workflow->getStatus() == 11 || $instancia_workflow->getStatus() == 8 || $instancia_workflow->getStatus() == 6 || $readonly) {
+                    $data->configuration->prefix_view="";
+                    $data->configuration->form_readonly=1;
+                    $data->configuration->partial_save_button=0;
+                    $data->configuration->cancel_button=0;
+                    $data->configuration->close_button=1;
+                    $data->configuration->apply_required=0;
+                }
+                $stepMasterDataJSON = json_decode($stepMasterData);
+
+                $workflowMasterDataJSON = json_decode($workflowMasterData);
+
+                /*
+                 * Tendría que haber un protocolo para diferenciar cuando se imprimen sólo las firmas o el histórico completo:
+                 */
+
+                if($modo == 0){
+                    $completo = true;
+                }else{
+                    $completo = false;
+                }
+
+                if ($completo) {
+
+                    $data->data->dxo_gsk_audit_trail_bloque = 1;
+                    $data->data->dxo_gsk_audit_trail = $this->_construirHistorico($step);
+                    $data->data->dxo_gsk_firmas_bloque = 0;
+
+                }
+                
+                
+                $auxDataValue = $step->getStepDataValue();
+                $aux_verify = json_decode($auxDataValue);
+
+                /*$mapVariable = $this->_construirMapVariables($step);
+
+                foreach ($mapVariable as $prop => $value) {
+                    
+                    
+                    $varIndiceName = preg_replace('/u_/', 'in_', $prop, 1);
+                    $varIndiceName = preg_replace('/verchk_/', 'in_verchk_', $varIndiceName, 1);
+
+                    $inputs_radio=false;
+                    foreach($aux_verify->data as $field){
+                        if($field->name==$prop && $field->choice=="radio"){
+                            $inputs_radio=true;
+                            break;
                         }
                     }
+
+                    if(!$inputs_radio){ // Si no es un input radio sacamos los ínidices asi para las lineas que se clonan
+                        foreach($value->firma as $key => $indice){
+                            if(isset($value->firma[$key])){
+                                if(isset($data->data->{$varIndiceName})){
+                                    $data->data->{$varIndiceName}=json_decode(json_encode($data->data->{$varIndiceName}),TRUE);
+                                }
+                                $data->data->{$varIndiceName}[$key] = $value->firma[$key];
+                            }
+                        }
+                    }
+                    else{
+                        // Si es un input radio lo sacamos asi. Los input radio no deberían estar en lineas clonables
+                        foreach($value->firma as $key => $indice){
+                            if(isset($value->firma[$key])){
+                                $max_signature=0;
+                                foreach($value->firma as $item_signature){
+                                    if($item_signature>$max_signature){
+                                        $max_signature=$item_signature;
+                                    }
+                                }
+                                $data->data->{$varIndiceName} = $item_signature;
+                            }
+                        }
+                    }
+
+
+                }*/
+            }
+
+            $firmas = $this->getDoctrine()
+                ->getRepository('NononsenseHomeBundle:FirmasStep')
+                ->findBy(array("step_id" => $step->getId()));
+            /*
+            * Si hay firmas claro.
+            */
+            if (!empty($firmas) && !$completo) {
+                $data->data->dxo_gsk_audit_trail_bloque = 0;
+                $data->data->dxo_gsk_firmas_bloque = 1;
+                $data->data->dxo_gsk_firmas = $this->_construirFirmas($firmas);
+            }
+
+            if(!property_exists($data->data,"dxo_gsk_firmas")){
+                $data->data->dxo_gsk_firmas="";
+            }
+
+            if(!property_exists($data->data,"dxo_gsk_audit_trail")){
+                $data->data->dxo_gsk_audit_trail="";
+            }
+
+            $reconciliation=$this->_construirReconciliacion($step);
+            if($reconciliation!=""){
+                if(!$completo){
+                    $data->data->dxo_gsk_firmas.=$reconciliation;
                 }
                 else{
-                    // Si es un input radio lo sacamos asi. Los input radio no deberían estar en lineas clonables
-                    foreach($value->firma as $key => $indice){
-                        if(isset($value->firma[$key])){
-                            $max_signature=0;
-                            foreach($value->firma as $item_signature){
-                                if($item_signature>$max_signature){
-                                    $max_signature=$item_signature;
-                                }
-                            }
-                            $data->data->{$varIndiceName} = $item_signature;
-                        }
-                    }
+                    $data->data->dxo_gsk_audit_trail.=$reconciliation;
                 }
-
-
-            }*/
-        }
-
-        $firmas = $this->getDoctrine()
-            ->getRepository('NononsenseHomeBundle:FirmasStep')
-            ->findBy(array("step_id" => $step->getId()));
-        /*
-        * Si hay firmas claro.
-        */
-        if (!empty($firmas) && !$completo) {
-            $data->data->dxo_gsk_audit_trail_bloque = 0;
-            $data->data->dxo_gsk_firmas_bloque = 1;
-            $data->data->dxo_gsk_firmas = $this->_construirFirmas($firmas);
-        }
-
-        if(!property_exists($data->data,"dxo_gsk_firmas")){
-            $data->data->dxo_gsk_firmas="";
-        }
-
-        if(!property_exists($data->data,"dxo_gsk_audit_trail")){
-            $data->data->dxo_gsk_audit_trail="";
-        }
-
-        $reconciliation=$this->_construirReconciliacion($step);
-        if($reconciliation!=""){
-            if(!$completo){
-                $data->data->dxo_gsk_firmas.=$reconciliation;
             }
-            else{
-                $data->data->dxo_gsk_audit_trail.=$reconciliation;
-            }
-        }
 
-        /*
-        $fullText.=$reconciliation."****";
-        /*
-        var_dump(json_encode($data));
-                exit;
-        */
-        if (isset($data->custom)) {
-            unset($data->custom);
-        }
-        //echo $data->varValues->dxo_gsk_firmas[0]."**";die();
-
-        /*
-         * Generar los cuatro últimos, si logbook
-         */
-                $logbokk = true;
-        if ($instancia_workflowAux->getMasterWorkflowEntity()->getLogbook() == 1 && $logbokk && $logbook > 0) {
             /*
-             * Cargar una serie de datos de registros válidos
+            $fullText.=$reconciliation."****";
+            /*
+            var_dump(json_encode($data));
+                    exit;
+            */
+            if (isset($data->custom)) {
+                unset($data->custom);
+            }
+            //echo $data->varValues->dxo_gsk_firmas[0]."**";die();
+
+            /*
+             * Generar los cuatro últimos, si logbook
              */
-            $arrayIds = array();
-            $nRegistros = $logbook;
-            $mostrados = 0;
-            $index = 1;
-            $mostrar = true;
-            $first = true;
-            $fullText = "<table id='tableAnteriores' class='table table-striped' >";
+                    $logbokk = true;
+            if ($instancia_workflowAux->getMasterWorkflowEntity()->getLogbook() == 1 && $logbokk && $logbook > 0) {
+                /*
+                 * Cargar una serie de datos de registros válidos
+                 */
+                $arrayIds = array();
+                $nRegistros = $logbook;
+                $mostrados = 0;
+                $index = 1;
+                $mostrar = true;
+                $first = true;
+                $fullText = "<table id='tableAnteriores' class='table table-striped' >";
 
-            while ($mostrar) {
-                $idMostrar = $instancia_workflowAux->getId() - $index;
-
-
-                if ($idMostrar != 0) {
-                    if($instancia_workflowAux->getMasterWorkflowEntity()->getPrecreation()=="equipoqr"){
-                          $query = "SELECT m
-                                FROM NononsenseHomeBundle:MetaData m
-                                INNER JOIN  m.instancia_workflow i
-                                WHERE m.equipo= '".$metadata->getEquipo()."' AND i.id=".$idMostrar." AND i.master_workflow=".$instancia_workflowAux->getMasterWorkflowEntity()->getId();
-
-                            $query = $this->getDoctrine()->getManager()->createQuery($query);
-                            $result=$query->getOneOrNullResult();
-                            if($result){
-                                $InstanciaWorkflowAMostrar=$result->getInstanciaWorkflow();
-                            }
-                            else{
-                                 $InstanciaWorkflowAMostrar=NULL;
-                            }
+                while ($mostrar) {
+                    $idMostrar = $instancia_workflowAux->getId() - $index;
 
 
-                    }
-                    else{
-                        $InstanciaWorkflowAMostrar = $this->getDoctrine()
-                        ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
-                        ->findOneBy(array('id' => $idMostrar, 'master_workflow' => $instancia_workflowAux->getMasterWorkflowEntity()->getId()));
-                    }
-                    
-                    //echo $InstanciaWorkflowAMostrar->getStatus();die();
-                    if (isset($InstanciaWorkflowAMostrar) && $InstanciaWorkflowAMostrar->getStatus() != 20
-                        && $InstanciaWorkflowAMostrar->getStatus() != -2) {
-                        // registro válido que debo mostrar
+                    if ($idMostrar != 0) {
+                        if($instancia_workflowAux->getMasterWorkflowEntity()->getPrecreation()=="equipoqr"){
+                              $query = "SELECT m
+                                    FROM NononsenseHomeBundle:MetaData m
+                                    INNER JOIN  m.instancia_workflow i
+                                    WHERE m.equipo= '".$metadata->getEquipo()."' AND i.id=".$idMostrar." AND i.master_workflow=".$instancia_workflowAux->getMasterWorkflowEntity()->getId();
+
+                                $query = $this->getDoctrine()->getManager()->createQuery($query);
+                                $result=$query->getOneOrNullResult();
+                                if($result){
+                                    $InstanciaWorkflowAMostrar=$result->getInstanciaWorkflow();
+                                }
+                                else{
+                                     $InstanciaWorkflowAMostrar=NULL;
+                                }
 
 
-                        $instanciaStepAMostrar = $this->getDoctrine()
-                            ->getRepository('NononsenseHomeBundle:InstanciasSteps')
-                            ->findOneBy(array('workflow_id' => $InstanciaWorkflowAMostrar->getId()));
+                        }
+                        else{
+                            $InstanciaWorkflowAMostrar = $this->getDoctrine()
+                            ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
+                            ->findOneBy(array('id' => $idMostrar, 'master_workflow' => $instancia_workflowAux->getMasterWorkflowEntity()->getId()));
+                        }
+                        
+                        //echo $InstanciaWorkflowAMostrar->getStatus();die();
+                        if (isset($InstanciaWorkflowAMostrar) && $InstanciaWorkflowAMostrar->getStatus() != 20
+                            && $InstanciaWorkflowAMostrar->getStatus() != -2) {
+                            // registro válido que debo mostrar
 
-                        $stepDataValueMostrar = $instanciaStepAMostrar->getStepDataValue();
 
-                        if ($stepDataValueMostrar != "") {
-                            $mostrados++;
+                            $instanciaStepAMostrar = $this->getDoctrine()
+                                ->getRepository('NononsenseHomeBundle:InstanciasSteps')
+                                ->findOneBy(array('workflow_id' => $InstanciaWorkflowAMostrar->getId()));
 
-                            $dataMostrar = json_decode($stepDataValueMostrar);
+                            $stepDataValueMostrar = $instanciaStepAMostrar->getStepDataValue();
 
-                            $varValuesMostrar = $dataMostrar->configuration->variables;
-                            if ($first) {
-                                // pintar cabecera
-                                $fullText .= "<tr><th>id Registro</th><th>Estado</th>";
+                            if ($stepDataValueMostrar != "") {
+                                $mostrados++;
+
+                                $dataMostrar = json_decode($stepDataValueMostrar);
+
+                                $varValuesMostrar = $dataMostrar->configuration->variables;
+                                if ($first) {
+                                    // pintar cabecera
+                                    $fullText .= "<tr><th>id Registro</th><th>Estado</th>";
+                                    foreach ($varValuesMostrar as $prop => $value) {
+                                        $position = strpos($prop, "u_");
+
+                                        //foreach($dataMostrar->data as $prop2 => $field){
+                                            //if($prop2==$prop){
+                                                //$default_value=$value->label;
+                                            
+                                                if($value->info!=""){
+                                                    $info=$value->info;
+                                                }
+                                                else{
+                                                    $info=$prop;
+                                                }
+
+                                                //break;
+                                            //}
+                                        //}
+
+                                        if ($position === 0) {
+                                            // variable válida.
+
+                                            $fullText .= '<th>' . $info . '</th>';
+                                        }
+
+                                    }
+                                    $fullText .= '</tr>';
+
+                                    $first = false;
+                                }
+                                $estadoString = $this->processRowValue($InstanciaWorkflowAMostrar->getStatusString());
+
+                                $fullText .= '<tr><td>' . $instanciaStepAMostrar->getId() . '</td><td>' . $estadoString . '</td>';
                                 foreach ($varValuesMostrar as $prop => $value) {
                                     $position = strpos($prop, "u_");
-
-                                    //foreach($dataMostrar->data as $prop2 => $field){
-                                        //if($prop2==$prop){
-                                            //$default_value=$value->label;
-                                        
-                                            if($value->info!=""){
-                                                $info=$value->info;
-                                            }
-                                            else{
-                                                $info=$prop;
-                                            }
-
-                                            //break;
-                                        //}
-                                    //}
-
                                     if ($position === 0) {
-                                        // variable válida.
+                                        foreach($dataMostrar->data as $prop2 => $field){
+                                            if($prop2==$prop){
+                                                $fullText .= '<td>';
+                                                unset($row_values);
+                                                if(is_object($field)){
+                                                    $row_values=$field;
+                                                }
+                                                else{
+                                                    $row_values=array($field);
+                                                }
 
-                                        $fullText .= '<th>' . $info . '</th>';
+                                                $line_break="";
+                                                foreach($row_values as $valor){
+                                                    $fullText .= $line_break.$valor;
+                                                    $line_break="<br>";
+                                                }
+
+                                                $fullText .= '</td>';
+                                                break;
+                                            }
+                                        }
                                     }
 
                                 }
                                 $fullText .= '</tr>';
-
-                                $first = false;
                             }
-                            $estadoString = $this->processRowValue($InstanciaWorkflowAMostrar->getStatusString());
 
-                            $fullText .= '<tr><td>' . $instanciaStepAMostrar->getId() . '</td><td>' . $estadoString . '</td>';
-                            foreach ($varValuesMostrar as $prop => $value) {
-                                $position = strpos($prop, "u_");
-                                if ($position === 0) {
-                                    foreach($dataMostrar->data as $prop2 => $field){
-                                        if($prop2==$prop){
-                                            $fullText .= '<td>';
-                                            unset($row_values);
-                                            if(is_object($field)){
-                                                $row_values=$field;
-                                            }
-                                            else{
-                                                $row_values=array($field);
-                                            }
 
-                                            $line_break="";
-                                            foreach($row_values as $valor){
-                                                $fullText .= $line_break.$valor;
-                                                $line_break="<br>";
-                                            }
-
-                                            $fullText .= '</td>';
-                                            break;
-                                        }
-                                    }
-                                }
-
-                            }
-                            $fullText .= '</tr>';
                         }
-
-
+                        $index++;
+                    } else {
+                        $mostrar = false;
                     }
-                    $index++;
-                } else {
-                    $mostrar = false;
-                }
 
-                if ($mostrados == $nRegistros) {
-                    $mostrar = false;
+                    if ($mostrados == $nRegistros) {
+                        $mostrar = false;
+                    }
                 }
+                $fullText .= '</table>';
+                $data->data->dxo_gsk_logbook = 1;
+                $data->data->dxo_gsk_logbook_bloque = $fullText;
+
             }
-            $fullText .= '</table>';
-            $data->data->dxo_gsk_logbook = 1;
-            $data->data->dxo_gsk_logbook_bloque = $fullText;
+            else{
+                $data->data->dxo_gsk_logbook = 0;
+                $data->data->dxo_gsk_logbook_bloque = "";
+            }
+            
+            $array_response["data"]=$data->data;
+             if(property_exists($data,"configuration")){
+                $array_response["configuration"]=$data->configuration;
+             }
 
+            $response = new Response();
+            $response->setStatusCode(200);
+            $response->setContent(json_encode($array_response));
+
+            return $response;
         }
-        else{
-            $data->data->dxo_gsk_logbook = 0;
-            $data->data->dxo_gsk_logbook_bloque = "";
-        }
-        
-        $array_response["data"]=$data->data;
-         if(property_exists($data,"configuration")){
-            $array_response["configuration"]=$data->configuration;
-         }
-
-        $response = new Response();
-        $response->setStatusCode(200);
-        $response->setContent(json_encode($array_response));
-
-        return $response;
+        return false;
     }
 
     /*public function descargarpdfdocumentoAction($workflow_id, $step_id)
