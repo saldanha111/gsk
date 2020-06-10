@@ -133,10 +133,13 @@
                 </a>
                 <ul class="nav nav-second-level">
                     {% if 'mc_materials_list' in array_subsecciones %}
-                        <li id="admin_materials"><a href="{{path('nononsense_mclean_materials_list')}}">{{'Materiales'|trans}}</a></li>
+                        <li id="admin_materials"><a href="{{path('nononsense_mclean_materials_list')}}">{{'Listado de Materiales'|trans}}</a></li>
                     {% endif %}
                     {% if 'mc_centers_list' in array_subsecciones %}
-                        <li id="admin_centers"><a href="{{path('nononsense_mclean_centers_list')}}">{{'Centros'|trans}}</a></li>
+                        <li id="admin_centers"><a href="{{path('nononsense_mclean_centers_list')}}">{{'Listado de Centros'|trans}}</a></li>
+                    {% endif %}
+                    {% if 'mc_codes_list' in array_subsecciones %}
+                        <li id="admin_codes"><a href="{{path('nononsense_mclean_codes_list')}}">{{'Generación de Códigos de barras'|trans}}</a></li>
                     {% endif %}
                 </ul>
             </li>

@@ -45,6 +45,11 @@ class MaterialCleanCenters
      */
     private $active;
 
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\MaterialCleanCodes", mappedBy="idCenter")
+     */
+    private $barcode;
+
     public function __construct()
     {
         $this->created = new \DateTime();
@@ -151,5 +156,38 @@ class MaterialCleanCenters
     public function getActive()
     {
         return $this->active;
+    }
+
+    /**
+     * Add barcode
+     *
+     * @param \Nononsense\HomeBundle\Entity\MaterialCleanCodes $barcode
+     * @return MaterialCleanCenters
+     */
+    public function addBarcode(\Nononsense\HomeBundle\Entity\MaterialCleanCodes $barcode)
+    {
+        $this->barcode[] = $barcode;
+
+        return $this;
+    }
+
+    /**
+     * Remove barcode
+     *
+     * @param \Nononsense\HomeBundle\Entity\MaterialCleanCodes $barcode
+     */
+    public function removeBarcode(\Nononsense\HomeBundle\Entity\MaterialCleanCodes $barcode)
+    {
+        $this->barcode->removeElement($barcode);
+    }
+
+    /**
+     * Get barcode
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getBarcode()
+    {
+        return $this->barcode;
     }
 }

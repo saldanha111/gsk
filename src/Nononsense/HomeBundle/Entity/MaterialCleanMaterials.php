@@ -2,6 +2,8 @@
 
 namespace Nononsense\HomeBundle\Entity;
 
+use DateTime;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -27,7 +29,7 @@ class MaterialCleanMaterials
     protected $name;
 
     /**
-     * @var integer
+     * @var int
      *
      * @ORM\Column(name="expiration_days", type="integer")
      */
@@ -39,15 +41,20 @@ class MaterialCleanMaterials
     protected $created;
 
     /**
-     * @var boolean
+     * @var bool
      *
      * @ORM\Column(name="active", type="boolean")
      */
     private $active;
 
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\MaterialCleanCodes", mappedBy="idMaterial")
+     */
+    private $barcode;
+
     public function __construct()
     {
-        $this->created = new \DateTime();
+        $this->created = new DateTime();
         $this->expirationDays = 30;
         $this->active = 1;
     }
@@ -55,7 +62,7 @@ class MaterialCleanMaterials
     /**
      * Get id
      *
-     * @return integer 
+     * @return int
      */
     public function getId()
     {
@@ -88,7 +95,7 @@ class MaterialCleanMaterials
     /**
      * Set expirationDays
      *
-     * @param integer $expirationDays
+     * @param int $expirationDays
      * @return MaterialCleanMaterials
      */
     public function setExpirationDays($expirationDays)
@@ -101,7 +108,7 @@ class MaterialCleanMaterials
     /**
      * Get expirationDays
      *
-     * @return integer 
+     * @return int
      */
     public function getExpirationDays()
     {
@@ -111,7 +118,7 @@ class MaterialCleanMaterials
     /**
      * Set created
      *
-     * @param \DateTime $created
+     * @param DateTime $created
      * @return MaterialCleanMaterials
      */
     public function setCreated($created)
@@ -124,7 +131,7 @@ class MaterialCleanMaterials
     /**
      * Get created
      *
-     * @return \DateTime 
+     * @return DateTime
      */
     public function getCreated()
     {
@@ -134,7 +141,7 @@ class MaterialCleanMaterials
     /**
      * Set active
      *
-     * @param boolean $active
+     * @param bool $active
      * @return MaterialCleanMaterials
      */
     public function setActive($active)
@@ -147,10 +154,43 @@ class MaterialCleanMaterials
     /**
      * Get active
      *
-     * @return boolean 
+     * @return bool
      */
     public function getActive()
     {
         return $this->active;
+    }
+
+    /**
+     * Add barcode
+     *
+     * @param MaterialCleanCodes $barcode
+     * @return MaterialCleanMaterials
+     */
+    public function addBarcode(MaterialCleanCodes $barcode)
+    {
+        $this->barcode[] = $barcode;
+
+        return $this;
+    }
+
+    /**
+     * Remove barcode
+     *
+     * @param MaterialCleanCodes $barcode
+     */
+    public function removeBarcode(MaterialCleanCodes $barcode)
+    {
+        $this->barcode->removeElement($barcode);
+    }
+
+    /**
+     * Get barcode
+     *
+     * @return Collection
+     */
+    public function getBarcode()
+    {
+        return $this->barcode;
     }
 }
