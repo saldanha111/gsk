@@ -1,0 +1,165 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}DOCXPRESSO | {{'Homepage'|trans}} {% endblock %}
+{% block head %}
+{{ parent() }}
+{% endblock %}
+{% block main_title %} Listado de códigos{% endblock %}
+{% block content %}
+
+<div class="wrapper wrapper-content">
+    <div class="row">
+        <div class="col-sm-12">
+            <div>
+                <div class="row">
+                    {% for flashMessage in app.session.flashbag.get('error') %}
+                        <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+                            <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                            {{ flashMessage }}
+                        </div>
+                        <br>
+                    {% endfor %}
+                    {% for flashMessage in app.session.flashbag.get('message') %}
+                        <div class="alert alert-success alert-dismissable" style="margin: 10px 16px 0 16px">
+                            <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                            {{ flashMessage }}
+                        </div>
+                        <br>
+                    {% endfor %}
+                    <div class="col-xs-12">
+                        <form class="form-vertical" id="form_item" action="{{ path('nononsense_mclean_codes_list')}}" method="GET">
+                            <input type="hidden" id='url_mc_codes_list' value="{{ path('nononsense_mclean_codes_list')}}" />
+                            <input type="hidden" id='url_mc_code_delete' value="{{ path('nononsense_mclean_code_delete',{'id': 'xxx'}) }}" />
+                            <input type="hidden" id='url_mc_code_edit' value="{{ path('nononsense_mclean_code_edit',{'id': 'xxx'}) }}" />
+                            <div class="row">
+                                <div class="col-md-3 col-sm-5 form-group">
+                                    <label class="control-label">Material</label>
+                                    <select class="form-control" name="material">
+                                        <option value=""></option>
+                                        {% for material in materials %}
+                                            <option value="{{material.id}}" {{ filters.material is defined and filters.material is not null and filters.material==material.id ? 'selected="selected"' : ''}}>{{material.name}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-3 col-sm-5 form-group">
+                                    <label class="control-label">Centro</label>
+                                    <select class="form-control" name="center">
+                                        <option value=""></option>
+                                        {% for center in centers %}
+                                            <option value="{{center.id}}" {{ filters.center is defined and filters.center is not null and filters.center==center.id ? 'selected="selected"' : ''}}>{{center.name}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-sm-2 form-group">
+                                    <label class="control-label">Código</label>
+                                    <div class="item_filter">
+                                        <input type="text" name="code" class="form-control" value="{{filters.code is defined ? filters.code : ''}}">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-1 col-md-2 col-sm-3 form-group">
+                                    <button id="btn-search" type="button" class="btn btn-primary pull-left">Buscar</button>
+                                </div>
+                                <div class="col-lg-1 col-md-2 col-sm-3 item_filter">
+                                    <a href="{{path('nononsense_mclean_codes_list')}}" type="button" class="btn btn-primary pull-left">Reset</a>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div>
+                            <a href="{{ path('nononsense_mclean_code_edit',{'id': '0'}) }}" target="_self" class="btn btn-primary pull-right"><i class="fa fa-plus"></i> Nuevo código</a>
+                        </div>
+                        <br/>
+                        <table id="inProcessParcial" class="table table-striped">
+                            <thead>
+                            <tr>
+                                <th>Id.</th>
+                                <th>material</th>
+                                <th>centro</th>
+                                <th>código</th>
+                                <th>Imprimir</th>
+                                <th>Descargar</th>
+                            </tr>
+                            </thead>
+                            {% if items is defined %}
+                                {% for item in items %}
+                                    <tr>
+                                        <td>{{item.id}}</td>
+                                        <td>{{item.material}}</td>
+                                        <td>{{item.center}}</td>
+                                        <td>{{item.code}}</td>
+                                        <td>
+                                            <a
+                                                    href="#"
+                                                    class="print-img"
+                                                    data-id="{{ item.id }}"
+                                                    data-url="{{path('nononsense_mclean_code_view',{'id': item.id}) }}"
+                                            >
+                                                Imprimir
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <a
+                                                href="{{path('nononsense_mclean_code_view',{'id': item.id}) }}"
+                                                download="{{ item.code }}.png"
+                                                title="{{ item.code }}"
+                                            >
+                                                Descargar
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            {% endif %}
+                        </table>
+
+                        {% if count==0 %}
+                            <br><b>No se han encontrado datos disponibles</b>
+                        {% endif %}
+                        {% if pagination is defined and pagination.needed %}
+                            {% include '::pagination2.html.twig' %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+{{ parent() }}
+<script>
+    $(function () {
+        ActivateMenu('admin_codes');
+        $('#side-menu').metisMenu();
+
+        $(document).on('click','#btn-search',function(e){
+            e.preventDefault();
+            filtering();
+        });
+
+        $(document).on('click','.print-img',function(e){
+            e.preventDefault();
+            let url = $(this).data('url');
+            printImg(url);
+        });
+    });
+
+    function filtering(){
+        let url_product_list = $('#url_mc_codes_list').val();
+        let form = $('#form_item');
+        form.attr("action", url_product_list);
+        form.attr("target","_self");
+        form.submit();
+    }
+
+    function printImg(url) {
+        let win = window.open('');
+        win.document.write('<img src="' + url + '" onload="window.print();window.close()" />');
+        win.focus();
+    }
+
+</script>
+{% endblock %}
