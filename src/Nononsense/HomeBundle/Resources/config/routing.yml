@@ -547,3 +547,19 @@ nononsense_mclean_materials_edit:
 nononsense_mclean_materials_delete:
     path: /mclean/material/delete/{id}
     defaults: { _controller: NononsenseHomeBundle:MaterialCleanMaterials:delete}
+
+nononsense_mclean_codes_list:
+    path: /mclean/codes
+    defaults: { _controller: NononsenseHomeBundle:MaterialCleanCodes:list}
+
+nononsense_mclean_code_edit:
+    path: /mclean/code/{id}
+    defaults: { _controller: NononsenseHomeBundle:MaterialCleanCodes:edit}
+
+nononsense_mclean_code_delete:
+    path: /mclean/code/delete/{id}
+    defaults: { _controller: NononsenseHomeBundle:MaterialCleanCodes:delete}
+
+nononsense_mclean_code_view:
+    path: /mclean/code/view/{id}
+    defaults: { _controller: NononsenseHomeBundle:MaterialCleanCodes:viewBarcode}
