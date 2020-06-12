@@ -208,7 +208,7 @@ class QrsController extends Controller
 
         $array_fields = array();
         foreach ($fields as $field) {
-            array_push($array_fields, [$field->getName(), $field->getValue()]);
+           $array_fields[$field->getName()]=$field->getValue();
         }
 
         $qrArray = array('id'=>$qr->getId(), 'fields'=>$array_fields);
