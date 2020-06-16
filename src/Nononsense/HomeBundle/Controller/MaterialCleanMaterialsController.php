@@ -2,8 +2,11 @@
 
 namespace Nononsense\HomeBundle\Controller;
 
+use DateTime;
+use Exception;
 use Nononsense\HomeBundle\Entity\MaterialCleanMaterials;
 use Nononsense\UtilsBundle\Classes\Utils;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 
@@ -85,7 +88,7 @@ class MaterialCleanMaterialsController extends Controller
                     return $this->redirect($this->generateUrl('nononsense_mclean_materials_list'));
                 }
             }
-            catch(\Exception $e){
+            catch(Exception $e){
                 $this->get('session')->getFlashBag()->add('error', "Error al intentar guardar los datos del material: ".$e->getMessage());
             }
         }
@@ -94,6 +97,35 @@ class MaterialCleanMaterialsController extends Controller
         $array_item['material'] = $material;
 
         return $this->render('NononsenseHomeBundle:MaterialClean:material_edit.html.twig',$array_item);
+    }
+
+    public function expirationAction(Request $request, $id)
+    {
+        $array_return = array();
+        $data = array();
+        $status = 500;
+        try{
+            /** @var MaterialCleanMaterials $materialInput */
+            $materialInput = $this->getDoctrine()->getRepository('NononsenseHomeBundle:MaterialCleanMaterials')->find($id);
+            if($materialInput){
+                $expirationDays = $materialInput->getExpirationDays();
+                $expirationInterval = new \DateInterval('P' . $expirationDays . 'D');
+                $expirationDate = (new DateTime())->add($expirationInterval);
+
+                $data['expirationDays'] = $expirationDays;
+                $data['expirationDate'] = $expirationDate->format('d-m-Y');
+                $status = 200;
+            }
+        }
+        catch(\Exception $e){
+
+        }
+
+        $array_return['data'] = $data;
+        $array_return['status'] = $status;
+
+        return new JsonResponse($array_return);
+
     }
 
     public function deleteAction(Request $request, $id)
