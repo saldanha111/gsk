@@ -556,10 +556,22 @@ nononsense_mclean_code_edit:
     path: /mclean/code/{id}
     defaults: { _controller: NononsenseHomeBundle:MaterialCleanCodes:edit}
 
-nononsense_mclean_code_delete:
-    path: /mclean/code/delete/{id}
-    defaults: { _controller: NononsenseHomeBundle:MaterialCleanCodes:delete}
-
 nononsense_mclean_code_view:
     path: /mclean/code/view/{id}
     defaults: { _controller: NononsenseHomeBundle:MaterialCleanCodes:viewBarcode}
+
+nononsense_mclean_cleans_scan:
+    path: /mclean/cleans/scan
+    defaults: { _controller: NononsenseHomeBundle:MaterialCleanCleans:scan}
+
+nononsense_mclean_cleans_view:
+    path: /mclean/cleans/view/{barcode}
+    defaults: { _controller: NononsenseHomeBundle:MaterialCleanCleans:view}
+
+nononsense_mclean_cleans_save:
+    path: /mclean/cleans/save/{id}
+    defaults: { _controller: NononsenseHomeBundle:MaterialCleanCleans:save}
+
+nononsense_mclean_material_get_expiration_json:
+    path: /mclean/cleans/material/expiration/{id}
+    defaults: { _controller: NononsenseHomeBundle:MaterialCleanMaterials:expiration, id:0}

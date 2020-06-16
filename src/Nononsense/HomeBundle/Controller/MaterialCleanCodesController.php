@@ -197,12 +197,12 @@ class MaterialCleanCodesController extends Controller
         $barcode = new Barcode();
         try {
             $bobj = $barcode->getBarcodeObj(
-                'C128,B',
+                'C128,C',
                 $code,
-                -1,         // bar width (use absolute or negative value as multiplication factor)
-                -30,       // bar height (use absolute or negative value as multiplication factor)
-                'black',    // foreground color
-                [5, 5, 5, 5]         // padding (use absolute or negative values as multiplication factors)
+                500,         // bar width (use absolute or negative value as multiplication factor)
+                100,        // bar height (use absolute or negative value as multiplication factor)
+                'black',     // foreground color
+                [20, 20, 20, 20]  // padding (use absolute or negative values as multiplication factors)
             )->setBackgroundColor('white');
             $result = $bobj->getPngData();
         } catch (BCodeException | BColorException $e) {

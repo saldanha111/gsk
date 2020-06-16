@@ -39,6 +39,18 @@ class MaterialCleanCodes
     protected $code;
 
     /**
+     * MaterialCleanCodes constructor.
+     * @param string $code
+     */
+    public function __construct(string $code = '')
+    {
+        $this->setCode($code);
+        $this->setIdMaterial(new MaterialCleanMaterials());
+        $this->setIdCenter(new MaterialCleanCenters());
+    }
+
+
+    /**
      * Get id
      *
      * @return int
@@ -64,7 +76,7 @@ class MaterialCleanCodes
     /**
      * Get idCenter
      *
-     * @return int
+     * @return MaterialCleanCenters
      */
     public function getIdCenter()
     {
@@ -87,7 +99,7 @@ class MaterialCleanCodes
     /**
      * Get idMaterial
      *
-     * @return int
+     * @return MaterialCleanMaterials
      */
     public function getIdMaterial()
     {

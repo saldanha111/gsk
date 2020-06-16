@@ -1,0 +1,241 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}DOCXPRESSO | {{ 'Homepage'|trans }} {% endblock %}
+{% block head %}
+    {{ parent() }}
+{% endblock %}
+{% block main_title %} Guardar limpieza{% endblock %}
+{% block content %}
+
+    <div class="wrapper wrapper-content">
+        <div class="row">
+            {% for flashMessage in app.session.flashbag.get('error') %}
+                <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+                    <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                    {{ flashMessage }}
+                </div>
+                <br>
+            {% endfor %}
+            {% for flashMessage in app.session.flashbag.get('message') %}
+                <div class="alert alert-success alert-dismissable" style="margin: 10px 16px 0 16px">
+                    <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                    {{ flashMessage }}
+                </div>
+                <br>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="wrapper-content">
+        <form class="form-horizontal" id="form_item" action="{{ path('nononsense_mclean_cleans_save',{'id': code}) }}" method="POST">
+            <input type="hidden" id='url_get_data_input_json' value="{{ path('nononsense_mclean_material_get_expiration_json',{'id': 'xxx'}) }}" />
+            <div class="row">
+                <div class="form-group">
+                    <label class="col-md-2 col-sm-4 control-label">Código asociado</label>
+                    <div class="col-sm-7">
+                        <input type="text" name="code" class="form-control" required="required" readonly="readonly"
+                               value="{{ code }}">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-2 col-sm-4 control-label">Centro de trabajo</label>
+                    <div class="col-sm-7">
+                        <select class="form-control select-center" name="center"
+                                {{ materialCleanCode.idCenter.id ? 'readonly="readonly"' : '' }}>
+                            <option value=""></option>
+                            {% for center in centers %}
+                                <option value="{{ center.id }}" {{ materialCleanCode.idCenter.id is defined and materialCleanCode.idCenter.id==center.id ? 'selected="selected"' : '' }}>{{ center.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-2 col-sm-4 control-label">Material</label>
+                    <div class="col-sm-7">
+                        <select class="form-control select-material" name="material"
+                                {{ materialCleanCode.idMaterial.id ? 'readonly="readonly"' : '' }}>
+                            <option value=""></option>
+                            {% for material in materials %}
+                                <option value="{{ material.id }}" {{ materialCleanCode.idMaterial.id is defined and materialCleanCode.idMaterial.id==material.id ? 'selected="selected"' : '' }}>{{ material.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-2 col-sm-4 control-label">Fecha de limpieza</label>
+                    <div class="col-sm-7">
+                        <input type="text" name="cleanDate" class="form-control" required="required" readonly="readonly"
+                               value="{{ cleanDate }}">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-2 col-sm-4 control-label">Caduca</label>
+                    <div class="col-sm-7">
+                        <input type="text" name="expirationDate" class="form-control" required="required" readonly="readonly"
+                               value="{{ expirationDate }}">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-2 col-sm-4 control-label">Realizado por</label>
+                    <div class="col-sm-7">
+                        <input type="text" name="user" class="form-control" required="required" readonly="readonly"
+                               value="{{ app.user.name }}">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-2 col-sm-4 control-label">Firma</label>
+                    <div class="col-sm-7">
+                        <div id="signature-pad" class="input-group">
+                            <canvas width="300" height="150"
+                                    style="touch-action: none; border: 2px solid #eee; box-shadow: 0px 0px 6px 1px rgba(80, 90, 100, 0.5)"></canvas>
+                        </div>
+                        <input type="hidden" id="firma" name="firma"/>
+                        <a href="#" class="btn btn-primary" id="borrar-firma">Limpiar firma</a>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group">
+                    <div class="col-xs-12">
+                        <a href="#" class="btn btn-primary pull-right btn-submit">
+                            <i class="fa fa-floppy-o" aria-hidden="true"></i> Registrar limpieza
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+    </div>
+
+{% endblock %}
+{% block scripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/plugins/signature-pad/signature-pad.min.js') }}"></script>
+    <script>
+        $(function () {
+
+            toastr.options = {
+                "closeButton": true,
+                "debug": false,
+                "progressBar": true,
+                "positionClass": "toast-top-center",
+                "onclick": null,
+                "showDuration": "400",
+                "hideDuration": "1000",
+                "timeOut": "7000",
+                "extendedTimeOut": "1000",
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut"
+            }
+
+            ActivateMenu('admin_cleans');
+            $('#side-menu').metisMenu();
+
+            const canvas = document.querySelector("canvas");
+            const signaturePad = new SignaturePad(canvas);
+
+            $(document).on('click', '.btn-submit', function (e) {
+                e.preventDefault();
+                let error = false;
+                $("#firma").val(signaturePad.toDataURL()) // save image as PNG
+
+                if(!checkCenter()){
+                    toastr.error("Debe seleccionar un centro de trabajo", 'aviso');
+                    error = true;
+                }
+
+                if(!checkMaterial()){
+                    toastr.error("Debe seleccionar un material", 'aviso');
+                    error = true;
+                }
+
+                if (!checkSignature(signaturePad)) {
+                    toastr.error("Debe rellenar una fima, no puede dejar el cuadro en blanco", 'aviso');
+                    error = true;
+                }
+
+                if(!error){
+                    saveClean();
+                }
+            });
+
+            $(document).on('change','.select-material',function(){
+                if(checkMaterial()){
+                    show_loader();
+                    let url = $('#url_get_data_input_json').val();
+                    url = url.replace("xxx", $('.select-material').val());
+                    $.ajax({
+                        async:true,
+                        url: url,
+                        type: 'GET',
+                        complete: function ( response ) {
+                            hide_loader();
+                            let datos = JSON.parse(response.responseText);
+                            if(datos.status === 200){
+                                $('input[name="expirationDate"]').val(datos.data.expirationDate);
+                            }else{
+                                $('input[name="expirationDate"]').val('');
+                                toastr.error("Ha ocurrido un error al intentar cargar la fecha de caducidad", 'aviso');
+                            }
+                        }
+                    });
+                }else{
+                    $('input[name="expirationDate"]').val('');
+                }
+            });
+
+            $(document).on('click','#borrar-firma', function (e) {
+                e.preventDefault();
+                signaturePad.clear();
+            });
+
+            function checkCenter(){
+                return $('.select-center').val() > 0;
+            }
+
+            function checkMaterial(){
+                return $('.select-material').val() > 0;
+            }
+
+            function checkSignature(signaturePad){
+                return !signaturePad.isEmpty();
+            }
+
+            function saveClean(){
+                toastr.info(
+                    '<br />' +
+                    '<button type="button" id="confirm-save-clean" class="btn btn-success">Si</button>' +
+                    '&nbsp;&nbsp;&nbsp;' +
+                    '<button type="button" id="cancel-save-clean" class="btn btn-danger">No</button>',
+                    '¿Quieres guardar la limpieza del material?',
+                    {
+                        allowHtml: true,
+                        timeOut: 0,
+                        extendedTimeOut:0,
+                        preventDuplicates:true,
+                        tapToDismiss: false,
+                        progressBar: false,
+                        closeButton: true,
+                        onShown: function (toast) {
+                            $(document).on('click','#confirm-save-clean',function(){
+                                console.log('click');
+                                $('#form_item').submit();
+                            });
+                            $(document).on('click','#cancel-save-clean',function(){
+                                $('.toast-close-button').trigger('click');
+                            });
+                        }
+                    }
+                );
+            }
+
+        });
+    </script>
+
+<script>
+
+
+
+
+</script>
+{% endblock %}
