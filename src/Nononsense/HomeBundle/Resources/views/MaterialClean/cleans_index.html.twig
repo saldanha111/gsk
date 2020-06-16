@@ -137,6 +137,11 @@
                         activeCamera();
                         startCapture(codeReader,selectedDeviceId);
                     })
+
+                    document.getElementById('btn-scanner-clean').addEventListener('click', () => {
+                        activeScanner();
+                        codeReader.reset();
+                    })
                 })
                 .catch((err) => {
                     console.error(err)
