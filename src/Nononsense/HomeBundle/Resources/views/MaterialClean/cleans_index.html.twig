@@ -117,12 +117,17 @@
                         videoInputDevices.forEach((element) => {
                             const sourceOption = document.createElement('option')
                             sourceOption.text = element.label
+                            if(element.label.indexOf('back')){
+                                sourceOption.setAttribute('selected','selected');
+                                selectedDeviceId = element.deviceId
+                            }
                             sourceOption.value = element.deviceId
                             sourceSelect.appendChild(sourceOption)
                         })
 
                         sourceSelect.onchange = () => {
                             selectedDeviceId = sourceSelect.value;
+                            startCapture(codeReader,selectedDeviceId);
                         };
 
                         const sourceSelectPanel = document.getElementById('sourceSelectPanel')
@@ -130,30 +135,8 @@
                     }
                     document.getElementById('btn-camera-clean').addEventListener('click', () => {
                         activeCamera();
-                        codeReader.decodeFromVideoDevice(selectedDeviceId, 'video', (result, err) => {
-                            if (result) {
-                                document.getElementsByClassName('camera-clean')[0].value = result.text;
-                                toastr.success(
-                                    "El código de barras se ha leído correctamente",
-                                    'Bien',
-                                    {preventDuplicates:true}
-                                );
-                            }
-                            if (err && !(err instanceof ZXing.NotFoundException)) {
-                                console.error(err)
-                                document.getElementsByClassName('camera-clean')[0].value = '';
-                                toastr.error("El código de barras no se ha leído correctamente", 'aviso');
-                            }
-                        })
-                        console.log(`Started continous decode from camera with id ${selectedDeviceId}`)
+                        startCapture(codeReader,selectedDeviceId);
                     })
-
-                    document.getElementById('btn-scanner-clean').addEventListener('click', () => {
-                        activeScanner();
-                        codeReader.reset()
-                        document.getElementsByClassName('camera-clean')[0].value = '';
-                    })
-
                 })
                 .catch((err) => {
                     console.error(err)
@@ -175,6 +158,26 @@
             $('.scan-group').show();
             $('.scan-clean').addClass('active').focus();
         }
+
+        function startCapture(codeReader, selectedDeviceId){
+            codeReader.reset()
+            codeReader.decodeFromVideoDevice(selectedDeviceId, 'video', (result, err) => {
+                if (result) {
+                    document.getElementsByClassName('camera-clean')[0].value = result.text;
+                    toastr.success(
+                        "El código de barras se ha leído correctamente",
+                        'Bien',
+                        {preventDuplicates:true}
+                    );
+                }
+                if (err && !(err instanceof ZXing.NotFoundException)) {
+                    console.error(err)
+                    document.getElementsByClassName('camera-clean')[0].value = '';
+                    toastr.error("El código de barras no se ha leído correctamente", 'aviso');
+                }
+            })
+        }
+
     </script>
 
 {% endblock %}
