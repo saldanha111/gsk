@@ -9,16 +9,17 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="qrs")
- * @ORM\Entity(repositoryClass="Nononsense\HomeBundle\Entity\QrsRepository")
+ * @ORM\Table(name="qrs_types")
+ * @ORM\Entity(repositoryClass="Nononsense\HomeBundle\Entity\QrsTypesRepository")
  * @ORM\HasLifecycleCallbacks
  */
-class Qrs
+class QrsTypes
 {
     /**
      * @ORM\Column(type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @Groups({"group1"})
      */
     protected $id;
 
@@ -31,18 +32,10 @@ class Qrs
     protected $name;
 
     /**
-     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\QrsFields", mappedBy="qr")
-     *
-     * @Groups({"group1"})
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\Qrs", mappedBy="type")
      */
-    protected $fields;
+    protected $qrs;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\QrsTypes", inversedBy="qrs")
-     * @ORM\JoinColumn(name="type_id", referencedColumnName="id")
-     * @Groups({"group1"})
-     */
-    protected $type;
 
 
     public function __construct()
@@ -87,35 +80,35 @@ class Qrs
     }
 
     /**
-     * Add fields
+     * Add qrs
      *
-     * @param \Nononsense\HomeBundle\Entity\QrsFields $fields
-     * @return Qrs
+     * @param \Nononsense\HomeBundle\Entity\Qrs $qrs
+     * @return QrsTypes
      */
-    public function addField(\Nononsense\HomeBundle\Entity\QrsFields $fields)
+    public function addQr(\Nononsense\HomeBundle\Entity\Qrs $qrs)
     {
-        $this->fields[] = $fields;
+        $this->qrs[] = $qrs;
 
         return $this;
     }
 
     /**
-     * Remove fields
+     * Remove qrs
      *
-     * @param \Nononsense\HomeBundle\Entity\QrsFields $fields
+     * @param \Nononsense\HomeBundle\Entity\Qrs $qrs
      */
-    public function removeField(\Nononsense\HomeBundle\Entity\QrsFields $fields)
+    public function removeQr(\Nononsense\HomeBundle\Entity\Qrs $qrs)
     {
-        $this->fields->removeElement($fields);
+        $this->qrs->removeElement($qrs);
     }
 
     /**
-     * Get fields
+     * Get qrs
      *
      * @return \Doctrine\Common\Collections\Collection 
      */
-    public function getFields()
+    public function getQrs()
     {
-        return $this->fields;
+        return $this->qrs;
     }
 }

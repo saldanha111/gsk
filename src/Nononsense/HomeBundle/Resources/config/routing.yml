@@ -370,6 +370,10 @@ nononsense_qrs_view_qr:
     path: /qrs-view/{id}
     defaults: { _controller: NononsenseHomeBundle:Qrs:viewQr}
 
+nononsense_qrs_json_qr:
+    path: /qrs-json/{id}
+    defaults: { _controller: NononsenseHomeBundle:Qrs:jsonQr}
+
 nononsense_products_json:
     path: /products-json
     defaults: { _controller: NononsenseHomeBundle:Products:productosJson}

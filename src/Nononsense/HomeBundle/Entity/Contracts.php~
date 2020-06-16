@@ -136,7 +136,7 @@ class Contracts
     /**
      * @var boolean $attachment
      *
-     * @ORM\Column(name="attachment", type="boolean", options={"default" = false})
+     * @ORM\Column(name="attachment", type="boolean", options={"default" = false}, nullable=true)
      * @Groups({"detail_contract"})
      */
     protected $attachment;

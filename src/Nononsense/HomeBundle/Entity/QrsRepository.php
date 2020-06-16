@@ -17,8 +17,9 @@ class QrsRepository extends EntityRepository
     	$em = $this->getEntityManager();
 
         $list = $this->createQueryBuilder('qr')
-            ->select('qr.id', 'qr.name')
-            ->orderBy('qr.name', 'ASC');
+            ->select('qr.id', 'qr.name', 't.name typeqr')
+            ->leftJoin("qr.type", "t")
+            ->orderBy('qr.id', 'DESC');
 
         $list = self::fillFilersQuery($filters, $list);
 
