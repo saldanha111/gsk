@@ -50,11 +50,6 @@ class MaterialCleanCenters
      */
     private $barcode;
 
-    /**
-     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\MaterialCleanCleans", mappedBy="center")
-     */
-    private $cleans;
-
     public function __construct()
     {
         $this->created = new \DateTime();
@@ -194,38 +189,5 @@ class MaterialCleanCenters
     public function getBarcode()
     {
         return $this->barcode;
-    }
-
-    /**
-     * Add cleans
-     *
-     * @param \Nononsense\HomeBundle\Entity\MaterialCleanCleans $cleans
-     * @return MaterialCleanCenters
-     */
-    public function addClean(\Nononsense\HomeBundle\Entity\MaterialCleanCleans $cleans)
-    {
-        $this->cleans[] = $cleans;
-
-        return $this;
-    }
-
-    /**
-     * Remove cleans
-     *
-     * @param \Nononsense\HomeBundle\Entity\MaterialCleanCleans $cleans
-     */
-    public function removeClean(\Nononsense\HomeBundle\Entity\MaterialCleanCleans $cleans)
-    {
-        $this->cleans->removeElement($cleans);
-    }
-
-    /**
-     * Get cleans
-     *
-     * @return \Doctrine\Common\Collections\Collection 
-     */
-    public function getCleans()
-    {
-        return $this->cleans;
     }
 }

@@ -247,11 +247,6 @@ class Users implements AdvancedUserInterface, \Serializable
     protected $tokens;
 
     /**
-     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\MaterialCleanCleans", mappedBy="user")
-     */
-    protected $materialClean;
-
-    /**
      * Users constructor.
      */
     
@@ -1710,38 +1705,5 @@ class Users implements AdvancedUserInterface, \Serializable
     public function getTokens()
     {
         return $this->tokens;
-    }
-
-    /**
-     * Add materialClean
-     *
-     * @param \Nononsense\HomeBundle\Entity\MaterialCleanCleans $materialClean
-     * @return Users
-     */
-    public function addMaterialClean(\Nononsense\HomeBundle\Entity\MaterialCleanCleans $materialClean)
-    {
-        $this->materialClean[] = $materialClean;
-
-        return $this;
-    }
-
-    /**
-     * Remove materialClean
-     *
-     * @param \Nononsense\HomeBundle\Entity\MaterialCleanCleans $materialClean
-     */
-    public function removeMaterialClean(\Nononsense\HomeBundle\Entity\MaterialCleanCleans $materialClean)
-    {
-        $this->materialClean->removeElement($materialClean);
-    }
-
-    /**
-     * Get materialClean
-     *
-     * @return \Doctrine\Common\Collections\Collection 
-     */
-    public function getMaterialClean()
-    {
-        return $this->materialClean;
     }
 }

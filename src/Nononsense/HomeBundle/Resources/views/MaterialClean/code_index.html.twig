@@ -28,6 +28,7 @@
                     <div class="col-xs-12">
                         <form class="form-vertical" id="form_item" action="{{ path('nononsense_mclean_codes_list')}}" method="GET">
                             <input type="hidden" id='url_mc_codes_list' value="{{ path('nononsense_mclean_codes_list')}}" />
+                            <input type="hidden" id='url_mc_code_delete' value="{{ path('nononsense_mclean_code_delete',{'id': 'xxx'}) }}" />
                             <input type="hidden" id='url_mc_code_edit' value="{{ path('nononsense_mclean_code_edit',{'id': 'xxx'}) }}" />
                             <div class="row">
                                 <div class="col-md-3 col-sm-5 form-group">
