@@ -247,9 +247,25 @@ class Users implements AdvancedUserInterface, \Serializable
     protected $tokens;
 
     /**
-     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\MaterialCleanCleans", mappedBy="user")
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\MaterialCleanCleans", mappedBy="cleanUser")
      */
     protected $materialClean;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\MaterialCleanCleans", mappedBy="verificationUser")
+     */
+    protected $materialVerification;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\MaterialCleanCleans", mappedBy="dirtyMaterialUser")
+     */
+    protected $materialDirty;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\MaterialCleanCleans", mappedBy="reviewUser")
+     */
+    protected $materialReview;
+
 
     /**
      * Users constructor.
@@ -1743,5 +1759,104 @@ class Users implements AdvancedUserInterface, \Serializable
     public function getMaterialClean()
     {
         return $this->materialClean;
+    }
+
+    /**
+     * Add materialVerification
+     *
+     * @param \Nononsense\HomeBundle\Entity\MaterialCleanCleans $materialVerification
+     * @return Users
+     */
+    public function addMaterialVerification(\Nononsense\HomeBundle\Entity\MaterialCleanCleans $materialVerification)
+    {
+        $this->materialVerification[] = $materialVerification;
+
+        return $this;
+    }
+
+    /**
+     * Remove materialVerification
+     *
+     * @param \Nononsense\HomeBundle\Entity\MaterialCleanCleans $materialVerification
+     */
+    public function removeMaterialVerification(\Nononsense\HomeBundle\Entity\MaterialCleanCleans $materialVerification)
+    {
+        $this->materialVerification->removeElement($materialVerification);
+    }
+
+    /**
+     * Get materialVerification
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getMaterialVerification()
+    {
+        return $this->materialVerification;
+    }
+
+    /**
+     * Add materialDirty
+     *
+     * @param \Nononsense\HomeBundle\Entity\MaterialCleanCleans $materialDirty
+     * @return Users
+     */
+    public function addMaterialDirty(\Nononsense\HomeBundle\Entity\MaterialCleanCleans $materialDirty)
+    {
+        $this->materialDirty[] = $materialDirty;
+
+        return $this;
+    }
+
+    /**
+     * Remove materialDirty
+     *
+     * @param \Nononsense\HomeBundle\Entity\MaterialCleanCleans $materialDirty
+     */
+    public function removeMaterialDirty(\Nononsense\HomeBundle\Entity\MaterialCleanCleans $materialDirty)
+    {
+        $this->materialDirty->removeElement($materialDirty);
+    }
+
+    /**
+     * Get materialDirty
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getMaterialDirty()
+    {
+        return $this->materialDirty;
+    }
+
+    /**
+     * Add materialReview
+     *
+     * @param \Nononsense\HomeBundle\Entity\MaterialCleanCleans $materialReview
+     * @return Users
+     */
+    public function addMaterialReview(\Nononsense\HomeBundle\Entity\MaterialCleanCleans $materialReview)
+    {
+        $this->materialReview[] = $materialReview;
+
+        return $this;
+    }
+
+    /**
+     * Remove materialReview
+     *
+     * @param \Nononsense\HomeBundle\Entity\MaterialCleanCleans $materialReview
+     */
+    public function removeMaterialReview(\Nononsense\HomeBundle\Entity\MaterialCleanCleans $materialReview)
+    {
+        $this->materialReview->removeElement($materialReview);
+    }
+
+    /**
+     * Get materialReview
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getMaterialReview()
+    {
+        return $this->materialReview;
     }
 }

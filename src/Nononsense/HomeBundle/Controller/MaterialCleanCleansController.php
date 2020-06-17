@@ -112,8 +112,9 @@ class MaterialCleanCleansController extends Controller
                     ->setCleanDate($cleanDate)
                     ->setCleanExpiredDate($expirationDate)
                     ->setCode($request->get('code'))
-                    ->setUser($this->getUser())
-                    ->setSignature($request->get('firma'));
+                    ->setCleanUser($this->getUser())
+                    ->setSignature($request->get('firma'))
+                    ->setStatus(1);
 
                 $em->persist($materialClean);
                 $em->flush();

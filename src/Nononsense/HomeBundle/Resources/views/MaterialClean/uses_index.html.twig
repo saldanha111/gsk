@@ -1,0 +1,188 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}DOCXPRESSO | {{ 'Homepage'|trans }} {% endblock %}
+{% block head %}
+    {{ parent() }}
+{% endblock %}
+{% block main_title %} Utilización de material{% endblock %}
+{% block content %}
+
+    <div class="wrapper wrapper-content">
+        <div class="row">
+            {% for flashMessage in app.session.flashbag.get('error') %}
+                <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+                    <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                    {{ flashMessage }}
+                </div>
+                <br>
+            {% endfor %}
+            {% for flashMessage in app.session.flashbag.get('message') %}
+                <div class="alert alert-success alert-dismissable" style="margin: 10px 16px 0 16px">
+                    <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                    {{ flashMessage }}
+                </div>
+                <br>
+            {% endfor %}
+            <div class="col-xs-12">
+                <div class="row">
+                    <div class="col-md-3 col-sm-4 col-xs-6">
+                        <button id="btn-scanner-use" type="button" class="btn btn-primary">Escanear con scanner</button>
+                    </div>
+                    <div class="col-md-3 col-sm-4 col-xs-6">
+                        <button id="btn-camera-use" type="button" class="btn btn-primary">Escanear con camara</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="wrapper-content">
+        <div class="col-xs-12">
+            <form class="form-horizontal" id="form_item" action="{{ path('nononsense_mclean_uses_scan') }}"
+                  method="POST">
+                <input type="hidden" id='url_mc_use' value="{{ path('nononsense_mclean_uses_view',{'barcode': 'xxx'}) }}"/>
+                <div class="form-group scan-group" style="display:none;">
+                    <div class="col-xs-12">
+                        <label>
+                            <input type="text" placeholder="Código" name="scan_use" class="form-control code-input scan-use" required="required">
+                        </label>
+                    </div>
+                    <div class="col-sm-1">
+                        <input type="submit" class="btn btn-primary btn-use" value="Siguiente">
+                    </div>
+                </div>
+                <div class="form-group camera-group" style="display:none;">
+                    <div class="col-lg-2 col-md-4 col-sm-12">
+                        <video id="video" style="border: 1px solid gray;"></video>
+                        <input type="hidden" name="camera_use" class="form-control code-input camera-use" required="required">
+                    </div>
+                    <div class="col-xs-12">
+                        <div id="sourceSelectPanel" class="form-group" style="display:none">
+                            <label for="sourceSelect">Selecciona la Cámara:</label>
+                            <select id="sourceSelect" class="form-control" style="max-width:400px"></select>
+                        </div>
+                    </div>
+                    <div class="col-xs-12">
+                        <input type="submit" class="btn btn-primary btn-use" value="Siguiente">
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+{% endblock %}
+{% block scripts %}
+    {{ parent() }}
+    <script type="text/javascript" src="{{ asset('js/barcode-reader.min.js') }}"></script>
+    <script>
+        $(function () {
+            toastr.options = {
+                "closeButton": true,
+                "debug": false,
+                "progressBar": true,
+                "positionClass": "toast-top-center",
+                "onclick": null,
+                "showDuration": "400",
+                "hideDuration": "1000",
+                "timeOut": "7000",
+                "extendedTimeOut": "1000",
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut"
+            }
+
+            ActivateMenu('admin_uses');
+            $('#side-menu').metisMenu();
+
+            $(document).on('click', '.btn-use', function (e) {
+                e.preventDefault();
+                const code = $('.code-input.active').val();
+                if(code !== undefined && code !== ''){
+                    let urlUse = $('#url_mc_use').val();
+                    window.location.href = urlUse.replace("xxx", encodeURI(code));
+                }else{
+                    toastr.error("El código de barras no se ha leído correctamente", 'aviso');
+                }
+            });
+
+        });
+
+        window.addEventListener('load', function () {
+            let selectedDeviceId;
+            const codeReader = new ZXing.BrowserMultiFormatReader()
+            codeReader.getVideoInputDevices()
+                .then((videoInputDevices) => {
+                    const sourceSelect = document.getElementById('sourceSelect')
+                    selectedDeviceId = videoInputDevices[0].deviceId
+                    if (videoInputDevices.length >= 1) {
+                        videoInputDevices.forEach((element) => {
+                            const sourceOption = document.createElement('option')
+                            sourceOption.text = element.label
+                            if(element.label.indexOf('back')){
+                                sourceOption.setAttribute('selected','selected');
+                                selectedDeviceId = element.deviceId
+                            }
+                            sourceOption.value = element.deviceId
+                            sourceSelect.appendChild(sourceOption)
+                        })
+
+                        sourceSelect.onchange = () => {
+                            selectedDeviceId = sourceSelect.value;
+                            startCapture(codeReader,selectedDeviceId);
+                        };
+
+                        const sourceSelectPanel = document.getElementById('sourceSelectPanel')
+                        sourceSelectPanel.style.display = 'block'
+                    }
+                    document.getElementById('btn-camera-use').addEventListener('click', () => {
+                        activeCamera();
+                        startCapture(codeReader,selectedDeviceId);
+                    })
+
+                    document.getElementById('btn-scanner-use').addEventListener('click', () => {
+                        activeScanner();
+                        codeReader.reset();
+                    })
+                })
+                .catch((err) => {
+                    console.error(err)
+                })
+        })
+
+        function activeCamera(){
+            $('.code-input').val('');
+            $('.scan-group').hide();
+            $('.scan-use').removeClass('active');
+            $('.camera-group').show();
+            $('.camera-use').addClass('active');
+        }
+
+        function activeScanner(){
+            $('.code-input').val('');
+            $('.camera-group').hide();
+            $('.camera-use').removeClass('active');
+            $('.scan-group').show();
+            $('.scan-use').addClass('active').focus();
+        }
+
+        function startCapture(codeReader, selectedDeviceId){
+            codeReader.reset()
+            codeReader.decodeFromVideoDevice(selectedDeviceId, 'video', (result, err) => {
+                if (result) {
+                    document.getElementsByClassName('camera-use')[0].value = result.text;
+                    toastr.success(
+                        "El código de barras se ha leído correctamente",
+                        'Bien',
+                        {preventDuplicates:true}
+                    );
+                }
+                if (err && !(err instanceof ZXing.NotFoundException)) {
+                    console.error(err)
+                    document.getElementsByClassName('camera-use')[0].value = '';
+                    toastr.error("El código de barras no se ha leído correctamente", 'aviso');
+                }
+            })
+        }
+
+    </script>
+
+{% endblock %}

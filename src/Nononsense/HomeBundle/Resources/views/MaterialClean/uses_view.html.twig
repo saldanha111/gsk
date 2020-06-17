@@ -1,0 +1,295 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}DOCXPRESSO | {{ 'Homepage'|trans }} {% endblock %}
+{% block head %}
+    {{ parent() }}
+{% endblock %}
+{% block main_title %} Utilización de material{% endblock %}
+{% block content %}
+
+    <div class="wrapper wrapper-content">
+        <div class="row">
+            {% for flashMessage in app.session.flashbag.get('error') %}
+                <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+                    <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                    {{ flashMessage }}
+                </div>
+                <br>
+            {% endfor %}
+            {% for flashMessage in app.session.flashbag.get('message') %}
+                <div class="alert alert-success alert-dismissable" style="margin: 10px 16px 0 16px">
+                    <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                    <i class="fa fa-check fa-3x" aria-hidden="true"></i> {{ flashMessage }}
+                </div>
+                <br>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="wrapper-content">
+        <form class="form-horizontal" id="form_item" action="{{ path('nononsense_mclean_uses_save',{'id': code}) }}" method="POST">
+            <div class="row">
+                <div class="form-group">
+                    <label class="col-md-2 col-sm-4 control-label">Código asociado</label>
+                    <div class="col-sm-7">
+                        <input type="text" name="code" class="form-control" required="required" readonly="readonly"
+                               value="{{ code }}">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-2 col-sm-4 control-label">Centro de trabajo</label>
+                    <div class="col-sm-7">
+                        <input type="text" name="center" class="form-control" required="required" readonly="readonly"
+                               value="{{ center.name }}">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-2 col-sm-4 control-label">Material</label>
+                    <div class="col-sm-7">
+                        <input type="text" name="material" class="form-control" required="required" readonly="readonly"
+                               value="{{ material.name }}">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-2 col-sm-4 control-label">Fecha de limpieza</label>
+                    <div class="col-sm-7">
+                        <input type="text" name="clean-date" class="form-control" required="required" readonly="readonly"
+                               value="{{ cleanDate }}">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-2 col-sm-4 control-label">Caduca</label>
+                    <div class="col-sm-7">
+                        <input type="text" name="expiration-date" class="form-control" required="required" readonly="readonly"
+                               value="{{ cleanExpirationDate }}">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-2 col-sm-4 control-label">Limpieza realizada por</label>
+                    <div class="col-sm-7">
+                        <input type="text" name="clean-user" class="form-control" required="required" readonly="readonly"
+                               value="{{ cleanUser.name }}">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-2 col-sm-4 control-label">Fecha de utilización</label>
+                    <div class="col-sm-7">
+                        <input type="text" name="uses-date" class="form-control" required="required" readonly="readonly"
+                               value="{{ usesDate }}">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-2 col-sm-4 control-label">Número de lote</label>
+                    <div class="col-sm-7">
+                        <input type="text" name="lot-code" class="form-control lot-code-input" required="required">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-2 hidden-sm hidden-xs control-label"></label>
+                    <div class="col-md-3 col-sm-4 col-xs-6">
+                        <button id="btn-scanner-use" type="button" class="btn btn-primary">Escanear con scanner</button>
+                    </div>
+                    <div class="col-md-3 col-sm-4 col-xs-6">
+                        <button id="btn-camera-use" type="button" class="btn btn-primary">Escanear con camara</button>
+                    </div>
+                </div>
+                <div class="form-group camera-group" style="display:none;">
+                    <label class="col-md-2 hidden-sm hidden-xs control-label"></label>
+                    <div class="col-lg-2 col-md-4 col-sm-12">
+                        <video id="video" style="border: 1px solid gray;"></video>
+                    </div>
+                    <div class="clearfix"></div>
+                    <label class="col-md-2 hidden-sm hidden-xs control-label">Selecciona la Cámara:</label>
+                    <div class="col-md-10 col-xs-12">
+                        <div id="sourceSelectPanel" class="form-group" style="display:none">
+                            <select id="sourceSelect" class="form-control" style="max-width:400px"></select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-2 col-sm-4 control-label">Firma</label>
+                    <div class="col-sm-7">
+                        <div id="signature-pad" class="input-group">
+                            <canvas width="300" height="150"
+                                    style="touch-action: none; border: 2px solid #eee; box-shadow: 0px 0px 6px 1px rgba(80, 90, 100, 0.5)"></canvas>
+                        </div>
+                        <input type="hidden" id="firma" name="firma"/>
+                        <a href="#" class="btn btn-primary" id="borrar-firma">Limpiar firma</a>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group">
+                    <div class="col-xs-12">
+                        <a href="#" class="btn btn-primary pull-right btn-submit">
+                            <i class="fa fa-floppy-o" aria-hidden="true"></i> Registrar verificación
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+    </div>
+
+{% endblock %}
+{% block scripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/plugins/signature-pad/signature-pad.min.js') }}"></script>
+    <script>
+        $(function () {
+
+            toastr.options = {
+                "closeButton": true,
+                "debug": false,
+                "progressBar": true,
+                "positionClass": "toast-top-center",
+                "onclick": null,
+                "showDuration": "400",
+                "hideDuration": "1000",
+                "timeOut": "7000",
+                "extendedTimeOut": "1000",
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut"
+            }
+
+            ActivateMenu('admin_uses');
+            $('#side-menu').metisMenu();
+
+            const canvas = document.querySelector("canvas");
+            const signaturePad = new SignaturePad(canvas);
+
+            $(document).on('click', '.btn-submit', function (e) {
+                e.preventDefault();
+                let error = false;
+                $("#firma").val(signaturePad.toDataURL()) // save image as PNG
+
+                if (!checkSignature(signaturePad)) {
+                    toastr.error("Debe rellenar una fima, no puede dejar el cuadro en blanco", 'aviso');
+                    error = true;
+                }
+
+                if (!$('.lot-code-input').val()) {
+                    toastr.error("Debe marcar un código de lote.", 'aviso');
+                    error = true;
+                }
+
+                if(!error){
+                    saveVerification();
+                }
+            });
+
+            $(document).on('click','#borrar-firma', function (e) {
+                e.preventDefault();
+                signaturePad.clear();
+            });
+
+            function checkSignature(signaturePad){
+                return !signaturePad.isEmpty();
+            }
+
+            function saveVerification(){
+                toastr.info(
+                    '<br />' +
+                    '<button type="button" id="confirm-save-use" class="btn btn-success">Si</button>' +
+                    '&nbsp;&nbsp;&nbsp;' +
+                    '<button type="button" id="cancel-save-use" class="btn btn-danger">No</button>',
+                    '¿Quieres registrar verificación del material?',
+                    {
+                        allowHtml: true,
+                        timeOut: 0,
+                        extendedTimeOut:0,
+                        preventDuplicates:true,
+                        tapToDismiss: false,
+                        progressBar: false,
+                        closeButton: true,
+                        onShown: function (toast) {
+                            $(document).on('click','#confirm-save-use',function(){
+                                $('#form_item').submit();
+                            });
+                            $(document).on('click','#cancel-save-use',function(){
+                                $('.toast-close-button').trigger('click');
+                            });
+                        }
+                    }
+                );
+            }
+
+        });
+    </script>
+    <script type="text/javascript" src="{{ asset('js/barcode-reader.min.js') }}"></script>
+    <script>
+        window.addEventListener('load', function () {
+            let selectedDeviceId;
+            const codeReader = new ZXing.BrowserMultiFormatReader()
+            codeReader.getVideoInputDevices()
+                .then((videoInputDevices) => {
+                    const sourceSelect = document.getElementById('sourceSelect')
+                    selectedDeviceId = videoInputDevices[0].deviceId
+                    if (videoInputDevices.length >= 1) {
+                        videoInputDevices.forEach((element) => {
+                            const sourceOption = document.createElement('option')
+                            sourceOption.text = element.label
+                            if(element.label.indexOf('back')){
+                                sourceOption.setAttribute('selected','selected');
+                                selectedDeviceId = element.deviceId
+                            }
+                            sourceOption.value = element.deviceId
+                            sourceSelect.appendChild(sourceOption)
+                        })
+
+                        sourceSelect.onchange = () => {
+                            selectedDeviceId = sourceSelect.value;
+                            startCapture(codeReader,selectedDeviceId);
+                        };
+
+                        const sourceSelectPanel = document.getElementById('sourceSelectPanel')
+                        sourceSelectPanel.style.display = 'block'
+                    }
+                    document.getElementById('btn-camera-use').addEventListener('click', () => {
+                        activeCamera();
+                        startCapture(codeReader,selectedDeviceId);
+                    })
+
+                    document.getElementById('btn-scanner-use').addEventListener('click', () => {
+                        activeScanner();
+                        codeReader.reset();
+                    })
+                })
+                .catch((err) => {
+                    console.error(err)
+                })
+        })
+
+        function activeCamera(){
+            $('.lot-code-input').val('');
+            $('.camera-group').show();
+        }
+
+        function activeScanner(){
+            const codeInput = $('.lot-code-input');
+            codeInput.val('');
+            codeInput.focus();
+            $('.camera-group').hide();
+
+        }
+
+        function startCapture(codeReader, selectedDeviceId){
+            codeReader.reset()
+            codeReader.decodeFromVideoDevice(selectedDeviceId, 'video', (result, err) => {
+                if (result) {
+                    const element = document.getElementsByClassName('lot-code-input')[0]
+                    element.value = result.text
+                    codeReader.reset()
+                    const groupElement = document.getElementsByClassName('camera-group')[0]
+                    groupElement.style.display = 'none';
+                }
+                if (err && !(err instanceof ZXing.NotFoundException)) {
+                    console.error(err)
+                    const element = document.getElementsByClassName('lot-code-input')[0]
+                    element.value = ''
+                    toastr.error("El código de barras no se ha leído correctamente", 'aviso');
+                }
+            })
+        }
+    </script>
+{% endblock %}

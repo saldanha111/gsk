@@ -6,8 +6,15 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="mc_cleans")
- * @ORM\Entity(repositoryClass="Nononsense\HomeBundle\Entity\MaterialCleanCentersRepository")
+ * @ORM\Table(
+ *      name="mc_cleans",
+ *      indexes={
+ *          @ORM\Index(columns={"code"}),
+ *          @ORM\Index(columns={"lot_number"}),
+ *          @ORM\Index(columns={"status"}),
+ *      }
+ * )
+ * @ORM\Entity(repositoryClass="Nononsense\HomeBundle\Entity\MaterialCleanCleansRepository")
  * @ORM\HasLifecycleCallbacks
  */
 class MaterialCleanCleans
@@ -20,8 +27,6 @@ class MaterialCleanCleans
     protected $id;
 
     /**
-     * @var string
-     *
      * @ORM\Column(name="code", type="string", length=255,  nullable=false)
      */
     protected $code;
@@ -29,7 +34,7 @@ class MaterialCleanCleans
     /**
      * @var string
      *
-     * @ORM\Column(name="signature", type="text", nullable=false)
+     * @ORM\Column(name="clean_signature", type="text", nullable=false)
      */
     protected $signature;
 
@@ -39,27 +44,86 @@ class MaterialCleanCleans
     protected $cleanDate;
 
     /**
-     * @ORM\Column(name="clean_expired_date", type="datetime",  nullable=false)
+     * @ORM\Column(name="clean_expired_date", type="datetime", nullable=false)
      */
     protected $cleanExpiredDate;
 
     /**
-     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\MaterialCleanCenters", inversedBy="cleans")
-     * @ORM\JoinColumn(name="id_center", referencedColumnName="id")
+     * @ORM\Column(name="lot_number", type="string", nullable=true)
      */
-    private $center;
+    protected $lotNumber;
+
+    /**
+     * @ORM\Column(name="verification_date", type="datetime", nullable=true)
+     */
+    protected $verificationDate;
+
+    /**
+     * @ORM\Column(name="verification_signature", type="text", nullable=true)
+     */
+    protected $verificationSignature;
+
+    /**
+     * @ORM\Column(name="dirty_material_date", type="datetime", nullable=true)
+     */
+    protected $dirtyMaterialDate;
+
+    /**
+     * @ORM\Column(name="dirty_material_signature", type="text", nullable=true)
+     */
+    protected $dirtyMaterialSignature;
+
+    /**
+     * @ORM\Column(name="review_date", type="datetime", nullable=true)
+     */
+    protected $reviewDate;
+
+    /**
+     * @ORM\Column(name="review_signature", type="text", nullable=true)
+     */
+    protected $reviewSignature;
+
+    /**
+     * @ORM\Column(name="status", type="integer",  nullable=false, options={"default" : 1})
+     */
+    protected $status;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\MaterialCleanCenters", inversedBy="cleans")
+     * @ORM\JoinColumn(name="id_center", referencedColumnName="id", nullable=false)
+     */
+    protected $center;
 
     /**
      * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\MaterialCleanMaterials", inversedBy="cleans")
-     * @ORM\JoinColumn(name="id_material", referencedColumnName="id")
+     * @ORM\JoinColumn(name="id_material", referencedColumnName="id", nullable=false)
      */
-    private $material;
+    protected $material;
 
     /**
      * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="materialClean")
-     * @ORM\JoinColumn(name="id_user", referencedColumnName="id")
+     * @ORM\JoinColumn(name="clean_user", referencedColumnName="id", nullable=false)
      */
-    private $user;
+    protected $cleanUser;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="materialVerification")
+     * @ORM\JoinColumn(name="verification_user", referencedColumnName="id", nullable=true)
+     */
+    protected $verificationUser;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="materialDirty")
+     * @ORM\JoinColumn(name="dirty_material_user", referencedColumnName="id", nullable=true)
+     */
+    protected $dirtyMaterialUser;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="materialReview")
+     * @ORM\JoinColumn(name="review_user", referencedColumnName="id", nullable=true)
+     */
+    protected $reviewUser;
+
 
     /**
      * Get id
@@ -164,6 +228,167 @@ class MaterialCleanCleans
     }
 
     /**
+     * Set lotNumber
+     *
+     * @param string $lotNumber
+     * @return MaterialCleanCleans
+     */
+    public function setLotNumber($lotNumber)
+    {
+        $this->lotNumber = $lotNumber;
+
+        return $this;
+    }
+
+    /**
+     * Get lotNumber
+     *
+     * @return string 
+     */
+    public function getLotNumber()
+    {
+        return $this->lotNumber;
+    }
+
+    /**
+     * Set verificationDate
+     *
+     * @param \DateTime $verificationDate
+     * @return MaterialCleanCleans
+     */
+    public function setVerificationDate($verificationDate)
+    {
+        $this->verificationDate = $verificationDate;
+
+        return $this;
+    }
+
+    /**
+     * Get verificationDate
+     *
+     * @return \DateTime 
+     */
+    public function getVerificationDate()
+    {
+        return $this->verificationDate;
+    }
+
+    /**
+     * Set verificationSignature
+     *
+     * @param string $verificationSignature
+     * @return MaterialCleanCleans
+     */
+    public function setVerificationSignature($verificationSignature)
+    {
+        $this->verificationSignature = $verificationSignature;
+
+        return $this;
+    }
+
+    /**
+     * Get verificationSignature
+     *
+     * @return string 
+     */
+    public function getVerificationSignature()
+    {
+        return $this->verificationSignature;
+    }
+
+    /**
+     * Set dirtyMaterialDate
+     *
+     * @param \DateTime $dirtyMaterialDate
+     * @return MaterialCleanCleans
+     */
+    public function setDirtyMaterialDate($dirtyMaterialDate)
+    {
+        $this->dirtyMaterialDate = $dirtyMaterialDate;
+
+        return $this;
+    }
+
+    /**
+     * Get dirtyMaterialDate
+     *
+     * @return \DateTime 
+     */
+    public function getDirtyMaterialDate()
+    {
+        return $this->dirtyMaterialDate;
+    }
+
+    /**
+     * Set dirtyMaterialSignature
+     *
+     * @param string $dirtyMaterialSignature
+     * @return MaterialCleanCleans
+     */
+    public function setDirtyMaterialSignature($dirtyMaterialSignature)
+    {
+        $this->dirtyMaterialSignature = $dirtyMaterialSignature;
+
+        return $this;
+    }
+
+    /**
+     * Get dirtyMaterialSignature
+     *
+     * @return string 
+     */
+    public function getDirtyMaterialSignature()
+    {
+        return $this->dirtyMaterialSignature;
+    }
+
+    /**
+     * Set reviewDate
+     *
+     * @param \DateTime $reviewDate
+     * @return MaterialCleanCleans
+     */
+    public function setReviewDate($reviewDate)
+    {
+        $this->reviewDate = $reviewDate;
+
+        return $this;
+    }
+
+    /**
+     * Get reviewDate
+     *
+     * @return \DateTime 
+     */
+    public function getReviewDate()
+    {
+        return $this->reviewDate;
+    }
+
+    /**
+     * Set reviewSignature
+     *
+     * @param string $reviewSignature
+     * @return MaterialCleanCleans
+     */
+    public function setReviewSignature($reviewSignature)
+    {
+        $this->reviewSignature = $reviewSignature;
+
+        return $this;
+    }
+
+    /**
+     * Get reviewSignature
+     *
+     * @return string 
+     */
+    public function getReviewSignature()
+    {
+        return $this->reviewSignature;
+    }
+
+    /**
      * Set center
      *
      * @param \Nononsense\HomeBundle\Entity\MaterialCleanCenters $center
@@ -210,25 +435,117 @@ class MaterialCleanCleans
     }
 
     /**
-     * Set user
+     * Set cleanUser
      *
-     * @param \Nononsense\UserBundle\Entity\Users $user
+     * @param \Nononsense\UserBundle\Entity\Users $cleanUser
      * @return MaterialCleanCleans
      */
-    public function setUser(\Nononsense\UserBundle\Entity\Users $user = null)
+    public function setCleanUser(\Nononsense\UserBundle\Entity\Users $cleanUser)
     {
-        $this->user = $user;
+        $this->cleanUser = $cleanUser;
 
         return $this;
     }
 
     /**
-     * Get user
+     * Get cleanUser
      *
      * @return \Nononsense\UserBundle\Entity\Users 
      */
-    public function getUser()
+    public function getCleanUser()
     {
-        return $this->user;
+        return $this->cleanUser;
+    }
+
+    /**
+     * Set verificationUser
+     *
+     * @param \Nononsense\UserBundle\Entity\Users $verificationUser
+     * @return MaterialCleanCleans
+     */
+    public function setVerificationUser(\Nononsense\UserBundle\Entity\Users $verificationUser = null)
+    {
+        $this->verificationUser = $verificationUser;
+
+        return $this;
+    }
+
+    /**
+     * Get verificationUser
+     *
+     * @return \Nononsense\UserBundle\Entity\Users 
+     */
+    public function getVerificationUser()
+    {
+        return $this->verificationUser;
+    }
+
+    /**
+     * Set dirtyMaterialUser
+     *
+     * @param \Nononsense\UserBundle\Entity\Users $dirtyMaterialUser
+     * @return MaterialCleanCleans
+     */
+    public function setDirtyMaterialUser(\Nononsense\UserBundle\Entity\Users $dirtyMaterialUser = null)
+    {
+        $this->dirtyMaterialUser = $dirtyMaterialUser;
+
+        return $this;
+    }
+
+    /**
+     * Get dirtyMaterialUser
+     *
+     * @return \Nononsense\UserBundle\Entity\Users 
+     */
+    public function getDirtyMaterialUser()
+    {
+        return $this->dirtyMaterialUser;
+    }
+
+    /**
+     * Set reviewUser
+     *
+     * @param \Nononsense\UserBundle\Entity\Users $reviewUser
+     * @return MaterialCleanCleans
+     */
+    public function setReviewUser(\Nononsense\UserBundle\Entity\Users $reviewUser = null)
+    {
+        $this->reviewUser = $reviewUser;
+
+        return $this;
+    }
+
+    /**
+     * Get reviewUser
+     *
+     * @return \Nononsense\UserBundle\Entity\Users 
+     */
+    public function getReviewUser()
+    {
+        return $this->reviewUser;
+    }
+
+    /**
+     * Set status
+     *
+     * @param integer $status
+     * @return MaterialCleanCleans
+     */
+    public function setStatus($status)
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    /**
+     * Get status
+     *
+     * @return integer 
+     */
+    public function getStatus()
+    {
+        return $this->status;
     }
 }
