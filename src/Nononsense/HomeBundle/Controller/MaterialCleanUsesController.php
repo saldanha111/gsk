@@ -160,7 +160,7 @@ class MaterialCleanUsesController extends Controller
         // Si el material no está limpio
         if($materialCleanClean->getStatus() != 1){
             $statusName = $materialCleanRepository->getStatusName($materialCleanClean->getStatus());
-            $this->get('session')->getFlashBag()->add('message', "El estado del material es: {$statusName}");
+            $this->get('session')->getFlashBag()->add('error', "El estado del material es: {$statusName}");
             $error = true;
         }
 

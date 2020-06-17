@@ -116,17 +116,18 @@
                     </div>
                 </div>
             </div>
-            <div class="row">
-                <div class="form-group">
-                    <div class="col-xs-12">
-                        <a href="#" class="btn btn-primary pull-right btn-submit">
-                            <i class="fa fa-floppy-o" aria-hidden="true"></i> Registrar verificación
-                        </a>
+            {% if not error %}
+                <div class="row">
+                    <div class="form-group">
+                        <div class="col-xs-12">
+                            <a href="#" class="btn btn-primary pull-right btn-submit">
+                                <i class="fa fa-floppy-o" aria-hidden="true"></i> Registrar verificación
+                            </a>
+                        </div>
                     </div>
                 </div>
-            </div>
+            {% endif %}
         </form>
-
     </div>
 
 {% endblock %}
