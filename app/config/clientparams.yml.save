@@ -1,0 +1,47 @@
+sparameters:
+    database_driver: pdo_mysql
+    database_host: localhost
+    database_port: null
+    database_name: gsk
+    database_user: GSKDocxpresso
+    database_password: docx_GSKBlock_2019
+    locale: en
+    date_format: dd/mm/yyyy
+    ga_tracking: UA-xxxxx-x
+    #REST API parameters
+    apikey: "f5173697b6497a9fc7ec96c24913e04600290192ce828db7882ec8f4a7e652330435f39ca502"
+    security_level: 2
+    apikey_expiration: 86400
+    default_redirect_domain: "https://nodalblock.a.docxpresso.com"
+    docxpresso_installation: "https://nodalblock.a.docxpresso.com"
+    cm_installation: "https://gsk.docxpresso.org/"
+    #cloud storage
+    cloud_storage: false
+    #Docusign plugin
+    docusign: 1
+    docusign_user: "eduardo@nononsenselabs.com"
+    docusign_pwd: "!guillerman2001"
+    docusign_integrator_key: "3da3694f-64ef-4fc5-b889-3f52ef41efe4"
+    docusign_host: "https://demo.docusign.net/restapi"
+    docusign_API: C:\xampp\htdocs\docusign\docusignAPI\vendor\autoload.php
+
+    # ldap
+    ldap_enabled: 0
+    ldap_preregistered: 0
+    ldap_host:
+    ldap_port: 636
+    ldap_version: 3
+    ldap_ssl: true
+    ldap_tls: false
+    ldap_base_dn: dc=o,dc=o,dc=o,dc=o
+    ldap_search_dn: cn=o,ou=o,ou=o,dc=es,dc=o,dc=o,dc=o
+    ldap_search_password: o
+    ldap_default_roles: [ROLE_USER]
+    ldap_uidKey: CN
+    ldap_filter: (sAMAccountName={username})
+
+    #OARO
+    api_key_api_3: b1f8f79b51bbd572dae274a07ec08ef14281abd4847b0574c1d0c676010da67a
+    url_api_3: https://api.nodalblock.com/es
+    url_scagle: http://scagle.com/search/private/
+
