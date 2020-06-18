@@ -1,0 +1,296 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}DOCXPRESSO | {{'Homepage'|trans}} {% endblock %}
+{% block head %}
+{{ parent() }}
+<link rel="stylesheet" href="{{ asset('/css/plugins/datapicker/datepicker3.css') }}">
+{% endblock %}
+{% block main_title %} Trazabilidad del material{% endblock %}
+{% block content %}
+
+<div class="wrapper wrapper-content">
+    <div class="row">
+        <div class="col-sm-12">
+            <div>
+                <div class="row">
+                    {% for flashMessage in app.session.flashbag.get('error') %}
+                        <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+                            <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                            {{ flashMessage }}
+                        </div>
+                        <br>
+                    {% endfor %}
+                    {% for flashMessage in app.session.flashbag.get('message') %}
+                        <div class="alert alert-success alert-dismissable" style="margin: 10px 16px 0 16px">
+                            <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                            {{ flashMessage }}
+                        </div>
+                        <br>
+                    {% endfor %}
+                    <div class="col-xs-12">
+                        <form class="form-horizontal" id="form_item" action="{{ path('nononsense_mclean_traces_list')}}" method="GET">
+                            <input type="hidden" id='url_product_list' value="{{ path('nononsense_mclean_traces_list')}}" />
+                            <input type="hidden" id='url_product_delete' value="{{ path('nononsense_products_delete',{'id': 'xxx'}) }}" />
+                            <input type="hidden" id='url_product_destroy' value="{{ path('nononsense_products_destroy',{'id': 'xxx'}) }}" />
+                            <input type="hidden" id='a_excel' name='a_excel' />
+                            <div class="form-group">
+                                <label class="col-sm-1 control-label item_filter">Material</label>
+                                <div class="col-sm-2 item_filter">
+                                    <input type="text" name="material" class="form-control" value="{{filters.material is defined ? filters.material : ''}}">
+                                </div>
+
+                                <label class="col-sm-1 control-label item_filter">Lote</label>
+                                <div class="col-sm-2 item_filter">
+                                    <input type="text" name="lot" class="form-control" value="{{filters.lot is defined ? filters.lot : ''}}">
+                                </div>
+
+                                <label class="col-sm-1 control-label item_filter">Usuario</label>
+                                <div class="col-sm-2 item_filter">
+                                    <input type="text" name="user" class="form-control" value="{{filters.user is defined ? filters.user : ''}}">
+                                </div>
+
+                                <label class="col-sm-1 control-label item_filter">Estado</label>
+                                <div class="col-sm-2 item_filter">
+                                    <select class="form-control" name="state">
+                                        <option value="">Todos</option>
+                                        {% for key,state in status %}
+                                            <option value="{{key}}" {{ filters.state is defined and filters.state is not null and filters.state==key ? 'selected="selected"' : ''}}>{{state}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-1 control-label item_filter">Fecha de limpieza</label>
+                                <div class="col-md-3 col-sm-4 item_filter">
+                                    <div class="input-group input-daterange">
+                                        <input type="text" name="clean_date_start" class="form-control" value="{{filters.clean_date_start is defined ? filters.clean_date_start : ''}}">
+                                        <div class="input-group-addon">hasta</div>
+                                        <input type="text" name="clean_date_end" class="form-control" value="{{filters.clean_date_end is defined ? filters.clean_date_end : ''}}">
+                                    </div>
+                                </div>
+                                <label class="col-sm-1 control-label item_filter">Fecha de utilización</label>
+                                <div class="col-md-3 col-sm-4 item_filter">
+                                    <div class="input-group input-daterange">
+                                        <input type="text" name="verification_date_start" class="form-control" value="{{filters.verification_date_start is defined ? filters.verification_date_start : ''}}">
+                                        <div class="input-group-addon">hasta</div>
+                                        <input type="text" name="verification_date_end" class="form-control" value="{{filters.verification_date_end is defined ? filters.verification_date_end : ''}}">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-1 item_filter">
+                                    <button type="button" onclick="javascript:filtering();" class="btn btn-primary">Filtrar</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12">
+                        {% if formAction is defined %}
+                                <form class="form-vertical" id="form_register" action="{{ formAction }}" method="POST">
+                                    <div class="form-group">
+                                        <a href="#" class="btn btn-primary show-signature">
+                                            <i class="fa fa-floppy-o" aria-hidden="true"></i> {{ buttonName }}
+                                        </a>
+                                    </div>
+                                    <div class="form-group signature-box" style="display:none;">
+                                        <label class="control-label">Firma</label>
+                                        <div id="signature-pad" class="input-group">
+                                            <canvas width="300" height="150"
+                                                    style="touch-action: none; border: 2px solid #eee; box-shadow: 0px 0px 6px 1px rgba(80, 90, 100, 0.5)"></canvas>
+                                        </div>
+                                        <input type="hidden" id="firma" name="firma"/>
+                                        <a href="#" class="btn btn-primary" id="borrar-firma">Limpiar firma</a>
+                                        <a href="#" class="btn btn-primary" id="send-firma">Enviar</a>
+                                    </div>
+                                </form>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <table id="inProcessParcial" class="table table-striped">
+                            <thead>
+                            <tr>
+                                <th>Lote</th>
+                                <th>Material</th>
+                                <th>Estado</th>
+                                <th>Identificador</th>
+                                <th>Usuario Limpieza</th>
+                                <th>Fecha limpieza</th>
+                                <th>Fecha de caducidad</th>
+                                <th>Usuario verificación</th>
+                                <th>Fecha verificación</th>
+                                <th>Usuario revisión</th>
+                                <th>Fecha revisión</th>
+                                <th>Usuario material sucio</th>
+                                <th>Fecha material sucio</th>
+                            </tr>
+                            </thead>
+                            {% if items is defined %}
+                                {% for item in items %}
+                                    <tr>
+                                        <td>{{item.lotNumber}}</td>
+                                        <td>{{item.material.name}}</td>
+                                        <td>{{status[item.status]}}</td>
+                                        <td>{{item.code}}</td>
+                                        <td>{{item.cleanUser.name}}</td>
+                                        <td>{{item.cleanDate | date("d-m-Y h:i:s")}}</td>
+                                        <td>{{item.cleanExpiredDate | date("d-m-Y h:i:s")}}</td>
+                                        <td>
+                                            {% if item.verificationUser.name is defined %}
+                                                {{ item.verificationUser.name }}
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if item.verificationDate is defined and item.verificationDate | date("Y") > 0 %}
+                                                {{ item.verificationDate | date("d-m-Y") }}
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if item.reviewUser.name is defined %}
+                                                {{item.reviewUser.name}}
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if item.reviewDate is defined and item.reviewDate | date("Y") > 0 %}
+                                                {{item.reviewDate | date("d-m-Y")}}
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if item.dirtyMaterialUser.name is defined %}
+                                                {{item.dirtyMaterialUser.name}}
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if item.dirtyMaterialDate is defined and item.dirtyMaterialDate | date("Y") > 0 %}
+                                                {{item.dirtyMaterialDate | date("d-m-Y")}}
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            {% endif %}
+                        </table>
+
+                        {% if count==0 %}
+                            <br><b>No se han encontrado datos disponibles</b>
+                        {% endif %}
+                        {% if pagination is defined and pagination.needed %}
+                            {% include '::pagination2.html.twig' %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+{{ parent() }}
+<script src="{{ asset('js/plugins/signature-pad/signature-pad.min.js') }}"></script>
+<script src="{{ asset('/js/plugins/datapicker/bootstrap-datepicker.js') }}"></script>
+<script src="{{ asset('/js/plugins/datapicker/locales/bootstrap-datepicker.es.js') }}" charset="UTF-8"></script>
+<script>
+    $(function () {
+
+        toastr.options = {
+            "closeButton": true,
+            "debug": false,
+            "progressBar": true,
+            "positionClass": "toast-top-center",
+            "onclick": null,
+            "showDuration": "400",
+            "hideDuration": "1000",
+            "timeOut": "7000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        }
+
+        ActivateMenu('admin_centers');
+        $('#side-menu').metisMenu();
+
+        $(document).on('click','#btn-search',function(){
+            filtering();
+        });
+
+        $('.input-daterange').datepicker({
+            orientation: 'auto',
+            format: 'dd-mm-yyyy',
+            language: 'es'
+        });
+
+        $(document).on('click', '.show-signature', function(){
+            $('.signature-box').toggle();
+        });
+
+        const canvas = document.querySelector("canvas");
+        const signaturePad = new SignaturePad(canvas);
+
+        $(document).on('click', '#send-firma', function (e) {
+            e.preventDefault();
+            let error = false;
+            $("#firma").val(signaturePad.toDataURL()) // save image as PNG
+
+            if (!checkSignature(signaturePad)) {
+                toastr.error("Debe rellenar una fima, no puede dejar el cuadro en blanco", 'aviso');
+                error = true;
+            }
+
+            if(!error){
+                saveVerification();
+            }
+        });
+
+        $(document).on('click','#borrar-firma', function (e) {
+            e.preventDefault();
+            signaturePad.clear();
+        });
+
+        function checkSignature(signaturePad){
+            return !signaturePad.isEmpty();
+        }
+
+        function saveVerification(){
+            toastr.info(
+                '<br />' +
+                '<button type="button" id="confirm-save-use" class="btn btn-success">Si</button>' +
+                '&nbsp;&nbsp;&nbsp;' +
+                '<button type="button" id="cancel-save-use" class="btn btn-danger">No</button>',
+                'Se va a cambiar el estado de todo el material del lote. ¿Estás seguro? ',
+                {
+                    allowHtml: true,
+                    timeOut: 0,
+                    extendedTimeOut:0,
+                    preventDuplicates:true,
+                    tapToDismiss: false,
+                    progressBar: false,
+                    closeButton: true,
+                    onShown: function (toast) {
+                        $(document).on('click','#confirm-save-use',function(){
+                            $('#form_register').submit();
+                        });
+                        $(document).on('click','#cancel-save-use',function(){
+                            $('.toast-close-button').trigger('click');
+                        });
+                    }
+                }
+            );
+        }
+
+    });
+
+    function filtering(){
+        let url_product_list = $('#url_mc_center_list').val();
+        let form = $('#form_item');
+        form.attr("action", url_product_list);
+        form.attr("target","_self");
+        form.submit();
+    }
+
+</script>
+{% endblock %}
+                        

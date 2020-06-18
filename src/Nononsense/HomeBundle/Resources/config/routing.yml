@@ -588,3 +588,14 @@ nononsense_mclean_uses_save:
     path: /mclean/uses/save/{id}
     defaults: { _controller: NononsenseHomeBundle:MaterialCleanUses:save}
 
+nononsense_mclean_traces_list:
+    path: /mclean/traces
+    defaults: { _controller: NononsenseHomeBundle:MaterialCleanTraces:list}
+
+nononsense_mclean_traces_dirty:
+    path: /mclean/traces/dirty/{lot}
+    defaults: { _controller: NononsenseHomeBundle:MaterialCleanTraces:markDirty}
+
+nononsense_mclean_traces_review:
+    path: /mclean/traces/review/{lot}
+    defaults: { _controller: NononsenseHomeBundle:MaterialCleanTraces:markReview}

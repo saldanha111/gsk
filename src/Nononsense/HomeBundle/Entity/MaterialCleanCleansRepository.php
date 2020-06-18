@@ -3,6 +3,9 @@
 namespace Nononsense\HomeBundle\Entity;
 
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\QueryBuilder;
 
 /**
  * MaterialCleanCleansRepository
@@ -30,4 +33,114 @@ class MaterialCleanCleansRepository extends EntityRepository
         }
         return 'Desconocido';
     }
+
+    /**
+     * @param array $filters
+     * @param int $paginate
+     * @return array|int|string
+     */
+    public function list($filters, $paginate=1)
+    {
+        $list = $this->createQueryBuilder('cle')
+            ->select('cle')
+            ->innerJoin('cle.material','mat')
+            ->innerJoin('cle.center','cen')
+            ->innerJoin('cle.cleanUser','clu')
+            ->leftJoin('cle.verificationUser','veu')
+            ->leftJoin('cle.dirtyMaterialUser','dmu')
+            ->leftJoin('cle.reviewUser','rvu')
+            ->orderBy('cle.id', 'DESC');
+
+        $list = self::fillFilersQuery($filters, $list);
+
+        if($paginate==1 && isset($filters["limit_from"])){
+            $list->setFirstResult($filters["limit_from"]*$filters["limit_many"])->setMaxResults($filters["limit_many"]);
+        }
+
+        $query = $list->getQuery();
+
+        return $query->getResult();
+    }
+
+    /**
+     * @param array $filters
+     * @return mixed
+     * @throws NoResultException
+     * @throws NonUniqueResultException
+     */
+    public function count($filters = array())
+    {
+        $list = $this->createQueryBuilder('cle')
+            ->select('COUNT(cle.id) as conta')
+            ->innerJoin('cl.idMaterial','mat')
+            ->innerJoin('cl.idCenter','cen')
+            ->innerJoin('cl.cleanUser','clu')
+            ->leftJoin('cl.verificationUser','veu')
+            ->leftJoin('cl.dirtyMaterialUser','dmu')
+            ->leftJoin('cl.reviewUser','rvu')
+            ->orderBy('mcc.id', 'DESC');
+
+        $list = self::fillFilersQuery($filters, $list);
+
+        $query = $list->getQuery();
+
+        return $query->getSingleResult()["conta"];
+    }
+
+    /**
+     * @param array $filters
+     * @param QueryBuilder $list
+     * @return QueryBuilder
+     */
+    private function fillFilersQuery($filters, $list){
+
+        if(!empty($filters)){
+            if(isset($filters["user"])){
+                $list->andWhere('clu.name like :user OR veu.name like :user OR dmu.name like :user OR rvu.name like :user');
+                $list->setParameter('user', '%' .$filters["user"] . '%');
+            }
+
+            if(isset($filters["material"])){
+                $list->andWhere('mat.name like :material');
+                $list->setParameter('material', '%' . $filters["material"] . '%');
+            }
+
+            if(isset($filters["lot"])){
+                $list->andWhere('cle.lotNumber = :lot');
+                $list->setParameter('lot', $filters["lot"]);
+            }
+
+            if(isset($filters["state"])){
+                $list->andWhere('cle.status = :state');
+                $list->setParameter('state', $filters["state"]);
+            }
+
+            if(isset($filters["clean_date_start"])){
+                $cleanStartDate = \DateTime::createFromFormat('d-m-Y H:i:s',$filters["clean_date_start"] . ' 00:00:00');
+                $list->andWhere('cle.cleanDate > :cleanStartDate');
+                $list->setParameter('cleanStartDate', $cleanStartDate);
+            }
+
+            if(isset($filters["clean_date_end"])){
+                $cleanEndDate = \DateTime::createFromFormat('d-m-Y H:i:s',$filters["clean_date_end"] . ' 23:59:59');
+                $list->andWhere('cle.cleanDate < :cleanEndDate');
+                $list->setParameter('cleanEndDate', $cleanEndDate);
+            }
+
+            if(isset($filters["verification_date_start"])){
+                $validateStartDate = \DateTime::createFromFormat('d-m-Y H:i:s',$filters["clean_date_start"] . ' 00:00:00');
+                $list->andWhere('cle.verificationDate > :validateStartDate');
+                $list->setParameter('validateStartDate', $validateStartDate);
+            }
+
+            if(isset($filters["verification_date_end"])){
+                $validateEndDate = \DateTime::createFromFormat('d-m-Y H:i:s',$filters["verification_date_end"] . ' 23:59:59');
+                $list->andWhere('cle.verificationDate < :validateEndDate');
+                $list->setParameter('validateEndDate', $validateEndDate);
+            }
+        }
+
+        return $list;
+    }
+
 }
