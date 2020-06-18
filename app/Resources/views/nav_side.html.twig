@@ -147,6 +147,9 @@
                     {% if 'mc_uses_scan' in array_subsecciones %}
                         <li id="admin_uses"><a href="{{path('nononsense_mclean_uses_scan')}}">{{'Utilización de material'|trans}}</a></li>
                     {% endif %}
+                    {% if 'mc_traces_list' in array_subsecciones %}
+                        <li id="admin_traces"><a href="{{path('nononsense_mclean_traces_list')}}">{{'Trazabilidad'|trans}}</a></li>
+                    {% endif %}
                 </ul>
             </li>
             {% endif %}
