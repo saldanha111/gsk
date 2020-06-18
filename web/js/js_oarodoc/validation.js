@@ -44,6 +44,8 @@ $( document ).ready(function() {
 			send_form("return");
 		}
 	});
+
+	$(".btn_clone_table").hide();
 });
 
 // Alertamos al usuario que se ha cambiado un campo previamente cargado por otro usuario y por tanto se va a pedir justificación
