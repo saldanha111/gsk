@@ -703,7 +703,7 @@ class RegistroValidationController extends Controller
         $mensaje = "Tiene un documento pendiente de verificar cancelación por parte de FLL";
         $arrayEnviosHechos = array();
         foreach ($enviosUser as $email) {
-            if ($this->_sendNotification($email, $baseURL, "", "", $subject, $mensaje)) {
+            if ($this->get('utilities')->sendNotification($email, $baseURL, "", "", $subject, $mensaje)) {
                 $arrayEnviosHechos[] = 'envio correcto de ' . $email;
             } else {
                 $arrayEnviosHechos[] = 'envio erroneo de ' . $email;
@@ -1108,7 +1108,7 @@ class RegistroValidationController extends Controller
         $message = "El registro con Id: " . $stepid . " ha sido cancelado en verificación, por favor revíselo o notifique a otro usuario para que revise dicha cancelación";
 
 
-        $this->_sendNotification($emailTo, $linkToEnProcess, $logo, $accion, $subject, $message);
+        $this->get('utilities')->sendNotification($emailTo, $linkToEnProcess, $logo, $accion, $subject, $message);
 
         $route = $this->container->get('router')->generate('nononsense_search');
 
@@ -1202,7 +1202,8 @@ class RegistroValidationController extends Controller
         $message = "El registro con Id: " . $stepid . " ha sido devuelto para edición, por favor revíselo o notifique a otro usuario para que revise dicha cumplimentación";
 
 
-        $this->_sendNotification($emailTo, $linkToEnProcess, $logo, $accion, $subject, $message);
+        $this->get('utilities')->sendNotification($emailTo, $linkToEnProcess, $logo, $accion, $subject, $message);
+
 
 
         $route = $this->container->get('router')->generate('nononsense_search');
@@ -1247,7 +1248,7 @@ class RegistroValidationController extends Controller
         $linkToEnProcess = $this->container->get('router')->generate('nononsense_search', array(),TRUE);
 
         foreach ($enviosUser as $email) {
-            if ($this->_sendNotification($email, $linkToEnProcess, "", "", $subject, $mensaje)) {
+            if ($this->get('utilities')->sendNotification($email, $linkToEnProcess, "", "", $subject, $mensaje)) {
                 $arrayEnviosHechos[] = 'envio correcto de ' . $email;
             } else {
                 $arrayEnviosHechos[] = 'envio erroneo de ' . $email;
@@ -1559,34 +1560,4 @@ class RegistroValidationController extends Controller
         ));
 
     }
-
-    private function _sendNotification($mailTo, $link, $logo, $accion, $subject, $message)
-    {
-        $mailLogger = new \Swift_Plugins_Loggers_ArrayLogger();
-        $this->get('mailer')->registerPlugin(new \Swift_Plugins_LoggerPlugin($mailLogger));
-        $email = \Swift_Message::newInstance()
-            ->setSubject($subject)
-            ->setFrom($this->container->getParameter('mailer_user'))
-            ->setTo($mailTo)
-            ->setBody(
-                $this->renderView(
-                    'NononsenseHomeBundle:Email:notificationUser.html.twig', array(
-                    'logo' => $logo,
-                    'accion' => $accion,
-                    'message' => $message,
-                    'link' => $link
-                )),
-                'text/html'
-            );
-        if ($this->get('mailer')->send($email)) {
-            //echo '[SWIFTMAILER] sent email to ' . $mailTo;
-            //echo 'LOG: ' . $mailLogger->dump();
-            return true;
-        } else {
-            //echo '[SWIFTMAILER] not sending email: ' . $mailLogger->dump();
-            return false;
-        }
-
-    }
-
 }

@@ -796,7 +796,7 @@ class RecordsController extends Controller
                     $mensaje='El Documento con ID '.$record->getId().' está pendiente de revisión por su parte. Para poder revisarlo puede acceder a "Mis documentos pendientes", buscar el documento y pulsar en Firmar';
                     $baseURL=$this->container->get('router')->generate('nononsense_records_link', array("id" => $record->getId()),TRUE);
                     
-                    $this->_sendNotification($email, $baseURL, "", "", $subject, $mensaje);
+                    $this->get('utilities')->sendNotification($email, $baseURL, "", "", $subject, $mensaje);
                 }
             }
         }
@@ -911,7 +911,7 @@ class RecordsController extends Controller
             $mensaje='El Documento con ID '.$record->getId().' ha sido devuelto por el usuario '.$user->getName().' y está pendiente de revisión.<br>La razón por la que se ha devuelto el documento es la siguiente: '.$request->get('comment').'.<br><br> Para poder revisar el documento puede acceder a la sección de "Mis documentos pendientes", buscar el documento y pulsar en Completar Documento';
             $baseURL=$this->container->get('router')->generate('nononsense_records_link', array("id" => $record->getId()),TRUE);
                 
-            $this->_sendNotification($email, $baseURL, "", "", $subject, $mensaje);
+            $this->get('utilities')->sendNotification($email, $baseURL, "", "", $subject, $mensaje);
 
         }
         else{
@@ -1178,34 +1178,5 @@ class RecordsController extends Controller
             'name' => $ruta.$file_name,
             'size' => $file->getClientSize()
         ];
-    }
-
-    private function _sendNotification($mailTo, $link, $logo, $accion, $subject, $message)
-    {
-        $mailLogger = new \Swift_Plugins_Loggers_ArrayLogger();
-        $this->get('mailer')->registerPlugin(new \Swift_Plugins_LoggerPlugin($mailLogger));
-        $email = \Swift_Message::newInstance()
-            ->setSubject($subject)
-            ->setFrom($this->container->getParameter('mailer_user'))
-            ->setTo($mailTo)
-            ->setBody(
-                $this->renderView(
-                    'NononsenseHomeBundle:Email:notificationUser.html.twig', array(
-                    'logo' => $logo,
-                    'accion' => $accion,
-                    'message' => $message,
-                    'link' => $link
-                )),
-                'text/html'
-            );
-        if ($this->get('mailer')->send($email)) {
-            //echo '[SWIFTMAILER] sent email to ' . $mailTo;
-            //echo 'LOG: ' . $mailLogger->dump();
-            return true;
-        } else {
-            //echo '[SWIFTMAILER] not sending email: ' . $mailLogger->dump();
-            return false;
-        }
-
     }
 }

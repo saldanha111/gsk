@@ -384,7 +384,7 @@ class BackOfficeController extends Controller
                 $mensaje='El registro '.$step->getId().' ha sido derivado a usted (o cualquier otro miembro del grupo ECO) por parte de un FLL y requiere de su gestión.<br>Justificación: '.$comentario ;
                 $baseURL=$this->container->get('router')->generate('nononsense_backoffice_standby_document_eco',array("idRegistro" => $idRegistro),TRUE);
                 
-                $this->_sendNotification($email, $baseURL, "", "", $subject, $mensaje);
+                $this->get('utilities')->sendNotification($email, $baseURL, "", "", $subject, $mensaje);
             }
         }
 
@@ -578,7 +578,7 @@ class BackOfficeController extends Controller
                 $mensaje='Los siguientes registros han sido bloqueados y necesitan ser gestionados por su parte o algún otro FLL. Acceda al siguiente  Link para gestionar los bloqueos.<br><br>'.$log_records_stand_by;
                 $baseURL=$this->container->get('router')->generate('nononsense_backoffice_standby_documents_list',array(),TRUE);
                 
-                $this->_sendNotification($email, $baseURL, "", "", $subject, $mensaje);
+                $this->get('utilities')->sendNotification($email, $baseURL, "", "", $subject, $mensaje);
             }
         }
 
@@ -588,34 +588,5 @@ class BackOfficeController extends Controller
         $responseAction->setStatusCode(200);
         $responseAction->setContent("OK");
         return $responseAction;
-    }
-
-    private function _sendNotification($mailTo, $link, $logo, $accion, $subject, $message)
-    {
-        $mailLogger = new \Swift_Plugins_Loggers_ArrayLogger();
-        $this->get('mailer')->registerPlugin(new \Swift_Plugins_LoggerPlugin($mailLogger));
-        $email = \Swift_Message::newInstance()
-            ->setSubject($subject)
-            ->setFrom($this->container->getParameter('mailer_user'))
-            ->setTo($mailTo)
-            ->setBody(
-                $this->renderView(
-                    'NononsenseHomeBundle:Email:notificationUser.html.twig', array(
-                    'logo' => $logo,
-                    'accion' => $accion,
-                    'message' => $message,
-                    'link' => $link
-                )),
-                'text/html'
-            );
-        if ($this->get('mailer')->send($email)) {
-            //echo '[SWIFTMAILER] sent email to ' . $mailTo;
-            //echo 'LOG: ' . $mailLogger->dump();
-            return true;
-        } else {
-            //echo '[SWIFTMAILER] not sending email: ' . $mailLogger->dump();
-            return false;
-        }
-
     }
 }

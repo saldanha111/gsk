@@ -6,3 +6,4 @@ services:
       - "@logger"
       - "@session"
       - "@service_container"
+      - "@templating"
