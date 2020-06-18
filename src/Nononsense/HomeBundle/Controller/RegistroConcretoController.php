@@ -626,7 +626,7 @@ class RegistroConcretoController extends Controller
 
         $dataJson = json_decode($step->getStepDataValue());
 
-        if(property_exists($dataJson,"gsk_comment")){
+        if(property_exists($dataJson->data,"gsk_comment")){
             $comment=1;
         }
         else{
@@ -837,7 +837,7 @@ class RegistroConcretoController extends Controller
         
         $dataJson = json_decode($step->getStepDataValue());
 
-        if(property_exists($dataJson,"gsk_comment")){
+        if(property_exists($dataJson->data,"gsk_comment")){
             $comment=1;
         }
         else{
@@ -941,7 +941,7 @@ class RegistroConcretoController extends Controller
 
         $dataJson = json_decode($step->getStepDataValue());
 
-        if(property_exists($dataJson,"gsk_comment")){
+        if(property_exists($dataJson->data,"gsk_comment")){
             $comment=1;
         }
         else{

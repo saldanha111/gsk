@@ -159,7 +159,14 @@ class DataDocumentController extends Controller
                     unset($params["data"][$key]);
                 }
             }
-            $data=json_encode(array("data" => $params["data"],"configuration" => $params["configuration"], "action" => $params["action"]), JSON_FORCE_OBJECT);
+
+            $data_array=array("data" => $params["data"],"configuration" => $params["configuration"], "action" => $params["action"]);
+
+            if(isset($params["gsk_comment"])){
+                $data_array["gsk_comment"]=1;
+            }
+
+            $data=json_encode($data_array, JSON_FORCE_OBJECT);
             $step->setStepDataValue($data);
 
             
@@ -763,7 +770,7 @@ class DataDocumentController extends Controller
         $evidencias = $step->getEvidenciasStep();
         $first = true;
         $lastEvidencia = null;
-
+        $fields_changed=array();
         $fullText = "<table id='tableHistorico' class='table table-striped' >";
         foreach ($evidencias as $evidenciaElement) {
             $firmaAsociada = $evidenciaElement->getFirmaEntity();
@@ -793,7 +800,6 @@ class DataDocumentController extends Controller
                     if($lastEvidencia->getStepDataValue()){
                         $dataJson = json_decode($dataString);
                         $lastVarValues = $dataJson->data;
-
                         $bloqueHTML = "<tr><td colspan='4'>Modificaciones</td></tr><tr><td rowspan='###NUMBERREPLACE###'>" . $firmaAsociada->getNumber() . "</td><td>Campo</td><td>Antes</td><td>Después</td></tr>";
                         $modified = false;
                         $counterModified = 1;
@@ -839,11 +845,36 @@ class DataDocumentController extends Controller
                                         }else{$lastValueReal="";}
                                         if(property_exists($currentVarValues,$info_field)){$currentValueReal=$currentVarValues->{$info_field}->{$row};}else{$currentValueReal="";}
                                     }
-                                    if($currentValue!=$lastValue && $lastValue){
+                                    if($currentValue!=$lastValue && $lastValue && ($lastValueReal!=$dataJsonCurrent->configuration->variables->{$info_field}->value || in_array($info_field, $fields_changed))){
+                                        if(!in_array($info_field, $fields_changed)){
+                                            $fields_changed[]=$info_field;
+                                        }
+                                        $newLastValueReal=$lastValueReal;
+                                        $newCurrentValueReal=$currentValueReal;
 
+                                        switch($dataJsonCurrent->configuration->variables->{$info_field}->subformat){
+                                            case "checkbox":
+                                                if($newLastValueReal==1){
+                                                    $newLastValueReal="Si";
+                                                }
+                                                else{
+                                                    if($newLastValueReal==0){
+                                                        $newLastValueReal="No";
+                                                    }
+                                                }
+
+                                                if($newCurrentValueReal==1){
+                                                    $newCurrentValueReal="Si";
+                                                }
+                                                else{
+                                                    if($newCurrentValueReal==0){
+                                                        $newCurrentValueReal="No";
+                                                    }
+                                                }
+                                        }
                                         $counterModified++;
                                         $modified = true;
-                                        $bloqueHTML .= "<tr><td>" . $dataJsonCurrent->configuration->variables->{$info_field}->label . "</td><td>" . $lastValueReal . "</td><td>" . $currentValueReal . "</td></tr>";
+                                        $bloqueHTML .= "<tr><td>" . $dataJsonCurrent->configuration->variables->{$info_field}->label . "</td><td>" . $newLastValueReal . "</td><td>" . $newCurrentValueReal . "</td></tr>";
                                     }
                                 }
                             }
@@ -871,7 +902,6 @@ class DataDocumentController extends Controller
         }
 
         $fullText .= "</table>";
-
         return $fullText;
     }
 
