@@ -599,3 +599,7 @@ nononsense_mclean_traces_dirty:
 nononsense_mclean_traces_review:
     path: /mclean/traces/review/{lot}
     defaults: { _controller: NononsenseHomeBundle:MaterialCleanTraces:markReview}
+
+nononsense_mclean_trace_view:
+    path: /mclean/traces/view/{id}
+    defaults: { _controller: NononsenseHomeBundle:MaterialCleanTraces:showTrace}

@@ -6,7 +6,11 @@
 {% endblock %}
 {% block main_title %} Trazabilidad del material{% endblock %}
 {% block content %}
-
+<style>
+    table > tbody .link-block:hover{
+        cursor: pointer;
+    }
+</style>
 <div class="wrapper wrapper-content">
     <div class="row">
         <div class="col-sm-12">
@@ -27,8 +31,8 @@
                         <br>
                     {% endfor %}
                     <div class="col-xs-12">
-                        <form class="form-horizontal" id="form_item" action="{{ path('nononsense_mclean_traces_list')}}" method="GET">
-                            <input type="hidden" id='url_product_list' value="{{ path('nononsense_mclean_traces_list')}}" />
+                        <form class="form-horizontal" id="form_item" action="{{ path('nononsense_mclean_traces_list') }}" method="GET">
+                            <input type="hidden" id='url_product_list' value="{{ path('nononsense_mclean_traces_list') }}" />
                             <input type="hidden" id='url_product_delete' value="{{ path('nononsense_products_delete',{'id': 'xxx'}) }}" />
                             <input type="hidden" id='url_product_destroy' value="{{ path('nononsense_products_destroy',{'id': 'xxx'}) }}" />
                             <input type="hidden" id='a_excel' name='a_excel' />
@@ -110,7 +114,7 @@
                 </div>
                 <div class="row">
                     <div class="col-xs-12">
-                        <table id="inProcessParcial" class="table table-striped">
+                        <table id="inProcessParcial" class="table table-hover">
                             <thead>
                             <tr>
                                 <th>Lote</th>
@@ -130,7 +134,7 @@
                             </thead>
                             {% if items is defined %}
                                 {% for item in items %}
-                                    <tr>
+                                    <tr class="link-block" data-url="{{ path('nononsense_mclean_trace_view',{'id': item.id}) }}">
                                         <td>{{item.lotNumber}}</td>
                                         <td>{{item.material.name}}</td>
                                         <td>{{status[item.status]}}</td>
@@ -144,7 +148,7 @@
                                             {% endif %}
                                         </td>
                                         <td>
-                                            {% if item.verificationDate is defined and item.verificationDate | date("Y") > 0 %}
+                                            {% if item.verificationDate is defined and item.verificationDate is not null and item.verificationDate | date("Y") > 0  %}
                                                 {{ item.verificationDate | date("d-m-Y") }}
                                             {% endif %}
                                         </td>
@@ -154,7 +158,7 @@
                                             {% endif %}
                                         </td>
                                         <td>
-                                            {% if item.reviewDate is defined and item.reviewDate | date("Y") > 0 %}
+                                            {% if item.reviewDate is defined and item.reviewDate is not null and item.reviewDate | date("Y") > 0  %}
                                                 {{item.reviewDate | date("d-m-Y")}}
                                             {% endif %}
                                         </td>
@@ -164,7 +168,7 @@
                                             {% endif %}
                                         </td>
                                         <td>
-                                            {% if item.dirtyMaterialDate is defined and item.dirtyMaterialDate | date("Y") > 0 %}
+                                            {% if item.dirtyMaterialDate is defined and item.dirtyMaterialDate is not null and item.dirtyMaterialDate | date("Y") > 0  %}
                                                 {{item.dirtyMaterialDate | date("d-m-Y")}}
                                             {% endif %}
                                         </td>
@@ -228,7 +232,9 @@
         });
 
         const canvas = document.querySelector("canvas");
-        const signaturePad = new SignaturePad(canvas);
+        if(canvas != null) {
+            const signaturePad = new SignaturePad(canvas);
+        }
 
         $(document).on('click', '#send-firma', function (e) {
             e.preventDefault();
@@ -248,6 +254,10 @@
         $(document).on('click','#borrar-firma', function (e) {
             e.preventDefault();
             signaturePad.clear();
+        });
+
+        $(document).on('click','.link-block',function(){
+            window.location.href = $(this).data('url');
         });
 
         function checkSignature(signaturePad){

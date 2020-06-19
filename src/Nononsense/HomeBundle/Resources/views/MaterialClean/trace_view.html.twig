@@ -1,0 +1,279 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}DOCXPRESSO | {{'Homepage'|trans}} {% endblock %}
+{% block head %}
+{{ parent() }}
+    <style>
+        .row-name{
+            text-align:right;
+        }
+        .row-equal{
+            padding-left:5px;
+            padding-right:5px;
+        }
+    </style>
+{% endblock %}
+{% block main_title %} Trazabilidad del material{% endblock %}
+{% block content %}
+
+<div class="wrapper wrapper-content">
+    <div class="row">
+        <div class="col-xs-12">
+            {% for flashMessage in app.session.flashbag.get('error') %}
+                <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+                    <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                    {{ flashMessage }}
+                </div>
+                <br/>
+            {% endfor %}
+            {% for flashMessage in app.session.flashbag.get('message') %}
+                <div class="alert alert-success alert-dismissable" style="margin: 10px 16px 0 16px">
+                    <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                    {{ flashMessage }}
+                </div>
+                <br/>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="row">
+                <div class="col-lg-2 col-md-3 col-sm-4 col-xs-5">
+                    <h3 class="text-right">Material</h3>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-2 col-md-3 col-sm-4 col-xs-5">
+                    <p class="text-right">Estado: </p>
+                </div>
+                <div class="col-lg-10 col-md-9 col-sm-8 col-xs-7">
+                    <p>{{ status[trace.status] }}</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-2 col-md-3 col-sm-4 col-xs-5">
+                    <p class="text-right">Material: </p>
+                </div>
+                <div class="col-lg-10 col-md-9 col-sm-8 col-xs-7">
+                    <p>{{ trace.material.name }}</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-2 col-md-3 col-sm-4 col-xs-5">
+                    <p class="text-right">Centro: </p>
+                </div>
+                <div class="col-lg-10 col-md-9 col-sm-8 col-xs-7">
+                    <p>{{ trace.center.name }}</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-2 col-md-3 col-sm-4 col-xs-5">
+                    <p class="text-right">cod. Material: </p>
+                </div>
+                <div class="col-lg-10 col-md-9 col-sm-8 col-xs-7">
+                    <p>{{ trace.code }}</p>
+                </div>
+            </div>
+            <hr/>
+            <div class="row">
+                <div class="col-lg-2 col-md-3 col-sm-4 col-xs-5">
+                    <h3 class="text-right">Limpieza</h3>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-2 col-md-3 col-sm-4 col-xs-5">
+                    <p class="text-right">Usuario Limpieza: </p>
+                </div>
+                <div class="col-lg-10 col-md-9 col-sm-8 col-xs-7">
+                    <p>{{ trace.cleanUser.name }}</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-2 col-md-3 col-sm-4 col-xs-5">
+                    <p class="text-right">Fecha de limpieza: </p>
+                </div>
+                <div class="col-lg-10 col-md-9 col-sm-8 col-xs-7">
+                    <p>{{ trace.cleanDate | date('d-m-Y H:i:s') }}</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-2 col-md-3 col-sm-4 col-xs-5">
+                    <p class="text-right">Firma limpieza: </p>
+                </div>
+                <div class="col-lg-10 col-md-9 col-sm-8 col-xs-7">
+                    <img src="{{ trace.signature }}" alt="firma limpieza" style="border:1px solid black; width:150px;">
+                </div>
+            </div>
+            <hr/>
+            <div class="row">
+                <div class="col-lg-2 col-md-3 col-sm-4 col-xs-5">
+                    <h3 class="text-right">Verificación</h3>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-2 col-md-3 col-sm-4 col-xs-5">
+                    <p class="text-right">Usuario Verificación: </p>
+                </div>
+                <div class="col-lg-10 col-md-9 col-sm-8 col-xs-7">
+                    {% if trace.verificationUser.name is defined and not null %}
+                        <p>{{ trace.verificationUser.name }}</p>
+                    {% else %}
+                        <p> - </p>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-2 col-md-3 col-sm-4 col-xs-5">
+                    <p class="text-right">Fecha de Verificación: </p>
+                </div>
+                <div class="col-lg-10 col-md-9 col-sm-8 col-xs-7">
+                    {% if trace.verificationDate is defined and trace.verificationDate is not null and trace.verificationDate | date("Y") > 0  %}
+                        <p>{{ trace.verificationDate | date('d-m-Y H:i:s') }}</p>
+                    {% else %}
+                        <p> - </p>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-2 col-md-3 col-sm-4 col-xs-5">
+                    <p class="text-right">Firma Verificación: </p>
+                </div>
+                <div class="col-lg-10 col-md-9 col-sm-8 col-xs-7">
+                    {% if trace.verificationSignature is defined and trace.verificationSignature is not empty %}
+                        <img src="{{ trace.verificationSignature }}" alt="firma verificación" style="border:1px solid black; width:150px;">
+                    {% endif %}
+                </div>
+            </div>
+            <hr/>
+            <div class="row">
+                <div class="col-lg-2 col-md-3 col-sm-4 col-xs-5">
+                    <h3 class="text-right">Material Sucio</h3>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-2 col-md-3 col-sm-4 col-xs-5">
+                    <p class="text-right">Usuario Material sucio: </p>
+                </div>
+                <div class="col-lg-10 col-md-9 col-sm-8 col-xs-7">
+                    {% if trace.dirtyMaterialUser.name is defined and not null %}
+                        <p>{{ trace.dirtyMaterialUser.name }}</p>
+                    {% else %}
+                        <p> - </p>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-2 col-md-3 col-sm-4 col-xs-5">
+                    <p class="text-right">Fecha Material sucio: </p>
+                </div>
+                <div class="col-lg-10 col-md-9 col-sm-8 col-xs-7">
+                    {% if trace.dirtyMaterialDate is defined and trace.dirtyMaterialDate is not null and trace.dirtyMaterialDate | date("Y") > 0  %}
+                        <p>{{ trace.dirtyMaterialDate | date('d-m-Y H:i:s') }}</p>
+                    {% else %}
+                        <p> - </p>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-2 col-md-3 col-sm-4 col-xs-5">
+                    <p class="text-right">Firma Material sucio: </p>
+                </div>
+                <div class="col-lg-10 col-md-9 col-sm-8 col-xs-7">
+                    {% if trace.dirtyMaterialSignature is defined and trace.dirtyMaterialSignature is not empty %}
+                        <img src="{{ trace.dirtyMaterialSignature }}" alt="firma material sucio" style="border:1px solid black; width:150px;">
+                    {% endif %}
+                </div>
+            </div>
+            <hr/>
+            <div class="row">
+                <div class="col-lg-2 col-md-3 col-sm-4 col-xs-5">
+                    <h3 class="text-right">Revisión</h3>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-2 col-md-3 col-sm-4 col-xs-5">
+                    <p class="text-right">Usuario Revisión: </p>
+                </div>
+                <div class="col-lg-10 col-md-9 col-sm-8 col-xs-7">
+                    {% if trace.reviewUser.name is defined and not null %}
+                        <p>{{ trace.reviewUser.name }}</p>
+                    {% else %}
+                        <p> - </p>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-2 col-md-3 col-sm-4 col-xs-5">
+                    <p class="text-right">Fecha Revisión: </p>
+                </div>
+                <div class="col-lg-10 col-md-9 col-sm-8 col-xs-7">
+                    {% if trace.reviewDate is defined and trace.reviewDate is not null and trace.reviewDate | date("Y") > 0  %}
+                    <p>{{ trace.reviewDate | date('d-m-Y H:i:s') }}</p>
+                    {% else %}
+                        <p> - </p>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-2 col-md-3 col-sm-4 col-xs-5">
+                    <p class="text-right">Firma Revisión: </p>
+                </div>
+                <div class="col-lg-10 col-md-9 col-sm-8 col-xs-7">
+                    {% if trace.reviewSignature is defined and trace.reviewSignature is not empty %}
+                        <img src="{{ trace.reviewSignature }}" alt="firma revisión" style="border:1px solid black; width:150px;">
+                    {% endif %}
+                </div>
+            </div>
+            <hr/>
+            <div class="row">
+                <div class="col-lg-2 col-md-3 col-sm-4 col-xs-5">
+                    <a href="{{ path('nononsense_mclean_traces_list') }}" class="btn btn-primary">Volver</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+{{ parent() }}
+{% endblock %}
+
+{% block test %}
+<tr class="link-block" data-url="{{ path('nononsense_mclean_trace_view',{'id': item.id}) }}">
+    <td>{{item.lotNumber}}</td>
+    <td>{{item.material.name}}</td>
+    <td>{{status[item.status]}}</td>
+    <td>{{item.code}}</td>
+    <td>{{item.cleanUser.name}}</td>
+    <td>{{item.cleanDate | date("d-m-Y h:i:s")}}</td>
+    <td>{{item.cleanExpiredDate | date("d-m-Y h:i:s")}}</td>
+    <td>
+        {% if item.verificationUser.name is defined %}
+            {{ item.verificationUser.name }}
+        {% endif %}
+    </td>
+    <td>
+        {% if item.verificationDate is defined and item.verificationDate | date("Y") > 0 %}
+            {{ item.verificationDate | date("d-m-Y") }}
+        {% endif %}
+    </td>
+    <td>
+        {% if item.reviewUser.name is defined %}
+            {{item.reviewUser.name}}
+        {% endif %}
+    </td>
+    <td>
+        {% if item.reviewDate is defined and item.reviewDate | date("Y") > 0 %}
+            {{item.reviewDate | date("d-m-Y")}}
+        {% endif %}
+    </td>
+    <td>
+        {% if item.dirtyMaterialUser.name is defined %}
+            {{item.dirtyMaterialUser.name}}
+        {% endif %}
+    </td>
+    <td>
+        {% if item.dirtyMaterialDate is defined and item.dirtyMaterialDate | date("Y") > 0 %}
+            {{item.dirtyMaterialDate | date("d-m-Y")}}
+        {% endif %}
+    </td>
+{% endblock %}

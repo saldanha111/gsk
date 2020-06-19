@@ -144,7 +144,7 @@ class MaterialCleanTracesController extends Controller
 
     public function markReviewAction(Request $request, $lot)
     {
-        $is_valid = $this->get('app.security')->permissionSeccion('mc_traces_dirty');
+        $is_valid = $this->get('app.security')->permissionSeccion('mc_traces_review');
         if(!$is_valid){
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
@@ -181,5 +181,30 @@ class MaterialCleanTracesController extends Controller
             }
         }
         return $this->redirect($this->generateUrl('nononsense_mclean_traces_list'));
+    }
+
+    public function showTraceAction(Request $request, $id)
+    {
+        $is_valid = $this->get('app.security')->permissionSeccion('mc_traces_list');
+        if(!$is_valid){
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+        }
+
+        $em = $this->getDoctrine()->getManager();
+        /** @var MaterialCleanCleansRepository $traces */
+        $cleansRepository = $em->getRepository('NononsenseHomeBundle:MaterialCleanCleans');
+        $trace = $cleansRepository->find($id);
+
+        if(!$trace){
+            $this->get('session')->getFlashBag()->add('error', "No se ha podido encontrar la traza.");
+            return $this->redirect($this->generateUrl('nononsense_mclean_traces_list'));
+        }
+
+        $result = [
+            'trace' => $trace,
+            'status' => MaterialCleanCleansRepository::status
+        ];
+
+        return $this->render('NononsenseHomeBundle:MaterialClean:trace_view.html.twig',$result);
     }
 }
