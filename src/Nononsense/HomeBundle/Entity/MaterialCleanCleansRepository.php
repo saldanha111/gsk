@@ -72,13 +72,12 @@ class MaterialCleanCleansRepository extends EntityRepository
     {
         $list = $this->createQueryBuilder('cle')
             ->select('COUNT(cle.id) as conta')
-            ->innerJoin('cl.idMaterial','mat')
-            ->innerJoin('cl.idCenter','cen')
-            ->innerJoin('cl.cleanUser','clu')
-            ->leftJoin('cl.verificationUser','veu')
-            ->leftJoin('cl.dirtyMaterialUser','dmu')
-            ->leftJoin('cl.reviewUser','rvu')
-            ->orderBy('mcc.id', 'DESC');
+            ->innerJoin('cle.material','mat')
+            ->innerJoin('cle.center','cen')
+            ->innerJoin('cle.cleanUser','clu')
+            ->leftJoin('cle.verificationUser','veu')
+            ->leftJoin('cle.dirtyMaterialUser','dmu')
+            ->leftJoin('cle.reviewUser','rvu');
 
         $list = self::fillFilersQuery($filters, $list);
 

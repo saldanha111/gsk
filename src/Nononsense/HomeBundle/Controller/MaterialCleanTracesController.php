@@ -73,7 +73,7 @@ class MaterialCleanTracesController extends Controller
         $array_item["filters"]=$filters;
         $array_item['status'] = MaterialCleanCleansRepository::status;
         $array_item["items"] = $this->getDoctrine()->getRepository(MaterialCleanCleans::class)->list($filters);
-        $array_item["count"] = $this->getDoctrine()->getRepository(MaterialCleanCenters::class)->count($filters2);
+        $array_item["count"] = $this->getDoctrine()->getRepository(MaterialCleanCleans::class)->count($filters2);
         if($array_item['count'] && isset($filters["lot"])){
             /** @var MaterialCleanCleans $firstTrace */
             $firstTrace = $array_item["items"][0];
