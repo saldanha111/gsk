@@ -594,7 +594,7 @@ class RegistroConcretoController extends Controller
             $subject = 'Tiene un registro pendiente de verificar';
             $message = 'Tiene pendiente el siguiente registro: ' . $registro->getId() . ' pendiente de verificar';
 
-            $this->_sendNotification($mailTo, $link, $logo, $accion, $subject, $message);
+            $this->get('utilities')->sendNotification($mailTo, $link, $logo, $accion, $subject, $message);
         }
 
         return $this->render('NononsenseHomeBundle:Contratos:registro_guardadoenviado.html.twig', array(
@@ -626,7 +626,7 @@ class RegistroConcretoController extends Controller
 
         $dataJson = json_decode($step->getStepDataValue());
 
-        if(property_exists($dataJson,"gsk_comment")){
+        if(property_exists($dataJson->data,"gsk_comment")){
             $comment=1;
         }
         else{
@@ -837,7 +837,7 @@ class RegistroConcretoController extends Controller
         
         $dataJson = json_decode($step->getStepDataValue());
 
-        if(property_exists($dataJson,"gsk_comment")){
+        if(property_exists($dataJson->data,"gsk_comment")){
             $comment=1;
         }
         else{
@@ -941,7 +941,7 @@ class RegistroConcretoController extends Controller
 
         $dataJson = json_decode($step->getStepDataValue());
 
-        if(property_exists($dataJson,"gsk_comment")){
+        if(property_exists($dataJson->data,"gsk_comment")){
             $comment=1;
         }
         else{
@@ -1456,7 +1456,7 @@ class RegistroConcretoController extends Controller
 
         $em->flush();
 
-        $this->_sendNotification($email, $baseURL, "", "", $subject, $mensaje);
+        $this->get('utilities')->sendNotification($email, $baseURL, "", "", $subject, $mensaje);
 
         $route = $this->container->get('router')->generate('nononsense_search');
         return $this->redirect($route);
@@ -1568,35 +1568,6 @@ class RegistroConcretoController extends Controller
         }
 
         return $resultado;
-    }
-
-    private function _sendNotification($mailTo, $link, $logo, $accion, $subject, $message)
-    {
-        $mailLogger = new \Swift_Plugins_Loggers_ArrayLogger();
-        $this->get('mailer')->registerPlugin(new \Swift_Plugins_LoggerPlugin($mailLogger));
-        $email = \Swift_Message::newInstance()
-            ->setSubject($subject)
-            ->setFrom($this->container->getParameter('mailer_user'))
-            ->setTo($mailTo)
-            ->setBody(
-                $this->renderView(
-                    'NononsenseHomeBundle:Email:notificationUser.html.twig', array(
-                    'logo' => $logo,
-                    'accion' => $accion,
-                    'message' => $message,
-                    'link' => $link
-                )),
-                'text/html'
-            );
-        if ($this->get('mailer')->send($email)) {
-            //echo '[SWIFTMAILER] sent email to ' . $mailTo;
-            //echo 'LOG: ' . $mailLogger->dump();
-            return true;
-        } else {
-            //echo '[SWIFTMAILER] not sending email: ' . $mailLogger->dump();
-            return false;
-        }
-
     }
 
     private function puedeValidar($step)

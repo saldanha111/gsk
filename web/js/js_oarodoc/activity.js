@@ -5,7 +5,7 @@ $( document ).ready(function() {
 	
 
 	$('#form_fill').on('keyup change paste', 'input:not(:disabled):not([readonly]), select:not(:disabled):not([readonly]), textarea:not(:disabled):not([readonly])', function(){
-		$("#btn_close").addClass("disabled");
+		$("#btn_custom_close").addClass("disabled");
 		if(checkCommentCompulsory($(this))){
 			$("#form_fill").append('<input type="hidden" name="gsk_comment" value="1" />');
 		}

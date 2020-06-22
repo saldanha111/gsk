@@ -6,11 +6,12 @@ use Nononsense\HomeBundle\Entity\Tokens;
 
 class Utilities{
     
-    public function __construct(\Doctrine\ORM\EntityManager $em, $logger, $session, $container) {
+    public function __construct(\Doctrine\ORM\EntityManager $em, $logger, $session, $container, $templating) {
         $this->em = $em;
         $this->logger = $logger;
         $this->session = $session;
         $this->container = $container;
+        $this->templating = $templating;
     }
 
     public function generateToken()
@@ -59,5 +60,30 @@ class Utilities{
         return false;
     }
 
-    
+    public function sendNotification($mailTo, $link, $logo, $accion, $subject, $message)
+    {
+        $email = \Swift_Message::newInstance()
+            ->setSubject($subject)
+            ->setFrom($this->container->getParameter('mailer_user'))
+            ->setTo($mailTo)
+            ->setBody(
+                $this->templating->render(
+                    'NononsenseHomeBundle:Email:notificationUser.html.twig', array(
+                    'logo' => $logo,
+                    'accion' => $accion,
+                    'message' => $message,
+                    'link' => $link
+                )),
+                'text/html'
+            );
+        if ($this->container->get('mailer')->send($email)) {
+            //echo '[SWIFTMAILER] sent email to ' . $mailTo;
+            //echo 'LOG: ' . $mailLogger->dump();
+            return true;
+        } else {
+            //echo '[SWIFTMAILER] not sending email: ' . $mailLogger->dump();
+            return false;
+        }
+
+    }
 }

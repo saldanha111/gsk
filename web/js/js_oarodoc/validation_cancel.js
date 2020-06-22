@@ -27,4 +27,6 @@ $( document ).ready(function() {
 			send_form("save_partial");
 		}
 	});
+
+	$(".btn_clone_table").hide();
 });
