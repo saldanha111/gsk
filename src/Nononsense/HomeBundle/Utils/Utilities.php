@@ -39,6 +39,8 @@ class Utilities{
             if($current_minute > $token_date_created->format('YmdHis')){
                 $expired_token = 1;
             }
+            $this->em->persist($token_date_created);
+            $this->em->flush();
         }
 
         return $expired_token;
@@ -52,6 +54,8 @@ class Utilities{
             $token_date_created->modify('+5 minute');
             $current_minute = date('YmdHis');
             if($current_minute < $token_date_created->format('YmdHis')){
+                $this->em->persist($token_date_created);
+                $this->em->flush();
                 return $tokenObj->getUser()->getId();
             }
             return false;
