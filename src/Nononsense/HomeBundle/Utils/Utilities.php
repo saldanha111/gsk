@@ -34,7 +34,7 @@ class Utilities{
         $tokenObj = $this->em->getRepository('NononsenseHomeBundle:Tokens')->findOneByToken($token);
         if($tokenObj){
             $token_date_created = $tokenObj->getCreated();
-            $token_date_created->modify('+15 minute');
+            $tokenObj->modify('+15 minute');
             $current_minute = date('YmdHis');
             if($current_minute > $token_date_created->format('YmdHis')){
                 $expired_token = 1;
