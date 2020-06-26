@@ -13,4 +13,6 @@ $( document ).ready(function() {
 	$('#form_fill').on('keyup change paste', 'input, select, textarea', function(){
 		$("#btn_close").addClass("disabled");
 	});
+
+	$(".btn_option_table").hide();
 });

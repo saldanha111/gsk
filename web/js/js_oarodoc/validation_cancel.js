@@ -28,5 +28,5 @@ $( document ).ready(function() {
 		}
 	});
 
-	$(".btn_clone_table").hide();
+	$(".btn_option_table").hide();
 });

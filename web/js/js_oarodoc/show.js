@@ -11,5 +11,5 @@ $( document ).ready(function() {
 		$(this).remove();
 	});
 
-	$(".btn_clone_table").hide();
+	$(".btn_option_table").hide();
 });
