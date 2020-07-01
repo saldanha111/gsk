@@ -327,6 +327,7 @@ class RecordsContractsController extends Controller
             $data["expired_token"] = 1;
         } else {
             // get the InstanciasSteps entity
+            /** @var RecordsContracts $record */
             $record = $this->getDoctrine()
                 ->getRepository('NononsenseHomeBundle:RecordsContracts')
                 ->find($id);
@@ -369,7 +370,10 @@ class RecordsContractsController extends Controller
             }
 
             $data["data"]["numero_solicitud"] = $record->getId();
-            $data['configuration']['form_readonly'] = 1;
+            // Si el documento ya ha sido rellenado no dejamos modificar nada.
+            if($record->getStatus() > 0){
+                $data['configuration']['form_readonly'] = 1;
+            }
         }
 
         $response = new Response();
