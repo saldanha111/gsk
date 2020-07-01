@@ -9,7 +9,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="Records_contracts_signatures")
+ * @ORM\Table(name="records_contracts_signatures")
  * @ORM\Entity(repositoryClass="Nononsense\HomeBundle\Entity\RecordsContractsSignaturesRepository")
  * @ORM\HasLifecycleCallbacks
  */
@@ -69,6 +69,20 @@ class RecordsContractsSignatures
      * @ORM\Column(name="firma", type="text", nullable=true)
      */
     protected $firma;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="sign_file", type="string", nullable=true)
+     */
+    protected $signFile;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="sign_pass", type="string", nullable=true)
+     */
+    protected $signPass;
 
     /**
      * @var integer
@@ -471,5 +485,51 @@ class RecordsContractsSignatures
     public function getRecord()
     {
         return $this->record;
+    }
+
+    /**
+     * Set signFile
+     *
+     * @param string $signFile
+     * @return RecordsContractsSignatures
+     */
+    public function setSignFile($signFile)
+    {
+        $this->signFile = $signFile;
+
+        return $this;
+    }
+
+    /**
+     * Get signFile
+     *
+     * @return string 
+     */
+    public function getSignFile()
+    {
+        return $this->signFile;
+    }
+
+    /**
+     * Set signPass
+     *
+     * @param string $signPass
+     * @return RecordsContractsSignatures
+     */
+    public function setSignPass($signPass)
+    {
+        $this->signPass = $signPass;
+
+        return $this;
+    }
+
+    /**
+     * Get signPass
+     *
+     * @return string 
+     */
+    public function getSignPass()
+    {
+        return $this->signPass;
     }
 }

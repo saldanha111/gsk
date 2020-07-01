@@ -25,7 +25,11 @@
         "whiteoctober/tcpdf-bundle": "^1.1",
         "beberlei/doctrineextensions": "^1.2",
         "friendsofsymfony/jsrouting-bundle": "~1.5",
-        "tecnickcom/tc-lib-barcode": "^1.15"
+        "tecnickcom/tc-lib-barcode": "^1.15",
+        "ext-curl": "*",
+        "ext-gd": "*",
+        "ext-json": "*",
+        "ext-openssl": "*"
     },
     "require-dev": {
         "sensio/generator-bundle": "~2.3"

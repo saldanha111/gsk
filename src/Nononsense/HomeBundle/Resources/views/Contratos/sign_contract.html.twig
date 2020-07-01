@@ -1,290 +1,301 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+ARIA 1.0//EN" "http://www.w3.org/WAI/ARIA/schemata/xhtml-aria-1.dtd">
-
 <html lang="es" xml:lang="es" xmlns="http://www.w3.org/1999/xhtml">
-    <head>
-        
-        <meta http-equiv="X-UA-Compatible" content="IE=Edge"/>
-        
-        <title>Firma Contrato</title>
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge"/>
+    <title>Firma Contrato</title>
+    <script type="text/javascript" src="{{ asset('bundles/nononsensehome/sign_contract_public/jquery-1.9.0.min.js') }}"></script>
+    <link rel="stylesheet" href="{{ asset('bundles/nononsensehome/sign_contract_public/signature-pad.css?time=' ~ time) }}">
+    <link rel="stylesheet" href="{{ asset('bundles/nononsensehome/sign_contract_public/bootstrap.css?time=' ~ time) }}">
+    <link rel="stylesheet" href="{{ asset('bundles/nononsensehome/sign_contract_public/sweetalert.min.css?time=' ~ time) }}">
+    <link rel="stylesheet" href="{{ asset('bundles/nononsensehome/web/viewer.css?time=' ~ time) }}">
+    <link rel="stylesheet" href="{{ asset('bundles/nononsensehome/css/loader-generic.css?time=' ~ time) }}">
+    <style type="text/css">
+        body{
+            font-family: "Helvetica Neue", "Helvetica", "Lucida Grande", Arial, "Ubuntu", "Cantarell", "Fira Sans", sans-serif;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+        }
+        .div_result{
+            width: 80%;
+            margin: 0 auto;
+            text-align: center;
+            margin-top: 10px;
+            font-size: 22px;
+        }
+        .div_link{
+            width: 80%;
+            margin: 0 auto;
+            text-align: center;
+            margin-top: 10px;
+            font-size: 22px;
+            height: 1000px;
+            background-color:#f1f1f1;
+        }
+        #signature_pad_draw{
+            margin: 40px auto 0 auto;
+            border: 1px solid black;
+        }
 
-        <script type="text/javascript" src="{{ asset('bundles/nononsensehome/sign_contract_public/jquery-1.9.0.min.js') }}"></script>
-        <link rel="stylesheet" href="{{ asset('bundles/nononsensehome/sign_contract_public/signature-pad.css?time=' ~ time) }}">
-        <link rel="stylesheet" href="{{ asset('bundles/nononsensehome/sign_contract_public/bootstrap.css?time=' ~ time) }}">
-        <link rel="stylesheet" href="{{ asset('bundles/nononsensehome/sign_contract_public/sweetalert.min.css?time=' ~ time) }}">
+        .div_sign_button{
+            width: 80%;
+            margin: 0 auto;
+            text-align: center;
+            margin-top: 50px;
+            font-size: 22px;
+        }
 
-        <link rel="stylesheet" href="{{ asset('bundles/nononsensehome/web/viewer.css?time=' ~ time) }}">
-        
+        .clean-sign-container{
+            text-align:center;
+        }
 
-        <style type="text/css">
-            body{
-                font-family: "Helvetica Neue", "Helvetica", "Lucida Grande", Arial, "Ubuntu", "Cantarell", "Fira Sans", sans-serif;
-                width: 100%;
-                height: 100%;
-                margin: 0; 
-            }
-            .div_result{
-                width: 80%;
-                margin: 0 auto;
-                text-align: center;
-                margin-top: 10px;
-                font-size: 22px;
-            }
-            .div_link{
-                width: 80%;
-                margin: 0 auto;
-                text-align: center;
-                margin-top: 10px;
-                font-size: 22px;
-                height: 500px;
-            }
-            .div_sign{
-                width: 100%;
-                margin: 0 auto;
-                text-align: center;
-                font-size: 22px;
-            }
+        #borrar-firma{
+            margin-top: 10px;
+            margin-right: 230px;
+        }
 
-            .div_sign_button{
-                width: 80%;
-                margin: 0 auto;
-                text-align: center;
-                margin-top: 50px;
-                font-size: 22px;
-            }
-        </style>        
-    </head>
+        .footer{
+            background: none repeat scroll 0 0 white;
+            border-top: 1px solid #e7eaec;
+            padding: 10px 20px;
+            text-align: right;
+            width: 100%;
+        }
 
-    <body>
+        .footer-wrapper{
+            padding-top:80px;
+        }
 
-        <input type="hidden" id='url_pdf' value="{{ path('nononsense_records_contracts_public_view_contract', {'token': token}) }}" />
-        
-        <div style="float: left; width: 100%; height: 120px;">
-            <div style="width: 100%; height: 100%;">
-                <div style="display: table; height: 100%; margin-left: 10%;">
-                    <div style="display: table-cell; vertical-align: middle;">
-                        <img src="/img/logo-gsk.png">
-                    </div>  
-                </div>
+    </style>
+</head>
+
+<body>
+<input type="hidden" id='url_pdf' value="{{ pdfUrl }}" />
+<div style="float: left; width: 100%; height: 120px;">
+    <div style="width: 100%; height: 100%;">
+        <div style="display: table; height: 100%; margin-left: 10%;">
+            <div style="display: table-cell; vertical-align: middle;">
+                <img src="/img/logo-gsk.png">
             </div>
+        </div>
+    </div>
 
-            
-            {% if result == '1' %}
-                <div class='div_result'>
-                    <div class="alert alert-primary" role="alert">
-                      El contrato se ha firmado correctamente
-                    </div>
-                </div>
-            {% endif %}
-            {% if result == '2' %}
-                <div class='div_result'>
-                    <div class="alert alert-danger" role="alert">
-                      El Pin no es correcto
-                    </div>
-                </div>
-            {% endif %}
-            
+    {% if result.type == 'success' %}
+        <div class='div_result'>
+            <div class="alert alert-primary" role="alert">
+                El contrato se ha firmado correctamente
+            </div>
+        </div>
+    {% elseif result.type == 'error' %}
+        <div class='div_result'>
+            <div class="alert alert-danger" role="alert">
+                {{ result.message }}
+            </div>
+        </div>
+    {% endif %}
 
-            <div class='div_link'>
-                <div id="outerContainer" style="width: 100%;">
 
-                  <div id="sidebarContainer">
-                    <div id="toolbarSidebar">
-                      <div class="splitToolbarButton toggled">
+    <div class='div_link'>
+        <div id="outerContainer" style="width: 100%;">
+
+            <div id="sidebarContainer">
+                <div id="toolbarSidebar">
+                    <div class="splitToolbarButton toggled">
                         <button id="viewThumbnail" class="toolbarButton toggled" title="Show Thumbnails" tabindex="2" data-l10n-id="thumbs">
-                           <span data-l10n-id="thumbs_label">Thumbnails</span>
+                            <span data-l10n-id="thumbs_label">Thumbnails</span>
                         </button>
                         <button id="viewOutline" class="toolbarButton" title="Show Document Outline (double-click to expand/collapse all items)" tabindex="3" data-l10n-id="document_outline">
-                           <span data-l10n-id="document_outline_label">Document Outline</span>
+                            <span data-l10n-id="document_outline_label">Document Outline</span>
                         </button>
                         <button id="viewAttachments" class="toolbarButton" title="Show Attachments" tabindex="4" data-l10n-id="attachments">
-                           <span data-l10n-id="attachments_label">Attachments</span>
+                            <span data-l10n-id="attachments_label">Attachments</span>
                         </button>
-                      </div>
                     </div>
-                    <div id="sidebarContent">
-                      <div id="thumbnailView">
-                      </div>
-                      <div id="outlineView" class="hidden">
-                      </div>
-                      <div id="attachmentsView" class="hidden">
-                      </div>
+                </div>
+                <div id="sidebarContent">
+                    <div id="thumbnailView">
                     </div>
-                    <div id="sidebarResizer" class="hidden"></div>
-                  </div>  <!-- sidebarContainer -->
+                    <div id="outlineView" class="hidden">
+                    </div>
+                    <div id="attachmentsView" class="hidden">
+                    </div>
+                </div>
+                <div id="sidebarResizer" class="hidden"></div>
+            </div>  <!-- sidebarContainer -->
 
-                  <div id="mainContainer">
-                    <div class="findbar hidden doorHanger" id="findbar">
-                      <div id="findbarInputContainer">
+            <div id="mainContainer">
+                <div class="findbar hidden doorHanger" id="findbar">
+                    <div id="findbarInputContainer">
                         <input id="findInput" class="toolbarField" title="Find" placeholder="Find in document…" tabindex="91" data-l10n-id="find_input">
                         <div class="splitToolbarButton">
-                          <button id="findPrevious" class="toolbarButton findPrevious" title="Find the previous occurrence of the phrase" tabindex="92" data-l10n-id="find_previous">
-                            <span data-l10n-id="find_previous_label">Previous</span>
-                          </button>
-                          <div class="splitToolbarButtonSeparator"></div>
-                          <button id="findNext" class="toolbarButton findNext" title="Find the next occurrence of the phrase" tabindex="93" data-l10n-id="find_next">
-                            <span data-l10n-id="find_next_label">Next</span>
-                          </button>
+                            <button id="findPrevious" class="toolbarButton findPrevious" title="Find the previous occurrence of the phrase" tabindex="92" data-l10n-id="find_previous">
+                                <span data-l10n-id="find_previous_label">Previous</span>
+                            </button>
+                            <div class="splitToolbarButtonSeparator"></div>
+                            <button id="findNext" class="toolbarButton findNext" title="Find the next occurrence of the phrase" tabindex="93" data-l10n-id="find_next">
+                                <span data-l10n-id="find_next_label">Next</span>
+                            </button>
                         </div>
-                      </div>
+                    </div>
 
-                      <div id="findbarOptionsOneContainer">
+                    <div id="findbarOptionsOneContainer">
                         <input type="checkbox" id="findHighlightAll" class="toolbarField" tabindex="94">
                         <label for="findHighlightAll" class="toolbarLabel" data-l10n-id="find_highlight">Highlight all</label>
                         <input type="checkbox" id="findMatchCase" class="toolbarField" tabindex="95">
                         <label for="findMatchCase" class="toolbarLabel" data-l10n-id="find_match_case_label">Match case</label>
-                      </div>
-                      <div id="findbarOptionsTwoContainer">
+                    </div>
+                    <div id="findbarOptionsTwoContainer">
                         <input type="checkbox" id="findEntireWord" class="toolbarField" tabindex="96">
                         <label for="findEntireWord" class="toolbarLabel" data-l10n-id="find_entire_word_label">Whole words</label>
                         <span id="findResultsCount" class="toolbarLabel hidden"></span>
-                      </div>
+                    </div>
 
-                      <div id="findbarMessageContainer">
+                    <div id="findbarMessageContainer">
                         <span id="findMsg" class="toolbarLabel"></span>
-                      </div>
-                    </div>  <!-- findbar -->
+                    </div>
+                </div>  <!-- findbar -->
 
-                    <div id="secondaryToolbar" class="secondaryToolbar hidden doorHangerRight">
-                      <div id="secondaryToolbarButtonContainer">
+                <div id="secondaryToolbar" class="secondaryToolbar hidden doorHangerRight">
+                    <div id="secondaryToolbarButtonContainer">
                         <button id="secondaryPresentationMode" class="secondaryToolbarButton presentationMode visibleLargeView" title="Switch to Presentation Mode" tabindex="51" data-l10n-id="presentation_mode">
-                          <span data-l10n-id="presentation_mode_label">Presentation Mode</span>
+                            <span data-l10n-id="presentation_mode_label">Presentation Mode</span>
                         </button>
 
                         <button id="secondaryOpenFile" class="secondaryToolbarButton openFile visibleLargeView" title="Open File" tabindex="52" data-l10n-id="open_file">
-                          <span data-l10n-id="open_file_label">Open</span>
+                            <span data-l10n-id="open_file_label">Open</span>
                         </button>
 
                         <button id="secondaryPrint" class="secondaryToolbarButton print visibleMediumView" title="Print" tabindex="53" data-l10n-id="print">
-                          <span data-l10n-id="print_label">Print</span>
+                            <span data-l10n-id="print_label">Print</span>
                         </button>
 
                         <button id="secondaryDownload" class="secondaryToolbarButton download visibleMediumView" title="Download" tabindex="54" data-l10n-id="download">
-                          <span data-l10n-id="download_label">Download</span>
+                            <span data-l10n-id="download_label">Download</span>
                         </button>
 
                         <a href="#" id="secondaryViewBookmark" class="secondaryToolbarButton bookmark visibleSmallView" title="Current view (copy or open in new window)" tabindex="55" data-l10n-id="bookmark">
-                          <span data-l10n-id="bookmark_label">Current View</span>
+                            <span data-l10n-id="bookmark_label">Current View</span>
                         </a>
 
                         <div class="horizontalToolbarSeparator visibleLargeView"></div>
 
                         <button id="firstPage" class="secondaryToolbarButton firstPage" title="Go to First Page" tabindex="56" data-l10n-id="first_page">
-                          <span data-l10n-id="first_page_label">Go to First Page</span>
+                            <span data-l10n-id="first_page_label">Go to First Page</span>
                         </button>
                         <button id="lastPage" class="secondaryToolbarButton lastPage" title="Go to Last Page" tabindex="57" data-l10n-id="last_page">
-                          <span data-l10n-id="last_page_label">Go to Last Page</span>
+                            <span data-l10n-id="last_page_label">Go to Last Page</span>
                         </button>
 
                         <div class="horizontalToolbarSeparator"></div>
 
                         <button id="pageRotateCw" class="secondaryToolbarButton rotateCw" title="Rotate Clockwise" tabindex="58" data-l10n-id="page_rotate_cw">
-                          <span data-l10n-id="page_rotate_cw_label">Rotate Clockwise</span>
+                            <span data-l10n-id="page_rotate_cw_label">Rotate Clockwise</span>
                         </button>
                         <button id="pageRotateCcw" class="secondaryToolbarButton rotateCcw" title="Rotate Counterclockwise" tabindex="59" data-l10n-id="page_rotate_ccw">
-                          <span data-l10n-id="page_rotate_ccw_label">Rotate Counterclockwise</span>
+                            <span data-l10n-id="page_rotate_ccw_label">Rotate Counterclockwise</span>
                         </button>
 
                         <div class="horizontalToolbarSeparator"></div>
 
                         <button id="cursorSelectTool" class="secondaryToolbarButton selectTool toggled" title="Enable Text Selection Tool" tabindex="60" data-l10n-id="cursor_text_select_tool">
-                          <span data-l10n-id="cursor_text_select_tool_label">Text Selection Tool</span>
+                            <span data-l10n-id="cursor_text_select_tool_label">Text Selection Tool</span>
                         </button>
                         <button id="cursorHandTool" class="secondaryToolbarButton handTool" title="Enable Hand Tool" tabindex="61" data-l10n-id="cursor_hand_tool">
-                          <span data-l10n-id="cursor_hand_tool_label">Hand Tool</span>
+                            <span data-l10n-id="cursor_hand_tool_label">Hand Tool</span>
                         </button>
 
                         <div class="horizontalToolbarSeparator"></div>
 
                         <button id="scrollVertical" class="secondaryToolbarButton scrollModeButtons scrollVertical toggled" title="Use Vertical Scrolling" tabindex="62" data-l10n-id="scroll_vertical">
-                          <span data-l10n-id="scroll_vertical_label">Vertical Scrolling</span>
+                            <span data-l10n-id="scroll_vertical_label">Vertical Scrolling</span>
                         </button>
                         <button id="scrollHorizontal" class="secondaryToolbarButton scrollModeButtons scrollHorizontal" title="Use Horizontal Scrolling" tabindex="63" data-l10n-id="scroll_horizontal">
-                          <span data-l10n-id="scroll_horizontal_label">Horizontal Scrolling</span>
+                            <span data-l10n-id="scroll_horizontal_label">Horizontal Scrolling</span>
                         </button>
                         <button id="scrollWrapped" class="secondaryToolbarButton scrollModeButtons scrollWrapped" title="Use Wrapped Scrolling" tabindex="64" data-l10n-id="scroll_wrapped">
-                          <span data-l10n-id="scroll_wrapped_label">Wrapped Scrolling</span>
+                            <span data-l10n-id="scroll_wrapped_label">Wrapped Scrolling</span>
                         </button>
 
                         <div class="horizontalToolbarSeparator scrollModeButtons"></div>
 
                         <button id="spreadNone" class="secondaryToolbarButton spreadModeButtons spreadNone toggled" title="Do not join page spreads" tabindex="65" data-l10n-id="spread_none">
-                          <span data-l10n-id="spread_none_label">No Spreads</span>
+                            <span data-l10n-id="spread_none_label">No Spreads</span>
                         </button>
                         <button id="spreadOdd" class="secondaryToolbarButton spreadModeButtons spreadOdd" title="Join page spreads starting with odd-numbered pages" tabindex="66" data-l10n-id="spread_odd">
-                          <span data-l10n-id="spread_odd_label">Odd Spreads</span>
+                            <span data-l10n-id="spread_odd_label">Odd Spreads</span>
                         </button>
                         <button id="spreadEven" class="secondaryToolbarButton spreadModeButtons spreadEven" title="Join page spreads starting with even-numbered pages" tabindex="67" data-l10n-id="spread_even">
-                          <span data-l10n-id="spread_even_label">Even Spreads</span>
+                            <span data-l10n-id="spread_even_label">Even Spreads</span>
                         </button>
 
                         <div class="horizontalToolbarSeparator spreadModeButtons"></div>
 
                         <button id="documentProperties" class="secondaryToolbarButton documentProperties" title="Document Properties…" tabindex="68" data-l10n-id="document_properties">
-                          <span data-l10n-id="document_properties_label">Document Properties…</span>
+                            <span data-l10n-id="document_properties_label">Document Properties…</span>
                         </button>
-                      </div>
-                    </div>  <!-- secondaryToolbar -->
+                    </div>
+                </div>  <!-- secondaryToolbar -->
 
-                    <div class="toolbar">
-                      <div id="toolbarContainer">
+                <div class="toolbar">
+                    <div id="toolbarContainer">
                         <div id="toolbarViewer">
-                          <div id="toolbarViewerLeft">
-                            <button id="sidebarToggle" class="toolbarButton" title="Toggle Sidebar" tabindex="11" data-l10n-id="toggle_sidebar">
-                              <span data-l10n-id="toggle_sidebar_label">Toggle Sidebar</span>
-                            </button>
-                            <div class="toolbarButtonSpacer"></div>
-                            <button id="viewFind" class="toolbarButton" title="Find in Document" tabindex="12" data-l10n-id="findbar">
-                              <span data-l10n-id="findbar_label">Find</span>
-                            </button>
-                            <div class="splitToolbarButton hiddenSmallView">
-                              <button class="toolbarButton pageUp" title="Previous Page" id="previous" tabindex="13" data-l10n-id="previous">
-                                <span data-l10n-id="previous_label">Previous</span>
-                              </button>
-                              <div class="splitToolbarButtonSeparator"></div>
-                              <button class="toolbarButton pageDown" title="Next Page" id="next" tabindex="14" data-l10n-id="next">
-                                <span data-l10n-id="next_label">Next</span>
-                              </button>
+                            <div id="toolbarViewerLeft">
+                                <button id="sidebarToggle" class="toolbarButton" title="Toggle Sidebar" tabindex="11" data-l10n-id="toggle_sidebar">
+                                    <span data-l10n-id="toggle_sidebar_label">Toggle Sidebar</span>
+                                </button>
+                                <div class="toolbarButtonSpacer"></div>
+                                <button id="viewFind" class="toolbarButton" title="Find in Document" tabindex="12" data-l10n-id="findbar">
+                                    <span data-l10n-id="findbar_label">Find</span>
+                                </button>
+                                <div class="splitToolbarButton hiddenSmallView">
+                                    <button class="toolbarButton pageUp" title="Previous Page" id="previous" tabindex="13" data-l10n-id="previous">
+                                        <span data-l10n-id="previous_label">Previous</span>
+                                    </button>
+                                    <div class="splitToolbarButtonSeparator"></div>
+                                    <button class="toolbarButton pageDown" title="Next Page" id="next" tabindex="14" data-l10n-id="next">
+                                        <span data-l10n-id="next_label">Next</span>
+                                    </button>
+                                </div>
+                                <input type="number" id="pageNumber" class="toolbarField pageNumber" title="Page" value="1" size="4" min="1" tabindex="15" data-l10n-id="page">
+                                <span id="numPages" class="toolbarLabel"></span>
                             </div>
-                            <input type="number" id="pageNumber" class="toolbarField pageNumber" title="Page" value="1" size="4" min="1" tabindex="15" data-l10n-id="page">
-                            <span id="numPages" class="toolbarLabel"></span>
-                          </div>
-                          <div id="toolbarViewerRight">
-                            <button id="presentationMode" class="toolbarButton presentationMode hiddenLargeView" title="Switch to Presentation Mode" tabindex="31" data-l10n-id="presentation_mode">
-                              <span data-l10n-id="presentation_mode_label">Presentation Mode</span>
-                            </button>
+                            <div id="toolbarViewerRight">
+                                <button id="presentationMode" class="toolbarButton presentationMode hiddenLargeView" title="Switch to Presentation Mode" tabindex="31" data-l10n-id="presentation_mode">
+                                    <span data-l10n-id="presentation_mode_label">Presentation Mode</span>
+                                </button>
 
-                            <button id="openFile" class="toolbarButton openFile hiddenLargeView" title="Open File" tabindex="32" data-l10n-id="open_file">
-                              <span data-l10n-id="open_file_label">Open</span>
-                            </button>
+                                <button id="openFile" class="toolbarButton openFile hiddenLargeView" title="Open File" tabindex="32" data-l10n-id="open_file">
+                                    <span data-l10n-id="open_file_label">Open</span>
+                                </button>
 
-                            <button id="print" class="toolbarButton print hiddenMediumView" title="Print" tabindex="33" data-l10n-id="print">
-                              <span data-l10n-id="print_label">Print</span>
-                            </button>
+                                <button id="print" class="toolbarButton print hiddenMediumView" title="Print" tabindex="33" data-l10n-id="print">
+                                    <span data-l10n-id="print_label">Print</span>
+                                </button>
 
-                            <button id="download" class="toolbarButton download hiddenMediumView" title="Download" tabindex="34" data-l10n-id="download">
-                              <span data-l10n-id="download_label">Download</span>
-                            </button>
-                            <a href="#" id="viewBookmark" class="toolbarButton bookmark hiddenSmallView" title="Current view (copy or open in new window)" tabindex="35" data-l10n-id="bookmark">
-                              <span data-l10n-id="bookmark_label">Current View</span>
-                            </a>
+                                <button id="download" class="toolbarButton download hiddenMediumView" title="Download" tabindex="34" data-l10n-id="download">
+                                    <span data-l10n-id="download_label">Download</span>
+                                </button>
+                                <a href="#" id="viewBookmark" class="toolbarButton bookmark hiddenSmallView" title="Current view (copy or open in new window)" tabindex="35" data-l10n-id="bookmark">
+                                    <span data-l10n-id="bookmark_label">Current View</span>
+                                </a>
 
-                            <div class="verticalToolbarSeparator hiddenSmallView"></div>
+                                <div class="verticalToolbarSeparator hiddenSmallView"></div>
 
-                            <button id="secondaryToolbarToggle" class="toolbarButton" title="Tools" tabindex="36" data-l10n-id="tools">
-                              <span data-l10n-id="tools_label">Tools</span>
-                            </button>
-                          </div>
-                          <div id="toolbarViewerMiddle">
-                            <div class="splitToolbarButton">
-                              <button id="zoomOut" class="toolbarButton zoomOut" title="Zoom Out" tabindex="21" data-l10n-id="zoom_out">
-                                <span data-l10n-id="zoom_out_label">Zoom Out</span>
-                              </button>
-                              <div class="splitToolbarButtonSeparator"></div>
-                              <button id="zoomIn" class="toolbarButton zoomIn" title="Zoom In" tabindex="22" data-l10n-id="zoom_in">
-                                <span data-l10n-id="zoom_in_label">Zoom In</span>
-                               </button>
+                                <button id="secondaryToolbarToggle" class="toolbarButton" title="Tools" tabindex="36" data-l10n-id="tools">
+                                    <span data-l10n-id="tools_label">Tools</span>
+                                </button>
                             </div>
-                            <span id="scaleSelectContainer" class="dropdownToolbarButton">
+                            <div id="toolbarViewerMiddle">
+                                <div class="splitToolbarButton">
+                                    <button id="zoomOut" class="toolbarButton zoomOut" title="Zoom Out" tabindex="21" data-l10n-id="zoom_out">
+                                        <span data-l10n-id="zoom_out_label">Zoom Out</span>
+                                    </button>
+                                    <div class="splitToolbarButtonSeparator"></div>
+                                    <button id="zoomIn" class="toolbarButton zoomIn" title="Zoom In" tabindex="22" data-l10n-id="zoom_in">
+                                        <span data-l10n-id="zoom_in_label">Zoom In</span>
+                                    </button>
+                                </div>
+                                <span id="scaleSelectContainer" class="dropdownToolbarButton">
                               <select id="scaleSelect" title="Zoom" tabindex="23" data-l10n-id="zoom">
                                 <option id="pageAutoOption" title="" value="auto" selected="selected" data-l10n-id="page_scale_auto">Automatic Zoom</option>
                                 <option id="pageActualOption" title="" value="page-actual" data-l10n-id="page_scale_actual">Actual Size</option>
@@ -301,259 +312,259 @@
                                 <option title="" value="4" data-l10n-id="page_scale_percent" data-l10n-args='{ "scale": 400 }'>400%</option>
                               </select>
                             </span>
-                          </div>
+                            </div>
                         </div>
                         <div id="loadingBar">
-                          <div class="progress">
-                            <div class="glimmer">
+                            <div class="progress">
+                                <div class="glimmer">
+                                </div>
                             </div>
-                          </div>
                         </div>
-                      </div>
                     </div>
+                </div>
 
-                    <menu type="context" id="viewerContextMenu">
-                      <menuitem id="contextFirstPage" label="First Page"
-                                data-l10n-id="first_page"></menuitem>
-                      <menuitem id="contextLastPage" label="Last Page"
-                                data-l10n-id="last_page"></menuitem>
-                      <menuitem id="contextPageRotateCw" label="Rotate Clockwise"
-                                data-l10n-id="page_rotate_cw"></menuitem>
-                      <menuitem id="contextPageRotateCcw" label="Rotate Counter-Clockwise"
-                                data-l10n-id="page_rotate_ccw"></menuitem>
-                    </menu>
+                <menu type="context" id="viewerContextMenu">
+                    <menuitem id="contextFirstPage" label="First Page"
+                              data-l10n-id="first_page"></menuitem>
+                    <menuitem id="contextLastPage" label="Last Page"
+                              data-l10n-id="last_page"></menuitem>
+                    <menuitem id="contextPageRotateCw" la´bel="Rotate Clockwise"
+                              data-l10n-id="page_rotate_cw"></menuitem>
+                    <menuitem id="contextPageRotateCcw" label="Rotate Counter-Clockwise"
+                              data-l10n-id="page_rotate_ccw"></menuitem>
+                </menu>
 
-                    <div id="viewerContainer" tabindex="0">
-                      <div id="viewer" class="pdfViewer"></div>
-                    </div>
+                <div id="viewerContainer" tabindex="0">
+                    <div id="viewer" class="pdfViewer"></div>
+                </div>
 
-                    <div id="errorWrapper" hidden='true'>
-                      <div id="errorMessageLeft">
+                <div id="errorWrapper" hidden='true'>
+                    <div id="errorMessageLeft">
                         <span id="errorMessage"></span>
                         <button id="errorShowMore" data-l10n-id="error_more_info">
-                          More Information
+                            More Information
                         </button>
                         <button id="errorShowLess" data-l10n-id="error_less_info" hidden='true'>
-                          Less Information
+                            Less Information
                         </button>
-                      </div>
-                      <div id="errorMessageRight">
+                    </div>
+                    <div id="errorMessageRight">
                         <button id="errorClose" data-l10n-id="error_close">
-                          Close
+                            Close
                         </button>
-                      </div>
-                      <div class="clearBoth"></div>
-                      <textarea id="errorMoreInfo" hidden='true' readonly="readonly"></textarea>
                     </div>
-                  </div> <!-- mainContainer -->
+                    <div class="clearBoth"></div>
+                    <textarea id="errorMoreInfo" hidden='true' readonly="readonly"></textarea>
+                </div>
+            </div> <!-- mainContainer -->
 
-                  <div id="overlayContainer" class="hidden">
-                    <div id="passwordOverlay" class="container hidden">
-                      <div class="dialog">
+            <div id="overlayContainer" class="hidden">
+                <div id="passwordOverlay" class="container hidden">
+                    <div class="dialog">
                         <div class="row">
-                          <p id="passwordText" data-l10n-id="password_label">Enter the password to open this PDF file:</p>
+                            <p id="passwordText" data-l10n-id="password_label">Enter the password to open this PDF file:</p>
                         </div>
                         <div class="row">
-                          <input type="password" id="password" class="toolbarField">
+                            <input type="password" id="password" class="toolbarField">
                         </div>
                         <div class="buttonRow">
-                          <button id="passwordCancel" class="overlayButton"><span data-l10n-id="password_cancel">Cancel</span></button>
-                          <button id="passwordSubmit" class="overlayButton"><span data-l10n-id="password_ok">OK</span></button>
+                            <button id="passwordCancel" class="overlayButton"><span data-l10n-id="password_cancel">Cancel</span></button>
+                            <button id="passwordSubmit" class="overlayButton"><span data-l10n-id="password_ok">OK</span></button>
                         </div>
-                      </div>
-                    </div>
-                    <div id="documentPropertiesOverlay" class="container hidden">
-                      <div class="dialog">
-                        <div class="row">
-                          <span data-l10n-id="document_properties_file_name">File name:</span> <p id="fileNameField">-</p>
-                        </div>
-                        <div class="row">
-                          <span data-l10n-id="document_properties_file_size">File size:</span> <p id="fileSizeField">-</p>
-                        </div>
-                        <div class="separator"></div>
-                        <div class="row">
-                          <span data-l10n-id="document_properties_title">Title:</span> <p id="titleField">-</p>
-                        </div>
-                        <div class="row">
-                          <span data-l10n-id="document_properties_author">Author:</span> <p id="authorField">-</p>
-                        </div>
-                        <div class="row">
-                          <span data-l10n-id="document_properties_subject">Subject:</span> <p id="subjectField">-</p>
-                        </div>
-                        <div class="row">
-                          <span data-l10n-id="document_properties_keywords">Keywords:</span> <p id="keywordsField">-</p>
-                        </div>
-                        <div class="row">
-                          <span data-l10n-id="document_properties_creation_date">Creation Date:</span> <p id="creationDateField">-</p>
-                        </div>
-                        <div class="row">
-                          <span data-l10n-id="document_properties_modification_date">Modification Date:</span> <p id="modificationDateField">-</p>
-                        </div>
-                        <div class="row">
-                          <span data-l10n-id="document_properties_creator">Creator:</span> <p id="creatorField">-</p>
-                        </div>
-                        <div class="separator"></div>
-                        <div class="row">
-                          <span data-l10n-id="document_properties_producer">PDF Producer:</span> <p id="producerField">-</p>
-                        </div>
-                        <div class="row">
-                          <span data-l10n-id="document_properties_version">PDF Version:</span> <p id="versionField">-</p>
-                        </div>
-                        <div class="row">
-                          <span data-l10n-id="document_properties_page_count">Page Count:</span> <p id="pageCountField">-</p>
-                        </div>
-                        <div class="row">
-                          <span data-l10n-id="document_properties_page_size">Page Size:</span> <p id="pageSizeField">-</p>
-                        </div>
-                        <div class="separator"></div>
-                        <div class="row">
-                          <span data-l10n-id="document_properties_linearized">Fast Web View:</span> <p id="linearizedField">-</p>
-                        </div>
-                        <div class="buttonRow">
-                          <button id="documentPropertiesClose" class="overlayButton"><span data-l10n-id="document_properties_close">Close</span></button>
-                        </div>
-                      </div>
-                    </div>
-                    <div id="printServiceOverlay" class="container hidden">
-                      <div class="dialog">
-                        <div class="row">
-                          <span data-l10n-id="print_progress_message">Preparing document for printing…</span>
-                        </div>
-                        <div class="row">
-                          <progress value="0" max="100"></progress>
-                          <span data-l10n-id="print_progress_percent" data-l10n-args='{ "progress": 0 }' class="relative-progress">0%</span>
-                        </div>
-                        <div class="buttonRow">
-                          <button id="printCancel" class="overlayButton"><span data-l10n-id="print_progress_close">Cancel</span></button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>  <!-- overlayContainer -->
-
-                </div> <!-- outerContainer -->
-            </div>
-
-            <form id='formSign' action="{{ path('nononsense_records_contracts_public_sign_contract', {'token': token}) }}" method="POST">
-                <input type="hidden" id='firma' name='firma' value="{{firma}}"> 
-                <input type="hidden" id='firmaProvisional' value=""> 
-                
-                
-                <div style="float: left; clear: both; Width: 100%; margin-top: 50px; height: 300px;" onclick="openModalSign();">
-                    <div style="width:500px; height: 300px; margin: 0 auto; border: 1px solid black;margin-bottom: 100px;">
-                        <img id='imgFirma' style="width:100%;" />
                     </div>
                 </div>
-                <div style="float: left; clear: both; Width: 100%; margin-bottom:100px;">
-                    <div class='div_sign_button' style="margin-bottom: 20px; display: none;">
-                        Pin: <input type="text" id="pin" name='pin'>
-                        <button type="button" onclick="sendForm();" class="btn btn-dark" style="font-size: 16px;">Firmar</button>
+                <div id="documentPropertiesOverlay" class="container hidden">
+                    <div class="dialog">
+                        <div class="row">
+                            <span data-l10n-id="document_properties_file_name">File name:</span> <p id="fileNameField">-</p>
+                        </div>
+                        <div class="row">
+                            <span data-l10n-id="document_properties_file_size">File size:</span> <p id="fileSizeField">-</p>
+                        </div>
+                        <div class="separator"></div>
+                        <div class="row">
+                            <span data-l10n-id="document_properties_title">Title:</span> <p id="titleField">-</p>
+                        </div>
+                        <div class="row">
+                            <span data-l10n-id="document_properties_author">Author:</span> <p id="authorField">-</p>
+                        </div>
+                        <div class="row">
+                            <span data-l10n-id="document_properties_subject">Subject:</span> <p id="subjectField">-</p>
+                        </div>
+                        <div class="row">
+                            <span data-l10n-id="document_properties_keywords">Keywords:</span> <p id="keywordsField">-</p>
+                        </div>
+                        <div class="row">
+                            <span data-l10n-id="document_properties_creation_date">Creation Date:</span> <p id="creationDateField">-</p>
+                        </div>
+                        <div class="row">
+                            <span data-l10n-id="document_properties_modification_date">Modification Date:</span> <p id="modificationDateField">-</p>
+                        </div>
+                        <div class="row">
+                            <span data-l10n-id="document_properties_creator">Creator:</span> <p id="creatorField">-</p>
+                        </div>
+                        <div class="separator"></div>
+                        <div class="row">
+                            <span data-l10n-id="document_properties_producer">PDF Producer:</span> <p id="producerField">-</p>
+                        </div>
+                        <div class="row">
+                            <span data-l10n-id="document_properties_version">PDF Version:</span> <p id="versionField">-</p>
+                        </div>
+                        <div class="row">
+                            <span data-l10n-id="document_properties_page_count">Page Count:</span> <p id="pageCountField">-</p>
+                        </div>
+                        <div class="row">
+                            <span data-l10n-id="document_properties_page_size">Page Size:</span> <p id="pageSizeField">-</p>
+                        </div>
+                        <div class="separator"></div>
+                        <div class="row">
+                            <span data-l10n-id="document_properties_linearized">Fast Web View:</span> <p id="linearizedField">-</p>
+                        </div>
+                        <div class="buttonRow">
+                            <button id="documentPropertiesClose" class="overlayButton"><span data-l10n-id="document_properties_close">Close</span></button>
+                        </div>
                     </div>
                 </div>
+                <div id="printServiceOverlay" class="container hidden">
+                    <div class="dialog">
+                        <div class="row">
+                            <span data-l10n-id="print_progress_message">Preparing document for printing…</span>
+                        </div>
+                        <div class="row">
+                            <progress value="0" max="100"></progress>
+                            <span data-l10n-id="print_progress_percent" data-l10n-args='{ "progress": 0 }' class="relative-progress">0%</span>
+                        </div>
+                        <div class="buttonRow">
+                            <button id="printCancel" class="overlayButton"><span data-l10n-id="print_progress_close">Cancel</span></button>
+                        </div>
+                    </div>
+                </div>
+            </div>  <!-- overlayContainer -->
 
-                <br><br><br><br><br>
-            </form>
-
+        </div> <!-- outerContainer -->
+    </div>
+{% if firma is null %}
+    <form id='formSign' action="{{ path('nononsense_records_contracts_public_sign_contract', {'version': version,'token': token}) }}" method="POST">
+        <input type="hidden" id="firma" name="firma">
+        <div id="signature-pad" class="input-group">
+            <canvas id="signature_pad_draw"></canvas>
         </div>
-
-
-        <!-- Modal -->
-        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" style="margin-top:100px;">
-          <div class="modal-dialog" role="document" style="max-width:700px;">
-            <div class="modal-content">
-              <div class="modal-body">
-                <div class='div_sign'>
-                    <div style="width:100%; margin: 0 auto; height: 500px;">
-                      <div id="signature-pad" class="signature-pad">
-                        <div class="signature-pad--body">
-                          <canvas id="signature_pad_draw"></canvas>
-                        </div>
-                        <div class="signature-pad--footer">
-                          <div class="signature-pad--actions">
-                            <button type="button" class="button clear btn btn-success" style="font-size: 16px;" onclick="borrarFirma();">Borrar Firma</button>
-                            <button type="button" class="btn btn-secondary" style="font-size: 16px;" data-dismiss="modal">Cerrar</button>
-                            <button onclick="saveSign();" type="button" class="btn btn-primary" style="font-size: 16px;">Guardar Firma</button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                </div>
-              </div>
-            </div>
-          </div>
+        <div class="clean-sign-container">
+            <a href="#" class="btn btn-primary" id="borrar-firma">Limpiar firma</a>
         </div>
+        <div class='div_sign_button' style="margin-bottom: 20px;">
+            Pin: <input type="text" id="pin" name='pin'>
+            <button type="button" onclick="sendForm();" class="btn btn-dark" style="font-size: 16px;">Firmar</button>
+        </div>
+    </form>
+{% endif %}
+    <div class="footer-wrapper">
+        <div class="footer">
+            <div>
+                <strong>Copyright</strong> No-nonsense Labs ©  
+            </div>
+        </div>
+    </div>
+</div>
 
-    </body>
+<div id='div_mascara' style="width: 100%; height: 100%; position: absolute; top: 0px; left: 0px; z-index: -1000;"></div>
+<div id='div_loader_admin' style="display: none;" class="ui-loader ui-corner-all ui-body-a ui-loader-verbose">
+    <span class="ui-icon-loading"></span>
+    <h1>{{ 'cargando'|trans|capitalize }}...</h1>
+</div>
+</body>
 
 
-    <script type="text/javascript" src="{{ asset('bundles/nononsensehome/sign_contract_public/signature_pad.umd.js') }}"></script>
-    <script type="text/javascript" src="{{ asset('bundles/nononsensehome/sign_contract_public/app.js') }}"></script>
-    <script type="text/javascript" src="{{ asset('bundles/nononsensehome/sign_contract_public/sweetalert2.all.js') }}"></script>
-    <link rel="resource" type="application/l10n" href="{{ asset('bundles/nononsensehome/web/locale.properties') }}">
-    <script type="text/javascript" src="{{ asset('bundles/nononsensehome/sign_contract_public/pdf.js?time=' ~ time) }}"></script>
-    <script type="text/javascript" src="{{ asset('bundles/nononsensehome/web/viewer.js?time=' ~ time) }}"></script>
-    <script type="text/javascript" src="{{ asset('bundles/nononsensehome/sign_contract_public/pdf.worker.js?time=' ~ time) }}"></script>
-    <script type="text/javascript" src="{{ asset('bundles/nononsensehome/sign_contract_public/bootstrap.min.js?time=' ~ time) }}"></script>
+<script type="text/javascript" src="{{ asset('bundles/nononsensehome/sign_contract_public/signature_pad.umd.js') }}"></script>
+<script type="text/javascript" src="{{ asset('bundles/nononsensehome/sign_contract_public/app.js') }}"></script>
+<link rel="resource" type="application/l10n" href="{{ asset('bundles/nononsensehome/web/locale.properties') }}">
+<script type="text/javascript" src="{{ asset('bundles/nononsensehome/sign_contract_public/pdf.js?time=' ~ time) }}"></script>
+<script type="text/javascript" src="{{ asset('bundles/nononsensehome/web/viewer.js?time=' ~ time) }}"></script>
+<script type="text/javascript" src="{{ asset('bundles/nononsensehome/sign_contract_public/pdf.worker.js?time=' ~ time) }}"></script>
+<script type="text/javascript" src="{{ asset('bundles/nononsensehome/sign_contract_public/bootstrap.min.js?time=' ~ time) }}"></script>
+<link href="{{ asset('css/plugins/toastr/toastr.min.css') }}" rel="stylesheet">
+<script src="{{ asset('js/plugins/toastr/toastr.min.js') }}"></script>
+
+<script>
+    $(function(){
+        show_loader()
+
+        toastr.options = {
+            "closeButton": true,
+            "debug": false,
+            "progressBar": true,
+            "positionClass": "toast-top-center",
+            "onclick": null,
+            "showDuration": "400",
+            "hideDuration": "1000",
+            "timeOut": "7000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        }
+    });
+    const interLoader = setInterval(checkLoader, 1000);
+
+    $(document).on('click','#borrar-firma', function (e) {
+        e.preventDefault();
+        signaturePad.clear();
+    });
 
 
-    <script>
+    function sendForm(){
+        show_loader();
 
-        function openModalSign(){
-            var firma = $('#firma').val();
-            if(firma==''){
-                $('#exampleModal').modal('show');
-                setTimeout(resizeCanvas, 500); 
-            }       
+        $("#firma").val(signaturePad.toDataURL());
+        let error = false;
+
+        if (!checkSignature(signaturePad)) {
+            toastr.error("No has firmado todavía.\n", 'aviso');
+            error = true;
+            stopLoader();
         }
 
-
-        function saveSign(){
-            var dataURL = signaturePad.toDataURL();
-            $("#imgFirma").attr('src', dataURL);
-            $('#firmaProvisional').val(dataURL);
-            $('#exampleModal').modal('hide');
+        if (!checkPin()) {
+            toastr.error("El pin es obligatorio.\n", 'aviso');
+            error = true;
+            stopLoader();
         }
-        
-        $(function () {
-            var firma = $('#firma').val();
-            if(firma!=''){
-                $('.div_sign_button').hide();
-                $("#imgFirma").attr('src', firma);
-            }
-            else{
-                $('.div_sign_button').show();
-                $('.clear').show();
-            }
-        });
 
-        function borrarFirma(){
-            signaturePad.clear();   
+        if(!error){
+            $('#formSign').submit();
         }
-        
+    }
 
-        function sendForm(){
-            var firmaProvisional = $('#firmaProvisional').val();
-            var pin = $('#pin').val();
-            if (firmaProvisional=='') {
-                swal({
-                  title: 'No has firmado todavía.\n',
-                  showCancelButton: false
-                }); 
-            } 
-            else {
-                if (pin=='') {
-                    swal({
-                      title: 'El pin es obligatorio.\n',
-                      showCancelButton: false
-                    }); 
-                } 
-                else {
-                    $('#firma').val($('#firmaProvisional').val());
-                    $('#formSign').submit();
-                }
-            }
+    function show_loader(){
+        $('#div_loader_admin').show();
+        $('#div_mascara').css("z-index", "10000");
+    }
+
+    function hide_loader(){
+        $('#div_mascara').css("z-index", "-1000");
+        $('#div_loader_admin').hide();
+    }
+
+    function checkLoader() {
+        if($('#viewer').html()){
+            hide_loader();
+            stopLoader();
         }
-        
+    }
 
-    </script>
+    function stopLoader() {
+        clearInterval(interLoader);
+    }
+
+    function checkSignature(signaturePad){
+        return !signaturePad.isEmpty();
+    }
+
+    function checkPin(){
+        return $('#pin').val() !== '';
+    }
+
+</script>
 
 </html>

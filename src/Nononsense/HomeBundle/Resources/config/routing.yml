@@ -443,11 +443,11 @@ nononsense_records_contracts_link:
     defaults: { _controller: NononsenseHomeBundle:RecordsContracts:link, id: 0}
 
 nononsense_records_contracts_public_sign_contract:
-    path:     /sign-contract/{token}
+    path:     /sign-contract/{version}/{token}
     defaults: { _controller: NononsenseHomeBundle:RecordsContracts:signContract, token: null}
 
 nononsense_records_contracts_public_view_contract:
-    path:     /view-contract/{token}
+    path:     /view-contract/{version}/{token}
     defaults: { _controller: NononsenseHomeBundle:RecordsContracts:viewContract, token: null}
 
 nononsense_records_contracts_send_sms:
