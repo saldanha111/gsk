@@ -195,6 +195,7 @@ class RecordsContractsController extends Controller
 
         $user = $this->container->get('security.context')->getToken()->getUser();
 
+        /** @var RecordsContracts $record */
         $record = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:RecordsContracts')
             ->find($id);
@@ -250,6 +251,34 @@ class RecordsContractsController extends Controller
                     $scriptUrl = $baseUrl . "../js/js_oarodoc/contracts_without_perms.js?v=" . uniqid();
                 }
             }
+        }
+
+        if($record->getStatus() == 4){
+            $isGroup_comite_rrhh = $this->getDoctrine()->getRepository(
+                'NononsenseGroupBundle:GroupUsers'
+            )->isMemberOfAnyGroup($user->getId(), array($this->getParameter("group_id_comite_rrhh")));
+
+            $isGroup_direccion_rrhh = $this->getDoctrine()->getRepository(
+                'NononsenseGroupBundle:GroupUsers'
+            )->isMemberOfAnyGroup($user->getId(), array($this->getParameter("group_id_comite_rrhh")));
+
+            if ($isGroup_comite_rrhh) {
+                $route = $this->container->get('router')->generate(
+                    'nononsense_records_contracts_public_view_contract',
+                    ["token" => $record->getTokenPublicSignature(), "version" => self::VERSION_COMMISSION]
+                );
+            } elseif($isGroup_direccion_rrhh) {
+                $route = $this->container->get('router')->generate(
+                    'nononsense_records_contracts_public_view_contract',
+                    ["token" => $record->getTokenPublicSignature(), "version" => self::VERSION_DIRECTOR]
+                );
+            }else{
+                $route = $this->container->get('router')->generate(
+                    'nononsense_records_contracts_public_view_contract',
+                    ["token" => $record->getTokenPublicSignature(), "version" => self::VERSION_COMPLETE]
+                );
+            }
+            return $this->redirect($route);
         }
 
         $token_get_data = $this->get('utilities')->generateToken();
@@ -340,6 +369,7 @@ class RecordsContractsController extends Controller
             }
 
             $data["data"]["numero_solicitud"] = $record->getId();
+            $data['configuration']['form_readonly'] = 1;
         }
 
         $response = new Response();
@@ -573,7 +603,8 @@ class RecordsContractsController extends Controller
                             $signImage = $this->createImageForSign($certParsed['subject']['CN']);
                             if ($certParsed && isset($certParsed['validTo_time_t'])) {
                                 try {
-                                $endDate->setTimestamp($certParsed['validTo_time_t']);
+                                    // TODO modificar para subir a producción
+//                                $endDate->setTimestamp($certParsed['validTo_time_t']);
                                 } catch (\Exception $e) {
                                     echo $e->getMessage();
                                 }
@@ -768,6 +799,10 @@ class RecordsContractsController extends Controller
 
     public function signContractAction(Request $request, $version, $token)
     {
+        $result = [
+            'type' => 'none',
+            'message' => ''
+        ];
         $array_data = array();
 
         $record = $this->getDoctrine()
@@ -776,7 +811,6 @@ class RecordsContractsController extends Controller
 
         if ($record) {
             $firma = $request->get('firma');
-            $result = 0;
 
             $em = $this->getDoctrine()->getManager();
 
