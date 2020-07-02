@@ -120,6 +120,14 @@ class RecordsContractsController extends Controller
             ->find($this->getParameter("group_id_comite_rrhh"));
         $array_item['group_comite_rrhh'] = $group_comite_rrhh;
 
+        /** @var GroupUsersRepository $groupUsersRepository */
+        $groupUsersRepository = $this->getDoctrine()->getRepository('NononsenseGroupBundle:GroupUsers');
+        $isGroupDirectionOrAdmin = $groupUsersRepository->isMemberOfAnyGroup(
+            $user->getId(),
+            [$this->getParameter("group_id_direccion_rrhh"),$this->getParameter("group_id_contratos_rrhh")]
+        );
+        $array_item['direction_or_admin'] = $isGroupDirectionOrAdmin;
+
         $url = $this->container->get('router')->generate('nononsense_records_contracts');
         $params = $request->query->all();
         unset($params["page"]);

@@ -126,7 +126,7 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    {% if item.status is defined and item.status==3 %}
+                                    {% if item.status is defined and item.status==3 and direction_or_admin %}
 {#                                        <btn onclick='open_dialog_enviar_sms({{item.id}});' class="btn btn-xs btn-primary"><i class="fa fa-phone" aria-hidden="true"></i> Enviar por SMS</btn>#}
                                         <btn onclick='open_dialog_enviar_email({{item.id}});' class="btn btn-xs btn-primary"><i class="fa fa-envelope" aria-hidden="true"></i> Enviar por Email</btn>
                                     {% endif %}
