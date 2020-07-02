@@ -21,6 +21,7 @@ class RecordsContractsRepository extends EntityRepository
             ->leftJoin("r.type", "t")
             ->leftJoin("r.userCreatedEntiy", "u")
             ->leftJoin("r.contract", "d")
+            ->leftJoin('r.signatures','s')
             ->andWhere('r.isActive=1')
 //            ->andWhere('(s.next=1 OR s.next IS NULL) OR (r.status=3 AND s.id=r.lastSign) or (r.comments IS NOT NULL and s.number=0)')
             ->orderBy('r.id', 'DESC');
@@ -45,6 +46,7 @@ class RecordsContractsRepository extends EntityRepository
             ->leftJoin("r.type", "t")
             ->leftJoin("r.userCreatedEntiy", "u")
             ->leftJoin("r.contract", "d")
+            ->leftJoin('r.signatures','s')
             ->andWhere('r.isActive=1')
             //->andWhere('(s.next=1 OR s.next IS NULL) OR (r.status=3 AND s.id=r.lastSign) or (r.comments IS NOT NULL and s.number=0)')
             ->orderBy('r.id', 'DESC');
