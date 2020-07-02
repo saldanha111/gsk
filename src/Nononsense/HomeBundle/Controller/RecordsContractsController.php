@@ -4,6 +4,7 @@ namespace Nononsense\HomeBundle\Controller;
 
 use DateInterval;
 use DateTime;
+use Nononsense\GroupBundle\Entity\GroupUsersRepository;
 use Nononsense\HomeBundle\Entity\RecordsContracts;
 use Nononsense\HomeBundle\Entity\RecordsContractsSignatures;
 use Nononsense\HomeBundle\Entity\ContractsTypes;
@@ -189,10 +190,6 @@ class RecordsContractsController extends Controller
     /* Donde Generamos el link que llama a docxpresso */
     public function linkAction(Request $request, $id)
     {
-        $baseUrl = $this->getParameter("cm_installation");
-        $baseUrlAux = $this->getParameter("cm_installation_aux");
-        $scriptUrl = '';
-
         $user = $this->container->get('security.context')->getToken()->getUser();
 
         /** @var RecordsContracts $record */
@@ -200,87 +197,147 @@ class RecordsContractsController extends Controller
             ->getRepository('NononsenseHomeBundle:RecordsContracts')
             ->find($id);
 
+        /** @var GroupUsersRepository $groupUsersRepository */
+        $groupUsersRepository = $this->getDoctrine()->getRepository('NononsenseGroupBundle:GroupUsers');
+        $isGroup_direccion_rrhh = $groupUsersRepository->isMemberOfAnyGroup(
+            $user->getId(),
+            [$this->getParameter("group_id_direccion_rrhh")]
+        );
 
-        $redirectUrl = $baseUrl . "recordsContracts/redirectFromData/" . $id;
-        if ($record->getStatus() == 0) {
-            $scriptUrl = $baseUrl . "../js/js_oarodoc/contracts_creation.js?v=" . uniqid();
-        }
-        if ($record->getStatus() == 1) {
-            //firma por parte del director de rrhh
-            $isGroup_direccion_rrhh = $this->getDoctrine()->getRepository(
-                'NononsenseGroupBundle:GroupUsers'
-            )->isMemberOfAnyGroup($user->getId(), array($this->getParameter("group_id_direccion_rrhh")));
-            if ($isGroup_direccion_rrhh) {
-                $scriptUrl = $baseUrl . "../js/js_oarodoc/contracts_sign_director_rrhh.js?v=" . uniqid();
-            } else {
-                $scriptUrl = $baseUrl . "../js/js_oarodoc/contracts_without_perms.js?v=" . uniqid();
-            }
-        }
-        if ($record->getStatus() == 2) {
-            //firma por parte del comite de rrhh
-            $isGroup_comite_rrhh = $this->getDoctrine()->getRepository(
-                'NononsenseGroupBundle:GroupUsers'
-            )->isMemberOfAnyGroup($user->getId(), array($this->getParameter("group_id_comite_rrhh")));
-            if ($isGroup_comite_rrhh) {
-                $scriptUrl = $baseUrl . "../js/js_oarodoc/contracts_sign_comite_rrhh.js?v=" . uniqid();
-            } else {
-                $scriptUrl = $baseUrl . "../js/js_oarodoc/contracts_without_perms.js?v=" . uniqid();
-            }
-        }
-        if ($record->getStatus() == 3) {//para enviar
+        $isGroup_comite_rrhh = $groupUsersRepository->isMemberOfAnyGroup(
+            $user->getId(),
+            [$this->getParameter("group_id_comite_rrhh")]
+        );
 
-            $isGroup_contratos_rrhh_or_direccion_rrhh = $this->getDoctrine()->getRepository(
-                'NononsenseGroupBundle:GroupUsers'
-            )->isMemberOfAnyGroup(
-                $user->getId(),
-                array(
-                    $this->getParameter("group_id_contratos_rrhh"),
-                    $this->getParameter("group_id_direccion_rrhh")
-                )
+        $isGroup_admin_rrhh = $groupUsersRepository->isMemberOfAnyGroup(
+            $user->getId(),
+            [$this->getParameter("group_id_contratos_rrhh")]
+        );
+
+        if($isGroup_admin_rrhh){
+            $url_edit_documento = $this->getLinkForAdmin($record);
+        }elseif($isGroup_direccion_rrhh){
+            $url_edit_documento = $this->getLinkForDirection($record);
+        }elseif ($isGroup_comite_rrhh){
+            $url_edit_documento = $this->getLinkForComite($record);
+        }else{
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                "No tienes permisos para visualizar este contrato."
             );
-            if ($isGroup_contratos_rrhh_or_direccion_rrhh) {
-                $scriptUrl = $baseUrl . "../js/js_oarodoc/contracts_for_send.js?v=" . uniqid();
-            } else {
-                $isGroup_comite_rrhh = $this->getDoctrine()->getRepository(
-                    'NononsenseGroupBundle:GroupUsers'
-                )->isMemberOfAnyGroup($user->getId(), array($this->getParameter("group_id_comite_rrhh")));
-
-                if ($isGroup_comite_rrhh) {
-                    $scriptUrl = $baseUrl . "../js/js_oarodoc/contracts_for_send_comite.js?v=" . uniqid();
-                } else {
-                    $scriptUrl = $baseUrl . "../js/js_oarodoc/contracts_without_perms.js?v=" . uniqid();
-                }
-            }
+            $url_edit_documento = $this->container->get('router')->generate('nononsense_records_contracts');
         }
+        return $this->redirect($url_edit_documento);
+    }
 
-        if($record->getStatus() == 4){
-            $isGroup_comite_rrhh = $this->getDoctrine()->getRepository(
-                'NononsenseGroupBundle:GroupUsers'
-            )->isMemberOfAnyGroup($user->getId(), array($this->getParameter("group_id_comite_rrhh")));
-
-            $isGroup_direccion_rrhh = $this->getDoctrine()->getRepository(
-                'NononsenseGroupBundle:GroupUsers'
-            )->isMemberOfAnyGroup($user->getId(), array($this->getParameter("group_id_comite_rrhh")));
-
-            if ($isGroup_comite_rrhh) {
-                $route = $this->container->get('router')->generate(
-                    'nononsense_records_contracts_public_view_contract',
-                    ["token" => $record->getTokenPublicSignature(), "version" => self::VERSION_COMMISSION]
-                );
-            } elseif($isGroup_direccion_rrhh) {
-                $route = $this->container->get('router')->generate(
-                    'nononsense_records_contracts_public_view_contract',
-                    ["token" => $record->getTokenPublicSignature(), "version" => self::VERSION_DIRECTOR]
-                );
-            }else{
-                $route = $this->container->get('router')->generate(
+    /**
+     * @param RecordsContracts $record
+     * @return string
+     */
+    private function getLinkForAdmin($record)
+    {
+        $baseUrl = $this->getParameter("cm_installation");
+        switch ($record->getStatus()){
+            case 0 :
+                $scriptUrl = $baseUrl . "../js/js_oarodoc/contracts_creation.js?v=" . uniqid();
+                $fillInUrl = $this->getFillInUrl($record, $scriptUrl);
+                break;
+            case 1 :
+            case 2 :
+            case 3 :
+                $scriptUrl = $baseUrl . "../js/js_oarodoc/contracts_without_perms.js?v=" . uniqid();
+                $fillInUrl = $this->getFillInUrl($record, $scriptUrl);
+                break;
+            case 4 :
+                $fillInUrl = $this->container->get('router')->generate(
                     'nononsense_records_contracts_public_view_contract',
                     ["token" => $record->getTokenPublicSignature(), "version" => self::VERSION_COMPLETE]
                 );
-            }
-            return $this->redirect($route);
+                break;
+            default :
+                $this->get('session')->getFlashBag()->add(
+                    'error',
+                    "El contrato está en un estado desconocido y no se puede visualizar."
+                );
+                $fillInUrl = $this->container->get('router')->generate('nononsense_records_contracts');
         }
+        return $fillInUrl;
+    }
 
+    /**
+     * @param RecordsContracts $record
+     * @return string
+     */
+    private function getLinkForComite($record)
+    {
+        $baseUrl = $this->getParameter("cm_installation");
+        switch ($record->getStatus()){
+            case 0 :
+            case 1 :
+                $this->get('session')->getFlashBag()->add('error',"Aún no puedes visualizar el contrato seleccionado.");
+                $fillInUrl = $this->container->get('router')->generate('nononsense_records_contracts');
+                break;
+            case 2 :
+            case 3 :
+                $scriptUrl = $baseUrl . "../js/js_oarodoc/contracts_sign_comite_rrhh.js?v=" . uniqid();
+                $fillInUrl = $this->getFillInUrl($record, $scriptUrl);
+                break;
+            case 4 :
+                $fillInUrl = $this->container->get('router')->generate(
+                    'nononsense_records_contracts_public_view_contract',
+                    ["token" => $record->getTokenPublicSignature(), "version" => self::VERSION_COMMISSION]
+                );
+                break;
+            default :
+                $this->get('session')->getFlashBag()->add(
+                    'error',
+                    "El contrato está en un estado desconocido y no se puede visualizar."
+                );
+                $fillInUrl = $this->container->get('router')->generate('nononsense_records_contracts');
+        }
+        return $fillInUrl;
+    }
+
+    /**
+     * @param RecordsContracts $record
+     * @return string
+     */
+    private function getLinkForDirection($record)
+    {
+        $baseUrl = $this->getParameter("cm_installation");
+        switch ($record->getStatus()){
+            case 0 :
+                $this->get('session')->getFlashBag()->add('error',"Aún no puedes visualizar el contrato seleccionado.");
+                $fillInUrl = $this->container->get('router')->generate('nononsense_records_contracts');
+                break;
+            case 1 :
+            case 2 :
+            case 3 :
+                $scriptUrl = $baseUrl . "../js/js_oarodoc/contracts_sign_director_rrhh.js?v=" . uniqid();
+                $fillInUrl = $this->getFillInUrl($record, $scriptUrl);
+                break;
+            case 4 :
+                $fillInUrl = $this->container->get('router')->generate(
+                    'nononsense_records_contracts_public_view_contract',
+                    ["token" => $record->getTokenPublicSignature(), "version" => self::VERSION_DIRECTOR]
+                );
+                break;
+            default :
+                $this->get('session')->getFlashBag()->add(
+                    'error',
+                    "El contrato está en un estado desconocido y no se puede visualizar."
+                );
+                $fillInUrl = $this->container->get('router')->generate('nononsense_records_contracts');
+        }
+        return $fillInUrl;
+    }
+
+    private function getFillInUrl($record, $scriptUrl)
+    {
+        $baseUrl = $this->getParameter("cm_installation");
+        $id = $record->getId();
+        $baseUrlAux = $this->getParameter("cm_installation_aux");
+        $redirectUrl = $baseUrl . "recordsContracts/redirectFromData/" . $id;
         $token_get_data = $this->get('utilities')->generateToken();
 
         $getDataUrl = $baseUrlAux . "dataRecordsContracts/requestData/" . $id . "/" . $token_get_data;
@@ -294,8 +351,6 @@ class RecordsContractsController extends Controller
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $base_url);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
-
-
         curl_setopt($ch, CURLOPT_HTTPHEADER, array("Api-Key: " . $this->getParameter('api_key_docoaro')));
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, array());
@@ -304,19 +359,7 @@ class RecordsContractsController extends Controller
         $raw_response = curl_exec($ch);
         $response = json_decode($raw_response, true);
 
-        $mode = $request->get("mode");
-        //$mode = 'pdf';
-
-        switch ($mode) {
-            case "pdf":
-                $url_edit_documento = $response["pdfUrl"];
-                break;
-            default:
-                $url_edit_documento = $response["fillInUrl"];
-                break;
-        }
-
-        return $this->redirect($url_edit_documento);
+        return $response["fillInUrl"];
     }
 
     /* Función a la que llama docxpresso antes de abrir la vista previa para saber si necesita cargar datos en las plantillas */
@@ -517,10 +560,31 @@ class RecordsContractsController extends Controller
                     );
                 }
             }
+            if($status == 3 && $action == 'save') {
+                $isGroup_comite_rrhh = $this->getDoctrine()->getRepository(
+                    'NononsenseGroupBundle:GroupUsers'
+                )->isMemberOfAnyGroup($user->getId(), array($this->getParameter("group_id_comite_rrhh")));
+                if ($isGroup_comite_rrhh) {
+                    $this->get('session')->getFlashBag()->add(
+                        'error',
+                        "El contrato ya ha sido firmado por un miembro del comité"
+                    );
+                }
+
+                $isGroup_direccion_rrhh = $this->getDoctrine()->getRepository(
+                    'NononsenseGroupBundle:GroupUsers'
+                )->isMemberOfAnyGroup($user->getId(), array($this->getParameter("group_id_direccion_rrhh")));
+                if ($isGroup_direccion_rrhh) {
+                    $this->get('session')->getFlashBag()->add(
+                        'error',
+                        "El contrato ya ha sido firmado por un miembro de Dirección RRHH"
+                    );
+                }
+            }
+
             $em->persist($record);
             $em->flush();
         }
-
 
         return $this->redirect($this->container->get('router')->generate('nononsense_records_contracts'));
     }
