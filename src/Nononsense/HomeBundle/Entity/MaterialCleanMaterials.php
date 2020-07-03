@@ -57,6 +57,12 @@ class MaterialCleanMaterials
      */
     private $cleans;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\MaterialCleanProducts", inversedBy="material")
+     * @ORM\JoinColumn(name="id_product", referencedColumnName="id")
+     */
+    private $product;
+
     public function __construct()
     {
         $this->created = new DateTime();

@@ -132,6 +132,9 @@
                     <span class="fa arrow"></span>
                 </a>
                 <ul class="nav nav-second-level">
+                    {% if 'mc_products_list' in array_subsecciones %}
+                        <li id="admin_materials"><a href="{{path('nononsense_mclean_products_list')}}">{{'Listado de Productos'|trans}}</a></li>
+                    {% endif %}
                     {% if 'mc_materials_list' in array_subsecciones %}
                         <li id="admin_materials"><a href="{{path('nononsense_mclean_materials_list')}}">{{'Listado de Materiales'|trans}}</a></li>
                     {% endif %}
