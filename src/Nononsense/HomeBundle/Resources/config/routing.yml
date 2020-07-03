@@ -603,3 +603,15 @@ nononsense_mclean_traces_review:
 nononsense_mclean_trace_view:
     path: /mclean/traces/view/{id}
     defaults: { _controller: NononsenseHomeBundle:MaterialCleanTraces:showTrace}
+
+nononsense_mclean_products_list:
+    path: /mclean/products
+    defaults: { _controller: NononsenseHomeBundle:MaterialCleanProducts:list}
+
+nononsense_mclean_products_edit:
+    path: /mclean/product/{id}
+    defaults: { _controller: NononsenseHomeBundle:MaterialCleanProducts:edit}
+
+nononsense_mclean_products_delete:
+    path: /mclean/product/delete/{id}
+    defaults: { _controller: NononsenseHomeBundle:MaterialCleanProducts:delete}
