@@ -710,4 +710,27 @@ class RecordsContracts
     {
         return $this->pin;
     }
+
+    /**
+     * Set tokenPublicSignature
+     *
+     * @param string $tokenPublicSignature
+     * @return RecordsContracts
+     */
+    public function setTokenPublicSignature($tokenPublicSignature)
+    {
+        $this->tokenPublicSignature = $tokenPublicSignature;
+
+        return $this;
+    }
+
+    /**
+     * Get tokenPublicSignature
+     *
+     * @return string 
+     */
+    public function getTokenPublicSignature()
+    {
+        return $this->tokenPublicSignature;
+    }
 }

@@ -603,3 +603,15 @@ nononsense_mclean_traces_review:
 nononsense_mclean_trace_view:
     path: /mclean/traces/view/{id}
     defaults: { _controller: NononsenseHomeBundle:MaterialCleanTraces:showTrace}
+
+nononsense_areas:
+    path: /areas
+    defaults: { _controller: NononsenseHomeBundle:Areas:list}
+
+nononsense_areas_edit:
+    path: /areas/{id}
+    defaults: { _controller: NononsenseHomeBundle:Areas:edit}
+
+nononsense_areas_update:
+    path: /areas/{id}/save
+    defaults: { _controller: NononsenseHomeBundle:Areas:update}

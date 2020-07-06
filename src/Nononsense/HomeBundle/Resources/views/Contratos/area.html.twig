@@ -1,0 +1,64 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}DOCXPRESSO | Documentos {% endblock %}
+{% block head %}
+    {{ parent() }}
+{% endblock %}
+{% block main_title %} Documentos {% endblock %}
+
+{% block content %}
+
+    <div class="wrapper wrapper-content animated fadeInUp">
+        {% for flashMessage in app.session.flashbag.get('error') %}
+        <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+            <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+            {{ flashMessage }}
+        </div>
+        {% endfor %}
+        <form class="form-horizontal" id="form_item" action="{{ path('nononsense_areas_update',{'id': item.id is defined ? item.id : 0}) }}" method="POST"  enctype="multipart/form-data">
+            <div class="row">
+                <div class="col-lg-4 col-lg-offset-1">
+                    <div class="row">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">Nombre</label>
+                            <div class="col-sm-7">
+                                <input type="text" name="name" class="form-control" value="{{item.name is defined ? item.name : ''}}" required="required">
+                            </div>
+                        </div>  
+
+                        <div class="form-group">
+                            <div class="col-sm-7 col-sm-offset-3">
+                                <div class="checkbox">
+                                    <label>
+                                        <input name="is_active" value="1" type="checkbox" {% if item is not defined or (item.isActive is defined and  item.isActive == 1) %} checked="checked" {% endif %}> Activo
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>          
+                </div>
+                <div class="col-lg-6">
+                    
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-11">
+                    <button type="submit" class="btn btn-primary  pull-right"><i class="fa fa-floppy-o" aria-hidden="true"></i> Guardar</button>
+                </div>
+            </div>
+        </form>
+       
+    </div>
+    
+{% endblock %}
+
+{% block scripts %}
+    {{ parent() }}
+    <script>
+    $( document ).ready(function() {
+
+    });
+    </script>
+{% endblock %}
+
+

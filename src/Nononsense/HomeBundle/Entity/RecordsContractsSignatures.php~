@@ -80,14 +80,14 @@ class RecordsContractsSignatures
     /**
      * @var boolean $next
      *
-     * @ORM\Column(name="next", type="boolean", options={"default" = false})
+     * @ORM\Column(name="next", type="boolean", options={"default" = false}, nullable=true)
      */
     protected $next;
 
     /**
      * @var boolean $attachment
      *
-     * @ORM\Column(name="attachment", type="boolean", options={"default" = false})
+     * @ORM\Column(name="attachment", type="boolean", options={"default" = false}, nullable=true)
      */
     protected $attachment;
 
