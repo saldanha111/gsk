@@ -77,33 +77,19 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="col-md-2 col-sm-4 control-label">Número de lote</label>
+                    <label class="col-md-2 col-sm-4 control-label">Process Order</label>
                     <div class="col-sm-7">
-                        <input type="text" name="lot-code" class="form-control lot-code-input" required="required">
+                        <input type="text" name="lot-code" class="form-control lot-code-input" readonly="readonly" value="{{ lotCode }}">
                     </div>
                 </div>
-                <div class="form-group">
-                    <label class="col-md-2 hidden-sm hidden-xs control-label"></label>
-                    <div class="col-md-3 col-sm-4 col-xs-6">
-                        <button id="btn-scanner-use" type="button" class="btn btn-primary">Escanear con scanner</button>
-                    </div>
-                    <div class="col-md-3 col-sm-4 col-xs-6">
-                        <button id="btn-camera-use" type="button" class="btn btn-primary">Escanear con camara</button>
-                    </div>
-                </div>
-                <div class="form-group camera-group" style="display:none;">
-                    <label class="col-md-2 hidden-sm hidden-xs control-label"></label>
-                    <div class="col-lg-2 col-md-4 col-sm-12">
-                        <video id="video" style="border: 1px solid gray;"></video>
-                    </div>
-                    <div class="clearfix"></div>
-                    <label class="col-md-2 hidden-sm hidden-xs control-label">Selecciona la Cámara:</label>
-                    <div class="col-md-10 col-xs-12">
-                        <div id="sourceSelectPanel" class="form-group" style="display:none">
-                            <select id="sourceSelect" class="form-control" style="max-width:400px"></select>
+                {% if material.additionalInfo %}
+                    <div class="form-group">
+                        <label class="col-md-2 col-sm-4 control-label">Información adicional</label>
+                        <div class="col-sm-7">
+                            <textarea class="form-control" rows="4" name="additionalInfo"></textarea>
                         </div>
                     </div>
-                </div>
+                {% endif %}
                 <div class="form-group">
                     <label class="col-md-2 col-sm-4 control-label">Firma</label>
                     <div class="col-sm-7">
@@ -122,6 +108,16 @@
                         <div class="col-xs-12">
                             <a href="#" class="btn btn-primary pull-right btn-submit">
                                 <i class="fa fa-floppy-o" aria-hidden="true"></i> Registrar verificación
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="row">
+                    <div class="form-group">
+                        <div class="col-md-2 col-sm-4">
+                            <a href="{{ path('nononsense_mclean_uses_scan') }}" class="btn btn-primary pull-right">
+                                <i class="fa fa-floppy-o" aria-hidden="true"></i> Volver
                             </a>
                         </div>
                     </div>
@@ -170,7 +166,7 @@
                 }
 
                 if (!$('.lot-code-input').val()) {
-                    toastr.error("Debe marcar un código de lote.", 'aviso');
+                    toastr.error("Debe marcar un process order.", 'aviso');
                     error = true;
                 }
 
