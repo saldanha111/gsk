@@ -581,7 +581,7 @@ nononsense_mclean_uses_scan:
     defaults: { _controller: NononsenseHomeBundle:MaterialCleanUses:scan}
 
 nononsense_mclean_uses_view:
-    path: /mclean/uses/view/{barcode}
+    path: /mclean/uses/view/{barcode}/{po}
     defaults: { _controller: NononsenseHomeBundle:MaterialCleanUses:view}
 
 nononsense_mclean_uses_save:

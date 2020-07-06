@@ -24,6 +24,13 @@
             {% endfor %}
             <div class="col-xs-12">
                 <div class="row">
+                    <div class="col-xs-12">
+                        <h3>Process Order: {{ po }}</h3>
+                        <h3>Escanea el Código Material.</h3>
+                    </div>
+                    <hr/>
+                </div>
+                <div class="row">
                     <div class="col-md-3 col-sm-4 col-xs-6">
                         <button id="btn-scanner-use" type="button" class="btn btn-primary">Escanear con scanner</button>
                     </div>
@@ -37,8 +44,9 @@
     <div class="wrapper-content">
         <div class="col-xs-12">
             <form class="form-horizontal" id="form_item" action="{{ path('nononsense_mclean_uses_scan') }}"
-                  method="POST">
-                <input type="hidden" id='url_mc_use' value="{{ path('nononsense_mclean_uses_view',{'barcode': 'xxx'}) }}"/>
+                  method="GET">
+                <input type="hidden" id='url_mc_use'
+                       value="{{ path('nononsense_mclean_uses_view',{'barcode': 'xxx','po': po}) }}"/>
                 <div class="form-group scan-group" style="display:none;">
                     <div class="col-xs-12">
                         <label>

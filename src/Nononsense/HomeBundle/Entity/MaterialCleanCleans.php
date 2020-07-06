@@ -89,6 +89,11 @@ class MaterialCleanCleans
     protected $status;
 
     /**
+     * @ORM\Column(name="use_information", type="text",  nullable=true)
+     */
+    protected $useInformation;
+
+    /**
      * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\MaterialCleanCenters", inversedBy="cleans")
      * @ORM\JoinColumn(name="id_center", referencedColumnName="id", nullable=false)
      */
@@ -547,5 +552,28 @@ class MaterialCleanCleans
     public function getStatus()
     {
         return $this->status;
+    }
+
+    /**
+     * Set useInformation
+     *
+     * @param string $useInformation
+     * @return MaterialCleanCleans
+     */
+    public function setUseInformation($useInformation)
+    {
+        $this->useInformation = $useInformation;
+
+        return $this;
+    }
+
+    /**
+     * Get useInformation
+     *
+     * @return string 
+     */
+    public function getUseInformation()
+    {
+        return $this->useInformation;
     }
 }
