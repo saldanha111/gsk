@@ -60,7 +60,7 @@ class MaterialCleanMaterials
     /**
      * @var bool
      *
-     * @ORM\Column(name="additional_info", type="boolean", options={"default" : 0})
+     * @ORM\Column(name="additional_info", type="boolean")
      */
     private $additionalInfo;
 
@@ -278,7 +278,7 @@ class MaterialCleanMaterials
      */
     public function setAdditionalInfo($additionalInfo)
     {
-        $this->additionalInfo = $additionalInfo;
+        $this->additionalInfo = ($additionalInfo)?: false;
 
         return $this;
     }

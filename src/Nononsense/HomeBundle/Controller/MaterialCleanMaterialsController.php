@@ -102,6 +102,7 @@ class MaterialCleanMaterialsController extends Controller
                 $material->setName($request->get("name"));
                 $material->setExpirationDays($request->get("expiration_days"));
                 $material->setActive($request->get("active"));
+                $material->setAdditionalInfo($request->get('additionalInfo'));
                 $materialName = $materialRepository->findOneBy(['name' => $request->get("name")]);
                 if ($materialName && $materialName->getId() != $material->getId()) {
                     $this->get('session')->getFlashBag()->add('error', "Ese material ya está registrado.");
