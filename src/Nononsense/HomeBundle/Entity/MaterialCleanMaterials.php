@@ -58,6 +58,14 @@ class MaterialCleanMaterials
     private $cleans;
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(name="additional_info", type="boolean", options={"default" : 0})
+     */
+    private $additionalInfo;
+
+
+    /**
      * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\MaterialCleanProducts", inversedBy="material")
      * @ORM\JoinColumn(name="id_product", referencedColumnName="id")
      */
@@ -68,6 +76,7 @@ class MaterialCleanMaterials
         $this->created = new DateTime();
         $this->expirationDays = 30;
         $this->active = 1;
+        $this->additionalInfo = 0;
     }
 
     /**
@@ -236,5 +245,51 @@ class MaterialCleanMaterials
     public function getCleans()
     {
         return $this->cleans;
+    }
+
+    /**
+     * Set product
+     *
+     * @param \Nononsense\HomeBundle\Entity\MaterialCleanProducts $product
+     * @return MaterialCleanMaterials
+     */
+    public function setProduct(\Nononsense\HomeBundle\Entity\MaterialCleanProducts $product = null)
+    {
+        $this->product = $product;
+
+        return $this;
+    }
+
+    /**
+     * Get product
+     *
+     * @return \Nononsense\HomeBundle\Entity\MaterialCleanProducts 
+     */
+    public function getProduct()
+    {
+        return $this->product;
+    }
+
+    /**
+     * Set additionalInfo
+     *
+     * @param boolean $additionalInfo
+     * @return MaterialCleanMaterials
+     */
+    public function setAdditionalInfo($additionalInfo)
+    {
+        $this->additionalInfo = $additionalInfo;
+
+        return $this;
+    }
+
+    /**
+     * Get additionalInfo
+     *
+     * @return boolean 
+     */
+    public function getAdditionalInfo()
+    {
+        return $this->additionalInfo;
     }
 }

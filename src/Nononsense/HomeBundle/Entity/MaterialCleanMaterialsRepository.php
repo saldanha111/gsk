@@ -15,7 +15,8 @@ class MaterialCleanMaterialsRepository extends EntityRepository
     public function list($filters, $paginate=1)
     {
         $list = $this->createQueryBuilder('m')
-            ->select('m.id', 'm.name', 'm.expirationDays', 'm.created', 'm.active')
+            ->select('m.id', 'm.name', 'm.expirationDays', 'm.created', 'm.active', 'm.additionalInfo', 'p.name as productName')
+            ->leftJoin('m.product', 'p')
             ->orderBy('m.name', 'ASC');
 
         $list = self::fillFilersQuery($filters, $list);
@@ -32,7 +33,8 @@ class MaterialCleanMaterialsRepository extends EntityRepository
     public function count($filters = array())
     {
         $list = $this->createQueryBuilder('m')
-            ->select('COUNT(m.id) as conta');
+            ->select('COUNT(m.id) as conta')
+            ->leftJoin('m.product', 'p');
 
         $list = self::fillFilersQuery($filters, $list);
 
@@ -49,6 +51,12 @@ class MaterialCleanMaterialsRepository extends EntityRepository
             }
         }
 
+        if(!empty($filters)){
+            if(isset($filters["product"])){
+                $list->andWhere('p.id = :product');
+                $list->setParameter('product', $filters["product"]);
+            }
+        }
         return $list;
     }
 }
