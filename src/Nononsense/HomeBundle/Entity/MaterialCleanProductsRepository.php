@@ -16,7 +16,7 @@ class MaterialCleanProductsRepository extends EntityRepository
     public function list($filters, $paginate=1)
     {
         $list = $this->createQueryBuilder('p')
-            ->select('p.id', 'p.name', 'p.tagsNumber', 'p.active')
+            ->select('p.id', 'p.name', 'p.tagsNumber', 'p.active', 'p.additionalInfo')
             ->orderBy('p.name', 'ASC');
 
         $list = self::fillFilersQuery($filters, $list);
@@ -42,14 +42,13 @@ class MaterialCleanProductsRepository extends EntityRepository
         return $query->getSingleResult()["conta"];
     }
 
-    private function fillFilersQuery($filters, $list){
-
+    private function fillFilersQuery($filters, $list)
+    {
         if(!empty($filters)){
             if(isset($filters["name"])){
                 $list->andWhere("p.name LIKE '%".$filters["name"]."%'");
             }
         }
-
         return $list;
     }
 

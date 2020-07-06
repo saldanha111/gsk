@@ -36,7 +36,7 @@ class MaterialCleanProducts
     /**
      * @var bool
      *
-     * @ORM\Column(name="active", type="boolean")
+     * @ORM\Column(name="active", type="boolean", options={"default" : 1})
      */
     private $active;
 

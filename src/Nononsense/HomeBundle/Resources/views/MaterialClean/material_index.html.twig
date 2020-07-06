@@ -26,20 +26,33 @@
                         <br>
                     {% endfor %}
                     <div class="col-xs-12">
-                        <form class="form-horizontal" id="form_item" action="{{ path('nononsense_mclean_materials_list')}}" method="GET">
+                        <form class="form-vertical" id="form_item" action="{{ path('nononsense_mclean_materials_list')}}" method="GET">
                             <input type="hidden" id='url_mc_material_list' value="{{ path('nononsense_mclean_materials_list')}}" />
                             <input type="hidden" id='url_mc_material_delete' value="{{ path('nononsense_mclean_materials_delete',{'id': 'xxx'}) }}" />
                             <input type="hidden" id='url_mc_material_edit' value="{{ path('nononsense_mclean_materials_edit',{'id': 'xxx'}) }}" />
-                            <div class="form-group">
-                                <div class="col-sm-2 item_filter">
-                                    <input type="text" placeholder="Buscar" name="name" class="form-control" value="{{filters.name is defined ? filters.name : ''}}">
+                            <div class="row">
+                                <div class="col-md-3 col-sm-5 form-group">
+                                    <label class="control-label">Material</label>
+                                    <div class="item_filter">
+                                        <input type="text" placeholder="Buscar" name="name" class="form-control" value="{{filters.name is defined ? filters.name : ''}}">
+                                    </div>
                                 </div>
-
+                                <div class="col-md-3 col-sm-5 form-group">
+                                    <label class="control-label">Producto</label>
+                                    <select class="form-control" name="product">
+                                        <option value=""></option>
+                                        {% for product in products %}
+                                            <option value="{{product.id}}" {{ filters.product is defined and filters.product is not null and filters.product==product.id ? 'selected="selected"' : ''}}>{{product.name}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row">
                                 <div class="col-sm-1 item_filter">
-                                    <button id="btn-search" type="button" class="btn btn-primary pull-right">Buscar</button>
+                                    <button id="btn-search" type="button" class="btn btn-primary pull-left">Buscar</button>
                                 </div>
                                 <div class="col-sm-1 item_filter">
-                                    <a href="{{path('nononsense_mclean_materials_list')}}" type="button" class="btn btn-primary pull-right">Reset</a>
+                                    <a href="{{path('nononsense_mclean_materials_list')}}" type="button" class="btn btn-primary pull-left">Reset</a>
                                 </div>
                             </div>
                         </form>
@@ -57,6 +70,8 @@
                                 <th>Id.</th>
                                 <th>Nombre</th>
                                 <th>Cad. Limpieza (días)</th>
+                                <th>Producto</th>
+                                <th>Desc. Adicional</th>
                                 <th>Activo</th>
                                 <th></th>
                                 <th></th>
@@ -68,6 +83,14 @@
                                         <td>{{item.id}}</td>
                                         <td>{{item.name}}</td>
                                         <td>{{item.expirationDays}}</td>
+                                        <td>{{item.productName}}</td>
+                                        <td>
+                                            {% if item.additionalInfo %}
+                                                Si
+                                            {% else %}
+                                                No
+                                            {% endif %}
+                                        </td>
                                         <td>
                                             {% if item.active %}
                                                 Si
