@@ -3,7 +3,7 @@
 {% block head %}
 {{ parent() }}
 {% endblock %}
-{% block main_title %} Plantillas de documentos{% endblock %}
+{% block main_title %} Areas{% endblock %}
 {% block content %}
 
 <div class="wrapper wrapper-content">
@@ -27,7 +27,7 @@
                 </div>
                 <div class="row">
                     <div>
-                      <a href="{{ path('nononsense_areas_edit',{'id': '0'}) }}" class="btn btn-primary pull-right"><i class="fa fa-plus"></i> Nuevo area</a>
+                      <a href="{{ path('nononsense_areas_edit',{'id': '0'}) }}" class="btn btn-primary pull-right"><i class="fa fa-plus"></i> Nueva area</a>
                     </div><br>
                     <table id="inProcessParcial" class="table table-striped">
                         <thead>
@@ -40,7 +40,7 @@
                             {% for item in items %}
                             <tr>
                                 <td>{{item.id}}</td>
-                                <td><a href="{{path('nononsense_documents_edit', {'id': item.id}) }}">{{item.name}}</a></td>
+                                <td><a href="{{path('nononsense_areas_edit', {'id': item.id}) }}">{{item.name}}</a></td>
                             </tr>
                             {% endfor %}
                         {% endif %}

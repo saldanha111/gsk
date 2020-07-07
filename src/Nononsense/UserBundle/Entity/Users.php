@@ -129,6 +129,11 @@ class Users implements AdvancedUserInterface, \Serializable
      * @ORM\OneToMany(targetEntity="\Nononsense\GroupBundle\Entity\GroupUsers", mappedBy="user")
      */
     protected $groups;  
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\AreasUsers", mappedBy="user")
+     */
+    protected $areas; 
     
     /**
      * @ORM\Column(type="date")
@@ -1858,5 +1863,38 @@ class Users implements AdvancedUserInterface, \Serializable
     public function getMaterialReview()
     {
         return $this->materialReview;
+    }
+
+    /**
+     * Add areas
+     *
+     * @param \Nononsense\GroupBundle\Entity\AreasUsers $areas
+     * @return Users
+     */
+    public function addArea(\Nononsense\GroupBundle\Entity\AreasUsers $areas)
+    {
+        $this->areas[] = $areas;
+
+        return $this;
+    }
+
+    /**
+     * Remove areas
+     *
+     * @param \Nononsense\GroupBundle\Entity\AreasUsers $areas
+     */
+    public function removeArea(\Nononsense\GroupBundle\Entity\AreasUsers $areas)
+    {
+        $this->areas->removeElement($areas);
+    }
+
+    /**
+     * Get areas
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getAreas()
+    {
+        return $this->areas;
     }
 }

@@ -8,6 +8,7 @@
 namespace Nononsense\HomeBundle\Controller;
 
 use Nononsense\HomeBundle\Entity\Areas;
+use Nononsense\HomeBundle\Entity\AreasUsers;
 use Nononsense\UserBundle\Entity\Users;
 use Nononsense\GroupBundle\Entity\Groups;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -85,6 +86,8 @@ class AreasController extends Controller
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
 
+        $array_item=array();
+
         $serializer = $this->get('serializer');
 
         if($id!=0){
@@ -143,5 +146,112 @@ class AreasController extends Controller
         $route = $this->container->get('router')->generate('nononsense_areas');
         
         return $this->redirect($route);
+    }
+
+    public function removeuserAction(Request $request, $id, $userid)
+    {
+        $is_valid = $this->get('app.security')->permissionSeccion('areas_gestion');
+        if(!$is_valid){
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+        }
+
+        $em = $this->getDoctrine()->getManager();
+        $row = $em->getRepository('NononsenseHomeBundle:AreasUsers')
+                  ->findOneBy(array('user' => $userid, 
+                                     'area' => $id)
+                        );
+        if (empty($row)) {
+            $this->get('session')->getFlashBag()->add(
+            'errorDeletingUser',
+            'No fune posible eliminar el usuario'
+            );
+        } else {
+            $em->remove($row);
+            $em->flush();
+            $this->get('session')->getFlashBag()->add(
+            'deletedUser',
+            'El usuario ha sido eliminado'
+            );
+        }
+ 
+        return $this->redirect($this->generateUrl('nononsense_areas_edit', array('id' => $id)));
+    }
+
+    public function usersAction(Request $request, $id, $type = 'member')
+    {
+        
+        $is_valid = $this->get('app.security')->permissionSeccion('areas_gestion');
+        if(!$is_valid){
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+        }
+
+        $users= $this->getDoctrine()
+                      ->getRepository('NononsenseHomeBundle:AreasUsers')
+                      ->findUsersByArea(1, 100000, $id, 'q');
+        
+        $path = '/' . $this->container->getParameter('user_img_dir');
+        return $this->render('NononsenseUserBundle:Groups:index_areas.html.twig', array(
+            'users' => $users,
+            'webPath' => $path,
+            'areaId' => $id
+        ));
+    }
+
+    public function addusersAction(Request $request, $id)
+    {
+        
+        $is_valid = $this->get('app.security')->permissionSeccion('areas_gestion');
+        if(!$is_valid){
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+        }
+
+        $em = $this->getDoctrine()->getManager();
+        $users = $em->getRepository('NononsenseUserBundle:Users')
+                  ->findAllUsersNotInGroup($id);
+
+        /* this is to filter external users not within query
+        $internal = array();
+        foreach ($users as $user) {
+            foreach($user->getRoles() as $role){
+                if ($role->getRole() != 'ROLE_EXTERNAL') {
+                    $internal[] = $user;
+                }
+            }
+        }*/
+
+        return $this->render('NononsenseUserBundle:Groups:searchuser.html.twig', array(
+            'users' => $users,
+            'areaId' => $id,
+        ));
+    }
+
+    public function addbulkAction(Request $request)
+    {
+        $is_valid = $this->get('app.security')->permissionSeccion('areas_gestion');
+        if(!$is_valid){
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+        }
+        $data = $request->query->get('users');
+        $areaId = $request->query->get('id');
+        $userdata = json_decode($data);
+        
+        $em = $this->getDoctrine()->getManager();
+        $em->getRepository('NononsenseHomeBundle:AreasUsers');
+        $area = $em->getRepository('NononsenseHomeBundle:Areas')->find($areaId);
+        foreach ($userdata as $id) {
+            $new = new AreasUsers();            
+            $new->setArea($area);
+            $user = $em->getRepository('NononsenseUserBundle:Users')->find($id);
+            $new->setUser($user);
+            $em->persist($new);
+        }
+        $em->flush();
+
+        $this->get('session')->getFlashBag()->add(
+            'addedUsers',
+            'The new members have been added.'
+            );
+
+        return $this->redirect($this->generateUrl('nononsense_areas_edit', array('id' => $areaId)));
     }
 }

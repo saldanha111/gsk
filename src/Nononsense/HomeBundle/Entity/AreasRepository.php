@@ -65,5 +65,4 @@ class AreasRepository extends EntityRepository
 
         return $query->getSingleResult()["conta"];
     }
-
 }

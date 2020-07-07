@@ -37,6 +37,13 @@ class Qrs
      */
     protected $fields;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\QrsTypes", inversedBy="qrs")
+     * @ORM\JoinColumn(name="type_id", referencedColumnName="id")
+     * @Groups({"group1"})
+     */
+    protected $type;
+
 
     public function __construct()
     {
@@ -110,5 +117,28 @@ class Qrs
     public function getFields()
     {
         return $this->fields;
+    }
+
+    /**
+     * Set type
+     *
+     * @param \Nononsense\HomeBundle\Entity\QrsTypes $type
+     * @return Qrs
+     */
+    public function setType(\Nononsense\HomeBundle\Entity\QrsTypes $type = null)
+    {
+        $this->type = $type;
+
+        return $this;
+    }
+
+    /**
+     * Get type
+     *
+     * @return \Nononsense\HomeBundle\Entity\QrsTypes 
+     */
+    public function getType()
+    {
+        return $this->type;
     }
 }

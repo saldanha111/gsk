@@ -20,17 +20,21 @@ class Areas
      * @ORM\Column(type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
-     * @Groups({"detail_document"})
+     * @Groups({"detail_area"})
      */
     protected $id;
 
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\AreasUsers", mappedBy="area")
+     */
+    protected $users;
     
     /**
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=200)
      * @Assert\NotBlank(message = "You shoud insert a name")
-     * @Groups({"detail_document"})
+     * @Groups({"detail_area"})
      */
     protected $name;
 
@@ -38,7 +42,7 @@ class Areas
      * @var boolean $isActive
      *
      * @ORM\Column(name="is_active", type="boolean",  nullable=true, options={"default" = false})
-     * @Groups({"detail_document"})
+     * @Groups({"detail_area"})
      */
     protected $isActive;
 
@@ -145,5 +149,38 @@ class Areas
     public function getCreated()
     {
         return $this->created;
+    }
+
+    /**
+     * Add users
+     *
+     * @param \Nononsense\GroupBundle\Entity\AreasUsers $users
+     * @return Areas
+     */
+    public function addUser(\Nononsense\GroupBundle\Entity\AreasUsers $users)
+    {
+        $this->users[] = $users;
+
+        return $this;
+    }
+
+    /**
+     * Remove users
+     *
+     * @param \Nononsense\GroupBundle\Entity\AreasUsers $users
+     */
+    public function removeUser(\Nononsense\GroupBundle\Entity\AreasUsers $users)
+    {
+        $this->users->removeElement($users);
+    }
+
+    /**
+     * Get users
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getUsers()
+    {
+        return $this->users;
     }
 }

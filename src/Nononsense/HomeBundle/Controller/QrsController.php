@@ -5,6 +5,7 @@ namespace Nononsense\HomeBundle\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Nononsense\HomeBundle\Entity\Qrs;
 use Nononsense\HomeBundle\Entity\QrsFields;
+use Nononsense\HomeBundle\Entity\QrsTypes;
 use Nononsense\GroupBundle\Entity\GroupUsers;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
@@ -76,7 +77,6 @@ class QrsController extends Controller
 
         $em = $this->getDoctrine()->getManager();
         $qr = $em->getRepository('NononsenseHomeBundle:Qrs')->find($id);
-
         if(!$qr){
             $qr = new Qrs();
         }
@@ -84,7 +84,8 @@ class QrsController extends Controller
         if($request->getMethod()=='POST'){
             try{
                 $qr->setName($request->get("name"));
-
+                $type = $this->getDoctrine()->getRepository(QrsTypes::class)->find($request->get("type"));
+                $qr->setType($type);
                 $array_ids_fields_before = array();
                 $fieldsJson = $request->get('fieldsJson');
                 $array_fields = json_decode($fieldsJson, true);
@@ -136,6 +137,7 @@ class QrsController extends Controller
         );
 
         $array_item['fieldsJson'] = $fieldsJson;
+        $array_item["types"] = $this->getDoctrine()->getRepository(QrsTypes::class)->findAll();
         $array_item['time'] = time();
 
         return $this->render('NononsenseHomeBundle:Qrs:qr.html.twig',$array_item);
@@ -199,6 +201,34 @@ class QrsController extends Controller
         exit();
     }
 
+    public function jsonQrAction($id){
+
+        $em = $this->getDoctrine()->getManager();    
+
+        if($id){
+            $qr = $this->getDoctrine()->getRepository('NononsenseHomeBundle:Qrs')->find($id);
+
+            if($qr){
+                $fields = $qr->getFields();
+
+                $array_fields = array();
+                foreach ($fields as $field) {
+                   $array_fields[$field->getName()]=$field->getValue();
+                }
+
+                $qrArray = $array_fields;
+
+                $response = new Response(json_encode($qrArray), 200);
+
+                return $response;
+            }
+        }
+
+        $response = new Response(json_encode(array("error" => "QR not found")), 404);
+
+        return $response;
+    }
+
     private function generateQrImage($qr){
         $filename = $qr->getId().".png";
         $rootdir = $this->get('kernel')->getRootDir();
@@ -211,7 +241,7 @@ class QrsController extends Controller
            $array_fields[$field->getName()]=$field->getValue();
         }
 
-        $qrArray = array('id'=>$qr->getId(), 'fields'=>$array_fields);
+        $qrArray = array('id'=>$qr->getId(), 'type' => $qr->getType()->getName(), 'fields'=>$array_fields);
         $qrLabel = json_encode($qrArray);
 
 

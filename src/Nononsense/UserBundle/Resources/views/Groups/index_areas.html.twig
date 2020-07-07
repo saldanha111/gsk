@@ -1,0 +1,20 @@
+<div class="row">
+    <div class="col-lg-12"> 
+    {% for item in users %}
+        <ul class="userMiniList">
+            <li id="member_{{item.user.id}}">
+                <div class="dropdown-messages-box">
+                    <img alt="image" class="img-circle" src="{{webPath}}thumb_{{item.user.id}}.jpg">
+                    <div class="media-body">
+                        <span class="pull-right"><button class="btn btn-danger btn-xs remove_member" data-user ="{{item.user.id}}" data-image="{{webPath}}thumb_{{item.user.id}}.jpg" data-name="{{ item.user.name }}" type="button"><i class="fa fa-times"> </i></button></span>
+
+                        <strong>{{ item.user.name }}</strong>. <br>
+                        <i class="fa fa-cog"> </i> {{ item.user.position}}<br />
+                    </div>
+                </div>
+            </li>
+        </ul>
+    {% endfor %}
+
+    </div>
+</div>

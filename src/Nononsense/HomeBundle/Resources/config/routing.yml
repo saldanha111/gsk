@@ -370,6 +370,10 @@ nononsense_qrs_view_qr:
     path: /qrs-view/{id}
     defaults: { _controller: NononsenseHomeBundle:Qrs:viewQr}
 
+nononsense_qrs_json_qr:
+    path: /qrs-json/{id}
+    defaults: { _controller: NononsenseHomeBundle:Qrs:jsonQr}
+
 nononsense_products_json:
     path: /products-json
     defaults: { _controller: NononsenseHomeBundle:Products:productosJson}
@@ -603,6 +607,22 @@ nononsense_mclean_traces_review:
 nononsense_mclean_trace_view:
     path: /mclean/traces/view/{id}
     defaults: { _controller: NononsenseHomeBundle:MaterialCleanTraces:showTrace}
+
+nononsense_areas_users:
+    path:     /areas/users/{id}
+    defaults: { _controller: NononsenseHomeBundle:Areas:users }
+
+nononsense_areas_remove_user:
+    path:     /areas/users/{id}/{userid}
+    defaults: { _controller: NononsenseHomeBundle:Areas:removeuser, id: 0, userid: 0 }
+
+nononsense_areas_addusers:
+    path:     /areas/addusers/{id}
+    defaults: { _controller: NononsenseHomeBundle:Areas:addusers }
+
+nononsense_area_addbulk:
+    path:     /areas/addbulkusers
+    defaults: { _controller: NononsenseHomeBundle:Areas:addbulk }
 
 nononsense_areas:
     path: /areas
