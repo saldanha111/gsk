@@ -253,15 +253,7 @@ nononsense_solicitud_reconciliacion:
 nononsense_solicitud_reconciliacion_formulario:
     path:     /solicitud_reconciliacion_formulario/{registroid}/{nuevoregistroid}
     defaults: { _controller: NononsenseHomeBundle:NuevoRegistro:solicitudReconciliacionFormulario,registroid: 0, nuevoregistroid: 0}
-
-nononsense_backoffice_verificator_groups:
-    path: /grupos_verificacion
-    defaults: { _controller: NononsenseHomeBundle:BackOffice:grupoVerificadorIndex }
-
-nononsense_backoffice_set_group:
-    path: /set_grupo
-    defaults: { _controller: NononsenseHomeBundle:BackOffice:setGrupoVerificador }
-
+    
 nononsense_notificacion_semanal:
     path: /notificacion_semanal
     defaults: { _controller: NononsenseHomeBundle:RegistroValidation:notificacionSemanalPendienteVerificar }

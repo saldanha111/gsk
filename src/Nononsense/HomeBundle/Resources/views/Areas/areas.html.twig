@@ -61,6 +61,9 @@
 {% block scripts %}
 {{ parent() }}
 <script>
-
+$(document).ready(function(){
+    ActivateMenu('areas_list');
+    $('#side-menu').metisMenu();
+});
 </script>
 {% endblock %}
