@@ -1,10 +1,4 @@
 <?php
-/**
- * Nodalblock
- * User: Sergio
- * Date: 02/08/2019
- * Time: 07:07
- */
 namespace Nononsense\HomeBundle\Controller;
 
 use Nononsense\HomeBundle\Entity\Areas;
@@ -76,7 +70,7 @@ class AreasController extends Controller
         }
         $array_item["pagination"]=\Nononsense\UtilsBundle\Classes\Utils::paginador($filters["limit_many"],$request,$url,$array_item["count"],"/", $parameters);
         
-        return $this->render('NononsenseHomeBundle:Contratos:areas.html.twig',$array_item);
+        return $this->render('NononsenseHomeBundle:Areas:areas.html.twig',$array_item);
     }
 
     public function editAction(Request $request, string $id)
@@ -98,7 +92,7 @@ class AreasController extends Controller
             $array_item["item"] = json_decode($serializer->serialize($item, 'json',array('groups' => array('detail_area'))),true);
         }
 
-        return $this->render('NononsenseHomeBundle:Contratos:area.html.twig',$array_item);
+        return $this->render('NononsenseHomeBundle:Areas:area.html.twig',$array_item);
     }
 
     public function updateAction(Request $request, string $id)

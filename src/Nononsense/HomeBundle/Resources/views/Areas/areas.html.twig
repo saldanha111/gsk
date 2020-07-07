@@ -1,0 +1,66 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}DOCXPRESSO | {{'Homepage'|trans}} {% endblock %}
+{% block head %}
+{{ parent() }}
+{% endblock %}
+{% block main_title %} Areas{% endblock %}
+{% block content %}
+
+<div class="wrapper wrapper-content">
+    <div class="row">
+        <div class="col-sm-12">
+            <div>
+                <div class="row">
+                    <form class="form-horizontal" id="form_item" action="{{ path('nononsense_areas')}}" method="GET">
+                        <div class="form-group">
+
+                            <label class="col-sm-1 control-label item_filter">Nombre</label>
+                            <div class="col-sm-2 item_filter">
+                                <input type="text" name="name" class="form-control" value="{{filters.name is defined ? filters.name : ''}}">
+                            </div>
+
+                            <div class="col-sm-1 item_filter">
+                                <button type="submit" class="btn btn-primary pull-right">Filtrar</button>
+                            </div>
+                        </div>
+                      </form>
+                </div>
+                <div class="row">
+                    <div>
+                      <a href="{{ path('nononsense_areas_edit',{'id': '0'}) }}" class="btn btn-primary pull-right"><i class="fa fa-plus"></i> Nueva area</a>
+                    </div><br>
+                    <table id="inProcessParcial" class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>Nº</th>
+                            <th>Nombre</th>
+                        </tr>
+                        </thead>
+                        {% if items is defined %}
+                            {% for item in items %}
+                            <tr>
+                                <td>{{item.id}}</td>
+                                <td><a href="{{path('nononsense_areas_edit', {'id': item.id}) }}">{{item.name}}</a></td>
+                            </tr>
+                            {% endfor %}
+                        {% endif %}
+                    </table>
+                    {% if count==0 %}
+                        <br><b>No se han encontrado datos disponibles</b>
+                    {% endif %}
+                    {% if pagination is defined and pagination.needed %}
+                        {% include '::pagination2.html.twig' %}
+                    {% endif %}
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+{{ parent() }}
+<script>
+
+</script>
+{% endblock %}
