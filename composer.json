@@ -29,7 +29,8 @@
         "ext-curl": "*",
         "ext-gd": "*",
         "ext-json": "*",
-        "ext-openssl": "*"
+        "ext-openssl": "*",
+        "aws/aws-sdk-php": "^3.145"
     },
     "require-dev": {
         "sensio/generator-bundle": "~2.3"

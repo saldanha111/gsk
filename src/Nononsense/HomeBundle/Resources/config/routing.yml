@@ -450,13 +450,9 @@ nononsense_records_contracts_public_view_contract:
     path:     /view-contract/{version}/{token}
     defaults: { _controller: NononsenseHomeBundle:RecordsContracts:viewContract, token: null}
 
-nononsense_records_contracts_send_sms:
-    path:     /records/contract-send-sms
-    defaults: { _controller: NononsenseHomeBundle:RecordsContracts:sendSms}
-
-nononsense_records_contracts_send_email:
-    path:     /records/contract-send-email
-    defaults: { _controller: NononsenseHomeBundle:RecordsContracts:sendEmail}
+nononsense_records_contracts_send_comunication:
+    path:     /records/contract-send/{type}
+    defaults: { _controller: NononsenseHomeBundle:RecordsContracts:sendContract}
 
 nononsense_records_redirect_from_data:
     path: /records/redirectFromData/{id}

@@ -2,6 +2,11 @@
 
 namespace Nononsense\HomeBundle\Utils;
 
+use DateTime;
+use Doctrine\ORM\OptimisticLockException;
+use Nononsense\HomeBundle\Entity\Logs;
+use Nononsense\HomeBundle\Entity\LogsTypes;
+use Nononsense\HomeBundle\Entity\LogsTypesRepository;
 use Nononsense\HomeBundle\Entity\Tokens;
 
 class Utilities{
@@ -108,5 +113,26 @@ class Utilities{
         }
 
         return true;
+    }
+
+    public function saveLog(string $type, string $description)
+    {
+        /** @var LogsTypesRepository $logsTypesRepository */
+        $logsTypesRepository = $this->em->getRepository(LogsTypes::class);
+        /** @var LogsTypes $logType */
+        $logType = $logsTypesRepository->findOneBy(['stringId' => $type]);
+        if(!$logType){
+            $logType = $logsTypesRepository->findOneBy(['stringId' => 'unknown']);
+        }
+
+        $log = new Logs();
+        $log->setType($logType);
+        $log->setDate(new DAteTime());
+        $log->setDescription($description);
+        $this->em->persist($log);
+        try {
+            $this->em->flush();
+        } catch (OptimisticLockException $e) {
+        }
     }
 }
