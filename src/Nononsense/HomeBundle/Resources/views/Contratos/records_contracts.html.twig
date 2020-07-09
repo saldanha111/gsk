@@ -127,7 +127,7 @@
                                 </td>
                                 <td>
                                     {% if item.status is defined and item.status==3 and direction_or_admin %}
-{#                                        <btn onclick='open_dialog_enviar_sms({{item.id}});' class="btn btn-xs btn-primary"><i class="fa fa-phone" aria-hidden="true"></i> Enviar por SMS</btn>#}
+                                        <btn onclick='open_dialog_enviar_sms({{item.id}});' class="btn btn-xs btn-primary"><i class="fa fa-phone" aria-hidden="true"></i> Enviar por SMS</btn>
                                         <btn onclick='open_dialog_enviar_email({{item.id}});' class="btn btn-xs btn-primary"><i class="fa fa-envelope" aria-hidden="true"></i> Enviar por Email</btn>
                                     {% endif %}
                                 </td>
@@ -158,12 +158,15 @@
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button> 
                     </div>
                     <div class="box-body">                                              
-                        <form id='form_sign_sms' class="form-horizontal" action='{{path('nononsense_records_contracts_send_sms') }}' role="form">
-                            <input type="hidden" id='record_contract_id_dialog_sms' name='record_contract_id_dialog_sms' value="" >
-                            <div class="row">                                              
-                                <div class="col-md-12">         
-                                    <label class="control-label">Teléfono:</label>
-                                    <input type="text" class="form-control" style="width: 100%;" id='phone_sms' name='phone_sms'></textarea>
+                        <form id='form_sign_sms' class="form-horizontal" role="form"
+                              action='{{ path('nononsense_records_contracts_send_comunication',{'type': 'sms'}) }}'>
+                            <input type="hidden" id='record_contract_id_dialog_sms' name='record_contract_id_dialog' value="" >
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <label for="phone_prefix" class="pull-left" style="width: 20%;">Prefijo:</label>
+                                    <label for="phone_sms" class="pull-left" style="width: 80%;">Teléfono:</label>
+                                    <input type="text" class="form-control pull-left" style="width: 20%;" id='phone_prefix' name='phone_prefix' value="+34">
+                                    <input type="text" class="form-control pull-left" style="width: 80%;" id='phone_sms' name='phone_sms'>
                                 </div>
                             </div>
                         </form>
@@ -189,12 +192,13 @@
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button> 
                     </div>
                     <div class="box-body">                                              
-                        <form id='form_sign_email' class="form-horizontal" action='{{path('nononsense_records_contracts_send_email') }}' role="form">
-                            <input type="hidden" id='record_contract_id_dialog_email' name='record_contract_id_dialog_email' value="" >
+                        <form id='form_sign_email' class="form-horizontal" role="form"
+                              action='{{ path('nononsense_records_contracts_send_comunication',{'type': 'email'}) }}'>
+                            <input type="hidden" id='record_contract_id_dialog_email' name='record_contract_id_dialog' value="" >
                             <div class="row">                                              
                                 <div class="col-md-12">         
-                                    <label class="control-label">Email:</label>
-                                    <input type="text" class="form-control" style="width: 100%;" id='email_email' name='email_email'></textarea>
+                                    <label for="email_email" class="control-label">Email:</label>
+                                    <input type="text" class="form-control" style="width: 100%;" id='email_email' name='email_email'>
                                 </div>
                             </div>
                         </form>

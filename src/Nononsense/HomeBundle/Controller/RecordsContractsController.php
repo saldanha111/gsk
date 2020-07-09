@@ -2,6 +2,8 @@
 
 namespace Nononsense\HomeBundle\Controller;
 
+use Aws\Result;
+use Aws\Sns\SnsClient;
 use DateInterval;
 use DateTime;
 use Nononsense\GroupBundle\Entity\GroupUsersRepository;
@@ -798,11 +800,13 @@ class RecordsContractsController extends Controller
         return $this->redirect($route);
     }
 
-    /* Enviamos un email al trabajador para firma de contrato */
-    public function sendEmailAction(Request $request)
+    /* Enviamos un contacto al trabajador para firma de contrato */
+    public function sendContractAction(Request $request, $type)
     {
-        $id = $request->get('record_contract_id_dialog_email');
+        $id = $request->get('record_contract_id_dialog');
         $email_email = $request->get('email_email');
+        $phonePrefix = $request->get('phone_prefix');
+        $phoneNumber = $request->get('phone_sms');
 
         $record = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:RecordsContracts')
@@ -831,35 +835,27 @@ class RecordsContractsController extends Controller
                     ['version' => 3, 'token' => $token],
                     UrlGeneratorInterface::ABSOLUTE_URL
                 );
-//                $signLink2 = $this->generateUrl(
-//                    'nononsense_records_contracts_public_sign_contract',
-//                    ['version' => 2, 'token' => $token],
-//                    UrlGeneratorInterface::ABSOLUTE_URL
-//                );
 
-                $mailSubject = 'Firma Contrato';
-                $mailTo = $email_email;
-                $mailBody = $this->renderView(
-                    'NononsenseHomeBundle:Email:requestSignContract.html.twig',
-                    array(
-                        'link1' => $signLink1,
-//                        'link2' => $signLink2,
-                        'pin' => $pin,
-                    )
-                );
-
-                if ($this->get('utilities')->sendNotification($mailTo, "", "", "", $mailSubject, $mailBody, false)) {
-                    $em->flush();
-                    $this->get('session')->getFlashBag()->add(
-                        'message',
-                        "El contrato ha sido enviado para su firma correctamente"
-                    );
-                } else {
-                    $this->get('session')->getFlashBag()->add(
-                        'error',
-                        "El contrato no se ha podido enviar para su firma"
-                    );
+                $sended = false;
+                switch($type){
+                    case 'email':
+                        if($this->sendByEmail($email_email, $signLink1, $pin)){
+                            $this->get('Utilities')->saveLog('mail', 'contrato enviado por mail');
+                            $sended = true;
+                        }
+                        break;
+                    case 'sms':
+                        if($this->sendBySMS($phonePrefix.$phoneNumber, $signLink1, $pin)){
+                            $sended = true;
+                            $this->get('Utilities')->saveLog('sms', 'contrato enviado por sms');
+                        }
+                        break;
                 }
+
+                if($sended){
+                    $em->flush();
+                }
+
             } catch (\Exception $e) {
                 echo $e->getMessage();
                 $this->get('session')->getFlashBag()->add(
@@ -871,6 +867,87 @@ class RecordsContractsController extends Controller
 
 
         return $this->redirect($this->container->get('router')->generate('nononsense_records_contracts'));
+    }
+
+    private function sendByEmail($email_email, $signLink1, $pin)
+    {
+        $mailSubject = 'Firma Contrato';
+        $mailTo = $email_email;
+        $mailBody = $this->renderView(
+            'NononsenseHomeBundle:Email:requestSignContract.html.twig',
+            array(
+                'link1' => $signLink1,
+                'pin' => $pin,
+            )
+        );
+
+        if ($this->get('utilities')->sendNotification($mailTo, "", "", "", $mailSubject, $mailBody, false)) {
+            $this->get('session')->getFlashBag()->add(
+                'message',
+                "El contrato ha sido enviado para su firma correctamente"
+            );
+            return true;
+        } else {
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                "El contrato no se ha podido enviar para su firma"
+            );
+            return false;
+        }
+    }
+
+    private function sendBySMS($phoneNumber, $signLink1, $pin)
+    {
+        $client = $this->getClientSmsAws();
+        $texto = 'Use el siguiente pin ' . $pin . ' para firmar el siguiente contrato:' . PHP_EOL . $signLink1;
+        try {
+            /** @var Result $snsClientResult */
+            $snsClientResult = $client->publish(
+                [
+                    'Message' => $texto,
+                    'PhoneNumber' => $phoneNumber,
+                    'MessageStructure' => 'SMS',
+                    'MessageAttributes' => [
+                        'AWS.SNS.SMS.SenderID' => [
+                            'DataType' => 'String',
+                            'StringValue' => 'GSK',
+                        ],
+                        'AWS.SNS.SMS.SMSType' => [
+                            'DataType' => 'String',
+                            'StringValue' => 'Transactional', // Transactional
+                        ]
+                    ]
+                ]
+            );
+            // Sólo validamos si tenemos id del mensaje
+            if($snsClientResult->hasKey('MessageId')){
+                return true;
+            }
+        } catch (\Exception $e) {
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                "El contrato no se ha podido enviar para su firma"
+            );
+        }
+        return false;
+    }
+
+    private function getClientSmsAws()
+    {
+        $region = $this->getParameter("sns_region");
+        $key = $this->getParameter("sns_key");
+        $secret = $this->getParameter("sns_secret");
+
+        return new SnsClient(
+            [
+                'version' => 'latest',
+                'region' => $region,
+                'credentials' => [
+                    'key' => $key,
+                    'secret' => $secret
+                ]
+            ]
+        );
     }
 
     public function signContractAction(Request $request, $version, $token)
