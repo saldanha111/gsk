@@ -19,8 +19,49 @@ class MaterialCleanTracesController extends Controller
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
 
+        $lotNumber = $request->get("lot");
+        $filters = $this->getFilters($request);
+        $cleansRepository = $this->getDoctrine()->getRepository(MaterialCleanCleans::class);
+        $array_item["filters"]=$filters;
+        $array_item['status'] = MaterialCleanCleansRepository::status;
+        $array_item["items"] = $cleansRepository->list($filters);
+        $array_item["count"] = $cleansRepository->count($filters);
+        if($array_item['count'] && isset($lotNumber)){
+            // Obtenemos los diferentes estados de los materiales
+            $distinctStatus = $cleansRepository->getDistinctStatus($filters);
+            if(is_array($distinctStatus) && count($distinctStatus) == 1){
+                // Si solo hay un estado se usa ese.
+                $singleStatus = reset($distinctStatus);
+                $status = $singleStatus['status'];
+            }elseif(is_array($distinctStatus) && count($distinctStatus) == 2){
+                // Si hay 2 estados Quitamos el estado 3 (Material sucio) que es el único que se aplica automáticamente.
+                $status = ($distinctStatus[0]['status'] == 3) ? $distinctStatus[1]['status'] : $distinctStatus[0]['status'];
+            }else{
+                // Si hay más de 2 estados diferentes no mostramos los botones.
+                $status = 0;
+            }
+
+            if($status == 2 && $this->get('app.security')->permissionSeccion('mc_traces_dirty')){
+                $array_item["formAction"] = $this->container->get('router')->generate('nononsense_mclean_traces_dirty', ['lot' => $lotNumber]);
+                $array_item["buttonName"] = 'Marcar lote como Material Sucio';
+            }elseif($status == 3 && $this->get('app.security')->permissionSeccion('mc_traces_review')){
+                $array_item["formAction"] = $this->container->get('router')->generate('nononsense_mclean_traces_review', ['lot' => $lotNumber]);
+                $array_item["buttonName"] = 'Revisar Lote';
+                $array_item['showCommentBox'] = true;
+                $array_item['materialMessages'] = $this->getMaterialMessages($lotNumber);
+            }
+        }
+        $array_item["pagination"] = $this->getPagination($filters, $request, $array_item['count']);
+        return $this->render('NononsenseHomeBundle:MaterialClean:traces_index.html.twig',$array_item);
+    }
+
+    /**
+     * @param Request $request
+     * @return array
+     */
+    private function getFilters(Request $request)
+    {
         $filters = [];
-        $filters2 = [];
 
         if($request->get("page")){
             $filters["limit_from"]=$request->get("page")-1;
@@ -32,61 +73,46 @@ class MaterialCleanTracesController extends Controller
 
         if($request->get("material")){
             $filters["material"]=$request->get("material");
-            $filters2["material"]=$request->get("material");
         }
 
         if($request->get("lot")){
             $filters["lot"]=$request->get("lot");
-            $filters2["lot"]=$request->get("lot");
         }
 
         if($request->get("clean_date_start")){
             $filters["clean_date_start"]=$request->get("clean_date_start");
-            $filters2["clean_date_start"]=$request->get("clean_date_start");
         }
 
         if($request->get("clean_date_end")){
             $filters["clean_date_end"]=$request->get("clean_date_end");
-            $filters2["clean_date_end"]=$request->get("clean_date_end");
         }
 
         if($request->get("verification_date_start")){
             $filters["verification_date_start"]=$request->get("verification_date_start");
-            $filters2["verification_date_start"]=$request->get("verification_date_start");
         }
 
         if($request->get("verification_date_end")){
             $filters["verification_date_end"]=$request->get("verification_date_end");
-            $filters2["verification_date_end"]=$request->get("verification_date_end");
         }
 
         if($request->get("user")){
             $filters["user"]=$request->get("user");
-            $filters2["user"]=$request->get("user");
         }
 
         if($request->get("state")){
             $filters["state"]=$request->get("state");
-            $filters2["state"]=$request->get("state");
         }
+        return $filters;
+    }
 
-        $array_item["filters"]=$filters;
-        $array_item['status'] = MaterialCleanCleansRepository::status;
-        $array_item["items"] = $this->getDoctrine()->getRepository(MaterialCleanCleans::class)->list($filters);
-        $array_item["count"] = $this->getDoctrine()->getRepository(MaterialCleanCleans::class)->count($filters2);
-        if($array_item['count'] && isset($filters["lot"])){
-            /** @var MaterialCleanCleans $firstTrace */
-            $firstTrace = $array_item["items"][0];
-            $status = $firstTrace->getStatus();
-            if($status == 2 && $this->get('app.security')->permissionSeccion('mc_traces_dirty')){
-                $array_item["formAction"] = $this->container->get('router')->generate('nononsense_mclean_traces_dirty', ['lot' => $filters["lot"]]);
-                $array_item["buttonName"] = 'Marcar lote como Material Sucio';
-            }elseif($status == 3 && $this->get('app.security')->permissionSeccion('mc_traces_review')){
-                $array_item["formAction"] = $this->container->get('router')->generate('nononsense_mclean_traces_review', ['lot' => $filters["lot"]]);
-                $array_item["buttonName"] = 'Revisar Lote';
-            }
-        }
-
+    /**
+     * @param array $filters
+     * @param Request $request
+     * @param int $count
+     * @return array
+     */
+    private function getPagination(array $filters, Request $request, int $count)
+    {
         $url=$this->container->get('router')->generate('nononsense_mclean_traces_list');
         $params=$request->query->all();
         unset($params["page"]);
@@ -96,9 +122,91 @@ class MaterialCleanTracesController extends Controller
         else{
             $parameters=false;
         }
-        $array_item["pagination"]= Utils::paginador($filters["limit_many"],$request,$url,$array_item["count"],"/", $parameters);
+        return Utils::paginador($filters["limit_many"],$request,$url,$count,"/", $parameters);
+    }
 
-        return $this->render('NononsenseHomeBundle:MaterialClean:traces_index.html.twig',$array_item);
+    private function getMaterialMessages($lotNumber)
+    {
+        $message = [];
+        $totalNeed = 0;
+
+        $materialNeed = $this->getMaterialNeed($lotNumber);
+        if($materialNeed){
+            $text = 'Se han detectado los siguientes productos:'.'<br/>';
+            foreach($materialNeed as $need){
+                $s = ($need['total'] == 1) ? '' : 's';
+                $es = ($need['total'] == 1) ? '' : 'es';
+                $totalNeed += $need['total'];
+                $text .= $need['name'].' con '.$need['total']. ' material'.$es.' necesario'.$s.'<br/>';
+            }
+            $text .= 'Total '.$totalNeed.' materiales necesarios';
+            $message[] = [
+                'type' => 'success',
+                'message' => $text
+            ];
+        }
+
+        $materialInvalid = $this->getMaterialInvalid($lotNumber);
+        if($materialInvalid){
+            $es = ($materialInvalid == 1) ? '' : 'es';
+            $message[] = [
+                'type' => 'danger',
+                'message' => 'La fecha de limpieza de '.$materialInvalid. ' material'.$es. ' ha caducado antes de su uso.'
+            ];
+        }
+
+        $materialUsed = $this->getMaterialUsed($lotNumber);
+        if($materialUsed && $totalNeed > 0){
+            $nNeed = ($totalNeed == 1) ? '' : 'n';
+            $esNeed = ($totalNeed == 1) ? '' : 'es';
+            $nUsed = ($materialUsed == 1) ? '' : 'n';
+            $esUsed = ($totalNeed == 1) ? '' : 'es';
+            $message[] = [
+                'type' => ($totalNeed != $materialUsed) ? 'danger' : 'success',
+                'message' => 'Se necesitaba'.$nNeed.' '.$totalNeed.' material'.$esNeed.', se ha'.$nUsed.' utilizado '.$materialUsed.' material'.$esUsed
+            ];
+        }elseif ($materialUsed){
+            $es = ($materialUsed == 1) ? '' : 'es';
+            $n = ($materialUsed == 1) ? '' : 'n';
+            $message[] = [
+                'type' => 'success',
+                'message' => 'Se ha'.$n.' usado '.$materialUsed.' material'.$es
+            ];
+        }
+        return $message;
+    }
+
+    /**
+     * @param string $lotNumber
+     * @return int
+     */
+    private function getMaterialUsed($lotNumber)
+    {
+        /** @var MaterialCleanCleansRepository $cleansRepository */
+        $cleansRepository = $this->getDoctrine()->getRepository(MaterialCleanCleans::class);
+        return $cleansRepository->getMaterialUsed($lotNumber);
+    }
+
+    /**
+     * @param string $lotNumber
+     * @return array
+     */
+    private function getMaterialNeed($lotNumber)
+    {
+        /** @var MaterialCleanCleansRepository $cleansRepository */
+        $cleansRepository = $this->getDoctrine()->getRepository(MaterialCleanCleans::class);
+        return $cleansRepository->getMaterialNeed($lotNumber);
+    }
+
+    /**
+     * @param string $lotNumber
+     * @return int
+     */
+    private function getMaterialInvalid($lotNumber)
+    {
+        $cleansRepository = $this->getDoctrine()->getRepository(MaterialCleanCleans::class);
+        $invalid = $cleansRepository->findBy(['lotNumber' => $lotNumber, 'status' => 3, 'verificationDate' => null]);
+        return ($invalid) ? count($invalid) : 0;
     }
 
     public function markDirtyAction(Request $request, $lot)
@@ -168,13 +276,13 @@ class MaterialCleanTracesController extends Controller
                     $trace->setStatus(4)
                         ->setReviewUser($this->getUser())
                         ->setReviewDate(new DateTime())
-                        ->setReviewSignature($request->get('firma'));
+                        ->setReviewSignature($request->get('firma'))
+                        ->setReviewInformation($request->get('comment-box'));
 
                     $em->persist($trace);
                     $em->flush();
                 }
                 $this->get('session')->getFlashBag()->add('message',"El material se ha marcado correctamente");
-
             }
             catch(\Exception $e){
                 $this->get('session')->getFlashBag()->add('error', "Error al intentar marcar el material como Revisado: ".$e->getMessage());

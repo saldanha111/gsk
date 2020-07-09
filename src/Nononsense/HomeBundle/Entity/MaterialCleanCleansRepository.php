@@ -83,7 +83,7 @@ class MaterialCleanCleansRepository extends EntityRepository
 
         $query = $list->getQuery();
 
-        return $query->getSingleResult()["conta"];
+        return $query->getSingleScalarResult();
     }
 
     /**
@@ -140,6 +140,56 @@ class MaterialCleanCleansRepository extends EntityRepository
         }
 
         return $list;
+    }
+
+    public function getDistinctStatus($filters = [])
+    {
+        $list = $this->createQueryBuilder('cle')
+            ->select('DISTINCT cle.status')
+            ->innerJoin('cle.material','mat')
+            ->innerJoin('cle.center','cen')
+            ->innerJoin('cle.cleanUser','clu')
+            ->leftJoin('cle.verificationUser','veu')
+            ->leftJoin('cle.dirtyMaterialUser','dmu')
+            ->leftJoin('cle.reviewUser','rvu')
+            ->orderBy('cle.id', 'DESC');
+
+        $list = self::fillFilersQuery($filters, $list);
+        $query = $list->getQuery();
+
+        return $query->getResult();
+    }
+
+    public function getMaterialNeed($lotNumber)
+    {
+        $list = $this->createQueryBuilder('cle')
+            ->select('DISTINCT prod.tagsNumber as total, prod.name')
+            ->innerJoin('cle.material','mat')
+            ->innerJoin('cle.center','cen')
+            ->innerJoin('cle.cleanUser','clu')
+            ->leftJoin('mat.product','prod')
+            ->where('prod.tagsNumber IS NOT NULL')
+            ->andWhere('cle.lotNumber = :lotNumber')
+            ->setParameter('lotNumber', $lotNumber);
+
+        $query = $list->getQuery();
+
+        return $query->getResult();
+    }
+
+    public function getMaterialUsed($lotNumber)
+    {
+        $list = $this->createQueryBuilder('cle')
+            ->select('COUNT(cle.id) as total')
+            ->innerJoin('cle.material','mat')
+            ->innerJoin('cle.center','cen')
+            ->innerJoin('cle.cleanUser','clu')
+            ->leftJoin('mat.product','prod')
+            ->where('cle.verificationDate IS NOT NULL')
+            ->andWhere('cle.lotNumber = :lotNumber')
+            ->setParameter('lotNumber', $lotNumber);
+        $query = $list->getQuery();
+        return $query->getSingleScalarResult();
     }
 
 }
