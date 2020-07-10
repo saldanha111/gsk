@@ -12,7 +12,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @ORM\Entity
  * @ORM\Table(name="areas_users")
- * @ORM\Entity(repositoryClass="Nononsense\GroupBundle\Entity\AreasUsersRepository")
+ * @ORM\Entity(repositoryClass="Nononsense\HomeBundle\Entity\AreasUsersRepository")
  * @ORM\HasLifecycleCallbacks
  * @UniqueEntity(fields = {"user", "area"})
  * 

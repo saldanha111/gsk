@@ -627,3 +627,7 @@ nononsense_areas_edit:
 nononsense_areas_update:
     path: /areas/{id}/save
     defaults: { _controller: NononsenseHomeBundle:Areas:update}
+
+nononsense_tm_request:
+    path: /mt
+    defaults: { _controller: NononsenseHomeBundle:TemplateManagementRequest:create}

@@ -9,11 +9,11 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="qrs_types")
- * @ORM\Entity(repositoryClass="Nononsense\HomeBundle\Entity\QrsTypesRepository")
+ * @ORM\Table(name="tm_states")
+ * @ORM\Entity(repositoryClass="Nononsense\HomeBundle\Entity\TMStatesRepository")
  * @ORM\HasLifecycleCallbacks
  */
-class QrsTypes
+class TMStates
 {
     /**
      * @ORM\Column(type="integer")
@@ -23,7 +23,6 @@ class QrsTypes
      */
     protected $id;
 
-
     /**
      * @var string
      *
@@ -32,12 +31,7 @@ class QrsTypes
     protected $name;
 
     /**
-     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\Qrs", mappedBy="type")
-     */
-    protected $qrs;
-
-    /**
-     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMTemplates", mappedBy="QRType")
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMTemplates", mappedBy="state")
      */
     protected $tmTemplates;
 
@@ -65,7 +59,7 @@ class QrsTypes
      * Set name
      *
      * @param string $name
-     * @return Qrs
+     * @return TMStates
      */
     public function setName($name)
     {
@@ -84,77 +78,12 @@ class QrsTypes
         return $this->name;
     }
 
-    /**
-     * Add qrs
-     *
-     * @param \Nononsense\HomeBundle\Entity\Qrs $qrs
-     * @return QrsTypes
-     */
-    public function addQr(\Nononsense\HomeBundle\Entity\Qrs $qrs)
-    {
-        $this->qrs[] = $qrs;
-
-        return $this;
-    }
-
-    /**
-     * Remove qrs
-     *
-     * @param \Nononsense\HomeBundle\Entity\Qrs $qrs
-     */
-    public function removeQr(\Nononsense\HomeBundle\Entity\Qrs $qrs)
-    {
-        $this->qrs->removeElement($qrs);
-    }
-
-    /**
-     * Get qrs
-     *
-     * @return \Doctrine\Common\Collections\Collection 
-     */
-    public function getQrs()
-    {
-        return $this->qrs;
-    }
-
-    /**
-     * Add mtTemplates
-     *
-     * @param \Nononsense\HomeBundle\Entity\MTTemplates $mtTemplates
-     * @return QrsTypes
-     */
-    public function addMtTemplate(\Nononsense\HomeBundle\Entity\MTTemplates $mtTemplates)
-    {
-        $this->mtTemplates[] = $mtTemplates;
-
-        return $this;
-    }
-
-    /**
-     * Remove mtTemplates
-     *
-     * @param \Nononsense\HomeBundle\Entity\MTTemplates $mtTemplates
-     */
-    public function removeMtTemplate(\Nononsense\HomeBundle\Entity\MTTemplates $mtTemplates)
-    {
-        $this->mtTemplates->removeElement($mtTemplates);
-    }
-
-    /**
-     * Get mtTemplates
-     *
-     * @return \Doctrine\Common\Collections\Collection 
-     */
-    public function getMtTemplates()
-    {
-        return $this->mtTemplates;
-    }
 
     /**
      * Add tmTemplates
      *
      * @param \Nononsense\HomeBundle\Entity\TMTemplates $tmTemplates
-     * @return QrsTypes
+     * @return MTStates
      */
     public function addTmTemplate(\Nononsense\HomeBundle\Entity\TMTemplates $tmTemplates)
     {

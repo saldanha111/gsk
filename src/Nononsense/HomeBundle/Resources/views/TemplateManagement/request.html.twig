@@ -1,0 +1,186 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}DOCXPRESSO | Documentos {% endblock %}
+{% block head %}
+    {{ parent() }}
+    <link rel="stylesheet" href="/css/plugins/datapicker/datepicker3.css">
+{% endblock %}
+{% block main_title %} Solicitud gestión de plantilla {% endblock %}
+
+{% block content %}
+
+    <div class="wrapper wrapper-content animated fadeInUp">
+        {% for flashMessage in app.session.flashbag.get('error') %}
+        <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+            <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+            {{ flashMessage }}
+        </div>
+        {% endfor %}
+        <form class="form-horizontal" id="form_item" action="{{ path('nononsense_documents_update',{'id': item.id is defined ? item.id : 0}) }}" method="POST"  enctype="multipart/form-data">
+            <div class="row">
+                <div class="col-lg-10 col-lg-offset-1">
+                    <div class="row">
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Nombre Plantilla</label>
+                            <div class="col-sm-4">
+                                <input type="text" name="name" class="form-control" value="" required="required">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Desc. solicitud</label>
+                            <div class="col-sm-4">
+                                <textarea name="description" rows="10" cols="40" required="required" style="width:100%"></textarea>
+                            </div>
+                        </div> 
+
+                        {% if users is defined %}
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">Dueño</label>
+                                <div class="col-sm-4">
+                                  <select class="form-control" name="owner" style="width: 100%;" required="required">
+                                    <option value=""></option>
+                                    {% for user in users %}
+                                      <option value="{{user.id}}">{{user.name}}</option>
+                                    {% endfor %}
+                                  </select>
+                                </div>
+                            </div> 
+                        {% endif %}
+
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Backup</label>
+                            <div class="col-sm-2">    
+                                <input type='file' name="template" id="template" />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Fecha entrada en vigor</label>
+                            <div class="col-sm-2">
+                                <input type="text" class="form-control pull-right" autocomplete="off" name="public_date" id="public_date" value="">
+                            </div>
+                        </div> 
+                        
+                        
+                    </div>          
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-10 col-lg-offset-1">
+                    <div id="master_workflow">
+                        <h1>Workflow</h1>
+                        <hr>
+                        <div class="row">
+                            <div class="col-sm-3">
+                                Administrador
+                                <div class="row">
+                                    <select class="form-control" name="owner" style="width: 100%;" required="required">
+                                        <option value=""></option>
+                                        {% for user in users %}
+                                          <option value="{{user.id}}">{{user.name}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                Elaboradores
+                                <div class="row">
+                                    <select class="form-control" name="owner" style="width: 100%;" required="required">
+                                        <option value=""></option>
+                                        {% for user in users %}
+                                          <option value="{{user.id}}">{{user.name}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="row"><br>
+                                    <button type="button" class="btn btn-default pull-right" id="add_line"><i class="fa fa-plus"></i> Añadir</button>
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                Testers
+                                <div class="row">
+                                    <select class="form-control" name="owner" style="width: 100%;" required="required">
+                                        <option value=""></option>
+                                        {% for user in users %}
+                                          <option value="{{user.id}}">{{user.name}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="row"><br>
+                                    <button type="button" class="btn btn-default pull-right" id="add_line"><i class="fa fa-plus"></i> Añadir</button>
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                Aprobadores
+                                <div class="row">
+                                    <select class="form-control" name="owner" style="width: 100%;" required="required">
+                                        <option value=""></option>
+                                        {% for user in users %}
+                                          <option value="{{user.id}}">{{user.name}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="row"><br>
+                                    <button type="button" class="btn btn-default pull-right" id="add_line"><i class="fa fa-plus"></i> Añadir</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        
+                    </div><br>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-11">
+                    <button type="submit" class="btn btn-primary  pull-right"><i class="fa fa-floppy-o" aria-hidden="true"></i> Guardar</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+{% endblock %}
+
+{% block scripts %}
+    {{ parent() }}
+    <script src="/js/plugins/datapicker/bootstrap-datepicker.js"></script>
+    <script src="/js/plugins/datapicker/locales/bootstrap-datepicker.es.js" charset="UTF-8"></script>
+    <script>
+    $( document ).ready(function() {
+
+        $(document).on('click', '.remove_line', function() {
+            $(this).closest(".line_workflow").remove();
+        });
+
+        $(document).on('click', '#add_line', function() {
+            $("#master_workflow").append($("#new_line").html());
+            $("#master_workflow").find(".masterbox_type_workflow:last").after($("#box_groups").html()+$("#box_remove").html());
+        });
+
+        $(document).on('change', '.type_workflow', function() {
+            switch($(this).val()){
+                case "1":
+                    $(this).closest(".line_workflow").find(".master_box_user").remove();
+                    $(this).closest(".line_workflow").find(".masterbox_type_workflow").after($("#box_groups").html());
+                    break;
+                case "2":
+                    $(this).closest(".line_workflow").find(".master_box_group").remove();
+                    $(this).closest(".line_workflow").find(".masterbox_type_workflow").after($("#box_users").html());
+                    break;
+            }
+        });
+
+
+        $('#public_date').datepicker({
+          autoclose: true,
+          orientation: 'bottom auto',
+          format: 'yyyy-mm-dd',
+          language: 'es'
+        });
+
+    });
+    </script>
+{% endblock %}
+
+

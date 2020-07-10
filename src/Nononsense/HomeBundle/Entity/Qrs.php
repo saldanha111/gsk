@@ -32,7 +32,6 @@ class Qrs
 
     /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\QrsFields", mappedBy="qr")
-     *
      * @Groups({"group1"})
      */
     protected $fields;

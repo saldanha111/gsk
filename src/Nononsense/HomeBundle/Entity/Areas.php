@@ -51,6 +51,11 @@ class Areas
      */
     protected $created;
 
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMTemplates", mappedBy="area")
+     */
+    protected $tmTemplates;
+
 
 
     public function __construct()
@@ -182,5 +187,71 @@ class Areas
     public function getUsers()
     {
         return $this->users;
+    }
+
+    /**
+     * Add mtTemplates
+     *
+     * @param \Nononsense\HomeBundle\Entity\MTTemplates $mtTemplates
+     * @return Areas
+     */
+    public function addMtTemplate(\Nononsense\HomeBundle\Entity\MTTemplates $mtTemplates)
+    {
+        $this->mtTemplates[] = $mtTemplates;
+
+        return $this;
+    }
+
+    /**
+     * Remove mtTemplates
+     *
+     * @param \Nononsense\HomeBundle\Entity\MTTemplates $mtTemplates
+     */
+    public function removeMtTemplate(\Nononsense\HomeBundle\Entity\MTTemplates $mtTemplates)
+    {
+        $this->mtTemplates->removeElement($mtTemplates);
+    }
+
+    /**
+     * Get mtTemplates
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getMtTemplates()
+    {
+        return $this->mtTemplates;
+    }
+
+    /**
+     * Add tmTemplates
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMTemplates $tmTemplates
+     * @return Areas
+     */
+    public function addTmTemplate(\Nononsense\HomeBundle\Entity\TMTemplates $tmTemplates)
+    {
+        $this->tmTemplates[] = $tmTemplates;
+
+        return $this;
+    }
+
+    /**
+     * Remove tmTemplates
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMTemplates $tmTemplates
+     */
+    public function removeTmTemplate(\Nononsense\HomeBundle\Entity\TMTemplates $tmTemplates)
+    {
+        $this->tmTemplates->removeElement($tmTemplates);
+    }
+
+    /**
+     * Get tmTemplates
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getTmTemplates()
+    {
+        return $this->tmTemplates;
     }
 }
