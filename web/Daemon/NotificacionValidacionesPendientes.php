@@ -11,7 +11,7 @@ echo 'host: ---' . $host . '---' . PHP_EOL;
 if ($host == 'DESKTOP-8TQA670') {
     $baseURL = 'http://gsk.local/';
 } else {
-    $baseURL = 'http://gsk.docxpresso.org/';
+    $baseURL = 'https://test.gsk.nodalblock.com/';
 }
 $urlprocess = $baseURL . 'notificacion_semanal';
 

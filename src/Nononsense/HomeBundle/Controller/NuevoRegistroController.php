@@ -826,7 +826,7 @@ class NuevoRegistroController extends Controller
         $currentUrl = substr($currentUrl, 0, $indexToRemove);
 
         $url_resp = $currentUrl;
-        $options['responseURL'] = 'http://gsk.docxpresso.org';
+        $options['responseURL'] = 'https://test.gsk.nodalblock.com/';
         //$options['responseURL'] = 'http://testgit.pre.docxpresso.com/app_dev.php/';
 
 

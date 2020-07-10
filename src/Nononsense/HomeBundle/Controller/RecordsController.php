@@ -196,7 +196,7 @@ class RecordsController extends Controller
         $customObject = new \stdClass();
         $customObject->activate = 'deactivate'; // default En caso de haber precarga de datos poner en activate (gestionar según el status...)
         $customObject->sessionTime = '1200'; // In seconds
-        $customObject->sessionLocation = 'http://gsk.docxpresso.org/';// Dónde redirigir para el logout
+        $customObject->sessionLocation = 'https://test.gsk.nodalblock.com/';// Dónde redirigir para el logout
 
 
         /*
