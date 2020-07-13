@@ -27,9 +27,26 @@ class MaterialCleanCleans
     protected $id;
 
     /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\MaterialCleanCenters", inversedBy="cleans")
+     * @ORM\JoinColumn(name="id_center", referencedColumnName="id", nullable=false)
+     */
+    protected $center;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\MaterialCleanMaterials", inversedBy="cleans")
+     * @ORM\JoinColumn(name="id_material", referencedColumnName="id", nullable=false)
+     */
+    protected $material;
+
+    /**
      * @ORM\Column(name="code", type="string", length=255,  nullable=false)
      */
     protected $code;
+
+    /**
+     * @ORM\Column(name="lot_number", type="string", nullable=true)
+     */
+    protected $lotNumber;
 
     /**
      * @var string
@@ -49,9 +66,10 @@ class MaterialCleanCleans
     protected $cleanExpiredDate;
 
     /**
-     * @ORM\Column(name="lot_number", type="string", nullable=true)
+     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="materialClean")
+     * @ORM\JoinColumn(name="clean_user", referencedColumnName="id", nullable=false)
      */
-    protected $lotNumber;
+    protected $cleanUser;
 
     /**
      * @ORM\Column(name="verification_date", type="datetime", nullable=true)
@@ -64,6 +82,17 @@ class MaterialCleanCleans
     protected $verificationSignature;
 
     /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="materialVerification")
+     * @ORM\JoinColumn(name="verification_user", referencedColumnName="id", nullable=true)
+     */
+    protected $verificationUser;
+
+    /**
+     * @ORM\Column(name="use_information", type="text",  nullable=true)
+     */
+    protected $useInformation;
+
+    /**
      * @ORM\Column(name="dirty_material_date", type="datetime", nullable=true)
      */
     protected $dirtyMaterialDate;
@@ -72,6 +101,12 @@ class MaterialCleanCleans
      * @ORM\Column(name="dirty_material_signature", type="text", nullable=true)
      */
     protected $dirtyMaterialSignature;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="materialDirty")
+     * @ORM\JoinColumn(name="dirty_material_user", referencedColumnName="id", nullable=true)
+     */
+    protected $dirtyMaterialUser;
 
     /**
      * @ORM\Column(name="review_date", type="datetime", nullable=true)
@@ -84,46 +119,20 @@ class MaterialCleanCleans
     protected $reviewSignature;
 
     /**
-     * @ORM\Column(name="status", type="integer",  nullable=false, options={"default" : 1})
-     */
-    protected $status;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\MaterialCleanCenters", inversedBy="cleans")
-     * @ORM\JoinColumn(name="id_center", referencedColumnName="id", nullable=false)
-     */
-    protected $center;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\MaterialCleanMaterials", inversedBy="cleans")
-     * @ORM\JoinColumn(name="id_material", referencedColumnName="id", nullable=false)
-     */
-    protected $material;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="materialClean")
-     * @ORM\JoinColumn(name="clean_user", referencedColumnName="id", nullable=false)
-     */
-    protected $cleanUser;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="materialVerification")
-     * @ORM\JoinColumn(name="verification_user", referencedColumnName="id", nullable=true)
-     */
-    protected $verificationUser;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="materialDirty")
-     * @ORM\JoinColumn(name="dirty_material_user", referencedColumnName="id", nullable=true)
-     */
-    protected $dirtyMaterialUser;
-
-    /**
      * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="materialReview")
      * @ORM\JoinColumn(name="review_user", referencedColumnName="id", nullable=true)
      */
     protected $reviewUser;
 
+    /**
+     * @ORM\Column(name="review_information", type="text",  nullable=true)
+     */
+    protected $reviewInformation;
+
+    /**
+     * @ORM\Column(name="status", type="integer",  nullable=false, options={"default" : 1})
+     */
+    protected $status;
 
     /**
      * Get id
@@ -547,5 +556,51 @@ class MaterialCleanCleans
     public function getStatus()
     {
         return $this->status;
+    }
+
+    /**
+     * Set useInformation
+     *
+     * @param string $useInformation
+     * @return MaterialCleanCleans
+     */
+    public function setUseInformation($useInformation)
+    {
+        $this->useInformation = $useInformation;
+
+        return $this;
+    }
+
+    /**
+     * Get useInformation
+     *
+     * @return string 
+     */
+    public function getUseInformation()
+    {
+        return $this->useInformation;
+    }
+
+    /**
+     * Set reviewInformation
+     *
+     * @param string $reviewInformation
+     * @return MaterialCleanCleans
+     */
+    public function setReviewInformation($reviewInformation)
+    {
+        $this->reviewInformation = $reviewInformation;
+
+        return $this;
+    }
+
+    /**
+     * Get reviewInformation
+     *
+     * @return string 
+     */
+    public function getReviewInformation()
+    {
+        return $this->reviewInformation;
     }
 }

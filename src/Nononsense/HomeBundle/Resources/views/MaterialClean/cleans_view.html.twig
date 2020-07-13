@@ -40,10 +40,18 @@
                     <div class="col-sm-7">
                         <select class="form-control select-center" name="center"
                                 {{ materialCleanCode.idCenter.id ? 'readonly="readonly"' : '' }}>
-                            <option value=""></option>
-                            {% for center in centers %}
-                                <option value="{{ center.id }}" {{ materialCleanCode.idCenter.id is defined and materialCleanCode.idCenter.id==center.id ? 'selected="selected"' : '' }}>{{ center.name }}</option>
-                            {% endfor %}
+                            {% if materialCleanCode.idCenter.id is defined and materialCleanCode.idCenter.id is not null %}
+                                {% for center in centers %}
+                                    {% if materialCleanCode.idCenter.id == center.id %}
+                                        <option value="{{ center.id }}" selected="selected">{{ center.name }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                <option value=""></option>
+                                {% for center in centers %}
+                                    <option value="{{ center.id }}" {{ materialCleanCode.idCenter.id is defined and materialCleanCode.idCenter.id==center.id ? 'selected="selected"' : '' }}>{{ center.name }}</option>
+                                {% endfor %}
+                            {% endif %}
                         </select>
                     </div>
                 </div>
@@ -52,10 +60,18 @@
                     <div class="col-sm-7">
                         <select class="form-control select-material" name="material"
                                 {{ materialCleanCode.idMaterial.id ? 'readonly="readonly"' : '' }}>
-                            <option value=""></option>
+                            {% if materialCleanCode.idMaterial.id is defined and materialCleanCode.idMaterial.id is not null %}
                             {% for material in materials %}
-                                <option value="{{ material.id }}" {{ materialCleanCode.idMaterial.id is defined and materialCleanCode.idMaterial.id==material.id ? 'selected="selected"' : '' }}>{{ material.name }}</option>
+                                {% if materialCleanCode.idMaterial.id == material.id %}
+                                    <option value="{{ material.id }}" selected="selected">{{ material.name }}</option>
+                                {% endif %}
                             {% endfor %}
+                            {% else %}
+                                <option value=""></option>
+                                {% for material in materials %}
+                                    <option value="{{ material.id }}" {{ materialCleanCode.idMaterial.id is defined and materialCleanCode.idMaterial.id==material.id ? 'selected="selected"' : '' }}>{{ material.name }}</option>
+                                {% endfor %}
+                            {% endif %}
                         </select>
                     </div>
                 </div>

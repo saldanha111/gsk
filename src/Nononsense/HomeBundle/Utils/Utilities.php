@@ -2,6 +2,11 @@
 
 namespace Nononsense\HomeBundle\Utils;
 
+use DateTime;
+use Doctrine\ORM\OptimisticLockException;
+use Nononsense\HomeBundle\Entity\Logs;
+use Nononsense\HomeBundle\Entity\LogsTypes;
+use Nononsense\HomeBundle\Entity\LogsTypesRepository;
 use Nononsense\HomeBundle\Entity\Tokens;
 
 class Utilities{
@@ -21,7 +26,9 @@ class Utilities{
     	$token = uniqid().rand(1000,9999);
         $token_get_data = new Tokens();
         $token_get_data->setToken($token);
-        $token_get_data->setUser($user);
+        if($user && $user !== 'anon.'){
+            $token_get_data->setUser($user);
+        }
 
         $this->em->persist($token_get_data);
         $this->em->flush();
@@ -64,22 +71,24 @@ class Utilities{
         return false;
     }
 
-    public function sendNotification($mailTo, $link, $logo, $accion, $subject, $message)
+    public function sendNotification($mailTo, $link, $logo, $accion, $subject, $message, $useTemplate = true)
     {
+        if($useTemplate){
+            $renderedBody = $this->templating->render(
+                'NononsenseHomeBundle:Email:notificationUser.html.twig', array(
+                'logo' => $logo,
+                'accion' => $accion,
+                'message' => $message,
+                'link' => $link
+            ));
+        }else{
+            $renderedBody = $message;
+        }
         $email = \Swift_Message::newInstance()
             ->setSubject($subject)
-            ->setFrom($this->container->getParameter('mailer_user'))
+            ->setFrom($this->container->getParameter('mailer_username'))
             ->setTo($mailTo)
-            ->setBody(
-                $this->templating->render(
-                    'NononsenseHomeBundle:Email:notificationUser.html.twig', array(
-                    'logo' => $logo,
-                    'accion' => $accion,
-                    'message' => $message,
-                    'link' => $link
-                )),
-                'text/html'
-            );
+            ->setBody($renderedBody,'text/html');
         if ($this->container->get('mailer')->send($email)) {
             //echo '[SWIFTMAILER] sent email to ' . $mailTo;
             //echo 'LOG: ' . $mailLogger->dump();
@@ -89,5 +98,41 @@ class Utilities{
             return false;
         }
 
+    }
+
+    public function signWithP12($path_document_to_sign, $p12Path, $p12Pass){
+        try {
+            $command = 'AutoFirma sign -i '.$path_document_to_sign.' -o '.$path_document_to_sign.' -store pkcs12:'.$p12Path.' -filter cualquiertexto -password '.$p12Pass;
+            $result = shell_exec($command);
+            if(strpos($result,'La operacion ha terminado correctamente') === false){
+                return false;
+            }
+        } catch(\Exception $ex){
+            $this->logger->error("Utilities->signWithP12: ".$ex->getCode().": ".$ex->getMessage());
+            return false;
+        }
+
+        return true;
+    }
+
+    public function saveLog(string $type, string $description)
+    {
+        /** @var LogsTypesRepository $logsTypesRepository */
+        $logsTypesRepository = $this->em->getRepository(LogsTypes::class);
+        /** @var LogsTypes $logType */
+        $logType = $logsTypesRepository->findOneBy(['stringId' => $type]);
+        if(!$logType){
+            $logType = $logsTypesRepository->findOneBy(['stringId' => 'unknown']);
+        }
+
+        $log = new Logs();
+        $log->setType($logType);
+        $log->setDate(new DAteTime());
+        $log->setDescription($description);
+        $this->em->persist($log);
+        try {
+            $this->em->flush();
+        } catch (OptimisticLockException $e) {
+        }
     }
 }

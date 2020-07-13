@@ -4,10 +4,8 @@ namespace Nononsense\HomeBundle\Controller;
 
 use DateTime;
 use Exception;
-use Nononsense\HomeBundle\Entity\MaterialCleanCenters;
 use Nononsense\HomeBundle\Entity\MaterialCleanCleans;
 use Nononsense\HomeBundle\Entity\MaterialCleanCleansRepository;
-use Nononsense\HomeBundle\Entity\MaterialCleanCodes;
 use Nononsense\HomeBundle\Entity\MaterialCleanMaterials;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -28,15 +26,29 @@ class MaterialCleanUsesController extends Controller
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
 
-        return $this->render('NononsenseHomeBundle:MaterialClean:uses_index.html.twig');
+        $data = [];
+
+        if($request->getMethod() == 'POST') {
+            if($request->get('po')){
+                $data['po'] = $request->get('po');
+                return $this->render('NononsenseHomeBundle:MaterialClean:uses_material_index.html.twig',$data);
+            }
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                "Ha ocurrido un error al intentar obtener el process order. Vuelve a intentarlo."
+            );
+
+        }
+        return $this->render('NononsenseHomeBundle:MaterialClean:uses_po_index.html.twig');
     }
 
     /**
      * @param Request $request
      * @param string $barcode
+     * @param string $po
      * @return RedirectResponse|Response
      */
-    public function viewAction(Request $request, $barcode)
+    public function viewAction(Request $request, $barcode, $po)
     {
         $is_valid = $this->get('app.security')->permissionSeccion('mc_uses_scan');
         if (!$is_valid) {
@@ -58,7 +70,8 @@ class MaterialCleanUsesController extends Controller
             $materialCleanClean = reset($materialCleanClean);
         }
 
-        $error = $this->checkIfCanCleanUse($materialCleanClean, $materialCleanRepository);
+        // Miramos si el material cumple los requisitos para ser utilizado.
+        $error = $this->checkIfCanCleanUse($materialCleanClean, $materialCleanRepository, $po);
         if(!$error){
             $this->get('session')->getFlashBag()->add('message', "Fecha de caducidad no alcanzada. Se puede usar el material o elemento.");
         }
@@ -68,6 +81,7 @@ class MaterialCleanUsesController extends Controller
             'code' => $materialCleanClean->getCode(),
             'center' => $materialCleanClean->getCenter(),
             'material' => $materialCleanClean->getMaterial(),
+            'lotCode' => $po,
             'cleanDate' => ($materialCleanClean->getCleanDate())->format('d-m-Y'),
             'cleanExpirationDate' => ($materialCleanClean->getCleanExpiredDate())->format('d-m-Y'),
             'cleanUser' => $materialCleanClean->getCleanUser(),
@@ -88,13 +102,14 @@ class MaterialCleanUsesController extends Controller
         $error = false;
 
         try {
+            $po = $request->get('lot-code');
             if (!($request->get("firma")) || !(strpos($request->get("firma"),'data:image/png;base64') === 0)) {
                 $this->get('session')->getFlashBag()->add('error', "No se ha podido procesar la firma, por favor vuelva a intentarlo");
                 $error = true;
             }
 
             if(!$request->get('lot-code')){
-                $this->get('session')->getFlashBag()->add('error', "Ha ocurrido un error al procesar el código de lote, por favor vuelva a intentarlo");
+                $this->get('session')->getFlashBag()->add('error', "Ha ocurrido un error al procesar el process order, por favor vuelva a intentarlo");
                 $error = true;
             }
 
@@ -111,14 +126,15 @@ class MaterialCleanUsesController extends Controller
                 $materialCleanClean = reset($materialCleanClean);
             }
 
-            $error = ($error || $this->checkIfCanCleanUse($materialCleanClean, $materialCleanRepository));
+            $error = ($error || $this->checkIfCanCleanUse($materialCleanClean, $materialCleanRepository, $po));
 
             if (!$error) {
                 $materialCleanClean
                     ->setVerificationDate(new DateTime())
                     ->setVerificationUser($this->getUser())
                     ->setVerificationSignature($request->get('firma'))
-                    ->setLotNumber($request->get('lot-code'))
+                    ->setLotNumber($po)
+                    ->setUseInformation($request->get('additionalInfo'))
                     ->setStatus(2);
 
                 $em->persist($materialCleanClean);
@@ -152,9 +168,10 @@ class MaterialCleanUsesController extends Controller
     /**
      * @param MaterialCleanCleans $materialCleanClean
      * @param MaterialCleanCleansRepository $materialCleanRepository
+     * @param string $po
      * @return bool
      */
-    private function checkIfCanCleanUse($materialCleanClean, $materialCleanRepository)
+    private function checkIfCanCleanUse($materialCleanClean, $materialCleanRepository, $po)
     {
         $error = false;
         // Si el material no está limpio
@@ -167,6 +184,8 @@ class MaterialCleanUsesController extends Controller
         $outOfDate = $this->isClearOutOfDate($materialCleanClean);
         if($outOfDate){
             $this->get('session')->getFlashBag()->add('error', "La fecha de caducidad de la limpieza ha pasado.");
+            // Marcamos el material como sucio y lo asignamos al po
+            $this->markMaterialAsDirty($materialCleanClean, $po);
             $error = true;
         }
 
@@ -177,5 +196,22 @@ class MaterialCleanUsesController extends Controller
         }
 
         return $error;
+    }
+
+    /**
+     * @param MaterialCleanCleans $materialCleanClean
+     * @param string $po
+     * @return void
+     */
+    private function markMaterialAsDirty(MaterialCleanCleans $materialCleanClean, string $po)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $materialCleanClean
+            ->setLotNumber($po)
+            ->setDirtyMaterialDate(new DateTime())
+            ->setStatus(3);
+
+        $em->persist($materialCleanClean);
+        $em->flush();
     }
 }

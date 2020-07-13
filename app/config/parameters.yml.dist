@@ -19,6 +19,16 @@ parameters:
     # A secret key that's used to generate certain security-related tokens
     secret:            ThisTokenIsNotSoSecretChangeIt
 
+    # CONTRACTS GROUPS
     group_id_contratos_rrhh: ~
     group_id_direccion_rrhh: ~
     group_id_comite_rrhh: ~
+
+    # sns data
+    sns_key: ~
+    sns_secret: ~
+    sns_region: us-west-2
+
+    # API3 data
+    api_url: ~
+    api_key: ~

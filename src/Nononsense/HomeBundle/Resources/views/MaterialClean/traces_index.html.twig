@@ -42,7 +42,7 @@
                                     <input type="text" name="material" class="form-control" value="{{filters.material is defined ? filters.material : ''}}">
                                 </div>
 
-                                <label class="col-sm-1 control-label item_filter">Lote</label>
+                                <label class="col-sm-1 control-label item_filter">Process Order</label>
                                 <div class="col-sm-2 item_filter">
                                     <input type="text" name="lot" class="form-control" value="{{filters.lot is defined ? filters.lot : ''}}">
                                 </div>
@@ -91,6 +91,17 @@
                 </div>
                 <div class="row">
                     <div class="col-xs-12">
+                        {% if materialMessages is defined and materialMessages %}
+                            {% for message in materialMessages %}
+                                <div class="alert alert-{{ message.type}} alert-dismissable" style="margin: 10px 16px 0 16px">
+                                    <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                                    <p>{{ message.message | raw }}</p>
+                                </div>
+                            {% endfor %}
+                            <br/>
+                        {% endif %}
+                    </div>
+                    <div class="col-xs-12">
                         {% if formAction is defined %}
                                 <form class="form-vertical" id="form_register" action="{{ formAction }}" method="POST">
                                     <div class="form-group">
@@ -98,6 +109,16 @@
                                             <i class="fa fa-floppy-o" aria-hidden="true"></i> {{ buttonName }}
                                         </a>
                                     </div>
+                                    {% if showCommentBox is defined and showCommentBox %}
+                                        <div class="form-group signature-comment" style="display:none;">
+                                            <div class="row">
+                                                <div class="col-sm-3">
+                                                    <label class="control-label">Comentarios</label>
+                                                    <textarea name="comment-box" class="form-control" rows="4"></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endif %}
                                     <div class="form-group signature-box" style="display:none;">
                                         <label class="control-label">Firma</label>
                                         <div id="signature-pad" class="input-group">
@@ -117,7 +138,7 @@
                         <table id="inProcessParcial" class="table table-hover">
                             <thead>
                             <tr>
-                                <th>Lote</th>
+                                <th>Process Order</th>
                                 <th>Material</th>
                                 <th>Estado</th>
                                 <th>Identificador</th>
@@ -126,10 +147,12 @@
                                 <th>Fecha de caducidad</th>
                                 <th>Usuario verificación</th>
                                 <th>Fecha verificación</th>
-                                <th>Usuario revisión</th>
-                                <th>Fecha revisión</th>
+                                <th>Comentario verificación</th>
                                 <th>Usuario material sucio</th>
                                 <th>Fecha material sucio</th>
+                                <th>Usuario revisión</th>
+                                <th>Fecha revisión</th>
+                                <th>Comentario revisión</th>
                             </tr>
                             </thead>
                             {% if items is defined %}
@@ -152,16 +175,7 @@
                                                 {{ item.verificationDate | date("d-m-Y") }}
                                             {% endif %}
                                         </td>
-                                        <td>
-                                            {% if item.reviewUser.name is defined %}
-                                                {{item.reviewUser.name}}
-                                            {% endif %}
-                                        </td>
-                                        <td>
-                                            {% if item.reviewDate is defined and item.reviewDate is not null and item.reviewDate | date("Y") > 0  %}
-                                                {{item.reviewDate | date("d-m-Y")}}
-                                            {% endif %}
-                                        </td>
+                                        <td>{{ item.useInformation }}</td>
                                         <td>
                                             {% if item.dirtyMaterialUser.name is defined %}
                                                 {{item.dirtyMaterialUser.name}}
@@ -172,6 +186,17 @@
                                                 {{item.dirtyMaterialDate | date("d-m-Y")}}
                                             {% endif %}
                                         </td>
+                                        <td>
+                                            {% if item.reviewUser.name is defined %}
+                                                {{item.reviewUser.name}}
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if item.reviewDate is defined and item.reviewDate is not null and item.reviewDate | date("Y") > 0  %}
+                                                {{item.reviewDate | date("d-m-Y")}}
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ item.reviewInformation }}</td>
                                     </tr>
                                 {% endfor %}
                             {% endif %}
@@ -229,11 +254,12 @@
 
         $(document).on('click', '.show-signature', function(){
             $('.signature-box').toggle();
+            $('.signature-comment').toggle();
         });
 
         const canvas = document.querySelector("canvas");
         if(canvas != null) {
-            const signaturePad = new SignaturePad(canvas);
+            var signaturePad = new SignaturePad(canvas);
         }
 
         $(document).on('click', '#send-firma', function (e) {
@@ -270,7 +296,7 @@
                 '<button type="button" id="confirm-save-use" class="btn btn-success">Si</button>' +
                 '&nbsp;&nbsp;&nbsp;' +
                 '<button type="button" id="cancel-save-use" class="btn btn-danger">No</button>',
-                'Se va a cambiar el estado de todo el material del lote. ¿Estás seguro? ',
+                'Se va a cambiar el estado de todo el material del process order. ¿Estás seguro? ',
                 {
                     allowHtml: true,
                     timeOut: 0,

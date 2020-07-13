@@ -21,8 +21,10 @@ class RecordsContractsRepository extends EntityRepository
             ->leftJoin("r.type", "t")
             ->leftJoin("r.userCreatedEntiy", "u")
             ->leftJoin("r.contract", "d")
+            ->leftJoin('r.signatures','s')
             ->andWhere('r.isActive=1')
 //            ->andWhere('(s.next=1 OR s.next IS NULL) OR (r.status=3 AND s.id=r.lastSign) or (r.comments IS NOT NULL and s.number=0)')
+            ->groupBy('r.id')
             ->orderBy('r.id', 'DESC');
 
         $list = self::fillFilersQuery($filters, $list);
@@ -41,10 +43,11 @@ class RecordsContractsRepository extends EntityRepository
         $em = $this->getEntityManager();
 
         $list = $this->createQueryBuilder('r')
-            ->select('COUNT(d.id) as conta')
+            ->select('COUNT(DISTINCT d.id) as conta')
             ->leftJoin("r.type", "t")
             ->leftJoin("r.userCreatedEntiy", "u")
             ->leftJoin("r.contract", "d")
+            ->leftJoin('r.signatures','s')
             ->andWhere('r.isActive=1')
             //->andWhere('(s.next=1 OR s.next IS NULL) OR (r.status=3 AND s.id=r.lastSign) or (r.comments IS NOT NULL and s.number=0)')
             ->orderBy('r.id', 'DESC');

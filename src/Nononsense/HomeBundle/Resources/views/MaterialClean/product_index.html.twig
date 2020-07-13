@@ -3,7 +3,7 @@
 {% block head %}
 {{ parent() }}
 {% endblock %}
-{% block main_title %} Listado de materiales{% endblock %}
+{% block main_title %} Listado de productos{% endblock %}
 {% block content %}
 
 <div class="wrapper wrapper-content">
@@ -26,33 +26,20 @@
                         <br>
                     {% endfor %}
                     <div class="col-xs-12">
-                        <form class="form-vertical" id="form_item" action="{{ path('nononsense_mclean_materials_list')}}" method="GET">
-                            <input type="hidden" id='url_mc_material_list' value="{{ path('nononsense_mclean_materials_list')}}" />
-                            <input type="hidden" id='url_mc_material_delete' value="{{ path('nononsense_mclean_materials_delete',{'id': 'xxx'}) }}" />
-                            <input type="hidden" id='url_mc_material_edit' value="{{ path('nononsense_mclean_materials_edit',{'id': 'xxx'}) }}" />
-                            <div class="row">
-                                <div class="col-md-3 col-sm-5 form-group">
-                                    <label class="control-label">Material</label>
-                                    <div class="item_filter">
-                                        <input type="text" placeholder="Buscar" name="name" class="form-control" value="{{filters.name is defined ? filters.name : ''}}">
-                                    </div>
+                        <form class="form-horizontal" id="form_item" action="{{ path('nononsense_mclean_products_list')}}" method="GET">
+                            <input type="hidden" id='url_mc_product_list' value="{{ path('nononsense_mclean_products_list')}}" />
+                            <input type="hidden" id='url_mc_product_delete' value="{{ path('nononsense_mclean_products_delete',{'id': 'xxx'}) }}" />
+                            <input type="hidden" id='url_mc_product_edit' value="{{ path('nononsense_mclean_products_edit',{'id': 'xxx'}) }}" />
+                            <div class="form-group">
+                                <div class="col-sm-2 item_filter">
+                                    <input type="text" placeholder="Buscar" name="name" class="form-control" value="{{filters.name is defined ? filters.name : ''}}">
                                 </div>
-                                <div class="col-md-3 col-sm-5 form-group">
-                                    <label class="control-label">Producto</label>
-                                    <select class="form-control" name="product">
-                                        <option value=""></option>
-                                        {% for product in products %}
-                                            <option value="{{product.id}}" {{ filters.product is defined and filters.product is not null and filters.product==product.id ? 'selected="selected"' : ''}}>{{product.name}}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="row">
+
                                 <div class="col-sm-1 item_filter">
-                                    <button id="btn-search" type="button" class="btn btn-primary pull-left">Buscar</button>
+                                    <button id="btn-search" type="button" class="btn btn-primary pull-right">Buscar</button>
                                 </div>
                                 <div class="col-sm-1 item_filter">
-                                    <a href="{{path('nononsense_mclean_materials_list')}}" type="button" class="btn btn-primary pull-left">Reset</a>
+                                    <a href="{{path('nononsense_mclean_products_list')}}" type="button" class="btn btn-primary pull-right">Reset</a>
                                 </div>
                             </div>
                         </form>
@@ -61,7 +48,7 @@
                 <div class="row">
                     <div class="col-xs-12">
                         <div>
-                            <a href="{{ path('nononsense_mclean_materials_edit',{'id': '0'}) }}" target="_self" class="btn btn-primary pull-right"><i class="fa fa-plus"></i> Nuevo Material</a>
+                            <a href="{{ path('nononsense_mclean_products_edit',{'id': '0'}) }}" target="_self" class="btn btn-primary pull-right"><i class="fa fa-plus"></i> Nuevo producto</a>
                         </div>
                         <br/>
                         <table id="inProcessParcial" class="table table-striped">
@@ -69,9 +56,7 @@
                             <tr>
                                 <th>Id.</th>
                                 <th>Nombre</th>
-                                <th>Cad. Limpieza (días)</th>
-                                <th>Producto</th>
-                                <th>Desc. Adicional</th>
+                                <th>Número de etiquetas</th>
                                 <th>Activo</th>
                                 <th></th>
                                 <th></th>
@@ -82,15 +67,7 @@
                                     <tr>
                                         <td>{{item.id}}</td>
                                         <td>{{item.name}}</td>
-                                        <td>{{item.expirationDays}}</td>
-                                        <td>{{item.productName}}</td>
-                                        <td>
-                                            {% if item.additionalInfo %}
-                                                Si
-                                            {% else %}
-                                                No
-                                            {% endif %}
-                                        </td>
+                                        <td>{{item.tagsNumber}}</td>
                                         <td>
                                             {% if item.active %}
                                                 Si
@@ -128,7 +105,7 @@
 {{ parent() }}
 <script>
     $(function () {
-        ActivateMenu('admin_materials');
+        ActivateMenu('admin_products');
         $('#side-menu').metisMenu();
 
         $(document).on('click','#btn-search',function(){
@@ -149,25 +126,25 @@
     });
 
     function delete_product(id){
-        let url_product_delete = $('#url_mc_material_delete').val();
+        let url_product_delete = $('#url_mc_product_delete').val();
         url_product_delete = url_product_delete.replace("xxx", id);
 
-        if(confirm('¿Seguro que quieres borrar el material?')){
+        if(confirm('¿Seguro que quieres borrar el producto?')){
             window.location.href = url_product_delete;
         }
     }
 
     function edit_product(id){
-        let url_product_edit = $('#url_mc_material_edit').val();
+        let url_product_edit = $('#url_mc_product_edit').val();
         url_product_edit = url_product_edit.replace("xxx", id);
 
-        if(confirm('¿Seguro que quieres editar el material?')){
+        if(confirm('¿Seguro que quieres editar el producto?')){
             window.location.href = url_product_edit;
         }
     }
 
     function filtering(){
-        let url_product_list = $('#url_mc_material_list').val();
+        let url_product_list = $('#url_mc_product_list').val();
         let form = $('#form_item');
         form.attr("action", url_product_list);
         form.attr("target","_self");

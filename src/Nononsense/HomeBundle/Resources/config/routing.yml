@@ -443,20 +443,16 @@ nononsense_records_contracts_link:
     defaults: { _controller: NononsenseHomeBundle:RecordsContracts:link, id: 0}
 
 nononsense_records_contracts_public_sign_contract:
-    path:     /sign-contract/{token}
+    path:     /sign-contract/{version}/{token}
     defaults: { _controller: NononsenseHomeBundle:RecordsContracts:signContract, token: null}
 
 nononsense_records_contracts_public_view_contract:
-    path:     /view-contract/{token}
+    path:     /view-contract/{version}/{token}
     defaults: { _controller: NononsenseHomeBundle:RecordsContracts:viewContract, token: null}
 
-nononsense_records_contracts_send_sms:
-    path:     /records/contract-send-sms
-    defaults: { _controller: NononsenseHomeBundle:RecordsContracts:sendSms}
-
-nononsense_records_contracts_send_email:
-    path:     /records/contract-send-email
-    defaults: { _controller: NononsenseHomeBundle:RecordsContracts:sendEmail}
+nononsense_records_contracts_send_comunication:
+    path:     /records/contract-send/{type}
+    defaults: { _controller: NononsenseHomeBundle:RecordsContracts:sendContract}
 
 nononsense_records_redirect_from_data:
     path: /records/redirectFromData/{id}
@@ -581,7 +577,7 @@ nononsense_mclean_uses_scan:
     defaults: { _controller: NononsenseHomeBundle:MaterialCleanUses:scan}
 
 nononsense_mclean_uses_view:
-    path: /mclean/uses/view/{barcode}
+    path: /mclean/uses/view/{barcode}/{po}
     defaults: { _controller: NononsenseHomeBundle:MaterialCleanUses:view}
 
 nononsense_mclean_uses_save:
@@ -603,3 +599,15 @@ nononsense_mclean_traces_review:
 nononsense_mclean_trace_view:
     path: /mclean/traces/view/{id}
     defaults: { _controller: NononsenseHomeBundle:MaterialCleanTraces:showTrace}
+
+nononsense_mclean_products_list:
+    path: /mclean/products
+    defaults: { _controller: NononsenseHomeBundle:MaterialCleanProducts:list}
+
+nononsense_mclean_products_edit:
+    path: /mclean/product/{id}
+    defaults: { _controller: NononsenseHomeBundle:MaterialCleanProducts:edit}
+
+nononsense_mclean_products_delete:
+    path: /mclean/product/delete/{id}
+    defaults: { _controller: NononsenseHomeBundle:MaterialCleanProducts:delete}
