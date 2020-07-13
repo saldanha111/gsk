@@ -218,7 +218,7 @@ function customOnFullyLoaded() {
     $('span[data-name^="u_valor_pesada"]').keypress(function(){
         window.pesada = $(this).attr('data-name');
     });
-    $('span[data-name="u_valor_pesada"]').blur(function(){
+    $('span[data-name^="u_valor_pesada"]').blur(function(){
         /*var format = [',', '.'];
         var valor = string2number($(this).text(), format);
         var newVal = (Math.round(valor * rounder))/rounder;
