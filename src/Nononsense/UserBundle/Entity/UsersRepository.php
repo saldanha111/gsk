@@ -292,4 +292,23 @@ class UsersRepository extends EntityRepository
 
         return $query->getResult();
     }
+
+    public function listUsersByAreaAndPermission($area,$perrmission)
+    {
+        $users = $this->createQueryBuilder('u')
+            ->select('u.name', 'u.email')
+            ->join('u.areas', 'a')
+            ->join('u.groups', 'g')
+            ->join('g.groupsSubsecciones', 'gs')
+            ->join('gs.subseccion', 's')
+            ->where('a.id = :area')
+            ->andWhere('s.name = :permission')
+            ->andWhere('u.isActive = true')
+            ->setParameter('area', $area)
+            ->setParameter('perrmission', $perrmission)
+            ->orderBy('u.name', 'ASC');
+
+        return $users->getQuery()->getArrayResult();
+
+    }
 }

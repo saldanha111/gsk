@@ -20,6 +20,36 @@
                 <div class="col-lg-10 col-lg-offset-1">
                     <div class="row">
                         <div class="form-group">
+                            <div class="col-sm-4 col-sm-offset-2">
+                                <div class="checkbox">
+                                    <label>
+                                        <input name="request_type" value="1" type="radio"> Nueva plantilla
+                                    </label>
+                                </div>
+                                <div class="checkbox">
+                                    <label>
+                                        <input name="request_type" value="2" type="radio"> Nueva edición
+                                    </label>
+                                </div>
+                            </div>
+                            
+                        </div>
+
+                        {% if areas is defined %}
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">Area</label>
+                                <div class="col-sm-4">
+                                  <select class="form-control" name="area" style="width: 100%;" required="required">
+                                    <option value=""></option>
+                                    {% for area in areas %}
+                                      <option value="{{area.id}}">{{area.name}}</option>
+                                    {% endfor %}
+                                  </select>
+                                </div>
+                            </div> 
+                        {% endif %}
+
+                        <div class="form-group">
                             <label class="col-sm-2 control-label">Nombre Plantilla</label>
                             <div class="col-sm-4">
                                 <input type="text" name="name" class="form-control" value="" required="required">
@@ -32,6 +62,8 @@
                                 <textarea name="description" rows="10" cols="40" required="required" style="width:100%"></textarea>
                             </div>
                         </div> 
+
+
 
                         {% if users is defined %}
                             <div class="form-group">

@@ -20,7 +20,7 @@ class Areas
      * @ORM\Column(type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
-     * @Groups({"detail_area"})
+     * @Groups({"detail_area","list_area"})
      */
     protected $id;
 
@@ -34,7 +34,7 @@ class Areas
      *
      * @ORM\Column(name="name", type="string", length=200)
      * @Assert\NotBlank(message = "You shoud insert a name")
-     * @Groups({"detail_area"})
+     * @Groups({"detail_area","list_area"})
      */
     protected $name;
 
@@ -42,7 +42,7 @@ class Areas
      * @var boolean $isActive
      *
      * @ORM\Column(name="is_active", type="boolean",  nullable=true, options={"default" = false})
-     * @Groups({"detail_area"})
+     * @Groups({"detail_area","list_area"})
      */
     protected $isActive;
 
