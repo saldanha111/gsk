@@ -149,4 +149,37 @@ class QrsTypes
     {
         return $this->mtTemplates;
     }
+
+    /**
+     * Add tmTemplates
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMTemplates $tmTemplates
+     * @return QrsTypes
+     */
+    public function addTmTemplate(\Nononsense\HomeBundle\Entity\TMTemplates $tmTemplates)
+    {
+        $this->tmTemplates[] = $tmTemplates;
+
+        return $this;
+    }
+
+    /**
+     * Remove tmTemplates
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMTemplates $tmTemplates
+     */
+    public function removeTmTemplate(\Nononsense\HomeBundle\Entity\TMTemplates $tmTemplates)
+    {
+        $this->tmTemplates->removeElement($tmTemplates);
+    }
+
+    /**
+     * Get tmTemplates
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getTmTemplates()
+    {
+        return $this->tmTemplates;
+    }
 }

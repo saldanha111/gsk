@@ -35,6 +35,13 @@ class TMStates
      */
     protected $tmTemplates;
 
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="number", type="integer")
+     */
+    protected $number;
+
 
 
     public function __construct()
@@ -110,5 +117,28 @@ class TMStates
     public function getTmTemplates()
     {
         return $this->tmTemplates;
+    }
+
+    /**
+     * Set number
+     *
+     * @param integer $number
+     * @return TMStates
+     */
+    public function setNumber($number)
+    {
+        $this->number = $number;
+
+        return $this;
+    }
+
+    /**
+     * Get number
+     *
+     * @return integer 
+     */
+    public function getNumber()
+    {
+        return $this->number;
     }
 }

@@ -34,4 +34,15 @@ class TemplateManagementRequestController extends Controller
         
         return $this->render('NononsenseHomeBundle:TemplateManagement:request.html.twig',$array_item);
     }
+
+    public function listAction(Request $request)
+    {
+    	$serializer = $this->get('serializer');
+        $array_item=array("count" => 0);
+        $array_item["areas"] = $this->getDoctrine()->getRepository(Areas::class)->findBy(array(),array("name" => "ASC"));
+        $array_item["groups"] = $this->getDoctrine()->getRepository(Groups::class)->findBy(array(),array("name" => "ASC"));
+        $array_item["users"] = $this->getDoctrine()->getRepository(Users::class)->findBy(array(),array("name" => "ASC"));
+        
+        return $this->render('NononsenseHomeBundle:TemplateManagement:requests.html.twig',$array_item);
+    }
 }

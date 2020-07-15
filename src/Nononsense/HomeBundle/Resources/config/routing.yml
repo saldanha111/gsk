@@ -629,5 +629,13 @@ nononsense_areas_update:
     defaults: { _controller: NononsenseHomeBundle:Areas:update}
 
 nononsense_tm_request:
-    path: /mt
+    path: /mt/requests/new
     defaults: { _controller: NononsenseHomeBundle:TemplateManagementRequest:create}
+
+nononsense_tm_request_preadmin:
+    path: /mt/requests/preadmin
+    defaults: { _controller: NononsenseHomeBundle:TemplateManagementRequest:edit}
+
+nononsense_tm_requests:
+    path: /mt/requests
+    defaults: { _controller: NononsenseHomeBundle:TemplateManagementRequest:list}

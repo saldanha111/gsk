@@ -221,12 +221,6 @@ class Users implements AdvancedUserInterface, \Serializable
     protected $tmSignatures;
 
     /**
-     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMTests", mappedBy="userEntiy")
-     */
-    protected $tmTests;
-
-
-    /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\ActivityUser", mappedBy="userEntiy")
      */
     protected $Activity;
@@ -1976,39 +1970,6 @@ class Users implements AdvancedUserInterface, \Serializable
     }
 
     /**
-     * Add tmSignatures
-     *
-     * @param \Nononsense\HomeBundle\Entity\TMSignatures $tmSignatures
-     * @return Users
-     */
-    public function addTmSignature(\Nononsense\HomeBundle\Entity\TMSignatures $tmSignatures)
-    {
-        $this->tmSignatures[] = $tmSignatures;
-
-        return $this;
-    }
-
-    /**
-     * Remove tmSignatures
-     *
-     * @param \Nononsense\HomeBundle\Entity\TMSignatures $tmSignatures
-     */
-    public function removeTmSignature(\Nononsense\HomeBundle\Entity\TMSignatures $tmSignatures)
-    {
-        $this->tmSignatures->removeElement($tmSignatures);
-    }
-
-    /**
-     * Get tmSignatures
-     *
-     * @return \Doctrine\Common\Collections\Collection 
-     */
-    public function getTmSignatures()
-    {
-        return $this->tmSignatures;
-    }
-
-    /**
      * Add tmTests
      *
      * @param \Nononsense\HomeBundle\Entity\TMTests $tmTests
@@ -2039,5 +2000,38 @@ class Users implements AdvancedUserInterface, \Serializable
     public function getTmTests()
     {
         return $this->tmTests;
+    }
+
+    /**
+     * Add tmSignatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMSignatures $tmSignatures
+     * @return Users
+     */
+    public function addTmSignature(\Nononsense\HomeBundle\Entity\TMSignatures $tmSignatures)
+    {
+        $this->tmSignatures[] = $tmSignatures;
+
+        return $this;
+    }
+
+    /**
+     * Remove tmSignatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMSignatures $tmSignatures
+     */
+    public function removeTmSignature(\Nononsense\HomeBundle\Entity\TMSignatures $tmSignatures)
+    {
+        $this->tmSignatures->removeElement($tmSignatures);
+    }
+
+    /**
+     * Get tmSignatures
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getTmSignatures()
+    {
+        return $this->tmSignatures;
     }
 }

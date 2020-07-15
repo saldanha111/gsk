@@ -70,6 +70,20 @@ class TMSignatures
      */
     protected $modified;
 
+     /**
+     * @var string
+     *
+     * @ORM\Column(name="test", type="text", nullable=true)
+     */
+    protected $test;
+
+    /**
+     * @var boolean
+     *
+     * @ORM\Column(name="test_successed", type="boolean",  nullable=true, options={"default" = false})
+     */
+    protected $testSuccessed;
+
     
     public function __construct()
     {
@@ -288,5 +302,51 @@ class TMSignatures
     public function getUserEntiy()
     {
         return $this->userEntiy;
+    }
+
+    /**
+     * Set test
+     *
+     * @param string $test
+     * @return TMSignatures
+     */
+    public function setTest($test)
+    {
+        $this->test = $test;
+
+        return $this;
+    }
+
+    /**
+     * Get test
+     *
+     * @return string 
+     */
+    public function getTest()
+    {
+        return $this->test;
+    }
+
+    /**
+     * Set testSuccessed
+     *
+     * @param boolean $testSuccessed
+     * @return TMSignatures
+     */
+    public function setTestSuccessed($testSuccessed)
+    {
+        $this->testSuccessed = $testSuccessed;
+
+        return $this;
+    }
+
+    /**
+     * Get testSuccessed
+     *
+     * @return boolean 
+     */
+    public function getTestSuccessed()
+    {
+        return $this->testSuccessed;
     }
 }

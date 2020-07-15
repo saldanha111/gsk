@@ -397,4 +397,27 @@ class TMTemplates
     {
         return $this->tmSignatures;
     }
+
+    /**
+     * Set tmState
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMStates $tmState
+     * @return TMTemplates
+     */
+    public function setTmState(\Nononsense\HomeBundle\Entity\TMStates $tmState = null)
+    {
+        $this->tmState = $tmState;
+
+        return $this;
+    }
+
+    /**
+     * Get tmState
+     *
+     * @return \Nononsense\HomeBundle\Entity\TMStates 
+     */
+    public function getTmState()
+    {
+        return $this->tmState;
+    }
 }
