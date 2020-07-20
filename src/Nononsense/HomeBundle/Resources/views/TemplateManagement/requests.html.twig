@@ -3,16 +3,16 @@
 {% block head %}
 {{ parent() }}
 {% endblock %}
-{% block main_title %} Solicitudes pendientes{% endblock %}
+{% block main_title %} Solicitudes {% endblock %}
 {% block content %}
 
 <div class="wrapper wrapper-content">
     <div class="row">
         <div class="col-sm-12">
             <div>
-                <div class="row">
+                <div >
                     <form class="form-horizontal" id="form_item" action="{{ path('nononsense_documents')}}" method="GET">
-                        <div class="form-group">
+                        <div class="row">
 
                             <label class="col-sm-1 control-label item_filter">Nombre</label>
                             <div class="col-sm-2 item_filter">
@@ -44,8 +44,8 @@
                             {% endif %}
 
                             
-                        </div>
-                        <div class="form-group">  
+                        </div><br>
+                        <div class="row">  
                             {% if users is defined %}
                                 <label class="col-sm-1 control-label item_filter">Dueño</label>
                                 <div class="col-sm-2 item_filter">
@@ -57,32 +57,56 @@
                                   </select>
                                 </div>
                             {% endif %}
-                            <div class="col-sm-7 item_filter">
+
+                            {% if states is defined %}
+                                <label class="col-sm-1 control-label item_filter">Estado</label>
+                                <div class="col-sm-2 item_filter">
+                                  <select class="form-control" style="width: 100%;" name="state">
+                                    <option value=""></option>
+                                    {% for state in states %}
+                                      <option value="{{state.id}}" {{ filters.state is defined and filters.state==state.id ? 'selected="selected"' : ''}}>{{state.name}}</option>
+                                    {% endfor %}
+                                  </select>
+                                </div>
+                            {% endif %}
+
+                            <div class="col-sm-4 item_filter">
                                 <button type="submit" class="btn btn-primary">Filtrar</button>
                             </div>
                         </div>
                       </form>
                 </div>
+                <br>
                 <div class="row">
                     <table id="inProcessParcial" class="table table-striped">
                         <thead>
                         <tr>
-                            <th>Nº</th>
+                            <th>Id</th>
+                            <th>Nº.</th>
                             <th>Nombre</th>
                             <th>Area</th>
                             <th>Solicitante</th>
                             <th>Fecha</th>
                             <th>Dueño</th>
+                            <th>Backup</th>
+                            <th>Estado</th>
+                            <th></th>
+                            <th></th>
                         </tr>
                         </thead>
                         {% if items is defined %}
                             {% for item in items %}
                             <tr>
                                 <td>{{item.id}}</td>
+                                <th></th>
                                 <td><a href="{{path('nononsense_tm_request_preadmin', {'id': item.id}) }}">{{item.name}}</a></td>
                                 <td>{{item.nameArea}}</td>
                                 <td></td>
                                 <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <th></th>
                                 <td></td>
                             </tr>
                             {% endfor %}

@@ -42,7 +42,7 @@ class TMSignatures
 
     /**
      * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="tmSignatures")
-     * @ORM\JoinColumn(name="usercreatedid", referencedColumnName="id")
+     * @ORM\JoinColumn(name="userid", referencedColumnName="id")
      */
     protected $userEntiy;
 

@@ -28,6 +28,11 @@ class Areas
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\AreasUsers", mappedBy="area")
      */
     protected $users;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\AreaPrefixes", mappedBy="area")
+     */
+    protected $prefixes;
     
     /**
      * @var string
@@ -253,5 +258,38 @@ class Areas
     public function getTmTemplates()
     {
         return $this->tmTemplates;
+    }
+
+    /**
+     * Add prefixes
+     *
+     * @param \Nononsense\HomeBundle\Entity\AreaPrefixes $prefixes
+     * @return Areas
+     */
+    public function addPrefix(\Nononsense\HomeBundle\Entity\AreaPrefixes $prefixes)
+    {
+        $this->prefixes[] = $prefixes;
+
+        return $this;
+    }
+
+    /**
+     * Remove prefixes
+     *
+     * @param \Nononsense\HomeBundle\Entity\AreaPrefixes $prefixes
+     */
+    public function removePrefix(\Nononsense\HomeBundle\Entity\AreaPrefixes $prefixes)
+    {
+        $this->prefixes->removeElement($prefixes);
+    }
+
+    /**
+     * Get prefixes
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getPrefixes()
+    {
+        return $this->prefixes;
     }
 }

@@ -36,6 +36,34 @@ class TMTemplates
     /**
      * @var string
      *
+     * @ORM\Column(name="prefix", type="string")
+     */
+    protected $prefix;
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="number", type="integer")
+     */
+    protected $number;
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="template_id", type="integer", nullable=true)
+     */
+    protected $template_id;
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="num_edition", type="integer", nullable=true)
+     */
+    protected $numEdition;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(name="plantilla_id", type="string")
      */
     protected $plantilla_id;

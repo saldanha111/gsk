@@ -115,6 +115,11 @@ class Groups
     protected $groupsSubsecciones;
 
     /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMWorkflows", mappedBy="groupEntiy")
+     */
+    protected $tmWorkflows;
+
+    /**
      * Get id
      *
      * @return integer 

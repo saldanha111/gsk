@@ -22,13 +22,13 @@ class TMWorkflow
     protected $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\TMTemplates", inversedBy="tmSignatures")
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\TMTemplates", inversedBy="tmWorkflows")
      * @ORM\JoinColumn(name="template_id", referencedColumnName="id")
      */
     protected $template;
 
     /**
-     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\TMActions", inversedBy="tmSignatures")
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\TMActions", inversedBy="tmWorkflows")
      * @ORM\JoinColumn(name="action_id", referencedColumnName="id")
      */
     protected $action;
@@ -41,10 +41,18 @@ class TMWorkflow
     protected $number;
 
     /**
-     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="tmSignatures")
-     * @ORM\JoinColumn(name="usercreatedid", referencedColumnName="id")
+     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="tmWorkflows")
+     * @ORM\JoinColumn(name="userid", referencedColumnName="id")
+     * @Groups({"list_baseS"})
      */
     protected $userEntiy;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\GroupBundle\Entity\Groups", inversedBy="tmWorkflows")
+     * @ORM\JoinColumn(name="groupid", referencedColumnName="id")
+     * @Groups({"list_baseS"})
+     */
+    protected $groupEntiy;
 
     
     public function __construct()
@@ -84,74 +92,5 @@ class TMWorkflow
     public function getNumber()
     {
         return $this->number;
-    }
-
-    /**
-     * Set template
-     *
-     * @param \Nononsense\HomeBundle\Entity\TMTemplates $template
-     * @return TMWorkflow
-     */
-    public function setTemplate(\Nononsense\HomeBundle\Entity\TMTemplates $template = null)
-    {
-        $this->template = $template;
-
-        return $this;
-    }
-
-    /**
-     * Get template
-     *
-     * @return \Nononsense\HomeBundle\Entity\TMTemplates 
-     */
-    public function getTemplate()
-    {
-        return $this->template;
-    }
-
-    /**
-     * Set action
-     *
-     * @param \Nononsense\HomeBundle\Entity\TMActions $action
-     * @return TMWorkflow
-     */
-    public function setAction(\Nononsense\HomeBundle\Entity\TMActions $action = null)
-    {
-        $this->action = $action;
-
-        return $this;
-    }
-
-    /**
-     * Get action
-     *
-     * @return \Nononsense\HomeBundle\Entity\TMActions 
-     */
-    public function getAction()
-    {
-        return $this->action;
-    }
-
-    /**
-     * Set userEntiy
-     *
-     * @param \Nononsense\UserBundle\Entity\Users $userEntiy
-     * @return TMWorkflow
-     */
-    public function setUserEntiy(\Nononsense\UserBundle\Entity\Users $userEntiy = null)
-    {
-        $this->userEntiy = $userEntiy;
-
-        return $this;
-    }
-
-    /**
-     * Get userEntiy
-     *
-     * @return \Nononsense\UserBundle\Entity\Users 
-     */
-    public function getUserEntiy()
-    {
-        return $this->userEntiy;
     }
 }

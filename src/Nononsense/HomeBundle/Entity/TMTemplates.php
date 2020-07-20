@@ -20,7 +20,7 @@ class TMTemplates
      * @ORM\Column(type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
-     * @Groups({"detail_document"})
+     * @Groups({"detail_document","json"})
      */
     protected $id;
     
@@ -29,9 +29,37 @@ class TMTemplates
      *
      * @ORM\Column(name="name", type="string", length=200)
      * @Assert\NotBlank(message = "You shoud insert a name")
-     * @Groups({"detail_document"})
+     * @Groups({"detail_document","json"})
      */
     protected $name;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="prefix", type="string")
+     */
+    protected $prefix;
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="number", type="integer")
+     */
+    protected $number;
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="template_id", type="integer", nullable=true)
+     */
+    protected $template_id;
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="num_edition", type="integer", nullable=true)
+     */
+    protected $numEdition;
 
     /**
      * @var string
@@ -98,6 +126,11 @@ class TMTemplates
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMSignatures", mappedBy="template")
      */
     protected $tmSignatures;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMWorkflows", mappedBy="template")
+     */
+    protected $tmWorkflows;
 
 
     public function __construct()
@@ -419,5 +452,97 @@ class TMTemplates
     public function getTmState()
     {
         return $this->tmState;
+    }
+
+    /**
+     * Set prefix
+     *
+     * @param string $prefix
+     * @return TMTemplates
+     */
+    public function setPrefix($prefix)
+    {
+        $this->prefix = $prefix;
+
+        return $this;
+    }
+
+    /**
+     * Get prefix
+     *
+     * @return string 
+     */
+    public function getPrefix()
+    {
+        return $this->prefix;
+    }
+
+    /**
+     * Set number
+     *
+     * @param integer $number
+     * @return TMTemplates
+     */
+    public function setNumber($number)
+    {
+        $this->number = $number;
+
+        return $this;
+    }
+
+    /**
+     * Get number
+     *
+     * @return integer 
+     */
+    public function getNumber()
+    {
+        return $this->number;
+    }
+
+    /**
+     * Set template_id
+     *
+     * @param integer $templateId
+     * @return TMTemplates
+     */
+    public function setTemplateId($templateId)
+    {
+        $this->template_id = $templateId;
+
+        return $this;
+    }
+
+    /**
+     * Get template_id
+     *
+     * @return integer 
+     */
+    public function getTemplateId()
+    {
+        return $this->template_id;
+    }
+
+    /**
+     * Set numEdition
+     *
+     * @param integer $numEdition
+     * @return TMTemplates
+     */
+    public function setNumEdition($numEdition)
+    {
+        $this->numEdition = $numEdition;
+
+        return $this;
+    }
+
+    /**
+     * Get numEdition
+     *
+     * @return integer 
+     */
+    public function getNumEdition()
+    {
+        return $this->numEdition;
     }
 }

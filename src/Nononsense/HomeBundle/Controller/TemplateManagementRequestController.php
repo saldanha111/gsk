@@ -9,6 +9,7 @@ use Nononsense\UtilsBundle\Classes;
 use Nononsense\UserBundle\Entity\Users;
 use Nononsense\GroupBundle\Entity\Groups;
 use Nononsense\HomeBundle\Entity\Areas;
+use Nononsense\HomeBundle\Entity\TMStates;
 
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -42,7 +43,16 @@ class TemplateManagementRequestController extends Controller
         $array_item["areas"] = $this->getDoctrine()->getRepository(Areas::class)->findBy(array(),array("name" => "ASC"));
         $array_item["groups"] = $this->getDoctrine()->getRepository(Groups::class)->findBy(array(),array("name" => "ASC"));
         $array_item["users"] = $this->getDoctrine()->getRepository(Users::class)->findBy(array(),array("name" => "ASC"));
-        
+        $array_item["states"] = $this->getDoctrine()->getRepository(TMStates::class)->findBy(array(),array("name" => "ASC"));
+
         return $this->render('NononsenseHomeBundle:TemplateManagement:requests.html.twig',$array_item);
+    }
+
+    public function detailAction(Request $request)
+    {
+        $serializer = $this->get('serializer');
+        $array_item=array("count" => 0);
+        
+        return $this->render('NononsenseHomeBundle:TemplateManagement:request_detail.html.twig',$array_item);
     }
 }

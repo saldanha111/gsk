@@ -3,6 +3,7 @@
 {% block head %}
     {{ parent() }}
     <link rel="stylesheet" href="/css/plugins/datapicker/datepicker3.css">
+    <link rel="stylesheet" href="/plugins/select2/dist/css/select2.min.css">
 {% endblock %}
 {% block main_title %} Solicitud gestión de plantilla {% endblock %}
 
@@ -37,8 +38,10 @@
                         <div class="form-group" id="box_existent_template" style="display:none">
                             <label class="col-sm-2 control-label">Buscar Plantilla</label>
                             <div class="col-sm-4">
-                                <input type="text" name="search_template" class="form-control" value="" required="required">
+                              <select class="form-control select_template" style="width: 100%;" required="required">
+                              </select>
                             </div>
+                            <input type="hidden" name="template" value="">
                         </div>
 
                         <div id="box_new_template">
@@ -89,8 +92,13 @@
 
                         <div class="form-group">
                             <label class="col-sm-2 control-label">Backup</label>
-                            <div class="col-sm-2">    
-                                <input type='file' name="template" id="template" />
+                            <div class="col-sm-4">
+                                <select class="form-control" name="backup" style="width: 100%;" required="required">
+                                    <option value=""></option>
+                                    {% for user in users %}
+                                      <option value="{{user.id}}">{{user.name}}</option>
+                                    {% endfor %}
+                                </select>
                             </div>
                         </div>
 
@@ -367,6 +375,7 @@
     {{ parent() }}
     <script src="/js/plugins/datapicker/bootstrap-datepicker.js"></script>
     <script src="/js/plugins/datapicker/locales/bootstrap-datepicker.es.js" charset="UTF-8"></script>
+    <script src="/plugins/select2/dist/js/select2.full.min.js"></script>
     <script>
     $( document ).ready(function() {
 
@@ -427,7 +436,45 @@
           language: 'es'
         });
 
+        $(".select_template").select2({
+            templateResult: format_template,
+            minimumInputLength: 3,
+                ajax: { // instead of writing the function to execute the request we use Select2's convenient helper
+                  url: function () {
+                    return url_templates_json();
+                  },
+                  dataType: 'json',
+                  quietMillis: 250,
+                  data: function (params, page) {
+                      return {
+                          name: params.term, // search term
+                      };
+                      
+                  },
+                  processResults: function (data, page) { // parse the results into the format expected by Select2.
+                    return {results: data.items};
+                  },
+                  cache: false
+            },
+            escapeMarkup: function(m) { return m; }
+        });
+
+        $('.select_template').on("select2:select", function(e) { 
+            $('input[name ="template"]').val(e.params.data.id);
+        });
+
     });
+
+    function url_templates_json(){
+       url="{{ path('Atemplates_active_json') }}";
+       return url;
+    }
+
+    function format_template (option) {
+      if (!option.id) { return option.text; }
+      var ob = option.text;  // replace image source with option.img (available in JSON)
+      return ob;
+    }; 
     </script>
 {% endblock %}
 

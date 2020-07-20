@@ -30,41 +30,44 @@
             <li id="docxpresso_home">
                 <a href="{{path('nononsense_home_homepage')}}"><i class="fa fa-home"></i> <span class="nav-label">{{'Home'|trans}}</span></a>
             </li>
-            <li>
-                <a href="#"><i class="fa fa-file-word-o"></i> <span class="nav-label">{{'Gestión de plantillas'|trans}}</span><span
-                        class="fa arrow"></span></a>
-                <ul class="nav nav-second-level">
-
-                    <li id="qr_list">
-                        <a href="{{path('nononsense_tm_request')}}"><span class="nav-label">Nueva solicitud</span></a>
-                    </li>
-                    {% if 'admin_gestion_plantillas' in array_subsecciones %}
-                        <li id="solicitudes_gestion_plantillas">
-                            <a href="{{path('nononsense_tm_requests')}}"><span class="nav-label">Solicitudes pendientes</span></a>
-                        </li>
-                    {% endif %}
-                    {% if 'elaborador' in array_subsecciones %}
-                        <li id="elaboracion_gestion_plantillas">
-                            <a href="#"><span class="nav-label">En elaboración</span></a>
-                        </li>
-                    {% endif %}
-                    {% if 'tester' in array_subsecciones %}
-                        <li id="test_gestion_plantillas">
-                            <a href="#"><span class="nav-label">En test</span></a>
-                        </li>
-                    {% endif %}
-                    {% if 'aprobador' in array_subsecciones %}
-                        <li id="aprobacion_gestion_plantillas">
-                            <a href="#"><span class="nav-label">En aprobación</span></a>
-                        </li>
-                    {% endif %}
-                    {% if 'admin_gestion_plantillas' in array_subsecciones %}
-                        <li id="pendientes_gestion_plantillas">
-                            <a href="#"><span class="nav-label">Pdt. puesta en vigor</span></a>
-                        </li>
-                    {% endif %}
-                </ul>
-            </li>
+            {% if 'admin_gp' in array_subsecciones or 'elaborador_gp' in array_subsecciones or 'tester_gp' in array_subsecciones  or 'aprobador_gp' in array_subsecciones  or 'dueno_gp' in array_subsecciones %}
+                <li>
+                    <a href="#"><i class="fa fa-file-word-o"></i> <span class="nav-label">{{'Gestión de plantillas'|trans}}</span><span
+                            class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level">
+                        {% if 'elaborador_gp' in array_subsecciones  or 'dueno_gp' in array_subsecciones %}
+                            <li id="new_request_gp">
+                                <a href="{{path('nononsense_tm_request')}}"><span class="nav-label">Nueva solicitud</span></a>
+                            </li>
+                        {% endif %}
+                        {% if 'admin_gp' in array_subsecciones %}
+                            <li id="solicitudes_gestion_plantillas">
+                                <a href="{{path('nononsense_tm_requests')}}"><span class="nav-label">Solicitudes pendientes</span></a>
+                            </li>
+                        {% endif %}
+                        {% if 'elaborador_gp' in array_subsecciones %}
+                            <li id="elaboracion_gestion_plantillas">
+                                <a href="#"><span class="nav-label">En elaboración</span></a>
+                            </li>
+                        {% endif %}
+                        {% if 'tester_gp' in array_subsecciones %}
+                            <li id="test_gestion_plantillas">
+                                <a href="#"><span class="nav-label">En test</span></a>
+                            </li>
+                        {% endif %}
+                        {% if 'aprobador_gp' in array_subsecciones %}
+                            <li id="aprobacion_gestion_plantillas">
+                                <a href="#"><span class="nav-label">En aprobación</span></a>
+                            </li>
+                        {% endif %}
+                        {% if 'admin_gp' in array_subsecciones %}
+                            <li id="pendientes_gestion_plantillas">
+                                <a href="#"><span class="nav-label">Pdt. puesta en vigor</span></a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </li>
+            {% endif %}
             <li id="docxpresso_nuevo">
                 <a href="{{path('nononsense_nuevo_contrato')}}?categoriasSelect=0"><i class="fa fa-pencil-square"></i> <span class="nav-label">{{'Nuevo registro'|trans}}</span></a>
             </li>

@@ -632,6 +632,10 @@ nononsense_tm_request:
     path: /mt/requests/new
     defaults: { _controller: NononsenseHomeBundle:TemplateManagementRequest:create}
 
+nononsense_tm_request_detail:
+    path: /mt/requests/0
+    defaults: { _controller: NononsenseHomeBundle:TemplateManagementRequest:detail}
+
 nononsense_tm_request_preadmin:
     path: /mt/requests/preadmin
     defaults: { _controller: NononsenseHomeBundle:TemplateManagementRequest:edit}
@@ -639,3 +643,7 @@ nononsense_tm_request_preadmin:
 nononsense_tm_requests:
     path: /mt/requests
     defaults: { _controller: NononsenseHomeBundle:TemplateManagementRequest:list}
+
+Atemplates_active_json:
+    path:     /templates/active/json
+    defaults: { _controller: NononsenseHomeBundle:TemplateManagementTemplates:listActiveJson}

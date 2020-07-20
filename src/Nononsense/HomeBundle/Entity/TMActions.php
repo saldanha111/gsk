@@ -42,6 +42,12 @@ class TMActions
      */
     protected $tmSignatures;
 
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMWorkflows", mappedBy="action")
+     */
+    protected $tmWorkflows;
+
+
 
     public function __construct()
     {

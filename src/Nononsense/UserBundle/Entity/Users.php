@@ -221,6 +221,11 @@ class Users implements AdvancedUserInterface, \Serializable
     protected $tmSignatures;
 
     /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMWorkflows", mappedBy="userEntiy")
+     */
+    protected $tmWorkflows;
+
+    /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\ActivityUser", mappedBy="userEntiy")
      */
     protected $Activity;
@@ -1901,105 +1906,6 @@ class Users implements AdvancedUserInterface, \Serializable
     public function getAreas()
     {
         return $this->areas;
-    }
-
-    /**
-     * Add mtSignatures
-     *
-     * @param \Nononsense\HomeBundle\Entity\MTSignatures $mtSignatures
-     * @return Users
-     */
-    public function addMtSignature(\Nononsense\HomeBundle\Entity\MTSignatures $mtSignatures)
-    {
-        $this->mtSignatures[] = $mtSignatures;
-
-        return $this;
-    }
-
-    /**
-     * Remove mtSignatures
-     *
-     * @param \Nononsense\HomeBundle\Entity\MTSignatures $mtSignatures
-     */
-    public function removeMtSignature(\Nononsense\HomeBundle\Entity\MTSignatures $mtSignatures)
-    {
-        $this->mtSignatures->removeElement($mtSignatures);
-    }
-
-    /**
-     * Get mtSignatures
-     *
-     * @return \Doctrine\Common\Collections\Collection 
-     */
-    public function getMtSignatures()
-    {
-        return $this->mtSignatures;
-    }
-
-    /**
-     * Add mtTests
-     *
-     * @param \Nononsense\HomeBundle\Entity\MTTests $mtTests
-     * @return Users
-     */
-    public function addMtTest(\Nononsense\HomeBundle\Entity\MTTests $mtTests)
-    {
-        $this->mtTests[] = $mtTests;
-
-        return $this;
-    }
-
-    /**
-     * Remove mtTests
-     *
-     * @param \Nononsense\HomeBundle\Entity\MTTests $mtTests
-     */
-    public function removeMtTest(\Nononsense\HomeBundle\Entity\MTTests $mtTests)
-    {
-        $this->mtTests->removeElement($mtTests);
-    }
-
-    /**
-     * Get mtTests
-     *
-     * @return \Doctrine\Common\Collections\Collection 
-     */
-    public function getMtTests()
-    {
-        return $this->mtTests;
-    }
-
-    /**
-     * Add tmTests
-     *
-     * @param \Nononsense\HomeBundle\Entity\TMTests $tmTests
-     * @return Users
-     */
-    public function addTmTest(\Nononsense\HomeBundle\Entity\TMTests $tmTests)
-    {
-        $this->tmTests[] = $tmTests;
-
-        return $this;
-    }
-
-    /**
-     * Remove tmTests
-     *
-     * @param \Nononsense\HomeBundle\Entity\TMTests $tmTests
-     */
-    public function removeTmTest(\Nononsense\HomeBundle\Entity\TMTests $tmTests)
-    {
-        $this->tmTests->removeElement($tmTests);
-    }
-
-    /**
-     * Get tmTests
-     *
-     * @return \Doctrine\Common\Collections\Collection 
-     */
-    public function getTmTests()
-    {
-        return $this->tmTests;
     }
 
     /**
