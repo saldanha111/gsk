@@ -2,7 +2,7 @@
 namespace Nononsense\HomeBundle\Controller;
 
 use Nononsense\HomeBundle\Entity\Areas;
-use Nononsense\HomeBundle\Entity\AreasUsers;
+use Nononsense\HomeBundle\Entity\AreasGroups;
 use Nononsense\UserBundle\Entity\Users;
 use Nononsense\GroupBundle\Entity\Groups;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -142,7 +142,7 @@ class AreasController extends Controller
         return $this->redirect($route);
     }
 
-    public function removeuserAction(Request $request, $id, $userid)
+    public function removegroupAction(Request $request, $id, $groupid)
     {
         $is_valid = $this->get('app.security')->permissionSeccion('areas_gestion');
         if(!$is_valid){
@@ -150,28 +150,28 @@ class AreasController extends Controller
         }
 
         $em = $this->getDoctrine()->getManager();
-        $row = $em->getRepository('NononsenseHomeBundle:AreasUsers')
-                  ->findOneBy(array('user' => $userid, 
+        $row = $em->getRepository('NononsenseHomeBundle:AreasGroups')
+                  ->findOneBy(array('agroup' => $groupid, 
                                      'area' => $id)
                         );
         if (empty($row)) {
             $this->get('session')->getFlashBag()->add(
             'errorDeletingUser',
-            'No fune posible eliminar el usuario'
+            'No fune posible eliminar el grupo'
             );
         } else {
             $em->remove($row);
             $em->flush();
             $this->get('session')->getFlashBag()->add(
-            'deletedUser',
-            'El usuario ha sido eliminado'
+            'deletedGroup',
+            'El grupo ha sido eliminado'
             );
         }
  
         return $this->redirect($this->generateUrl('nononsense_areas_edit', array('id' => $id)));
     }
 
-    public function usersAction(Request $request, $id, $type = 'member')
+    public function groupsAction(Request $request, $id)
     {
         
         $is_valid = $this->get('app.security')->permissionSeccion('areas_gestion');
@@ -179,19 +179,16 @@ class AreasController extends Controller
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
 
-        $users= $this->getDoctrine()
-                      ->getRepository('NononsenseHomeBundle:AreasUsers')
-                      ->findUsersByArea(1, 100000, $id, 'q');
+        $groups= $this->getDoctrine()
+                      ->getRepository('NononsenseHomeBundle:AreasGroups')
+                      ->findGroupsByArea(1, 100000, $id, 'q');
         
-        $path = '/' . $this->container->getParameter('user_img_dir');
-        return $this->render('NononsenseUserBundle:Groups:index_areas.html.twig', array(
-            'users' => $users,
-            'webPath' => $path,
-            'areaId' => $id
+        return $this->render('NononsenseGroupBundle:Group:index_areas.html.twig', array(
+            'groups' => $groups
         ));
     }
 
-    public function addusersAction(Request $request, $id)
+    public function addgroupsAction(Request $request, $id)
     {
         
         $is_valid = $this->get('app.security')->permissionSeccion('areas_gestion');
@@ -200,21 +197,12 @@ class AreasController extends Controller
         }
 
         $em = $this->getDoctrine()->getManager();
-        $users = $em->getRepository('NononsenseUserBundle:Users')
-                  ->findAllUsersNotInGroup($id);
+        $groups = $em->getRepository('NononsenseGroupBundle:Groups')
+                  ->findAllGroupsNotInArea($id);
 
-        /* this is to filter external users not within query
-        $internal = array();
-        foreach ($users as $user) {
-            foreach($user->getRoles() as $role){
-                if ($role->getRole() != 'ROLE_EXTERNAL') {
-                    $internal[] = $user;
-                }
-            }
-        }*/
 
-        return $this->render('NononsenseUserBundle:Groups:searchuser.html.twig', array(
-            'users' => $users,
+        return $this->render('NononsenseGroupBundle:Group:searchgroup.html.twig', array(
+            'groups' => $groups,
             'areaId' => $id,
         ));
     }
@@ -225,18 +213,18 @@ class AreasController extends Controller
         if(!$is_valid){
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
-        $data = $request->query->get('users');
+        $data = $request->query->get('groups');
         $areaId = $request->query->get('id');
-        $userdata = json_decode($data);
+        $groupdata = json_decode($data);
         
         $em = $this->getDoctrine()->getManager();
-        $em->getRepository('NononsenseHomeBundle:AreasUsers');
+        $em->getRepository('NononsenseHomeBundle:AreasGroups');
         $area = $em->getRepository('NononsenseHomeBundle:Areas')->find($areaId);
-        foreach ($userdata as $id) {
-            $new = new AreasUsers();            
+        foreach ($groupdata as $id) {
+            $new = new AreasGroups();            
             $new->setArea($area);
-            $user = $em->getRepository('NononsenseUserBundle:Users')->find($id);
-            $new->setUser($user);
+            $group = $em->getRepository('NononsenseGroupBundle:Groups')->find($id);
+            $new->setAgroup($group);
             $em->persist($new);
         }
         $em->flush();

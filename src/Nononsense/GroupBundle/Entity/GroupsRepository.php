@@ -98,4 +98,20 @@ class GroupsRepository extends EntityRepository
 
         return $groups->getResult();
     }
+
+    public function findAllGroupsNotInArea($areaId)
+    {
+        $query = $this->getEntityManager()
+            ->createQuery(
+                'SELECT g FROM NononsenseGroupBundle:Groups g 
+                 WHERE  g.isActive = true AND g.id NOT IN
+                (SELECT  IDENTITY(ag.agroup) FROM NononsenseHomeBundle:AreasGroups ag WHERE ag.area = :id)'
+            )->setParameter('id', $areaId);
+        //comment: the IDENTITY operator was need because it was a composite field
+        try {
+            return $query->getResult();
+        } catch (\Doctrine\ORM\NoResultException $e) {
+            return null;
+        }
+    }
 }

@@ -600,20 +600,20 @@ nononsense_mclean_trace_view:
     path: /mclean/traces/view/{id}
     defaults: { _controller: NononsenseHomeBundle:MaterialCleanTraces:showTrace}
 
-nononsense_areas_users:
-    path:     /areas/users/{id}
-    defaults: { _controller: NononsenseHomeBundle:Areas:users }
+nononsense_areas_groups:
+    path:     /areas/groups/{id}
+    defaults: { _controller: NononsenseHomeBundle:Areas:groups }
 
-nononsense_areas_remove_user:
-    path:     /areas/users/{id}/{userid}
-    defaults: { _controller: NononsenseHomeBundle:Areas:removeuser, id: 0, userid: 0 }
+nononsense_areas_remove_group:
+    path:     /areas/groups/{id}/{groupid}
+    defaults: { _controller: NononsenseHomeBundle:Areas:removegroup, id: 0, groupid: 0 }
 
-nononsense_areas_addusers:
-    path:     /areas/addusers/{id}
-    defaults: { _controller: NononsenseHomeBundle:Areas:addusers }
+nononsense_areas_addgroups:
+    path:     /areas/addgroups/{id}
+    defaults: { _controller: NononsenseHomeBundle:Areas:addgroups }
 
 nononsense_area_addbulk:
-    path:     /areas/addbulkusers
+    path:     /areas/addbulk
     defaults: { _controller: NononsenseHomeBundle:Areas:addbulk }
 
 nononsense_areas:

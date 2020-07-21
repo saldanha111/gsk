@@ -128,7 +128,7 @@ class TMTemplates
     protected $tmSignatures;
 
     /**
-     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMWorkflows", mappedBy="template")
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMWorkflow", mappedBy="template")
      */
     protected $tmWorkflows;
 
@@ -544,5 +544,38 @@ class TMTemplates
     public function getNumEdition()
     {
         return $this->numEdition;
+    }
+
+    /**
+     * Add tmWorkflows
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMWorkflow $tmWorkflows
+     * @return TMTemplates
+     */
+    public function addTmWorkflow(\Nononsense\HomeBundle\Entity\TMWorkflow $tmWorkflows)
+    {
+        $this->tmWorkflows[] = $tmWorkflows;
+
+        return $this;
+    }
+
+    /**
+     * Remove tmWorkflows
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMWorkflow $tmWorkflows
+     */
+    public function removeTmWorkflow(\Nononsense\HomeBundle\Entity\TMWorkflow $tmWorkflows)
+    {
+        $this->tmWorkflows->removeElement($tmWorkflows);
+    }
+
+    /**
+     * Get tmWorkflows
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getTmWorkflows()
+    {
+        return $this->tmWorkflows;
     }
 }

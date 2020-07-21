@@ -25,9 +25,9 @@ class Areas
     protected $id;
 
     /**
-     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\AreasUsers", mappedBy="area")
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\AreasGroups", mappedBy="area")
      */
-    protected $users;
+    protected $groups;
 
     /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\AreaPrefixes", mappedBy="area")
@@ -162,62 +162,6 @@ class Areas
     }
 
     /**
-     * Add users
-     *
-     * @param \Nononsense\GroupBundle\Entity\AreasUsers $users
-     * @return Areas
-     */
-    public function addUser(\Nononsense\GroupBundle\Entity\AreasUsers $users)
-    {
-        $this->users[] = $users;
-
-        return $this;
-    }
-
-    /**
-     * Remove users
-     *
-     * @param \Nononsense\GroupBundle\Entity\AreasUsers $users
-     */
-    public function removeUser(\Nononsense\GroupBundle\Entity\AreasUsers $users)
-    {
-        $this->users->removeElement($users);
-    }
-
-    /**
-     * Get users
-     *
-     * @return \Doctrine\Common\Collections\Collection 
-     */
-    public function getUsers()
-    {
-        return $this->users;
-    }
-
-    /**
-     * Add mtTemplates
-     *
-     * @param \Nononsense\HomeBundle\Entity\MTTemplates $mtTemplates
-     * @return Areas
-     */
-    public function addMtTemplate(\Nononsense\HomeBundle\Entity\MTTemplates $mtTemplates)
-    {
-        $this->mtTemplates[] = $mtTemplates;
-
-        return $this;
-    }
-
-    /**
-     * Remove mtTemplates
-     *
-     * @param \Nononsense\HomeBundle\Entity\MTTemplates $mtTemplates
-     */
-    public function removeMtTemplate(\Nononsense\HomeBundle\Entity\MTTemplates $mtTemplates)
-    {
-        $this->mtTemplates->removeElement($mtTemplates);
-    }
-
-    /**
      * Get mtTemplates
      *
      * @return \Doctrine\Common\Collections\Collection 
@@ -291,5 +235,38 @@ class Areas
     public function getPrefixes()
     {
         return $this->prefixes;
+    }
+
+    /**
+     * Add groups
+     *
+     * @param \Nononsense\HomeBundle\Entity\AreasGroups $groups
+     * @return Areas
+     */
+    public function addGroup(\Nononsense\HomeBundle\Entity\AreasGroups $groups)
+    {
+        $this->groups[] = $groups;
+
+        return $this;
+    }
+
+    /**
+     * Remove groups
+     *
+     * @param \Nononsense\HomeBundle\Entity\AreasGroups $groups
+     */
+    public function removeGroup(\Nononsense\HomeBundle\Entity\AreasGroups $groups)
+    {
+        $this->groups->removeElement($groups);
+    }
+
+    /**
+     * Get groups
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getGroups()
+    {
+        return $this->groups;
     }
 }

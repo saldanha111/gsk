@@ -129,11 +129,6 @@ class Users implements AdvancedUserInterface, \Serializable
      * @ORM\OneToMany(targetEntity="\Nononsense\GroupBundle\Entity\GroupUsers", mappedBy="user")
      */
     protected $groups;  
-
-    /**
-     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\AreasUsers", mappedBy="user")
-     */
-    protected $areas; 
     
     /**
      * @ORM\Column(type="date")
@@ -221,7 +216,7 @@ class Users implements AdvancedUserInterface, \Serializable
     protected $tmSignatures;
 
     /**
-     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMWorkflows", mappedBy="userEntiy")
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMWorkflow", mappedBy="userEntiy")
      */
     protected $tmWorkflows;
 
@@ -1876,39 +1871,6 @@ class Users implements AdvancedUserInterface, \Serializable
     }
 
     /**
-     * Add areas
-     *
-     * @param \Nononsense\GroupBundle\Entity\AreasUsers $areas
-     * @return Users
-     */
-    public function addArea(\Nononsense\GroupBundle\Entity\AreasUsers $areas)
-    {
-        $this->areas[] = $areas;
-
-        return $this;
-    }
-
-    /**
-     * Remove areas
-     *
-     * @param \Nononsense\GroupBundle\Entity\AreasUsers $areas
-     */
-    public function removeArea(\Nononsense\GroupBundle\Entity\AreasUsers $areas)
-    {
-        $this->areas->removeElement($areas);
-    }
-
-    /**
-     * Get areas
-     *
-     * @return \Doctrine\Common\Collections\Collection 
-     */
-    public function getAreas()
-    {
-        return $this->areas;
-    }
-
-    /**
      * Add tmSignatures
      *
      * @param \Nononsense\HomeBundle\Entity\TMSignatures $tmSignatures
@@ -1939,5 +1901,38 @@ class Users implements AdvancedUserInterface, \Serializable
     public function getTmSignatures()
     {
         return $this->tmSignatures;
+    }
+
+    /**
+     * Add tmWorkflows
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMWorkflow $tmWorkflows
+     * @return Users
+     */
+    public function addTmWorkflow(\Nononsense\HomeBundle\Entity\TMWorkflow $tmWorkflows)
+    {
+        $this->tmWorkflows[] = $tmWorkflows;
+
+        return $this;
+    }
+
+    /**
+     * Remove tmWorkflows
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMWorkflow $tmWorkflows
+     */
+    public function removeTmWorkflow(\Nononsense\HomeBundle\Entity\TMWorkflow $tmWorkflows)
+    {
+        $this->tmWorkflows->removeElement($tmWorkflows);
+    }
+
+    /**
+     * Get tmWorkflows
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getTmWorkflows()
+    {
+        return $this->tmWorkflows;
     }
 }

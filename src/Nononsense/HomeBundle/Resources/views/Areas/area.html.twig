@@ -15,19 +15,19 @@
             {{ flashMessage }}
         </div>
         {% endfor %}
-        {% for flashMessage in app.session.flashbag.get('deletedUser') %}
+        {% for flashMessage in app.session.flashbag.get('deletedGroup') %}
             <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
                 <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
                 {{ flashMessage }} 
             </div>
         {% endfor %}
-        {% for flashMessage in app.session.flashbag.get('createdUser') %}
+        {% for flashMessage in app.session.flashbag.get('createdGroup') %}
             <div class="alert alert-success alert-dismissable" style="margin: 10px 16px 0 16px">
                 <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
                 {{ flashMessage }}
             </div>
         {% endfor %}
-
+        <br>
         
             <form class="form-horizontal" id="form_item" action="{{ path('nononsense_areas_update',{'id': item.id is defined ? item.id : 0}) }}" method="POST"  enctype="multipart/form-data">
                 <div class="row">
@@ -54,9 +54,9 @@
                     {% if item is defined %}
                         <div class="col-md-7">
                             
-                            <div class="ibox" id="addusers" style="display: none">
+                            <div class="ibox" id="addgroups" style="display: none">
                                 <div class="ibox-title">
-                                    <h5>Add users </h5>
+                                    <h5>Añadir grupos </h5>
                                     <div class="ibox-tools">
                                         <a class="collapse-link">
                                             <i class="fa fa-chevron-up"></i>
@@ -66,7 +66,7 @@
                                     </a>
                                     </div>
                                 </div>
-                                <div class="ibox-content" id="loadusers"> 
+                                <div class="ibox-content" id="loadgroups"> 
                                     <div class="text-center" style="font-size: 22px">
                                         <i class="fa fa-spinner fa-spin"></i>
                                     </div>
@@ -76,8 +76,8 @@
                             
                             <div class="ibox">
                                 <div class="ibox-title">
-                                    <h5>{{'Members'|trans}}
-                                            &nbsp; <span  class="btn btn-primary btn-xs " id="addMember"><i class="fa fa-user"> </i> &nbsp;{{'Add members'|trans}}</span>
+                                    <h5>{{'Grupos'|trans}}
+                                            &nbsp; <span  class="btn btn-primary btn-xs " id="addGroup"><i class="fa fa-user"> </i> &nbsp;{{'Añadir grupo'|trans}}</span>
                                     </h5>
                                     <div class="ibox-tools">
                                         <a class="collapse-link">
@@ -85,7 +85,7 @@
                                         </a>
                                     </div>
                                 </div>
-                                <div class="ibox-content" id="memberlist">
+                                <div class="ibox-content" id="grouplist">
                                     <div class="text-center" style="font-size: 22px">
                                         <i class="fa fa-spinner fa-spin"></i>
                                     </div>
@@ -117,7 +117,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-white" data-dismiss="modal">{{'Close'|trans}}</button>
-                    <button type="button" class="btn btn-primary" id="deleteUser">{{'Remove'|trans}}</button>
+                    <button type="button" class="btn btn-primary" id="deleteGroup">{{'Remove'|trans}}</button>
                 </div>
             </div>
         </div>
@@ -132,30 +132,30 @@
     <script src="/js/plugins/chosen/chosen.jquery.js"></script>
     <script>
         window.members = {};
-        function deleteUser(data) {
-            content = '<div class="text-center"><img alt="image" class="img-circle" style="width: 112px; height: 112px" src="' + data.image + '"><h3>' + data.name + '</h3></div>';
-            $('#deleteUser').click(function(){window.location.href="{{ path('nononsense_areas_remove_user')}}" + '/{{item.id}}/' + data.user});
+        function deleteGroup(data) {
+            content = '<h3>' + data.name + '</h3>';
+            $('#deleteGroup').click(function(){window.location.href="{{ path('nononsense_areas_remove_group')}}" + '/{{item.id}}/' + data.group});
             $('#modal-data').html(content);
             $('#removeModal').modal('toggle');
         }
         
-        function insertUser (id) {            
+        function insertGroup(id) {           
             $('#instructions').hide();
-            $('#userlist').append('<li id="user_' + id + '"><i class="fa fa-spinner fa-spin"> </i></li>');
-            $('#user_' + id ).load('{{ url('nononsense_group_addone')}}?id=' + id);
+            $('#loadgroups').append('<li id="group_' + id + '"><i class="fa fa-spinner fa-spin"> </i></li>');
+            $('#group_' + id ).load('{{ url('nononsense_group_addgroup')}}?id=' + id);
         }
         
-        function removeNewUser (id) {
+        function removeNewGroup (id) {
             delete members['id_' + id]
-            $('#newUser_' + id).parent().remove();
+            $('#newgroup_' + id).parent().remove();
         }
         
-        function addListOfUsers () {
-            users = JSON.stringify(window.members);
-            if (users != '{}') {
-                window.location.href = '{{ url('nononsense_area_addbulk')}}?users=' + users + '&id={{item.id}}';
+        function addListOfGroups () {
+            groups = JSON.stringify(window.members);
+            if (groups != '{}') {
+                window.location.href = '{{ url('nononsense_area_addbulk')}}?groups=' + groups + '&id={{item.id}}';
             } else {
-                toastr.error('{{'There are no users selected.'|trans}}','{{'Warning'|trans}}');
+                toastr.error('{{'No hay grupos añadidos'|trans}}','{{'Warning'|trans}}');
             }
         }
         
@@ -164,34 +164,28 @@
             ActivateMenu('areas_list');
             $('#side-menu').metisMenu();
             
-            $('#memberlist').load('{{ path('nononsense_areas_users', {"id" : item.id})}}', function(){
-                $('.remove_member').click(function(){deleteUser($(this).data())});
+            $('#grouplist').load('{{ path('nononsense_areas_groups', {"id" : item.id})}}', function(){
+                $('.remove_member').click(function(){deleteGroup($(this).data())});
             });
             
-            /*add users*/
+            /*add groups*/
             
-            $('#addMember').click(function() {newUsers('member')});
+            $('#addGroup').click(function() {newGroups()});
             $('#restart').click(function() {
                 $('#addMember').show();
-                $('#addusers').hide();
-                $('#userlist').html('<div class="text-center" style="font-size: 22px"><i class="fa fa-spinner fa-spin"></i></div>');
+                $('#addgroups').hide();
+                $('#grouplist').html('<div class="text-center" style="font-size: 22px"><i class="fa fa-spinner fa-spin"></i></div>');
                 window.members = {};
             });
             
             
-            function newUsers (type) {
-                
-                $('#addusers').show();
-                $('#addMember').hide();
-                if (type == 'admin') {
-                    h5 = '{{'Add administrators'|trans}}';
-                    $('#loadusers').load('{{ url('nononsense_group_addusers', {"id" : item.id})}}');
-                } else {
-                    h5 = '{{'Add members'|trans}}';
-                    $('#loadusers').load('{{ url('nononsense_group_addusers', {"id" : item.id})}}');
-                }
-                $('#addusers h5').html(h5);
-                
+            function newGroups () {
+                $('#addgroups').show();
+                $('#addGroup').hide();
+                h5 = '{{'Añadir grupos'|trans}}';
+                $('#loadgroups').load('{{ url('nononsense_areas_addgroups', {"id" : item.id})}}');
+
+                $('#addgroups h5').html(h5);
             }
             
             

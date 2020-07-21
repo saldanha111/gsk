@@ -8,16 +8,16 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * AreasUsers
+ * AreasGroups
  *
  * @ORM\Entity
- * @ORM\Table(name="areas_users")
- * @ORM\Entity(repositoryClass="Nononsense\HomeBundle\Entity\AreasUsersRepository")
+ * @ORM\Table(name="areas_groups")
+ * @ORM\Entity(repositoryClass="Nononsense\HomeBundle\Entity\AreasGroupsRepository")
  * @ORM\HasLifecycleCallbacks
- * @UniqueEntity(fields = {"user", "area"})
+ * @UniqueEntity(fields = {"agroup", "area"})
  * 
  */
-class AreasUsers
+class AreasGroups
 {
 
     /**
@@ -30,42 +30,17 @@ class AreasUsers
     protected $id;
     
     /**
-     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="areas")
-     * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
+     * @ORM\ManyToOne(targetEntity="\Nononsense\GroupBundle\Entity\Groups", inversedBy="areas")
+     * @ORM\JoinColumn(name="group_id", referencedColumnName="id")
      */
-    protected $user;
+    protected $agroup;
     
     
     /**
-     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\Areas", inversedBy="users")
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\Areas", inversedBy="groups")
      * @ORM\JoinColumn(name="area_id", referencedColumnName="id")
      */
     protected $area;
-
-
-
-    /**
-     * Set user
-     *
-     * @param integer $user
-     * @return GroupUsers
-     */
-    public function setUser($user)
-    {
-        $this->user = $user;
-
-        return $this;
-    }
-
-    /**
-     * Get user
-     *
-     * @return integer 
-     */
-    public function getUser()
-    {
-        return $this->user;
-    }
 
     /**
      * Get id
@@ -78,10 +53,33 @@ class AreasUsers
     }
 
     /**
+     * Set agroup
+     *
+     * @param \Nononsense\GroupBundle\Entity\Groups $agroup
+     * @return AreasGroups
+     */
+    public function setAgroup(\Nononsense\GroupBundle\Entity\Groups $agroup = null)
+    {
+        $this->agroup = $agroup;
+
+        return $this;
+    }
+
+    /**
+     * Get agroup
+     *
+     * @return \Nononsense\GroupBundle\Entity\Groups 
+     */
+    public function getAgroup()
+    {
+        return $this->agroup;
+    }
+
+    /**
      * Set area
      *
      * @param \Nononsense\HomeBundle\Entity\Areas $area
-     * @return AreasUsers
+     * @return AreasGroups
      */
     public function setArea(\Nononsense\HomeBundle\Entity\Areas $area = null)
     {

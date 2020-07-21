@@ -5,6 +5,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity
@@ -92,5 +93,97 @@ class TMWorkflow
     public function getNumber()
     {
         return $this->number;
+    }
+
+    /**
+     * Set template
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMTemplates $template
+     * @return TMWorkflow
+     */
+    public function setTemplate(\Nononsense\HomeBundle\Entity\TMTemplates $template = null)
+    {
+        $this->template = $template;
+
+        return $this;
+    }
+
+    /**
+     * Get template
+     *
+     * @return \Nononsense\HomeBundle\Entity\TMTemplates 
+     */
+    public function getTemplate()
+    {
+        return $this->template;
+    }
+
+    /**
+     * Set action
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMActions $action
+     * @return TMWorkflow
+     */
+    public function setAction(\Nononsense\HomeBundle\Entity\TMActions $action = null)
+    {
+        $this->action = $action;
+
+        return $this;
+    }
+
+    /**
+     * Get action
+     *
+     * @return \Nononsense\HomeBundle\Entity\TMActions 
+     */
+    public function getAction()
+    {
+        return $this->action;
+    }
+
+    /**
+     * Set userEntiy
+     *
+     * @param \Nononsense\UserBundle\Entity\Users $userEntiy
+     * @return TMWorkflow
+     */
+    public function setUserEntiy(\Nononsense\UserBundle\Entity\Users $userEntiy = null)
+    {
+        $this->userEntiy = $userEntiy;
+
+        return $this;
+    }
+
+    /**
+     * Get userEntiy
+     *
+     * @return \Nononsense\UserBundle\Entity\Users 
+     */
+    public function getUserEntiy()
+    {
+        return $this->userEntiy;
+    }
+
+    /**
+     * Set groupEntiy
+     *
+     * @param \Nononsense\GroupBundle\Entity\Groups $groupEntiy
+     * @return TMWorkflow
+     */
+    public function setGroupEntiy(\Nononsense\GroupBundle\Entity\Groups $groupEntiy = null)
+    {
+        $this->groupEntiy = $groupEntiy;
+
+        return $this;
+    }
+
+    /**
+     * Get groupEntiy
+     *
+     * @return \Nononsense\GroupBundle\Entity\Groups 
+     */
+    public function getGroupEntiy()
+    {
+        return $this->groupEntiy;
     }
 }
