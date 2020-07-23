@@ -266,6 +266,15 @@ class Users implements AdvancedUserInterface, \Serializable
      */
     protected $materialReview;
 
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\ProductsInputs", mappedBy="user")
+     */
+    protected $productsInput;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\ProductsOutputs", mappedBy="user")
+     */
+    protected $productsOutput;
 
     /**
      * Users constructor.
@@ -1858,5 +1867,71 @@ class Users implements AdvancedUserInterface, \Serializable
     public function getMaterialReview()
     {
         return $this->materialReview;
+    }
+
+    /**
+     * Add productsInput
+     *
+     * @param \Nononsense\HomeBundle\Entity\ProductsInputs $productsInput
+     * @return Users
+     */
+    public function addProductsInput(\Nononsense\HomeBundle\Entity\ProductsInputs $productsInput)
+    {
+        $this->productsInput[] = $productsInput;
+
+        return $this;
+    }
+
+    /**
+     * Remove productsInput
+     *
+     * @param \Nononsense\HomeBundle\Entity\ProductsInputs $productsInput
+     */
+    public function removeProductsInput(\Nononsense\HomeBundle\Entity\ProductsInputs $productsInput)
+    {
+        $this->productsInput->removeElement($productsInput);
+    }
+
+    /**
+     * Get productsInput
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getProductsInput()
+    {
+        return $this->productsInput;
+    }
+
+    /**
+     * Add productsOutput
+     *
+     * @param \Nononsense\HomeBundle\Entity\ProductsOutputs $productsOutput
+     * @return Users
+     */
+    public function addProductsOutput(\Nononsense\HomeBundle\Entity\ProductsOutputs $productsOutput)
+    {
+        $this->productsOutput[] = $productsOutput;
+
+        return $this;
+    }
+
+    /**
+     * Remove productsOutput
+     *
+     * @param \Nononsense\HomeBundle\Entity\ProductsOutputs $productsOutput
+     */
+    public function removeProductsOutput(\Nononsense\HomeBundle\Entity\ProductsOutputs $productsOutput)
+    {
+        $this->productsOutput->removeElement($productsOutput);
+    }
+
+    /**
+     * Get productsOutput
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getProductsOutput()
+    {
+        return $this->productsOutput;
     }
 }

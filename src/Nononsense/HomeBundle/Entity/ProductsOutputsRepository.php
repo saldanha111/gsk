@@ -14,20 +14,16 @@ class ProductsOutputsRepository extends EntityRepository
 {
 	public function list($filters, $paginate=1)
     {
-    	$em = $this->getEntityManager();
-
         $list = $this->createQueryBuilder('po')
             ->select('po.id', 'po.amount', 'p.name AS productName', 'po.date', 'p.partNumber as productPartNumber', 'pi.id AS productInputId')
-            ->leftJoin("po.productInput", "pi")
-            ->leftJoin("pi.product", "p")
-            ->orderBy('po.date', 'ASC');
-
+            ->innerJoin("po.productInput", "pi")
+            ->innerJoin("pi.product", "p")
+            ->innerJoin("p.type", "t")
+            ->orderBy('po.date', 'DESC');
         $list = self::fillFilersQuery($filters, $list);
-
         if($paginate==1 && isset($filters["limit_from"])){
             $list->setFirstResult($filters["limit_from"]*$filters["limit_many"])->setMaxResults($filters["limit_many"]);
         }
-
         $query = $list->getQuery();
 
         return $query->getResult();
@@ -35,33 +31,25 @@ class ProductsOutputsRepository extends EntityRepository
 
     public function count($filters = array())
     {
-        $em = $this->getEntityManager();
-
         $list = $this->createQueryBuilder('po')
             ->select('COUNT(po.id) as conta')
-            ->leftJoin("po.productInput", "pi")
-            ->leftJoin("pi.product", "p");
-
+            ->innerJoin("po.productInput", "pi")
+            ->innerJoin("pi.product", "p")
+            ->innerJoin("p.type", "t");
         $list = self::fillFilersQuery($filters, $list);
-        
         $query = $list->getQuery();
-
         return $query->getSingleResult()["conta"];
     }
 
     private function fillFilersQuery($filters, $list){
-
     	if(!empty($filters)){
-
         	if(isset($filters["partNumber"])){
                 $list->andWhere('p.partNumber=:partNumber');
                 $list->setParameter('partNumber', $filters["partNumber"]);
             }
-
             if(isset($filters["name"])){
                 $list->andWhere("p.name LIKE '%".$filters["name"]."%'");
             }
-
             if(isset($filters["withdrawalDateFrom"])){
                 $list->andWhere("po.date>=:withdrawalDateFrom");
                 $list->setParameter('withdrawalDateFrom', $filters["withdrawalDateFrom"]);
@@ -70,9 +58,11 @@ class ProductsOutputsRepository extends EntityRepository
                 $list->andWhere("po.date<=:withdrawalDateTo");
                 $list->setParameter('withdrawalDateTo', $filters["withdrawalDateTo"]);
             }
-
+            if(isset($filters['type'])){
+                $list->andWhere("t.name =:type");
+                $list->setParameter('type', $filters['type']);
+            }
         }
-
     	return $list;
     }
 }

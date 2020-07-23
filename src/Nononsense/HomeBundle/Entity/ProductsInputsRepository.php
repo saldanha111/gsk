@@ -3,6 +3,7 @@
 namespace Nononsense\HomeBundle\Entity;
 
 use Doctrine\ORM\EntityRepository;
+use PDO;
 
 /**
  * ProductsInputsRepository
@@ -14,12 +15,11 @@ class ProductsInputsRepository extends EntityRepository
 {
 	public function list($filters, $paginate=1)
     {
-    	$em = $this->getEntityManager();
-
         $list = $this->createQueryBuilder('pi')
             ->select('pi')
-            ->leftJoin("pi.product", "p")
-            ->orderBy('pi.receptionDate', 'ASC');
+            ->innerJoin("pi.product", "p")
+            ->innerJoin("p.type", "t")
+            ->orderBy('pi.receptionDate', 'DESC');
 
         $list = self::fillFilersQuery($filters, $list);
 
@@ -34,32 +34,26 @@ class ProductsInputsRepository extends EntityRepository
 
     public function count($filters = array())
     {
-        $em = $this->getEntityManager();
-
         $list = $this->createQueryBuilder('pi')
             ->select('COUNT(pi.id) as conta')
-            ->leftJoin("pi.product", "p");
+            ->innerJoin("pi.product", "p")
+            ->innerJoin("p.type", "t");
 
         $list = self::fillFilersQuery($filters, $list);
-        
         $query = $list->getQuery();
-
         return $query->getSingleResult()["conta"];
     }
 
     private function fillFilersQuery($filters, $list){
 
     	if(!empty($filters)){
-
         	if(isset($filters["partNumber"])){
                 $list->andWhere('p.partNumber=:partNumber');
                 $list->setParameter('partNumber', $filters["partNumber"]);
             }
-
             if(isset($filters["name"])){
                 $list->andWhere("p.name LIKE '%".$filters["name"]."%'");
             }
-
             if(isset($filters["receptionDateFrom"])){
                 $list->andWhere("pi.receptionDate>=:receptionDateFrom");
                 $list->setParameter('receptionDateFrom', $filters["receptionDateFrom"]);
@@ -68,7 +62,6 @@ class ProductsInputsRepository extends EntityRepository
                 $list->andWhere("pi.receptionDate<=:receptionDateTo");
                 $list->setParameter('receptionDateTo', $filters["receptionDateTo"]." 23:59:59");
             }
-
             if(isset($filters["expiryDateFrom"])){
                 $list->andWhere("pi.expiryDate>=:expiryDateFrom");
                 $list->setParameter('expiryDateFrom', $filters["expiryDateFrom"]);
@@ -77,7 +70,6 @@ class ProductsInputsRepository extends EntityRepository
                 $list->andWhere("pi.expiryDate<=:expiryDateTo");
                 $list->setParameter('expiryDateTo', $filters["expiryDateTo"]." 23:59:59");
             }
-
             if(isset($filters["destructionDateFrom"])){
                 $list->andWhere("pi.destructionDate>=:destructionDateFrom");
                 $list->setParameter('destructionDateFrom', $filters["destructionDateFrom"]);
@@ -86,7 +78,6 @@ class ProductsInputsRepository extends EntityRepository
                 $list->andWhere("pi.destructionDate<=:destructionDateTo");
                 $list->setParameter('destructionDateTo', $filters["destructionDateTo"]." 23:59:59");
             }
-
             if(isset($filters["openDateFrom"])){
                 $list->andWhere("pi.openDate>=:openDateFrom");
                 $list->setParameter('openDateFrom', $filters["openDateFrom"]);
@@ -95,8 +86,28 @@ class ProductsInputsRepository extends EntityRepository
                 $list->andWhere("pi.openDate<=:openDateTo");
                 $list->setParameter('openDateTo', $filters["openDateTo"]." 23:59:59");
             }
+            if(isset($filters['type'])){
+                $list->andWhere("t.name =:type");
+                $list->setParameter('type', $filters['type']);
+            }
         }
 
     	return $list;
+    }
+
+    public function getOneByQrCode($qrCode)
+    {
+        $list = $this->createQueryBuilder('pi')
+            ->select('pi')
+            ->innerJoin("pi.product", "p")
+            ->innerJoin("p.type", "t")
+            ->andWhere('pi.qrCode = :qrCode')
+            ->setParameter('qrCode', $qrCode)
+            ->andWhere('pi.remainingAmount > 0')
+            ->orderBy('pi.id', 'DESC')
+            ->setMaxResults(1);
+
+        $query = $list->getQuery();
+        return $query->getOneOrNullResult();
     }
 }

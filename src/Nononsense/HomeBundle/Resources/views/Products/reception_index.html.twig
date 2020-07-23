@@ -1,0 +1,150 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}DOCXPRESSO |  Productos / Recepción de {{ type is defined ? type : ''}} {% endblock %}
+{% block head %}
+    {{ parent() }}
+{% endblock %}
+{% block main_title %} Productos / Recepción de {{ type is defined ? type : ''}} {% endblock %}
+
+{% block content %}
+    <div class="wrapper wrapper-content">
+        <div class="row">
+            {% for flashMessage in app.session.flashbag.get('error') %}
+                <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+                    <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                    {{ flashMessage }}
+                </div>
+                <br>
+            {% endfor %}
+            {% for flashMessage in app.session.flashbag.get('message') %}
+                <div class="alert alert-success alert-dismissable" style="margin: 10px 16px 0 16px">
+                    <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                    {{ flashMessage }}
+                </div>
+                <br>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="wrapper wrapper-content animated fadeInUp">
+        <form class="form-horizontal" id="form_item" action="{{ path('nononsense_products_reception',{'type': type}) }}" method="POST">
+            <input type="hidden" id="QrValue" name="qr-value"/>
+            <div class="form-group">
+                <div class="col-md-3 col-sm-4 col-xs-6">
+                    <button id="btn-scanner-use" type="button" class="btn btn-primary">Escanear con scanner</button>
+                </div>
+                <div class="col-md-3 col-sm-4 col-xs-6">
+                    <button id="btn-camera-use" type="button" class="btn btn-primary">Escanear con camara</button>
+                </div>
+            </div>
+            <div class="form-group camera-group" style="display:none;">
+                <label class="col-sm-3 control-label">Imagen Qr</label>
+                <div class="col-sm-7">
+                    <input id="imageQR" type="file" name="pic" accept="image/*" capture="camera">
+                    <input type="hidden" name="camera_use" class="form-control code-input camera-use">
+                </div>
+            </div>
+            <div class="form-group scan-group" style="display:none;">
+                <div class="col-xs-12">
+                    <label>
+                        <input type="text" placeholder="Código" name="scan_use" class="form-control code-input scan-use">
+                    </label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-11">
+                    <button type="submit" class="btn btn-primary pull-right btn-submit">
+                        <i class="fa fa-floppy-o" aria-hidden="true"></i> Registrar entrada
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock %}
+{% block scripts %}
+    {{ parent() }}
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/grid.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/version.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/detector.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/formatinf.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/errorlevel.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/bitmat.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/datablock.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/bmparser.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/datamask.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/rsdecoder.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/gf256poly.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/gf256.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/decoder.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/qrcode.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/findpat.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/alignpat.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/databr.js') }}"></script>
+    <script>
+        $( document ).ready(function() {
+            ActivateMenu('browse_product_outputs');
+            $('#side-menu').metisMenu();
+        });
+
+        function putQrValue(data) {
+            if(data !== 'error decoding QR Code'){
+                $('.camera-use').val(data);
+            }else{
+                toastr.error("El código no se ha leído correctamente", 'aviso');
+            }
+        }
+
+        $(function(){
+            qrcode.callback = putQrValue;
+            $(document).on('change','#imageQR',function(event){
+                const file = event.target.files[0];
+                const reader = new FileReader();
+                reader.onload = (function (event) {
+                    qrcode.decode(event.target.result);
+                });
+                reader.readAsDataURL(file);
+            });
+        });
+
+        function activeCamera(){
+            $('.code-input').val('');
+            $('#imageQR').val(null);
+            $('.scan-group').hide();
+            $('.scan-use').removeClass('active');
+            $('.camera-group').show();
+            $('.camera-use').addClass('active');
+        }
+
+        function activeScanner(){
+            $('.code-input').val('');
+            $('.camera-group').hide();
+            $('.camera-use').removeClass('active');
+            $('.scan-group').show();
+            $('.scan-use').addClass('active').focus();
+        }
+
+        $(document).on('click','#btn-scanner-use',function(e){
+            e.preventDefault();
+            activeScanner();
+        });
+
+        $(document).on('click','#btn-camera-use',function(e){
+            e.preventDefault();
+            activeCamera();
+        });
+
+        $(document).on('click', '.btn-submit', function(e){
+           e.preventDefault();
+           const activeVal = $('.code-input.active').val();
+           const qrInput = $('#QrValue');
+           if(activeVal !== ''){
+               qrInput.val(activeVal);
+               $('#form_item').submit();
+           }else{
+               qrInput.val('');
+               toastr.error("El código no se ha leído correctamente", 'aviso');
+           }
+        });
+
+    </script>
+{% endblock %}
+
+

@@ -644,6 +644,8 @@ class Utils
         }
     }
 
+    /** @deprecated  \Nononsense\UtilsBundle\Classes\Utils::getPaginator instead
+     */
     public static function paginador($limit,$request,$url,$count,$base_url,$filtros)
     {
         $url_b=$_SERVER['REQUEST_URI'];
@@ -669,9 +671,44 @@ class Utils
         $data["url"]=$protocol.$_SERVER["HTTP_HOST"].$url_b;
         $data["size"]=5;
         $data["skip"]=$skip ;
+        return $data;
+    }
+
+    /**
+     * @param $request
+     * @param $limit
+     * @param $count
+     * @return array
+     */
+    public static function getPaginator($request,$limit,$count)
+    {
+        $data = [];
+        $params = $request->query->all();
+        unset($params["page"]);
+
+        $url_b = $_SERVER['REQUEST_URI'];
+        if (empty($params)) {
+            $url_b = preg_replace('/\?page=[^&]*/', '', $url_b);
+            $data["character"] = "?";
+        } else {
+            $url_b = preg_replace('/&?page=[^&]*/', '', $url_b);
+            $data["character"] = "&";
+        }
+
+        $page = ($request->get('page', 0) > 0) ? $request->get('page') - 1 : 0;
+        $skip = ($page) * $limit;
+
+        $data["needed"] = $count > $limit;
+        $data["count"] = $count;
+        $data["page"] = $page;
+        $data["lastpage"] = (ceil($count / $limit) == 0 ? 1 : ceil($count / $limit));
+        $data["limit"] = $limit;
+        $protocol = stripos($_SERVER['SERVER_PROTOCOL'], 'https') === true ? 'https://' : 'http://';
+        $data["url"] = $protocol . $_SERVER["HTTP_HOST"] . $url_b;
+        $data["size"] = 5;
+        $data["skip"] = $skip;
 
         return $data;
-
-    } 
+    }
 
 }

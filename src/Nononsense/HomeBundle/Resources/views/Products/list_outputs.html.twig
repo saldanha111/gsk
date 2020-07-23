@@ -69,7 +69,7 @@
                             <th>Nombre</th>
                             <th>Cantidad</th>
                             <th>Fecha retirada</th>
-                            <th></th>
+                            <th>Qr</th>
                         </tr>
                         </thead>
                         {% if items is defined %}
@@ -82,7 +82,7 @@
                                 <td>{{item.amount}}</td>
                                 <td>{{item.date|date('Y-m-d')}}</td>
                                 <td>
-                                    <a href="javascript:delete_product_output({{ item.id }})" class="btn btn-xs" target="_self"><i class="fa fa-trash" aria-hidden="true"></i> Borrar</a>
+                                    <a href="{{path('nononsense_products_outputs_view_qr', {'id': item.id}) }}" target="_blank" class="btn btn-xs"><i class="fa fa-qrcode" aria-hidden="true"></i> Ver QR</a>
                                 </td>
                             </tr>
                             {% endfor %}

@@ -1,82 +1,138 @@
 {% extends '::base.html.twig' %}
-{% block page_title %}DOCXPRESSO |  Productos / {{productOutput.id is not null ? 'Editar' : 'Crear'}} retirada {% endblock %}
+{% block page_title %}DOCXPRESSO |  Productos / Crear retirada {% endblock %}
 {% block head %}
     {{ parent() }}
 {% endblock %}
-{% block main_title %} Productos / {{productOutput.id is not null ? 'Editar' : 'Crear'}} retirada{% endblock %}
-
+{% block main_title %} Productos / Crear retirada{% endblock %}
 
 {% block content %}
 
     <div class="wrapper wrapper-content animated fadeInUp">
         {% for flashMessage in app.session.flashbag.get('error') %}
-        <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
-            <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
-            {{ flashMessage }}
-        </div>
-        <br>
+            <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                {{ flashMessage }}
+            </div>
+            <br>
         {% endfor %}
-        <form class="form-horizontal" id="form_item" action="{{ path('nononsense_products_outputs_edit',{'id': productOutput.id is not null ? productOutput.id : 0}) }}" method="POST">
-            
-            <input type="hidden" id='productInputId' value="{{ productOutput.productInput.id is defined and productOutput.productInput.id is not null ? productOutput.productInput.id : '' }}" />
-            <input type="hidden" id='url_get_data_input_json' value="{{ path('nononsense_products_inputs_get_data_json',{'id': 'xxx'}) }}" />
-
+        <form class="form-horizontal" id="form_item" method="POST" action="{{ path('nononsense_products_outputs_edit',{'id': 0}) }}">
+            <input type="hidden" id='url_get_data_input_json' value="{{ path('nononsense_products_inputs_get_data_json',{'id': 'xxx'}) }}"/>
             <div class="row">
                 <div class="col-lg-4 col-lg-offset-1">
-
                     <div class="row">
                         <div class="form-group">
                             <label class="col-sm-3 control-label">Imagen Qr</label>
                             <div class="col-sm-7">
-                                <input id="imageQR" type="file" name="pic" accept="image/*" capture="camera" onchange="handleFiles(this.files)">
+                                <input id="imageQR" type="file" name="pic" accept="image/*" capture="camera"
+                                       onchange="handleFiles(this.files)">
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-sm-3 control-label">Texto Qr</label>
                             <div class="col-sm-7">
                                 <div style="float: left; width: 80%;">
-                                    <input type="text" id="input_id" name="input_id" class="form-control" value="{{productOutput.productInput.id is defined and productOutput.productInput.id is not null ? productOutput.productInput.id : ''}}" required="required">
+                                    <input type="text" id="input_id" name="input_id" class="form-control" required="required">
                                 </div>
                                 <div style="float: left; width: 20%;">
-                                    <a href="javascript:show_data_inputs();" class="btn" target="_self"><i class="fa fa-search" aria-hidden="true"></i></a>
+                                    <a href="javascript:show_data_inputs();" class="btn" target="_self">
+                                        <i class="fa fa-search" aria-hidden="true"></i>
+                                    </a>
                                 </div>
                             </div>
-                        </div>  
-
+                        </div>
                         <div id='div_data_input' style="display: none;">
                             <div class="form-group">
+                                <label class="col-sm-3 control-label">CAS Number</label>
+                                <div class="col-sm-5">
+                                    <input type="text" name="casNumber" class="form-control" required="required"  readonly="readonly">
+                                </div>
+                            </div>
+                            <div class="form-group">
                                 <label class="col-sm-3 control-label">Part. Number</label>
-                                <div class="col-sm-7">
-                                    <input type="text" id="partNumberProduct" class="form-control" value="{{productOutput.productInput.partNumber is defined and productOutput.productInput.partNumber is not null ? productOutput.productInput.partNumber : ''}}" readonly="readonly">
+                                <div class="col-sm-5">
+                                    <input type="text" name="partNumber" readonly="readonly" class="form-control" required="required">
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label class="col-sm-3 control-label">Nombre</label>
-                                <div class="col-sm-7">
-                                    <input type="text" id="nameProduct" class="form-control" value="{{productOutput.productInput.name is defined and productOutput.productInput.name is not null ? productOutput.productInput.name : ''}}" readonly="readonly">
+                                <div class="col-sm-5">
+                                    <input type="text" name="name" readonly="readonly" class="form-control" required="required">
                                 </div>
-                            </div> 
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Código interno</label>
+                                <div class="col-sm-5">
+                                    <input type="text" name="internalCode" readonly="readonly" class="form-control" required="required">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Proveedor</label>
+                                <div class="col-sm-5">
+                                    <input type="text" name="provider" readonly="readonly" class="form-control" required="required">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Presentación</label>
+                                <div class="col-sm-5">
+                                    <input type="text" name="presentation" readonly="readonly" class="form-control" required="required">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Lote</label>
+                                <div class="col-sm-5">
+                                    <input type="text" name="lotNumber" class="form-control" required="required" readonly="readonly">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Fecha recepción</label>
+                                <div class="col-sm-5">
+                                    <input type="text" name="receptionDate" class="form-control" readonly="readonly">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Fecha caducidad</label>
+                                <div class="col-sm-5">
+                                    <input type="text" class="form-control" name="expiryDate" readonly="readonly">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Fecha destrucción</label>
+                                <div class="col-sm-5">
+                                    <input type="text" class="form-control" name="destructionDate" readonly="readonly">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Observaciones</label>
+                                <div class="col-sm-5">
+                                    <textarea class="form-control" name="observations" rows="4" readonly></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Stock</label>
+                                <div class="col-sm-5">
+                                    <input type="text" name="stock" class="form-control" readonly="readonly">
+                                </div>
+                            </div>
                             <div class="form-group">
                                 <label class="col-sm-3 control-label">Cantidad</label>
-                                <div class="col-sm-7">
-                                    <input {% if productOutput.id is not null %} readonly="readonly" {% endif %} type="text" name="amount" class="form-control" required="required" value="{{productOutput.amount is not null ? productOutput.amount : ''}}">
+                                <div class="col-sm-5">
+                                    <input type="number" name="amount" class="form-control" required="required" min="0" max="">
                                 </div>
-                            </div> 
+                            </div>
                         </div>
-                        
-                    </div>  
-
+                    </div>
                 </div>
             </div>
-
             <div class="row">
                 <div class="col-sm-11">
-                    <button type="submit" class="btn btn-primary  pull-right"><i class="fa fa-floppy-o" aria-hidden="true"></i> {{productOutput.id is not null ? 'Editar' : 'Registrar'}} retirada</button>
+                    <button type="submit" class="btn btn-primary  pull-right">
+                        <i class="fa fa-floppy-o" aria-hidden="true"></i> Registrar retirada
+                    </button>
                 </div>
             </div>
         </form>
     </div>
-    
+
 {% endblock %}
 
 {% block scripts %}
@@ -99,70 +155,95 @@
     <script type="text/javascript" src="/js/plugins/jsqrcode-master/src/alignpat.js"></script>
     <script type="text/javascript" src="/js/plugins/jsqrcode-master/src/databr.js"></script>
     <script>
-    $( document ).ready(function() {
-        ActivateMenu('browse_product_outputs');
-        $('#side-menu').metisMenu();
+        $(document).ready(function () {
+            ActivateMenu('browse_product_outputs');
+            $('#side-menu').metisMenu();
 
-        var productInputId = $('#productInputId').val();
-        show_data_inputs(productInputId);
+            var productInputId = $('#productInputId').val();
+            show_data_inputs(productInputId);
+            qrcode.callback = putQrValue;
+        });
 
-        qrcode.callback = putQrValue;
-    });
-
-    function putQrValue(a) {        
-        $('#input_id').val(a);
-        show_data_inputs();
-    }
-
-    function handleFiles(files) {
-        var o = [];
-        for (var i = 0; i < files.length; i++) {
-            var reader = new FileReader();
-            reader.onload = (function (theFile) {
-                return function (e) {
-                    var value = qrcode.decode(e.target.result);
-                };
-            })(files[i]);
-            reader.readAsDataURL(files[i]);
+        function putQrValue(a) {
+            $('#input_id').val(a);
+            show_data_inputs();
         }
-    }
 
-    function show_data_inputs(){
-        var input_id = $('#input_id').val();
+        function handleFiles(files) {
+            var o = [];
+            for (var i = 0; i < files.length; i++) {
+                var reader = new FileReader();
+                reader.onload = (function (theFile) {
+                    return function (e) {
+                        var value = qrcode.decode(e.target.result);
+                    };
+                })(files[i]);
+                reader.readAsDataURL(files[i]);
+            }
+        }
 
-        var url = $('#url_get_data_input_json').val();
-        url = url.replace("xxx", input_id);
-
-        if(input_id!=''){
-
-            show_loader();
-            
-            $.ajax({
-                async:true,
-                url: url,
-                type: 'GET',
-                complete: function ( respuesta ) {
-                    
-                    hide_loader();
-                    var datos = JSON.parse(respuesta.responseText);
-                    if(datos.status==200){
-                        $('#partNumberProduct').val(datos.data.partNumberProduct);
-                        $('#nameProduct').val(datos.data.nameProduct);
-                        $('#div_data_input').show();
+        function show_data_inputs() {
+            var input_id = $('#input_id').val();
+            var url = $('#url_get_data_input_json').val();
+            url = url.replace("xxx", input_id);
+            if (input_id != '') {
+                show_loader();
+                $.ajax({
+                    async: true,
+                    url: url,
+                    type: 'GET',
+                    complete: function (respuesta) {
+                        hide_loader();
+                        const datos = JSON.parse(respuesta.responseText);
+                        console.log(datos);
+                        if (datos.status === 200) {
+                            fillInputs(datos.data);
+                            if(datos.data.stock){
+                                $('input[name="amount"]').attr('max',datos.data.stock);
+                            }
+                            $('#div_data_input').show();
+                        } else {
+                            alert("El QR no se corresponde con una entrada válida");
+                            $('#div_data_input').hide();
+                        }
                     }
-                    else{
-                        alert("El QR no se corresponde con una entrada válida");
-                        $('#partNumberProduct').val('');
-                        $('#nameProduct').val('');
-                        $('#div_data_input').hide(); 
-                    }
+                });
+            } else {
+                $('#div_data_input').hide();
+            }
+        }
+
+        function fillInputs(data){
+            const formItems = getFormItems();
+            $.each(formItems,function(key,item){
+                if(data[key] || data[key] === 0){
+                    item.val(data[key]);
+                    item.parent().parent().show();
+                }else{
+                    item.parent().parent().hide();
                 }
+                item.attr('readonly','readonly');
             });
         }
-        else{
-            $('#div_data_input').hide();   
+
+        function getFormItems()
+        {
+            return {
+                'partNumber': $('input[name="partNumber"]'),
+                'casNumber': $('input[name="casNumber"]'),
+                'internalCode': $('input[name="internalCode"]'),
+                'name': $('input[name="name"]'),
+                'provider': $('input[name="provider"]'),
+                'presentation': $('input[name="presentation"]'),
+                'lotNumber': $('input[name="lotNumber"]'),
+                'receptionDate': $('input[name="receptionDate"]'),
+                'expiryDate': $('input[name="expiryDate"]'),
+                'destructionDate': $('input[name="destructionDate"]'),
+                'observations': $('textarea[name="observations"]'),
+                'stock': $('input[name="stock"]')
+            };
         }
-    }
+
     </script>
 {% endblock %}
 
