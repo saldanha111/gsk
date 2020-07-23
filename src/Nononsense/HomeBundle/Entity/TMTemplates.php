@@ -107,6 +107,7 @@ class TMTemplates
     /**
      * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\Areas", inversedBy="tmTemplates")
      * @ORM\JoinColumn(name="area_id", referencedColumnName="id")
+     * @Groups({"json"})
      */
     protected $area;
 

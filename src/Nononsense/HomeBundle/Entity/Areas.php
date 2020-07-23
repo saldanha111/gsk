@@ -20,7 +20,7 @@ class Areas
      * @ORM\Column(type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
-     * @Groups({"detail_area","list_area"})
+     * @Groups({"detail_area","list_area","json"})
      */
     protected $id;
 

@@ -29,13 +29,14 @@ class TemplateManagementTemplatesController extends Controller
     {
     	$em = $this->getDoctrine()->getManager();
         $array=array();
-        //Sacamos la consulta a un repositorio y hacemos el respetivo having con un createquery despues hay que formatear el resultado con id,text y title
+
         $items=$em->getRepository('NononsenseHomeBundle:TMTemplates')->listActiveForRequest(array("name"=>$request->get("name"),"limit_from" => 0, "limit_many" => 10));
         $serializer = $this->get('serializer');
         $array_items = json_decode($serializer->serialize($items,'json',array('groups' => array('json'))),true);
         foreach($array_items as $key => $item){
             $array["items"][$key]["id"]=$item["id"];
             $array["items"][$key]["text"]=$item["name"];
+            $array["items"][$key]["area"]=$item["area"]["id"];
         }
 
         $response = new Response(json_encode($array), 200);

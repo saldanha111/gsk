@@ -82,9 +82,6 @@
                                 <div class="col-sm-4">
                                   <select class="form-control" name="owner" style="width: 100%;" required="required">
                                     <option value=""></option>
-                                    {% for user in users %}
-                                      <option value="{{user.id}}">{{user.name}}</option>
-                                    {% endfor %}
                                   </select>
                                 </div>
                             </div> 
@@ -95,9 +92,6 @@
                             <div class="col-sm-4">
                                 <select class="form-control" name="backup" style="width: 100%;" required="required">
                                     <option value=""></option>
-                                    {% for user in users %}
-                                      <option value="{{user.id}}">{{user.name}}</option>
-                                    {% endfor %}
                                 </select>
                             </div>
                         </div>
@@ -105,7 +99,7 @@
                         <div class="form-group">
                             <label class="col-sm-2 control-label">Fecha entrada en vigor</label>
                             <div class="col-sm-2">
-                                <input type="text" class="form-control pull-right" autocomplete="off" name="public_date" id="public_date" value="">
+                                <input type="text" class="form-control pull-right" autocomplete="off" name="public_date" id="public_date" value="" required="required">
                             </div>
                         </div> 
                         
@@ -118,188 +112,49 @@
                     <div id="master_workflow">
                         <h1>Workflow</h1>
                         <div class="row">
-                            <div class="col-sm-3 pre_col_workflow">
+                            <div class="col-sm-3 pre_col_workflow"  data-bloque-type="admin">
                                 <div class="col_workflow">
                                     <h2>Administrador</h2>
                                     <hr>
                                     <div class="row line_workflow">
-                                        <div class="form-group">
-                                            <div class="col-sm-4 masterbox_type_workflow">
-                                                <select class="form-control type_workflow" name="type_admin[]" data-type="admin" style="width: 100%;">
-                                                    <option value="1">Grupo</option>
-                                                    <option value="2" selected="selected">Usuario</option>
-                                                </select>
-                                            </div>
-
-                                            <div class="master_box_group" style="display:none">
-                                                <div class="col-sm-6">
-                                                    <select class="form-control" name="relationals_admin[]" style="width: 100%;" required="required">
-                                                        <option value=""></option>
-                                                        {% for group in groups %}
-                                                            <option value="{{group.id}}">{{group.name}}</option>
-                                                        {% endfor %}
-                                                    </select>
-                                                </div>
-                                            </div>
-
-                                            <div class="master_box_user">
-                                                <div class="col-sm-6">
-                                                    <select class="form-control" name="relationals_admin[]" style="width: 100%;" required="required">
-                                                        <option value=""></option>
-                                                        {% for user in users %}
-                                                            <option value="{{user.id}}">{{user.name}}</option>
-                                                        {% endfor %}
-                                                    </select>
-                                                </div>
-                                            </div>
-
-                                            <div class="master_box_remove">
-                                                <div class="col-sm-2">
-                                                    <a href="javascript:void(0)" class="btn btn-xs btn-danger remove_line"><i class="fa fa-times" aria-hidden="true"></i></a>
-                                                </div>
-                                            </div>
-                                        </div>
+                                        
                                     </div>
                                 </div> 
                                 <div class="row">
-                                    <button type="button" class="btn btn-default pull-right add_line" data-type="admin"><i class="fa fa-plus"></i> Añadir</button>
+                                    <input type="hidden" class="add_line" data-type="admin">
                                 </div><br> 
                             </div>
-                            <div class="col-sm-3 pre_col_workflow">
+                            <div class="col-sm-3 pre_col_workflow" data-bloque-type="elab">
                                 <div class="col_workflow">
                                     <h2>Elaboradores</h2>
                                     <hr>
                                     <div class="row line_workflow">
-                                        <div class="form-group">
-                                            <div class="col-sm-4 masterbox_type_workflow">
-                                                <select class="form-control type_workflow" name="type_elab[]" data-type="elab" style="width: 100%;">
-                                                    <option value="1">Grupo</option>
-                                                    <option value="2" selected="selected">Usuario</option>
-                                                </select>
-                                            </div>
-
-                                            <div class="master_box_group" style="display:none">
-                                                <div class="col-sm-6">
-                                                    <select class="form-control" name="relationals_elab[]" style="width: 100%;" required="required">
-                                                        <option value=""></option>
-                                                        {% for group in groups %}
-                                                            <option value="{{group.id}}">{{group.name}}</option>
-                                                        {% endfor %}
-                                                    </select>
-                                                </div>
-                                            </div>
-
-                                            <div class="master_box_user">
-                                                <div class="col-sm-6">
-                                                    <select class="form-control" name="relationals_elab[]" style="width: 100%;" required="required">
-                                                        <option value=""></option>
-                                                        {% for user in users %}
-                                                            <option value="{{user.id}}">{{user.name}}</option>
-                                                        {% endfor %}
-                                                    </select>
-                                                </div>
-                                            </div>
-
-                                            <div class="master_box_remove">
-                                                <div class="col-sm-2">
-                                                    <a href="javascript:void(0)" class="btn btn-xs btn-danger remove_line"><i class="fa fa-times" aria-hidden="true"></i></a>
-                                                </div>
-                                            </div>
-                                        </div>
+                                    
                                     </div>
                                 </div> 
                                 <div class="row">
                                     <button type="button" class="btn btn-default pull-right add_line" data-type="elab"><i class="fa fa-plus"></i> Añadir</button>
                                 </div><br> 
                             </div>
-                            <div class="col-sm-3 pre_col_workflow">
+                            <div class="col-sm-3 pre_col_workflow" data-bloque-type="test">
                                 <div class="col_workflow">
                                     <h2>Testers</h2>
                                     <hr>
                                     <div class="row line_workflow">
-                                        <div class="form-group">
-                                            <div class="col-sm-4 masterbox_type_workflow">
-                                                <select class="form-control type_workflow" name="type_test[]" data-type="test" style="width: 100%;">
-                                                    <option value="1">Grupo</option>
-                                                    <option value="2" selected="selected">Usuario</option>
-                                                </select>
-                                            </div>
 
-                                            <div class="master_box_group" style="display:none">
-                                                <div class="col-sm-6">
-                                                    <select class="form-control" name="relationals_test[]" style="width: 100%;" required="required">
-                                                        <option value=""></option>
-                                                        {% for group in groups %}
-                                                            <option value="{{group.id}}">{{group.name}}</option>
-                                                        {% endfor %}
-                                                    </select>
-                                                </div>
-                                            </div>
-
-                                            <div class="master_box_user">
-                                                <div class="col-sm-6">
-                                                    <select class="form-control" name="relationals_test[]" style="width: 100%;" required="required">
-                                                        <option value=""></option>
-                                                        {% for user in users %}
-                                                            <option value="{{user.id}}">{{user.name}}</option>
-                                                        {% endfor %}
-                                                    </select>
-                                                </div>
-                                            </div>
-
-                                            <div class="master_box_remove">
-                                                <div class="col-sm-2">
-                                                    <a href="javascript:void(0)" class="btn btn-xs btn-danger remove_line"><i class="fa fa-times" aria-hidden="true"></i></a>
-                                                </div>
-                                            </div>
-                                        </div>
                                     </div>
                                 </div> 
                                 <div class="row">
                                     <button type="button" class="btn btn-default pull-right add_line" data-type="test"><i class="fa fa-plus"></i> Añadir</button>
                                 </div><br> 
                             </div>
-                            <div class="col-sm-3 pre_col_workflow">
+                            <div class="col-sm-3 pre_col_workflow" data-bloque-type="aprob">
                                 <div class="col_workflow">
                                     <h2>Aprobadores</h2>
                                     <hr>
                                     <div class="row line_workflow">
-                                        <div class="form-group">
-                                            <div class="col-sm-4 masterbox_type_workflow">
-                                                <select class="form-control type_workflow" name="type_aprob[]" data-type="aprob" style="width: 100%;">
-                                                    <option value="1">Grupo</option>
-                                                    <option value="2" selected="selected">Usuario</option>
-                                                </select>
-                                            </div>
-
-                                            <div class="master_box_group" style="display:none">
-                                                <div class="col-sm-6">
-                                                    <select class="form-control" name="relationals_aprob[]" style="width: 100%;" required="required">
-                                                        <option value=""></option>
-                                                        {% for group in groups %}
-                                                            <option value="{{group.id}}">{{group.name}}</option>
-                                                        {% endfor %}
-                                                    </select>
-                                                </div>
-                                            </div>
-
-                                            <div class="master_box_user">
-                                                <div class="col-sm-6">
-                                                    <select class="form-control" name="relationals_aprob[]" style="width: 100%;" required="required">
-                                                        <option value=""></option>
-                                                        {% for user in users %}
-                                                            <option value="{{user.id}}">{{user.name}}</option>
-                                                        {% endfor %}
-                                                    </select>
-                                                </div>
-                                            </div>
-
-                                            <div class="master_box_remove">
-                                                <div class="col-sm-2">
-                                                    <a href="javascript:void(0)" class="btn btn-xs btn-danger remove_line"><i class="fa fa-times" aria-hidden="true"></i></a>
-                                                </div>
-                                            </div>
-                                        </div>
+                                        
+                                        
                                     </div>
                                 </div> 
                                 <div class="row">
@@ -326,11 +181,8 @@
             <div id="box_groups">
                 <div class="master_box_group">
                     <div class="col-sm-6">
-                        <select class="form-control" name="relationals[]" style="width: 100%;" required="required">
+                        <select class="form-control select_groups" name="relationals[]" style="width: 100%;" required="required">
                             <option value=""></option>
-                            {% for group in groups %}
-                                <option value="{{group.id}}">{{group.name}}</option>
-                            {% endfor %}
                         </select>
                     </div>
                 </div>
@@ -338,11 +190,8 @@
             <div id="box_users">
                 <div class="master_box_user">
                     <div class="col-sm-6">
-                        <select class="form-control" name="relationals[]" style="width: 100%;" required="required">
-                            <option value=""></option>
-                            {% for user in users %}
-                                <option value="{{user.id}}">{{user.name}}</option>
-                            {% endfor %}
+                        <select class="form-control select_users" name="relationals[]" style="width: 100%;" required="required">
+                            <option value=""></option>}
                         </select>
                     </div>
                 </div>
@@ -378,44 +227,93 @@
     <script src="/plugins/select2/dist/js/select2.full.min.js"></script>
     <script src="/plugins/select2/es.js"></script>
     <script>
+    var dataworkflow;
     $( document ).ready(function() {
         $.fn.select2.defaults.set('language', 'es');
+
+        /* Eliminamos linea en ese paso del workflow */
         $(document).on('click', '.remove_line', function() {
             $(this).closest(".line_workflow").remove();
         });
 
+        /* Añadimos linea en ese paso del workflow */
         $(document).on('click', '.add_line', function() {
-
-            switch($(this).data("type")){
-                case "admin": var name = "relationals_admin";break
-                case "elab": var name = "relationals_elab";break
-                case "test": var name = "relationals_test";break
-                case "aprob": var name = "relationals_aprob";break
-            }
-
-            $(this).closest(".pre_col_workflow").find(".col_workflow").append($("#new_line").html().replace("types[]", "type_"+name+"[]"));
-            $(this).closest(".pre_col_workflow").find(".masterbox_type_workflow:last").after($("#box_users").html().replace("relationals[]", name+"[]")+$("#box_remove").html());
+            add_line($(this));
         });
 
+        /* Nos traemos los usuarios y grupos para cada paso del workflow según el area */
+        $(document).on('change', '[name="area"]', function() {
+            load_users_to_area($(this).val());
+        });
+
+        /* No podemos añadir un mismo usuario en un mismo paso del workflow */        
+        $(document).on('change', '.select_users', function() {
+            element=$(this);
+            index=element.closest(".col_workflow").find(".select_users").index(element);
+            element.closest(".col_workflow").find(".select_users").each(function() {
+                index_aux=element.closest(".col_workflow").find(".select_users").index($(this));
+                if(index!=index_aux && element.val()==$(this).val()){
+                    toastr.error("No puede añadir el mismo usuario dentro del mismo paso en el workflow", 'Error');
+                    element.val("");
+                }
+            });
+        });
+
+        /* No podemos añadir un usuario como aprobador si ya está como elaborador o como tester */
+        $(document).on('change', "div[data-bloque-type='aprob'] .select_users", function() {
+            element=$(this);
+            $("div[data-bloque-type='elab']").find(".select_users").each(function() {
+                if(element.val() && element.val()==$(this).val()){
+                    toastr.error("Un mismo usuario no puede estar como aprobador si ya está elaborador", 'Error');
+                    element.val("");
+                }
+            });
+
+            $("div[data-bloque-type='test']").find(".select_users").each(function() {
+                if(element.val() && element.val()==$(this).val()){
+                    toastr.error("Un mismo usuario no puede estar como aprobador si ya está como tester", 'Error');
+                    element.val("");
+                }
+            });
+        });
+
+        /* No podemos añadir un usuario como elaborador o como tester si ya está como aprobador */
+        $(document).on('change', "div[data-bloque-type='elab'] .select_users, div[data-bloque-type='test'] .select_users", function() {
+            element=$(this);
+            $("div[data-bloque-type='aprob']").find(".select_users").each(function() {
+                if(element.val() && element.val()==$(this).val()){
+                    toastr.error("Un mismo usuario no puede estar como elaborador/tester si ya está aprobador", 'Error');
+                    element.val("");
+                }
+            });
+        });
+        
+
+        /* Si cambiamos el tipo dentre usuario y grupo, se actualiza el selector correspondiente con los usuarios o grupos correspondientes */
         $(document).on('change', '.type_workflow', function() {
-            switch($(this).data("type")){
+            type=$(this).closest(".pre_col_workflow").find(".add_line").data("type");
+            switch(type){
                 case "admin": var name = "relationals_admin";break
                 case "elab": var name = "relationals_elab";break
                 case "test": var name = "relationals_test";break
                 case "aprob": var name = "relationals_aprob";break
             }
+            
             switch($(this).val()){
                 case "1":
                     $(this).closest(".line_workflow").find(".master_box_user").remove();
                     $(this).closest(".line_workflow").find(".masterbox_type_workflow").after($("#box_groups").html().replace("relationals[]", name+"[]"));
+                    fill_groups($(this).closest(".line_workflow").find(".masterbox_type_workflow").next(),type);
                     break;
                 case "2":
                     $(this).closest(".line_workflow").find(".master_box_group").remove();
                     $(this).closest(".line_workflow").find(".masterbox_type_workflow").after($("#box_users").html().replace("relationals[]", name+"[]"));
+                    fill_users($(this).closest(".line_workflow").find(".masterbox_type_workflow").next(),type);
                     break;
             }
         });
 
+        /* Si cambiamos el tipo de solicitud, limpiamos workflow y cambiamos los campos visibles según el tipo de solicitud */
         $(document).on('change', '[name="request_type"]', function() {
             switch($(this).val()){
                 case "1":
@@ -427,6 +325,8 @@
                     $("#box_existent_template").show();
                     break;
             }
+
+            clear_workflow();
         });
 
 
@@ -437,6 +337,7 @@
           language: 'es'
         });
 
+        /* Buscamos la plantilla sobre la que queremos crear una nueva edición */
         $(".select_template").select2({
             templateResult: format_template,
             minimumInputLength: 3,
@@ -462,21 +363,107 @@
 
         $('.select_template').on("select2:select", function(e) { 
             $('input[name ="template"]').val(e.params.data.id);
+            load_users_to_area(e.params.data.area);
         });
 
     });
 
-    function url_templates_json(){
-       url="{{ path('Atemplates_active_json') }}";
-       return url;
+    /* Añadimos una nueva linea */
+    function add_line(element){
+
+        switch(element.data("type")){
+            case "admin": var name = "relationals_admin";break
+            case "elab": var name = "relationals_elab";break
+            case "test": var name = "relationals_test";break
+            case "aprob": var name = "relationals_aprob";break
+        }
+        element.closest(".pre_col_workflow").find(".col_workflow").append($("#new_line").html().replace("types[]", "type_"+name+"[]"));
+        element.closest(".pre_col_workflow").find(".masterbox_type_workflow:last").after($("#box_users").html().replace("relationals[]", name+"[]")+$("#box_remove").html());
+
+        fill_users(element.closest(".pre_col_workflow").find(".masterbox_type_workflow:last").next(),element.data("type"));
+    }
+
+    /* Rellenamos el selector con los usuarios de ese tipo */
+    function fill_users(element,type){
+        if (typeof dataworkflow !== 'undefined' && typeof dataworkflow.users !== 'undefined') {
+            $.each(dataworkflow.users[type],function(key, value){
+                element.find('select').append('<option value=' + key + '>' + value.name + '</option>');
+            });
+        }
+    }
+
+    /* Rellenamos el selector con los grupos de ese tipo */
+    function fill_groups(element,type){
+        if (typeof dataworkflow !== 'undefined' && typeof dataworkflow.groups !== 'undefined') {
+            $.each(dataworkflow.groups[type],function(key, value){
+                element.find('select').append('<option value=' + key + '>' + value.name + '</option>');
+            });
+        }
     }
 
     function format_template (option) {
       if (!option.id) { return option.text; }
       var ob = option.text;  // replace image source with option.img (available in JSON)
       return ob;
-    }; 
-    </script>
+    }
+
+    /* Buscamos el json de usuarios y grupos para el area seleccionado */
+    function load_users_to_area(area){
+        url_users=url_users_json(area);
+        $.ajax({
+            type: 'GET',
+            dataType: "json",
+            url: url_users,
+            success: function(data){
+                console.log(data);
+                if(data.users || data.groups){
+                    dataworkflow=data;
+                    reset_workflow();
+                }
+                else{
+                    toastr.error("No ha sido posible carcar los usuarios para definir el workflow','", 'Error');
+                }
+
+            },
+            error: function (request, status, error) {
+                console.log(request);
+                toastr.error("No ha sido posible carcar los usuarios para definir el workflow','", 'Error');
+            }
+        });
+    }
+
+    /* Reseteamos el workflow y añadimos una linea */
+    function reset_workflow(data){
+        clear_workflow();
+        $('[name="owner"]').find('option').not(':first').remove();
+        $('[name="backup"]').find('option').not(':first').remove();
+
+        $.each(dataworkflow.users.dueno,function(key, value){
+            $('[name="owner"]').append('<option value=' + key + '>' + value.name + '</option>');
+            $('[name="backup"]').append('<option value=' + key + '>' + value.name + '</option>');
+        });
+
+        $(".pre_col_workflow").find(".add_line").each(function() {
+            add_line($(this));
+        });
+    }
+
+    /* Vaciamos el workflow */
+    function clear_workflow(){
+        $(".col_workflow").find(".line_workflow").remove();
+    }
+
+    function url_users_json(area){
+        url="{{ path('nononsense_prepare_workflow_json', {'area': 'value_id'}) }}";
+        url=url.replace("value_id", area);
+        return url;
+    }
+
+    function url_templates_json(){
+       url="{{ path('nononsense_templates_active_json') }}";
+       return url;
+    }
+</script>
 {% endblock %}
 
 

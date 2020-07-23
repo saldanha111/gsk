@@ -782,4 +782,37 @@ class Groups
     {
         return $this->tmWorkflows;
     }
+
+    /**
+     * Add areas
+     *
+     * @param \Nononsense\HomeBundle\Entity\AreasGroups $areas
+     * @return Groups
+     */
+    public function addArea(\Nononsense\HomeBundle\Entity\AreasGroups $areas)
+    {
+        $this->areas[] = $areas;
+
+        return $this;
+    }
+
+    /**
+     * Remove areas
+     *
+     * @param \Nononsense\HomeBundle\Entity\AreasGroups $areas
+     */
+    public function removeArea(\Nononsense\HomeBundle\Entity\AreasGroups $areas)
+    {
+        $this->areas->removeElement($areas);
+    }
+
+    /**
+     * Get areas
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getAreas()
+    {
+        return $this->areas;
+    }
 }

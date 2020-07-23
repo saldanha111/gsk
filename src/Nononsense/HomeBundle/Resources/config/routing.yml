@@ -644,6 +644,10 @@ nononsense_tm_requests:
     path: /mt/requests
     defaults: { _controller: NononsenseHomeBundle:TemplateManagementRequest:list}
 
-Atemplates_active_json:
+nononsense_templates_active_json:
     path:     /templates/active/json
     defaults: { _controller: NononsenseHomeBundle:TemplateManagementTemplates:listActiveJson}
+
+nononsense_prepare_workflow_json:
+    path:     /prepare/workfow/json/{area}
+    defaults: { _controller: NononsenseHomeBundle:TemplateManagementRequest:listUsersAndGroupsJson, area: 0}

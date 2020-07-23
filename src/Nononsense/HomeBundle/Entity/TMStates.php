@@ -31,7 +31,7 @@ class TMStates
     protected $name;
 
     /**
-     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMTemplates", mappedBy="state")
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMTemplates", mappedBy="tmState")
      */
     protected $tmTemplates;
 
@@ -87,10 +87,33 @@ class TMStates
 
 
     /**
+     * Set number
+     *
+     * @param integer $number
+     * @return TMStates
+     */
+    public function setNumber($number)
+    {
+        $this->number = $number;
+
+        return $this;
+    }
+
+    /**
+     * Get number
+     *
+     * @return integer 
+     */
+    public function getNumber()
+    {
+        return $this->number;
+    }
+
+    /**
      * Add tmTemplates
      *
      * @param \Nononsense\HomeBundle\Entity\TMTemplates $tmTemplates
-     * @return MTStates
+     * @return TMStates
      */
     public function addTmTemplate(\Nononsense\HomeBundle\Entity\TMTemplates $tmTemplates)
     {
@@ -117,28 +140,5 @@ class TMStates
     public function getTmTemplates()
     {
         return $this->tmTemplates;
-    }
-
-    /**
-     * Set number
-     *
-     * @param integer $number
-     * @return TMStates
-     */
-    public function setNumber($number)
-    {
-        $this->number = $number;
-
-        return $this;
-    }
-
-    /**
-     * Get number
-     *
-     * @return integer 
-     */
-    public function getNumber()
-    {
-        return $this->number;
     }
 }

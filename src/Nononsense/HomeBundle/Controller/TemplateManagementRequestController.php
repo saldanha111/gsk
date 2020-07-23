@@ -55,4 +55,27 @@ class TemplateManagementRequestController extends Controller
         
         return $this->render('NononsenseHomeBundle:TemplateManagement:request_detail.html.twig',$array_item);
     }
+
+    public function listUsersAndGroupsJsonAction(Request $request, int $area)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $array=array();
+
+        $array["users"]["admin"]=$em->getRepository('NononsenseUserBundle:Users')->listUsersByAreaAndPermission($area,"admin_gp");
+        $array["users"]["elab"]=$em->getRepository('NononsenseUserBundle:Users')->listUsersByAreaAndPermission($area,"elaborador_gp");
+        $array["users"]["test"]=$em->getRepository('NononsenseUserBundle:Users')->listUsersByAreaAndPermission($area,"tester_gp");
+        $array["users"]["aprob"]=$em->getRepository('NononsenseUserBundle:Users')->listUsersByAreaAndPermission($area,"aprobador_gp");
+        $array["users"]["dueno"]=$em->getRepository('NononsenseUserBundle:Users')->listUsersByAreaAndPermission($area,"dueno_gp");
+
+        $array["groups"]["admin"]=$em->getRepository('NononsenseGroupBundle:Groups')->listGroupsByAreaAndPermission($area,"admin_gp");
+        $array["groups"]["elab"]=$em->getRepository('NononsenseGroupBundle:Groups')->listGroupsByAreaAndPermission($area,"elaborador_gp");
+        $array["groups"]["test"]=$em->getRepository('NononsenseGroupBundle:Groups')->listGroupsByAreaAndPermission($area,"tester_gp");
+        $array["groups"]["aprob"]=$em->getRepository('NononsenseGroupBundle:Groups')->listGroupsByAreaAndPermission($area,"aprobador_gp");
+        $array["groups"]["dueno"]=$em->getRepository('NononsenseGroupBundle:Groups')->listGroupsByAreaAndPermission($area,"dueno_gp");
+
+        $response = new Response(json_encode($array), 200);
+        $response->headers->set('Content-Type', 'application/json');
+
+        return $response;
+    }
 }
