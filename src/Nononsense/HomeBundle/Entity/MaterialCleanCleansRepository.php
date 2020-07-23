@@ -5,6 +5,7 @@ namespace Nononsense\HomeBundle\Entity;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\QueryBuilder;
 
 /**
@@ -167,7 +168,7 @@ class MaterialCleanCleansRepository extends EntityRepository
             ->innerJoin('cle.material','mat')
             ->innerJoin('cle.center','cen')
             ->innerJoin('cle.cleanUser','clu')
-            ->leftJoin('mat.product','prod')
+            ->leftJoin('mat.product','prod', Join::WITH, 'prod.active=1')
             ->where('prod.tagsNumber IS NOT NULL')
             ->andWhere('cle.lotNumber = :lotNumber')
             ->setParameter('lotNumber', $lotNumber);

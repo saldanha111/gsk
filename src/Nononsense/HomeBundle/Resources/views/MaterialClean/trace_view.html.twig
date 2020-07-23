@@ -121,6 +121,16 @@
                     {% endif %}
                 </div>
             </div>
+            {% if trace.useInformation is defined and not null %}
+                <div class="row">
+                    <div class="col-lg-2 col-md-3 col-sm-4 col-xs-5">
+                        <p class="text-right">Mensaje Verificación: </p>
+                    </div>
+                    <div class="col-lg-10 col-md-9 col-sm-8 col-xs-7">
+                        <p>{{ trace.useInformation }}</p>
+                    </div>
+                </div>
+            {% endif %}
             <div class="row">
                 <div class="col-lg-2 col-md-3 col-sm-4 col-xs-5">
                     <p class="text-right">Fecha de Verificación: </p>
@@ -201,6 +211,16 @@
                     {% endif %}
                 </div>
             </div>
+            {% if trace.reviewInformation is defined and not null %}
+                <div class="row">
+                    <div class="col-lg-2 col-md-3 col-sm-4 col-xs-5">
+                        <p class="text-right">Mensaje Revisión: </p>
+                    </div>
+                    <div class="col-lg-10 col-md-9 col-sm-8 col-xs-7">
+                        <p>{{ trace.reviewInformation }}</p>
+                    </div>
+                </div>
+            {% endif %}
             <div class="row">
                 <div class="col-lg-2 col-md-3 col-sm-4 col-xs-5">
                     <p class="text-right">Fecha Revisión: </p>
