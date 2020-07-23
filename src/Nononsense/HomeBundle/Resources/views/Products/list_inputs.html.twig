@@ -26,53 +26,53 @@
                         </div>
                         <br>
                     {% endfor %}
-                    <form class="form-horizontal" id="form_item" action="{{ path('nononsense_products_inputs')}}" method="GET">
+                    <form class="form-horizontal" id="form_item" action="{# path('nononsense_products_inputs',{'type': 'material'}) #}" method="GET">
                         <input type="hidden" id='a_excel' name='a_excel' />
                         <input type="hidden" id='url_product_input_delete' value="{{ path('nononsense_products_inputs_delete',{'id': 'xxx'}) }}" />
                         <div class="form-group">
                             <label class="col-sm-2 control-label item_filter">Part. Number</label>
                             <div class="col-sm-2 item_filter">
-                                <input type="text" name="partNumber" class="form-control" value="{{filters.partNumber is defined ? filters.partNumber : ''}}">
+                                <input type="text" name="f_partNumber" class="form-control" value="{{filters.partNumber is defined ? filters.partNumber : ''}}">
                             </div>
 
                             <label class="col-sm-2 control-label item_filter">Nombre</label>
                             <div class="col-sm-2 item_filter">
-                                <input type="text" name="name" class="form-control" value="{{filters.name is defined ? filters.name : ''}}">
+                                <input type="text" name="f_name" class="form-control" value="{{filters.name is defined ? filters.name : ''}}">
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-sm-2 control-label item_filter">Fecha recepción</label>
                             <div class="col-sm-1 item_filter">
-                                <input type="text" style="width: 100px;" class="form-control my_date" autocomplete="off" name="receptionDateFrom" id="receptionDateFrom" value="{{filters.receptionDateFrom is defined ? filters.receptionDateFrom : ''}}">
+                                <input type="text" style="width: 100px;" class="form-control my_date" autocomplete="off" name="f_receptionDateFrom" id="receptionDateFrom" value="{{filters.receptionDateFrom is defined ? filters.receptionDateFrom : ''}}">
                             </div>
                             <div class="col-sm-1 item_filter">
-                                <input type="text" style="width: 100px;" class="form-control my_date" autocomplete="off" name="receptionDateTo" id="receptionDateTo" value="{{filters.receptionDateTo is defined ? filters.receptionDateTo : ''}}">
+                                <input type="text" style="width: 100px;" class="form-control my_date" autocomplete="off" name="f_receptionDateTo" id="receptionDateTo" value="{{filters.receptionDateTo is defined ? filters.receptionDateTo : ''}}">
                             </div>
 
                             <label class="col-sm-2 control-label item_filter">Fecha caducidad</label>
                             <div class="col-sm-1 item_filter">
-                                <input type="text" style="width: 100px;" class="form-control my_date" autocomplete="off" name="expiryDateFrom" id="expiryDateFrom" value="{{filters.expiryDateFrom is defined ? filters.expiryDateFrom : ''}}">
+                                <input type="text" style="width: 100px;" class="form-control my_date" autocomplete="off" name="f_expiryDateFrom" id="expiryDateFrom" value="{{filters.expiryDateFrom is defined ? filters.expiryDateFrom : ''}}">
                             </div>
                             <div class="col-sm-1 item_filter">
-                                <input type="text" style="width: 100px;" class="form-control my_date" autocomplete="off" name="expiryDateTo" id="expiryDateTo" value="{{filters.expiryDateTo is defined ? filters.expiryDateTo : ''}}">
+                                <input type="text" style="width: 100px;" class="form-control my_date" autocomplete="off" name="f_expiryDateTo" id="expiryDateTo" value="{{filters.expiryDateTo is defined ? filters.expiryDateTo : ''}}">
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label class="col-sm-2 control-label item_filter">Fecha destrucción</label>
                             <div class="col-sm-1 item_filter">
-                                <input type="text" style="width: 100px;" class="form-control my_date" autocomplete="off" name="destructionDateFrom" id="destructionDateFrom" value="{{filters.destructionDateFrom is defined ? filters.destructionDateFrom : ''}}">
+                                <input type="text" style="width: 100px;" class="form-control my_date" autocomplete="off" name="f_destructionDateFrom" id="destructionDateFrom" value="{{filters.destructionDateFrom is defined ? filters.destructionDateFrom : ''}}">
                             </div>
                             <div class="col-sm-1 item_filter">
-                                <input type="text" style="width: 100px;" class="form-control my_date" autocomplete="off" name="destructionDateTo" id="destructionDateTo" value="{{filters.destructionDateTo is defined ? filters.destructionDateTo : ''}}">
+                                <input type="text" style="width: 100px;" class="form-control my_date" autocomplete="off" name="f_destructionDateTo" id="destructionDateTo" value="{{filters.destructionDateTo is defined ? filters.destructionDateTo : ''}}">
                             </div>
 
                             <label class="col-sm-2 control-label item_filter">Fecha apertura</label>
                             <div class="col-sm-1 item_filter">
-                                <input type="text" style="width: 100px;" class="form-control my_date" autocomplete="off" name="openDateFrom" id="openDateFrom" value="{{filters.openDateFrom is defined ? filters.openDateFrom : ''}}">
+                                <input type="text" style="width: 100px;" class="form-control my_date" autocomplete="off" name="f_openDateFrom" id="openDateFrom" value="{{filters.openDateFrom is defined ? filters.openDateFrom : ''}}">
                             </div>
                             <div class="col-sm-1 item_filter">
-                                <input type="text" style="width: 100px;" class="form-control my_date" autocomplete="off" name="openDateTo" id="openDateTo" value="{{filters.openDateTo is defined ? filters.openDateTo : ''}}">
+                                <input type="text" style="width: 100px;" class="form-control my_date" autocomplete="off" name="f_openDateTo" id="openDateTo" value="{{filters.openDateTo is defined ? filters.openDateTo : ''}}">
                             </div>
 
                             <div class="col-sm-1 item_filter">
@@ -83,47 +83,36 @@
                 </div>
                 <div class="row">
                     <div>
-                      <a href="{{ path('nononsense_products_inputs_edit',{'id': '0'}) }}" target="_self" class="btn btn-primary pull-right"><i class="fa fa-plus"></i> Nueva recepción</a>
+                      <a href="{{ path('nononsense_products_reception',{'type': type}) }}" target="_self" class="btn btn-primary pull-right"><i class="fa fa-plus"></i> Nueva recepción</a>
                     </div><br>
                     <table id="inProcessParcial" class="table table-striped">
                         <thead>
                         <tr>
                             <th>Id.</th>
+                            <th>CAS Number</th>
                             <th>Part. Number</th>
                             <th>Nombre</th>
+                            <th>Proveedor</th>
+                            <th>Presentación</th>
                             <th>Cantidad</th>
-                            <th>Cantidad restante</th>
-                            <th>Fecha recepción</th>
-                            <th>Fecha caducidad</th>
-                            <th>Fecha destrucción</th>
-                            <th>Fecha apertura</th>
                             <th>Qr</th>
-                            <th></th>
+                            <th>Comentarios</th>
                         </tr>
                         </thead>
                         {% if items is defined %}
                             {% for item in items %}
                             <tr>
                                 <td>{{item.id}}</td>
+                                <td>{{item.product.casNumber}}</td>
                                 <td>{{item.product.partNumber}}</td>
                                 <td>{{item.product.name}}</td>
+                                <td>{{item.product.provider}}</td>
+                                <td>{{item.product.presentation}}</td>
                                 <td>{{item.amount}}</td>
-                                <td>{{item.remainingAmount}}</td>
-                                <td>{{item.receptionDate ? item.receptionDate|date('Y-m-d')}}</td>
-                                <td>{{item.expiryDate ? item.expiryDate|date('Y-m-d')}} </td>
-                                <td>{{item.destructionDate ? item.destructionDate|date('Y-m-d')}}</td>  
-                                <td>{{item.openDate ? item.openDate|date('Y-m-d')}}</td>
                                 <td>
                                     <a href="{{path('nononsense_products_inputs_view_qr', {'id': item.id}) }}" target="_blank" class="btn btn-xs"><i class="fa fa-qrcode" aria-hidden="true"></i> Ver QR</a>
                                 </td>
-                                <td>
-                                    <a href="{{path('nononsense_products_inputs_edit', {'id': item.id}) }}" class="btn btn-xs" target="_self"><i class="fa fa-pencil" aria-hidden="true"></i> Editar</a>
-                                </td>
-                                <td>
-                                    {% if item.productsOutputs|length == 0 %}
-                                        <a href="javascript:delete_product_input({{ item.id }})" class="btn btn-xs" target="_self"><i class="fa fa-trash" aria-hidden="true"></i> Borrar</a>
-                                    {% endif %}
-                                </td>
+                                <td>{{item.observations}}</td>
                             </tr>
                             {% endfor %}
                         {% endif %}

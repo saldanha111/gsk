@@ -2,10 +2,10 @@
 
 namespace Nononsense\HomeBundle\Entity;
 
+use DateTime;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
-use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * @ORM\Entity
@@ -29,35 +29,57 @@ class ProductsInputs
     protected $product;
 
     /**
-     * @var decimal
+     * @var string
      *
-     * @ORM\Column(name="amount", type="decimal", scale=2,  nullable=true)
+     * @ORM\Column(name="qr_code", type="string", length=255, nullable=true)
+     */
+    protected $qrCode;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="lot_number", type="string", nullable=true)
+     */
+    protected $lotNumber;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="amount", type="integer",  nullable=false, options={"default" : 1})
      */
     protected $amount;
 
     /**
-     * @var decimal
+     * @var int
      *
-     * @ORM\Column(name="remaining_amount", type="decimal", scale=2,  nullable=true)
+     * @ORM\Column(name="remaining_amount", type="integer", nullable=false, options={"default" : 1})
      */
     protected $remainingAmount;
     
     /**
-     * @ORM\Column(name="reception_date", type="datetime", nullable=true)
+     * @var DateTime
+     *
+     * @ORM\Column(name="reception_date", type="datetime", nullable=false)
      */
     protected $receptionDate;
 
     /**
-     * @ORM\Column(name="destruction_date", type="datetime")
+     * @var DateTime
+     *
+     * @ORM\Column(name="destruction_date", type="datetime", nullable=true)
      */
     protected $destructionDate;
 
     /**
+     * @var DateTime
+     *
      * @ORM\Column(name="expiry_date", type="datetime", nullable=true)
      */
     protected $expiryDate;
 
     /**
+     * @var DateTime
+     *
      * @ORM\Column(name="open_date", type="datetime", nullable=true)
      */
     protected $openDate;
@@ -67,14 +89,32 @@ class ProductsInputs
      */
     protected $productsOutputs;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\ProductsInputStatus", inversedBy="productsInputStatus")
+     * @ORM\JoinColumn(name="state", referencedColumnName="id", nullable=false)
+     */
+    protected $state;
 
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="observations", type="string", nullable=true)
+     */
+    protected $observations;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="ProductsInput")
+     * @ORM\JoinColumn(name="user", referencedColumnName="id", nullable=false)
+     */
+    protected $user;
+
+    /**
+     * Constructor
+     */
     public function __construct()
     {
         $this->productsOutputs = new ArrayCollection();
     }
-
-   
 
     /**
      * Get id
@@ -87,9 +127,32 @@ class ProductsInputs
     }
 
     /**
+     * Set lotNumber
+     *
+     * @param string $lotNumber
+     * @return ProductsInputs
+     */
+    public function setLotNumber($lotNumber)
+    {
+        $this->lotNumber = $lotNumber;
+
+        return $this;
+    }
+
+    /**
+     * Get lotNumber
+     *
+     * @return string 
+     */
+    public function getLotNumber()
+    {
+        return $this->lotNumber;
+    }
+
+    /**
      * Set amount
      *
-     * @param integer $amount
+     * @param int $amount
      * @return ProductsInputs
      */
     public function setAmount($amount)
@@ -99,11 +162,10 @@ class ProductsInputs
         return $this;
     }
 
-
     /**
      * Get amount
      *
-     * @return integer 
+     * @return int
      */
     public function getAmount()
     {
@@ -113,7 +175,7 @@ class ProductsInputs
     /**
      * Set remainingAmount
      *
-     * @param integer $remainingAmount
+     * @param int $remainingAmount
      * @return ProductsInputs
      */
     public function setRemainingAmount($remainingAmount)
@@ -126,7 +188,7 @@ class ProductsInputs
     /**
      * Get remainingAmount
      *
-     * @return integer 
+     * @return int
      */
     public function getRemainingAmount()
     {
@@ -136,7 +198,7 @@ class ProductsInputs
     /**
      * Set receptionDate
      *
-     * @param \DateTime $receptionDate
+     * @param DateTime $receptionDate
      * @return ProductsInputs
      */
     public function setReceptionDate($receptionDate)
@@ -149,7 +211,7 @@ class ProductsInputs
     /**
      * Get receptionDate
      *
-     * @return \DateTime 
+     * @return DateTime
      */
     public function getReceptionDate()
     {
@@ -159,7 +221,7 @@ class ProductsInputs
     /**
      * Set destructionDate
      *
-     * @param \DateTime $destructionDate
+     * @param DateTime $destructionDate
      * @return ProductsInputs
      */
     public function setDestructionDate($destructionDate)
@@ -172,7 +234,7 @@ class ProductsInputs
     /**
      * Get destructionDate
      *
-     * @return \DateTime 
+     * @return DateTime
      */
     public function getDestructionDate()
     {
@@ -182,7 +244,7 @@ class ProductsInputs
     /**
      * Set expiryDate
      *
-     * @param \DateTime $expiryDate
+     * @param DateTime $expiryDate
      * @return ProductsInputs
      */
     public function setExpiryDate($expiryDate)
@@ -195,7 +257,7 @@ class ProductsInputs
     /**
      * Get expiryDate
      *
-     * @return \DateTime 
+     * @return DateTime
      */
     public function getExpiryDate()
     {
@@ -205,7 +267,7 @@ class ProductsInputs
     /**
      * Set openDate
      *
-     * @param \DateTime $openDate
+     * @param DateTime $openDate
      * @return ProductsInputs
      */
     public function setOpenDate($openDate)
@@ -218,7 +280,7 @@ class ProductsInputs
     /**
      * Get openDate
      *
-     * @return \DateTime 
+     * @return DateTime
      */
     public function getOpenDate()
     {
@@ -226,12 +288,35 @@ class ProductsInputs
     }
 
     /**
-     * Set product
+     * Set observations
      *
-     * @param \Nononsense\HomeBundle\Entity\Products $product
+     * @param string $observations
      * @return ProductsInputs
      */
-    public function setProduct(\Nononsense\HomeBundle\Entity\Products $product = null)
+    public function setObservations($observations)
+    {
+        $this->observations = $observations;
+
+        return $this;
+    }
+
+    /**
+     * Get observations
+     *
+     * @return string 
+     */
+    public function getObservations()
+    {
+        return $this->observations;
+    }
+
+    /**
+     * Set product
+     *
+     * @param Products $product
+     * @return ProductsInputs
+     */
+    public function setProduct(Products $product = null)
     {
         $this->product = $product;
 
@@ -241,7 +326,7 @@ class ProductsInputs
     /**
      * Get product
      *
-     * @return \Nononsense\HomeBundle\Entity\Products 
+     * @return Products
      */
     public function getProduct()
     {
@@ -251,10 +336,10 @@ class ProductsInputs
     /**
      * Add productsOutputs
      *
-     * @param \Nononsense\HomeBundle\Entity\ProductsOutputs $productsOutputs
+     * @param ProductsOutputs $productsOutputs
      * @return ProductsInputs
      */
-    public function addProductsOutput(\Nononsense\HomeBundle\Entity\ProductsOutputs $productsOutputs)
+    public function addProductsOutput(ProductsOutputs $productsOutputs)
     {
         $this->productsOutputs[] = $productsOutputs;
 
@@ -264,9 +349,9 @@ class ProductsInputs
     /**
      * Remove productsOutputs
      *
-     * @param \Nononsense\HomeBundle\Entity\ProductsOutputs $productsOutputs
+     * @param ProductsOutputs $productsOutputs
      */
-    public function removeProductsOutput(\Nononsense\HomeBundle\Entity\ProductsOutputs $productsOutputs)
+    public function removeProductsOutput(ProductsOutputs $productsOutputs)
     {
         $this->productsOutputs->removeElement($productsOutputs);
     }
@@ -274,10 +359,79 @@ class ProductsInputs
     /**
      * Get productsOutputs
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return Collection
      */
     public function getProductsOutputs()
     {
         return $this->productsOutputs;
+    }
+
+    /**
+     * Set state
+     *
+     * @param ProductsInputStatus $state
+     * @return ProductsInputs
+     */
+    public function setState(ProductsInputStatus $state)
+    {
+        $this->state = $state;
+
+        return $this;
+    }
+
+    /**
+     * Get state
+     *
+     * @return ProductsInputStatus
+     */
+    public function getState()
+    {
+        return $this->state;
+    }
+
+    /**
+     * Set qrCode
+     *
+     * @param string $qrCode
+     * @return ProductsInputs
+     */
+    public function setQrCode($qrCode)
+    {
+        $this->qrCode = $qrCode;
+
+        return $this;
+    }
+
+    /**
+     * Get qrCode
+     *
+     * @return string 
+     */
+    public function getQrCode()
+    {
+        return $this->qrCode;
+    }
+
+    /**
+     * Set user
+     *
+     * @param \Nononsense\UserBundle\Entity\Users $user
+     * @return ProductsInputs
+     */
+    public function setUser(\Nononsense\UserBundle\Entity\Users $user)
+    {
+        $this->user = $user;
+
+        return $this;
+    }
+
+    /**
+     * Get user
+     *
+     * @return \Nononsense\UserBundle\Entity\Users 
+     */
+    public function getUser()
+    {
+        return $this->user;
     }
 }

@@ -205,13 +205,15 @@ class MaterialCleanUsesController extends Controller
      */
     private function markMaterialAsDirty(MaterialCleanCleans $materialCleanClean, string $po)
     {
-        $em = $this->getDoctrine()->getManager();
-        $materialCleanClean
-            ->setLotNumber($po)
-            ->setDirtyMaterialDate(new DateTime())
-            ->setStatus(3);
-
-        $em->persist($materialCleanClean);
-        $em->flush();
+        if($materialCleanClean->getStatus() == 1){
+            $em = $this->getDoctrine()->getManager();
+            $materialCleanClean
+                ->setLotNumber($po)
+                ->setDirtyMaterialUser($this->getUser())
+                ->setDirtyMaterialDate(new DateTime())
+                ->setStatus(3);
+            $em->persist($materialCleanClean);
+            $em->flush();
+        }
     }
 }

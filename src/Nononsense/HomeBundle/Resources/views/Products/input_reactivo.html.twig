@@ -1,0 +1,218 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}DOCXPRESSO |  Productos / {{productInput.id is not null ? 'Editar' : 'Crear'}} recepción de {{ type is defined ? type.name : ''}} {% endblock %}
+{% block head %}
+    {{ parent() }}
+{% endblock %}
+{% block main_title %} Productos / {{productInput.id is not null ? 'Editar' : 'Crear'}} recepción de {{ type is defined ? type.name : ''}} {% endblock %}
+
+{% block content %}
+
+    <link rel="stylesheet" href="{{ asset('bundles/nononsensehome/css/select2.min.css') }}">
+
+    <div class="wrapper wrapper-content animated fadeInUp">
+        {% for flashMessage in app.session.flashbag.get('error') %}
+        <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+            <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+            {{ flashMessage }}
+        </div>
+        <br>
+        {% endfor %}
+        <form class="form-horizontal" id="form_item" action="{{ path('nononsense_products_inputs',{'type': type.slug,'qrCode': qrCode}) }}" method="POST">
+            <input type="hidden" id='url_get_products_json' value="{{ path('nononsense_products_json') }}" />
+            <input type="hidden" name="active" value="1" />
+            <div class="row">
+                <div class="col-lg-5 col-lg-offset-1">
+                    <div class="row">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Código QR</label>
+                            <div class="col-sm-5">
+                                <input type="text" name="qrCode" class="form-control" value="{{ qrCode }}" readonly="readonly" required="required">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">CAS Number</label>
+                            <div class="col-sm-5">
+                                <input type="text" name="casNumber" class="form-control" required="required">
+                            </div>
+                            <div class="col-sm-3">
+                                <a href="#" class="btn btn-primary casNumberBtn">Comprobar</a>
+                            </div>
+                        </div>
+                        <div class="product-data" style="display:none;">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Part. Number</label>
+                                <div class="col-sm-5">
+                                    <input type="text" name="partNumber" readonly="readonly" class="form-control" required="required"
+                                           value="{{productInput.product.partNumber is defined and productInput.product.partNumber is not null ? productInput.product.partNumber : ''}}">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Nombre</label>
+                                <div class="col-sm-5">
+                                    <input type="text" name="name" readonly="readonly" class="form-control" required="required"
+                                           value="{{productInput.product.name is defined and productInput.product.name is not null ? productInput.product.name : ''}}">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Código interno</label>
+                                <div class="col-sm-5">
+                                    <input type="text" name="internalCode" readonly="readonly" class="form-control" required="required"
+                                           value="{{productInput.product.internalCode is defined and productInput.product.internalCode is not null ? productInput.product.internalCode : ''}}">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Proveedor</label>
+                                <div class="col-sm-5">
+                                    <input type="text" name="provider" readonly="readonly" class="form-control" required="required"
+                                           value="{{productInput.product.provider is defined and productInput.product.provider is not null ? productInput.product.provider : ''}}">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Presentación</label>
+                                <div class="col-sm-5">
+                                    <input type="text" name="presentation" readonly="readonly" class="form-control" required="required"
+                                           value="{{productInput.product.presentation is defined and productInput.product.presentation is not null ? productInput.product.presentation : ''}}">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Stock mínimo</label>
+                                <div class="col-sm-5">
+                                    <input type="text" name="stockMinimum" readonly="readonly" class="form-control" required="required"
+                                           value="{{productInput.product.minStock is defined and productInput.product.minStock is not null ? productInput.product.minStock : ''}}">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Lote</label>
+                                <div class="col-sm-5">
+                                    <input type="text" name="lotNumber" class="form-control" required="required"
+                                           value="{{productInput.lotNumber is defined and productInput.lotNumber is not null ? productInput.lotNumber : ''}}">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Fecha recepción</label>
+                                <div class="col-sm-5">
+                                    <input type="text" class="form-control pull-right my_date" readonly="readonly" autocomplete="off" name="receptionDate" id="receptionDate"  required="required"
+                                           value="{{productInput.receptionDate is not null ? productInput.receptionDate|date('Y-m-d') : 'now'|date('Y-m-d')}}">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Fecha caducidad</label>
+                                <div class="col-sm-5">
+                                    <input type="text" class="form-control pull-right my_date" autocomplete="off" name="expiryDate" id="expiryDate" required="required"
+                                        value="{{productInput.expiryDate is not null ? productInput.expiryDate|date('Y-m-d') : ''}}">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Fecha destrucción</label>
+                                <div class="col-sm-5">
+                                    <input type="text" class="form-control pull-right my_date" autocomplete="off" name="destructionDate" id="destructionDate" required="required"
+                                        value="{{productInput.destructionDate is not null ? productInput.destructionDate|date('d-m-Y') : ''}}">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Cantidad</label>
+                                <div class="col-sm-5">
+                                    <input {% if productInput.id is not null %} readonly="readonly" {% endif %} type="text" name="amount" class="form-control" required="required"
+                                        value="{{productInput.amount is not null ? productInput.amount : ''}}">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Observaciones</label>
+                                <div class="col-sm-5">
+                                    <textarea class="form-control" name="observations" rows="4">{{productInput.observations is not null ? productInput.observations : ''}}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-11">
+                    <button type="submit" class="btn btn-primary  pull-right"><i class="fa fa-floppy-o" aria-hidden="true"></i> {{productInput.id is not null ? 'Editar' : 'Registrar'}} recepción</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+{% endblock %}
+
+{% block scripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/plugins/datapicker/bootstrap-datepicker.js') }}"></script>
+    <script src="{{ asset('js/plugins/datapicker/locales/bootstrap-datepicker.es.js') }}" charset="UTF-8"></script>
+    <script src="{{ asset('bundles/nononsensehome/js/select2.full.min.js') }}"></script>
+    <script src="{{ asset('bundles/nononsensehome/js/i18n/es.js') }}"></script>
+    <script>
+
+    $( document ).ready(function() {
+        ActivateMenu('browse_product_inputs');
+        $('#side-menu').metisMenu();
+
+        $('.my_date').datepicker({
+          autoclose: true,
+          orientation: 'bottom auto',
+          format: 'yyyy-mm-dd',
+          language: 'es'
+        });
+
+        $(document).on('click','.casNumberBtn',function(e){
+            $('.product-data').hide();
+            const url_get_products_json = $('#url_get_products_json').val();
+            e.preventDefault();
+            $.ajax({
+                url: url_get_products_json,
+                type: 'GET',
+                dataType: 'json',
+                data: {casNumber: $('input[name="casNumber"]').val()},
+                success: function(response) {
+                    if(response.data.name){
+                        fillForm(response.data);
+                        $('.product-data').show();
+                    }else{
+                        cleanForm();
+                        $('.product-data').show();
+                    }
+                },
+                error: function() {
+                    console.log("No se ha podido obtener la información");
+                }
+            });
+        });
+
+        $(document).on('change', 'input[name="casNumber"]',function(){
+            $('.product-data').hide();
+        });
+    });
+
+    function getFormItems()
+    {
+        return {
+            'partNumber': $('input[name="partNumber"]'),
+            'name': $('input[name="name"]'),
+            'internalCode': $('input[name="internalCode"]'),
+            'presentation': $('input[name="presentation"]'),
+            'provider': $('input[name="provider"]'),
+            'minStock': $('input[name="stockMinimum"]')
+        };
+    }
+
+    function fillForm(data)
+    {
+        const formItems = getFormItems();
+        $.each(formItems,function(key,item){
+            item.val(data[key]);
+            item.attr('readonly','readonly');
+        });
+    }
+
+    function cleanForm()
+    {
+        const formItems = getFormItems();
+        $.each(formItems,function(key,item){
+            item.val('');
+            item.removeAttr('readonly');
+        });
+    }
+
+    </script>
+{% endblock %}

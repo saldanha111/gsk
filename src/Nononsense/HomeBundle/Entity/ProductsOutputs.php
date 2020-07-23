@@ -40,7 +40,11 @@ class ProductsOutputs
      */
     protected $date;
 
-
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="productsOutput")
+     * @ORM\JoinColumn(name="user", referencedColumnName="id", nullable=false)
+     */
+    protected $user;
 
     public function __construct()
     {
@@ -128,5 +132,28 @@ class ProductsOutputs
     public function getDate()
     {
         return $this->date;
+    }
+
+    /**
+     * Set user
+     *
+     * @param \Nononsense\UserBundle\Entity\Users $user
+     * @return ProductsOutputs
+     */
+    public function setUser(\Nononsense\UserBundle\Entity\Users $user)
+    {
+        $this->user = $user;
+
+        return $this;
+    }
+
+    /**
+     * Get user
+     *
+     * @return \Nononsense\UserBundle\Entity\Users 
+     */
+    public function getUser()
+    {
+        return $this->user;
     }
 }

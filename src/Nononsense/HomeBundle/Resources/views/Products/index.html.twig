@@ -26,25 +26,25 @@
                         </div>
                         <br>
                     {% endfor %}
-                    <form class="form-horizontal" id="form_item" action="{{ path('nononsense_products')}}" method="GET">
-                        <input type="hidden" id='url_product_list' value="{{ path('nononsense_products')}}" />
+                    <form class="form-horizontal" id="form_item" action="{{ path('nononsense_products', {'type':'material'}) }}" method="GET">
+                        <input type="hidden" id='url_product_list' value="{{ path('nononsense_products', {'type':'material'}) }}" />
                         <input type="hidden" id='url_product_delete' value="{{ path('nononsense_products_delete',{'id': 'xxx'}) }}" />
                         <input type="hidden" id='url_product_destroy' value="{{ path('nononsense_products_destroy',{'id': 'xxx'}) }}" />
                         <input type="hidden" id='a_excel' name='a_excel' />
                         <div class="form-group">
                             <label class="col-sm-2 control-label item_filter">Part. Number</label>
                             <div class="col-sm-2 item_filter">
-                                <input type="text" name="partNumber" class="form-control" value="{{filters.partNumber is defined ? filters.partNumber : ''}}">
+                                <input type="text" name="f_partNumber" class="form-control" value="{{filters.partNumber is defined ? filters.partNumber : ''}}">
                             </div>
 
                             <label class="col-sm-1 control-label item_filter">Nombre</label>
                             <div class="col-sm-2 item_filter">
-                                <input type="text" name="name" class="form-control" value="{{filters.name is defined ? filters.name : ''}}">
+                                <input type="text" name="f_name" class="form-control" value="{{filters.name is defined ? filters.name : ''}}">
                             </div>
 
                             <label class="col-sm-1 control-label item_filter">Activo</label>
                             <div class="col-sm-2 item_filter">
-                                <select name="active" class="form-control pull-right">
+                                <select name="f_active" class="form-control pull-right">
                                     <option {% if filters.active is not defined or filters.active == 0 %} selected="selected" {% endif %} value="0">Todos</option>
                                     <option {% if filters.active is defined and  filters.active == 1 %} selected="selected" {% endif %} value="1">Si</option>
                                     <option {% if filters.active is defined and  filters.active == 2 %} selected="selected" {% endif %} value="2">No</option>
@@ -55,22 +55,21 @@
                         <div class="form-group">
                             <label class="col-sm-2 control-label item_filter">Stock</label>
                             <div class="col-sm-1 item_filter">
-                                <input type="text" class="form-control pull-right" autocomplete="off" name="stock_from" id="stock_from" value="{{filters.stock_from is defined ? filters.stock_from : ''}}">
+                                <input type="text" class="form-control pull-right" autocomplete="off" name="f_stock_from" id="stock_from" value="{{filters.stock_from is defined ? filters.stock_from : ''}}">
                             </div>
 
                             <div class="col-sm-1 item_filter">
-                                <input type="text" class="form-control pull-right" autocomplete="off" name="stock_to" id="stock_to" value="{{filters.stock_to is defined ? filters.stock_to : ''}}">
+                                <input type="text" class="form-control pull-right" autocomplete="off" name="f_stock_to" id="stock_to" value="{{filters.stock_to is defined ? filters.stock_to : ''}}">
                             </div>
 
                             <label class="col-sm-1 control-label item_filter">Por debajo de stock mínimo</label>
                             <div class="col-sm-2 item_filter">
-                                <select name="underMinimumStock" class="form-control pull-right">
+                                <select name="f_underMinimumStock" class="form-control pull-right">
                                     <option {% if filters.underMinimumStock is not defined or filters.underMinimumStock == 0 %} selected="selected" {% endif %} value="0">Todos</option>
                                     <option {% if filters.underMinimumStock is defined and  filters.underMinimumStock == 1 %} selected="selected" {% endif %} value="1">Si</option>
                                     <option {% if filters.underMinimumStock is defined and  filters.underMinimumStock == 2 %} selected="selected" {% endif %} value="2">No</option>
                                 </select>
                             </div>
-
 
                             <div class="col-sm-1 item_filter">
                                 <button type="button" onclick="javascript:filtering();" class="btn btn-primary pull-right">Filtrar</button>
@@ -80,22 +79,19 @@
                 </div>
                 <div class="row">
                     <div>
-                      <a href="{{ path('nononsense_products_edit',{'id': '0'}) }}" target="_self" class="btn btn-primary pull-right"><i class="fa fa-plus"></i> Nuevo Producto</a>
+                      <a href="{{ path('nononsense_products_edit',{'type': type, 'id': '0'}) }}" target="_self" class="btn btn-primary pull-right"><i class="fa fa-plus"></i> Nuevo Producto</a>
                     </div><br>
                     <table id="inProcessParcial" class="table table-striped">
                         <thead>
                         <tr>
                             <th>Id.</th>
                             <th>Part. Number</th>
-                            <th>Cash Number</th>
+                            <th>Cas Number</th>
                             <th>Nombre</th>
-                            <th>Descripción</th>
                             <th>Stock</th>
                             <th>Proveedor</th>
                             <th>Presentación</th>
                             <th>Stock mínimo</th>
-                            <th>Método de análisis</th>
-                            <th>Observaciones</th>
                             <th>Tipo</th>
                             <th>Activo</th>
                             <th></th>
@@ -104,36 +100,33 @@
                         </thead>
                         {% if items is defined %}
                             {% for item in items %}
-                            <tr {% if item.stock < item.stockMinimum %} style="background-color: red; color: white;" {% endif %}>
-                                <td>{{item.id}}</td>
-                                <td>{{item.partNumber}}</td>
-                                <td>{{item.cashNumber}}</td>
-                                <td>{{item.name}}</td>
-                                <td>{{item.description}}</td>
-                                <td>{{item.stock}}</td>
-                                <td>{{item.provider}}</td>
-                                <td>{{item.presentation}}</td>
-                                <td>{{item.stockMinimum}}</td>  
-                                <td>{{item.analysisMethod}}</td>
-                                <td>{{item.observations}}</td>
+                            <tr {% if item.product.stock < item.product.stockMinimum %} style="background-color: red; color: white;" {% endif %}>
+                                <td>{{item.product.id}}</td>
+                                <td>{{item.product.partNumber}}</td>
+                                <td>{{item.product.casNumber}}</td>
+                                <td>{{item.product.name}}</td>
+                                <td>{{item.product.stock}}</td>
+                                <td>{{item.product.provider}}</td>
+                                <td>{{item.product.presentation}}</td>
+                                <td>{{item.product.stockMinimum}}</td>
                                 <td>{{item.nameType}}</td>
                                 <td>
-                                    {% if item.active %}
+                                    {% if item.product.active %}
                                         Si
                                     {% else %}
                                         No
                                     {% endif %}
                                 </td>
                                 <td>
-                                    <a {% if item.stock < item.stockMinimum %} style="color: white;" {% endif %} href="{{path('nononsense_products_edit', {'id': item.id}) }}" class="btn btn-xs" target="_self"><i class="fa fa-pencil" aria-hidden="true"></i> Editar</a>
+                                    <a {% if item.product.stock < item.product.stockMinimum %} style="color: white;" {% endif %} href="{{path('nononsense_products_edit', {'type': type, 'id': item.product.id}) }}" class="btn btn-xs" target="_self"><i class="fa fa-pencil" aria-hidden="true"></i> Editar</a>
                                 </td>
                                 <td>
-                                    {% if item.active %}
-                                        <a {% if item.stock < item.stockMinimum %} style="color: white;" {% endif %} href="javascript:delete_product({{ item.id }})" class="btn btn-xs" target="_self"><i class="fa fa-trash" aria-hidden="true"></i> Borrar</a>
+                                    {% if item.product.active %}
+                                        <a {% if item.product.stock < item.product.stockMinimum %} style="color: white;" {% endif %} href="javascript:delete_product({{ item.product.id }})" class="btn btn-xs" target="_self"><i class="fa fa-trash" aria-hidden="true"></i> Borrar</a>
                                     {% endif %}
                                 </td>
                                 <td>
-                                    <a {% if item.stock < item.stockMinimum %} style="color: white;" {% endif %} href="javascript:destroy_product({{ item.id }})" class="btn btn-xs" target="_self"><i class="fa fa-trash" aria-hidden="true"></i> Destruir</a>
+                                    <a {% if item.product.stock < item.product.stockMinimum %} style="color: white;" {% endif %} href="javascript:destroy_product({{ item.product.id }})" class="btn btn-xs" target="_self"><i class="fa fa-trash" aria-hidden="true"></i> Destruir</a>
                                 </td>
                             </tr>
                             {% endfor %}

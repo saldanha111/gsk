@@ -17,7 +17,7 @@
         </div>
         <br>
         {% endfor %}
-        <form class="form-horizontal" id="form_item" action="{{ path('nononsense_products_inputs_edit',{'id': productInput.id is not null ? productInput.id : 0}) }}" method="POST">
+        <form class="form-horizontal" id="form_item" action="{{ path('nononsense_products_inputs_edit',{'type': type,'id': productInput.id is not null ? productInput.id : 0}) }}" method="POST">
 
             <input type="hidden" id='url_get_products_json' value="{{ path('nononsense_products_json') }}" />
 
@@ -95,8 +95,8 @@
 
 {% block scripts %}
     {{ parent() }}
-    <script src="/js/plugins/datapicker/bootstrap-datepicker.js"></script>
-    <script src="/js/plugins/datapicker/locales/bootstrap-datepicker.es.js" charset="UTF-8"></script>
+    <script src="{{ asset('js/plugins/datapicker/bootstrap-datepicker.js') }}"></script>
+    <script src="{{ asset('js/plugins/datapicker/locales/bootstrap-datepicker.es.js') }}" charset="UTF-8"></script>
     <script src="{{ asset('bundles/nononsensehome/js/select2.full.min.js') }}"></script>
     <script src="{{ asset('bundles/nononsensehome/js/i18n/es.js') }}"></script>
     <script>
@@ -132,7 +132,6 @@
                   return {
                       name: params.term, // search term
                   };
-                  
               },
               processResults: function (data, page) { // parse the results into the format expected by Select2.
                 return {results: data};
@@ -145,9 +144,7 @@
             $('input[name="name"]').val(e.params.data.text);
             $('input[name="receptionDate"]').val(e.params.data.receptionDate);
             $('input[name="destructionDate"]').val(e.params.data.destructionDate);
-            
         });
-
     });
     </script>
 {% endblock %}

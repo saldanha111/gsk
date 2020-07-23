@@ -53,7 +53,7 @@ class LogsTypes
      */
     public function __construct()
     {
-        $this->Logs = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->Logs = new ArrayCollection();
     }
 
     /**
@@ -143,5 +143,28 @@ class LogsTypes
     public function getLogs()
     {
         return $this->Logs;
+    }
+
+    /**
+     * Set stringId
+     *
+     * @param string $stringId
+     * @return LogsTypes
+     */
+    public function setStringId($stringId)
+    {
+        $this->stringId = $stringId;
+
+        return $this;
+    }
+
+    /**
+     * Get stringId
+     *
+     * @return string 
+     */
+    public function getStringId()
+    {
+        return $this->stringId;
     }
 }

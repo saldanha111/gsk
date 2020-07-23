@@ -9,7 +9,10 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="products_types")
+ * @ORM\Table(name="products_types",
+ *     indexes={
+ *          @ORM\Index(columns={"slug"})
+ *      }))
  * @ORM\Entity(repositoryClass="Nononsense\HomeBundle\Entity\ProductsTypesRepository")
  * @ORM\HasLifecycleCallbacks
  */
@@ -22,39 +25,23 @@ class ProductsTypes
      */
     protected $id;
 
+    /**
+     * @var string
+     * @ORM\Column(name="slug", type="string", length=255,  nullable=false)
+     */
+    protected $slug;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="name", type="string", length=255,  nullable=true)
+     * @ORM\Column(name="name", type="string", length=255,  nullable=false)
      */
     protected $name;
-
-    /**
-     * @var integer
-     *
-     * @ORM\Column(name="destruction_months", type="integer")
-     */
-    protected $destructionMonths;
-
-    /**
-     * @var integer
-     *
-     * @ORM\Column(name="expiration_months", type="integer")
-     */
-    protected $expirationMonths;
 
     /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\Products", mappedBy="type")
      */
     protected $products;
-   
-
-    public function __construct()
-    {
-    }
-
-   
 
     /**
      * Get id
@@ -88,51 +75,12 @@ class ProductsTypes
     {
         return $this->name;
     }
-
     /**
-     * Set destructionMonths
-     *
-     * @param string $destructionMonths
-     * @return ProductsTypes
+     * Constructor
      */
-    public function setDestructionMonths($destructionMonths)
+    public function __construct()
     {
-        $this->destructionMonths = $destructionMonths;
-
-        return $this;
-    }
-
-    /**
-     * Get destructionMonths
-     *
-     * @return string 
-     */
-    public function getDestructionMonths()
-    {
-        return $this->destructionMonths;
-    }
-
-    /**
-     * Set expirationMonths
-     *
-     * @param string $expirationMonths
-     * @return ProductsTypes
-     */
-    public function setExpirationMonths($expirationMonths)
-    {
-        $this->expirationMonths = $expirationMonths;
-
-        return $this;
-    }
-
-    /**
-     * Get expirationMonths
-     *
-     * @return string 
-     */
-    public function getExpirationMonths()
-    {
-        return $this->expirationMonths;
+        $this->products = new \Doctrine\Common\Collections\ArrayCollection();
     }
 
     /**
@@ -166,5 +114,28 @@ class ProductsTypes
     public function getProducts()
     {
         return $this->products;
+    }
+
+    /**
+     * Set slug
+     *
+     * @param string $slug
+     * @return ProductsTypes
+     */
+    public function setSlug($slug)
+    {
+        $this->slug = $slug;
+
+        return $this;
+    }
+
+    /**
+     * Get slug
+     *
+     * @return string 
+     */
+    public function getSlug()
+    {
+        return $this->slug;
     }
 }
