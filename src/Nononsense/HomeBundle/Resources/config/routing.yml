@@ -510,6 +510,10 @@ nononsense_record_contracts_sign:
     path:     /recordsContractsSign/{id}
     defaults: { _controller: NononsenseHomeBundle:RecordsContracts:sign, id: 0 }
 
+testSMS:
+    path:     /testSMS/{id}
+    defaults: { _controller: NononsenseHomeBundle:RecordsContracts:testSMS}
+
 nononsense_backoffice_standby_documents_list:
     path:     /backoffice_standby_documents_list
     defaults: { _controller: NononsenseHomeBundle:BackOffice:standByDocumentsList}
