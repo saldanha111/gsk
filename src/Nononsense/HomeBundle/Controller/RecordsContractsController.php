@@ -8,9 +8,13 @@ use DateInterval;
 use DateTime;
 use Nononsense\GroupBundle\Entity\GroupUsersRepository;
 use Nononsense\HomeBundle\Entity\RecordsContracts;
+use Nononsense\HomeBundle\Entity\RecordsContractsPinComite;
+use Nononsense\HomeBundle\Entity\RecordsContractsPinComiteRepository;
+use Nononsense\HomeBundle\Entity\RecordsContractsRepository;
 use Nononsense\HomeBundle\Entity\RecordsContractsSignatures;
 use Nononsense\HomeBundle\Entity\ContractsTypes;
 use Nononsense\GroupBundle\Entity\GroupUsers;
+use Nononsense\UserBundle\Entity\Users;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
@@ -486,8 +490,6 @@ class RecordsContractsController extends Controller
                 "Error desconocido al intentar guardar los datos del contrato"
             );
         } else {
-            $contractName = $record->getContract()->getName();
-
             $stepData = $record->getStepDataValue();
             $stepDataJSON = json_decode($stepData, true);
             $status = $record->getStatus();
@@ -648,6 +650,8 @@ class RecordsContractsController extends Controller
 
     private function signAsDirector($record, $request, $user)
     {
+        $sended = 0;
+        $errors = 0;
         $em = $this->getDoctrine()->getManager();
         /** @var RecordsContractsSignatures $signature */
         $signature = $this->getDoctrine()
@@ -714,8 +718,7 @@ class RecordsContractsController extends Controller
                 $users_comite_rrhh = $em->getRepository(GroupUsers::class)->findBy(
                     ["group" => $this->getParameter("group_id_comite_rrhh")]
                 );
-                $subject = "Contrato pendiente de firma";
-                $mensaje = 'El Contrato con ID ' . $record->getId() . ' está pendiente de firma por su parte';
+
                 $link = $this->container->get('router')->generate(
                     'nononsense_records_contracts_link',
                     array("id" => $record->getId()),
@@ -723,14 +726,24 @@ class RecordsContractsController extends Controller
                 );
 
                 foreach ($users_comite_rrhh as $user_comite_rrhh) {
-                    $this->get('utilities')->sendNotification(
-                        $user_comite_rrhh->getUser()->getEmail(),
-                        $link,
-                        "",
-                        "",
-                        $subject,
-                        $mensaje
-                    );
+                    $user = $user_comite_rrhh->getUser();
+                    $pin = $this->generatePinComite($record, $user);
+                    if($pin){
+                        /** @var Users $user */
+
+                        $textMessage = 'El Contrato con ID ' . $record->getId() . ' está pendiente de firma por su parte. ';
+                        $textMessage .= 'Use el siguiente pin ' . $pin . ' para firmar el siguiente contrato: ' . $link;
+                        $phonePrefix = '+34';
+                        $phoneNumber = $user->getPhone();
+                        if($this->sendBySMS($phonePrefix.$phoneNumber, $textMessage)){
+                            $sended++;
+                            $this->get('Utilities')->saveLog('sms', 'contrato enviado por sms');
+                        }else{
+                            $errors++;
+                        }
+                    }else{
+                        $errors++;
+                    }
                 }
             } else {
                 $this->get('session')->getFlashBag()->add(
@@ -745,15 +758,60 @@ class RecordsContractsController extends Controller
             );
         }
         $em->flush();
+        $sendMessage = 'Se han enviado ' .$sended. ' mensajes.';
+        if($errors){
+            $sendMessage .= 'Han fallado ' .$errors. ' mensajes.';
+        }
+        $this->get('session')->getFlashBag()->add('message', $sendMessage);
+    }
+
+    private function generatePinComite($contractId, $user)
+    {
+        /** @var RecordsContractsPinComiteRepository $pinComiteRepository */
+        $pinComiteRepository = $this->getDoctrine()->getRepository(RecordsContractsPinComite::class);
+        /** @var RecordsContractsPinComite $pinComite */
+        $pinComite = $pinComiteRepository->findOneBy(['user' => $user, 'contract' => $contractId]);
+
+        if(!$pinComite){
+            $pinComite = new RecordsContractsPinComite();
+            $pinComite->setUser($user);
+            $pinComite->setContract($contractId);
+        }
+        $pin = rand(100000, 900000);
+        $pinComite->setPin($pin);
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($pinComite);
+        $em->flush();
+
+        return $pin;
     }
 
     private function signAsComite($record, $request, $user)
     {
-        $em = $this->getDoctrine()->getManager();
         $signature = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:RecordsContractsSignatures')
             ->findOneBy(array("record" => $record, "number" => 2));
         $firma = $request->get('firma');
+
+        $pin = $request->get('pin');
+        /** @var RecordsContractsRepository $contractRepository */
+        $contractRepository = $this->getDoctrine()->getRepository(RecordsContracts::class);
+        /** @var RecordsContracts $contract */
+        $contract = $contractRepository->find($record);
+
+        /** @var RecordsContractsPinComiteRepository $pinComiteRepository */
+        $pinComiteRepository = $this->getDoctrine()->getRepository(RecordsContractsPinComite::class);
+        /** @var RecordsContractsPinComite $pinComite */
+        $pinComite = $pinComiteRepository->findOneBy(['pin' => $pin, 'user' => $user, 'contract' => $contract]);
+
+        if(!$pinComite){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                "No se ha realizado la firma. El código o el usuario logueado no son correctos."
+            );
+            return false;
+        }
+
         if (!$signature) {
             $can_sign = 0;
 
@@ -770,10 +828,14 @@ class RecordsContractsController extends Controller
                 $signature->setNumber(2);
                 $signature->setUserEntiy($user);
                 $signature->setRecord($record);
+
+                $em = $this->getDoctrine()->getManager();
                 $em->persist($signature);
 
                 $record->setStatus(3);
                 $em->persist($record);
+                $em->flush();
+
                 $this->get('session')->getFlashBag()->add('message', "La firma se ha grabado correctamente");
             } else {
                 $this->get('session')->getFlashBag()->add(
@@ -787,7 +849,6 @@ class RecordsContractsController extends Controller
                 "La firma no se grabó porque este contrato ya había sido firmado por el comité de RRHH"
             );
         }
-        $em->flush();
     }
 
     public function editAction($id)
@@ -845,7 +906,8 @@ class RecordsContractsController extends Controller
                         }
                         break;
                     case 'sms':
-                        if($this->sendBySMS($phonePrefix.$phoneNumber, $signLink1, $pin)){
+                        $textMessage =  'Use el siguiente pin ' . $pin . ' para firmar el siguiente contrato:' . PHP_EOL . $signLink1;
+                        if($this->sendBySMS($phonePrefix.$phoneNumber, $textMessage)){
                             $sended = true;
                             $this->get('Utilities')->saveLog('sms', 'contrato enviado por sms');
                         }
@@ -896,15 +958,14 @@ class RecordsContractsController extends Controller
         }
     }
 
-    private function sendBySMS($phoneNumber, $signLink1, $pin)
+    private function sendBySMS($phoneNumber, $textMessage)
     {
         $client = $this->getClientSmsAws();
-        $texto = 'Use el siguiente pin ' . $pin . ' para firmar el siguiente contrato:' . PHP_EOL . $signLink1;
         try {
             /** @var Result $snsClientResult */
             $snsClientResult = $client->publish(
                 [
-                    'Message' => $texto,
+                    'Message' => $textMessage,
                     'PhoneNumber' => $phoneNumber,
                     'MessageStructure' => 'SMS',
                     'MessageAttributes' => [

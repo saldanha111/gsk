@@ -277,6 +277,11 @@ class Users implements AdvancedUserInterface, \Serializable
     protected $productsOutput;
 
     /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\RecordsContractsPinComite", mappedBy="user")
+     */
+    protected $pinComite;
+
+    /**
      * Users constructor.
      */
     
@@ -1933,5 +1938,38 @@ class Users implements AdvancedUserInterface, \Serializable
     public function getProductsOutput()
     {
         return $this->productsOutput;
+    }
+
+    /**
+     * Add pinComite
+     *
+     * @param \Nononsense\HomeBundle\Entity\RecordsContractsPinComite $pinComite
+     * @return Users
+     */
+    public function addPinComite(\Nononsense\HomeBundle\Entity\RecordsContractsPinComite $pinComite)
+    {
+        $this->pinComite[] = $pinComite;
+
+        return $this;
+    }
+
+    /**
+     * Remove pinComite
+     *
+     * @param \Nononsense\HomeBundle\Entity\RecordsContractsPinComite $pinComite
+     */
+    public function removePinComite(\Nononsense\HomeBundle\Entity\RecordsContractsPinComite $pinComite)
+    {
+        $this->pinComite->removeElement($pinComite);
+    }
+
+    /**
+     * Get pinComite
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getPinComite()
+    {
+        return $this->pinComite;
     }
 }

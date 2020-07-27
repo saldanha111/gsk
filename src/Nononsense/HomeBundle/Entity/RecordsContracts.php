@@ -175,7 +175,10 @@ class RecordsContracts
      */
     protected $tokenPublicSignature;
 
-    
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\RecordsContractsPinComite", mappedBy="contract")
+     */
+    protected $pinComite;
 
 
     /**
