@@ -2,6 +2,7 @@
 
 namespace Nononsense\GroupBundle\Controller;
 
+use Nononsense\UserBundle\Entity\Users;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Nononsense\GroupBundle\Entity\Groups;
 use Nononsense\GroupBundle\Entity\GroupUsers;
@@ -284,6 +285,7 @@ class GroupController extends Controller
         $groupId = $request->query->get('id');
         $type = $request->query->get('type');
         $userdata = json_decode($data);
+        $error = false;
         
         $groupAdmin = $this->isGroupAdmin($groupId);
         
@@ -294,36 +296,30 @@ class GroupController extends Controller
         
         $em = $this->getDoctrine()->getManager();
         $em->getRepository('NononsenseGroupBundle:GroupUsers');
-        $group = $em->getRepository('NononsenseGroupBundle:Groups')->find($groupId);
+        $group = $em->getRepository(Groups::class)->find($groupId);
         foreach ($userdata as $id) {
-            $new = new GroupUsers();            
-            $new->setGroup($group);
-            $user = $em->getRepository('NononsenseUserBundle:Users')->find($id);
-            $new->setUser($user);
-            $new->setType($type);
-            $em->persist($new);
+            $user = $em->getRepository(Users::class)->find($id);
+            if($group && $group->getId() == $this->getParameter("group_id_comite_rrhh") && $user && !$user->getPhone()){
+                $error = true;
+                $this->get('session')->getFlashBag()->add(
+                    'errorAddingUsers',
+                    'Para añadir un usuario a este grupo es obligatorio que tenga un número de teléfono. Añade un número de teléfono al usuario y vuelve a intentarlo.'
+                );
+            }else{
+                $new = new GroupUsers();
+                $new->setGroup($group);
+                $new->setUser($user);
+                $new->setType($type);
+                $em->persist($new);
+            }
         }
         $em->flush();
 
-        $this->get('session')->getFlashBag()->add(
-            'addedUsers',
-            'The new members have been added.'
+        if(!$error){
+            $this->get('session')->getFlashBag()->add(
+                'addedUsers',
+                'The new members have been added.'
             );
-        
-        $group = $em->getRepository('NononsenseGroupBundle:Groups')
-                    ->find($groupId);
-        
-        if ($this->get('security.authorization_checker')->isGranted('ROLE_ADMIN')
-            || $groupAdmin) {
-            $editable = true;
-        } else {
-            $editable = false;
-        }
-        
-        if ($this->get('security.authorization_checker')->isGranted('ROLE_ADMIN')) {
-            $clonable = true;
-        } else {
-            $clonable = false;
         }
         return $this->redirect($this->generateUrl('nononsense_group_show', array('id' => $groupId)));
     }
