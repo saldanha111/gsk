@@ -175,7 +175,11 @@
                                                 {{ item.verificationDate | date("d-m-Y") }}
                                             {% endif %}
                                         </td>
-                                        <td>{{ item.useInformation }}</td>
+                                        <td>
+                                            <p data-toggle="tooltip" data-placement="left" title="{{ item.useInformation|length > 50 ? item.useInformation : '' }}">
+                                                {{ item.useInformation|length > 50 ? item.useInformation|slice(0, 50) ~ '...' : item.useInformation  }}
+                                            </p>
+                                        </td>
                                         <td>
                                             {% if item.dirtyMaterialUser.name is defined %}
                                                 {{item.dirtyMaterialUser.name}}
@@ -196,7 +200,11 @@
                                                 {{item.reviewDate | date("d-m-Y")}}
                                             {% endif %}
                                         </td>
-                                        <td>{{ item.reviewInformation }}</td>
+                                        <td>
+                                            <p data-toggle="tooltip" data-placement="left" title="{{ item.reviewInformation|length > 50 ? item.reviewInformation : '' }}">
+                                                {{ item.reviewInformation|length > 50 ? item.reviewInformation|slice(0, 50) ~ '...' : item.reviewInformation  }}
+                                            </p>
+                                        </td>
                                     </tr>
                                 {% endfor %}
                             {% endif %}
@@ -222,6 +230,8 @@
 <script src="{{ asset('/js/plugins/datapicker/locales/bootstrap-datepicker.es.js') }}" charset="UTF-8"></script>
 <script>
     $(function () {
+
+        $('[data-toggle="tooltip"]').tooltip();
 
         toastr.options = {
             "closeButton": true,
