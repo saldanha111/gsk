@@ -726,21 +726,35 @@ class RecordsContractsController extends Controller
                 );
 
                 foreach ($users_comite_rrhh as $user_comite_rrhh) {
+                    /** @var Users $user */
                     $user = $user_comite_rrhh->getUser();
                     $pin = $this->generatePinComite($record, $user);
                     if($pin){
-                        /** @var Users $user */
-
+                        // datos del email
+                        $subject = "Contrato pendiente de firma";
+                        $emailMessage = 'El Contrato con ID ' . $record->getId() . ' está pendiente de firma por su parte. ';
+                        $emailMessage .= 'Use el siguiente pin ' . $pin . ' para firmar el siguiente contrato: ';
+                        // datos del sms
                         $textMessage = 'El Contrato con ID ' . $record->getId() . ' está pendiente de firma por su parte. ';
                         $textMessage .= 'Use el siguiente pin ' . $pin . ' para firmar el siguiente contrato: ' . $link;
                         $phonePrefix = '+34';
                         $phoneNumber = $user->getPhone();
+                        // Enviamos por sms
                         if($this->sendBySMS($phonePrefix.$phoneNumber, $textMessage)){
                             $sended++;
                             $this->get('Utilities')->saveLog('sms', 'contrato enviado por sms');
                         }else{
                             $errors++;
                         }
+                        // Enviamos por email
+                        $this->get('utilities')->sendNotification(
+                            $user->getEmail(),
+                            $link,
+                            "",
+                            "",
+                            $subject,
+                            $emailMessage
+                        );
                     }else{
                         $errors++;
                     }
