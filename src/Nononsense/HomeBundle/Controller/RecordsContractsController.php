@@ -6,6 +6,7 @@ use Aws\Result;
 use Aws\Sns\SnsClient;
 use DateInterval;
 use DateTime;
+use Exception;
 use Nononsense\GroupBundle\Entity\GroupUsersRepository;
 use Nononsense\HomeBundle\Entity\RecordsContracts;
 use Nononsense\HomeBundle\Entity\RecordsContractsPinComite;
@@ -518,14 +519,24 @@ class RecordsContractsController extends Controller
                 );
 
                 foreach ($users_direccion_rrhh as $user_dir_rrhh) {
-                    $this->get('utilities')->sendNotification(
-                        $user_dir_rrhh->getUser()->getEmail(),
-                        $link,
-                        "",
-                        "",
-                        $subject,
-                        $mensaje
-                    );
+                    try{
+                        $this->get('utilities')->sendNotification(
+                            $user_dir_rrhh->getUser()->getEmail(),
+                            $link,
+                            "",
+                            "",
+                            $subject,
+                            $mensaje
+                        );
+                    } catch(Exception $e){
+                        $this->get('session')->getFlashBag()->add(
+                            'error',
+                            "Error. Se he producido un error al intentar enviar la notificación del contrato. Revisa que ".
+                            "todos los datos sean correctos. Mensaje del error: " . $e->getMessage()
+                        );
+                        return $this->redirect($this->container->get('router')->generate('nononsense_records_contracts'));
+                    }
+
                 }
             }
             if ($status == 1 && $action == 'save') {//el contrato va a firmarse por direccion rrhh
@@ -687,7 +698,7 @@ class RecordsContractsController extends Controller
                                 try {
                                     // TODO modificar para subir a producción
 //                                $endDate->setTimestamp($certParsed['validTo_time_t']);
-                                } catch (\Exception $e) {
+                                } catch (Exception $e) {
                                     echo $e->getMessage();
                                 }
                             }
@@ -932,7 +943,7 @@ class RecordsContractsController extends Controller
                     $em->flush();
                 }
 
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 echo $e->getMessage();
                 $this->get('session')->getFlashBag()->add(
                     'error',
@@ -998,7 +1009,7 @@ class RecordsContractsController extends Controller
             if($snsClientResult->hasKey('MessageId')){
                 return true;
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->get('session')->getFlashBag()->add(
                 'error',
                 "El contrato no se ha podido enviar para su firma"
@@ -1102,7 +1113,7 @@ class RecordsContractsController extends Controller
 
             return $this->render('NononsenseHomeBundle:Contratos:sign_contract.html.twig', $array_data);
         }
-        throw new \Exception("Contrato no existente", 1);
+        throw new Exception("Contrato no existente", 1);
     }
 
     /**
