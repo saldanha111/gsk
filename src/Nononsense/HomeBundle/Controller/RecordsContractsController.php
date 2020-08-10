@@ -502,11 +502,6 @@ class RecordsContractsController extends Controller
             if ($status == 0 && $action == 'save') {//esta pasando a firma direccion rrhh
                 $new_status = 1;
                 $record->setStatus($new_status);
-                $this->get('session')->getFlashBag()->add(
-                    'message',
-                    "El contrato se ha enviado a firmar a Dirección RRHH"
-                );
-
                 $users_direccion_rrhh = $em->getRepository(GroupUsers::class)->findBy(
                     ["group" => $this->getParameter("group_id_direccion_rrhh")]
                 );
@@ -538,6 +533,10 @@ class RecordsContractsController extends Controller
                     }
 
                 }
+                $this->get('session')->getFlashBag()->add(
+                    'message',
+                    "El contrato se ha enviado a firmar a Dirección RRHH"
+                );
             }
             if ($status == 1 && $action == 'save') {//el contrato va a firmarse por direccion rrhh
                 $can_sign = 0;
