@@ -27,7 +27,7 @@ class UserType extends AbstractType
     {
             $builder 
             ->add('username', 'text', array('required' => true, 'trim' => true))
-            ->add('name', 'text', array('required' => true, 'trim' => true)) 
+            ->add('name', 'text', array('required' => true, 'trim' => true))
             ->add('phone', 'text', array('trim' => true))
             ->add('position', 'text', array('trim' => true))            
             ->add('description', 'textarea', array('required' => true, 'trim' => true))
@@ -35,7 +35,15 @@ class UserType extends AbstractType
             
             
             if ($this->_admin) {
-                $builder->add('isActive', 'checkbox', array('required' => false));
+                $builder->add('isActive', 'checkbox', array('required' => false))
+                ->add('email', 'repeated', array(
+                                 'type' => 'email',
+                                 'invalid_message' => 'The email fields must match.',
+                                 'required' => true,
+                                 'first_options'  => array('label' => 'Email', 'translation_domain' => 'messages'),
+                                 'second_options' => array('label' => 'Confirm email', 'translation_domain' => 'messages')
+                             )
+                );
             }
             
             $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
@@ -51,19 +59,9 @@ class UserType extends AbstractType
                         'second_options' => array('label' => 'Confirm password', 'translation_domain' => 'messages'),
                         )
                     );
-                    $form->add('email', 'repeated', array(
-                        'type' => 'email',
-                        'invalid_message' => 'The email fields must match.',
-                        'required' => true,
-                        'first_options'  => array('label' => 'Email', 'translation_domain' => 'messages'),
-                        'second_options' => array('label' => 'Confirm email', 'translation_domain' => 'messages')
-                        )
-                    );
                     $form->add('photo', 'textarea', array('required' => true, 'trim' => true));
                 }
-                
             });
-
     }
 
     /**

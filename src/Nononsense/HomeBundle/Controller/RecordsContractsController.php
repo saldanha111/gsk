@@ -757,14 +757,19 @@ class RecordsContractsController extends Controller
                             $errors++;
                         }
                         // Enviamos por email
-                        $this->get('utilities')->sendNotification(
-                            $user->getEmail(),
-                            $link,
-                            "",
-                            "",
-                            $subject,
-                            $emailMessage
-                        );
+                        try{
+                            $this->get('utilities')->sendNotification(
+                                $user->getEmail(),
+                                $link,
+                                "",
+                                "",
+                                $subject,
+                                $emailMessage
+                            );
+                        }catch(Exception $e){
+                            $errors++;
+                        }
+
                     }else{
                         $errors++;
                     }
