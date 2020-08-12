@@ -1,4 +1,7 @@
 $( document ).ready(function() {
 	$("#btn_save").html('<i class="fa fa-send-o"></i> Firmar y enviar a comité');
 	$("#btn_save_partial").hide();
+	$("p").css('margin-top','5px');
+	$("p").css('margin-bottom','5px');
+	$("td > p").css('margin','0');
 });
