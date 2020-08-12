@@ -6,4 +6,7 @@ $( document ).ready(function() {
 	$( ":input[name^='dat_tra_']" ).each(function( index, element ) {
 		element.parentNode.removeChild(element);
 	});
+	$("p").css('margin-top','5px');
+	$("p").css('margin-bottom','5px');
+	$("td > p").css('margin','0');
 });
