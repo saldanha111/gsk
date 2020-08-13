@@ -65,6 +65,15 @@
                                     <input type="text" name="name" class="form-control" value="" required="required">
                                 </div>
                             </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">Numeración</label>
+                                <div class="col-sm-4">
+                                  <select class="form-control" name="prefix" style="width: 100%;" required="required">
+                                    <option value=""></option>
+                                  </select>
+                                </div>
+                            </div> 
                         </div>
 
                         <div class="form-group">
@@ -74,18 +83,29 @@
                             </div>
                         </div> 
 
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Historia del cambio</label>
+                            <div class="col-sm-4">
+                                <textarea name="history_change" rows="10" cols="40" required="required" style="width:100%"></textarea>
+                            </div>
+                        </div>
 
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Norma de referencia</label>
+                            <div class="col-sm-4">
+                                <input type="text" name="reference" class="form-control" value="" required="required">
+                            </div>
+                        </div> 
 
-                        {% if users is defined %}
-                            <div class="form-group">
-                                <label class="col-sm-2 control-label">Dueño</label>
-                                <div class="col-sm-4">
-                                  <select class="form-control" name="owner" style="width: 100%;" required="required">
-                                    <option value=""></option>
-                                  </select>
-                                </div>
-                            </div> 
-                        {% endif %}
+                        
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Dueño</label>
+                            <div class="col-sm-4">
+                              <select class="form-control" name="owner" style="width: 100%;" required="required">
+                                <option value=""></option>
+                              </select>
+                            </div>
+                        </div> 
 
                         <div class="form-group">
                             <label class="col-sm-2 control-label">Backup</label>
@@ -112,18 +132,7 @@
                     <div id="master_workflow">
                         <h1>Workflow</h1>
                         <div class="row">
-                            <div class="col-sm-3 pre_col_workflow"  data-bloque-type="admin">
-                                <div class="col_workflow">
-                                    <h2>Administrador</h2>
-                                    <hr>
-                                    <div class="row line_workflow">
-                                        
-                                    </div>
-                                </div> 
-                                <div class="row">
-                                    <input type="hidden" class="add_line" data-type="admin">
-                                </div><br> 
-                            </div>
+                            
                             <div class="col-sm-3 pre_col_workflow" data-bloque-type="elab">
                                 <div class="col_workflow">
                                     <h2>Elaboradores</h2>
@@ -159,6 +168,18 @@
                                 </div> 
                                 <div class="row">
                                     <button type="button" class="btn btn-default pull-right add_line" data-type="aprob"><i class="fa fa-plus"></i> Añadir</button>
+                                </div><br> 
+                            </div>
+                            <div class="col-sm-3 pre_col_workflow"  data-bloque-type="admin">
+                                <div class="col_workflow">
+                                    <h2>Administrador</h2>
+                                    <hr>
+                                    <div class="row line_workflow">
+                                        
+                                    </div>
+                                </div> 
+                                <div class="row">
+                                    <input type="hidden" class="add_line" data-type="admin">
                                 </div><br> 
                             </div>
                         </div>
@@ -244,6 +265,7 @@
         /* Nos traemos los usuarios y grupos para cada paso del workflow según el area */
         $(document).on('change', '[name="area"]', function() {
             load_users_to_area($(this).val());
+            load_prefixes_to_area($(this).val());
         });
 
         /* No podemos añadir un mismo usuario en un mismo paso del workflow */        
@@ -354,6 +376,7 @@
                       
                   },
                   processResults: function (data, page) { // parse the results into the format expected by Select2.
+                    console.log(data);
                     return {results: data.items};
                   },
                   cache: false
@@ -364,6 +387,7 @@
         $('.select_template').on("select2:select", function(e) { 
             $('input[name ="template"]').val(e.params.data.id);
             load_users_to_area(e.params.data.area);
+            load_prefixes_to_area(e.params.data.area);
         });
 
     });
@@ -421,23 +445,59 @@
                     reset_workflow();
                 }
                 else{
-                    toastr.error("No ha sido posible carcar los usuarios para definir el workflow','", 'Error');
+                    toastr.error("No ha sido posible cargar los usuarios para definir el workflow','", 'Error');
                 }
 
             },
             error: function (request, status, error) {
                 console.log(request);
-                toastr.error("No ha sido posible carcar los usuarios para definir el workflow','", 'Error');
+                toastr.error("No ha sido posible cargar los usuarios para definir el workflow','", 'Error');
+            }
+        });
+    }
+
+    /* Buscamos el json de prefijos que pertenecen a un area para formar la numeración de un area */
+    function load_prefixes_to_area(area){
+        url_prefixes=url_prefixes_json(area);
+        $.ajax({
+            type: 'GET',
+            dataType: "json",
+            url: url_prefixes,
+            success: function(data){
+                console.log(data);
+                if(data.prefixes){
+                    load_prefixes(data);
+                }
+                else{
+                    toastr.error("No ha sido posible cargar los prefijos correspondiente al area','", 'Error');
+                }
+
+            },
+            error: function (request, status, error) {
+                console.log(request);
+                toastr.error("No ha sido posible cargar los prefijos correspondiente al area','", 'Error');
             }
         });
     }
 
     /* Reseteamos el workflow y añadimos una linea */
-    function reset_workflow(data){
+    function reset_workflow(){
         clear_workflow();
         $('[name="owner"]').find('option').not(':first').remove();
         $('[name="backup"]').find('option').not(':first').remove();
 
+        $.each(dataworkflow.users,function(key, value){
+            if(dataworkflow.users[key].length<1){
+                switch(key){
+                    case "dueno": rol="dueño";break;
+                    case "admin": rol="administrador";break;
+                    case "elab": rol="elaborador";break;
+                    case "test": rol="tester";break;
+                    case "aprob": rol="aprobador";break;
+                }
+                toastr.error("No tiene ningún usuario "+rol+" asignado a este área','", 'Error');
+            }
+        });
         $.each(dataworkflow.users.dueno,function(key, value){
             $('[name="owner"]').append('<option value=' + key + '>' + value.name + '</option>');
             $('[name="backup"]').append('<option value=' + key + '>' + value.name + '</option>');
@@ -445,6 +505,15 @@
 
         $(".pre_col_workflow").find(".add_line").each(function() {
             add_line($(this));
+        });
+    }
+
+    /* Reseteamos el workflow y añadimos una linea */
+    function load_prefixes(data){
+        $('[name="prefix"]').find('option').not(':first').remove();
+
+        $.each(data.prefixes,function(key, value){
+            $('[name="prefix"]').append('<option value=' + key + '>' + value.name + '</option>');
         });
     }
 
@@ -459,8 +528,14 @@
         return url;
     }
 
+    function url_prefixes_json(area){
+        url="{{ path('nononsense_prefixes_json', {'area': 'value_id'}) }}";
+        url=url.replace("value_id", area);
+        return url;
+    }
+
     function url_templates_json(){
-       url="{{ path('nononsense_templates_active_json') }}";
+       url="{{ path('nononsense_templates_active_json') }}?no_request_in_proccess=1";
        return url;
     }
 </script>

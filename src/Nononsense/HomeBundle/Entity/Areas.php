@@ -25,6 +25,13 @@ class Areas
     protected $id;
 
     /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\TMTemplates", inversedBy="areas")
+     * @ORM\JoinColumn(name="template_id", referencedColumnName="id")
+     * @Groups({"detail_area","list_area"})
+     */
+    protected $template;
+
+    /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\AreasGroups", mappedBy="area")
      */
     protected $groups;
@@ -58,6 +65,7 @@ class Areas
 
     /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMTemplates", mappedBy="area")
+     * @Groups({"detail_area","list_area"})
      */
     protected $tmTemplates;
 
@@ -268,5 +276,28 @@ class Areas
     public function getGroups()
     {
         return $this->groups;
+    }
+
+    /**
+     * Set template
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMTemplates $template
+     * @return Areas
+     */
+    public function setTemplate(\Nononsense\HomeBundle\Entity\TMTemplates $template = null)
+    {
+        $this->template = $template;
+
+        return $this;
+    }
+
+    /**
+     * Get template
+     *
+     * @return \Nononsense\HomeBundle\Entity\TMTemplates 
+     */
+    public function getTemplate()
+    {
+        return $this->template;
     }
 }

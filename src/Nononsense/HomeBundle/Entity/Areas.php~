@@ -25,6 +25,12 @@ class Areas
     protected $id;
 
     /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\TMTemplates", inversedBy="areas")
+     * @ORM\JoinColumn(name="template_id", referencedColumnName="id")
+     */
+    protected $template;
+
+    /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\AreasGroups", mappedBy="area")
      */
     protected $groups;

@@ -5,6 +5,8 @@ use Nononsense\HomeBundle\Entity\Areas;
 use Nononsense\HomeBundle\Entity\AreasGroups;
 use Nononsense\UserBundle\Entity\Users;
 use Nononsense\GroupBundle\Entity\Groups;
+use Nononsense\GroupBundle\Entity\AreaPrefixes;
+use Nononsense\HomeBundle\Entity\TMTemplates;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Nononsense\HomeBundle\Entity\InstanciasSteps;
 use Symfony\Component\Filesystem\Filesystem;
@@ -85,12 +87,14 @@ class AreasController extends Controller
         $serializer = $this->get('serializer');
 
         if($id!=0){
-            $item = $this->getDoctrine()->getRepository(Areas::class)->findOneById($id);
+            $item = $this->getDoctrine()->getRepository(Areas::class)->findOneBy(array("id"=>$id));
             if(!$item){
                 return $this->redirect($this->container->get('router')->generate('nononsense_areas'));
             }
             $array_item["item"] = json_decode($serializer->serialize($item, 'json',array('groups' => array('detail_area'))),true);
         }
+
+        
 
         return $this->render('NononsenseHomeBundle:Areas:area.html.twig',$array_item);
     }
@@ -115,6 +119,10 @@ class AreasController extends Controller
 
             $area->setName($request->get("name"));
             $area->setCreated(new \DateTime());
+            if($request->get("master_template")){
+                $template = $this->getDoctrine()->getRepository(TMTemplates::class)->findOneById($request->get("master_template"));
+                $area->setTemplate($template);
+            }
 
             if($request->get("is_active")){
                 $area->setIsActive(1);
@@ -235,5 +243,24 @@ class AreasController extends Controller
             );
 
         return $this->redirect($this->generateUrl('nononsense_areas_edit', array('id' => $areaId)));
+    }
+
+    public function listPrefixesJsonAction(Request $request, int $area)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $array=array();
+
+        $items=$em->getRepository('NononsenseHomeBundle:AreaPrefixes')->findBy(array("area"=>$area));
+        $serializer = $this->get('serializer');
+        $array_items = json_decode($serializer->serialize($items,'json',array('groups' => array('json_prefix'))),true);
+        foreach($array_items as $key => $item){
+            $array["prefixes"][$key]["id"]=$item["id"];
+            $array["prefixes"][$key]["name"]=$item["name"];
+        }
+
+        $response = new Response(json_encode($array), 200);
+        $response->headers->set('Content-Type', 'application/json');
+
+        return $response;
     }
 }

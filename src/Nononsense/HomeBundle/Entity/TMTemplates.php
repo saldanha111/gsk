@@ -20,7 +20,7 @@ class TMTemplates
      * @ORM\Column(type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
-     * @Groups({"detail_document","json"})
+     * @Groups({"detail_document","json","detail_area"})
      */
     protected $id;
     
@@ -29,7 +29,7 @@ class TMTemplates
      *
      * @ORM\Column(name="name", type="string", length=200)
      * @Assert\NotBlank(message = "You shoud insert a name")
-     * @Groups({"detail_document","json"})
+     * @Groups({"detail_document","json","detail_area"})
      */
     protected $name;
 
@@ -37,6 +37,7 @@ class TMTemplates
      * @var string
      *
      * @ORM\Column(name="prefix", type="string")
+     * @Groups({"detail_document","json","detail_area"})
      */
     protected $prefix;
 
@@ -44,6 +45,7 @@ class TMTemplates
      * @var integer
      *
      * @ORM\Column(name="number", type="integer")
+     * @Groups({"detail_document","json"})
      */
     protected $number;
 
@@ -60,6 +62,13 @@ class TMTemplates
      * @ORM\Column(name="num_edition", type="integer", nullable=true)
      */
     protected $numEdition;
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="first_edtition", type="integer", nullable=true)
+     */
+    protected $firstEdition;
 
     /**
      * @var string
@@ -132,6 +141,11 @@ class TMTemplates
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMWorkflow", mappedBy="template")
      */
     protected $tmWorkflows;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\Areas", mappedBy="template")
+     */
+    protected $areas;
 
 
     public function __construct()
@@ -578,5 +592,61 @@ class TMTemplates
     public function getTmWorkflows()
     {
         return $this->tmWorkflows;
+    }
+
+    /**
+     * Set firstEdition
+     *
+     * @param integer $firstEdition
+     * @return TMTemplates
+     */
+    public function setFirstEdition($firstEdition)
+    {
+        $this->firstEdition = $firstEdition;
+
+        return $this;
+    }
+
+    /**
+     * Get firstEdition
+     *
+     * @return integer 
+     */
+    public function getFirstEdition()
+    {
+        return $this->firstEdition;
+    }
+
+    /**
+     * Add areas
+     *
+     * @param \Nononsense\HomeBundle\Entity\Areas $areas
+     * @return TMTemplates
+     */
+    public function addArea(\Nononsense\HomeBundle\Entity\Areas $areas)
+    {
+        $this->areas[] = $areas;
+
+        return $this;
+    }
+
+    /**
+     * Remove areas
+     *
+     * @param \Nononsense\HomeBundle\Entity\Areas $areas
+     */
+    public function removeArea(\Nononsense\HomeBundle\Entity\Areas $areas)
+    {
+        $this->areas->removeElement($areas);
+    }
+
+    /**
+     * Get areas
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getAreas()
+    {
+        return $this->areas;
     }
 }

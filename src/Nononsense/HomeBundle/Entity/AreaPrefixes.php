@@ -19,7 +19,7 @@ class AreaPrefixes
      * @ORM\Column(type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
-     * @Groups({"group1"})
+     * @Groups({"detail_prefix","list_prefix","json_prefix"})
      */
     protected $id;
 
@@ -27,6 +27,7 @@ class AreaPrefixes
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=255,  nullable=true)
+     * @Groups({"detail_prefix","list_prefix","json_prefix"})
      */
     protected $name;
 

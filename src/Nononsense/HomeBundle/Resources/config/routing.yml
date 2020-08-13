@@ -620,6 +620,10 @@ nononsense_areas:
     path: /areas
     defaults: { _controller: NononsenseHomeBundle:Areas:list}
 
+nononsense_prefixes_json:
+    path:     /areas/prefixes/json/{area}
+    defaults: { _controller: NononsenseHomeBundle:Areas:listPrefixesJson, area: 0}
+
 nononsense_areas_edit:
     path: /areas/{id}
     defaults: { _controller: NononsenseHomeBundle:Areas:edit}
@@ -651,3 +655,5 @@ nononsense_templates_active_json:
 nononsense_prepare_workflow_json:
     path:     /prepare/workfow/json/{area}
     defaults: { _controller: NononsenseHomeBundle:TemplateManagementRequest:listUsersAndGroupsJson, area: 0}
+
+

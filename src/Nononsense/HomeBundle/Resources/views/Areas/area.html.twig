@@ -3,6 +3,7 @@
 {% block head %}
     {{ parent() }}
     <link href="/css/plugins/chosen/chosen.css" rel="stylesheet">
+    <link rel="stylesheet" href="/plugins/select2/dist/css/select2.min.css">
 {% endblock %}
 {% block main_title %} Areas {% endblock %}
 
@@ -31,13 +32,25 @@
         
             <form class="form-horizontal" id="form_item" action="{{ path('nononsense_areas_update',{'id': item.id is defined ? item.id : 0}) }}" method="POST"  enctype="multipart/form-data">
                 <div class="row">
-                    <div class="col-lg-3 col-lg-offset-1">
+                    <div class="col-lg-5 col-lg-offset-1">
                         <div class="row">
                             <div class="form-group">
                                 <label class="col-sm-3 control-label">Nombre</label>
                                 <div class="col-sm-7">
                                     <input type="text" name="name" class="form-control" value="{{item.name is defined ? item.name : ''}}" required="required">
                                 </div>
+                            </div>
+
+                            <div class="form-group" id="box_existent_template">
+                                <label class="col-sm-3 control-label">Plantilla maestra</label>
+                                <div class="col-sm-7">
+                                  <select class="form-control select_template" style="width: 100%;" required="required">
+                                    {% if item.template is defined %}
+                                      <option value="{{item.template.id}}" selected="selected">{{item.template.name}} - {{item.template.prefix}}</option>
+                                    {% endif %}
+                                  </select>
+                                </div>
+                                <input type="hidden" name="master_template" value="">
                             </div>  
 
                             <div class="form-group">
@@ -52,7 +65,7 @@
                         </div>          
                     </div>
                     {% if item is defined %}
-                        <div class="col-md-7">
+                        <div class="col-lg-5">
                             
                             <div class="ibox" id="addgroups" style="display: none">
                                 <div class="ibox-title">
@@ -130,6 +143,8 @@
 {% if item is defined %}
     <!-- Chosen -->
     <script src="/js/plugins/chosen/chosen.jquery.js"></script>
+    <script src="/plugins/select2/dist/js/select2.full.min.js"></script>
+    <script src="/plugins/select2/es.js"></script>
     <script>
         window.members = {};
         function deleteGroup(data) {
@@ -160,7 +175,8 @@
         }
         
         $(document).ready(function(){
-            
+            $.fn.select2.defaults.set('language', 'es');
+
             ActivateMenu('areas_list');
             $('#side-menu').metisMenu();
             
@@ -187,9 +203,48 @@
 
                 $('#addgroups h5').html(h5);
             }
+
+            $(".select_template").select2({
+                templateResult: format_template,
+                minimumInputLength: 3,
+                    ajax: { // instead of writing the function to execute the request we use Select2's convenient helper
+                      url: function () {
+                        return url_templates_json();
+                      },
+                      dataType: 'json',
+                      quietMillis: 250,
+                      data: function (params, page) {
+                          return {
+                              name: params.term, // search term
+                          };
+                          
+                      },
+                      processResults: function (data, page) { // parse the results into the format expected by Select2.
+                        console.log(data);
+                        return {results: data.items};
+                      },
+                      cache: false
+                },
+                escapeMarkup: function(m) { return m; }
+            });
+
+            $('.select_template').on("select2:select", function(e) { 
+                $('input[name ="master_template"]').val(e.params.data.id);
+            });
             
             
        });
+
+        function url_templates_json(){
+           url="{{ path('nononsense_templates_active_json') }}";
+           return url;
+        }
+
+        function format_template (option) {
+          if (!option.id) { return option.text; }
+          var ob = option.text;  // replace image source with option.img (available in JSON)
+          return ob;
+        }
     </script>
 {% endif %}
 {% endblock %}
