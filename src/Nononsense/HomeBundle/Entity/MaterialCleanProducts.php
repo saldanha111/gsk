@@ -149,7 +149,7 @@ class MaterialCleanProducts
      */
     public function setActive($active)
     {
-        $this->active = $active;
+        $this->active = ($active)?: false;
 
         return $this;
     }
