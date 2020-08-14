@@ -5,7 +5,7 @@ use Nononsense\HomeBundle\Entity\Areas;
 use Nononsense\HomeBundle\Entity\AreasGroups;
 use Nononsense\UserBundle\Entity\Users;
 use Nononsense\GroupBundle\Entity\Groups;
-use Nononsense\GroupBundle\Entity\AreaPrefixes;
+use Nononsense\HomeBundle\Entity\AreaPrefixes;
 use Nononsense\HomeBundle\Entity\TMTemplates;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Nononsense\HomeBundle\Entity\InstanciasSteps;
@@ -92,6 +92,9 @@ class AreasController extends Controller
                 return $this->redirect($this->container->get('router')->generate('nononsense_areas'));
             }
             $array_item["item"] = json_decode($serializer->serialize($item, 'json',array('groups' => array('detail_area'))),true);
+
+            $prefixes = $this->getDoctrine()->getRepository(AreaPrefixes::class)->findBy(array("area" => $item));
+            $array_item["prefixes"] = json_decode($serializer->serialize($prefixes, 'json',array('groups' => array('list_prefix'))),true);
         }
 
         

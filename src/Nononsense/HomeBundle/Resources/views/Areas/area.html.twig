@@ -45,7 +45,7 @@
                                 <label class="col-sm-3 control-label">Plantilla maestra</label>
                                 <div class="col-sm-7">
                                   <select class="form-control select_template" style="width: 100%;" required="required">
-                                    {% if item.template is defined %}
+                                    {% if item.template is defined and item.template is not null %}
                                       <option value="{{item.template.id}}" selected="selected">{{item.template.name}} - {{item.template.prefix}}</option>
                                     {% endif %}
                                   </select>
@@ -60,6 +60,38 @@
                                             <input name="is_active" value="1" type="checkbox" {% if item is not defined or (item.isActive is defined and  item.isActive == 1) %} checked="checked" {% endif %}> Activo
                                         </label>
                                     </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="col-sm-7 col-sm-offset-3 pre_col_prefixes">
+                                    <div class="col_prefixes">
+                                        <h2>Abreviaturas</h2>
+                                        <hr>
+                                        <div style="font-size:10px"> 
+                                        XX... => Numeración<br>
+                                        YY => Año (20)<br>
+                                        YYYY => Año (2020)<br>
+                                        EE... => Num. edición<br>
+                                        NUMPROY => Num. proyecto</div>
+                                        <hr>
+                                        {% if prefixes is defined %}
+                                            {% for prefix in prefixes %}
+                                                <div class="row line_prefix">
+                                                    <div class="col-sm-10">
+                                                        <input type="text" name="prefixes[]" class="form-control" value="{{prefix.name is defined ? prefix.name : ''}}" required="required">
+                                                    </div>
+                                                    <div class="col-sm-2">
+                                                        <a href="javascript:void(0)" class="btn btn-xs btn-danger remove_line"><i class="fa fa-times" aria-hidden="true"></i></a>
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
+                                        {% endif %}
+                                    </div> 
+                                    <br>
+                                    <div class="row">
+                                        <button type="button" class="btn btn-default pull-right add_line" data-type="test"><i class="fa fa-plus"></i> Añadir</button>
+                                    </div><br> 
                                 </div>
                             </div>
                         </div>          
@@ -135,6 +167,17 @@
             </div>
         </div>
     </div>
+
+    <did style="display:none" id="master_line">
+        <div class="row line_prefix">
+            <div class="col-sm-10">
+                <input type="text" name="prefixes[]" class="form-control" value="" required="required">
+            </div>
+            <div class="col-sm-2">
+                <a href="javascript:void(0)" class="btn btn-xs btn-danger remove_line"><i class="fa fa-times" aria-hidden="true"></i></a>
+            </div>
+        </div>
+    </did>
     
 {% endblock %}
 
@@ -179,6 +222,14 @@
 
             ActivateMenu('areas_list');
             $('#side-menu').metisMenu();
+
+            $(document).on('click', '.add_line', function() {
+                $(this).closest(".pre_col_prefixes").find(".col_prefixes").append($("#master_line").html());
+            });
+
+            $(document).on('click', '.remove_line', function() {
+                $(this).closest(".line_prefix").remove();
+            });
             
             $('#grouplist').load('{{ path('nononsense_areas_groups', {"id" : item.id})}}', function(){
                 $('.remove_member').click(function(){deleteGroup($(this).data())});
