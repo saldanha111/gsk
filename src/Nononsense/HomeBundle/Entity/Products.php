@@ -64,7 +64,7 @@ class Products
     /**
      * @var int
      *
-     * @ORM\Column(name="stock", type="decimal", scale=2, nullable=false, options={"default" : 0} )
+     * @ORM\Column(name="stock", type="integer", nullable=false, options={"default" : 0} )
      */
     protected $stock;
 

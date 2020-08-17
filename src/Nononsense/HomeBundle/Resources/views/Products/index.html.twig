@@ -26,10 +26,8 @@
                         </div>
                         <br>
                     {% endfor %}
-                    <form class="form-horizontal" id="form_item" action="{{ path('nononsense_products', {'type':'material'}) }}" method="GET">
-                        <input type="hidden" id='url_product_list' value="{{ path('nononsense_products', {'type':'material'}) }}" />
-                        <input type="hidden" id='url_product_delete' value="{{ path('nononsense_products_delete',{'id': 'xxx'}) }}" />
-                        <input type="hidden" id='url_product_destroy' value="{{ path('nononsense_products_destroy',{'id': 'xxx'}) }}" />
+                    <form class="form-horizontal" id="form_item" action="{{ path('nononsense_products') }}" method="GET">
+                        <input type="hidden" id='url_product_list' value="{{ path('nononsense_products') }}" />
                         <input type="hidden" id='a_excel' name='a_excel' />
                         <div class="form-group">
                             <label class="col-sm-2 control-label item_filter">Part. Number</label>
@@ -37,12 +35,19 @@
                                 <input type="text" name="f_partNumber" class="form-control" value="{{filters.partNumber is defined ? filters.partNumber : ''}}">
                             </div>
 
+                            <label class="col-sm-1 control-label item_filter">CAS Number</label>
+                            <div class="col-sm-2 item_filter">
+                                <input type="text" name="f_casNumber" class="form-control" value="{{filters.casNumber is defined ? filters.casNumber : ''}}">
+                            </div>
+
                             <label class="col-sm-1 control-label item_filter">Nombre</label>
                             <div class="col-sm-2 item_filter">
                                 <input type="text" name="f_name" class="form-control" value="{{filters.name is defined ? filters.name : ''}}">
                             </div>
+                        </div>
 
-                            <label class="col-sm-1 control-label item_filter">Activo</label>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label item_filter">Activo</label>
                             <div class="col-sm-2 item_filter">
                                 <select name="f_active" class="form-control pull-right">
                                     <option {% if filters.active is not defined or filters.active == 0 %} selected="selected" {% endif %} value="0">Todos</option>
@@ -50,10 +55,7 @@
                                     <option {% if filters.active is defined and  filters.active == 2 %} selected="selected" {% endif %} value="2">No</option>
                                 </select>
                             </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="col-sm-2 control-label item_filter">Stock</label>
+                            <label class="col-sm-1 control-label item_filter">Stock</label>
                             <div class="col-sm-1 item_filter">
                                 <input type="text" class="form-control pull-right" autocomplete="off" name="f_stock_from" id="stock_from" value="{{filters.stock_from is defined ? filters.stock_from : ''}}">
                             </div>
@@ -79,7 +81,7 @@
                 </div>
                 <div class="row">
                     <div>
-                      <a href="{{ path('nononsense_products_edit',{'type': type, 'id': '0'}) }}" target="_self" class="btn btn-primary pull-right"><i class="fa fa-plus"></i> Nuevo Producto</a>
+                      <a href="{{ path('nononsense_products_edit',{'type': 'material', 'id': '0'}) }}" target="_self" class="btn btn-primary pull-right"><i class="fa fa-plus"></i> Nuevo Producto</a>
                     </div><br>
                     <table id="inProcessParcial" class="table table-striped">
                         <thead>
@@ -94,7 +96,6 @@
                             <th>Stock mínimo</th>
                             <th>Tipo</th>
                             <th>Activo</th>
-                            <th></th>
                             <th></th>
                         </tr>
                         </thead>
@@ -118,15 +119,11 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    <a {% if item.product.stock < item.product.stockMinimum %} style="color: white;" {% endif %} href="{{path('nononsense_products_edit', {'type': type, 'id': item.product.id}) }}" class="btn btn-xs" target="_self"><i class="fa fa-pencil" aria-hidden="true"></i> Editar</a>
-                                </td>
-                                <td>
-                                    {% if item.product.active %}
-                                        <a {% if item.product.stock < item.product.stockMinimum %} style="color: white;" {% endif %} href="javascript:delete_product({{ item.product.id }})" class="btn btn-xs" target="_self"><i class="fa fa-trash" aria-hidden="true"></i> Borrar</a>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <a {% if item.product.stock < item.product.stockMinimum %} style="color: white;" {% endif %} href="javascript:destroy_product({{ item.product.id }})" class="btn btn-xs" target="_self"><i class="fa fa-trash" aria-hidden="true"></i> Destruir</a>
+                                    <a {% if item.product.stock < item.product.stockMinimum %} style="color: white;" {% endif %}
+                                            href="{{path('nononsense_products_edit_stock', {'id': item.product.id}) }}"
+                                            class="btn btn-xs" target="_self">
+                                        <i class="fa fa-pencil" aria-hidden="true"></i> Editar Stock
+                                    </a>
                                 </td>
                             </tr>
                             {% endfor %}
@@ -140,7 +137,6 @@
                         {% include '::pagination2.html.twig' %}
                     {% endif %}
                     <a href="javascript:export_excel();" class="btn btn-primary pull-right"><i class="fa fa-file-excel-o" aria-hidden="true"></i> Excel</a> 
-                    
                 </div>
             </div>
         </div>
@@ -151,10 +147,8 @@
 {{ parent() }}
 <script>
   $(function () {
-
     ActivateMenu('browse_products');
     $('#side-menu').metisMenu();
-
   });
 
   function delete_product(id){
