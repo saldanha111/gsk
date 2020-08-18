@@ -15,7 +15,7 @@ class ProductsOutputsRepository extends EntityRepository
 	public function list($filters, $paginate=1)
     {
         $list = $this->createQueryBuilder('po')
-            ->select('po.id', 'po.amount', 'p.name AS productName', 'po.date', 'p.partNumber as productPartNumber', 'pi.id AS productInputId')
+            ->select('po')
             ->innerJoin("po.productInput", "pi")
             ->innerJoin("pi.product", "p")
             ->innerJoin("p.type", "t")
