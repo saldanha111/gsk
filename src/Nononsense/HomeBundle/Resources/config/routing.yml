@@ -353,7 +353,7 @@ nononsense_records_contracts:
 # Gestión de reactivos
 
 nononsense_products:
-    path: /products/{type}
+    path: /products
     defaults: { _controller: NononsenseHomeBundle:Products:list}
 
 nononsense_products_reception:
@@ -367,6 +367,10 @@ nononsense_products_inputs:
 nononsense_products_json:
     path: /products-json
     defaults: { _controller: NononsenseHomeBundle:Products:productosJson}
+
+nononsense_products_edit_stock:
+    path: /products/edit-stock/{id}
+    defaults: { _controller: NononsenseHomeBundle:Products:editStock}
 
 nononsense_products_edit:
     path: /products/{type}/{id}/{qrCode}
@@ -415,6 +419,10 @@ nononsense_products_outputs_delete:
 nononsense_products_inputs_get_data_json:
     path: /products-inputs-data/{id}
     defaults: { _controller: NononsenseHomeBundle:Products:inputDataJson}
+
+nononsense_products_output_data:
+    path: /products-output-data/{type}/{code}
+    defaults: { _controller: NononsenseHomeBundle:Products:jsonOutputData}
 
 # /Gestión de reactivos
 

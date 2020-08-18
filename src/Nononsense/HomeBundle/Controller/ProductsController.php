@@ -4,6 +4,7 @@ namespace Nononsense\HomeBundle\Controller;
 
 use Datetime;
 use Exception;
+use Nononsense\HomeBundle\Entity\ProductsInputsRepository;
 use Nononsense\HomeBundle\Entity\ProductsInputStatus;
 use Nononsense\HomeBundle\Entity\ProductsInputStatusRepository;
 use Nononsense\HomeBundle\Entity\ProductsOutputsRepository;
@@ -66,7 +67,7 @@ class ProductsController extends Controller
         return $this->render('NononsenseHomeBundle:Products:reception_index.html.twig', $data);
     }
 
-    public function listAction(Request $request, $type)
+    public function listAction(Request $request)
     {
         $is_valid = $this->get('app.security')->permissionSeccion('productos_gestion');
         if (!$is_valid) {
@@ -74,7 +75,6 @@ class ProductsController extends Controller
         }
 
         $filters = $this->getListFilters($request);
-        $filters['type'] = $type;
         $filters["limit_many"] = 15;
 
         /** @var ProductsRepository $productRepository */
@@ -89,7 +89,6 @@ class ProductsController extends Controller
 
         $array_item = [
             "filters" => $filters,
-            "type" => $type,
             "items" => $productRepository->list($filters),
             "count" => $totalItems,
             "pagination" => Utils::getPaginator($request, $filters['limit_many'], $totalItems)
@@ -113,7 +112,7 @@ class ProductsController extends Controller
         }
 
         foreach ($request->query->all() as $key => $element) {
-            if (strpos($key, 'f_') === 0) {
+            if (strpos($key, 'f_') === 0 && $element) {
                 $filterName = str_replace('f_', '', $key);
                 $filters[$filterName] = $element;
             }
@@ -159,8 +158,7 @@ class ProductsController extends Controller
                 if ($newProduct) {
                     $this->get('session')->getFlashBag()->add(
                         'message',
-                        "El " . $actualType->getName(
-                        ) . " se ha guardado correctamente, Ahora puedes generar la recepción."
+                        "El " . $actualType->getName() . " se ha guardado correctamente, Ahora puedes generar la recepción."
                     );
                     return $this->redirect(
                         $this->generateUrl('nononsense_products_reception', ['type' => $actualType->getSlug()])
@@ -193,15 +191,32 @@ class ProductsController extends Controller
         $saved = ['error' => 0, 'message' => '', 'productId' => ''];
         try {
             $product->setQrCode($qrCode);
-            $product->setName($request->get("name"));
-            $product->setInternalCode($request->get("internalCode"));
-            $product->setPartNumber($request->get("partNumber"));
-            $product->setCasNumber($request->get("casNumber"));
-            $product->setProvider($request->get("provider"));
-            $product->setPresentation($request->get("presentation"));
-            $product->setStockMinimum($request->get("stockMinimum"));
-            $product->setActive($request->get("active"));
             $product->setType($actualType);
+
+            if($request->get("name")){
+                $product->setName($request->get("name"));
+            }
+            if($request->get("internalCode")) {
+                $product->setInternalCode($request->get("internalCode"));
+            }
+            if($request->get("partNumber")) {
+                $product->setPartNumber($request->get("partNumber"));
+            }
+            if($request->get("casNumber")) {
+                $product->setCasNumber($request->get("casNumber"));
+            }
+            if($request->get("provider")) {
+                $product->setProvider($request->get("provider"));
+            }
+            if($request->get("presentation")) {
+                $product->setPresentation($request->get("presentation"));
+            }
+            if($request->get("stockMinimum")) {
+                $product->setStockMinimum($request->get("stockMinimum"));
+            }
+            if($request->get("active")) {
+                $product->setActive($request->get("active"));
+            }
 
             /** @var ProductsRepository $productsRepository */
             $productsRepository = $this->getDoctrine()->getRepository(Products::class);
@@ -228,6 +243,170 @@ class ProductsController extends Controller
             ];
         }
         return $saved;
+    }
+
+    public function editStockAction(Request $request, $id)
+    {
+        $is_valid = $this->get('app.security')->permissionSeccion('productos_gestion');
+        if (!$is_valid) {
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+        }
+
+        /** @var ProductsRepository $productsRepository */
+        $productsRepository = $this->getDoctrine()->getRepository(Products::class);
+        /** @var Products $product */
+        $product = $productsRepository->find($id);
+
+        if(!$product){
+            $this->get('session')->getFlashBag()->add('error', 'No se ha encontrado el producto');
+            return $this->redirect($this->generateUrl('nononsense_products'));
+        }
+        $productType = $product->getType();
+
+        if ($request->getMethod() == 'POST') {
+            $stockEdited = false;
+            $minStockEdited = $this->editMinStock($request->get('stockMinimum'), $product);
+
+            if($productType->getSlug() == 'material' && $product->getStock() != $request->get('stock')){
+                $stockEdited = $this->editStockMaterial($product->getStock(), $product);
+            }elseif(
+                $productType->getSlug() == 'reactivo' &&
+                $product->getStock() > 0 &&
+                $request->get('output') &&
+                count($request->get('output'))
+            ){
+                $stockEdited = $this->editStockReactivo($request->get('output'), $product);
+            }
+
+            if($minStockEdited || $stockEdited){
+                $this->get('session')->getFlashBag()->add('message', 'Datos actualizados con éxito');
+            }
+        }
+
+        $array_item = array();
+        $array_item['type'] = $productType;
+        $array_item['product'] = $product;
+
+        if($productType->getSlug() === 'reactivo'){
+            /** @var ProductsInputStatusRepository $productInputsRepository */
+            $productInputsRepository = $this->getDoctrine()->getRepository(ProductsInputs::class);
+            $array_item['productsInput'] = $productInputsRepository->findBy(['product' => $product, 'remainingAmount' => 1]);
+            return $this->render('NononsenseHomeBundle:Products:product_edit_stock_reactivo.html.twig', $array_item);
+        }
+        return $this->render('NononsenseHomeBundle:Products:product_edit_stock_material.html.twig', $array_item);
+    }
+
+    /**
+     *
+     * @param int $minStock
+     * @param Products $product
+     * @return bool
+     */
+    private function editMinStock($minStock, Products $product)
+    {
+        $result = false;
+        $productType = $product->getType();
+        if($product->getStockMinimum() != $minStock){
+            $minStockRequest = new Request(['stockMinimum' => $minStock]);
+            $saved = $this->saveProduct($product, $product->getQrCode(), $minStockRequest, $productType);
+            if ($saved['error'] === 0) {
+                $result = true;
+            } else {
+                $this->get('session')->getFlashBag()->add('error', $saved['message']);
+            }
+        }
+        return $result;
+    }
+
+    /** Product $prod
+     * @param int $newStock
+     * @param Products $product
+     * @return bool
+     * @throws Exception
+     */
+    private function editStockMaterial($newStock, Products $product)
+    {
+        $productStock = $product->getStock();
+        if($productStock != $newStock){
+            $diff = $newStock - $productStock;
+            if($diff > 0){
+                $result = $this->insertMaterial($product, $diff);
+            }else{
+                $outputAmount = $productStock - $newStock;
+                /** @var ProductsInputsRepository $productsInputsRepository */
+                $productsInputsRepository = $this->getDoctrine()->getRepository(ProductsInputs::class);
+                while($outputAmount > 0){
+                    $inputQr = $product->getQrCode();
+                    $productInput = $productsInputsRepository->getOneByQrCode($inputQr);
+                    if($productInput){
+                        $outputAmount = $this->generateSingleOutput($productInput, $outputAmount);
+                    }else{
+                        throw new Exception('Ha ocurrido un error y no ha sido posible hacer la retirada de todas las unidades.');
+                    }
+                }
+                $result = true;
+            }
+        }else{
+            $result = true;
+        }
+        return $result;
+    }
+
+    /** Product $prod
+     * @param int[] $inputIds
+     * @param Products $product
+     * @return bool
+     * @throws Exception
+     */
+    private function editStockReactivo($inputIds, Products $product)
+    {
+        $result = false;
+        if(count($inputIds)){
+            /** @var ProductsInputsRepository $productsInputRepository */
+            $productsInputRepository = $this->getDoctrine()->getRepository(ProductsInputs::class);
+            foreach($inputIds as $input){
+                /** @var ProductsInputs $productInput */
+                $productInput = $productsInputRepository->findOneBy(['id' => $input,'product' => $product]);
+                if($productInput){
+                    $outputAmount = $productInput->getRemainingAmount();
+                    $this->generateSingleOutput($productInput, $outputAmount);
+                    $result = true;
+                }else{
+                    throw new Exception('Ha ocurrido un error y no ha sido posible hacer la retirada de todas las unidades.');
+                }
+            }
+        }else{
+            $result = true;
+        }
+        return $result;
+    }
+
+    private function insertMaterial($product, $amount)
+    {
+        /** @var ProductsInputStatusRepository $statusRepository */
+        $statusRepository = $this->getDoctrine()->getRepository(ProductsInputStatus::class);
+        /** @var ProductsInputStatus $state */
+        $state = $statusRepository->findOneBy(['slug' => 'recibido']);
+        $productInput = new ProductsInputs();
+        $productInput->setQrCode($product->getQrCode());
+        $productInput->setReceptionDate(new Datetime());
+        $productInput->setAmount($amount);
+        $productInput->setRemainingAmount($amount);
+        $productInput->setState($state);
+        $productInput->setProduct($product);
+        $productInput->setUser($this->getUser());
+
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($productInput);
+        $em->flush();
+
+        if ($em->contains($productInput)) {
+            $stock = $product->getStock();
+            $product->setStock($stock + $amount);
+            $em->persist($product);
+            $em->flush();
+        }
+        return true;
     }
 
     public function inputAction(Request $request, $type, $qrCode)
@@ -337,103 +516,6 @@ class ProductsController extends Controller
         }
     }
 
-//    public function editInputAction(Request $request, $type, $id, $qrCode)
-//    {
-//        $is_valid = $this->get('app.security')->permissionSeccion('productos_recepcion');
-//        if (!$is_valid) {
-//            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
-//        }
-//
-//        $productInput = $this->getDoctrine()->getRepository('NononsenseHomeBundle:ProductsInputs')->find($id);
-//
-//        if (!$productInput) {
-//            $productInput = new ProductsInputs();
-//        }
-//
-//        if ($request->getMethod() == 'POST') {
-//            try {
-//                $em = $this->getDoctrine()->getManager();
-//
-//                $productInput->setReceptionDate(new Datetime());
-//                $productInput->setDestructionDate(new Datetime($request->get("destructionDate")));
-//
-//                if ($request->get("expiryDate") != '') {
-//                    $productInput->setExpiryDate(new Datetime($request->get("expiryDate")));
-//                }
-//
-//                if ($request->get("openDate") != '') {
-//                    $productInput->setOpenDate(new Datetime($request->get("openDate")));
-//                }
-//
-//                //actualizo amount y remainingAmount del productInput pero solo si estoy creando.
-//                if (!$productInput->getId()) {
-//                    $productInput->setAmount($request->get("amount"));
-//                    $productInput->setRemainingAmount($request->get("amount"));
-//                }
-//
-//                $update_stock_product = 0;
-//
-//                //si la entrada ya tenía un product y se lo estoy cambiando en esta edicion, actualizo los stocks del producto anterior y del nuevo
-//                if ($productInput->getProduct()) {
-//                    if ($request->get("product") != $productInput->getProduct()->getId()) {
-//                        $product_before = $productInput->getProduct();
-//                        $stock = $product_before->getStock();
-//                        $newStock = $stock - $productInput->getAmount();
-//                        $product_before->setStock($newStock);
-//                        $em->persist($product_before);
-//
-//                        $update_stock_product = 1;
-//                    }
-//                }
-//
-//
-//                //solo dejo modificar el producto si no tiene salidas asociadas
-//                if (count($productInput->getProductsOutputs()) == 0) {
-//                    $product = $this->getDoctrine()->getRepository('NononsenseHomeBundle:Products')->find(
-//                        $request->get("product")
-//                    );
-//                    if ($product) {
-//                        $productInput->setProduct($product);
-//
-//                        //actualizo stock del product pero solo si estoy creando o si le estoy cambiando el producto a la entrada
-//                        if ($update_stock_product == 1 || !$productInput->getId()) {
-//                            $stock = $product->getStock();
-//                            $newStock = $stock + $productInput->getAmount();
-//                            $product->setStock($newStock);
-//                            $em->persist($product);
-//                        }
-//                    }
-//                }
-//
-//
-//                $em->persist($productInput);
-//                $em->flush();
-//
-//                self::generateQrProductInput($productInput);
-//
-//                $this->get('session')->getFlashBag()->add(
-//                    'message',
-//                    "La recepción de material se ha guardado correctamente"
-//                );
-//                return $this->redirect($this->generateUrl('nononsense_products_inputs'));
-//            } catch (\Exception $e) {
-//                $this->get('session')->getFlashBag()->add(
-//                    'error',
-//                    "Error al intentar guardar los datos de la recepción: " . $e->getMessage()
-//                );
-//            }
-//        }
-//
-//
-//        $array_item = array();
-//
-//        $array_item['type'] = $type;
-//        $array_item['productInput'] = $productInput;
-//
-//        return $this->render('NononsenseHomeBundle:Products:input.html.twig', $array_item);
-//    }
-
-
     public function deleteAction(Request $request, $id)
     {
         $is_valid = $this->get('app.security')->permissionSeccion('productos_gestion');
@@ -492,99 +574,6 @@ class ProductsController extends Controller
         return $this->redirect($this->generateUrl('nononsense_products'));
     }
 
-//    public function deleteInputAction(Request $request, $type, $id)
-//    {
-//        $is_valid = $this->get('app.security')->permissionSeccion('productos_recepcion');
-//        if (!$is_valid) {
-//            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
-//        }
-//
-//        try {
-//            $em = $this->getDoctrine()->getManager();
-//            $productInput = $em->getRepository('NononsenseHomeBundle:ProductsInputs')->find($id);
-//
-//            if ($productInput) {
-//                if (count($productInput->getProductsOutputs()) > 0) {
-//                    $this->get('session')->getFlashBag()->add(
-//                        'message',
-//                        "La recepción de material no se puede borrar porque tiene salidas asociadas"
-//                    );
-//                } else {
-//                    $em->remove($productInput);
-//
-//                    //actualizo stock del product
-//                    $product = $productInput->getProduct();
-//                    $stock = $product->getStock();
-//                    $newStock = $stock - $productInput->getAmount();
-//                    $product->setStock($newStock);
-//                    $em->persist($product);
-//
-//                    $em->flush();
-//                    $this->get('session')->getFlashBag()->add(
-//                        'message',
-//                        "La recepción de material se ha borrado correctamente"
-//                    );
-//                }
-//            } else {
-//                $this->get('session')->getFlashBag()->add('message', "La recepción de material no existe");
-//            }
-//        } catch (\Exception $e) {
-//            $this->get('session')->getFlashBag()->add(
-//                'error',
-//                "Error al intentar borrar la recepción de material: " . $e->getMessage()
-//            );
-//        }
-//
-//        return $this->redirect($this->generateUrl('nononsense_products_inputs'));
-//    }
-
-//    public function deleteOutputAction(Request $request, $id)
-//    {
-//        $is_valid = $this->get('app.security')->permissionSeccion('productos_retirada');
-//        if (!$is_valid) {
-//            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
-//        }
-//
-//        try {
-//            $em = $this->getDoctrine()->getManager();
-//            $productOutput = $em->getRepository('NononsenseHomeBundle:ProductsOutputs')->find($id);
-//
-//            if ($productOutput) {
-//                //actualizo remainingAmount del productInput
-//                $productInput = $productOutput->getProductInput();
-//                $remainingAmount = $productInput->getRemainingAmount();
-//                $newRemainingAmount = $remainingAmount + $productOutput->getAmount();
-//                $productInput->setRemainingAmount($newRemainingAmount);
-//                $em->persist($productInput);
-//
-//                //actualizo stock del product
-//                $product = $productOutput->getProductInput()->getProduct();
-//                $stock = $product->getStock();
-//                $newStock = $stock + $productOutput->getAmount();
-//                $product->setStock($newStock);
-//                $em->persist($product);
-//
-//                $em->remove($productOutput);
-//
-//                $em->flush();
-//                $this->get('session')->getFlashBag()->add(
-//                    'message',
-//                    "La retirada de material se ha borrado correctamente"
-//                );
-//            } else {
-//                $this->get('session')->getFlashBag()->add('message', "La retirada de material no existe");
-//            }
-//        } catch (\Exception $e) {
-//            $this->get('session')->getFlashBag()->add(
-//                'error',
-//                "Error al intentar borrar la retirada de material: " . $e->getMessage()
-//            );
-//        }
-//
-//        return $this->redirect($this->generateUrl('nononsense_products_outputs'));
-//    }
-
-
     public function productosJsonAction(Request $request)
     {
         $data = [];
@@ -634,18 +623,26 @@ class ProductsController extends Controller
         /** @var ProductsRepository $productsInputsRepository */
         $productsInputsRepository = $this->getDoctrine()->getRepository(ProductsInputs::class);
 
+        /** @var ProductsTypesRepository $typesRepository */
+        $typesRepository = $this->getDoctrine()->getRepository(ProductsTypes::class);
+        $typeObj = $typesRepository->findOneBy(['slug' => $type]);
+
         if ($request->get("a_excel") == 1) {
             $items = $productsInputsRepository->list($filters, 0);
             return self::exportExcelProductsInputs($items);
         }
 
         $array_item["filters"] = $filters;
-        $array_item["type"] = $type;
+        $array_item["type"] = $typeObj;
         $array_item["items"] = $productsInputsRepository->list($filters);
         $array_item["count"] = $productsInputsRepository->count($filters);
         $array_item['pagination'] = Utils::getPaginator($request, $filters['limit_many'], $array_item["count"]);
 
-        return $this->render('NononsenseHomeBundle:Products:list_inputs.html.twig', $array_item);
+        if($typeObj->getSlug() == 'reactivo'){
+            return $this->render('NononsenseHomeBundle:Products:list_inputs_reactivo.html.twig', $array_item);
+        }else{
+            return $this->render('NononsenseHomeBundle:Products:list_inputs_material.html.twig', $array_item);
+        }
     }
 
     public function listOutputsAction(Request $request)
@@ -859,9 +856,14 @@ class ProductsController extends Controller
         $rootdir = $this->get('kernel')->getRootDir();
         $ruta_img_qr = $rootdir . "/files/material_outputs_qr/";
 
+        $data = [
+            'type' => 'outputReactivos',
+            'code' => $productOutput->getId()
+        ];
+
         $qrCode = new QrCode();
         $qrCode
-            ->setText($productOutput->getId())
+            ->setText(json_encode($data))
             ->setSize(500)
             ->setPadding(5)
             ->setErrorCorrection('high')
@@ -926,6 +928,29 @@ class ProductsController extends Controller
         exit();
     }
 
+    public function jsonOutputDataAction($type, $code){
+        if($type == 'outputReactivos'){
+            /** @var ProductsOutputsRepository $outputsRepository */
+            $outputsRepository = $this->getDoctrine()->getRepository(ProductsOutputs::class);
+            /** @var ProductsOutputs $output */
+            $output = $outputsRepository->find($code);
+
+            if($output){
+                $input = $output->getProductInput();
+                $data = [
+                    'u_nombre_sustancia' => $input->getProduct()->getName(),
+                    'u_cas' => ($input->getProduct()->getCasNumber())?:'',
+                    'u_lote' => ($input->getLotNumber())?:'',
+                    'u_caducidad' => ($input->getExpiryDate()) ? $input->getExpiryDate()->format('d-m-Y'):'',
+                    'u_n_vial' => ($input->getProduct()->getProvider())?:''
+                ];
+
+                return new Response(json_encode($data), 200);
+            }
+        }
+        return new Response(json_encode(array("error" => "QR not found")), 404);
+    }
+
     private function exportExcelProducts($items)
     {
         $phpExcelObject = $this->get('phpexcel')->createPHPExcelObject();
@@ -935,28 +960,21 @@ class ProductsController extends Controller
             ->setCellValue('A1', 'Part. Number')
             ->setCellValue('B1', 'Cash Number')
             ->setCellValue('C1', 'Nombre')
-            ->setCellValue('D1', 'Descripción')
-            ->setCellValue('E1', 'Stock')
-            ->setCellValue('F1', 'Proveedor')
-            ->setCellValue('G1', 'Stock Mínimo')
-            ->setCellValue('H1', 'Método análisis')
-            ->setCellValue('I1', 'Observaciones')
-            ->setCellValue('J1', 'Tipo de Producto');
+            ->setCellValue('D1', 'Stock')
+            ->setCellValue('E1', 'Proveedor')
+            ->setCellValue('F1', 'Stock Mínimo');
 
         $i = 2;
         foreach ($items as $item) {
+            /** @var Products $product */
+            $product = $item['product'];
             $phpExcelObject->getActiveSheet()
-                ->setCellValue('A' . $i, $item["partNumber"])
-                ->setCellValue('B' . $i, $item["cashNumber"])
-                ->setCellValue('C' . $i, $item["name"])
-                ->setCellValue('D' . $i, $item["description"])
-                ->setCellValue('E' . $i, $item["stock"])
-                ->setCellValue('F' . $i, $item["provider"])
-                ->setCellValue('G' . $i, $item["stockMinimum"])
-                ->setCellValue('H' . $i, $item["analysisMethod"])
-                ->setCellValue('I' . $i, $item["observations"])
-                ->setCellValue('J' . $i, $item["nameType"]);
-
+                ->setCellValue('A' . $i, $product->getPartNumber())
+                ->setCellValue('B' . $i, $product->getCasNumber())
+                ->setCellValue('C' . $i, $product->getName())
+                ->setCellValue('D' . $i, $product->getStock())
+                ->setCellValue('E' . $i, $product->getProvider())
+                ->setCellValue('F' . $i, $product->getStockMinimum());
             $i++;
         }
 
@@ -1025,7 +1043,6 @@ class ProductsController extends Controller
     private function exportExcelProductsOutputs($items)
     {
         $phpExcelObject = $this->get('phpexcel')->createPHPExcelObject();
-
         $phpExcelObject->getProperties();
         $phpExcelObject->setActiveSheetIndex(0)
             ->setCellValue('A1', 'Part. Number')

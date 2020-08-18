@@ -30,12 +30,7 @@
     </div>
     <div class="wrapper wrapper-content animated fadeInUp">
         <form class="form-horizontal" id="form_item" method="POST"
-              action="{{ path('nononsense_products_edit',{
-                  'type': type is defined ? type.slug : '',
-                  'id': product.id is not null ? product.id : 0,
-                  'qrCode': product.qrCode is not null ? product.qrCode : ''
-                })
-              }}">
+              action="{{ path('nononsense_products_edit_stock',{'id': product.id is not null ? product.id : 0})}}">
             <div class="row">
                 <div class="col-lg-4 col-lg-offset-1">
                     <div class="row">
@@ -50,39 +45,39 @@
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Nombre</label>
                             <div class="col-sm-7">
-                                <input type="text" name="name" class="form-control" value="{{product.name is not null ? product.name : ''}}" required="required">
+                                <input type="text" name="name" class="form-control" value="{{product.name is not null ? product.name : ''}}" readonly="readonly">
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Código interno</label>
                             <div class="col-sm-7">
-                                <input type="text" name="internalCode" class="form-control" value="{{product.internalCode is not null ? product.internalCode : ''}}" required="required">
+                                <input type="text" name="internalCode" class="form-control" value="{{product.internalCode is not null ? product.internalCode : ''}}" readonly="readonly">
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Part. Number</label>
                             <div class="col-sm-7">
-                                <input type="text" name="partNumber" class="form-control" value="{{product.partNumber is not null ? product.partNumber : ''}}" required="required">
+                                <input type="text" name="partNumber" class="form-control" value="{{product.partNumber is not null ? product.partNumber : ''}}" readonly="readonly">
                             </div>
                         </div>
                         {% if type is defined and type.slug == 'reactivo' %}
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Cas. Number</label>
                             <div class="col-sm-7">
-                                <input type="text" name="casNumber" class="form-control" value="{{product.casNumber is not null ? product.casNumber : ''}}" required="required">
+                                <input type="text" name="casNumber" class="form-control" value="{{product.casNumber is not null ? product.casNumber : ''}}" readonly="readonly">
                             </div>
                         </div>
                         {% endif %}
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Proveedor</label>
                             <div class="col-sm-7">
-                                <input type="text" name="provider" class="form-control" value="{{product.provider is not null ? product.provider : ''}}" required="required">
+                                <input type="text" name="provider" class="form-control" value="{{product.provider is not null ? product.provider : ''}}" readonly="readonly">
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Presentación</label>
                             <div class="col-sm-7">
-                                <input type="text" name="presentation" class="form-control" value="{{product.presentation is not null ? product.presentation : ''}}" required="required">
+                                <input type="text" name="presentation" class="form-control" value="{{product.presentation is not null ? product.presentation : ''}}" readonly="readonly">
                             </div>
                         </div>
                         <div class="form-group">
@@ -90,7 +85,13 @@
                             <div class="col-sm-7">
                                 <input type="text" name="stockMinimum" class="form-control" value="{{product.stockMinimum is not null ? product.stockMinimum : ''}}" required="required">
                             </div>
-                        </div>  
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Stock</label>
+                            <div class="col-sm-7">
+                                <input type="text" name="stock" class="form-control" value="{{product.stock is not null ? product.stock : ''}}" required="required">
+                            </div>
+                        </div>
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Activo</label>
                             <div class="col-sm-7">

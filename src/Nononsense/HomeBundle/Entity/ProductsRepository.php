@@ -78,14 +78,15 @@ class ProductsRepository extends EntityRepository
         return $query->getResult();
     }
 
-    private function fillFilersQuery($filters, $list){
-
-        $list->andWhere('p.destroyed=0');
-
+    private function fillFilersQuery($filters, $list)
+    {
         if(!empty($filters)){
-
             if(isset($filters["partNumber"])){
                 $list->andWhere("p.partNumber LIKE '%".$filters["partNumber"]."%'");
+            }
+
+            if(isset($filters["casNumber"])){
+                $list->andWhere("p.casNumber LIKE '%".$filters["casNumber"]."%'");
             }
 
             if(isset($filters["name"])){
@@ -95,6 +96,8 @@ class ProductsRepository extends EntityRepository
             if(isset($filters["active"])){
                 if($filters["active"]==2){
                     $filters["active"]=0;
+                }else{
+                    $filters["active"]=1;
                 }
                 $list->andWhere("p.active=:active");
                 $list->setParameter('active', $filters["active"]);

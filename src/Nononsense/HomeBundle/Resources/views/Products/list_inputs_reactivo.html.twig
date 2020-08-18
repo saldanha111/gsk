@@ -30,11 +30,11 @@
                         <input type="hidden" id='a_excel' name='a_excel' />
                         <input type="hidden" id='url_product_input_delete' value="{{ path('nononsense_products_inputs_delete',{'id': 'xxx'}) }}" />
                         <div class="form-group">
-                            <label class="col-sm-2 control-label item_filter">Part. Number</label>
+                            <label class="col-sm-1 control-label item_filter">Part. Number</label>
                             <div class="col-sm-2 item_filter">
                                 <input type="text" name="f_partNumber" class="form-control" value="{{filters.partNumber is defined ? filters.partNumber : ''}}">
                             </div>
-                            <label class="col-sm-2 control-label item_filter">Nombre</label>
+                            <label class="col-sm-1 control-label item_filter">Nombre</label>
                             <div class="col-sm-2 item_filter">
                                 <input type="text" name="f_name" class="form-control" value="{{filters.name is defined ? filters.name : ''}}">
                             </div>
@@ -67,8 +67,9 @@
                             <th>Proveedor</th>
                             <th>Presentación</th>
                             <th>Cantidad</th>
-                            <th>Qr</th>
+                            <th>Fecha de recepción</th>
                             <th>Comentarios</th>
+                            <th>Qr</th>
                         </tr>
                         </thead>
                         {% if items is defined %}
@@ -81,10 +82,15 @@
                                 <td>{{item.product.provider}}</td>
                                 <td>{{item.product.presentation}}</td>
                                 <td>{{item.amount}}</td>
+                                <td>{{ item.receptionDate | date("d-m-Y")  }}</td>
+                                <td>
+                                    <p data-toggle="tooltip" data-placement="left" title="{{ item.observations|length > 50 ? item.observations : '' }}">
+                                        {{ item.observations|length > 50 ? item.observations|slice(0, 50) ~ '...' : item.observations  }}
+                                    </p>
+                                </td>
                                 <td>
                                     <a href="{{path('nononsense_products_inputs_view_qr', {'id': item.id}) }}" target="_blank" class="btn btn-xs"><i class="fa fa-qrcode" aria-hidden="true"></i> Ver QR</a>
                                 </td>
-                                <td>{{item.observations}}</td>
                             </tr>
                             {% endfor %}
                         {% endif %}
@@ -112,6 +118,8 @@
 
     ActivateMenu('browse_product_inputs');
     $('#side-menu').metisMenu();
+
+    $('[data-toggle="tooltip"]').tooltip();
 
     $('.my_date').datepicker({
       autoclose: true,
