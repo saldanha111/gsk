@@ -69,6 +69,7 @@
                             <th>Cantidad</th>
                             <th>Fecha de recepción</th>
                             <th>Comentarios</th>
+                            <th>Usuario</th>
                             <th>Qr</th>
                         </tr>
                         </thead>
@@ -88,6 +89,7 @@
                                         {{ item.observations|length > 50 ? item.observations|slice(0, 50) ~ '...' : item.observations  }}
                                     </p>
                                 </td>
+                                <td>{{ item.user.name }}</td>
                                 <td>
                                     <a href="{{path('nononsense_products_inputs_view_qr', {'id': item.id}) }}" target="_blank" class="btn btn-xs"><i class="fa fa-qrcode" aria-hidden="true"></i> Ver QR</a>
                                 </td>
