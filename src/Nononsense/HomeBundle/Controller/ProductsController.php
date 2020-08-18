@@ -623,18 +623,26 @@ class ProductsController extends Controller
         /** @var ProductsRepository $productsInputsRepository */
         $productsInputsRepository = $this->getDoctrine()->getRepository(ProductsInputs::class);
 
+        /** @var ProductsTypesRepository $typesRepository */
+        $typesRepository = $this->getDoctrine()->getRepository(ProductsTypes::class);
+        $typeObj = $typesRepository->findOneBy(['slug' => $type]);
+
         if ($request->get("a_excel") == 1) {
             $items = $productsInputsRepository->list($filters, 0);
             return self::exportExcelProductsInputs($items);
         }
 
         $array_item["filters"] = $filters;
-        $array_item["type"] = $type;
+        $array_item["type"] = $typeObj;
         $array_item["items"] = $productsInputsRepository->list($filters);
         $array_item["count"] = $productsInputsRepository->count($filters);
         $array_item['pagination'] = Utils::getPaginator($request, $filters['limit_many'], $array_item["count"]);
 
-        return $this->render('NononsenseHomeBundle:Products:list_inputs.html.twig', $array_item);
+        if($typeObj->getSlug() == 'reactivo'){
+            return $this->render('NononsenseHomeBundle:Products:list_inputs_reactivo.html.twig', $array_item);
+        }else{
+            return $this->render('NononsenseHomeBundle:Products:list_inputs_material.html.twig', $array_item);
+        }
     }
 
     public function listOutputsAction(Request $request)
