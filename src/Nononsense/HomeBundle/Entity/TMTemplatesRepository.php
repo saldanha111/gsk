@@ -34,6 +34,12 @@ class TMTemplatesRepository extends EntityRepository
 	                $logical=" AND ";
 	            }
 	        }
+
+            if(isset($filters["id"])){
+                $sintax.=$logical." t.id=:id";
+                $parameters["id"]=$filters["id"];
+                $logical=" AND ";
+            }
         }
 
 

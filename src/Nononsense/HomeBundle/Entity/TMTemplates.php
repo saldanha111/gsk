@@ -41,13 +41,22 @@ class TMTemplates
      */
     protected $prefix;
 
+    
     /**
-     * @var integer
+     * @var string
      *
-     * @ORM\Column(name="number", type="integer")
+     * @ORM\Column(name="number", type="string")
      * @Groups({"detail_document","json"})
      */
     protected $number;
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="number_id", type="integer", nullable=true)
+     */
+    protected $number_id;
+
 
     /**
      * @var integer
@@ -80,7 +89,7 @@ class TMTemplates
     /**
      * @var string
      *
-     * @ORM\Column(name="description", type="string", length=200)
+     * @ORM\Column(name="description", type="text")
      * @Assert\NotBlank(message = "You shoud insert a description")
      * @Groups({"detail_document"})
      */
@@ -89,11 +98,11 @@ class TMTemplates
     /**
      * @var string
      *
-     * @ORM\Column(name="request", type="string", length=200)
+     * @ORM\Column(name="history_change", type="text")
      * @Assert\NotBlank(message = "You shoud insert a request")
      * @Groups({"detail_document"})
      */
-    protected $request;
+    protected $historyChange;
 
     /**
      * @var boolean $logbook
@@ -104,6 +113,14 @@ class TMTemplates
     protected $logbook;
 
     /**
+     * @var boolean $isSimple
+     *
+     * @ORM\Column(name="is_simple", type="boolean",  options={"default" = false})
+     * @Groups({"detail_document"})
+     */
+    protected $isSimple;
+
+    /**
      * @ORM\Column(type="date")
      */
     protected $created;
@@ -112,6 +129,12 @@ class TMTemplates
      * @ORM\Column(type="date")
      */
     protected $modified;
+
+    /**
+     * @ORM\ManyToMany(targetEntity="\Nononsense\HomeBundle\Entity\RetentionCategories", inversedBy="templates")
+     * @ORM\JoinTable(name="tm_retentions")
+     */
+    private $retentions;
 
     /**
      * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\Areas", inversedBy="tmTemplates")
@@ -322,29 +345,6 @@ class TMTemplates
     }
 
     /**
-     * Set request
-     *
-     * @param string $request
-     * @return TMTemplates
-     */
-    public function setRequest($request)
-    {
-        $this->request = $request;
-
-        return $this;
-    }
-
-    /**
-     * Get request
-     *
-     * @return string 
-     */
-    public function getRequest()
-    {
-        return $this->request;
-    }
-
-    /**
      * Set area
      *
      * @param \Nononsense\HomeBundle\Entity\Areas $area
@@ -493,29 +493,6 @@ class TMTemplates
     }
 
     /**
-     * Set number
-     *
-     * @param integer $number
-     * @return TMTemplates
-     */
-    public function setNumber($number)
-    {
-        $this->number = $number;
-
-        return $this;
-    }
-
-    /**
-     * Get number
-     *
-     * @return integer 
-     */
-    public function getNumber()
-    {
-        return $this->number;
-    }
-
-    /**
      * Set template_id
      *
      * @param integer $templateId
@@ -648,5 +625,130 @@ class TMTemplates
     public function getAreas()
     {
         return $this->areas;
+    }
+
+    /**
+     * Set historyChange
+     *
+     * @param string $historyChange
+     * @return TMTemplates
+     */
+    public function setHistoryChange($historyChange)
+    {
+        $this->historyChange = $historyChange;
+
+        return $this;
+    }
+
+    /**
+     * Get historyChange
+     *
+     * @return string 
+     */
+    public function getHistoryChange()
+    {
+        return $this->historyChange;
+    }
+
+    /**
+     * Set isSimple
+     *
+     * @param boolean $isSimple
+     * @return TMTemplates
+     */
+    public function setIsSimple($isSimple)
+    {
+        $this->isSimple = $isSimple;
+
+        return $this;
+    }
+
+    /**
+     * Get isSimple
+     *
+     * @return boolean 
+     */
+    public function getIsSimple()
+    {
+        return $this->isSimple;
+    }
+
+    /**
+     * Add retentions
+     *
+     * @param \Nononsense\HomeBundle\Entity\RetentionCategories $retentions
+     * @return TMTemplates
+     */
+    public function addRetention(\Nononsense\HomeBundle\Entity\RetentionCategories $retentions)
+    {
+        $this->retentions[] = $retentions;
+
+        return $this;
+    }
+
+    /**
+     * Remove retentions
+     *
+     * @param \Nononsense\HomeBundle\Entity\RetentionCategories $retentions
+     */
+    public function removeRetention(\Nononsense\HomeBundle\Entity\RetentionCategories $retentions)
+    {
+        $this->retentions->removeElement($retentions);
+    }
+
+    /**
+     * Get retentions
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getRetentions()
+    {
+        return $this->retentions;
+    }
+
+    /**
+     * Set number
+     *
+     * @param string $number
+     * @return TMTemplates
+     */
+    public function setNumber($number)
+    {
+        $this->number = $number;
+
+        return $this;
+    }
+
+    /**
+     * Get number
+     *
+     * @return string 
+     */
+    public function getNumber()
+    {
+        return $this->number;
+    }
+
+    /**
+     * Set number_id
+     *
+     * @param integer $numberId
+     * @return TMTemplates
+     */
+    public function setNumberId($numberId)
+    {
+        $this->number_id = $numberId;
+
+        return $this;
+    }
+
+    /**
+     * Get number_id
+     *
+     * @return integer 
+     */
+    public function getNumberId()
+    {
+        return $this->number_id;
     }
 }

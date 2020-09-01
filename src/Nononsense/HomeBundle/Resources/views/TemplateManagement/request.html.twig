@@ -4,6 +4,7 @@
     {{ parent() }}
     <link rel="stylesheet" href="/css/plugins/datapicker/datepicker3.css">
     <link rel="stylesheet" href="/plugins/select2/dist/css/select2.min.css">
+    <link rel="stylesheet" href="/plugins/dual_listbox/dist/multi.min.css">
 {% endblock %}
 {% block main_title %} Solicitud gestión de plantilla {% endblock %}
 
@@ -16,7 +17,7 @@
             {{ flashMessage }}
         </div>
         {% endfor %}
-        <form class="form-horizontal" id="form_item" action="{{ path('nononsense_documents_update',{'id': item.id is defined ? item.id : 0}) }}" method="POST"  enctype="multipart/form-data">
+        <form class="form-horizontal" id="form_item" action="{{ path('nononsense_tm_request_save') }}" method="POST"  enctype="multipart/form-data">
             <div class="row">
                 <div class="col-lg-10 col-lg-offset-1">
                     <div class="row">
@@ -38,7 +39,7 @@
                         <div class="form-group" id="box_existent_template" style="display:none">
                             <label class="col-sm-2 control-label">Buscar Plantilla</label>
                             <div class="col-sm-4">
-                              <select class="form-control select_template" style="width: 100%;" required="required">
+                              <select class="form-control select_template" style="width: 100%;">
                               </select>
                             </div>
                             <input type="hidden" name="template" value="">
@@ -73,19 +74,50 @@
                                     <option value=""></option>
                                   </select>
                                 </div>
-                            </div> 
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">Cat.Retención</label>
+                                <div class="col-sm-7">
+                                  {% if retention_categories is defined %}
+                                    <select multiple="multiple" name="retention[]" id="retention">
+                                      {% for retention in retention_categories %}
+                                        <option value="{{retention.id}}">{{retention.name}}</option>
+                                      {% endfor %}
+                                    </select>
+                                  {% endif %}
+                                </div>
+                            </div>
+
+                            <div id="box_valid_comis" style="display:none">
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">Num.Proyecto</label>
+                                    <div class="col-sm-4">
+                                        <input type="text" name="num_project" class="form-control" value="">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-sm-4 col-sm-offset-2">
+                                        <div class="checkbox">
+                                            <label>
+                                                <input name="is_simple" value="1" type="checkbox"> Plantilla simple
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="form-group">
                             <label class="col-sm-2 control-label">Desc. solicitud</label>
-                            <div class="col-sm-4">
+                            <div class="col-sm-7">
                                 <textarea name="description" rows="10" cols="40" required="required" style="width:100%"></textarea>
                             </div>
                         </div> 
 
                         <div class="form-group">
                             <label class="col-sm-2 control-label">Historia del cambio</label>
-                            <div class="col-sm-4">
+                            <div class="col-sm-7">
                                 <textarea name="history_change" rows="10" cols="40" required="required" style="width:100%"></textarea>
                             </div>
                         </div>
@@ -191,8 +223,15 @@
             </div>
 
             <div class="row">
-                <div class="col-sm-11">
-                    <button type="submit" class="btn btn-primary  pull-right"><i class="fa fa-floppy-o" aria-hidden="true"></i> Guardar</button>
+                <div class="col-lg-10 col-lg-offset-1">
+                    <div id="signature-pad" class="input-group">
+                            <h2>Introduzca su firma</h2>
+                            <canvas width="300" height="150" style="touch-action: none; border: 2px solid #eee; box-shadow: 0px 0px 6px 1px rgba(80, 90, 100, 0.5)"></canvas>
+                        </div>
+                        <input type="hidden" id="signature" name="signature" />
+                        <a name="borrarFirmar" class="btn btn-secondary" id="borrarFirmar">Limpiar firma</a>
+                        <button type="submit" class="btn btn-primary"><i class="fa fa-floppy-o" aria-hidden="true"></i> Firmar</button>
+                    </div>
                 </div>
             </div>
         </form>
@@ -247,6 +286,8 @@
     <script src="/js/plugins/datapicker/locales/bootstrap-datepicker.es.js" charset="UTF-8"></script>
     <script src="/plugins/select2/dist/js/select2.full.min.js"></script>
     <script src="/plugins/select2/es.js"></script>
+    <script src="/plugins/dual_listbox/dist/multi.min.js"></script>
+    <script src="/js/plugins/signature-pad/signature-pad.min.js"></script>
     <script>
     var dataworkflow;
     $( document ).ready(function() {
@@ -261,11 +302,20 @@
         $(document).on('click', '.add_line', function() {
             add_line($(this));
         });
+        
 
         /* Nos traemos los usuarios y grupos para cada paso del workflow según el area */
         $(document).on('change', '[name="area"]', function() {
             load_users_to_area($(this).val());
             load_prefixes_to_area($(this).val());
+            if($(this).val()==10 || $(this).val()==11){
+                $("#box_valid_comis").show();
+                $("[name='num_project']").prop('required',true);
+            }
+            else{
+                $("#box_valid_comis").hide();
+                $("[name='num_project']").prop('required',false);
+            }
         });
 
         /* No podemos añadir un mismo usuario en un mismo paso del workflow */        
@@ -340,15 +390,27 @@
             switch($(this).val()){
                 case "1":
                     $("#box_new_template").show();
+                    $("[name='area']").prop('required',true);
+                    $("[name='name']").prop('required',true);
+                    $("[name='prefix']").prop('required',true);
+                    $("[name='template']").prop('required',false);
                     $("#box_existent_template").hide();
                     break;
                 case "2":
                     $("#box_new_template").hide();
+                    $("[name='area']").prop('required',false);
+                    $("[name='name']").prop('required',false);
+                    $("[name='prefix']").prop('required',false);
+                    $("[name='template']").prop('required',true);
                     $("#box_existent_template").show();
                     break;
             }
 
             clear_workflow();
+        });
+
+        $('#retention' ).multi({ non_selected_header: 'Categorías de retención disponibles',
+          selected_header: 'Categorías de retención que aplican'
         });
 
 
@@ -384,10 +446,36 @@
             escapeMarkup: function(m) { return m; }
         });
 
+        var canvas = document.querySelector("canvas");
+
+        var signaturePad = new SignaturePad(canvas);
+
+
+        $('#borrarFirmar').on('click', function () {
+            signaturePad.clear();
+        });
+
         $('.select_template').on("select2:select", function(e) { 
             $('input[name ="template"]').val(e.params.data.id);
             load_users_to_area(e.params.data.area);
             load_prefixes_to_area(e.params.data.area);
+        });
+
+        $('#form_item').on('submit', function(e){
+            if($('[name="retention[]"]').val() && $('[name="request_type"]').val()==1){
+                if (signaturePad.isEmpty()){
+                    toastr.error("Debe firmar la solicitud",'aviso');
+
+                }else{
+                    $("#signature").val(signaturePad.toDataURL());
+                    console.log($("#signature").val());
+                    return true;
+                }
+            }
+            else{
+                toastr.error("Debe añadir alguna categoría de retención",'aviso');
+            }
+            return false;
         });
 
     });
@@ -411,7 +499,7 @@
     function fill_users(element,type){
         if (typeof dataworkflow !== 'undefined' && typeof dataworkflow.users !== 'undefined') {
             $.each(dataworkflow.users[type],function(key, value){
-                element.find('select').append('<option value=' + key + '>' + value.name + '</option>');
+                element.find('select').append('<option value=' + value.id + '>' + value.name + '</option>');
             });
         }
     }
@@ -420,7 +508,7 @@
     function fill_groups(element,type){
         if (typeof dataworkflow !== 'undefined' && typeof dataworkflow.groups !== 'undefined') {
             $.each(dataworkflow.groups[type],function(key, value){
-                element.find('select').append('<option value=' + key + '>' + value.name + '</option>');
+                element.find('select').append('<option value=' + value.id + '>' + value.name + '</option>');
             });
         }
     }
@@ -482,12 +570,15 @@
 
     /* Reseteamos el workflow y añadimos una linea */
     function reset_workflow(){
+        var var_error=0;
+        var string_error="";
         clear_workflow();
         $('[name="owner"]').find('option').not(':first').remove();
         $('[name="backup"]').find('option').not(':first').remove();
 
         $.each(dataworkflow.users,function(key, value){
             if(dataworkflow.users[key].length<1){
+                var_error=1;
                 switch(key){
                     case "dueno": rol="dueño";break;
                     case "admin": rol="administrador";break;
@@ -495,12 +586,15 @@
                     case "test": rol="tester";break;
                     case "aprob": rol="aprobador";break;
                 }
-                toastr.error("No tiene ningún usuario "+rol+" asignado a este área','", 'Error');
+                string_error+="-No tiene ningún usuario "+rol+" asignado a este área.<br><br>";
             }
         });
+        if(var_error==1){
+            toastr.error(string_error, 'Error');
+        }
         $.each(dataworkflow.users.dueno,function(key, value){
-            $('[name="owner"]').append('<option value=' + key + '>' + value.name + '</option>');
-            $('[name="backup"]').append('<option value=' + key + '>' + value.name + '</option>');
+            $('[name="owner"]').append('<option value=' + value.id + '>' + value.name + '</option>');
+            $('[name="backup"]').append('<option value=' + value.id + '>' + value.name + '</option>');
         });
 
         $(".pre_col_workflow").find(".add_line").each(function() {
@@ -511,9 +605,8 @@
     /* Reseteamos el workflow y añadimos una linea */
     function load_prefixes(data){
         $('[name="prefix"]').find('option').not(':first').remove();
-
         $.each(data.prefixes,function(key, value){
-            $('[name="prefix"]').append('<option value=' + key + '>' + value.name + '</option>');
+            $('[name="prefix"]').append('<option value=' + value.id + '>' + value.name + '</option>');
         });
     }
 
