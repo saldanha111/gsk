@@ -27,7 +27,8 @@ class RecordsContractsController extends Controller
 {
     public const VERSION_DIRECTOR = 1; // Versión del contrato para el Director de rrhh.
     public const VERSION_COMMISSION = 2; // Versión del contrato para el comité de rrhh.
-    public const VERSION_COMPLETE = 3; // Versión completa del contrato.
+    public const WORKER_SIGN_COMISSION = 4; // Número de firma del trabajador para el contrato del comité de rrhh.
+    public const WORKER_SIGN_DIRECTOR = 3; // Número de firma del trabajador para el contrato del director de rrhh.
 
     public function listAction(Request $request)
     {
@@ -255,18 +256,18 @@ class RecordsContractsController extends Controller
         switch ($record->getStatus()){
             case 0 :
                 $scriptUrl = $baseUrl . "../js/js_oarodoc/contracts_creation.js?v=" . uniqid();
-                $fillInUrl = $this->getFillInUrl($record, $scriptUrl);
+                $fillInUrl = $this->getFillInUrl($record, $scriptUrl, self::VERSION_DIRECTOR);
                 break;
             case 1 :
             case 2 :
             case 3 :
                 $scriptUrl = $baseUrl . "../js/js_oarodoc/contracts_without_perms.js?v=" . uniqid();
-                $fillInUrl = $this->getFillInUrl($record, $scriptUrl);
+                $fillInUrl = $this->getFillInUrl($record, $scriptUrl, self::VERSION_DIRECTOR);
                 break;
             case 4 :
                 $fillInUrl = $this->container->get('router')->generate(
                     'nononsense_records_contracts_public_view_contract',
-                    ["token" => $record->getTokenPublicSignature(), "version" => self::VERSION_COMPLETE]
+                    ["token" => $record->getTokenPublicSignature(), "version" => self::VERSION_DIRECTOR]
                 );
                 break;
             default :
@@ -295,12 +296,12 @@ class RecordsContractsController extends Controller
             case 2 :
             case 3 :
                 $scriptUrl = $baseUrl . "../js/js_oarodoc/contracts_sign_comite_rrhh.js?v=" . uniqid();
-                $fillInUrl = $this->getFillInUrl($record, $scriptUrl);
+                $fillInUrl = $this->getFillInUrl($record, $scriptUrl, self::VERSION_COMMISSION);
                 break;
             case 4 :
                 $fillInUrl = $this->container->get('router')->generate(
                     'nononsense_records_contracts_public_view_contract',
-                    ["token" => $record->getTokenPublicSignature(), "version" => self::VERSION_COMMISSION]
+                    ["token" => $record->getTokenPublicSignatureComite(), "version" => self::VERSION_COMMISSION]
                 );
                 break;
             default :
@@ -329,7 +330,7 @@ class RecordsContractsController extends Controller
             case 2 :
             case 3 :
                 $scriptUrl = $baseUrl . "../js/js_oarodoc/contracts_sign_director_rrhh.js?v=" . uniqid();
-                $fillInUrl = $this->getFillInUrl($record, $scriptUrl);
+                $fillInUrl = $this->getFillInUrl($record, $scriptUrl, self::VERSION_DIRECTOR);
                 break;
             case 4 :
                 $fillInUrl = $this->container->get('router')->generate(
@@ -347,7 +348,7 @@ class RecordsContractsController extends Controller
         return $fillInUrl;
     }
 
-    private function getFillInUrl($record, $scriptUrl)
+    private function getFillInUrl($record, $scriptUrl, $version)
     {
         $baseUrl = $this->getParameter("cm_installation");
         $id = $record->getId();
@@ -355,7 +356,7 @@ class RecordsContractsController extends Controller
         $redirectUrl = $baseUrl . "recordsContracts/redirectFromData/" . $id;
         $token_get_data = $this->get('utilities')->generateToken();
 
-        $getDataUrl = $baseUrlAux . "dataRecordsContracts/requestData/" . $id . "/" . $token_get_data;
+        $getDataUrl = $baseUrlAux . "dataRecordsContracts/requestData/" . $id . "/" . $token_get_data . "/" . $version;
         $callbackUrl = $baseUrlAux . "dataRecordsContracts/returnData/" . $id;
 
         $id_plantilla = $record->getContract()->getPlantillaId();
@@ -396,16 +397,25 @@ class RecordsContractsController extends Controller
             }
 
             // La firma del trabajador aparece siempre si ya ha firmado.
-            $recordsContractsSignatures = $this->getDoctrine()
-                ->getRepository('NononsenseHomeBundle:RecordsContractsSignatures')
-                ->findOneBy(array('record' => $record, 'number' => '3'));
+            if($sign_public_type == self::VERSION_DIRECTOR){
+                $recordsContractsSignatures = $this->getDoctrine()
+                    ->getRepository('NononsenseHomeBundle:RecordsContractsSignatures')
+                    ->findOneBy(array('record' => $record, 'number' => self::WORKER_SIGN_DIRECTOR));
+            }elseif($sign_public_type == self::VERSION_COMMISSION){
+                $recordsContractsSignatures = $this->getDoctrine()
+                    ->getRepository('NononsenseHomeBundle:RecordsContractsSignatures')
+                    ->findOneBy(array('record' => $record, 'number' => self::WORKER_SIGN_COMISSION));
+            }
 
             if ($recordsContractsSignatures) {
                 $firma = $recordsContractsSignatures->getFirma();
                 $data["data"]["firma_trabajador"] = "<img src='" . $firma . "' />";
+                $data["data"]["nom_trabajador"] = $data["data"]["tra_nombre"];
+                $data["data"]["f_fir_trabajador"] = ($recordsContractsSignatures->getModified()) ? $recordsContractsSignatures->getModified()->format('d-m-Y') : '';
             }
 
             // La firma del Director siempre aparece si ya ha firmado.
+            /** @var RecordsContractsSignatures $recordsContractsSignatures */
             $recordsContractsSignatures = $this->getDoctrine()
                 ->getRepository('NononsenseHomeBundle:RecordsContractsSignatures')
                 ->findOneBy(array('record' => $record, 'number' => '1'));
@@ -413,10 +423,12 @@ class RecordsContractsController extends Controller
             if ($recordsContractsSignatures) {
                 $firma = $recordsContractsSignatures->getFirma();
                 $data["data"]["firma_direccion_rrhh"] = "<img src='" . $firma . "' />";
+                $data["data"]["nom_director"] = $recordsContractsSignatures->getUserEntiy()->getName();
+                $data["data"]["f_fir_director"] = ($recordsContractsSignatures->getModified()) ? $recordsContractsSignatures->getModified()->format('d-m-Y') : '';
             }
 
-            // La firma de la comisión sólo es visible si estamos viendo la versión de la comisión o la versión completa
-            if ($sign_public_type == self::VERSION_COMMISSION || $sign_public_type == self::VERSION_COMPLETE) {
+            // La firma de la comisión sólo es visible si estamos viendo la versión de la comisión
+            if ($sign_public_type == self::VERSION_COMMISSION) {
                 $recordsContractsSignatures = $this->getDoctrine()
                     ->getRepository('NononsenseHomeBundle:RecordsContractsSignatures')
                     ->findOneBy(array('record' => $record, 'number' => '2'));
@@ -424,6 +436,8 @@ class RecordsContractsController extends Controller
                 if ($recordsContractsSignatures) {
                     $firma = $recordsContractsSignatures->getFirma();
                     $data["data"]["firma_comite_rrhh"] = "<img src='" . $firma . "' />";
+                    $data["data"]["nom_comite"] = $recordsContractsSignatures->getUserEntiy()->getName();
+                    $data["data"]["f_fir_comite"] = ($recordsContractsSignatures->getModified()) ? $recordsContractsSignatures->getModified()->format('d-m-Y') : '';
                 }
             }
 
@@ -914,28 +928,37 @@ class RecordsContractsController extends Controller
                 $em = $this->getDoctrine()->getManager();
 
                 $token = uniqid() . rand(10000, 90000);
+                $token_comit = rand(10000, 90000) . uniqid();
                 $pin = rand(100000, 900000);
 
                 $record->setTokenPublicSignature($token);
+                $record->setTokenPublicSignatureComite($token_comit);
                 $record->setPin($pin);
                 $em->persist($record);
 
                 $signLink1 = $this->generateUrl(
                     'nononsense_records_contracts_public_sign_contract',
-                    ['version' => 3, 'token' => $token],
+                    ['version' => self::VERSION_DIRECTOR, 'token' => $token],
+                    UrlGeneratorInterface::ABSOLUTE_URL
+                );
+
+                $signLink2 = $this->generateUrl(
+                    'nononsense_records_contracts_public_sign_contract',
+                    ['version' => self::VERSION_COMMISSION, 'token' => $token_comit],
                     UrlGeneratorInterface::ABSOLUTE_URL
                 );
 
                 $sended = false;
                 switch($type){
                     case 'email':
-                        if($this->sendByEmail($email_email, $signLink1, $pin)){
+                        if($this->sendByEmail($email_email, $signLink1, $signLink2, $pin)){
                             $this->get('Utilities')->saveLog('mail', 'contrato enviado por mail');
                             $sended = true;
                         }
                         break;
                     case 'sms':
-                        $textMessage =  'Use el siguiente pin ' . $pin . ' para firmar el siguiente contrato:' . PHP_EOL . $signLink1;
+                        $textMessage =  'Use el siguiente pin ' . $pin . ' para firmar los siguientes contratos: ' . $signLink1;
+                        $textMessage .= ' (1/2) | ' . $signLink2 . ' (2/2)';
                         if($this->sendBySMS($phonePrefix.$phoneNumber, $textMessage)){
                             $sended = true;
                             $this->get('Utilities')->saveLog('sms', 'contrato enviado por sms');
@@ -960,7 +983,7 @@ class RecordsContractsController extends Controller
         return $this->redirect($this->container->get('router')->generate('nononsense_records_contracts'));
     }
 
-    private function sendByEmail($email_email, $signLink1, $pin)
+    private function sendByEmail($email_email, $signLink1, $signLink2, $pin)
     {
         $mailSubject = 'Firma Contrato';
         $mailTo = $email_email;
@@ -968,6 +991,7 @@ class RecordsContractsController extends Controller
             'NononsenseHomeBundle:Email:requestSignContract.html.twig',
             array(
                 'link1' => $signLink1,
+                'link2' => $signLink2,
                 'pin' => $pin,
             )
         );
@@ -1046,46 +1070,63 @@ class RecordsContractsController extends Controller
             'type' => 'none',
             'message' => ''
         ];
-        $array_data = array();
 
-        $record = $this->getDoctrine()
-            ->getRepository('NononsenseHomeBundle:RecordsContracts')
-            ->findOneByTokenPublicSignature($token);
+        $contract = null;
+        $signNumber = null;
+        $secondSignNumber = null;
 
-        if ($record) {
+        if($version == self::VERSION_DIRECTOR){
+            /** @var  RecordsContracts $contract */
+            $contract = $this->getDoctrine()
+                ->getRepository(RecordsContracts::class)
+                ->findOneBy(['tokenPublicSignature' => $token]);
+            $signNumber = self::WORKER_SIGN_DIRECTOR;
+            $secondSignNumber = self::WORKER_SIGN_COMISSION;
+        }elseif($version == self::VERSION_COMMISSION){
+            /** @var  RecordsContracts $contract */
+            $contract = $this->getDoctrine()
+                ->getRepository(RecordsContracts::class)
+                ->findOneBy(['tokenPublicSignatureComite' => $token]);
+            $signNumber = self::WORKER_SIGN_COMISSION;
+            $secondSignNumber = self::WORKER_SIGN_DIRECTOR;
+        }
+
+        if ($contract) {
             $firma = $request->get('firma');
 
             $em = $this->getDoctrine()->getManager();
 
-            $recordSignature = $this->getDoctrine()->getRepository(
-                'NononsenseHomeBundle:RecordsContractsSignatures'
-            )->findOneBy(
-                array('record' => $record, 'number' => 3)
-            );
+            $recordSignature = $this->getDoctrine()
+                ->getRepository(RecordsContractsSignatures::class)
+                ->findOneBy(array('record' => $contract, 'number' => $signNumber));
 
-            if (!$recordSignature) {
+            if (!$recordSignature && $signNumber) {
                 if ($request->getMethod() == "POST") {
                     $pin = $request->get('pin');
 
-                    if ($record->getPin() == $pin) {
+                    if ($contract->getPin() == $pin) {
                         $sign = new RecordsContractsSignatures();
-                        $sign->setUserEntiy($record->getUserCreatedEntiy());
-                        $sign->setRecord($record);
-                        $sign->setNumber(3);
+                        $sign->setUserEntiy($contract->getUserCreatedEntiy());
+                        $sign->setRecord($contract);
+                        $sign->setNumber($signNumber);
                         $sign->setCreated(new \DateTime());
                         $sign->setFirma($request->get('firma'));
                         $em->persist($sign);
-
-                        $record->setStatus(4);
-                        $em->persist($record);
-
                         $em->flush();
 
-                        $directorContract = $this->saveAndSignContract($record, $token, self::VERSION_DIRECTOR);
-                        $commissionContract = $this->saveAndSignContract($record, $token, self::VERSION_COMMISSION);
-                        $completeContract = $this->saveAndSignContract($record, $token, self::VERSION_COMPLETE);
+                        $secondSign = $this->getDoctrine()
+                            ->getRepository(RecordsContractsSignatures::class)
+                            ->findOneBy(array('record' => $contract, 'number' => $secondSignNumber));
 
-                        if(!$directorContract || !$commissionContract || !$completeContract){
+                        if($secondSign){
+                            $contract->setStatus(4);
+                            $em->persist($contract);
+                            $em->flush();
+                        }
+
+                        $contractSaved = $this->saveAndSignContract($contract, $token, $version);
+
+                        if(!$contractSaved){
                             $result = [
                                 'type' => 'error',
                                 'message' => 'El contrato se ha firmado correctamente pero ha ocurrido un error al certificarlo digitalmente.'
@@ -1101,6 +1142,7 @@ class RecordsContractsController extends Controller
                             'type' => 'error',
                             'message' => 'El pin no es correcto'
                         ];
+                        $firma = null;
                     }
                 }
             } else {
@@ -1108,6 +1150,7 @@ class RecordsContractsController extends Controller
             }
 
             $pdfUrl = $this->generateUrl('nononsense_records_contracts_public_view_contract',['version' => $version, 'token' => $token]);
+            $array_data = [];
             $array_data['token'] = $token;
             $array_data['result'] = $result;
             $array_data['firma'] = $firma;
@@ -1203,10 +1246,17 @@ class RecordsContractsController extends Controller
 
     public function viewContractAction(Request $request, $version, $token)
     {
+        $record = null;
         /** @var RecordsContracts $record */
-        $record = $this->getDoctrine()
-            ->getRepository('NononsenseHomeBundle:RecordsContracts')
-            ->findOneByTokenPublicSignature($token);
+        if($version == self::VERSION_DIRECTOR){
+            $record = $this->getDoctrine()
+                ->getRepository(RecordsContracts::class)
+                ->findOneBy(['tokenPublicSignature' => $token]);
+        }elseif($version == self::VERSION_COMMISSION){
+            $record = $this->getDoctrine()
+                ->getRepository(RecordsContracts::class)
+                ->findOneBy(['tokenPublicSignatureComite' => $token]);
+        }
         if ($record) {
             $relativePath = '/files/documents/contracts/' . $token . '/' . $version . '/' . $version . $token . '.pdf';
             if (file_exists($this->get('kernel')->getRootDir() . $relativePath)) {
