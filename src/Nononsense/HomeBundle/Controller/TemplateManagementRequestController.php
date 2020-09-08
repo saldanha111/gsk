@@ -205,6 +205,15 @@ class TemplateManagementRequestController extends Controller
                 $itemplate=NULL;
                 $num_edition=1;
                 $first_edition=NULL;
+
+                $last_record = $this->getDoctrine()->getRepository(TMTemplates::class)->findOneBy(array("prefix" => $desc_prefix),array('id' => 'DESC'));
+                if(!$last_record){
+                    $number_id=1;
+                }
+                else{
+                    $number_id=$last_record->getNumberId()+1;
+                }
+
                 break;
             case 2:
                 $templates=$em->getRepository('NononsenseHomeBundle:TMTemplates')->listActiveForRequest(array("id"=>$request->get("template"),"no_request_in_proccess" => 1));
@@ -227,11 +236,16 @@ class TemplateManagementRequestController extends Controller
                 else{
                     $first_edition=$templates[0]->getFirstEdition();
                 }
+
+                $number_id=$templates[0]->getNumberId();
+                
                 break;
         }
 
+
+
         $number=$desc_prefix;
-        $number= str_replace("#X#", str_pad($id, 6, "0", STR_PAD_LEFT), $number);
+        $number= str_replace("#X#", str_pad($number_id, 6, "0", STR_PAD_LEFT), $number);
         $number= str_replace("#E#", str_pad($num_edition, 2, "0", STR_PAD_LEFT), $number);
         $number= str_replace("#YY#", date("YY"), $number);
         $number= str_replace("#YYYY#", date("YYYY"), $number);
@@ -239,20 +253,24 @@ class TemplateManagementRequestController extends Controller
             $number= str_replace("#NUMPROY#", $request->get("num_project"), $number);
         }
         
-
-        $number=str_pad($num_edition, 10, "0", STR_PAD_LEFT);
-        
         $state = $this->getDoctrine()->getRepository(TMStates::class)->findOneBy(array("id"=> 1));
-
+        
         $template = new TMTemplates();
-        $template->setState($state);
+        $template->setTmState($state);
         $template->setName($name);
         $template->setArea($area);
         $template->setPrefix($desc_prefix);
         $template->setNumber($number);
+        $template->setNumberId($number_id);
         $template->setPlantillaId($plantilla);
         $template->setDescription($request->get("description"));
         $template->setHistoryChange($request->get("history_change"));
+        if($request->get("is_simple")){
+           $template->setIsSimple(1); 
+        }
+        else{
+            $template->setIsSimple(0); 
+        }
         $template->setLogbook(0);
         $template->setCreated(new \DateTime());
         $template->setModified(new \DateTime());
