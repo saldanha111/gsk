@@ -98,31 +98,26 @@
                                 <td>
                                     {% if item.status is defined and item.status==1 %}
                                         <i class="fa fa-users" aria-hidden="true"></i> {{ group_direccion_rrhh.name }}
-                                    {% endif %}
-                                    {% if item.status is defined and item.status==2 %}
+                                    {% elseif item.status is defined and item.status==2 %}
                                         <i class="fa fa-users" aria-hidden="true"></i> {{ group_comite_rrhh.name }}
+                                    {% elseif item.status is defined and item.status==3 %}
+                                        <i class="fa fa-users" aria-hidden="true"></i> Contratado
                                     {% endif %}
                                 </td>
                                 <td>{{item.created|date("d/m/Y")}}</td>
                                 <td>
-                                    {% if item.status is defined and item.status==0 %}
-                                        <a href="{{path('nononsense_records_contracts_link', {'id': item.id}) }}" class="btn btn-xs btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i> Creado</a>
-                                    {% endif %}
-
-                                    {% if item.status is defined and item.status==1 %}
-                                        <a href="{{path('nononsense_records_contracts_link', {'id': item.id}) }}" class="btn btn-xs btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i> Dirección RRHH</a>
-                                    {% endif %}
-
-                                    {% if item.status is defined and item.status==2 %}
-                                        <a href="{{path('nononsense_records_contracts_link', {'id': item.id}) }}" class="btn btn-xs btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i> En Comité</a>
-                                    {% endif %}
-
-                                    {% if item.status is defined and item.status==3 %}
-                                        <a href="{{path('nononsense_records_contracts_link', {'id': item.id}) }}" class="btn btn-xs btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i> Para enviar</a>
-                                    {% endif %}
-
-                                    {% if item.status is defined and item.status==4 %}
-                                        <a href="{{path('nononsense_records_contracts_link', {'id': item.id}) }}" target= "_blank" class="btn btn-xs btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i> Firmado</a>
+                                    {% if item.status is defined %}
+                                        {% if item.status==0 %}
+                                            <a href="{{path('nononsense_records_contracts_link', {'id': item.id}) }}" class="btn btn-xs btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i> Creado</a>
+                                        {% elseif item.status==1 %}
+                                            <a href="{{path('nononsense_records_contracts_link', {'id': item.id}) }}" class="btn btn-xs btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i> Dirección RRHH</a>
+                                        {% elseif item.status==2 %}
+                                            <a href="{{path('nononsense_records_contracts_link', {'id': item.id}) }}" class="btn btn-xs btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i> En Comité</a>
+                                        {% elseif item.status==3 %}
+                                            <a href="{{path('nononsense_records_contracts_link', {'id': item.id}) }}" class="btn btn-xs btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i> Para enviar</a>
+                                        {% elseif item.status==4 %}
+                                            <a href="{{path('nononsense_records_contracts_link', {'id': item.id}) }}" target= "_blank" class="btn btn-xs btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i> Firmado</a>
+                                        {% endif %}
                                     {% endif %}
                                 </td>
                                 <td>
@@ -142,7 +137,6 @@
                     {% if pagination is defined and pagination.needed %}
                         {% include '::pagination2.html.twig' %}
                     {% endif %}
-                    
                 </div>
             </div>
         </div>

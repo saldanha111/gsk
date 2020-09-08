@@ -176,6 +176,13 @@ class RecordsContracts
     protected $tokenPublicSignature;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="token_public_signature_comite", type="string", length=50, nullable=true)
+     */
+    protected $tokenPublicSignatureComite;
+
+    /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\RecordsContractsPinComite", mappedBy="contract")
      */
     protected $pinComite;
@@ -735,5 +742,61 @@ class RecordsContracts
     public function getTokenPublicSignature()
     {
         return $this->tokenPublicSignature;
+    }
+
+    /**
+     * Set tokenPublicSignatureComite
+     *
+     * @param string $tokenPublicSignatureComite
+     * @return RecordsContracts
+     */
+    public function setTokenPublicSignatureComite($tokenPublicSignatureComite)
+    {
+        $this->tokenPublicSignatureComite = $tokenPublicSignatureComite;
+
+        return $this;
+    }
+
+    /**
+     * Get tokenPublicSignatureComite
+     *
+     * @return string 
+     */
+    public function getTokenPublicSignatureComite()
+    {
+        return $this->tokenPublicSignatureComite;
+    }
+
+    /**
+     * Add pinComite
+     *
+     * @param \Nononsense\HomeBundle\Entity\RecordsContractsPinComite $pinComite
+     * @return RecordsContracts
+     */
+    public function addPinComite(\Nononsense\HomeBundle\Entity\RecordsContractsPinComite $pinComite)
+    {
+        $this->pinComite[] = $pinComite;
+
+        return $this;
+    }
+
+    /**
+     * Remove pinComite
+     *
+     * @param \Nononsense\HomeBundle\Entity\RecordsContractsPinComite $pinComite
+     */
+    public function removePinComite(\Nononsense\HomeBundle\Entity\RecordsContractsPinComite $pinComite)
+    {
+        $this->pinComite->removeElement($pinComite);
+    }
+
+    /**
+     * Get pinComite
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getPinComite()
+    {
+        return $this->pinComite;
     }
 }
