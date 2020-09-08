@@ -116,4 +116,18 @@ class RecordsContractsRepository extends EntityRepository
 
     	return $list;
     }
+
+    public function getInProcessContracts($contractId)
+    {
+        $list = $this->createQueryBuilder('r')
+            ->select('r.id')
+            ->innerJoin("r.contract", "d")
+            ->andWhere('r.isActive = 1')
+            ->andWhere('r.status > 0')
+            ->andWhere('d.id = :contractId')
+            ->setParameter('contractId', $contractId);
+
+        return $list->getQuery()->getResult();
+    }
+
 }

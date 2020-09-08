@@ -1,155 +1,181 @@
 <?php
+
 namespace Nononsense\HomeBundle\Controller;
 
-
+use DateTime;
+use Exception;
 use Nononsense\HomeBundle\Entity\Contracts;
+use Nononsense\HomeBundle\Entity\ContractsRepository;
 use Nononsense\HomeBundle\Entity\RecordsContracts;
-use Nononsense\HomeBundle\Entity\ContractsSignatures;
-use Nononsense\HomeBundle\Entity\RecordsContractsSignatures;
-use Nononsense\HomeBundle\Entity\ContractsTypes;
-use Nononsense\UserBundle\Entity\Users;
-use Nononsense\GroupBundle\Entity\Groups;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Nononsense\HomeBundle\Entity\InstanciasSteps;
-
-use Nononsense\UtilsBundle\Classes;
-
-
+use Nononsense\UtilsBundle\Classes\Utils;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use Symfony\Component\HttpFoundation\ResponseHeaderBag;
-
-use Symfony\Component\Serializer\Serializer;
-use Symfony\Component\Serializer\Encoder\XmlEncoder;
-use Symfony\Component\Serializer\Encoder\JsonEncoder;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 class ContractsController extends Controller
 {
     public function listAction(Request $request)
     {
         $is_valid = $this->get('app.security')->permissionSeccion('plantillas_contratos_gestion');
-        if(!$is_valid){
+        if (!$is_valid) {
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
 
         $can_create_plantilla = $this->get('app.security')->permissionSeccion('plantillas_crear_plantilla');
         $can_create_register = $this->get('app.security')->permissionSeccion('contratos_crear_registro');
 
-        $filters=Array();
-        $filters2=Array();
-        $types=array();
+        $filters = [];
 
-        if(!$request->get("export_excel")){
-            if($request->get("page")){
-                $filters["limit_from"]=$request->get("page")-1;
+        if (!$request->get("export_excel")) {
+            if ($request->get("page")) {
+                $filters["limit_from"] = $request->get("page") - 1;
+            } else {
+                $filters["limit_from"] = 0;
             }
-            else{
-                $filters["limit_from"]=0;
-            }
-            $filters["limit_many"]=15;
-        }
-        else{
-            $filters["limit_from"]=0;
-            $filters["limit_many"]=99999999999;
+            $filters["limit_many"] = 15;
+            $paginate = 1;
+        } else {
+            $paginate = 0;
         }
 
-
-        if($request->get("name")){
-            $filters["name"]=$request->get("name");
-            $filters2["name"]=$request->get("name");
+        if ($request->get("name")) {
+            $filters["name"] = $request->get("name");
         }
 
-
-        $array_item["filters"]=$filters;
-        $array_item["items"] = $this->getDoctrine()->getRepository(Contracts::class)->list($filters);
-        $array_item["count"] = $this->getDoctrine()->getRepository(Contracts::class)->count($filters2,$types);
-
-        $url=$this->container->get('router')->generate('nononsense_contracts');
-        $params=$request->query->all();
-        unset($params["page"]);
-        if(!empty($params)){
-            $parameters=TRUE;
-        }
-        else{
-            $parameters=FALSE;
-        }
-        $array_item["pagination"]=\Nononsense\UtilsBundle\Classes\Utils::paginador($filters["limit_many"],$request,$url,$array_item["count"],"/", $parameters);
+        $array_item["filters"] = $filters;
+        /** @var ContractsRepository $contractsRepository */
+        $contractsRepository = $this->getDoctrine()->getRepository(Contracts::class);
+        $array_item["items"] = $contractsRepository->list($filters, $paginate);
+        $array_item["count"] = $contractsRepository->count($filters);
+        $array_item["pagination"] = Utils::getPaginator($request, $filters["limit_many"], $array_item["count"]);
 
         $array_item['can_create_plantilla'] = $can_create_plantilla;
         $array_item['can_create_register'] = $can_create_register;
-        
-        return $this->render('NononsenseHomeBundle:Contratos:contracts.html.twig',$array_item);
+
+        return $this->render('NononsenseHomeBundle:Contratos:contracts.html.twig', $array_item);
     }
 
     public function editAction(Request $request, string $id)
     {
-
         $is_valid = $this->get('app.security')->permissionSeccion('plantillas_crear_plantilla');
-        if(!$is_valid){
+        if (!$is_valid) {
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
 
+        $em = $this->getDoctrine()->getManager();
 
-        $serializer = $this->get('serializer');
+        if ($id != 0) {
+            $item = $em->getRepository(Contracts::class)->find($id);
 
-        $array_item["users"] = $this->getDoctrine()->getRepository(Users::class)->findAll();
-        $array_item["groups"] = $this->getDoctrine()->getRepository(Groups::class)->findAll();
-
-        if($id!=0){
-            $item = $this->getDoctrine()->getRepository(Contracts::class)->findOneById($id);
-
-            if(!$item){
+            if (!$item) {
                 return $this->redirect($this->container->get('router')->generate('nononsense_contracts'));
             }
-            $array_item["item"] = json_decode($serializer->serialize($item, 'json',array('groups' => array('detail_contract'))),true);
 
-            $baseSignatures = $this->getDoctrine()->getRepository('NononsenseHomeBundle:ContractsSignatures')->findBy(array("contract"=> $item),array("number" => "ASC"));
-            $array_item["baseSignatures"] = json_decode($serializer->serialize($baseSignatures, 'json',array('groups' => array('list_baseS'))),true);
+            $records = $em->getRepository(RecordsContracts::class)->getInProcessContracts($id);
 
-            $records = $this->getDoctrine()->getRepository(RecordsContracts::class)->findBy(array("contract" => $item));
-            if($records){
-                $array_item["not_update"]=1;
+            if ($records) {
+                $this->get('session')->getFlashBag()->add(
+                    'error',
+                    "No se puede editar una plantilla que tiene contratos activos. Crea una nueva plantilla."
+                );
+                $array_item["canUpdate"] = false;
+            } else {
+                $array_item["canUpdate"] = true;
+                $array_item["apiTemplate"] = $this->getContractData($item->getPlantillaId());
             }
+        } else {
+            $array_item["canUpdate"] = true;
+            $item = new Contracts();
         }
 
-        return $this->render('NononsenseHomeBundle:Contratos:contract.html.twig',$array_item);
+        $array_item["item"] = $item;
+
+        return $this->render('NononsenseHomeBundle:Contratos:contract.html.twig', $array_item);
     }
 
     public function updateAction(Request $request, string $id)
-    {   
+    {
         $is_valid = $this->get('app.security')->permissionSeccion('plantillas_crear_plantilla');
-        if(!$is_valid){
+        if (!$is_valid) {
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
 
         $em = $this->getDoctrine()->getManager();
 
         try {
-            $not_update=0;
-            if($id!=0){
-                $contract = $this->getDoctrine()->getRepository(Contracts::class)->findOneById($id);
+            $not_update = 0;
+            $update_template = 0;
+            if ($id != 0) {
+                $contract = $em->getRepository(Contracts::class)->find($id);
 
-                $signatures = $em->getRepository(ContractsSignatures::class)->findBy(["contract"=>$contract]);
-                foreach ($signatures as $signature) {
-                    $em->remove($signature);
+                if ($request->files->get('template') && $request->get("template_name")) {
+                    $update_template = 1;
+                    $template_name = $request->get("template_name");
                 }
-            }
-            else{
+                $base_url = $this->getParameter('api_docoaro') . "/documents/" . $contract->getPlantillaId();
+            } else {
                 $contract = new Contracts();
                 $user = $this->container->get('security.context')->getToken()->getUser();
                 $contract->setUserCreatedEntiy($user);
+
+                if (!$request->files->get('template')) {
+                    $this->get('session')->getFlashBag()->add(
+                        'error',
+                        "Es necesario adjuntar un documento paga subir la plantilla"
+                    );
+                    return $this->redirect(
+                        $this->container->get('router')->generate('nononsense_contracts_edit', ["id" => $id])
+                    );
+                } else {
+                    $update_template = 1;
+                    $template_name = $request->get("name");
+                    $base_url = $this->getParameter('api_docoaro') . "/documents";
+                }
             }
 
-            $records = $this->getDoctrine()->getRepository(RecordsContracts::class)->findBy(array("contract" => $contract));
-            if($records){
-                $not_update=1;
+            $records = $em->getRepository(RecordsContracts::class)->getInProcessContracts($id);
+
+            if ($records) {
+                $not_update = 1;
             }
 
-            if(!$not_update){
-                $contract->setPlantillaId($request->get("plantilla_id"));
+            if (!$not_update) {
+                if ($update_template == 1) {
+                    $file = $request->files->get('template');
+                    $data_file = curl_file_create(
+                        $file->getRealPath(),
+                        $file->getClientMimeType(),
+                        $file->getClientOriginalName()
+                    );
+                    $post = array('name' => $template_name, 'file' => $data_file);
+                    $ch = curl_init();
+                    curl_setopt($ch, CURLOPT_URL, $base_url);
+                    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+                    curl_setopt(
+                        $ch,
+                        CURLOPT_HTTPHEADER,
+                        array(
+                            "Content-Type: multipart/form-data",
+                            "Api-Key: " . $this->getParameter('api_key_docoaro')
+                        )
+                    );
+                    curl_setopt($ch, CURLOPT_POST, 1);
+                    curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+                    $raw_response = curl_exec($ch);
+                    $response = json_decode($raw_response, true);
+
+                    if (!$response["document"]) {
+                        $this->get('session')->getFlashBag()->add(
+                            'error',
+                            'Error al subir la plantilla. ' . $response["message"]
+                        );
+                        return $this->redirect(
+                            $this->container->get('router')->generate('nononsense_contracts_edit', ["id" => $id])
+                        );
+                    }
+                    $contract->setPlantillaId($response["document"]["id"]);
+                }
             }
 
             $contract->setName($request->get("name"));
@@ -158,33 +184,48 @@ class ContractsController extends Controller
             $contract->setBlock(1);
             $contract->setOptional(0);
             $contract->setDependsOn(0);
-            $contract->setCreated(new \DateTime());
-            $contract->setModified(new \DateTime());
+            $contract->setCreated(new DateTime());
+            $contract->setModified(new DateTime());
 
-            if($request->get("is_active")){
+            if ($request->get("is_active")) {
                 $contract->setIsActive(1);
-            }
-            else{
+            } else {
                 $contract->setIsActive(0);
             }
 
             $em->persist($contract);
             $em->flush();
-
-        }catch (\Exception $e) {
+            $this->get('session')->getFlashBag()->add('message', "Datos guardados correctamente");
+        } catch (Exception $e) {
             $this->get('session')->getFlashBag()->add(
-                    'error',
-                    "Error desconocido al intentar guardar los datos de la plantilla".$e->getMessage()
-                );
-            $route = $this->container->get('router')->generate('nononsense_contracts_edit', array("id" => $id));
-        
+                'error',
+                "Error desconocido al intentar guardar los datos de la plantilla" . $e->getMessage()
+            );
+            $route = $this->container->get('router')->generate('nononsense_contracts_edit', ["id" => $id]);
+
             return $this->redirect($route);
         }
+        $route = $this->container->get('router')->generate('nononsense_contracts_edit', ["id" => $id]);
 
-        
-
-        $route = $this->container->get('router')->generate('nononsense_contracts');
-        
         return $this->redirect($route);
+    }
+
+    private function getContractData($templateId)
+    {
+        $result = [];
+        if ($templateId) {
+            $base_url = $this->getParameter('api_docoaro') . "/documents/" . $templateId;
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $base_url);
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array("Api-Key: " . $this->getParameter('api_key_docoaro')));
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, array());
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            $raw_response = curl_exec($ch);
+            $result = json_decode($raw_response, true);
+        }
+        return $result;
     }
 }
