@@ -13,12 +13,10 @@
                 <div class="row">
                     <form class="form-horizontal" id="form_item" action="{{ path('nononsense_contracts')}}" method="GET">
                         <div class="form-group">
-
                             <label class="col-sm-1 control-label item_filter">Nombre</label>
                             <div class="col-sm-2 item_filter">
                                 <input type="text" name="name" class="form-control" value="{{filters.name is defined ? filters.name : ''}}">
                             </div>
-
                             <div class="col-sm-1 item_filter">
                                 <button type="submit" class="btn btn-primary pull-right">Filtrar</button>
                             </div>
@@ -35,21 +33,21 @@
 
                     <table id="inProcessParcial" class="table table-striped">
                         <thead>
-                        <tr>
-                            <th>Nº</th>
-                            <th>Nombre</th>
-                            <th></th>
-                        </tr>
+                            <tr>
+                                <th>Nº</th>
+                                <th>Nombre</th>
+                                <th>Editar Plantilla</th>
+                                <th></th>
+                            </tr>
                         </thead>
                         {% if items is defined %}
                             {% for item in items %}
                             <tr>
                                 <td>{{item.id}}</td>
+                                <td>{{item.name}}</td>
                                 <td>
                                     {% if can_create_plantilla %}
-                                        <a href="{{path('nononsense_contracts_edit', {'id': item.id}) }}">{{item.name}}</a>
-                                    {% else %}
-                                        {{item.name}}
+                                        <a href="{{path('nononsense_contracts_edit', {'id': item.id}) }}" class="btn btn-xs btn-primary"><i class="fa fa-pencil"> </i> Editar plantilla</a>
                                     {% endif %}
                                 </td>
                                 <td>

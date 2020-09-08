@@ -14,51 +14,39 @@ class ContractsRepository extends EntityRepository
 {
 	public function list($filters, $paginate=1)
     {
-    	$em = $this->getEntityManager();
-
         $list = $this->createQueryBuilder('c')
             ->select('c.id', 'c.name')
             ->andWhere('c.isActive=1')
             ->orderBy('c.id', 'DESC');
 
         $list = self::fillFilersQuery($filters, $list);
-
         if($paginate==1 && isset($filters["limit_from"])){
             $list->setFirstResult($filters["limit_from"]*$filters["limit_many"])->setMaxResults($filters["limit_many"]);
         }
-
         $query = $list->getQuery();
 
         return $query->getResult();
     }
 
-    public function count($filters = array())
+    public function count($filters)
     {
-        $em = $this->getEntityManager();
-
         $list = $this->createQueryBuilder('c')
             ->select('COUNT(c.id) as conta')
             ->leftJoin("c.type", "t")
             ->andWhere('c.isActive=1');
 
         $list = self::fillFilersQuery($filters, $list);
-        
         $query = $list->getQuery();
 
         return $query->getSingleResult()["conta"];
     }
 
     private function fillFilersQuery($filters, $list){
-
-    	if(!empty($filters)){
-
-        	if(isset($filters["name"])){
-                $terms = explode(" ", $filters["name"]);
-                foreach($terms as $key => $term){
-                    $list->andWhere('d.name LIKE :name'.$key);
-                    $list->setParameter('name'.$key, '%' . $term. '%');
-                }
-                
+        if(isset($filters["name"])){
+            $terms = explode(" ", $filters["name"]);
+            foreach($terms as $key => $term){
+                $list->andWhere('c.name LIKE :name'.$key);
+                $list->setParameter('name'.$key, '%' . $term. '%');
             }
         }
 
