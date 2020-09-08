@@ -47,7 +47,9 @@
                         <tr>
                             <th>Id.</th>
                             <th>Nombre</th>
+                            <th>Tipo</th>
                             <th>Qr</th>
+                            <th>Link dinámico</th>
                             <th></th>
                             <th></th>
                         </tr>
@@ -57,8 +59,12 @@
                             <tr>
                                 <td>{{item.id}}</td>
                                 <td>{{item.name}}</td>
+                                <td>{{item.typeqr}}</td>
                                 <td>
                                     <a href="{{path('nononsense_qrs_view_qr', {'id': item.id}) }}" target="_blank" class="btn btn-xs"><i class="fa fa-qrcode" aria-hidden="true"></i> Ver QR</a>
+                                </td>
+                                <td>
+                                    <a href="{{path('nononsense_qrs_json_qr', {'id': item.id}) }}" target="_blank" class="btn btn-xs"><i class="fa fa-link" aria-hidden="true"></i> Link</a>
                                 </td>
                                 <td>
                                     <a href="{{path('nononsense_qrs_edit', {'id': item.id}) }}" class="btn btn-xs" target="_self"><i class="fa fa-pencil" aria-hidden="true"></i> Editar</a>
@@ -90,7 +96,7 @@
   $(function () {
 
     ActivateMenu('qr_list');
-
+    $('#side-menu').metisMenu();
   });
 
   function delete_qr(id){

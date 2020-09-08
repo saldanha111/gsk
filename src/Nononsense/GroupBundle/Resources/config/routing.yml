@@ -53,6 +53,10 @@ nononsense_group_addusers:
 nononsense_group_addone:
     path:     /addsingleuser
     defaults: { _controller: NononsenseGroupBundle:Group:addsingleuser }
+
+nononsense_group_addgroup:
+    path:     /addsinglegroup
+    defaults: { _controller: NononsenseGroupBundle:Group:addsinglegroup }
     
 nononsense_group_addbulk:
     path:     /addbulkusers

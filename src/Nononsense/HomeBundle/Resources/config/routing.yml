@@ -253,15 +253,7 @@ nononsense_solicitud_reconciliacion:
 nononsense_solicitud_reconciliacion_formulario:
     path:     /solicitud_reconciliacion_formulario/{registroid}/{nuevoregistroid}
     defaults: { _controller: NononsenseHomeBundle:NuevoRegistro:solicitudReconciliacionFormulario,registroid: 0, nuevoregistroid: 0}
-
-nononsense_backoffice_verificator_groups:
-    path: /grupos_verificacion
-    defaults: { _controller: NononsenseHomeBundle:BackOffice:grupoVerificadorIndex }
-
-nononsense_backoffice_set_group:
-    path: /set_grupo
-    defaults: { _controller: NononsenseHomeBundle:BackOffice:setGrupoVerificador }
-
+    
 nononsense_notificacion_semanal:
     path: /notificacion_semanal
     defaults: { _controller: NononsenseHomeBundle:RegistroValidation:notificacionSemanalPendienteVerificar }
@@ -363,6 +355,10 @@ nononsense_products_reception:
 nononsense_products_inputs:
     path: /products-inputs/{type}/{qrCode}
     defaults: { _controller: NononsenseHomeBundle:Products:input}
+
+nononsense_qrs_json_qr:
+    path: /qrs-json/{id}
+    defaults: { _controller: NononsenseHomeBundle:Qrs:jsonQr}
 
 nononsense_products_json:
     path: /products-json
@@ -624,6 +620,7 @@ nononsense_mclean_trace_view:
     path: /mclean/traces/view/{id}
     defaults: { _controller: NononsenseHomeBundle:MaterialCleanTraces:showTrace}
 
+
 nononsense_mclean_products_list:
     path: /mclean/products
     defaults: { _controller: NononsenseHomeBundle:MaterialCleanProducts:list}
@@ -637,3 +634,65 @@ nononsense_mclean_products_delete:
     defaults: { _controller: NononsenseHomeBundle:MaterialCleanProducts:delete}
 
 # /Material Limipo
+
+nononsense_areas_groups:
+    path:     /areas/groups/{id}
+    defaults: { _controller: NononsenseHomeBundle:Areas:groups }
+
+nononsense_areas_remove_group:
+    path:     /areas/groups/{id}/{groupid}
+    defaults: { _controller: NononsenseHomeBundle:Areas:removegroup, id: 0, groupid: 0 }
+
+nononsense_areas_addgroups:
+    path:     /areas/addgroups/{id}
+    defaults: { _controller: NononsenseHomeBundle:Areas:addgroups }
+
+nononsense_area_addbulk:
+    path:     /areas/addbulk
+    defaults: { _controller: NononsenseHomeBundle:Areas:addbulk }
+
+nononsense_areas:
+    path: /areas
+    defaults: { _controller: NononsenseHomeBundle:Areas:list}
+
+nononsense_prefixes_json:
+    path:     /areas/prefixes/json/{area}
+    defaults: { _controller: NononsenseHomeBundle:Areas:listPrefixesJson, area: 0}
+
+nononsense_areas_edit:
+    path: /areas/{id}
+    defaults: { _controller: NononsenseHomeBundle:Areas:edit}
+
+nononsense_areas_update:
+    path: /areas/{id}/save
+    defaults: { _controller: NononsenseHomeBundle:Areas:update}
+
+nononsense_tm_request:
+    path: /mt/requests/new
+    methods:    [GET]
+    defaults: { _controller: NononsenseHomeBundle:TemplateManagementRequest:create}
+
+nononsense_tm_request_save:
+    path: /mt/requests/new
+    methods:    [POST]
+    defaults: { _controller: NononsenseHomeBundle:TemplateManagementRequest:saveCreate}
+
+nononsense_tm_request_detail:
+    path: /mt/requests/0
+    defaults: { _controller: NononsenseHomeBundle:TemplateManagementRequest:detail}
+
+nononsense_tm_request_preadmin:
+    path: /mt/requests/preadmin
+    defaults: { _controller: NononsenseHomeBundle:TemplateManagementRequest:edit}
+
+nononsense_tm_requests:
+    path: /mt/requests
+    defaults: { _controller: NononsenseHomeBundle:TemplateManagementRequest:list}
+
+nononsense_templates_active_json:
+    path:     /templates/active/json
+    defaults: { _controller: NononsenseHomeBundle:TemplateManagementTemplates:listActiveJson}
+
+nononsense_prepare_workflow_json:
+    path:     /prepare/workfow/json/{area}
+    defaults: { _controller: NononsenseHomeBundle:TemplateManagementRequest:listUsersAndGroupsJson, area: 0}

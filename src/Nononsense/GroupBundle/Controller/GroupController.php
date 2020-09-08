@@ -278,6 +278,17 @@ class GroupController extends Controller
             'webPath' => $path,
         ));
     }
+
+    public function addsinglegroupAction(Request $request)
+    {
+        $id = $request->query->get('id');
+        $em = $this->getDoctrine()->getManager();
+        $group = $em->getRepository('NononsenseGroupBundle:Groups')
+                   ->find($id);
+        return $this->render('NononsenseGroupBundle:Group:singlegroup.html.twig', array(
+            'group' => $group,
+        ));
+    }
     
     public function addbulkAction(Request $request)
     {

@@ -115,6 +115,16 @@ class Groups
     protected $groupsSubsecciones;
 
     /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMWorkflow", mappedBy="groupEntiy")
+     */
+    protected $tmWorkflows;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\AreasGroups", mappedBy="agroup")
+     */
+    protected $areas; 
+
+    /**
      * Get id
      *
      * @return integer 
@@ -738,5 +748,71 @@ class Groups
     public function getRecordsContractsSignatures()
     {
         return $this->recordsContractsSignatures;
+    }
+
+    /**
+     * Add tmWorkflows
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMWorkflow $tmWorkflows
+     * @return Groups
+     */
+    public function addTmWorkflow(\Nononsense\HomeBundle\Entity\TMWorkflow $tmWorkflows)
+    {
+        $this->tmWorkflows[] = $tmWorkflows;
+
+        return $this;
+    }
+
+    /**
+     * Remove tmWorkflows
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMWorkflow $tmWorkflows
+     */
+    public function removeTmWorkflow(\Nononsense\HomeBundle\Entity\TMWorkflow $tmWorkflows)
+    {
+        $this->tmWorkflows->removeElement($tmWorkflows);
+    }
+
+    /**
+     * Get tmWorkflows
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getTmWorkflows()
+    {
+        return $this->tmWorkflows;
+    }
+
+    /**
+     * Add areas
+     *
+     * @param \Nononsense\HomeBundle\Entity\AreasGroups $areas
+     * @return Groups
+     */
+    public function addArea(\Nononsense\HomeBundle\Entity\AreasGroups $areas)
+    {
+        $this->areas[] = $areas;
+
+        return $this;
+    }
+
+    /**
+     * Remove areas
+     *
+     * @param \Nononsense\HomeBundle\Entity\AreasGroups $areas
+     */
+    public function removeArea(\Nononsense\HomeBundle\Entity\AreasGroups $areas)
+    {
+        $this->areas->removeElement($areas);
+    }
+
+    /**
+     * Get areas
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getAreas()
+    {
+        return $this->areas;
     }
 }

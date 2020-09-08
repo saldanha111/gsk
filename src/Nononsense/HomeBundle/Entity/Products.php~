@@ -2,14 +2,18 @@
 
 namespace Nononsense\HomeBundle\Entity;
 
+use DateTime;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
-use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use DoctrineExtensions\Query\Mysql\Date;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="products")
+ * @ORM\Table(name="products",
+ *     indexes={
+ *          @ORM\Index(columns={"type_id"})
+ *      })
  * @ORM\Entity(repositoryClass="Nononsense\HomeBundle\Entity\ProductsRepository")
  * @ORM\HasLifecycleCallbacks
  */
@@ -22,39 +26,45 @@ class Products
      */
     protected $id;
 
-
     /**
      * @var string
      *
-     * @ORM\Column(name="name", type="string", length=255,  nullable=true)
+     * @ORM\Column(name="name", type="string", length=255,  nullable=false)
      */
     protected $name;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="cash_number", type="string", length=255,  nullable=true)
+     * @ORM\Column(name="qr_code", type="string", length=255, nullable=true)
      */
-    protected $cashNumber;
+    protected $qrCode;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="description", type="string", length=255,  nullable=true)
+     * @ORM\Column(name="internal_code", type="string", length=255, nullable=false)
      */
-    protected $description;
+    protected $internalCode;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="part_number", type="string", length=255, unique=true)
+     * @ORM\Column(name="cas_number", type="string", length=255, nullable=true)
+     */
+    protected $casNumber;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="part_number", type="string", length=255, nullable=false, unique=true)
      */
     protected $partNumber;
 
     /**
-     * @var integer
+     * @var int
      *
-     * @ORM\Column(name="stock", type="decimal", scale=2, nullable=true)
+     * @ORM\Column(name="stock", type="integer", nullable=false, options={"default" : 0} )
      */
     protected $stock;
 
@@ -73,36 +83,17 @@ class Products
     protected $presentation;
 
     /**
-     * @var integer
+     * @var int
      *
-     * @ORM\Column(name="stock_minimum", type="decimal", scale=2, nullable=true)
+     * @ORM\Column(name="stock_minimum", type="integer", nullable=true)
      */
     protected $stockMinimum;
 
     /**
-     * @var string
-     *
-     * @ORM\Column(name="analysisMethod", type="string", length=255,  nullable=true)
-     */
-    protected $analysisMethod;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="observations", type="string", length=255,  nullable=true)
-     */
-    protected $observations;
-
-    /**
      * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\ProductsTypes", inversedBy="products")
-     * @ORM\JoinColumn(name="type_id", referencedColumnName="id")
+     * @ORM\JoinColumn(name="type_id", referencedColumnName="id", nullable=false)
      */
     protected $type;
-
-    /**
-     * @ORM\Column(type="datetime")
-     */
-    protected $created;
 
     /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\ProductsInputs", mappedBy="product")
@@ -110,34 +101,39 @@ class Products
     protected $productsInputs;
 
     /**
-     * @var boolean
+     * @var bool
      *
      * @ORM\Column(name="active", type="boolean")
      */
     private $active;
 
     /**
-     * @var boolean
+     * @var bool
      *
-     * @ORM\Column(name="destroyed", type="boolean")
+     * @ORM\Column(name="destroyed", type="boolean", options={"default" : 0})
      */
     private $destroyed;
 
-
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    protected $created;
+    /**
+     * Constructor
+     */
     public function __construct()
     {
-        $this->created = new \DateTime();
+        $this->productsInputs = new ArrayCollection();
         $this->stock = 0;
-        $this->active = 1;
         $this->destroyed = 0;
+        $this->created = new DateTime();
+        $this->active = 1;
     }
-
-   
 
     /**
      * Get id
      *
-     * @return integer 
+     * @return int
      */
     public function getId()
     {
@@ -168,50 +164,49 @@ class Products
     }
 
     /**
-     * Set created
+     * Set qrCode
      *
-     * @param \DateTime $created
+     * @param string $qrCode
      * @return Products
      */
-    public function setCreated($created)
+    public function setQrCode($qrCode)
     {
-        $this->created = $created;
+        $this->qrCode = $qrCode;
 
         return $this;
     }
 
     /**
-     * Get created
-     *
-     * @return \DateTime 
-     */
-    public function getCreated()
-    {
-        return $this->created;
-    }
-
-
-    /**
-     * Set description
-     *
-     * @param string $description
-     * @return Products
-     */
-    public function setDescription($description)
-    {
-        $this->description = $description;
-
-        return $this;
-    }
-
-    /**
-     * Get description
+     * Get qrCode
      *
      * @return string 
      */
-    public function getDescription()
+    public function getQrCode()
     {
-        return $this->description;
+        return $this->qrCode;
+    }
+
+    /**
+     * Set casNumber
+     *
+     * @param string $casNumber
+     * @return Products
+     */
+    public function setCasNumber($casNumber)
+    {
+        $this->casNumber = $casNumber;
+
+        return $this;
+    }
+
+    /**
+     * Get casNumber
+     *
+     * @return string 
+     */
+    public function getCasNumber()
+    {
+        return $this->casNumber;
     }
 
     /**
@@ -240,7 +235,7 @@ class Products
     /**
      * Set stock
      *
-     * @param integer $stock
+     * @param string $stock
      * @return Products
      */
     public function setStock($stock)
@@ -253,7 +248,7 @@ class Products
     /**
      * Get stock
      *
-     * @return integer 
+     * @return string 
      */
     public function getStock()
     {
@@ -284,6 +279,177 @@ class Products
     }
 
     /**
+     * Set stockMinimum
+     *
+     * @param string $stockMinimum
+     * @return Products
+     */
+    public function setStockMinimum($stockMinimum)
+    {
+        $this->stockMinimum = $stockMinimum;
+
+        return $this;
+    }
+
+    /**
+     * Get stockMinimum
+     *
+     * @return string 
+     */
+    public function getStockMinimum()
+    {
+        return $this->stockMinimum;
+    }
+
+    /**
+     * Set active
+     *
+     * @param bool $active
+     * @return Products
+     */
+    public function setActive($active)
+    {
+        $this->active = $active;
+
+        return $this;
+    }
+
+    /**
+     * Get active
+     *
+     * @return bool
+     */
+    public function getActive()
+    {
+        return $this->active;
+    }
+
+    /**
+     * Set destroyed
+     *
+     * @param bool $destroyed
+     * @return Products
+     */
+    public function setDestroyed($destroyed)
+    {
+        $this->destroyed = $destroyed;
+
+        return $this;
+    }
+
+    /**
+     * Get destroyed
+     *
+     * @return bool
+     */
+    public function getDestroyed()
+    {
+        return $this->destroyed;
+    }
+
+    /**
+     * Set created
+     *
+     * @param DateTime $created
+     * @return Products
+     */
+    public function setCreated($created)
+    {
+        $this->created = $created;
+
+        return $this;
+    }
+
+    /**
+     * Get created
+     *
+     * @return DateTime
+     */
+    public function getCreated()
+    {
+        return $this->created;
+    }
+
+    /**
+     * Set type
+     *
+     * @param ProductsTypes $type
+     * @return Products
+     */
+    public function setType(ProductsTypes $type)
+    {
+        $this->type = $type;
+
+        return $this;
+    }
+
+    /**
+     * Get type
+     *
+     * @return ProductsTypes
+     */
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    /**
+     * Add productsInputs
+     *
+     * @param ProductsInputs $productsInputs
+     * @return Products
+     */
+    public function addProductsInput(ProductsInputs $productsInputs)
+    {
+        $this->productsInputs[] = $productsInputs;
+
+        return $this;
+    }
+
+    /**
+     * Remove productsInputs
+     *
+     * @param ProductsInputs $productsInputs
+     */
+    public function removeProductsInput(ProductsInputs $productsInputs)
+    {
+        $this->productsInputs->removeElement($productsInputs);
+    }
+
+    /**
+     * Get productsInputs
+     *
+     * @return Collection
+     */
+    public function getProductsInputs()
+    {
+        return $this->productsInputs;
+    }
+
+    /**
+     * Set internalCode
+     *
+     * @param string $internalCode
+     * @return Products
+     */
+    public function setInternalCode($internalCode)
+    {
+        $this->internalCode = $internalCode;
+
+        return $this;
+    }
+
+    /**
+     * Get internalCode
+     *
+     * @return string 
+     */
+    public function getInternalCode()
+    {
+        return $this->internalCode;
+    }
+
+    /**
      * Set presentation
      *
      * @param string $presentation
@@ -304,199 +470,5 @@ class Products
     public function getPresentation()
     {
         return $this->presentation;
-    }
-
-    /**
-     * Set stockMinimum
-     *
-     * @param integer $stockMinimum
-     * @return Products
-     */
-    public function setStockMinimum($stockMinimum)
-    {
-        $this->stockMinimum = $stockMinimum;
-
-        return $this;
-    }
-
-    /**
-     * Get stockMinimum
-     *
-     * @return integer 
-     */
-    public function getStockMinimum()
-    {
-        return $this->stockMinimum;
-    }
-
-    /**
-     * Set analysisMethod
-     *
-     * @param string $analysisMethod
-     * @return Products
-     */
-    public function setAnalysisMethod($analysisMethod)
-    {
-        $this->analysisMethod = $analysisMethod;
-
-        return $this;
-    }
-
-    /**
-     * Get analysisMethod
-     *
-     * @return string 
-     */
-    public function getAnalysisMethod()
-    {
-        return $this->analysisMethod;
-    }
-
-    /**
-     * Set observations
-     *
-     * @param string $observations
-     * @return Products
-     */
-    public function setObservations($observations)
-    {
-        $this->observations = $observations;
-
-        return $this;
-    }
-
-    /**
-     * Get observations
-     *
-     * @return string 
-     */
-    public function getObservations()
-    {
-        return $this->observations;
-    }
-
-    /**
-     * Set type
-     *
-     * @param \Nononsense\HomeBundle\Entity\ProductsTypes $type
-     * @return Products
-     */
-    public function setType(\Nononsense\HomeBundle\Entity\ProductsTypes $type = null)
-    {
-        $this->type = $type;
-
-        return $this;
-    }
-
-    /**
-     * Get type
-     *
-     * @return \Nononsense\HomeBundle\Entity\ProductsTypes 
-     */
-    public function getType()
-    {
-        return $this->type;
-    }
-
-    /**
-     * Add productsInputs
-     *
-     * @param \Nononsense\HomeBundle\Entity\ProductsInputs $productsInputs
-     * @return Products
-     */
-    public function addProductsInput(\Nononsense\HomeBundle\Entity\ProductsInputs $productsInputs)
-    {
-        $this->productsInputs[] = $productsInputs;
-
-        return $this;
-    }
-
-    /**
-     * Remove productsInputs
-     *
-     * @param \Nononsense\HomeBundle\Entity\ProductsInputs $productsInputs
-     */
-    public function removeProductsInput(\Nononsense\HomeBundle\Entity\ProductsInputs $productsInputs)
-    {
-        $this->productsInputs->removeElement($productsInputs);
-    }
-
-    /**
-     * Get productsInputs
-     *
-     * @return \Doctrine\Common\Collections\Collection 
-     */
-    public function getProductsInputs()
-    {
-        return $this->productsInputs;
-    }
-
-    /**
-     * Set cashNumber
-     *
-     * @param string $cashNumber
-     * @return Products
-     */
-    public function setCashNumber($cashNumber)
-    {
-        $this->cashNumber = $cashNumber;
-
-        return $this;
-    }
-
-    /**
-     * Get cashNumber
-     *
-     * @return string 
-     */
-    public function getCashNumber()
-    {
-        return $this->cashNumber;
-    }
-
-    /**
-     * Set active
-     *
-     * @param boolean $active
-     * @return Products
-     */
-    public function setActive($active)
-    {
-        $this->active = $active;
-
-        return $this;
-    }
-
-    /**
-     * Get active
-     *
-     * @return boolean 
-     */
-    public function getActive()
-    {
-        return $this->active;
-    }
-
-    /**
-     * Set destroyed
-     *
-     * @param boolean $destroyed
-     * @return Products
-     */
-    public function setDestroyed($destroyed)
-    {
-        $this->destroyed = $destroyed;
-
-        return $this;
-    }
-
-    /**
-     * Get destroyed
-     *
-     * @return boolean 
-     */
-    public function getDestroyed()
-    {
-        return $this->destroyed;
     }
 }

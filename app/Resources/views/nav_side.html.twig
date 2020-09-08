@@ -30,6 +30,44 @@
             <li id="docxpresso_home">
                 <a href="{{path('nononsense_home_homepage')}}"><i class="fa fa-home"></i> <span class="nav-label">{{'Home'|trans}}</span></a>
             </li>
+            {% if 'admin_gp' in array_subsecciones or 'elaborador_gp' in array_subsecciones or 'tester_gp' in array_subsecciones  or 'aprobador_gp' in array_subsecciones  or 'dueno_gp' in array_subsecciones %}
+                <li>
+                    <a href="#"><i class="fa fa-file-word-o"></i> <span class="nav-label">{{'Gestión de plantillas'|trans}}</span><span
+                            class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level">
+                        {% if 'elaborador_gp' in array_subsecciones  or 'dueno_gp' in array_subsecciones %}
+                            <li id="new_request_gp">
+                                <a href="{{path('nononsense_tm_request')}}"><span class="nav-label">Nueva solicitud</span></a>
+                            </li>
+                        {% endif %}
+                        {% if 'admin_gp' in array_subsecciones %}
+                            <li id="solicitudes_gestion_plantillas">
+                                <a href="{{path('nononsense_tm_requests')}}"><span class="nav-label">Solicitudes pendientes</span></a>
+                            </li>
+                        {% endif %}
+                        {% if 'elaborador_gp' in array_subsecciones %}
+                            <li id="elaboracion_gestion_plantillas">
+                                <a href="#"><span class="nav-label">En elaboración</span></a>
+                            </li>
+                        {% endif %}
+                        {% if 'tester_gp' in array_subsecciones %}
+                            <li id="test_gestion_plantillas">
+                                <a href="#"><span class="nav-label">En test</span></a>
+                            </li>
+                        {% endif %}
+                        {% if 'aprobador_gp' in array_subsecciones %}
+                            <li id="aprobacion_gestion_plantillas">
+                                <a href="#"><span class="nav-label">En aprobación</span></a>
+                            </li>
+                        {% endif %}
+                        {% if 'admin_gp' in array_subsecciones %}
+                            <li id="pendientes_gestion_plantillas">
+                                <a href="#"><span class="nav-label">Pdt. puesta en vigor</span></a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </li>
+            {% endif %}
             <li id="docxpresso_nuevo">
                 <a href="{{path('nononsense_nuevo_contrato')}}?categoriasSelect=0"><i class="fa fa-pencil-square"></i> <span class="nav-label">{{'Nuevo registro'|trans}}</span></a>
             </li>
@@ -134,13 +172,7 @@
                     </ul>
                 </li>
             {% endif %}
-            {% if 'qrs_gestion' in array_subsecciones %}
-                <li id="qr_list">
-                    <a href="{{path('nononsense_qr_list')}}">
-                        <i class="fa fa-qrcode" aria-hidden="true"></i> <span class="nav-label">QRs</span>
-                    </a>
-                </li>
-            {% endif %}
+
             {% if 'mc_materials_list' in array_subsecciones or 'mc_centers_list' in array_subsecciones or 'mc_codes_list' in array_subsecciones %}
             <li>
                 <a href="#">
@@ -173,28 +205,36 @@
                 </ul>
             </li>
             {% endif %}
-            <li>
-                <a href="#"><i class="fa fa-users"></i> <span class="nav-label">{{'Users'|trans}}</span><span
-                        class="fa arrow"></span></a>
-                <ul class="nav nav-second-level">
-                    <li id="browse_users"><a href="{{path('nononsense_users_homepage')}}">{{'Browse users'|trans}}</a>
-                    </li>
-                    <li id="browse_groups"><a href="{{path('nononsense_groups_homepage')}}">{{'Browse groups'|trans}}</a></li>
-                    {% if app.user and is_granted('ROLE_ADMIN') %}
-                    <li id="create_user"><a href="{{path('nononsense_user_create')}}">{{'Create user'|trans}} <span class="label label-primary pull-right">{{'+'|trans}}</span></a></li>
-                    <li id="create_group"><a href="{{path('nononsense_group_create')}}">{{'Create group'|trans}} <span class="label label-primary pull-right">{{'+'|trans}}</span></a></li>
-                    {% endif %}
-                </ul>
-            </li>
-            {% if app.user and is_granted('ROLE_ADMIN') %}
-            <li id="docxpresso_admin">
-                <a href="#"><i class="fa fa-cogs"></i> <span class="nav-label">{{'Administracion'|trans}}</span><span
-                        class="fa arrow"></span></a>
-                <ul class="nav nav-second-level">
-                    <li id="browse_verification_groups"><a href="{{path('nononsense_backoffice_verificator_groups')}}"><i class="fa fa-users"> </i> {{'Gestionar grupos verificacion'|trans}}</a></li>
-                </ul>
-            </li>
-            {% endif %}
+
+            {% if 'qrs_gestion' in array_subsecciones or 'areas_gestion' in array_subsecciones or 'usuarios_gestion' in array_subsecciones  or 'grupos_gestion' in array_subsecciones %}
+                <li>
+                    <a href="#"><i class="fa fa-fw fa-gear"></i> <span class="nav-label">{{'Configuración'|trans}}</span><span
+                            class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level">
+                        {% if 'qrs_gestion' in array_subsecciones %}
+                            <li id="qr_list">
+                                <a href="{{path('nononsense_qr_list')}}"><span class="nav-label">QRs</span></a>
+                            </li>
+                        {% endif %}
+                        {% if 'areas_gestion' in array_subsecciones %}
+                            <li id="areas_list">
+                                <a href="{{path('nononsense_areas')}}"><span class="nav-label">Areas</span></a>
+                            </li>
+                        {% endif %}
+                        {% if 'grupos_gestion' in array_subsecciones %}
+                            <li id="browse_groups">
+                                <a href="{{path('nononsense_groups_homepage')}}"><span class="nav-label">Grupos</span></a>
+                            </li>
+                        {% endif %}
+                        {% if 'usuarios_gestion' in array_subsecciones %}
+                            <li id="browse_users">
+                                <a href="{{path('nononsense_users_homepage')}}"><span class="nav-label">Usuarios</span></a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </li>
+             {% endif %}
+
         </ul>
     </div>
 </nav>

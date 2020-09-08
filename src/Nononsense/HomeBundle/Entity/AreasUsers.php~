@@ -1,0 +1,102 @@
+<?php
+
+namespace Nononsense\HomeBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Validator\Constraints as Assert;
+
+/**
+ * AreasUsers
+ *
+ * @ORM\Entity
+ * @ORM\Table(name="areas_users")
+ * @ORM\Entity(repositoryClass="Nononsense\HomeBundle\Entity\AreasUsersRepository")
+ * @ORM\HasLifecycleCallbacks
+ * @UniqueEntity(fields = {"user", "area"})
+ * 
+ */
+class AreasUsers
+{
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="id", type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    protected $id;
+    
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="areas")
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
+     */
+    protected $user;
+    
+    
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\Areas", inversedBy="users")
+     * @ORM\JoinColumn(name="area_id", referencedColumnName="id")
+     */
+    protected $area;
+
+
+
+    /**
+     * Set user
+     *
+     * @param integer $user
+     * @return GroupUsers
+     */
+    public function setUser($user)
+    {
+        $this->user = $user;
+
+        return $this;
+    }
+
+    /**
+     * Get user
+     *
+     * @return integer 
+     */
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    /**
+     * Get id
+     *
+     * @return integer 
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * Set area
+     *
+     * @param \Nononsense\HomeBundle\Entity\Areas $area
+     * @return AreasUsers
+     */
+    public function setArea(\Nononsense\HomeBundle\Entity\Areas $area = null)
+    {
+        $this->area = $area;
+
+        return $this;
+    }
+
+    /**
+     * Get area
+     *
+     * @return \Nononsense\HomeBundle\Entity\Areas 
+     */
+    public function getArea()
+    {
+        return $this->area;
+    }
+}

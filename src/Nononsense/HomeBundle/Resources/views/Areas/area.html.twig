@@ -1,0 +1,303 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}DOCXPRESSO | Documentos {% endblock %}
+{% block head %}
+    {{ parent() }}
+    <link href="/css/plugins/chosen/chosen.css" rel="stylesheet">
+    <link rel="stylesheet" href="/plugins/select2/dist/css/select2.min.css">
+{% endblock %}
+{% block main_title %} Areas {% endblock %}
+
+{% block content %}
+
+    <div class="wrapper wrapper-content animated fadeInUp">
+        {% for flashMessage in app.session.flashbag.get('error') %}
+        <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+            <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+            {{ flashMessage }}
+        </div>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('deletedGroup') %}
+            <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                {{ flashMessage }} 
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('createdGroup') %}
+            <div class="alert alert-success alert-dismissable" style="margin: 10px 16px 0 16px">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                {{ flashMessage }}
+            </div>
+        {% endfor %}
+        <br>
+        
+            <form class="form-horizontal" id="form_item" action="{{ path('nononsense_areas_update',{'id': item.id is defined ? item.id : 0}) }}" method="POST"  enctype="multipart/form-data">
+                <div class="row">
+                    <div class="col-lg-5 col-lg-offset-1">
+                        <div class="row">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Nombre</label>
+                                <div class="col-sm-7">
+                                    <input type="text" name="name" class="form-control" value="{{item.name is defined ? item.name : ''}}" required="required">
+                                </div>
+                            </div>
+
+                            <div class="form-group" id="box_existent_template">
+                                <label class="col-sm-3 control-label">Plantilla maestra</label>
+                                <div class="col-sm-7">
+                                  <select class="form-control select_template" style="width: 100%;" required="required">
+                                    {% if item.template is defined and item.template is not null %}
+                                      <option value="{{item.template.id}}" selected="selected">{{item.template.name}} - {{item.template.prefix}}</option>
+                                    {% endif %}
+                                  </select>
+                                </div>
+                                <input type="hidden" name="master_template" value="">
+                            </div>  
+
+                            <div class="form-group">
+                                <div class="col-sm-7 col-sm-offset-3">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input name="is_active" value="1" type="checkbox" {% if item is not defined or (item.isActive is defined and  item.isActive == 1) %} checked="checked" {% endif %}> Activo
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="col-sm-7 col-sm-offset-3 pre_col_prefixes">
+                                    <div class="col_prefixes">
+                                        <h2>Abreviaturas</h2>
+                                        <hr>
+                                        <div style="font-size:10px"> 
+                                        XX... => Numeración<br>
+                                        YY => Año (20)<br>
+                                        YYYY => Año (2020)<br>
+                                        EE... => Num. edición<br>
+                                        NUMPROY => Num. proyecto</div>
+                                        <hr>
+                                        {% if prefixes is defined %}
+                                            {% for prefix in prefixes %}
+                                                <div class="row line_prefix">
+                                                    <div class="col-sm-10">
+                                                        <input type="text" name="prefixes[]" class="form-control" value="{{prefix.name is defined ? prefix.name : ''}}" required="required">
+                                                    </div>
+                                                    <div class="col-sm-2">
+                                                        <a href="javascript:void(0)" class="btn btn-xs btn-danger remove_line"><i class="fa fa-times" aria-hidden="true"></i></a>
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
+                                        {% endif %}
+                                    </div> 
+                                    <br>
+                                    <div class="row">
+                                        <button type="button" class="btn btn-default pull-right add_line" data-type="test"><i class="fa fa-plus"></i> Añadir</button>
+                                    </div><br> 
+                                </div>
+                            </div>
+                        </div>          
+                    </div>
+                    {% if item is defined %}
+                        <div class="col-lg-5">
+                            
+                            <div class="ibox" id="addgroups" style="display: none">
+                                <div class="ibox-title">
+                                    <h5>Añadir grupos </h5>
+                                    <div class="ibox-tools">
+                                        <a class="collapse-link">
+                                            <i class="fa fa-chevron-up"></i>
+                                        </a>
+                                        <a id="restart">
+                                        <i class="fa fa-times"></i>
+                                    </a>
+                                    </div>
+                                </div>
+                                <div class="ibox-content" id="loadgroups"> 
+                                    <div class="text-center" style="font-size: 22px">
+                                        <i class="fa fa-spinner fa-spin"></i>
+                                    </div>
+                                    <br />
+                                </div>
+                            </div>
+                            
+                            <div class="ibox">
+                                <div class="ibox-title">
+                                    <h5>{{'Grupos'|trans}}
+                                            &nbsp; <span  class="btn btn-primary btn-xs " id="addGroup"><i class="fa fa-user"> </i> &nbsp;{{'Añadir grupo'|trans}}</span>
+                                    </h5>
+                                    <div class="ibox-tools">
+                                        <a class="collapse-link">
+                                            <i class="fa fa-chevron-up"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="ibox-content" id="grouplist">
+                                    <div class="text-center" style="font-size: 22px">
+                                        <i class="fa fa-spinner fa-spin"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-11">
+                        <button type="submit" class="btn btn-primary  pull-right"><i class="fa fa-floppy-o" aria-hidden="true"></i> Guardar</button>
+                    </div>
+                </div>
+            </form>
+        
+    </div>
+
+    <div class="modal inmodal fade" id="removeModal" tabindex="-1" role="dialog"  aria-hidden="true">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">{{'Close'|trans}}</span></button>
+                    <h4 class="modal-title">{{'Remove'|trans}}</h4>
+                </div>
+                <div class="modal-body" id="modal-data">
+                    <p></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-white" data-dismiss="modal">{{'Close'|trans}}</button>
+                    <button type="button" class="btn btn-primary" id="deleteGroup">{{'Remove'|trans}}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <did style="display:none" id="master_line">
+        <div class="row line_prefix">
+            <div class="col-sm-10">
+                <input type="text" name="prefixes[]" class="form-control" value="" required="required">
+            </div>
+            <div class="col-sm-2">
+                <a href="javascript:void(0)" class="btn btn-xs btn-danger remove_line"><i class="fa fa-times" aria-hidden="true"></i></a>
+            </div>
+        </div>
+    </did>
+    
+{% endblock %}
+
+{% block scripts %}
+{{ parent() }}
+{% if item is defined %}
+    <!-- Chosen -->
+    <script src="/js/plugins/chosen/chosen.jquery.js"></script>
+    <script src="/plugins/select2/dist/js/select2.full.min.js"></script>
+    <script src="/plugins/select2/es.js"></script>
+    <script>
+        window.members = {};
+        function deleteGroup(data) {
+            content = '<h3>' + data.name + '</h3>';
+            $('#deleteGroup').click(function(){window.location.href="{{ path('nononsense_areas_remove_group')}}" + '/{{item.id}}/' + data.group});
+            $('#modal-data').html(content);
+            $('#removeModal').modal('toggle');
+        }
+        
+        function insertGroup(id) {           
+            $('#instructions').hide();
+            $('#loadgroups').append('<li id="group_' + id + '"><i class="fa fa-spinner fa-spin"> </i></li>');
+            $('#group_' + id ).load('{{ url('nononsense_group_addgroup')}}?id=' + id);
+        }
+        
+        function removeNewGroup (id) {
+            delete members['id_' + id]
+            $('#newgroup_' + id).parent().remove();
+        }
+        
+        function addListOfGroups () {
+            groups = JSON.stringify(window.members);
+            if (groups != '{}') {
+                window.location.href = '{{ url('nononsense_area_addbulk')}}?groups=' + groups + '&id={{item.id}}';
+            } else {
+                toastr.error('{{'No hay grupos añadidos'|trans}}','{{'Warning'|trans}}');
+            }
+        }
+        
+        $(document).ready(function(){
+            $.fn.select2.defaults.set('language', 'es');
+
+            ActivateMenu('areas_list');
+            $('#side-menu').metisMenu();
+
+            $(document).on('click', '.add_line', function() {
+                $(this).closest(".pre_col_prefixes").find(".col_prefixes").append($("#master_line").html());
+            });
+
+            $(document).on('click', '.remove_line', function() {
+                $(this).closest(".line_prefix").remove();
+            });
+            
+            $('#grouplist').load('{{ path('nononsense_areas_groups', {"id" : item.id})}}', function(){
+                $('.remove_member').click(function(){deleteGroup($(this).data())});
+            });
+            
+            /*add groups*/
+            
+            $('#addGroup').click(function() {newGroups()});
+            $('#restart').click(function() {
+                $('#addMember').show();
+                $('#addgroups').hide();
+                $('#grouplist').html('<div class="text-center" style="font-size: 22px"><i class="fa fa-spinner fa-spin"></i></div>');
+                window.members = {};
+            });
+            
+            
+            function newGroups () {
+                $('#addgroups').show();
+                $('#addGroup').hide();
+                h5 = '{{'Añadir grupos'|trans}}';
+                $('#loadgroups').load('{{ url('nononsense_areas_addgroups', {"id" : item.id})}}');
+
+                $('#addgroups h5').html(h5);
+            }
+
+            $(".select_template").select2({
+                templateResult: format_template,
+                minimumInputLength: 3,
+                    ajax: { // instead of writing the function to execute the request we use Select2's convenient helper
+                      url: function () {
+                        return url_templates_json();
+                      },
+                      dataType: 'json',
+                      quietMillis: 250,
+                      data: function (params, page) {
+                          return {
+                              name: params.term, // search term
+                          };
+                          
+                      },
+                      processResults: function (data, page) { // parse the results into the format expected by Select2.
+                        console.log(data);
+                        return {results: data.items};
+                      },
+                      cache: false
+                },
+                escapeMarkup: function(m) { return m; }
+            });
+
+            $('.select_template').on("select2:select", function(e) { 
+                $('input[name ="master_template"]').val(e.params.data.id);
+            });
+            
+            
+       });
+
+        function url_templates_json(){
+           url="{{ path('nononsense_templates_active_json') }}";
+           return url;
+        }
+
+        function format_template (option) {
+          if (!option.id) { return option.text; }
+          var ob = option.text;  // replace image source with option.img (available in JSON)
+          return ob;
+        }
+    </script>
+{% endif %}
+{% endblock %}
+
+

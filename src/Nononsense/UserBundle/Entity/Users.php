@@ -211,6 +211,16 @@ class Users implements AdvancedUserInterface, \Serializable
     protected $Firmas;
 
     /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMSignatures", mappedBy="userEntiy")
+     */
+    protected $tmSignatures;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMWorkflow", mappedBy="userEntiy")
+     */
+    protected $tmWorkflows;
+
+    /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\ActivityUser", mappedBy="userEntiy")
      */
     protected $Activity;
@@ -1872,6 +1882,73 @@ class Users implements AdvancedUserInterface, \Serializable
     public function getMaterialReview()
     {
         return $this->materialReview;
+    }
+
+
+    /**
+     * Add tmSignatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMSignatures $tmSignatures
+     * @return Users
+     */
+    public function addTmSignature(\Nononsense\HomeBundle\Entity\TMSignatures $tmSignatures)
+    {
+        $this->tmSignatures[] = $tmSignatures;
+
+        return $this;
+    }
+
+    /**
+     * Remove tmSignatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMSignatures $tmSignatures
+     */
+    public function removeTmSignature(\Nononsense\HomeBundle\Entity\TMSignatures $tmSignatures)
+    {
+        $this->tmSignatures->removeElement($tmSignatures);
+    }
+
+    /**
+     * Get tmSignatures
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getTmSignatures()
+    {
+        return $this->tmSignatures;
+    }
+
+    /**
+     * Add tmWorkflows
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMWorkflow $tmWorkflows
+     * @return Users
+     */
+    public function addTmWorkflow(\Nononsense\HomeBundle\Entity\TMWorkflow $tmWorkflows)
+    {
+        $this->tmWorkflows[] = $tmWorkflows;
+
+        return $this;
+    }
+
+    /**
+     * Remove tmWorkflows
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMWorkflow $tmWorkflows
+     */
+    public function removeTmWorkflow(\Nononsense\HomeBundle\Entity\TMWorkflow $tmWorkflows)
+    {
+        $this->tmWorkflows->removeElement($tmWorkflows);
+    }
+
+    /**
+     * Get tmWorkflows
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getTmWorkflows()
+    {
+        return $this->tmWorkflows;
     }
 
     /**

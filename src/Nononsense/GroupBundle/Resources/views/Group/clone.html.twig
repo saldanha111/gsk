@@ -101,7 +101,7 @@
                 return;
               });
              
-             ActivateMenu('create_group');
+             ActivateMenu('browse_groups');
             $('#side-menu').metisMenu();
             
             $('#adminlist').load('{{ path('nononsense_group_users', {"id" : group.id, "type": "admin" })}}', function(){

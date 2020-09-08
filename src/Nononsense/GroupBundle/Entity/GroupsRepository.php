@@ -98,4 +98,38 @@ class GroupsRepository extends EntityRepository
 
         return $groups->getResult();
     }
+
+    public function findAllGroupsNotInArea($areaId)
+    {
+        $query = $this->getEntityManager()
+            ->createQuery(
+                'SELECT g FROM NononsenseGroupBundle:Groups g 
+                 WHERE  g.isActive = true AND g.id NOT IN
+                (SELECT  IDENTITY(ag.agroup) FROM NononsenseHomeBundle:AreasGroups ag WHERE ag.area = :id)'
+            )->setParameter('id', $areaId);
+        //comment: the IDENTITY operator was need because it was a composite field
+        try {
+            return $query->getResult();
+        } catch (\Doctrine\ORM\NoResultException $e) {
+            return null;
+        }
+    }
+
+    public function listGroupsByAreaAndPermission($area,$permission)
+    {
+        $groups = $this->createQueryBuilder('g')
+            ->select('g.name', 'g.id')
+            ->join('g.areas', 'a')
+            ->join('g.groupsSubsecciones', 'gs')
+            ->join('gs.subseccion', 's')
+            ->where('a.area = :area')
+            ->andWhere('s.nameId = :permission')
+            ->andWhere('g.isActive = true')
+            ->setParameter('area', $area)
+            ->setParameter('permission', $permission)
+            ->orderBy('g.name', 'ASC');
+
+        return $groups->getQuery()->getArrayResult();
+
+    }
 }
