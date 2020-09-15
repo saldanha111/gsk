@@ -214,9 +214,19 @@ class InstanciasStepsRepository extends EntityRepository
         switch($type){
             case "list":
                 $list = $this->createQueryBuilder('s')
+
                     ->select('s.id as id_grid','i.id', 'i.usercreatedid','mw.name','ms.name as name2','u.name as creator','i.created','m.modified','m.lote','m.material','m.equipo','m.workordersap','mw.logbook','i.status','s.id as step','i.in_edition','mw.logbook','us.id as idNextSigner','r.registro_viejo_id as id_reconciliado','r2.registro_nuevo_id as id_reconciliado_sig','mw.checklist as tiene_checklist','ms.checklist as es_checklist','s.dependsOn');
-                $list->addSelect("CASE WHEN (((SELECT COUNT(ela.step_id) FROM Nononsense\HomeBundle\Entity\FirmasStep ela WHERE ela.userEntiy=:el_user AND ela.step_id=s.id AND (ela.elaboracion=1 OR (ela.accion LIKE 'Cancelado en verificación:%' AND i.status=14)))>0 OR i.usercreatedid=:el_user_id) AND NOT (i.status=14 AND f.accion LIKE 'Cancelado en verificación:%' AND f.userEntiy!=:user_cancel)) THEN 0 ELSE 1 AS validate");
-                $list->addSelect("CASE WHEN ((SELECT COUNT(elac.step_id) FROM Nononsense\HomeBundle\Entity\FirmasStep elac WHERE elac.userEntiy=:el_userc AND elac.step_id=s.id AND elac.elaboracion=0 AND elac.accion NOT LIKE 'Petición de reconciliación%' AND elac.accion NOT LIKE 'Registro en StandBy Liberado%')>0) THEN 0 ELSE 1 AS cumpliment");
+                   
+                //$list->addSelect("(CASE WHEN (((SELECT COUNT(ela.step_id) FROM Nononsense\HomeBundle\Entity\FirmasStep ela WHERE ela.userEntiy=:el_user AND ela.step_id=s.id AND (ela.elaboracion=1 OR (ela.accion LIKE 'Cancelado en verificación:%' AND i.status=14)))>0 OR i.usercreatedid=:el_user_id) AND NOT (i.status=14 AND f.accion LIKE 'Cancelado en verificación:%' AND f.userEntiy!=:user_cancel)) THEN 0 ELSE 1 END) AS validate");
+
+                $list->addSelect("(SELECT COUNT(ela.step_id) FROM Nononsense\HomeBundle\Entity\FirmasStep ela WHERE ela.userEntiy=:el_user AND ela.step_id=s.id AND (ela.elaboracion=1 OR (ela.accion LIKE 'Cancelado en verificación:%' AND i.status=14))) AS validate1");
+
+                $list->addSelect("(CASE WHEN (i.usercreatedid=:el_user_id) THEN 1 ELSE 0 END) AS validate2");
+
+                $list->addSelect("(CASE WHEN (i.status=14 AND f.accion LIKE 'Cancelado en verificación:%' AND f.userEntiy!=:user_cancel) THEN 0 ELSE 1 END) AS validate3");
+
+                $list->addSelect("(SELECT COUNT(elac.step_id) FROM Nononsense\HomeBundle\Entity\FirmasStep elac WHERE elac.userEntiy=:el_userc AND elac.step_id=s.id AND elac.elaboracion=0 AND elac.accion NOT LIKE 'Petición de reconciliación%' AND elac.accion NOT LIKE 'Registro en StandBy Liberado%') AS cumpliment");
+
                 $list->setParameter('el_user', $user);
                 $list->setParameter('user_cancel', $user);
                 $list->setParameter('el_userc', $user);
@@ -242,9 +252,12 @@ class InstanciasStepsRepository extends EntityRepository
             ->andWhere('s.status_id>=0')
             ->andWhere('i.status>=0')
             ->andWhere('ms.dependsOn=0 OR (ms.dependsOn > 0 AND (i.status = 6 or i.status = 4 or i.status = 7 or  i.status = 12 or i.status = 13 or i.status = 15 or i.status = 9 or i.status = 10))')
-            ->andWhere('f.id IS NULL OR f.id = (SELECT MAX(aux.id) FROM Nononsense\HomeBundle\Entity\FirmasStep aux WHERE aux.step_id=f.step_id)')
-            ->orderBy('s.workflow_id', 'DESC')
+            ->andWhere('(f.id IS NULL OR f.id = (SELECT MAX(aux.id) FROM Nononsense\HomeBundle\Entity\FirmasStep aux WHERE aux.step_id=f.step_id))');
+
+        if($type=="list"){
+            $list->orderBy('s.workflow_id', 'DESC')
             ->addOrderBy('s.dependsOn', 'ASC');
+        }
 
 
 
@@ -398,6 +411,9 @@ class InstanciasStepsRepository extends EntityRepository
 
         $query = $list->getQuery();
 
+        //echo $query->getSql();die();
+
+        //var_dump($query->getResult());die();
 
         switch($type){
             case "list":
@@ -407,6 +423,18 @@ class InstanciasStepsRepository extends EntityRepository
                 return $query->getSingleResult()["conta"];
                 break;
         }
+    }
+
+    function can_validate($step_id,$user){
+
+        $em = $this->getEntityManager();
+
+        $query = $em->createQuery("SELECT CASE WHEN (((SELECT COUNT(ela.step_id) FROM Nononsense\HomeBundle\Entity\FirmasStep ela WHERE ela.userEntiy=:el_user AND ela.step_id=s.id AND (ela.elaboracion=1 OR (ela.accion LIKE 'Cancelado en verificación:%' AND i.status=14)))>0 OR i.usercreatedid=:el_user_id) AND NOT (i.status=14 AND f.accion LIKE 'Cancelado en verificación:%' AND f.userEntiy!=:user_cancel)) THEN 0 ELSE 1 END AS validate FROM Nononsense\HomeBundle\Entity\InstanciasSteps s LEFT JOIN Nononsense\HomeBundle\Entity\FirmasStep f WITH s.firmasStep=f.id AND (f.id IS NULL OR f.id = (SELECT MAX(aux.id) FROM Nononsense\HomeBundle\Entity\FirmasStep aux WHERE aux.step_id=f.step_id)) LEFT JOIN Nononsense\HomeBundle\Entity\InstanciasWorkflows i WITH s.instancia_workflow=i.id WHERE s.id=:step_id GROUP BY f.id"
+        )->setParameter('step_id', $step_id)->setParameter('el_user', $user)->setParameter('el_user_id', $user->getId())->setParameter('user_cancel', $user);
+        echo $query->getSingleResult()["validate"];die();
+        // returns an array of Product objects
+        return $query->getSingleResult()["validate"];
+
     }
 
 }
