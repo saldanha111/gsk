@@ -7,6 +7,7 @@ use Aws\Sns\SnsClient;
 use DateInterval;
 use DateTime;
 use Exception;
+use Nononsense\GroupBundle\Entity\Groups;
 use Nononsense\GroupBundle\Entity\GroupUsersRepository;
 use Nononsense\HomeBundle\Entity\RecordsContracts;
 use Nononsense\HomeBundle\Entity\RecordsContractsPinComite;
@@ -38,35 +39,29 @@ class RecordsContractsController extends Controller
         }
 
         $user = $this->container->get('security.context')->getToken()->getUser();
-
         $Egroups = $this->getDoctrine()
             ->getRepository('NononsenseGroupBundle:GroupUsers')
             ->findBy(array("user" => $user));
 
         $filters = array();
-        $filters2 = array();
-        $types = array();
-
         $filters["user"] = $user;
-        $filters2["user"] = $user;
-
         $array_item["suser"]["id"] = $user->getId();
 
+        $groups = [];
         foreach ($Egroups as $group) {
             $groups[] = $group->getGroup()->getId();
         }
 
         if ($groups) {
             $filters["groups"] = $groups;
-            $filters2["groups"] = $groups;
         }
 
         if ($request->get("pending_for_me")) {
             $filters["pending_for_me"] = $request->get("pending_for_me");
-            $filters2["pending_for_me"] = $request->get("pending_for_me");
         }
 
         if (!$request->get("export_excel")) {
+            $paginate = 1;
             if ($request->get("page")) {
                 $filters["limit_from"] = $request->get("page") - 1;
             } else {
@@ -74,39 +69,35 @@ class RecordsContractsController extends Controller
             }
             $filters["limit_many"] = 15;
         } else {
-            $filters["limit_from"] = 0;
-            $filters["limit_many"] = 99999999999;
+            $paginate = 0;
         }
 
         if ($request->get("content")) {
             $filters["content"] = $request->get("content");
-            $filters2["content"] = $request->get("content");
         }
 
         if ($request->get("name")) {
             $filters["name"] = $request->get("name");
-            $filters2["name"] = $request->get("name");
         }
 
         if ($request->get("type")) {
             $filters["type"] = $request->get("type");
-            $filters2["type"] = $request->get("type");
         }
 
         if ($request->get("status")) {
             $filters["status"] = $request->get("status");
-            $filters2["status"] = $request->get("status");
         }
 
         if ($request->get("from")) {
             $filters["from"] = $request->get("from");
-            $filters2["from"] = $request->get("from");
         }
 
         if ($request->get("until")) {
             $filters["until"] = $request->get("until");
-            $filters2["until"] = $request->get("until");
         }
+
+        /** @var RecordsContractsRepository $rescordsContractsRepository */
+        $rescordsContractsRepository = $this->getDoctrine()->getRepository(RecordsContracts::class);
 
         $array_item["states"][1] = "Creado";
         $array_item["states"][2] = "Pendiente de firma";
@@ -115,43 +106,27 @@ class RecordsContractsController extends Controller
         $array_item["suser"]["groups"] = $groups;
         $array_item["filters"] = $filters;
         $array_item["types"] = $this->getDoctrine()->getRepository(ContractsTypes::class)->findAll();
-        $array_item["items"] = $this->getDoctrine()->getRepository(RecordsContracts::class)->list($filters);
-        $array_item["count"] = $this->getDoctrine()->getRepository(RecordsContracts::class)->count($filters2, $types);
+        $array_item["items"] = $rescordsContractsRepository->list($filters, $paginate);
+        $array_item["count"] = $rescordsContractsRepository->count($filters);
 
         $group_direccion_rrhh = $this->getDoctrine()
-            ->getRepository('NononsenseGroupBundle:Groups')
+            ->getRepository(Groups::class)
             ->find($this->getParameter("group_id_direccion_rrhh"));
         $array_item['group_direccion_rrhh'] = $group_direccion_rrhh;
 
         $group_comite_rrhh = $this->getDoctrine()
-            ->getRepository('NononsenseGroupBundle:Groups')
+            ->getRepository(Groups::class)
             ->find($this->getParameter("group_id_comite_rrhh"));
         $array_item['group_comite_rrhh'] = $group_comite_rrhh;
 
         /** @var GroupUsersRepository $groupUsersRepository */
-        $groupUsersRepository = $this->getDoctrine()->getRepository('NononsenseGroupBundle:GroupUsers');
+        $groupUsersRepository = $this->getDoctrine()->getRepository(GroupUsers::class);
         $isGroupDirectionOrAdmin = $groupUsersRepository->isMemberOfAnyGroup(
             $user->getId(),
             [$this->getParameter("group_id_direccion_rrhh"),$this->getParameter("group_id_contratos_rrhh")]
         );
         $array_item['direction_or_admin'] = $isGroupDirectionOrAdmin;
-
-        $url = $this->container->get('router')->generate('nononsense_records_contracts');
-        $params = $request->query->all();
-        unset($params["page"]);
-        if (!empty($params)) {
-            $parameters = true;
-        } else {
-            $parameters = false;
-        }
-        $array_item["pagination"] = Utils::paginador(
-            $filters["limit_many"],
-            $request,
-            $url,
-            $array_item["count"],
-            "/",
-            $parameters
-        );
+        $array_item["pagination"] = Utils::getPaginator($request, $filters["limit_many"], $array_item["count"]);
 
         return $this->render('NononsenseHomeBundle:Contratos:records_contracts.html.twig', $array_item);
     }

@@ -89,7 +89,7 @@
                             <th></th>
                         </tr>
                         </thead>
-                        {% if items is defined %}
+                        {% if items is defined and items is not null %}
                             {% for item in items %}
                             <tr>
                                 <td>{{item.id}}</td>

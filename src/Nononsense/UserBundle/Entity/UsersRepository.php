@@ -21,9 +21,10 @@ class UsersRepository extends EntityRepository
      * @param string $sort
      * @return Paginator
      */
-    public function listUsers($page = 1, $max = 10, $sort = 'id', $query = 'q', $admin = false)
+    public function listUsers($page = 1, $max = 10, $sort = 'orderId', $query = 'q', $admin = false)
     {
         $list = $this->createQueryBuilder('u');
+        $list->addSelect('u', 'u.id as HIDDEN orderId');
         if (!$admin) {
             $list->where('u.isActive = :is_active')
                 ->setParameter('is_active', true);
@@ -33,7 +34,7 @@ class UsersRepository extends EntityRepository
                 ->setParameter('query', '%' . $query . '%');
         }
 
-        $list->orderBy('u.' . $sort, 'DESC');
+        $list->orderBy($sort, 'DESC');
 
         $list->setFirstResult(($page - 1) * $max);
         $list->setMaxResults($max);
