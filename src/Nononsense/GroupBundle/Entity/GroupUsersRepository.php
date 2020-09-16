@@ -21,6 +21,7 @@ class GroupUsersRepository extends EntityRepository
     public function findUsersByGroup($page, $max, $id, $query, $type = '')
     {
         $users = $this->createQueryBuilder('g')
+                      ->select('g','u.name as HIDDEN nameUser')
                       ->join('g.user', 'u')
                       ->where('g.group = :id')
                       ->setParameter('id', $id);
@@ -35,7 +36,7 @@ class GroupUsersRepository extends EntityRepository
                  ->setParameter('query', '%' . $query . '%');
         }
                 
-        $users->orderBy('u.name', 'ASC')
+        $users->orderBy('nameUser', 'ASC')
               ->setFirstResult(($page-1) * $max)
               ->setMaxResults($max);
  

@@ -21,6 +21,7 @@ class AreasGroupsRepository extends EntityRepository
     public function findgroupsByArea($page, $max, $id, $query)
     {
         $list = $this->createQueryBuilder('a')
+                      ->select('a, g.name as HIDDEN nameGroup')
                       ->join('a.agroup', 'g')
                       ->where('a.area = :id')
                       ->setParameter('id', $id);
@@ -31,7 +32,7 @@ class AreasGroupsRepository extends EntityRepository
                  ->setParameter('query', '%' . $query . '%');
         }
                 
-        $list->orderBy('g.name', 'ASC')
+        $list->orderBy('nameGroup', 'ASC')
               ->setFirstResult(($page-1) * $max)
               ->setMaxResults($max);
  

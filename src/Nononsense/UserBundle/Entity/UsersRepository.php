@@ -307,7 +307,7 @@ class UsersRepository extends EntityRepository
             ->andWhere('u.isActive = true')
             ->setParameter('area', $area)
             ->setParameter('permission', $permission)
-            ->groupBy('u.id')
+            ->groupBy('u.id')->addGroupBy('u.name')->addGroupBy('u.email')
             ->orderBy('u.name', 'ASC');
 
         return $users->getQuery()->getArrayResult();
