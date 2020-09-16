@@ -218,7 +218,7 @@
 
                                         {% if item.status == 0 %}
                                             {% if item.in_edition == 0 %}
-                                                {% if item.cumpliment == 1 %}
+                                                {% if not item.cumpliment %}
                                                     <a class="btn btn-xs btn-danger"  name="completarregistro" data-template="{{item.id}}" data-loogbook="{{item.logbook}}"><i class="fa fa-file-o" aria-hidden="true"></i> Completar</a>
                                                 {% else %}
                                                     <a href="#" class="btn btn-xs btn-warning disabled"><i class="fa fa-check" aria-hidden="true"></i> En cumplimentación</a>
