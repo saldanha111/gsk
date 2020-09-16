@@ -103,6 +103,7 @@ class ActivityController extends Controller
         foreach($array_item["items"] as $key => $item){
             $array_item["items"][$key]["formatDuration"]=$this->convert_seconds($item["duration"]);
         }
+        
         $array_item["count"] = $this->getDoctrine()->getRepository(ActivityUser::class)->search("count",$filters2);
 
         $url=$this->container->get('router')->generate('nononsense_search');
