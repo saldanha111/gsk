@@ -14,106 +14,80 @@ class RecordsContractsRepository extends EntityRepository
 {
 	public function list($filters, $paginate=1)
     {
-    	$em = $this->getEntityManager();
-
         $list = $this->createQueryBuilder('r')
-            ->select('r.id', 'd.name', 't.name as nameType', 'u.name as usuario', 'r.status', 'r.usercreatedid', 'r.files', 'r.created', 'r.comments')
-            ->leftJoin("r.type", "t")
-            ->leftJoin("r.userCreatedEntiy", "u")
-            ->leftJoin("r.contract", "d")
+            ->select('r.id', 'd.name', 'u.name as usuario', 'r.status', 'r.usercreatedid', 'r.files', 'r.created', 'r.comments')
+            ->innerJoin("r.userCreatedEntiy", "u")
+            ->innerJoin("r.contract", "d")
             ->leftJoin('r.signatures','s')
             ->andWhere('r.isActive=1')
-//            ->andWhere('(s.next=1 OR s.next IS NULL) OR (r.status=3 AND s.id=r.lastSign) or (r.comments IS NOT NULL and s.number=0)')
-            ->groupBy('r.id')
+            ->groupBy('r')
+            ->addGroupBy('d')
+            ->addGroupBy('u')
             ->orderBy('r.id', 'DESC');
 
         $list = self::fillFilersQuery($filters, $list);
-
         if($paginate==1 && isset($filters["limit_from"])){
             $list->setFirstResult($filters["limit_from"]*$filters["limit_many"])->setMaxResults($filters["limit_many"]);
         }
 
-        $query = $list->getQuery();
-
-        return $query->getResult();
+        return $list->getQuery()->getResult();
     }
 
     public function count($filters = array())
     {
-        $em = $this->getEntityManager();
-
         $list = $this->createQueryBuilder('r')
-            ->select('COUNT(DISTINCT d.id) as conta')
-            ->leftJoin("r.type", "t")
-            ->leftJoin("r.userCreatedEntiy", "u")
-            ->leftJoin("r.contract", "d")
+            ->select('COUNT(DISTINCT r.id) as conta')
+            ->innerJoin("r.userCreatedEntiy", "u")
+            ->innerJoin("r.contract", "d")
             ->leftJoin('r.signatures','s')
-            ->andWhere('r.isActive=1')
-            //->andWhere('(s.next=1 OR s.next IS NULL) OR (r.status=3 AND s.id=r.lastSign) or (r.comments IS NOT NULL and s.number=0)')
-            ->orderBy('r.id', 'DESC');
+            ->andWhere('r.isActive=1');
 
         $list = self::fillFilersQuery($filters, $list);
-        
-        $query = $list->getQuery();
-
-        return $query->getSingleResult()["conta"];
+        return $list->getQuery()->getSingleResult()["conta"];
     }
 
     private function fillFilersQuery($filters, $list){
-
-    	if(!empty($filters)){
-            if (isset($filters["groups"])) {
-                $groups = $filters["groups"];
-            }
-
-            if (isset($filters["user"])) {
-                $user = $filters["user"];
-            }
-
-            if(isset($filters["name"])){
-                $terms = explode(" ", $filters["name"]);
-                foreach($terms as $key => $term){
-                    $list->andWhere('d.name LIKE :name'.$key);
-                    $list->setParameter('name'.$key, '%' . $term. '%');
-                }
-                
-            }
-
-            if(isset($filters["content"])){
-                $terms = explode(" ", $filters["content"]);
-                foreach($terms as $key => $term){
-                    $list->andWhere('r.stepDataValue LIKE :content'.$key);
-                    $list->setParameter('content'.$key, '%' . $term. '%');
-                }
-            }
-
-            if(isset($filters["type"])){
-                $list->andWhere('r.type=:type');
-                $list->setParameter('type', $filters["type"]);
-            }
-
-            if(isset($filters["status"])){
-                $list->andWhere('r.status=:status');
-                $list->setParameter('status', $filters["status"]);
-            }
-
-            if (isset($filters["pending_for_me"])) {
-                $list->andWhere('((r.status=1 OR r.status=5) AND r.usercreatedid=:user_id) OR (r.status=2 AND (s.userid=:user_id OR s.groupid IN (:groups)))');
-                $list->setParameter('user_id', $user->getId());
-                $list->setParameter('groups', $groups);
-            }
-
-            if(isset($filters["from"])){
-                $list->andWhere('r.created>=:from');
-                $list->setParameter('from', $filters["from"]);
-            }
-
-            if(isset($filters["until"])){
-                $list->andWhere('r.created<=:until');
-                $list->setParameter('until', $filters["until"]." 23:59:00");
+        if (isset($filters["groups"])) {
+            $groups = $filters["groups"];
+        }
+        if (isset($filters["user"])) {
+            $user = $filters["user"];
+        }
+        if(isset($filters["name"])){
+            $terms = explode(" ", $filters["name"]);
+            foreach($terms as $key => $term){
+                $list->andWhere('d.name LIKE :name'.$key);
+                $list->setParameter('name'.$key, '%' . $term. '%');
             }
         }
-
+        if(isset($filters["content"])){
+            $terms = explode(" ", $filters["content"]);
+            foreach($terms as $key => $term){
+                $list->andWhere('r.stepDataValue LIKE :content'.$key);
+                $list->setParameter('content'.$key, '%' . $term. '%');
+            }
+        }
+        if(isset($filters["type"])){
+            $list->andWhere('r.type=:type');
+            $list->setParameter('type', $filters["type"]);
+        }
+        if(isset($filters["status"])){
+            $list->andWhere('r.status=:status');
+            $list->setParameter('status', $filters["status"]);
+        }
+        if (isset($filters["pending_for_me"])) {
+            $list->andWhere('((r.status=1 OR r.status=5) AND r.usercreatedid=:user_id) OR (r.status=2 AND (s.userid=:user_id OR s.groupid IN (:groups)))');
+            $list->setParameter('user_id', $user->getId());
+            $list->setParameter('groups', $groups);
+        }
+        if(isset($filters["from"])){
+            $list->andWhere('r.created>=:from');
+            $list->setParameter('from', $filters["from"]);
+        }
+        if(isset($filters["until"])){
+            $list->andWhere('r.created<=:until');
+            $list->setParameter('until', $filters["until"]." 23:59:00");
+        }
     	return $list;
     }
 

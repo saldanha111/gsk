@@ -638,7 +638,7 @@ class ProductsController extends Controller
         $array_item["count"] = $productsInputsRepository->count($filters);
         $array_item['pagination'] = Utils::getPaginator($request, $filters['limit_many'], $array_item["count"]);
 
-        if($typeObj->getSlug() == 'reactivo'){
+        if($typeObj && $typeObj->getSlug() == 'reactivo'){
             return $this->render('NononsenseHomeBundle:Products:list_inputs_reactivo.html.twig', $array_item);
         }else{
             return $this->render('NononsenseHomeBundle:Products:list_inputs_material.html.twig', $array_item);

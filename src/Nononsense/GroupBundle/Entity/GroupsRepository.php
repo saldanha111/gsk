@@ -24,6 +24,7 @@ class GroupsRepository extends EntityRepository
     public function listGroups($page=1, $max=10, $sort= 'id', $query= 'q', $admin = false)
     {
         $list = $this->createQueryBuilder('g');
+        $list->select('g','g.'.$sort.' as HIDDEN orderby');
         if (!$admin) {
             $list->where('g.isActive = :is_active')
                  ->setParameter('is_active', true);
@@ -33,7 +34,7 @@ class GroupsRepository extends EntityRepository
                  ->setParameter('query', '%' . $query . '%');
         }
         
-        $list->orderBy('g.' . $sort, 'DESC');
+        $list->orderBy('orderby', 'DESC');
  
         $list->setFirstResult(($page-1) * $max);
         $list->setMaxResults($max);

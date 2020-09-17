@@ -38,44 +38,45 @@ class ActivityUserRepository extends EntityRepository
 	                	case 1: 
 	                		$list = $this->createQueryBuilder('a')
 		                    	->select('a.accion','COUNT(a.id) as conta');
-		                	$list->addSelect("SUM(TIME_TO_SEC(TIME_DIFF(a.salida,a.entrada))) as duration");
+		                	$list->addSelect("SUM(DATEDIFF(a.salida,a.entrada)) as duration");
 	                		break;
 	                	case 2:
 	                		$list = $this->createQueryBuilder('a')
 		                    	->select('u.id as usercreatedid','u.name as creator','COUNT(a.id) as conta');
-		                	$list->addSelect("SUM(TIME_TO_SEC(TIME_DIFF(a.salida,a.entrada))) as duration");
+		                	$list->addSelect("SUM(DATEDIFF(a.salida,a.entrada)) as duration");
 	                		break;
 	                	case 3:
 	                		$list = $this->createQueryBuilder('a')
 		                    	->select('ms.id','ms.name','COUNT(a.id) as conta');
-		                	$list->addSelect("SUM(TIME_TO_SEC(TIME_DIFF(a.salida,a.entrada))) as duration");
+		                	$list->addSelect("SUM(DATEDIFF(a.salida,a.entrada)) as duration");
 	                		break;
 	                	case 4:
 	                		$list = $this->createQueryBuilder('a')
 		                    	->select('a.accion','u.id as usercreatedid','u.name as creator','COUNT(a.id) as conta');
-		                	$list->addSelect("SUM(TIME_TO_SEC(TIME_DIFF(a.salida,a.entrada))) as duration");
+		                	$list->addSelect("SUM(DATEDIFF(a.salida,a.entrada)) as duration");
 	                		break;
 	                	case 5:
 	                		$list = $this->createQueryBuilder('a')
 		                    	->select('a.accion','ms.id','ms.name','COUNT(a.id) as conta');
-		                	$list->addSelect("SUM(TIME_TO_SEC(TIME_DIFF(a.salida,a.entrada))) as duration");
+		                	$list->addSelect("SUM(DATEDIFF(a.salida,a.entrada)) as duration");
 	                		break;
 	                	case 6:
 	                		$list = $this->createQueryBuilder('a')
 		                    	->select('ms.id','ms.name','u.id as usercreatedid','u.name as creator','COUNT(a.id) as conta');
-		                	$list->addSelect("SUM(TIME_TO_SEC(TIME_DIFF(a.salida,a.entrada))) as duration");
+		                	$list->addSelect("SUM(DATEDIFF(a.salida,a.entrada)) as duration");
 	                		break;
 	                	case 7:
 	                		$list = $this->createQueryBuilder('a')
 		                    	->select('a.accion','ms.id','ms.name','u.id as usercreatedid','u.name as creator','COUNT(a.id) as conta');
-		                	$list->addSelect("SUM(TIME_TO_SEC(TIME_DIFF(a.salida,a.entrada))) as duration");
+		                	$list->addSelect("SUM(DATEDIFF(a.salida,a.entrada)) as duration");
 	                		break;
 	                }
 	            }
 	            else{
+
                 	$list = $this->createQueryBuilder('a')
                     	->select('a.id','i.id id_reg', 'i.usercreatedid','ms.name','u.name as creator','a.entrada','a.salida','m.lote','m.material','m.equipo','m.workordersap','i.status','s.id as step','i.in_edition','a.accion');
-                	$list->addSelect("TIME_TO_SEC(TIME_DIFF(a.salida,a.entrada)) as duration");
+                	$list->addSelect("(DATEDIFF(a.salida,a.entrada)) as duration");
                 }
 
                 break;
@@ -92,8 +93,11 @@ class ActivityUserRepository extends EntityRepository
             ->leftJoin("a.userEntiy", "u")
             ->leftJoin("i.metaData", "m")
             ->andWhere('a.actionID>0')
-            ->andWhere('a.status=1')
-            ->orderBy('i.id', 'DESC');
+            ->andWhere('a.status=1');
+
+        if($type=="list" && !isset($filters["group"])){
+            $list->orderBy('i.id', 'DESC');
+        }
 
 
 
@@ -179,30 +183,45 @@ class ActivityUserRepository extends EntityRepository
             if(isset($filters["group"])){
                 switch($filters["group"]){
                 	case 1: 
-                		$list->groupBy('a.actionID');
+                		$list->groupBy('a.actionID')
+                        ->addGroupBy('a.accion');
                 		break;
                 	case 2:
-                		$list->groupBy('u.id');
+                		$list->groupBy('u.id')
+                        ->addGroupBy('u.name');
                 		break;
                 	case 3:
-                		$list->groupBy('ms.id');
+                		$list->groupBy('ms.id')
+                        ->addGroupBy('ms.name');
                 		break;
                 	case 4:
                 		$list->groupBy('a.actionID')
-                			->addGroupBy('u.id');
+                			->addGroupBy('u.id')
+                            ->addGroupBy('a.accion')
+                            ->addGroupBy('u.id')
+                            ->addGroupBy('u.name');
                 		break;
                 	case 5:
                 		$list->groupBy('a.actionID')
-                			->addGroupBy('ms.id');
+                			->addGroupBy('ms.id')
+                            ->addGroupBy('a.accion')
+                            ->addGroupBy('ms.name');
                 		break;
                 	case 6:
                 		$list->groupBy('u.id')
-                			->addGroupBy('ms.id');
+                			->addGroupBy('ms.id')
+                            ->addGroupBy('ms.name')
+                            ->addGroupBy('u.id')
+                            ->addGroupBy('u.name');
                 		break;
                 	case 7:
                 		$list->groupBy('u.id')
                 			->addGroupBy('ms.id')
-                			->addGroupBy('a.actionID');
+                			->addGroupBy('a.actionID')
+                            ->addGroupBy('a.accion')
+                            ->addGroupBy('ms.name')
+                            ->addGroupBy('u.id')
+                            ->addGroupBy('u.name');
                 		break;
                 }
             }

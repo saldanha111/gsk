@@ -31,6 +31,7 @@ class MailboxController extends Controller
     
     public function inboxAction($page, $query = 'q', $group, $filter = 'inbox')
     {
+
         $query = urldecode($query);
         $maxResults = $this->container->getParameter('messages_per_page');
         
@@ -40,18 +41,20 @@ class MailboxController extends Controller
                              ->getRepository('NononsenseNotificationsBundle:Notifications')
                              ->findTrashMessages($this->getUser()->getId(), $page, $maxResults, $query, $group);
         } else if ($filter == 'sent') {
-            $title = $this->get('translator')->trans('Sent Mail');;
+            $title = $this->get('translator')->trans('Sent Mail');
             $messages = $this->getDoctrine()
                              ->getRepository('NononsenseNotificationsBundle:Notifications')
                              ->findOwnMessages($this->getUser()->getId(), $page, $maxResults, $query, $group);
         } else {
             $title = $this->get('translator')->trans('Inbox');
+
             $messages = $this->getDoctrine()
                              ->getRepository('NononsenseNotificationsBundle:Notifications')
                              ->findUserMessages($this->getUser()->getId(), $page, $maxResults, $query, $group);
+
         }
         
-        
+       
         $unread = $this->getDoctrine()
                        ->getRepository('NononsenseNotificationsBundle:Notifications')
                        ->findUnreadMessages($this->getUser()->getId());
@@ -64,7 +67,7 @@ class MailboxController extends Controller
             'results' => $messages->count(),
             'show' => $maxResults
             );
- 
+        
         return $this->render('NononsenseNotificationsBundle:Mailbox:inbox.html.twig', array(
             'title' => $title,
             'filter' => $filter,
@@ -73,7 +76,7 @@ class MailboxController extends Controller
             'query' => $query,
             'groupId' => $group,
             'unread' => $unread
-        ));
+        )); 
     }
     
     public function showAction($messageId)

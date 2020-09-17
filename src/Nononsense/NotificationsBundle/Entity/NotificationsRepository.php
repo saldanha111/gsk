@@ -21,7 +21,7 @@ class NotificationsRepository extends EntityRepository
     public function findUserMessages($userid, $page=1, $max=20, $query = 'q', $group = 0)
     {
         $messag = $this->createQueryBuilder('n')
-                       ->select('n', 'g', 'mu', 'u')
+                       ->select('n', 'g', 'mu', 'u', 'n.id as HIDDEN notificationId')
                        ->join('n.groups', 'g')//join notifications with groups
                        ->join('g.users', 'gu')//join groups with the users
                        ->join('n.author', 'u')//join with the users table
@@ -37,7 +37,7 @@ class NotificationsRepository extends EntityRepository
                  ->setParameter('query', '%' . $query . '%');
         }
                 
-        $messag->orderBy('n.id', 'DESC');
+        $messag->orderBy('notificationId', 'DESC');
         
         $messag->setFirstResult(($page-1) * $max);
         $messag->setMaxResults($max);
@@ -54,6 +54,7 @@ class NotificationsRepository extends EntityRepository
     public function findOwnMessages($userid, $page=1, $max=20, $query = 'q', $group = 0)
     {
         $messag = $this->createQueryBuilder('n')
+                      ->select('n','n.id as HIDDEN notificationId')
                        ->join('n.author', 'u')//join with the users table
                        ->where('n.author = :id' )
                        ->setParameter('id', $userid);
@@ -61,7 +62,7 @@ class NotificationsRepository extends EntityRepository
             $messag->andWhere('n.subject LIKE :query OR u.name LIKE :query')
                  ->setParameter('query', '%' . $query . '%');
         }     
-        $messag->orderBy('n.id', 'DESC');
+        $messag->orderBy('notificationId', 'DESC');
         
         $messag->setFirstResult(($page-1) * $max);
         $messag->setMaxResults($max);
@@ -77,7 +78,7 @@ class NotificationsRepository extends EntityRepository
     public function findTrashMessages($userid, $page=1, $max=20, $query = 'q', $group = 0)
     {
         $messag = $this->createQueryBuilder('n')
-                       ->select('n', 'g', 'mu')
+                       ->select('n', 'g', 'mu','n.id as HIDDEN notificationId')
                        ->join('n.groups', 'g')
                        ->join('g.users', 'gu')
                        ->join('n.author', 'u')//join with the users table
@@ -89,7 +90,7 @@ class NotificationsRepository extends EntityRepository
                    ->setParameter('qu', '%' . $query . '%');
         }
                 
-        $messag->orderBy('n.id', 'DESC');
+        $messag->orderBy('notificationId', 'DESC');
         
         $messag->setFirstResult(($page-1) * $max);
         $messag->setMaxResults($max);

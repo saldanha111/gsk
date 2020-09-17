@@ -23,14 +23,14 @@
         "endroid/qrcode": "^1.7",
         "liuggio/excelbundle": "^2.1",
         "whiteoctober/tcpdf-bundle": "^1.1",
-        "beberlei/doctrineextensions": "^1.2",
         "friendsofsymfony/jsrouting-bundle": "~1.5",
         "tecnickcom/tc-lib-barcode": "^1.15",
         "ext-curl": "*",
         "ext-gd": "*",
         "ext-json": "*",
         "ext-openssl": "*",
-        "aws/aws-sdk-php": "^3.145"
+        "aws/aws-sdk-php": "^3.145",
+        "luxifer/doctrine-functions": "^1.6"
     },
     "require-dev": {
         "sensio/generator-bundle": "~2.3"
