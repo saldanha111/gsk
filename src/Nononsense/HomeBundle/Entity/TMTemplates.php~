@@ -170,6 +170,19 @@ class TMTemplates
      */
     protected $areas;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="ownerTemplates")
+     * @ORM\JoinColumn(name="owner_id", referencedColumnName="id")
+     */
+    protected $owner;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="backupTeamplates")
+     * @ORM\JoinColumn(name="backup_id", referencedColumnName="id")
+     */
+    protected $backup;
+
+
 
     public function __construct()
     {

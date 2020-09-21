@@ -170,6 +170,19 @@ class TMTemplates
      */
     protected $areas;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="ownerTemplates")
+     * @ORM\JoinColumn(name="owner_id", referencedColumnName="id")
+     */
+    protected $owner;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="backupTeamplates")
+     * @ORM\JoinColumn(name="backup_id", referencedColumnName="id")
+     */
+    protected $backup;
+
+
 
     public function __construct()
     {
@@ -750,5 +763,51 @@ class TMTemplates
     public function getNumberId()
     {
         return $this->number_id;
+    }
+
+    /**
+     * Set owner
+     *
+     * @param \Nononsense\UserBundle\Entity\Users $owner
+     * @return TMTemplates
+     */
+    public function setOwner(\Nononsense\UserBundle\Entity\Users $owner = null)
+    {
+        $this->owner = $owner;
+
+        return $this;
+    }
+
+    /**
+     * Get owner
+     *
+     * @return \Nononsense\UserBundle\Entity\Users 
+     */
+    public function getOwner()
+    {
+        return $this->owner;
+    }
+
+    /**
+     * Set backup
+     *
+     * @param \Nononsense\UserBundle\Entity\Users $backup
+     * @return TMTemplates
+     */
+    public function setBackup(\Nononsense\UserBundle\Entity\Users $backup = null)
+    {
+        $this->backup = $backup;
+
+        return $this;
+    }
+
+    /**
+     * Get backup
+     *
+     * @return \Nononsense\UserBundle\Entity\Users 
+     */
+    public function getBackup()
+    {
+        return $this->backup;
     }
 }

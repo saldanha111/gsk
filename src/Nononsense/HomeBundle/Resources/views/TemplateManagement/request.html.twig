@@ -277,7 +277,7 @@
             </div>
         </div> 
     </did>
-    
+    <input type="hidden" id="user_id" value="{{ app.user.id }}">
 {% endblock %}
 
 {% block scripts %}
@@ -331,12 +331,12 @@
             });
         });
 
-        /* No podemos añadir un usuario como aprobador si ya está como elaborador o como tester */
+        /* No podemos añadir un usuario como aprobador si ya está como elaborador o como tester y tampoco puede estar el propio usuario */
         $(document).on('change', "div[data-bloque-type='aprob'] .select_users", function() {
             element=$(this);
             $("div[data-bloque-type='elab']").find(".select_users").each(function() {
                 if(element.val() && element.val()==$(this).val()){
-                    toastr.error("Un mismo usuario no puede estar como aprobador si ya está elaborador", 'Error');
+                    toastr.error("Un mismo usuario no puede estar como aprobador si ya está como elaborador", 'Error');
                     element.val("");
                 }
             });
@@ -347,6 +347,11 @@
                     element.val("");
                 }
             });
+
+            if($("#user_id").val()==$(this).val() &&  $('[name="area"]').val()!=10 && $('[name="area"]').val()!=11){
+                toastr.error("No puedes añadirte tu mismo como aprobador", 'Error');
+                element.val("");
+            }
         });
 
         /* No podemos añadir un usuario como elaborador o como tester si ya está como aprobador */
@@ -359,7 +364,15 @@
                 }
             });
         });
-        
+
+        /* No puede estar el propio usuario como administrador */
+        $(document).on('change', "div[data-bloque-type='admin'] .select_users", function() {
+            element=$(this);
+            if($("#user_id").val()==$(this).val() &&  $('[name="area"]').val()!=10 && $('[name="area"]').val()!=11){
+                toastr.error("No puedes añadirte tu mismo como administrador", 'Error');
+                element.val("");
+            }
+        });
 
         /* Si cambiamos el tipo dentre usuario y grupo, se actualiza el selector correspondiente con los usuarios o grupos correspondientes */
         $(document).on('change', '.type_workflow', function() {
@@ -465,11 +478,15 @@
             if($('[name="retention[]"]').val() && $('[name="request_type"]').val()==1){
                 if (signaturePad.isEmpty()){
                     toastr.error("Debe firmar la solicitud",'aviso');
-
                 }else{
                     $("#signature").val(signaturePad.toDataURL());
-                    console.log($("#signature").val());
-                    return true;
+                    if(onwer_backup_is_on_elab_aprob()){
+                        return true; 
+                    }
+                    else{
+                        toastr.error("El dueño o backup deben estar también en el workflow de elaborador o el de aprobador",'aviso'); 
+                    }
+                    
                 }
             }
             else{
@@ -586,7 +603,9 @@
                     case "test": rol="tester";break;
                     case "aprob": rol="aprobador";break;
                 }
-                string_error+="-No tiene ningún usuario "+rol+" asignado a este área.<br><br>";
+                if(rol!="tester" || ($('[name="area"]').val()!=10 && $('[name="area"]').val()!=11)){
+                    string_error+="-No tiene ningún usuario "+rol+" asignado a este área.<br><br>";
+                }
             }
         });
         if(var_error==1){
@@ -598,8 +617,32 @@
         });
 
         $(".pre_col_workflow").find(".add_line").each(function() {
-            add_line($(this));
+            if($(this).data("type")!="test" || ($('[name="area"]').val()!=10 && $('[name="area"]').val()!=11)){
+                add_line($(this));
+            }
         });
+    }
+
+    /* Comprobamos si el dueño o el backup está como elaborador o aprobador */
+    function onwer_backup_is_on_elab_aprob(){
+        finded=0;
+        $("div[data-bloque-type='elab']").find(".select_users").each(function() {
+            if($(this).val()==$('[name="owner"]').val() || $(this).val()==$('[name="backup"]').val()){
+                finded=1;   
+            }
+        });
+
+        $("div[data-bloque-type='aprob']").find(".select_users").each(function() {
+            if($(this).val()==$('[name="owner"]').val() || $(this).val()==$('[name="backup"]').val()){
+                finded=1;   
+            }
+        });
+
+        if(finded){
+            return true;
+        }
+
+        return false;
     }
 
     /* Reseteamos el workflow y añadimos una linea */

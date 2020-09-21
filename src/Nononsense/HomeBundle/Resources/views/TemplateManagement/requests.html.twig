@@ -10,7 +10,15 @@
     <div class="row">
         <div class="col-sm-12">
             <div>
-                <div >
+                <div>
+
+                    {% for flashMessage in app.session.flashbag.get('message') %}
+                        <div class="alert alert-success alert-dismissable" style="margin: 10px 16px 0 16px">
+                            <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                            {{ flashMessage }}
+                        </div>
+                        <br>
+                    {% endfor %}
                     <form class="form-horizontal" id="form_item" action="{{ path('nononsense_documents')}}" method="GET">
                         <div class="row">
 

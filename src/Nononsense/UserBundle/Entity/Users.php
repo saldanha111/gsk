@@ -216,6 +216,16 @@ class Users implements AdvancedUserInterface, \Serializable
     protected $tmSignatures;
 
     /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMTemplates", mappedBy="owner")
+     */
+    protected $ownerTemplates;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMTemplates", mappedBy="backup")
+     */
+    protected $backupTeamplates;
+
+    /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMWorkflow", mappedBy="userEntiy")
      */
     protected $tmWorkflows;
@@ -2048,5 +2058,71 @@ class Users implements AdvancedUserInterface, \Serializable
     public function getPinComite()
     {
         return $this->pinComite;
+    }
+
+    /**
+     * Add ownerTemplates
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMTemplates $ownerTemplates
+     * @return Users
+     */
+    public function addOwnerTemplate(\Nononsense\HomeBundle\Entity\TMTemplates $ownerTemplates)
+    {
+        $this->ownerTemplates[] = $ownerTemplates;
+
+        return $this;
+    }
+
+    /**
+     * Remove ownerTemplates
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMTemplates $ownerTemplates
+     */
+    public function removeOwnerTemplate(\Nononsense\HomeBundle\Entity\TMTemplates $ownerTemplates)
+    {
+        $this->ownerTemplates->removeElement($ownerTemplates);
+    }
+
+    /**
+     * Get ownerTemplates
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getOwnerTemplates()
+    {
+        return $this->ownerTemplates;
+    }
+
+    /**
+     * Add backupTeamplates
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMTemplates $backupTeamplates
+     * @return Users
+     */
+    public function addBackupTeamplate(\Nononsense\HomeBundle\Entity\TMTemplates $backupTeamplates)
+    {
+        $this->backupTeamplates[] = $backupTeamplates;
+
+        return $this;
+    }
+
+    /**
+     * Remove backupTeamplates
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMTemplates $backupTeamplates
+     */
+    public function removeBackupTeamplate(\Nononsense\HomeBundle\Entity\TMTemplates $backupTeamplates)
+    {
+        $this->backupTeamplates->removeElement($backupTeamplates);
+    }
+
+    /**
+     * Get backupTeamplates
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getBackupTeamplates()
+    {
+        return $this->backupTeamplates;
     }
 }

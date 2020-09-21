@@ -51,7 +51,7 @@ class Areas
     protected $name;
 
     /**
-     * @var boolean $isActive
+     * @var boolean
      *
      * @ORM\Column(name="is_active", type="boolean",  nullable=true, options={"default" = false})
      * @Groups({"detail_area","list_area"})
