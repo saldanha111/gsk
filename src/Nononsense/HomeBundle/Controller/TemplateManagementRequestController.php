@@ -325,6 +325,23 @@ class TemplateManagementRequestController extends Controller
 
         
         $state = $this->getDoctrine()->getRepository(TMStates::class)->findOneBy(array("id"=> 1));
+
+        $base_url=$this->getParameter('api_docoaro')."/documents/".$plantilla."/clone";
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $base_url);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST,"POST");
+        curl_setopt($ch, CURLOPT_HTTPHEADER,array("Api-Key: ".$this->getParameter('api_key_docoaro')));
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); 
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        $raw_response = curl_exec($ch);
+        $response = json_decode($raw_response, true);
+
+        if(!$response["document"]){
+            $this->get('session')->getFlashBag()->add('error','No pudo clonarse la plantilla maestra o de la anterior edición');
+            $route = $this->container->get('router')->generate('nononsense_tm_request');
+            return $this->redirect($route);
+        }
         
         $template = new TMTemplates();
         $template->setTmState($state);
@@ -333,7 +350,7 @@ class TemplateManagementRequestController extends Controller
         $template->setPrefix($desc_prefix);
         $template->setNumber($number);
         $template->setNumberId($number_id);
-        $template->setPlantillaId($plantilla);
+        $template->setPlantillaId($response["document"]["id"]);
         $template->setDescription($request->get("description"));
         $template->setHistoryChange($request->get("history_change"));
         if($request->get("is_simple")){
@@ -369,8 +386,8 @@ class TemplateManagementRequestController extends Controller
         $signature->setCreated(new \DateTime());
         $signature->setModified(new \DateTime());
         $signature->setSignature($request->get("signature"));
-        $signature->setVersion($number);
-        $signature->setConfiguration($number.".1");
+        $signature->setVersion($response["version"]["id"]);
+        $signature->setConfiguration($response["configuration"]["id"]);
         $em->persist($signature);
 
 
