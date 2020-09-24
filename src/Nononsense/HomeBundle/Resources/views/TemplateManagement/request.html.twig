@@ -40,6 +40,9 @@
                             <label class="col-sm-2 control-label">Buscar Plantilla</label>
                             <div class="col-sm-4">
                               <select class="form-control select_template" style="width: 100%;">
+                                {% if item is defined %}
+                                    <option value="{{item.id}}" selected="selected">{{item.name}}</option>
+                                {% endif %}
                               </select>
                             </div>
                             <input type="hidden" name="template" value="">
@@ -292,6 +295,8 @@
     var dataworkflow;
     $( document ).ready(function() {
         
+        
+
         ActivateMenu('new_request_gp');
         $('#side-menu').metisMenu();
 
@@ -498,6 +503,14 @@
             }
             return false;
         });
+
+        {% if item is defined %}
+            $('[name="request_type"]').filter('[value=2]').prop('checked', true);
+            $('[name="request_type"]').trigger("change");
+            $('input[name ="template"]').val("{{item.id}}");
+            load_users_to_area("{{item.area.id}}");
+            load_prefixes_to_area("{{item.area.id}}");
+        {% endif %}
 
     });
 

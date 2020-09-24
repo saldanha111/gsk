@@ -214,9 +214,12 @@ class TemplateManagementTemplatesController extends Controller
 
         $url_edit_documento=$response["fillInUrl"];
         $html=file_get_contents($url_edit_documento);
-        echo $html;die();
+        preg_match_all('/<div class="well" id="fill_html">(.*?)<\/div>.*?<\/form>/s',$html,$html_content);
+        $array_item["html"]=$html_content[1][0];
+        $array_item["template"]=$template;
 
+        $array_item["signatures"] = $this->getDoctrine()->getRepository(TMSignatures::class)->findBy(array("template" => $template),array("id" => "ASC"));
 
-        return $this->render('NononsenseHomeBundle:TemplateManagement:template_audit_trail.html.twig',$array_item);
+        return $this->render('NononsenseHomeBundle:TemplateManagement:template_cover_page.html.twig',$array_item);
     }
 }

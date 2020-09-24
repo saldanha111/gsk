@@ -39,6 +39,21 @@ class TemplateManagementRequestController extends Controller
         $array_item["groups"] = $this->getDoctrine()->getRepository(Groups::class)->findBy(array(),array("name" => "ASC"));
         $array_item["users"] = $this->getDoctrine()->getRepository(Users::class)->findBy(array(),array("name" => "ASC"));
         $array_item["retention_categories"] = $this->getDoctrine()->getRepository(RetentionCategories::class)->findBy(array(),array("name" => "ASC"));
+
+        if($request->get("id")){
+           $item=$this->getDoctrine()->getRepository('NononsenseHomeBundle:TMTemplates')->listActiveForRequest(array("id"=>$request->get("id"),"no_request_in_proccess" => 1));
+           if(count($item)>0){
+                $array_item["item"]=$item[0];
+           }
+           else{
+                $this->get('session')->getFlashBag()->add(
+                    'error',
+                    'La plantilla indicada ya tiene una nueva edición en proceso'
+                );
+                $route = $this->container->get('router')->generate('nononsense_tm_templates');
+                return $this->redirect($route);
+           }
+        }
         
         return $this->render('NononsenseHomeBundle:TemplateManagement:request.html.twig',$array_item);
     }

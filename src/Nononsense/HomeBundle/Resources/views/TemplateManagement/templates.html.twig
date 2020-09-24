@@ -16,8 +16,13 @@
                         <div class="alert alert-success alert-dismissable" style="margin: 10px 16px 0 16px">
                             <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
                             {{ flashMessage }}
-                        </div>
-                        <br>
+                        </div><br>
+                    {% endfor %}
+                    {% for flashMessage in app.session.flashbag.get('error') %}
+                        <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+                            <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                            {{ flashMessage }}
+                        </div><br>
                     {% endfor %}
                     <form class="form-horizontal" id="form_item" action="{{ path('nononsense_tm_templates')}}" method="GET">
                         <div class="row">
@@ -190,7 +195,7 @@
                                         </button>
                                         <ul class="dropdown-menu" role="menu">
                                             {% if item.status == 6 %}
-                                                <li><a href="#"><i class="fa fa-archive"></i> {{ 'Nueva edición'|trans }}</a></li>
+                                                <li><a href="{{path('nononsense_tm_request')}}?id={{item.id}}"><i class="fa fa-archive"></i> {{ 'Nueva edición'|trans }}</a></li>
                                             {% endif %}
                                             <li><a href="{{path('nononsense_tm_template_changes_history', {'id': item.id})}}"><i class="fa fa-file-text-o"></i> {{ ' Historial de cambios'|trans }}</a></li>
                                             <li><a href="{{path('nononsense_tm_template_audit_trail', {'id': item.id})}}"><i class="fa fa-book"></i> {{ 'Audit Trail'|trans }}</a></li>
