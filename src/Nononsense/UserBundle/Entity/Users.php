@@ -226,6 +226,11 @@ class Users implements AdvancedUserInterface, \Serializable
     protected $backupTeamplates;
 
     /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMTemplates", mappedBy="applicant")
+     */
+    protected $applicantTeamplates;
+
+    /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMWorkflow", mappedBy="userEntiy")
      */
     protected $tmWorkflows;
@@ -2124,5 +2129,38 @@ class Users implements AdvancedUserInterface, \Serializable
     public function getBackupTeamplates()
     {
         return $this->backupTeamplates;
+    }
+
+    /**
+     * Add applicantTeamplates
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMTemplates $applicantTeamplates
+     * @return Users
+     */
+    public function addApplicantTeamplate(\Nononsense\HomeBundle\Entity\TMTemplates $applicantTeamplates)
+    {
+        $this->applicantTeamplates[] = $applicantTeamplates;
+
+        return $this;
+    }
+
+    /**
+     * Remove applicantTeamplates
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMTemplates $applicantTeamplates
+     */
+    public function removeApplicantTeamplate(\Nononsense\HomeBundle\Entity\TMTemplates $applicantTeamplates)
+    {
+        $this->applicantTeamplates->removeElement($applicantTeamplates);
+    }
+
+    /**
+     * Get applicantTeamplates
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getApplicantTeamplates()
+    {
+        return $this->applicantTeamplates;
     }
 }

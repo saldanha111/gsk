@@ -1,0 +1,71 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}DOCXPRESSO | {{'Homepage'|trans}} {% endblock %}
+{% block head %}
+{{ parent() }}
+{% endblock %}
+{% block main_title %} {{'Historial de cambios'|trans}}{% endblock %}
+{% block content %}
+
+
+<div class="wrapper wrapper-content">
+    <div class="row">
+        <div class="col-sm-12">
+
+            <h3>{{item.name}} {{item.number}}</h3>
+            {% if templates is defined and templates|length > 0 %}
+            <table id="inProcess" class="table ">
+                <thead>
+                <tr>
+                    <th>Nº</th>
+                    <th>Nº.Edición</th>
+                    <th>Solicitante</th>
+                    <th>Dueño</th>
+                    <th>Backup</th>
+                    <th>Elaboradores</th>
+                    <th>Tester/s</th>
+                    <th>Aprobador/es</th>
+                    <th>Administrador</th>
+                    <th>Fecha efectiva</th>
+                    <th>Fecha obsoleta</th>
+                    <th>Fecha baja</th>
+                </tr>
+                </thead>
+                {% for key,template in templates %}
+
+                    <tr {{item.id==template.id ? 'style="background-color:#F9F9F9"' : ''}}>
+                        <td>{{template.number}}</td>
+                        <td>{{template.numEdition}}</td>
+                        <td>{{template.applicantName}}</td>
+                        <td>{{template.ownerName}}</td>
+                        <td>{{template.backupName}}</td>
+                        <td>{{template.elab is defined  ? template.elab : ''}}</td>
+                        <td>{{template.test is defined  ? template.test : ''}}</td>
+                        <td>{{template.aprob is defined  ? template.aprob : ''}}</td>
+                        <td>{{template.admin is defined  ? template.admin : ''}}</td>
+                        <td>{{template.effectiveDate is defined and template.effectiveDate is not null ? template.effectiveDate|date("d/m/Y") : ''}}</td>
+                        <td>{{templates[(key+1)].effectiveDate is defined and templates[(key+1)].effectiveDate is not null ? templates[(key+1)].effectiveDate|date("d/m/Y") : ''}}</td>
+                        <td></td>
+                    </tr>
+                    <tr {{item.id==template.id ? 'style="background-color:#F9F9F9"' : ''}}>
+                        <td colspan="12">{{template.historyChange}}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="12"><br><br><br></td>
+                    </tr>
+                {% endfor %}
+            </table>
+            {% else %}
+            <p>No hay historial de cambios asociado a esta plantilla</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+{{ parent() }}
+<script>
+    $(document).ready(function () {
+
+    });
+</script>
+{% endblock %}

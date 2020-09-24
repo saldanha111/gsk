@@ -677,6 +677,22 @@ nononsense_tm_request_save:
     methods:    [POST]
     defaults: { _controller: NononsenseHomeBundle:TemplateManagementRequest:saveCreate}
 
+nononsense_tm_template_changes_history:
+    path: /mt/templates/{id}/list
+    defaults: { _controller: NononsenseHomeBundle:TemplateManagementTemplates:changesHistory,id: 0}
+
+nononsense_tm_template_audit_trail:
+    path: /mt/templates/{id}/audittrail
+    defaults: { _controller: NononsenseHomeBundle:TemplateManagementTemplates:auditTrail,id: 0}
+
+nononsense_tm_template_cover_page:
+    path: /mt/templates/{id}/coverpage
+    defaults: { _controller: NononsenseHomeBundle:TemplateManagementTemplates:coverPage,id: 0}
+
+nononsense_tm_templates:
+    path: /mt/templates
+    defaults: { _controller: NononsenseHomeBundle:TemplateManagementTemplates:list}
+
 nononsense_tm_request_detail:
     path: /mt/requests/0
     defaults: { _controller: NononsenseHomeBundle:TemplateManagementRequest:detail}
@@ -685,9 +701,7 @@ nononsense_tm_request_preadmin:
     path: /mt/requests/preadmin
     defaults: { _controller: NononsenseHomeBundle:TemplateManagementRequest:edit}
 
-nononsense_tm_requests:
-    path: /mt/requests
-    defaults: { _controller: NononsenseHomeBundle:TemplateManagementRequest:list}
+
 
 nononsense_templates_active_json:
     path:     /templates/active/json

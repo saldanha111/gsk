@@ -291,6 +291,10 @@
     <script>
     var dataworkflow;
     $( document ).ready(function() {
+        
+        ActivateMenu('new_request_gp');
+        $('#side-menu').metisMenu();
+
         $.fn.select2.defaults.set('language', 'es');
 
         /* Eliminamos linea en ese paso del workflow */

@@ -43,18 +43,6 @@ class TemplateManagementRequestController extends Controller
         return $this->render('NononsenseHomeBundle:TemplateManagement:request.html.twig',$array_item);
     }
 
-    public function listAction(Request $request)
-    {
-    	$serializer = $this->get('serializer');
-        $array_item=array("count" => 0);
-        $array_item["areas"] = $this->getDoctrine()->getRepository(Areas::class)->findBy(array(),array("name" => "ASC"));
-        $array_item["groups"] = $this->getDoctrine()->getRepository(Groups::class)->findBy(array(),array("name" => "ASC"));
-        $array_item["users"] = $this->getDoctrine()->getRepository(Users::class)->findBy(array(),array("name" => "ASC"));
-        $array_item["states"] = $this->getDoctrine()->getRepository(TMStates::class)->findBy(array(),array("name" => "ASC"));
-
-        return $this->render('NononsenseHomeBundle:TemplateManagement:requests.html.twig',$array_item);
-    }
-
     public function detailAction(Request $request)
     {
         $serializer = $this->get('serializer');
@@ -296,7 +284,7 @@ class TemplateManagementRequestController extends Controller
                 $retentions=$templates[0]->getRetentions();
                 $name=$templates[0]->getName();
                 $plantilla=$templates[0]->getPlantillaId();
-                $itemplate=$templates[0]->getTemplateId();
+                $itemplate=$templates[0]->getId();
                 $num_edition=$templates[0]->getNumEdition()+1;
                 $version=$templates[0]->getNumEdition();
                 $configuracion="1.1";
@@ -351,6 +339,7 @@ class TemplateManagementRequestController extends Controller
         $template->setNumber($number);
         $template->setNumberId($number_id);
         $template->setPlantillaId($response["document"]["id"]);
+        $template->setReference($request->get("reference"));
         $template->setDescription($request->get("description"));
         $template->setHistoryChange($request->get("history_change"));
         if($request->get("is_simple")){
@@ -371,6 +360,7 @@ class TemplateManagementRequestController extends Controller
 
         $template->setOwner($owner);
         $template->setBackup($backup);
+        $template->setApplicant($user);
 
         foreach($retentions as $retention){
             $template->addRetention($retention);   
@@ -421,7 +411,7 @@ class TemplateManagementRequestController extends Controller
         $em->flush();
         
         $this->get('session')->getFlashBag()->add('message', "Solicitud creada correctamente");
-        $route = $this->container->get('router')->generate('nononsense_tm_requests');
+        $route = $this->container->get('router')->generate('nononsense_tm_templates');
         return $this->redirect($route);
     }
 }

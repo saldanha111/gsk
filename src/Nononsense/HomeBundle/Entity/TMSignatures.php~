@@ -56,6 +56,13 @@ class TMSignatures
     /**
      * @var string
      *
+     * @ORM\Column(name="description", type="text", nullable=true)
+     */
+    protected $description;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(name="configuration", type="string")
      */
     protected $configuration;

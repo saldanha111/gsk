@@ -10,7 +10,12 @@ use Nononsense\UserBundle\Entity\Users;
 use Nononsense\GroupBundle\Entity\Groups;
 use Nononsense\HomeBundle\Entity\Areas;
 use Nononsense\HomeBundle\Entity\TMStates;
-
+use Nononsense\HomeBundle\Entity\RetentionCategories;
+use Nononsense\HomeBundle\Entity\AreaPrefixes;
+use Nononsense\HomeBundle\Entity\TMTemplates;
+use Nononsense\HomeBundle\Entity\TMActions;
+use Nononsense\HomeBundle\Entity\TMSignatures;
+use Nononsense\HomeBundle\Entity\TMWorkflow;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
@@ -50,5 +55,168 @@ class TemplateManagementTemplatesController extends Controller
         $response->headers->set('Content-Type', 'application/json');
 
         return $response;
+    }
+
+    public function listAction(Request $request)
+    {
+        $filters=Array();
+        $filters2=Array();
+        $types=array();
+
+        $array_item["areas"] = $this->getDoctrine()->getRepository(Areas::class)->findBy(array(),array("name" => "ASC"));
+        $array_item["groups"] = $this->getDoctrine()->getRepository(Groups::class)->findBy(array(),array("name" => "ASC"));
+        $array_item["users"] = $this->getDoctrine()->getRepository(Users::class)->findBy(array(),array("name" => "ASC"));
+        $array_item["states"] = $this->getDoctrine()->getRepository(TMStates::class)->findBy(array(),array("number" => "ASC"));
+        
+        
+
+        if(!$request->get("export_excel")){
+            if($request->get("page")){
+                $filters["limit_from"]=$request->get("page")-1;
+            }
+            else{
+                $filters["limit_from"]=0;
+            }
+            $filters["limit_many"]=15;
+        }
+        else{
+            $filters["limit_from"]=0;
+            $filters["limit_many"]=99999999999;
+        }
+
+
+        if($request->get("name")){
+            $filters["name"]=$request->get("name");
+            $filters2["name"]=$request->get("name");
+        }
+
+        if($request->get("number")){
+            $filters["number"]=$request->get("number");
+            $filters2["number"]=$request->get("number");
+        }
+
+        if($request->get("area")){
+            $filters["area"]=$request->get("area");
+            $filters2["area"]=$request->get("area");
+        }
+
+        if($request->get("state")){
+            $filters["state"]=$request->get("state");
+            $filters2["state"]=$request->get("state");
+        }
+
+        if($request->get("applicant")){
+            $filters["applicant"]=$request->get("applicant");
+            $filters2["applicant"]=$request->get("applicant");
+        }
+
+        if($request->get("owner")){
+            $filters["owner"]=$request->get("owner");
+            $filters2["owner"]=$request->get("owner");
+        }
+
+        if($request->get("backup")){
+            $filters["backup"]=$request->get("backup");
+            $filters2["backup"]=$request->get("backup");
+        }
+
+        if($request->get("draft")){
+            $filters["draft"]=$request->get("draft");
+            $filters2["draft"]=$request->get("draft");
+        }
+
+
+
+        $array_item["filters"]=$filters;
+        $array_item["items"] = $this->getDoctrine()->getRepository(TMTemplates::class)->list($filters);
+        $array_item["count"] = $this->getDoctrine()->getRepository(TMTemplates::class)->count($filters2,$types);
+
+        $url=$this->container->get('router')->generate('nononsense_tm_templates');
+        $params=$request->query->all();
+        unset($params["page"]);
+        if(!empty($params)){
+            $parameters=TRUE;
+        }
+        else{
+            $parameters=FALSE;
+        }
+        $array_item["pagination"]=\Nononsense\UtilsBundle\Classes\Utils::paginador($filters["limit_many"],$request,$url,$array_item["count"],"/", $parameters);
+        
+        return $this->render('NononsenseHomeBundle:TemplateManagement:templates.html.twig',$array_item);
+    }
+
+    public function changesHistoryAction(Request $request, int $id)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $array_item=array();
+
+        $template = $this->getDoctrine()->getRepository(TMTemplates::class)->findOneBy(array("id" => $id));
+        $serializer = $this->get('serializer');
+        $array_item["item"] = json_decode($serializer->serialize($template,'json',array('groups' => array('detail'))),true);
+        if($template->getFirstEdition()){
+            $filters["changes_history"]=$template->getFirstEdition();
+        }
+        else{
+            $filters["changes_history"]=$template->getId();
+        }
+
+        $array_item["templates"] = $this->getDoctrine()->getRepository(TMTemplates::class)->list($filters);
+        foreach($array_item["templates"] as $key => $item){
+            $signatures = $this->getDoctrine()->getRepository(TMSignatures::class)->findBy(array("template"=>$item["id"]),array("id" => "ASC"));
+            $array_item["templates"][$key]["elab"]="";
+            $array_item["templates"][$key]["test"]="";
+            $array_item["templates"][$key]["aprob"]="";
+            $array_item["templates"][$key]["admin"]="";
+            foreach($signatures as $signature){
+                switch($signature->getAction()->getId()){
+                    case 2:$array_item["templates"][$key]["elab"].=$signature->getUserEntiy()->getName().",";break;
+                    case 3:$array_item["templates"][$key]["test"].=$signature->getUserEntiy()->getName().",";break;
+                    case 4:$array_item["templates"][$key]["aprob"].=$signature->getUserEntiy()->getName().",";break;
+                    case 5:$array_item["templates"][$key]["admin"].=$signature->getUserEntiy()->getName().",";break;
+                }
+            }
+        }
+
+        return $this->render('NononsenseHomeBundle:TemplateManagement:template_history.html.twig',$array_item);
+    }
+
+    public function auditTrailAction(Request $request, int $id)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $array_item=array();
+
+        $template = $this->getDoctrine()->getRepository(TMTemplates::class)->findOneBy(array("id" => $id));
+        $serializer = $this->get('serializer');
+        $array_item["item"] = json_decode($serializer->serialize($template,'json',array('groups' => array('detail'))),true);
+
+        $array_item["signatures"] = $this->getDoctrine()->getRepository(TMSignatures::class)->findBy(array("template" => $template),array("id" => "ASC"));
+        return $this->render('NononsenseHomeBundle:TemplateManagement:template_audit_trail.html.twig',$array_item);
+    }
+
+    public function coverPageAction(Request $request, int $id)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $array_item=array();
+
+        $template = $this->getDoctrine()->getRepository(TMTemplates::class)->findOneBy(array("id" => $id));
+        
+        $base_url=$this->getParameter('api_docoaro')."/documents/".$template->getPlantillaId();
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $base_url);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST,"GET");
+        curl_setopt($ch, CURLOPT_HTTPHEADER,array("Api-Key: ".$this->getParameter('api_key_docoaro')));
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, array());    
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); 
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        $raw_response = curl_exec($ch);
+        $response = json_decode($raw_response, true);
+
+        $url_edit_documento=$response["fillInUrl"];
+        $html=file_get_contents($url_edit_documento);
+        echo $html;die();
+
+
+        return $this->render('NononsenseHomeBundle:TemplateManagement:template_audit_trail.html.twig',$array_item);
     }
 }
