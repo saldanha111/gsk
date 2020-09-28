@@ -147,7 +147,7 @@
                                 <td>{{item.id}}</td>
                                 <td>{{item.number}}</td>
                                 <td>{{item.numEdition}}</td>
-                                <td><a href="{{path('nononsense_tm_request_preadmin', {'id': item.id}) }}">{{item.name}}</a></td>
+                                <td><a href="{{path('nononsense_tm_template_detail', {'id': item.id}) }}">{{item.name}}</a></td>
                                 <td>{{item.nameArea}}</td>
                                 <td>{{item.applicantName}}</td>
                                 <td>{{item.effectiveDate is defined and item.effectiveDate is not null ? item.effectiveDate|date("d/m/Y") : ''}}</td>
@@ -159,7 +159,7 @@
                                 <td>{{item.inactive is defined and item.inactive  ? 'Si' : 'No'}}</td>
                                 <td>
                                     {% if item.status == 1 %}
-                                        <a class="btn btn-xs btn-danger" href="#" target="_self"><i class="fa fa-envelope-o" aria-hidden="true"></i> {{'Consultar solicitud'|trans}}</a></td>
+                                        <a class="btn btn-xs btn-danger" href="{{path('nononsense_tm_template_detail', {'id': item.id}) }}" target="_self"><i class="fa fa-envelope-o" aria-hidden="true"></i> {{'Consultar solicitud'|trans}}</a></td>
                                     {% endif %}
 
                                     {% if item.status == 2 %}

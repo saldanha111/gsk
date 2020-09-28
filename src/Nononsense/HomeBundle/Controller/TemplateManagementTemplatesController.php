@@ -145,6 +145,94 @@ class TemplateManagementTemplatesController extends Controller
         return $this->render('NononsenseHomeBundle:TemplateManagement:templates.html.twig',$array_item);
     }
 
+    public function detailAction(Request $request, int $id)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $array_item=array();
+
+        $array_item["template"] = $this->getDoctrine()->getRepository(TMTemplates::class)->findOneBy(array("id" => $id));
+
+        $action = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 2));
+        $array_item["elab"] = $this->getDoctrine()->getRepository(TMWorkflow::class)->findBy(array("template" => $array_item["template"], "action" => $action),array("id" => "ASC"));
+        $action = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 3));
+        $array_item["test"] = $this->getDoctrine()->getRepository(TMWorkflow::class)->findBy(array("template" => $array_item["template"], "action" => $action),array("id" => "ASC"));
+        $action = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 4));
+        $array_item["aprob"] = $this->getDoctrine()->getRepository(TMWorkflow::class)->findBy(array("template" => $array_item["template"], "action" => $action),array("id" => "ASC"));
+        $action = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 5));
+        $array_item["admin"] = $this->getDoctrine()->getRepository(TMWorkflow::class)->findBy(array("template" => $array_item["template"], "action" => $action),array("id" => "ASC"));
+
+
+        return $this->render('NononsenseHomeBundle:TemplateManagement:template_detail.html.twig',$array_item);
+    }
+
+    public function actionRequestAction(Request $request, int $id)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $array=array();
+
+        $user = $this->container->get('security.context')->getToken()->getUser();
+        if($request->get("action") && $request->get("signature")){
+            $template = $this->getDoctrine()->getRepository(TMTemplates::class)->findOneBy(array("id" => $id));
+            if($template){
+                $action = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => $request->get("action")));
+                if($action){
+
+                    if($user!=$template->getOwner() && $user!=$template->getBackup()){
+                        $this->get('session')->getFlashBag()->add(
+                            'error',
+                            'Solo el dueño o backup puede aceptar o rechazar la solicitud'
+                        );
+                        $route=$this->container->get('router')->generate('nononsense_tm_templates');
+                        return $this->redirect($route);
+                    }
+
+                    switch($request->get("action")){
+                        case 1: 
+                            $state = $this->getDoctrine()->getRepository(TMStates::class)->findOneBy(array("id" => 2));
+                            $this->get('session')->getFlashBag()->add('message','La solicitud ha sido aceptada y ha pasado a elaboración');
+                        break;
+                        case 7: 
+                            $state = $this->getDoctrine()->getRepository(TMStates::class)->findOneBy(array("id" => 9));
+                            $this->get('session')->getFlashBag()->add('message','La solicitud ha sido cancelada');
+                        break;
+                    }
+                    if($state){
+                        $previous_signature = $this->getDoctrine()->getRepository(TMSignatures::class)->findOneBy(array("template"=>$template),array("id" => "ASC"));
+
+                        if($template->getTmState()->getId()==1){
+
+                            $template->setTmState($state);
+                            $em->persist($template);
+
+                            $signature = new TMSignatures();
+                            $signature->setTemplate($template);
+                            $signature->setAction($action);
+                            $signature->setUserEntiy($user);
+                            $signature->setCreated(new \DateTime());
+                            $signature->setModified(new \DateTime());
+                            $signature->setSignature($request->get("signature"));
+                            $signature->setVersion($previous_signature->getVersion());
+                            $signature->setConfiguration($previous_signature->getConfiguration());
+                            $em->persist($signature);
+
+                            $em->flush();
+
+                            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+                            return $this->redirect($route);
+                        }
+                    }
+                }
+            }
+        }
+
+        $this->get('session')->getFlashBag()->add(
+            'error',
+            'No se ha podido efectuar la operación sobre la plantilla especifiada. Es posible que ya se haya realizado una acción sobre ella o que la plantilla ya no exista'
+        );
+        $route=$this->container->get('router')->generate('nononsense_tm_templates');
+        return $this->redirect($route);
+    }
+
     public function changesHistoryAction(Request $request, int $id)
     {
         $em = $this->getDoctrine()->getManager();

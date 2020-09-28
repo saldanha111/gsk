@@ -422,6 +422,12 @@ class TemplateManagementRequestController extends Controller
             $num++;
         }
 
+        $subject="Solicitud de nueva plantilla";
+        $mensaje='Se ha iniciado una solicitud de una nueva plantilla con ID '.$template->getId().'. Para poder aceptarla o canclearla puede acceder a "Solicitudes pendientes"';
+        $baseURL=$this->container->get('router')->generate('nononsense_tm_template_detail', array("id" => $template->getId()),TRUE);
+        $this->get('utilities')->sendNotification($owner->getEmail(), $baseURL, "", "", $subject, $mensaje);
+        $this->get('utilities')->sendNotification($backup->getEmail(), $baseURL, "", "", $subject, $mensaje);
+
         
         $em->flush();
         
