@@ -56,6 +56,13 @@ class TMSignatures
     /**
      * @var string
      *
+     * @ORM\Column(name="description", type="text", nullable=true)
+     */
+    protected $description;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(name="configuration", type="string")
      */
     protected $configuration;
@@ -348,5 +355,28 @@ class TMSignatures
     public function getTestSuccessed()
     {
         return $this->testSuccessed;
+    }
+
+    /**
+     * Set description
+     *
+     * @param string $description
+     * @return TMSignatures
+     */
+    public function setDescription($description)
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    /**
+     * Get description
+     *
+     * @return string 
+     */
+    public function getDescription()
+    {
+        return $this->description;
     }
 }

@@ -216,6 +216,21 @@ class Users implements AdvancedUserInterface, \Serializable
     protected $tmSignatures;
 
     /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMTemplates", mappedBy="owner")
+     */
+    protected $ownerTemplates;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMTemplates", mappedBy="backup")
+     */
+    protected $backupTeamplates;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMTemplates", mappedBy="applicant")
+     */
+    protected $applicantTeamplates;
+
+    /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMWorkflow", mappedBy="userEntiy")
      */
     protected $tmWorkflows;
@@ -1884,4 +1899,268 @@ class Users implements AdvancedUserInterface, \Serializable
         return $this->materialReview;
     }
 
+
+    /**
+     * Add tmSignatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMSignatures $tmSignatures
+     * @return Users
+     */
+    public function addTmSignature(\Nononsense\HomeBundle\Entity\TMSignatures $tmSignatures)
+    {
+        $this->tmSignatures[] = $tmSignatures;
+
+        return $this;
+    }
+
+    /**
+     * Remove tmSignatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMSignatures $tmSignatures
+     */
+    public function removeTmSignature(\Nononsense\HomeBundle\Entity\TMSignatures $tmSignatures)
+    {
+        $this->tmSignatures->removeElement($tmSignatures);
+    }
+
+    /**
+     * Get tmSignatures
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getTmSignatures()
+    {
+        return $this->tmSignatures;
+    }
+
+    /**
+     * Add tmWorkflows
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMWorkflow $tmWorkflows
+     * @return Users
+     */
+    public function addTmWorkflow(\Nononsense\HomeBundle\Entity\TMWorkflow $tmWorkflows)
+    {
+        $this->tmWorkflows[] = $tmWorkflows;
+
+        return $this;
+    }
+
+    /**
+     * Remove tmWorkflows
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMWorkflow $tmWorkflows
+     */
+    public function removeTmWorkflow(\Nononsense\HomeBundle\Entity\TMWorkflow $tmWorkflows)
+    {
+        $this->tmWorkflows->removeElement($tmWorkflows);
+    }
+
+    /**
+     * Get tmWorkflows
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getTmWorkflows()
+    {
+        return $this->tmWorkflows;
+    }
+
+    /**
+     * Add productsInput
+     *
+     * @param \Nononsense\HomeBundle\Entity\ProductsInputs $productsInput
+     * @return Users
+     */
+    public function addProductsInput(\Nononsense\HomeBundle\Entity\ProductsInputs $productsInput)
+    {
+        $this->productsInput[] = $productsInput;
+
+        return $this;
+    }
+
+    /**
+     * Remove productsInput
+     *
+     * @param \Nononsense\HomeBundle\Entity\ProductsInputs $productsInput
+     */
+    public function removeProductsInput(\Nononsense\HomeBundle\Entity\ProductsInputs $productsInput)
+    {
+        $this->productsInput->removeElement($productsInput);
+    }
+
+    /**
+     * Get productsInput
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getProductsInput()
+    {
+        return $this->productsInput;
+    }
+
+    /**
+     * Add productsOutput
+     *
+     * @param \Nononsense\HomeBundle\Entity\ProductsOutputs $productsOutput
+     * @return Users
+     */
+    public function addProductsOutput(\Nononsense\HomeBundle\Entity\ProductsOutputs $productsOutput)
+    {
+        $this->productsOutput[] = $productsOutput;
+
+        return $this;
+    }
+
+    /**
+     * Remove productsOutput
+     *
+     * @param \Nononsense\HomeBundle\Entity\ProductsOutputs $productsOutput
+     */
+    public function removeProductsOutput(\Nononsense\HomeBundle\Entity\ProductsOutputs $productsOutput)
+    {
+        $this->productsOutput->removeElement($productsOutput);
+    }
+
+    /**
+     * Get productsOutput
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getProductsOutput()
+    {
+        return $this->productsOutput;
+    }
+
+    /**
+     * Add pinComite
+     *
+     * @param \Nononsense\HomeBundle\Entity\RecordsContractsPinComite $pinComite
+     * @return Users
+     */
+    public function addPinComite(\Nononsense\HomeBundle\Entity\RecordsContractsPinComite $pinComite)
+    {
+        $this->pinComite[] = $pinComite;
+
+        return $this;
+    }
+
+    /**
+     * Remove pinComite
+     *
+     * @param \Nononsense\HomeBundle\Entity\RecordsContractsPinComite $pinComite
+     */
+    public function removePinComite(\Nononsense\HomeBundle\Entity\RecordsContractsPinComite $pinComite)
+    {
+        $this->pinComite->removeElement($pinComite);
+    }
+
+    /**
+     * Get pinComite
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getPinComite()
+    {
+        return $this->pinComite;
+    }
+
+    /**
+     * Add ownerTemplates
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMTemplates $ownerTemplates
+     * @return Users
+     */
+    public function addOwnerTemplate(\Nononsense\HomeBundle\Entity\TMTemplates $ownerTemplates)
+    {
+        $this->ownerTemplates[] = $ownerTemplates;
+
+        return $this;
+    }
+
+    /**
+     * Remove ownerTemplates
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMTemplates $ownerTemplates
+     */
+    public function removeOwnerTemplate(\Nononsense\HomeBundle\Entity\TMTemplates $ownerTemplates)
+    {
+        $this->ownerTemplates->removeElement($ownerTemplates);
+    }
+
+    /**
+     * Get ownerTemplates
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getOwnerTemplates()
+    {
+        return $this->ownerTemplates;
+    }
+
+    /**
+     * Add backupTeamplates
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMTemplates $backupTeamplates
+     * @return Users
+     */
+    public function addBackupTeamplate(\Nononsense\HomeBundle\Entity\TMTemplates $backupTeamplates)
+    {
+        $this->backupTeamplates[] = $backupTeamplates;
+
+        return $this;
+    }
+
+    /**
+     * Remove backupTeamplates
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMTemplates $backupTeamplates
+     */
+    public function removeBackupTeamplate(\Nononsense\HomeBundle\Entity\TMTemplates $backupTeamplates)
+    {
+        $this->backupTeamplates->removeElement($backupTeamplates);
+    }
+
+    /**
+     * Get backupTeamplates
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getBackupTeamplates()
+    {
+        return $this->backupTeamplates;
+    }
+
+    /**
+     * Add applicantTeamplates
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMTemplates $applicantTeamplates
+     * @return Users
+     */
+    public function addApplicantTeamplate(\Nononsense\HomeBundle\Entity\TMTemplates $applicantTeamplates)
+    {
+        $this->applicantTeamplates[] = $applicantTeamplates;
+
+        return $this;
+    }
+
+    /**
+     * Remove applicantTeamplates
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMTemplates $applicantTeamplates
+     */
+    public function removeApplicantTeamplate(\Nononsense\HomeBundle\Entity\TMTemplates $applicantTeamplates)
+    {
+        $this->applicantTeamplates->removeElement($applicantTeamplates);
+    }
+
+    /**
+     * Get applicantTeamplates
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getApplicantTeamplates()
+    {
+        return $this->applicantTeamplates;
+    }
 }
