@@ -55,6 +55,14 @@ class TMWorkflow
      */
     protected $groupEntiy;
 
+    /**
+     * @var boolean $signed
+     *
+     * @ORM\Column(name="signed", type="boolean",  options={"default" = false})
+     * @Groups({"list_baseS"})
+     */
+    protected $signed;
+
     
     public function __construct()
     {

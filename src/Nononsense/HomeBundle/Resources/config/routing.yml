@@ -708,6 +708,16 @@ nononsense_tm_template_detail:
     methods:    [GET]
     defaults: { _controller: NononsenseHomeBundle:TemplateManagementTemplates:detail,id: 0}
 
+nononsense_tm_elaborate_detail:
+    path: /mt/elaborate/{id}
+    methods:    [GET]
+    defaults: { _controller: NononsenseHomeBundle:TemplateElaborateTemplates:detail,id: 0}
+
+nononsense_tm_elaborate_update:
+    path: /mt/elaborate/{id}
+    methods:    [POST]
+    defaults: { _controller: NononsenseHomeBundle:TemplateElaborateTemplates:update,id: 0}
+
 nononsense_tm_request_detail:
     path: /mt/requests/0
     methods:    [GET]

@@ -118,7 +118,7 @@
                             <hr>
                             <div class="row line_workflow">
                                 {% for wfitem in elab %}
-                                    {{wfitem.userEntiy is defined and wfitem.userEntiy is not null ? wfitem.userEntiy.name : wfitem.groupEntiy.name}}<br>
+                                    {{wfitem.userEntiy is defined and wfitem.userEntiy is not null ? ('<i class="fa fa-user"></i> '~wfitem.userEntiy.name)|raw : ('<i class="fa fa-users"></i> '~wfitem.groupEntiy.name)|raw}}<br>
                                 {% endfor %}
                             </div>
                         </div> 
@@ -129,7 +129,7 @@
                             <hr>
                             <div class="row line_workflow">
                                 {% for wfitem in test %}
-                                    {{wfitem.userEntiy is defined and wfitem.userEntiy is not null ? wfitem.userEntiy.name : wfitem.groupEntiy.name}}<br>
+                                    {{wfitem.userEntiy is defined and wfitem.userEntiy is not null ? ('<i class="fa fa-user"></i> '~wfitem.userEntiy.name)|raw : ('<i class="fa fa-users"></i> '~wfitem.groupEntiy.name)|raw}}<br>
                                 {% endfor %}
                             </div>
                         </div> 
@@ -140,7 +140,7 @@
                             <hr>
                             <div class="row line_workflow">
                                 {% for wfitem in aprob %}
-                                    {{wfitem.userEntiy is defined and wfitem.userEntiy is not null ? wfitem.userEntiy.name : wfitem.groupEntiy.name}}<br>
+                                    {{wfitem.userEntiy is defined and wfitem.userEntiy is not null ? ('<i class="fa fa-user"></i> '~wfitem.userEntiy.name)|raw : ('<i class="fa fa-users"></i> '~wfitem.groupEntiy.name)|raw}}<br>
                                 {% endfor %}
                             </div>
                         </div>  
@@ -151,7 +151,7 @@
                             <hr>
                             <div class="row line_workflow">
                                 {% for wfitem in admin %}
-                                    {{wfitem.userEntiy is defined and wfitem.userEntiy is not null ? wfitem.userEntiy.name : wfitem.groupEntiy.name}}<br>
+                                    {{wfitem.userEntiy is defined and wfitem.userEntiy is not null ? ('<i class="fa fa-user"></i> '~wfitem.userEntiy.name)|raw : ('<i class="fa fa-users"></i> '~wfitem.groupEntiy.name)|raw}}<br>
                                 {% endfor %}
                             </div>
                         </div> 

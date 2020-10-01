@@ -165,7 +165,7 @@ class ContractsController extends Controller
                     $raw_response = curl_exec($ch);
                     $response = json_decode($raw_response, true);
 
-                    if (!$response["document"]) {
+                    if (!$response["version"]) {
                         $this->get('session')->getFlashBag()->add(
                             'error',
                             'Error al subir la plantilla. ' . $response["message"]
@@ -174,7 +174,7 @@ class ContractsController extends Controller
                             $this->container->get('router')->generate('nononsense_contracts_edit', ["id" => $id])
                         );
                     }
-                    $contract->setPlantillaId($response["document"]["id"]);
+                    $contract->setPlantillaId($response["id"]);
                 }
             }
 

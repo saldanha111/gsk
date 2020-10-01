@@ -2,6 +2,7 @@
 {% block page_title %}DOCXPRESSO | {{'Homepage'|trans}} {% endblock %}
 {% block head %}
 {{ parent() }}
+<link rel="stylesheet" type="text/css" href="{{ asset('bundles/nononsensehome/css/adminlte.css') }}">
 {% endblock %}
 {% block main_title %} {{'Audit Trail'|trans}}{% endblock %}
 {% block content %}
@@ -11,33 +12,57 @@
     <div class="row">
         <div class="col-sm-12">
 
-            <h3>{{item.name}} {{item.number}}</h3>
+            <h3>{{item.name}} {{item.number}}</h3><br>
             {% if signatures is defined and signatures|length > 0 %}
-            <table id="inProcess" class="table ">
-                <thead>
-                <tr>
-                    <th>Nº</th>
-                    <th>Nombre</th>
-                    <th>Acción</th>
-                    <th>Fecha</th>
-                    <th>Firma</th>
-                </tr>
-                </thead>
-                {% for key,signature in signatures %}
+                <ul class="timeline">
+                    {% set date = '' %}
+                    {% for key,signature in signatures %}
+                        {% if date != signature.created|date("d/m/Y") %}
+                            <!-- timeline time label -->
+                            <li class="time-label">
+                                  <span class="bg-blue">
+                                    {{signature.created|date("d/m/Y")}}
+                                  </span>
+                            </li>
+                            <!-- /.timeline-label -->
+                        {% endif %}
+                        <!-- timeline item -->
+                        <li>
+                            {% if signature.action.id == 6 %}
+                               <i class="fa fa-paper-plane bg-red"></i>
+                            {% elseif signature.action.id == 1 %}
+                               <i class="fa fa-gavel bg-orange"></i>
+                            {% elseif signature.action.id == 2 %}
+                               <i class="fa fa-scissors bg-yellow"></i>
+                            {% elseif signature.action.id == 3 %}
+                               <i class="fa fa-flask bg-aqua"></i>
+                            {% elseif signature.action.id == 4 %}
+                               <i class="fa fa-check bg-green"></i>
+                            {% elseif signature.action.id == 5 %}
+                               <i class="fa fa-gear bg-olive"></i>
+                            {% elseif signature.action.id == 7 %}
+                               <i class="fa fa-ban bg-black"></i>
+                            {% endif %}
+                          
 
-                    <tr>
-                        <td>{{key+1}}</td>
-                        <td>{{signature.userEntiy.name}}</td>
-                        <td>{{signature.action.name}}</td>
-                        <td>{{signature.created is defined and signature.created is not null ? signature.created|date("d/m/Y H:i:s") : ''}}</td>
-                        <td rowspan="2"><img src="{{signature.signature}}" style="height:100px"></td>
-                    </tr>
-                    <tr>
-                        <td colspan="4">{{signature.description}}</td>
-                    </tr>
-                    
-                {% endfor %}
-            </table>
+                          <div class="timeline-item">
+                            <span class="time"><i class="fa fa-clock-o"></i> {{signature.created|date("d/m/Y H:i:s")}}</span>
+
+                            <h3 class="timeline-header"><a href="#">{{signature.userEntiy.name}}</a> - {{signature.action.name}}</h3>
+
+                            <div class="timeline-body">
+                              {{signature.description is defined and signature.description is not null ? (signature.description~"<br>")|raw : ''}}
+                              <img src="{{signature.signature}}" style="height:100px">
+                            </div>
+                          </div>
+                        </li>
+                        {% set date = signature.created|date("d/m/Y") %}
+                    {% endfor %}
+                    <!-- END timeline item -->
+                    <li>
+                      <i class="fa fa-clock-o bg-gray"></i>
+                    </li>
+                </ul>
             {% else %}
             <p>No hay acciones registradas en el audittrail</p>
             {% endif %}
