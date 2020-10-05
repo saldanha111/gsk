@@ -173,7 +173,10 @@
                 </li>
             {% endif %}
 
-            {% if 'mc_materials_list' in array_subsecciones or 'mc_centers_list' in array_subsecciones or 'mc_codes_list' in array_subsecciones %}
+            {% if
+                'mc_products_list' in array_subsecciones or 'mc_materials_list' in array_subsecciones or 'mc_centers_list' in array_subsecciones or
+                'mc_codes_list' in array_subsecciones or 'mc_cleans_scan' in array_subsecciones or 'mc_traces_list' in array_subsecciones
+            %}
             <li>
                 <a href="#">
                     <i class="fa fa-shower" aria-hidden="true"></i>
