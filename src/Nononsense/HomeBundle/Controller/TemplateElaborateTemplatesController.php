@@ -79,7 +79,7 @@ class TemplateElaborateTemplatesController extends Controller
         return $this->render('NononsenseHomeBundle:TemplateManagement:elaboration_detail.html.twig',$array_item);
     }
 
-     public function updateAction(Request $request, int $id)
+    public function updateAction(Request $request, int $id)
     {
         $em = $this->getDoctrine()->getManager();
         $array_item=array();
@@ -150,6 +150,33 @@ class TemplateElaborateTemplatesController extends Controller
             $response = json_decode($raw_response, true);
         }
         else{
+            if($request->get('activate_configuration')){
+
+                $base_url=$this->getParameter('api_docoaro')."/configurations/".$template->getTmpConfiguration();
+                $post = array();
+                $ch = curl_init();
+                curl_setopt($ch, CURLOPT_URL, $base_url);
+                curl_setopt($ch, CURLOPT_CUSTOMREQUEST,"PATCH");
+                curl_setopt($ch, CURLOPT_HTTPHEADER,array("Content-Type: multipart/form-data","Api-Key: ".$this->getParameter('api_key_docoaro')));
+                curl_setopt($ch, CURLOPT_POST, 1);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $post);    
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); 
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+                $raw_response = curl_exec($ch);
+                $response2 = json_decode($raw_response, true);
+
+                if(!$response2["configuration"]){
+                    $this->get('session')->getFlashBag()->add(
+                        'error',
+                        'Hubo un problema al firmar la configuración realizada. Es posible que la plantilla haya cambiado desde entonces'
+                    );
+                    $route=$this->container->get('router')->generate('nononsense_tm_templates');
+                    return $this->redirect($route);
+                }
+
+                $template->setTmpConfiguration(NULL);
+            }
+            
             $base_url=$this->getParameter('api_docoaro')."/documents/".$template->getPlantillaId();
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, $base_url);
@@ -161,6 +188,7 @@ class TemplateElaborateTemplatesController extends Controller
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
             $raw_response = curl_exec($ch);
             $response = json_decode($raw_response, true);
+            
         }
 
         if(!$response["version"]){
@@ -188,6 +216,7 @@ class TemplateElaborateTemplatesController extends Controller
 
         $template->setOpenedBy(NULL);
         $template->setToken(NULL);
+
         $em->persist($template);
         
 
@@ -196,5 +225,104 @@ class TemplateElaborateTemplatesController extends Controller
         $this->get('session')->getFlashBag()->add('message', "La operación se ha ejecutado con éxito");
         $route = $this->container->get('router')->generate('nononsense_tm_templates');
         return $this->redirect($route);
+    }
+
+    public function configurationAction(Request $request, int $id)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $array_item=array();
+
+        $user = $this->container->get('security.context')->getToken()->getUser();
+
+        $template = $this->getDoctrine()->getRepository(TMTemplates::class)->findOneBy(array("id" => $id));
+        if($template->getTmState()->getId()!=2){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                'La plantilla indicada no se encuentra en estado de elaboración'
+            );
+            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            return $this->redirect($route);
+        }
+
+        if(!$template->getOpenedBy() || $template->getOpenedBy()!=$user){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                'No se puedo efectuar la operación'
+            );
+            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            return $this->redirect($route);
+        }
+
+        $token_get_data = $this->get('utilities')->generateToken();
+
+
+        $baseUrlAux = $this->getParameter("cm_installation_aux");
+        $callback_url=$baseUrlAux."mt/elaborate/".$id."/restore?token=".$token_get_data;
+        $redirectUrl = $this->container->get('router')->generate('nononsense_tm_elaborate_update', array("id" => $template->getId()),TRUE)."?sign=1";
+
+
+        $base_url=$this->getParameter('api_docoaro')."/documents/".$template->getPlantillaId()."?callbackUrl=".$callback_url."&keyPrivated=".$this->getParameter('key_privated_config_docoaro')."&redirectUrl=".$redirectUrl;
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $base_url);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST,"GET");
+        curl_setopt($ch, CURLOPT_HTTPHEADER,array("Api-Key: ".$this->getParameter('api_key_docoaro')));
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, array());    
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); 
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        $raw_response = curl_exec($ch);
+        $response = json_decode($raw_response, true);
+        
+        return $this->redirect($response["configurationUrl"]);
+    }
+
+    public function restoreLastConfigurationAction(Request $request, int $id)
+    {
+        $expired_token = $this->get('utilities')->tokenExpired($_REQUEST["token"]);
+
+        if(!$expired_token){
+            $id_usuario = $this->get('utilities')->getUserByToken($_REQUEST["token"]);
+
+            $em = $this->getDoctrine()->getManager();
+            $array_item=array();
+
+            $template = $this->getDoctrine()->getRepository(TMTemplates::class)->findOneBy(array("id" => $id));
+            if($template->getTmState()->getId()!=2){
+                return FALSE;
+            }
+
+            $last_signature = $this->getDoctrine()->getRepository(TMSignatures::class)->findOneBy(array("template" => $template),array("id" => "DESC"));
+
+           
+            $base_url=$this->getParameter('api_docoaro')."/configurations/".$last_signature->getConfiguration();
+            $post = array();
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $base_url);
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST,"PATCH");
+            curl_setopt($ch, CURLOPT_HTTPHEADER,array("Content-Type: multipart/form-data","Api-Key: ".$this->getParameter('api_key_docoaro')));
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $post);    
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); 
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            $raw_response = curl_exec($ch);
+            $response = json_decode($raw_response, true);
+
+            $content = $request->getContent();
+
+            if (!empty($content))
+            {
+                $params = json_decode($content, true); // 2nd param to get as array
+            }
+
+            $template->setTmpConfiguration($params["configuration"]["id"]);
+            $em->persist($template);
+            $em->flush();
+
+            $responseAction = new Response();
+            $responseAction->setStatusCode(200);
+            $responseAction->setContent("OK");
+            return $responseAction;
+
+        }
     }
 }

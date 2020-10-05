@@ -718,6 +718,16 @@ nononsense_tm_elaborate_update:
     methods:    [POST]
     defaults: { _controller: NononsenseHomeBundle:TemplateElaborateTemplates:update,id: 0}
 
+nononsense_tm_elaborate_configuration:
+    path: /mt/elaborate/{id}/configuration
+    methods:    [GET]
+    defaults: { _controller: NononsenseHomeBundle:TemplateElaborateTemplates:configuration,id: 0}
+
+nononsense_tm_elaborate_restore:
+    path: /mt/elaborate/{id}/restore
+    methods:    [POST]
+    defaults: { _controller: NononsenseHomeBundle:TemplateElaborateTemplates:restoreLastConfiguration,id: 0}
+
 nononsense_tm_request_detail:
     path: /mt/requests/0
     methods:    [GET]

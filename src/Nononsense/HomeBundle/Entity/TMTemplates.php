@@ -232,6 +232,13 @@ class TMTemplates
      */
     protected $token;
 
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="tmp_configuration", type="string", nullable=true)
+     */
+    protected $tmpConfiguration;
+
 
 
     public function __construct()
@@ -1043,5 +1050,28 @@ class TMTemplates
     public function getOpenedBy()
     {
         return $this->openedBy;
+    }
+
+    /**
+     * Set tmpConfiguration
+     *
+     * @param string $tmpConfiguration
+     * @return TMTemplates
+     */
+    public function setTmpConfiguration($tmpConfiguration)
+    {
+        $this->tmpConfiguration = $tmpConfiguration;
+
+        return $this;
+    }
+
+    /**
+     * Get tmpConfiguration
+     *
+     * @return string 
+     */
+    public function getTmpConfiguration()
+    {
+        return $this->tmpConfiguration;
     }
 }

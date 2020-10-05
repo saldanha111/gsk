@@ -47,7 +47,7 @@
                 <!-- /.box-header -->
                 <div class="box-body">
                     <div class="form-group">
-                        <button type="button" class="btn btn-primary pull-right" id="confugrate_template"><i class="fa fa-magic"></i> Configurar</button>
+                        <a href="{{path('nononsense_tm_elaborate_configuration', {'id': template.id}) }}" class="btn btn-primary pull-right"><i class="fa fa-magic"></i> Configurar</a>
                     </div>  
                 </div>
                 {% if template.openedBy is defined and template.openedBy is not empty and template.openedBy.id!=app.user.id %}
@@ -143,6 +143,45 @@
     </div>
   </div>
 </div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="modalSignConfiguration">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Firmar configuración de plantilla</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+        <form id="form_sign_configuration" action="{{path('nononsense_tm_elaborate_update', {'id': template.id}) }}" method="POST"  enctype="multipart/form-data">
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-10 col-lg-offset-1">
+                        Comentarios<br>
+                        <div class="form-group">
+                            <textarea name="description" rows="10" cols="40" required="required" style="width:100%" required="required"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-10 col-lg-offset-1">
+                        <div id="signature-pad" class="input-group">
+                            Introduzca su firma<br>
+                            <canvas id="canvas2" width="300" height="150" style="touch-action: none; border: 2px solid #eee; box-shadow: 0px 0px 6px 1px rgba(80, 90, 100, 0.5)"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <input type="hidden" id="signature2" name="signature" />
+                <input type="hidden" name="activate_configuration" value="1">
+            </div>
+            <div class="modal-footer">
+                <a name="borrarFirmar" class="btn btn-secondary" id="borrarFirmar2">Limpiar firma</a>
+                <input type="submit" class="btn btn-primary" value="Firmar configuración">
+            </div>
+        </form>
+    </div>
+  </div>
+</div>
 {% endblock %}
 {% block scripts %}
 {{ parent() }}
@@ -151,17 +190,37 @@
 
 var canvas = document.querySelector("canvas");
 var signaturePad = new SignaturePad(canvas);
+
+var canvas2 = document.querySelector("#canvas2");
+var signaturePad2 = new SignaturePad(canvas2);
+
 $( document ).ready(function() {
+    {% if app.request.query.get('sign') is defined and app.request.query.get('sign') is not empty and template.tmpConfiguration is not empty %}
+        $('#modalSignConfiguration').modal('show');
+    {% endif %}
     $('#borrarFirmar').on('click', function () {
         signaturePad.clear();
+    });
+
+    $('#borrarFirmar2').on('click', function () {
+        signaturePad2.clear();
     });
 
     $('#form_upload_document').on('submit', function(e){
         if (signaturePad.isEmpty()){
             toastr.error("La firma es obligatoria",'aviso');
         }else{
-            console.log("hola");
             $("#signature").val(signaturePad.toDataURL());
+            return true;
+        }
+        return false;
+    });
+
+    $('#form_sign_configuration').on('submit', function(e){
+        if (signaturePad2.isEmpty()){
+            toastr.error("La firma es obligatoria",'aviso');
+        }else{
+            $("#signature2").val(signaturePad2.toDataURL());
             return true;
         }
         return false;
