@@ -197,6 +197,11 @@ class TMTemplates
     protected $tmWorkflows;
 
     /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMSecondWorkflow", mappedBy="template")
+     */
+    protected $tmSecondWorkflows;
+
+    /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\Areas", mappedBy="template")
      */
     protected $areas;
@@ -235,7 +240,7 @@ class TMTemplates
     /**
      * @var string
      *
-     * @ORM\Column(name="tmp_configuration", type="string")
+     * @ORM\Column(name="tmp_configuration", type="string", nullable=true)
      */
     protected $tmpConfiguration;
 
@@ -1050,5 +1055,28 @@ class TMTemplates
     public function getOpenedBy()
     {
         return $this->openedBy;
+    }
+
+    /**
+     * Set tmpConfiguration
+     *
+     * @param string $tmpConfiguration
+     * @return TMTemplates
+     */
+    public function setTmpConfiguration($tmpConfiguration)
+    {
+        $this->tmpConfiguration = $tmpConfiguration;
+
+        return $this;
+    }
+
+    /**
+     * Get tmpConfiguration
+     *
+     * @return string 
+     */
+    public function getTmpConfiguration()
+    {
+        return $this->tmpConfiguration;
     }
 }

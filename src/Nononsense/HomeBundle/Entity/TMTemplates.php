@@ -197,6 +197,11 @@ class TMTemplates
     protected $tmWorkflows;
 
     /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMSecondWorkflow", mappedBy="template")
+     */
+    protected $tmSecondWorkflows;
+
+    /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\Areas", mappedBy="template")
      */
     protected $areas;
@@ -1073,5 +1078,38 @@ class TMTemplates
     public function getTmpConfiguration()
     {
         return $this->tmpConfiguration;
+    }
+
+    /**
+     * Add tmSecondWorkflows
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMSecondWorkflow $tmSecondWorkflows
+     * @return TMTemplates
+     */
+    public function addTmSecondWorkflow(\Nononsense\HomeBundle\Entity\TMSecondWorkflow $tmSecondWorkflows)
+    {
+        $this->tmSecondWorkflows[] = $tmSecondWorkflows;
+
+        return $this;
+    }
+
+    /**
+     * Remove tmSecondWorkflows
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMSecondWorkflow $tmSecondWorkflows
+     */
+    public function removeTmSecondWorkflow(\Nononsense\HomeBundle\Entity\TMSecondWorkflow $tmSecondWorkflows)
+    {
+        $this->tmSecondWorkflows->removeElement($tmSecondWorkflows);
+    }
+
+    /**
+     * Get tmSecondWorkflows
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getTmSecondWorkflows()
+    {
+        return $this->tmSecondWorkflows;
     }
 }
