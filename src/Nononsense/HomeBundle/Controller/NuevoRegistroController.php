@@ -284,14 +284,14 @@ class NuevoRegistroController extends Controller
                     $raw_response = curl_exec($ch);
                     $response = json_decode($raw_response, true);
                     
-                    if(!$response["document"]){
+                    if(!$response["version"]){
                         $this->get('session')->getFlashBag()->add(
                             'error',
                             'Error al subir la plantilla. '.$response["message"]
                         );
                         return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
                     }
-                    $ms->setPlantillaId($response["document"]["id"]);
+                    $ms->setPlantillaId($response["id"]);
                 }
                 else{
                     $ms->setPlantillaId($plantilla_id);

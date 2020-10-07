@@ -231,6 +231,11 @@ class Users implements AdvancedUserInterface, \Serializable
     protected $applicantTeamplates;
 
     /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMTemplates", mappedBy="openedBy")
+     */
+    protected $openedByTeamplates;
+
+    /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMWorkflow", mappedBy="userEntiy")
      */
     protected $tmWorkflows;
@@ -2162,5 +2167,38 @@ class Users implements AdvancedUserInterface, \Serializable
     public function getApplicantTeamplates()
     {
         return $this->applicantTeamplates;
+    }
+
+    /**
+     * Add openedByTeamplates
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMTemplates $openedByTeamplates
+     * @return Users
+     */
+    public function addOpenedByTeamplate(\Nononsense\HomeBundle\Entity\TMTemplates $openedByTeamplates)
+    {
+        $this->openedByTeamplates[] = $openedByTeamplates;
+
+        return $this;
+    }
+
+    /**
+     * Remove openedByTeamplates
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMTemplates $openedByTeamplates
+     */
+    public function removeOpenedByTeamplate(\Nononsense\HomeBundle\Entity\TMTemplates $openedByTeamplates)
+    {
+        $this->openedByTeamplates->removeElement($openedByTeamplates);
+    }
+
+    /**
+     * Get openedByTeamplates
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getOpenedByTeamplates()
+    {
+        return $this->openedByTeamplates;
     }
 }

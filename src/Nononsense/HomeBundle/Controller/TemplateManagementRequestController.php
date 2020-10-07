@@ -340,7 +340,7 @@ class TemplateManagementRequestController extends Controller
         $raw_response = curl_exec($ch);
         $response = json_decode($raw_response, true);
 
-        if(!$response["document"]){
+        if(!$response["version"]){
             $this->get('session')->getFlashBag()->add('error','No pudo clonarse la plantilla maestra o de la anterior edición');
             $route = $this->container->get('router')->generate('nononsense_tm_request');
             return $this->redirect($route);
@@ -353,7 +353,7 @@ class TemplateManagementRequestController extends Controller
         $template->setPrefix($desc_prefix);
         $template->setNumber($number);
         $template->setNumberId($number_id);
-        $template->setPlantillaId($response["document"]["id"]);
+        $template->setPlantillaId($response["id"]);
         $template->setReference($request->get("reference"));
         $template->setDescription($request->get("description"));
         $template->setHistoryChange($request->get("history_change"));
@@ -392,7 +392,7 @@ class TemplateManagementRequestController extends Controller
         $signature->setModified(new \DateTime());
         $signature->setSignature($request->get("signature"));
         $signature->setVersion($response["version"]["id"]);
-        $signature->setConfiguration($response["configuration"]["id"]);
+        $signature->setConfiguration($response["version"]["configuration"]["id"]);
         $em->persist($signature);
 
 
