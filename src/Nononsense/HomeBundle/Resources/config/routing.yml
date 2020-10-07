@@ -746,3 +746,17 @@ nononsense_templates_active_json:
 nononsense_prepare_workflow_json:
     path:     /prepare/workfow/json/{area}
     defaults: { _controller: NononsenseHomeBundle:TemplateManagementRequest:listUsersAndGroupsJson, area: 0}
+
+# Retención
+
+nononsense_retention_categories_list:
+    path: /retention-categories
+    defaults: { _controller: NononsenseHomeBundle:RetentionCategories:list}
+
+nononsense_retention_categories_edit:
+    path: /retention-categories/{id}
+    defaults: { _controller: NononsenseHomeBundle:RetentionCategories:edit}
+
+nononsense_retention_categories_delete:
+    path: /retention_categories/delete/{id}
+    defaults: { _controller: NononsenseHomeBundle:RetentionCategories:delete}

@@ -3,7 +3,8 @@
 namespace Nononsense\HomeBundle\Entity;
 
 use Doctrine\ORM\EntityRepository;
-use Doctrine\ORM\Tools\Pagination\Paginator;
+use Doctrine\ORM\Query\QueryException;
+use Doctrine\ORM\QueryBuilder;
 
 /**
  * RetentionCategoriesRepository
@@ -14,4 +15,93 @@ use Doctrine\ORM\Tools\Pagination\Paginator;
 class RetentionCategoriesRepository extends EntityRepository
 {
 
+    /**
+     * @param string[] $filters
+     * @param int $paginate
+     * @return array|int|string
+     */
+    public function list(array $filters, $paginate = 1)
+    {
+        $list = $this->createQueryBuilder('rc')
+            ->select('rc')
+            ->innerJoin('rc.documentState', 'st')
+            ->innerJoin('rc.type', 'ty')
+            ->leftJoin('rc.destroyUser', 'us')
+            ->leftJoin('rc.destroyGroup', 'gr')
+            ->orderBy('rc.id', 'DESC');
+
+        $list = self::fillFilersQuery($filters, $list);
+
+        if ($paginate == 1 && isset($filters["limit_from"])) {
+            $list->setFirstResult($filters["limit_from"] * $filters["limit_many"])->setMaxResults(
+                $filters["limit_many"]
+            );
+        }
+
+        $query = $list->getQuery();
+
+        return $query->getResult();
+    }
+
+    /**
+     * @param array $filters
+     * @return mixed
+     */
+    public function count($filters = [])
+    {
+        $list = $this->createQueryBuilder('rc')
+            ->select('COUNT(rc.id) as conta')
+            ->innerJoin('rc.documentState', 'st')
+            ->innerJoin('rc.type', 'ty')
+            ->leftJoin('rc.destroyUser', 'us')
+            ->leftJoin('rc.destroyGroup', 'gr');
+
+        $list = self::fillFilersQuery($filters, $list);
+        $query = $list->getQuery();
+
+        try {
+            $result = $query->getSingleScalarResult();
+        } catch (QueryException $e) {
+            $result = 0;
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param array $filters
+     * @param QueryBuilder $list
+     * @return QueryBuilder
+     */
+    private function fillFilersQuery(array $filters, QueryBuilder $list)
+    {
+        $list->andWhere('rc.deletedAt is null');
+
+        if (isset($filters["name"])) {
+            $list->andWhere('rc.name = :name');
+            $list->setParameter('name', $filters["name"]);
+        }
+
+        if (isset($filters["description"])) {
+            $list->andWhere('rc.description like :description');
+            $list->setParameter('description', '%' . $filters["description"] . '%');
+        }
+
+        if (isset($filters["state"])) {
+            $list->andWhere('st.id = :state');
+            $list->setParameter('state', $filters["state"]);
+        }
+
+        if (isset($filters["type"])) {
+            $list->andWhere('ty.id = :type');
+            $list->setParameter('type', $filters["type"]);
+        }
+
+        if (isset($filters["active"])) {
+            $list->andWhere('rc.active = :active');
+            $list->setParameter('active', $filters["active"]);
+        }
+
+        return $list;
+    }
 }

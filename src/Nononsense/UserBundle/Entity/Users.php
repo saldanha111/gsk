@@ -312,6 +312,11 @@ class Users implements AdvancedUserInterface, \Serializable
     protected $pinComite;
 
     /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\RCSignatures", mappedBy="userEntiy")
+     */
+    protected $rcSignatures;
+
+    /**
      * Users constructor.
      */
     
@@ -2200,5 +2205,38 @@ class Users implements AdvancedUserInterface, \Serializable
     public function getOpenedByTeamplates()
     {
         return $this->openedByTeamplates;
+    }
+
+    /**
+     * Add rcSignatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\RCSignatures $rcSignatures
+     * @return Users
+     */
+    public function addRcSignature(\Nononsense\HomeBundle\Entity\RCSignatures $rcSignatures)
+    {
+        $this->rcSignatures[] = $rcSignatures;
+
+        return $this;
+    }
+
+    /**
+     * Remove rcSignatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\RCSignatures $rcSignatures
+     */
+    public function removeRcSignature(\Nononsense\HomeBundle\Entity\RCSignatures $rcSignatures)
+    {
+        $this->rcSignatures->removeElement($rcSignatures);
+    }
+
+    /**
+     * Get rcSignatures
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getRcSignatures()
+    {
+        return $this->rcSignatures;
     }
 }
