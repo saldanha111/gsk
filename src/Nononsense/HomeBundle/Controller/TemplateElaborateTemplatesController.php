@@ -16,6 +16,8 @@ use Nononsense\HomeBundle\Entity\TMTemplates;
 use Nononsense\HomeBundle\Entity\TMActions;
 use Nononsense\HomeBundle\Entity\TMSignatures;
 use Nononsense\HomeBundle\Entity\TMWorkflow;
+use Nononsense\HomeBundle\Entity\TMCumplimentations;
+use Nononsense\HomeBundle\Entity\TMSecondWorkflow;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
@@ -47,6 +49,44 @@ class TemplateElaborateTemplatesController extends Controller
             return $this->redirect($route);
         }
 
+        $action = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 2));
+        $elaborators = $this->getDoctrine()->getRepository(TMWorkflow::class)->findBy(array("template" => $array_item["template"], "action" => $action),array("id" => "ASC"));
+        $find=0;
+        foreach($elaborators as $elaborator){
+            if($elaborator->getUserEntiy() && $elaborator->getUserEntiy()==$user){
+                $find=1;
+            }
+        }
+        
+        if($find==0){
+            foreach($elaborators as $elaborator){
+                if($elaborator->getGroupEntiy() && !$elaborator->getSigned()){
+                    $in_group=0;
+                    foreach($user->getGroups() as $uniq_group){
+                        if($uniq_group->getGroup()==$elaborator->getGroupEntiy()){
+                            $in_group=1;
+                            break;
+                        }
+                    }
+                    if($in_group==1){
+                        $find=1;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if($find==0){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                'No tiene permisos para elaborar este documento'
+            );
+            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            return $this->redirect($route);
+        }
+
+        $array_item["type_cumplimentations"] = $this->getDoctrine()->getRepository(TMCumplimentations::class)->findBy(array(),array("id" => "ASC"));
+
         $base_url=$this->getParameter('api_docoaro')."/documents/".$array_item["template"]->getPlantillaId();
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $base_url);
@@ -74,6 +114,7 @@ class TemplateElaborateTemplatesController extends Controller
 
         $action = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 2));
         $array_item["elab"] = $this->getDoctrine()->getRepository(TMWorkflow::class)->findBy(array("template" => $array_item["template"], "action" => $action),array("id" => "ASC"));
+        $array_item["cumplimentations"] = $this->getDoctrine()->getRepository(TMSecondWorkflow::class)->findBy(array("template" => $array_item["template"]),array("id" => "ASC"));
 
 
         return $this->render('NononsenseHomeBundle:TemplateManagement:elaboration_detail.html.twig',$array_item);
@@ -106,7 +147,9 @@ class TemplateElaborateTemplatesController extends Controller
         }
 
         $action = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 2));
+        $action_test = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 3));
         $elaborators = $this->getDoctrine()->getRepository(TMWorkflow::class)->findBy(array("template" => $template, "action" => $action),array("id" => "ASC"));
+        $testers = $this->getDoctrine()->getRepository(TMWorkflow::class)->findBy(array("template" => $template, "action" => $action_test),array("id" => "ASC"));
         $find=0;
         foreach($elaborators as $elaborator){
             if($elaborator->getUserEntiy() && $elaborator->getUserEntiy()==$user){
@@ -121,15 +164,36 @@ class TemplateElaborateTemplatesController extends Controller
                 }
             }
         }
-
+        
         if($find==0){
             foreach($elaborators as $elaborator){
-                if($elaborator->groupEntiy() && !$elaborator->getSigned() && in_array($elaborator->groupEntiy(), $user->getGroups())){
-                    $elaborator->setSigned(TRUE);
-                    $em->persist($elaborator);
-                    break;
+
+                if($elaborator->getGroupEntiy() && !$elaborator->getSigned()){
+                    $in_group=0;
+                    foreach($user->getGroups() as $uniq_group){
+
+                        if($uniq_group->getGroup()==$elaborator->getGroupEntiy()){
+                            $in_group=1;
+                            break;
+                        }
+                    }
+                    if($in_group==1){
+                        $find=1;
+                        $elaborator->setSigned(TRUE);
+                        $em->persist($elaborator);
+                        break;
+                    }
                 }
             }
+        }
+
+        if($find==0){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                'No tiene permisos para elaborar este documento'
+            );
+            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            return $this->redirect($route);
         }
 
         if($request->files->get('template')){
@@ -200,6 +264,22 @@ class TemplateElaborateTemplatesController extends Controller
             return $this->redirect($route);
         }
 
+        if($request->get("cumplimentation")){
+            $swfs = $this->getDoctrine()->getRepository(TMSecondWorkflow::class)->findBy(array("template" => $template));
+            foreach($swfs as $swf){
+                $em->remove($swf);
+            }
+
+            foreach($request->get("cumplimentation") as $key => $cumpl){
+                $swf = new TMSecondWorkflow();
+                $swf->setTemplate($template);
+                $cumplimentation = $this->getDoctrine()->getRepository(TMCumplimentations::class)->findOneBy(array("id" => $cumpl));
+                $swf->setTmCumplimentation($cumplimentation);
+                $swf->setSignaturesNumber($request->get("signatures")[$key]);
+                $em->persist($swf);
+            }
+        }
+
         $signature = new TMSignatures();
         $signature->setTemplate($template);
         $signature->setAction($action);
@@ -217,9 +297,25 @@ class TemplateElaborateTemplatesController extends Controller
         $template->setOpenedBy(NULL);
         $template->setToken(NULL);
 
+        $next_step=1;
+        foreach($elaborators as $elaborator){
+            if(!$elaborator->getSigned()){
+                $next_step=0;
+            }
+        }
+
+        if($next_step==1){
+            if(($template->getArea()->getId()==10 || $template->getArea()->getId()==11) && !$testers){
+                $state = $this->getDoctrine()->getRepository(TMStates::class)->findOneBy(array("id"=> 4));
+            }
+            else{
+                $state = $this->getDoctrine()->getRepository(TMStates::class)->findOneBy(array("id"=> 3));
+            }
+            $template->setTmState($state);
+        }
+
         $em->persist($template);
         
-
         $em->flush();
 
         $this->get('session')->getFlashBag()->add('message', "La operación se ha ejecutado con éxito");

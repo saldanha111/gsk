@@ -42,7 +42,7 @@
         <div class="col-lg-4">
             <div class="box box-default">
                 <div class="box-header with-border">
-                  <h3 class="box-title">Cofigurar</h3>
+                  <h3 class="box-title">Configurar</h3>
                 </div>
                 <!-- /.box-header -->
                 <div class="box-body">
@@ -84,7 +84,78 @@
                 </div>
                 <!-- /.box-header -->
                 <div class="box-body">
-                    
+                    <form id="form_sign_workflow" action="{{path('nononsense_tm_elaborate_update', {'id': template.id}) }}" method="POST"  enctype="multipart/form-data">
+                        <div class="box_workflow">
+                            {% for cumplimentation in cumplimentations %}
+                                <div class="row line_workflow" style="margin-bottom:10px">
+                                    <div class="form-group">
+                                        <div class="col-sm-7 box_cumplimentation">
+                                            {% if type_cumplimentations is defined %}
+                                                <select class="form-control field_cumplimentation field_cumpl" name="cumplimentation[]" style="width: 100%;" required="required">
+                                                    <option value=""></option>
+                                                    {% for type in type_cumplimentations %}
+                                                        <option value="{{type.id}}" class="{{type.tmType.name}}" {{ cumplimentation.tmCumplimentation is defined and cumplimentation.tmCumplimentation.id==type.id ? 'selected="selected"' : ''}}>{{type.name}}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-sm-3 box_signatures">
+                                            <input type="number" name="signatures[]" class="form-control field_cumplimentation" value="{{cumplimentation.signaturesNumber is defined ? cumplimentation.signaturesNumber : ''}}" required="required">
+                                        </div>
+                                        <div class="col-sm-1">
+                                            <a href="javascript:void(0)" class="btn btn-xs btn-danger remove_line"><i class="fa fa-times" aria-hidden="true"></i></a>
+                                        </div>
+                                    </div>
+                                </div> 
+                            {% endfor %}
+                        </div>
+                        <br>
+                        <div class="row">
+                            <div class="col-lg-11">
+                                <input type="submit" class="btn btn-primary pull-right" value="Firmar">
+                                <button type="button" class="btn btn-default pull-right add_line" style="margin-right:4px"><i class="fa fa-plus"></i> Añadir</button>
+                            </div>
+                        </div><br> 
+
+                        <div class="modal fade" tabindex="-1" role="dialog" id="modalSignWorkflow">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Firmar elaboración</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                          <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                
+                                    <div class="modal-body">
+                                        <div class="row justify_workflow" style="display: none">
+                                            <div class="col-lg-10 col-lg-offset-1">
+                                                Comentarios<br>
+                                                <div class="form-group">
+                                                    <textarea id="description_workflow" rows="10" cols="40" required="required" style="width:100%" required="required"></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-lg-10 col-lg-offset-1">
+                                                <div id="signature-pad3" class="input-group">
+                                                    Introduzca su firma<br>
+                                                    <canvas id="canvas3" width="300" height="150" style="touch-action: none; border: 2px solid #eee; box-shadow: 0px 0px 6px 1px rgba(80, 90, 100, 0.5)"></canvas>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                    </div>
+                                    <div class="modal-footer">
+                                        <a name="borrarFirmar" class="btn btn-secondary" id="borrarFirmar3">Limpiar firma</a>
+                                        <input type="button" class="btn btn-primary" id="sign_workflow" value="Firmar">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <textarea name="description" style="display: none"></textarea>
+                        <input type="hidden" id="signature3" name="signature" />
+                    </form>
                 </div>
                 {% if template.openedBy is defined and template.openedBy is not empty and template.openedBy.id!=app.user.id %}
                     <div class="overlay">
@@ -126,7 +197,7 @@
                 </div>
                 <div class="row">
                     <div class="col-lg-10 col-lg-offset-1">
-                        <div id="signature-pad" class="input-group">
+                        <div id="signature-pad2" class="input-group">
                             Introduzca su firma<br>
                             <canvas width="300" height="150" style="touch-action: none; border: 2px solid #eee; box-shadow: 0px 0px 6px 1px rgba(80, 90, 100, 0.5)"></canvas>
                         </div>
@@ -182,6 +253,32 @@
     </div>
   </div>
 </div>
+
+
+
+<did style="display:none" id="new_line">
+    <div class="row line_workflow" style="margin-bottom:10px">
+        <div class="form-group">
+            <div class="col-sm-7 box_cumplimentation">
+                {% if type_cumplimentations is defined %}
+                    <select class="form-control field_cumplimentation field_cumpl" name="cumplimentation[]" style="width: 100%;" required="required">
+                        <option value=""></option>
+                        {% for type in type_cumplimentations %}
+                            <option value="{{type.id}}" class="{{type.tmType.name}}">{{type.name}}</option>
+                        {% endfor %}
+                    </select>
+                {% endif %}
+            </div>
+            <div class="col-sm-3 box_signatures">
+                <input type="number" name="signatures[]" class="form-control field_cumplimentation" value="" required="required">
+            </div>
+            <div class="col-sm-1">
+                <a href="javascript:void(0)" class="btn btn-xs btn-danger remove_line"><i class="fa fa-times" aria-hidden="true"></i></a>
+            </div>
+        </div>
+    </div> 
+</did>
+
 {% endblock %}
 {% block scripts %}
 {{ parent() }}
@@ -194,6 +291,9 @@ var signaturePad = new SignaturePad(canvas);
 var canvas2 = document.querySelector("#canvas2");
 var signaturePad2 = new SignaturePad(canvas2);
 
+var canvas3 = document.querySelector("#canvas3");
+var signaturePad3 = new SignaturePad(canvas3);
+
 $( document ).ready(function() {
     {% if app.request.query.get('sign') is defined and app.request.query.get('sign') is not empty and template.tmpConfiguration is not empty %}
         $('#modalSignConfiguration').modal('show');
@@ -205,6 +305,11 @@ $( document ).ready(function() {
     $('#borrarFirmar2').on('click', function () {
         signaturePad2.clear();
     });
+
+    $('#borrarFirmar3').on('click', function () {
+        signaturePad3.clear();
+    });
+
 
     $('#form_upload_document').on('submit', function(e){
         if (signaturePad.isEmpty()){
@@ -225,10 +330,77 @@ $( document ).ready(function() {
         }
         return false;
     });
+
+    $('#form_sign_workflow').on('submit', function(e){
+        console.log("asdfasdfas");
+        if($("#modalSignWorkflow").is(':visible')){
+            if(!$(".justify_workflow").is(':visible') || $.trim($("#description_workflow").val())){
+                if(signaturePad3.isEmpty()){
+                    toastr.error("La firma es obligatoria",'aviso');
+                }else{
+                    $("#signature3").val(signaturePad3.toDataURL());
+                    if($(".justify_workflow").is(':visible')){
+                        $('#form_sign_workflow').find('[name="description"]').val($.trim($("#description_workflow").val()));
+                    }
+                    return true;
+                }
+            }
+            else{
+                toastr.error("Debe justificar los cambios realizados en el workflow",'aviso');
+            }
+        }
+        else{
+            $("#modalSignWorkflow").modal('show');
+        }
+        return false;
+    });
+
+    /* Añadimos linea en ese paso del workflow */
+    $(document).on('click', '.add_line', function() {
+        add_line();
+    });
+
+    /* Eliminamos linea en ese paso del workflow */
+    $(document).on('click', '.remove_line', function() {
+        $(this).closest(".line_workflow").remove();
+        add_justification();
+    });
+
+    $(document).on('change', '.field_cumplimentation', function() {
+        add_justification();
+    });
+
+    $(document).on('change', '.field_cumpl', function() {
+        if($('option:selected', this).hasClass('Cumplimentador')){
+            if($(this).closest(".line_workflow").prevAll().find(".Verificador:selected").length){
+                $(this).val("");
+                toastr.error("No se puede añadir un Cumplimentador tras un verificador",'aviso');
+            }
+        }
+        else{
+            if($(this).closest(".line_workflow").nextAll().find(".Cumplimentador:selected").length){
+                $(this).val("");
+                toastr.error("No se puede añadir un Verificador antes de un cumplimentador",'aviso');
+            }
+        }
+    });
+    
+    
+
+    $(document).on('click', '#sign_workflow', function() {
+        $('#form_sign_workflow').submit();
+    });
+    
 });
 
-function upload_document(){
-    
+/* Añadimos una nueva linea */
+function add_line(){
+    $(".box_workflow").append($("#new_line").html());
+    add_justification();
+}
+
+function add_justification(){
+    $(".justify_workflow").show();
 }
 
 </script>
