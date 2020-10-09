@@ -211,6 +211,11 @@ class Users implements AdvancedUserInterface, \Serializable
     protected $Firmas;
 
     /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMTests", mappedBy="userEntiy")
+     */
+    protected $tmTests;
+
+    /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMSignatures", mappedBy="userEntiy")
      */
     protected $tmSignatures;
@@ -2200,5 +2205,38 @@ class Users implements AdvancedUserInterface, \Serializable
     public function getOpenedByTeamplates()
     {
         return $this->openedByTeamplates;
+    }
+
+    /**
+     * Add tmTests
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMTests $tmTests
+     * @return Users
+     */
+    public function addTmTest(\Nononsense\HomeBundle\Entity\TMTests $tmTests)
+    {
+        $this->tmTests[] = $tmTests;
+
+        return $this;
+    }
+
+    /**
+     * Remove tmTests
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMTests $tmTests
+     */
+    public function removeTmTest(\Nononsense\HomeBundle\Entity\TMTests $tmTests)
+    {
+        $this->tmTests->removeElement($tmTests);
+    }
+
+    /**
+     * Get tmTests
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getTmTests()
+    {
+        return $this->tmTests;
     }
 }

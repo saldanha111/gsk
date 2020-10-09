@@ -288,7 +288,7 @@ class TemplateManagementRequestController extends Controller
                 break;
             case 2:
                 $templates=$em->getRepository('NononsenseHomeBundle:TMTemplates')->listActiveForRequest(array("id"=>$request->get("template"),"no_request_in_proccess" => 1));
-                if($templates){
+                if(!$templates){
                     $this->get('session')->getFlashBag()->add('error','El template indicado no está disponible');
                     $route = $this->container->get('router')->generate('nononsense_tm_request');
                     return $this->redirect($route);
@@ -417,6 +417,7 @@ class TemplateManagementRequestController extends Controller
                 $workflow->setTemplate($template);
                 $workflow->setAction($action);
                 $workflow->setNumber($num);
+                $workflow->setSigned(0);
                 $em->persist($workflow);
             }
             $num++;

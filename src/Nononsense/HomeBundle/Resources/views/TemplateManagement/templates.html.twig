@@ -184,7 +184,7 @@
                                     {% endif %}
 
                                     {% if item.status == 3 %}
-                                        <a class="btn btn-xs btn-danger" href="#" target="_self"><i class="fa fa-flask" aria-hidden="true"></i> {{'Testear'|trans}}</a>
+                                        <a class="btn btn-xs btn-danger" href="{{path('nononsense_tm_test_detail', {'id': item.id}) }}" target="_self"><i class="fa fa-flask" aria-hidden="true"></i> {{'Testear'|trans}}</a>
                                     {% endif %}
 
                                     {% if item.status == 4 %}

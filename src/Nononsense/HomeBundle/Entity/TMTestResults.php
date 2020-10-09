@@ -9,11 +9,11 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="tm_cumplimentations_type")
- * @ORM\Entity(repositoryClass="Nononsense\HomeBundle\Entity\TMCumplimentationsTypeRepository")
+ * @ORM\Table(name="tm_test_results")
+ * @ORM\Entity(repositoryClass="Nononsense\HomeBundle\Entity\TMStatesRepository")
  * @ORM\HasLifecycleCallbacks
  */
-class TMCumplimentationsType
+class TMTestResults
 {
     /**
      * @ORM\Column(type="integer")
@@ -31,13 +31,15 @@ class TMCumplimentationsType
     protected $name;
 
     /**
-     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMCumplimentations", mappedBy="tmType")
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMTests", mappedBy="result")
      */
-    protected $tmCumplimentations;
+    protected $tmTests;
+
+
 
     public function __construct()
     {
-
+        
     }
 
     /**
@@ -74,35 +76,35 @@ class TMCumplimentationsType
     }
 
     /**
-     * Add tmCumplimentations
+     * Add tmTests
      *
-     * @param \Nononsense\HomeBundle\Entity\TMCumplimentations $tmCumplimentations
-     * @return TMCumplimentationsType
+     * @param \Nononsense\HomeBundle\Entity\TMTests $tmTests
+     * @return TMTestResults
      */
-    public function addTmCumplimentation(\Nononsense\HomeBundle\Entity\TMCumplimentations $tmCumplimentations)
+    public function addTmTest(\Nononsense\HomeBundle\Entity\TMTests $tmTests)
     {
-        $this->tmCumplimentations[] = $tmCumplimentations;
+        $this->tmTests[] = $tmTests;
 
         return $this;
     }
 
     /**
-     * Remove tmCumplimentations
+     * Remove tmTests
      *
-     * @param \Nononsense\HomeBundle\Entity\TMCumplimentations $tmCumplimentations
+     * @param \Nononsense\HomeBundle\Entity\TMTests $tmTests
      */
-    public function removeTmCumplimentation(\Nononsense\HomeBundle\Entity\TMCumplimentations $tmCumplimentations)
+    public function removeTmTest(\Nononsense\HomeBundle\Entity\TMTests $tmTests)
     {
-        $this->tmCumplimentations->removeElement($tmCumplimentations);
+        $this->tmTests->removeElement($tmTests);
     }
 
     /**
-     * Get tmCumplimentations
+     * Get tmTests
      *
      * @return \Doctrine\Common\Collections\Collection 
      */
-    public function getTmCumplimentations()
+    public function getTmTests()
     {
-        return $this->tmCumplimentations;
+        return $this->tmTests;
     }
 }

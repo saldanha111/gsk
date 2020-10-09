@@ -1079,4 +1079,37 @@ class TMTemplates
     {
         return $this->tmpConfiguration;
     }
+
+    /**
+     * Add tmSecondWorkflows
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMSecondWorkflow $tmSecondWorkflows
+     * @return TMTemplates
+     */
+    public function addTmSecondWorkflow(\Nononsense\HomeBundle\Entity\TMSecondWorkflow $tmSecondWorkflows)
+    {
+        $this->tmSecondWorkflows[] = $tmSecondWorkflows;
+
+        return $this;
+    }
+
+    /**
+     * Remove tmSecondWorkflows
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMSecondWorkflow $tmSecondWorkflows
+     */
+    public function removeTmSecondWorkflow(\Nononsense\HomeBundle\Entity\TMSecondWorkflow $tmSecondWorkflows)
+    {
+        $this->tmSecondWorkflows->removeElement($tmSecondWorkflows);
+    }
+
+    /**
+     * Get tmSecondWorkflows
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getTmSecondWorkflows()
+    {
+        return $this->tmSecondWorkflows;
+    }
 }

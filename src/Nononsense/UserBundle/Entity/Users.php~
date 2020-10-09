@@ -211,6 +211,11 @@ class Users implements AdvancedUserInterface, \Serializable
     protected $Firmas;
 
     /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMTests", mappedBy="userEntiy")
+     */
+    protected $tmTests;
+
+    /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMSignatures", mappedBy="userEntiy")
      */
     protected $tmSignatures;

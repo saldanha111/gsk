@@ -728,6 +728,31 @@ nononsense_tm_elaborate_restore:
     methods:    [POST]
     defaults: { _controller: NononsenseHomeBundle:TemplateElaborateTemplates:restoreLastConfiguration,id: 0}
 
+nononsense_tm_test_detail:
+    path: /mt/test/{id}
+    methods:    [GET]
+    defaults: { _controller: NononsenseHomeBundle:TemplateTestTemplates:detail,id: 0}
+
+nononsense_tm_test_update:
+    path: /mt/test/{id}
+    methods:    [POST]
+    defaults: { _controller: NononsenseHomeBundle:TemplateTestTemplates:update,id: 0}
+
+nononsense_tm_test_new:
+    path: /mt/test/{id}/new
+    methods:    [GET]
+    defaults: { _controller: NononsenseHomeBundle:TemplateTestTemplates:link,id: 0}
+
+nononsense_tm_test_get_data:
+    path: /mt/test/{id}/getdata
+    methods:    [GET]
+    defaults: { _controller: NononsenseHomeBundle:TemplateTestTemplates:getData,id: 0}
+
+nononsense_tm_test_get_data:
+    path: /mt/test/{id}/save
+    methods:    [POST]
+    defaults: { _controller: NononsenseHomeBundle:TemplateTestTemplates:save,id: 0}
+
 nononsense_tm_request_detail:
     path: /mt/requests/0
     methods:    [GET]
@@ -736,8 +761,6 @@ nononsense_tm_request_detail:
 nononsense_tm_request_preadmin:
     path: /mt/requests/preadmin
     defaults: { _controller: NononsenseHomeBundle:TemplateManagementRequest:edit}
-
-
 
 nononsense_templates_active_json:
     path:     /templates/active/json

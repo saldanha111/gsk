@@ -78,4 +78,60 @@ class TMCumplimentations
     {
         return $this->name;
     }
+
+    /**
+     * Set tmType
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMCumplimentationsType $tmType
+     * @return TMCumplimentations
+     */
+    public function setTmType(\Nononsense\HomeBundle\Entity\TMCumplimentationsType $tmType = null)
+    {
+        $this->tmType = $tmType;
+
+        return $this;
+    }
+
+    /**
+     * Get tmType
+     *
+     * @return \Nononsense\HomeBundle\Entity\TMCumplimentationsType 
+     */
+    public function getTmType()
+    {
+        return $this->tmType;
+    }
+
+    /**
+     * Add tmSecondWorkflows
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMSecondWorkflow $tmSecondWorkflows
+     * @return TMCumplimentations
+     */
+    public function addTmSecondWorkflow(\Nononsense\HomeBundle\Entity\TMSecondWorkflow $tmSecondWorkflows)
+    {
+        $this->tmSecondWorkflows[] = $tmSecondWorkflows;
+
+        return $this;
+    }
+
+    /**
+     * Remove tmSecondWorkflows
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMSecondWorkflow $tmSecondWorkflows
+     */
+    public function removeTmSecondWorkflow(\Nononsense\HomeBundle\Entity\TMSecondWorkflow $tmSecondWorkflows)
+    {
+        $this->tmSecondWorkflows->removeElement($tmSecondWorkflows);
+    }
+
+    /**
+     * Get tmSecondWorkflows
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getTmSecondWorkflows()
+    {
+        return $this->tmSecondWorkflows;
+    }
 }

@@ -34,6 +34,12 @@ class TMSignatures
     protected $action;
 
     /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMTests", mappedBy="signature")
+     */
+    protected $tmTests;
+
+
+    /**
      * @var string
      *
      * @ORM\Column(name="signature", type="text")
@@ -76,20 +82,6 @@ class TMSignatures
      * @ORM\Column(type="datetime")
      */
     protected $modified;
-
-     /**
-     * @var string
-     *
-     * @ORM\Column(name="test", type="text", nullable=true)
-     */
-    protected $test;
-
-    /**
-     * @var boolean
-     *
-     * @ORM\Column(name="test_successed", type="boolean",  nullable=true, options={"default" = false})
-     */
-    protected $testSuccessed;
 
     
     public function __construct()
@@ -312,52 +304,6 @@ class TMSignatures
     }
 
     /**
-     * Set test
-     *
-     * @param string $test
-     * @return TMSignatures
-     */
-    public function setTest($test)
-    {
-        $this->test = $test;
-
-        return $this;
-    }
-
-    /**
-     * Get test
-     *
-     * @return string 
-     */
-    public function getTest()
-    {
-        return $this->test;
-    }
-
-    /**
-     * Set testSuccessed
-     *
-     * @param boolean $testSuccessed
-     * @return TMSignatures
-     */
-    public function setTestSuccessed($testSuccessed)
-    {
-        $this->testSuccessed = $testSuccessed;
-
-        return $this;
-    }
-
-    /**
-     * Get testSuccessed
-     *
-     * @return boolean 
-     */
-    public function getTestSuccessed()
-    {
-        return $this->testSuccessed;
-    }
-
-    /**
      * Set description
      *
      * @param string $description
@@ -378,5 +324,38 @@ class TMSignatures
     public function getDescription()
     {
         return $this->description;
+    }
+
+    /**
+     * Add tmTests
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMTests $tmTests
+     * @return TMSignatures
+     */
+    public function addTmTest(\Nononsense\HomeBundle\Entity\TMTests $tmTests)
+    {
+        $this->tmTests[] = $tmTests;
+
+        return $this;
+    }
+
+    /**
+     * Remove tmTests
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMTests $tmTests
+     */
+    public function removeTmTest(\Nononsense\HomeBundle\Entity\TMTests $tmTests)
+    {
+        $this->tmTests->removeElement($tmTests);
+    }
+
+    /**
+     * Get tmTests
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getTmTests()
+    {
+        return $this->tmTests;
     }
 }

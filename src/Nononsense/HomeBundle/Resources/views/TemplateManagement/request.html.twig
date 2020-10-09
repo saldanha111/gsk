@@ -484,7 +484,7 @@
         });
 
         $('#form_item').on('submit', function(e){
-            if($('[name="retention[]"]').val() && $('[name="request_type"]').val()==1){
+            if(($('[name="retention[]"]').val() && $('[name="request_type"]:checked').val()==1) || $('[name="request_type"]:checked').val()==2){
                 if (signaturePad.isEmpty()){
                     toastr.error("Debe firmar la solicitud",'aviso');
                 }else{
@@ -499,6 +499,7 @@
                 }
             }
             else{
+                console.log($('[name="request_type"]').val());
                 toastr.error("Debe añadir alguna categoría de retención",'aviso');
             }
             return false;
