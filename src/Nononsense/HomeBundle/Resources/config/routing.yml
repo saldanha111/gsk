@@ -748,7 +748,7 @@ nononsense_tm_test_get_data:
     methods:    [GET]
     defaults: { _controller: NononsenseHomeBundle:TemplateTestTemplates:getData,id: 0}
 
-nononsense_tm_test_get_data:
+nononsense_tm_test_save_data:
     path: /mt/test/{id}/save
     methods:    [POST]
     defaults: { _controller: NononsenseHomeBundle:TemplateTestTemplates:save,id: 0}
