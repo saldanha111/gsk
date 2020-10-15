@@ -148,7 +148,7 @@ class NuevoRegistroController extends Controller
                 $array_item["not_update"]=1;
             }
 
-            $base_url=$this->getParameter('api_docoaro')."/documents/".$array_item["item"]["plantilla_id"];
+            $base_url=$this->getParameter('api_docoaro')."/documents/".$array_item["item"]["plantilla_id"]."?keyPrivated=".$this->getParameter('key_privated_config_docoaro');
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, $base_url);
             curl_setopt($ch, CURLOPT_CUSTOMREQUEST,"GET");
@@ -284,14 +284,14 @@ class NuevoRegistroController extends Controller
                     $raw_response = curl_exec($ch);
                     $response = json_decode($raw_response, true);
                     
-                    if(!$response["document"]){
+                    if(!$response["version"]){
                         $this->get('session')->getFlashBag()->add(
                             'error',
                             'Error al subir la plantilla. '.$response["message"]
                         );
                         return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
                     }
-                    $ms->setPlantillaId($response["document"]["id"]);
+                    $ms->setPlantillaId($response["id"]);
                 }
                 else{
                     $ms->setPlantillaId($plantilla_id);

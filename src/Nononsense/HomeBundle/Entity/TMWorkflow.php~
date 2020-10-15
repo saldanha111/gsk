@@ -55,6 +55,14 @@ class TMWorkflow
      */
     protected $groupEntiy;
 
+    /**
+     * @var boolean $signed
+     *
+     * @ORM\Column(name="signed", type="boolean",  options={"default" = 0})
+     * @Groups({"list_baseS"})
+     */
+    protected $signed;
+
     
     public function __construct()
     {
@@ -185,5 +193,28 @@ class TMWorkflow
     public function getGroupEntiy()
     {
         return $this->groupEntiy;
+    }
+
+    /**
+     * Set signed
+     *
+     * @param boolean $signed
+     * @return TMWorkflow
+     */
+    public function setSigned($signed)
+    {
+        $this->signed = $signed;
+
+        return $this;
+    }
+
+    /**
+     * Get signed
+     *
+     * @return boolean 
+     */
+    public function getSigned()
+    {
+        return $this->signed;
     }
 }

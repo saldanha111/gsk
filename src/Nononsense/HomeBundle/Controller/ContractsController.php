@@ -165,7 +165,7 @@ class ContractsController extends Controller
                     $raw_response = curl_exec($ch);
                     $response = json_decode($raw_response, true);
 
-                    if (!$response["document"]) {
+                    if (!$response["version"]) {
                         $this->get('session')->getFlashBag()->add(
                             'error',
                             'Error al subir la plantilla. ' . $response["message"]
@@ -174,7 +174,7 @@ class ContractsController extends Controller
                             $this->container->get('router')->generate('nononsense_contracts_edit', ["id" => $id])
                         );
                     }
-                    $contract->setPlantillaId($response["document"]["id"]);
+                    $contract->setPlantillaId($response["id"]);
                 }
             }
 
@@ -214,7 +214,7 @@ class ContractsController extends Controller
     {
         $result = [];
         if ($templateId) {
-            $base_url = $this->getParameter('api_docoaro') . "/documents/" . $templateId;
+            $base_url = $this->getParameter('api_docoaro') . "/documents/" . $templateId."?keyPrivated=".$this->getParameter('key_privated_config_docoaro');
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, $base_url);
             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");

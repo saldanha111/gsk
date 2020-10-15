@@ -1,0 +1,83 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}DOCXPRESSO | {{'Homepage'|trans}} {% endblock %}
+{% block head %}
+{{ parent() }}
+<link rel="stylesheet" type="text/css" href="{{ asset('bundles/nononsensehome/css/adminlte.css') }}">
+{% endblock %}
+{% block main_title %} {{'Audit Trail'|trans}}{% endblock %}
+{% block content %}
+
+
+<div class="wrapper wrapper-content">
+    <div class="row">
+        <div class="col-sm-12">
+
+            <h3>{{item.name}} {{item.number}}</h3><br>
+            {% if signatures is defined and signatures|length > 0 %}
+                <ul class="timeline">
+                    {% set date = '' %}
+                    {% for key,signature in signatures %}
+                        {% if date != signature.created|date("d/m/Y") %}
+                            <!-- timeline time label -->
+                            <li class="time-label">
+                                  <span class="bg-blue">
+                                    {{signature.created|date("d/m/Y")}}
+                                  </span>
+                            </li>
+                            <!-- /.timeline-label -->
+                        {% endif %}
+                        <!-- timeline item -->
+                        <li>
+                            {% if signature.action.id == 6 %}
+                               <i class="fa fa-paper-plane bg-red"></i>
+                            {% elseif signature.action.id == 1 %}
+                               <i class="fa fa-gavel bg-orange"></i>
+                            {% elseif signature.action.id == 2 %}
+                               <i class="fa fa-scissors bg-yellow"></i>
+                            {% elseif signature.action.id == 3 %}
+                               <i class="fa fa-flask bg-aqua"></i>
+                            {% elseif signature.action.id == 4 %}
+                               <i class="fa fa-check bg-green"></i>
+                            {% elseif signature.action.id == 5 %}
+                               <i class="fa fa-gear bg-olive"></i>
+                            {% elseif signature.action.id == 7 %}
+                               <i class="fa fa-ban bg-black"></i>
+                            {% endif %}
+                          
+
+                          <div class="timeline-item">
+                            <span class="time"><i class="fa fa-clock-o"></i> {{signature.created|date("d/m/Y H:i:s")}}</span>
+
+                            <h3 class="timeline-header"><a href="#">{{signature.userEntiy.name}}</a> - {{signature.action.name}}</h3>
+
+                            <div class="timeline-body">
+                              {{signature.description is defined and signature.description is not null ? (signature.description~"<br>")|raw : ''}}
+                              <img src="{{signature.signature}}" style="height:100px">
+                              {% if signature.action.id == 3 %}
+                                <br><a href="{{path('nononsense_tm_test_new', {'id': item.id}) }}?pdf=1&test={{signature.tmTests[0].id}}&configuration={{signature.configuration}}" class="btn btn-xs btn-danger"  target="_blank"><i class="fa fa-file-pdf-o"></i> Descargar test</a>
+                              {% endif %}
+                            </div>
+                          </div>
+                        </li>
+                        {% set date = signature.created|date("d/m/Y") %}
+                    {% endfor %}
+                    <!-- END timeline item -->
+                    <li>
+                      <i class="fa fa-clock-o bg-gray"></i>
+                    </li>
+                </ul>
+            {% else %}
+            <p>No hay acciones registradas en el audittrail</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+{{ parent() }}
+<script>
+    $(document).ready(function () {
+
+    });
+</script>
+{% endblock %}

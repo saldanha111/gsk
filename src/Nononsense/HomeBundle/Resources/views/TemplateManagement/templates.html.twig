@@ -1,0 +1,251 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}DOCXPRESSO | {{'Homepage'|trans}} {% endblock %}
+{% block head %}
+{{ parent() }}
+{% endblock %}
+{% block main_title %} Plantillas {% endblock %}
+{% block content %}
+
+<div class="wrapper wrapper-content">
+    <div class="row">
+        <div class="col-sm-12">
+            <div>
+                <div>
+
+                    {% for flashMessage in app.session.flashbag.get('message') %}
+                        <div class="alert alert-success alert-dismissable" style="margin: 10px 16px 0 16px">
+                            <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                            {{ flashMessage }}
+                        </div><br>
+                    {% endfor %}
+                    {% for flashMessage in app.session.flashbag.get('error') %}
+                        <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+                            <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                            {{ flashMessage }}
+                        </div><br>
+                    {% endfor %}
+                    <form class="form-horizontal" id="form_item" action="{{ path('nononsense_tm_templates')}}" method="GET">
+                        <div class="row">
+
+                            <label class="col-sm-1 control-label item_filter">Nombre</label>
+                            <div class="col-sm-2 item_filter">
+                                <input type="text" name="name" class="form-control" value="{{filters.name is defined ? filters.name : ''}}">
+                            </div>
+
+                            <label class="col-sm-1 control-label item_filter">Nº.</label>
+                            <div class="col-sm-2 item_filter">
+                                <input type="text" name="number" class="form-control" value="{{filters.number is defined ? filters.number : ''}}">
+                            </div>
+
+                            {% if areas is defined %}
+                                <label class="col-sm-1 control-label item_filter">Area</label>
+                                <div class="col-sm-2 item_filter">
+                                  <select class="form-control" style="width: 100%;" name="area">
+                                    <option value=""></option>
+                                    {% for area in areas %}
+                                      <option value="{{area.id}}" {{ filters.area is defined and filters.area==area.id ? 'selected="selected"' : ''}}>{{area.name}}</option>
+                                    {% endfor %}
+                                  </select>
+                                </div>
+                            {% endif %}
+
+                            
+
+                            
+                        </div><br>
+                        <div class="row">  
+
+                            {% if users is defined %}
+                                <label class="col-sm-1 control-label item_filter">Solicitante</label>
+                                <div class="col-sm-2 item_filter">
+                                  <select class="form-control" style="width: 100%;" name="applicant">
+                                    <option value=""></option>
+                                    {% for user in users %}
+                                      <option value="{{user.id}}" {{ filters.applicant is defined and filters.applicant==user.id ? 'selected="selected"' : ''}}>{{user.name}}</option>
+                                    {% endfor %}
+                                  </select>
+                                </div>
+                            {% endif %}
+
+                            {% if users is defined %}
+                                <label class="col-sm-1 control-label item_filter">Dueño</label>
+                                <div class="col-sm-2 item_filter">
+                                  <select class="form-control" style="width: 100%;" name="owner">
+                                    <option value=""></option>
+                                    {% for user in users %}
+                                      <option value="{{user.id}}" {{ filters.owner is defined and filters.owner==user.id ? 'selected="selected"' : ''}}>{{user.name}}</option>
+                                    {% endfor %}
+                                  </select>
+                                </div>
+                            {% endif %}
+
+                            {% if users is defined %}
+                                <label class="col-sm-1 control-label item_filter">Backup</label>
+                                <div class="col-sm-2 item_filter">
+                                  <select class="form-control" style="width: 100%;" name="backup">
+                                    <option value=""></option>
+                                    {% for user in users %}
+                                      <option value="{{user.id}}" {{ filters.backup is defined and filters.backup==user.id ? 'selected="selected"' : ''}}>{{user.name}}</option>
+                                    {% endfor %}
+                                  </select>
+                                </div>
+                            {% endif %}
+                        </div><br>
+                        <div class="row">
+                            {% if states is defined %}
+                                <label class="col-sm-1 control-label item_filter">Estado</label>
+                                <div class="col-sm-2 item_filter">
+                                  <select class="form-control" style="width: 100%;" name="state">
+                                    <option value=""></option>
+                                    {% for state in states %}
+                                        <option value="{{state.id}}" {{ filters.state is defined and filters.state==state.id ? 'selected="selected"' : ''}}>{{state.name}}</option>
+                                    {% endfor %}
+                                  </select>
+                                </div>
+                            {% endif %}
+
+                            <div class="col-sm-1">
+                              <div class="checkbox">
+                                <label>
+                                  <input name="draft" value="1" type="checkbox" {% if filters.draft is defined and  filters.draft == true %} checked="checked" {% endif %}> DRAFT
+                                </label>
+                              </div>
+                            </div>
+
+                            <div class="col-sm-4 item_filter">
+                                <button type="submit" class="btn btn-primary">Filtrar</button>
+                            </div>
+                        </div>
+                      </form>
+                </div>
+                <br>
+                <div class="row">
+                    <table id="inProcessParcial" class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>Nº.</th>
+                            <th>Ed.</th>
+                            <th>Nombre</th>
+                            <th>Area</th>
+                            <th>Solicitante</th>
+                            <th>F.efectiva</th>
+                            <th>F.revisión</th>
+                            <th>Dueño</th>
+                            <th>Backup</th>
+                            <th>Norma.ref</th>
+                            <th>Estado</th>
+                            <th>Inactiva</th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        {% if items is defined %}
+                            {% for item in items %}
+                            <tr>
+                                <td>{{item.id}}</td>
+                                <td>{{item.number}}</td>
+                                <td>{{item.numEdition}}</td>
+                                <td><a href="{{path('nononsense_tm_template_detail', {'id': item.id}) }}">{{item.name}}</a></td>
+                                <td>{{item.nameArea}}</td>
+                                <td>{{item.applicantName}}</td>
+                                <td>{{item.effectiveDate is defined and item.effectiveDate is not null ? item.effectiveDate|date("d/m/Y") : ''}}</td>
+                                <td>{{item.reviewDate is defined and item.reviewDate is not null ? item.reviewDate|date("d/m/Y") : ''}}</td>
+                                <td>{{item.ownerName}}</td>
+                                <td>{{item.backupName}}</td>
+                                <td>{{item.reference}}</td>
+                                <td>{{item.stateName}}</td>
+                                <td>{{item.inactive is defined and item.inactive  ? 'Si' : 'No'}}</td>
+                                <td>
+                                    <div class="btn-group btn-xs">
+                                        <button type="button" class="btn btn-xs btn-primary" data-toggle="dropdown"><i class="fa fa-ellipsis-h"></i></button>
+                                        <button type="button" class="btn btn-xs btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                          <span class="caret"></span>
+                                          <span class="sr-only">Toggle Dropdown</span>
+                                        </button>
+                                        <ul class="dropdown-menu" role="menu">
+                                            {% if item.status == 6 %}
+                                                <li><a href="{{path('nononsense_tm_request')}}?id={{item.id}}"><i class="fa fa-archive"></i> {{ 'Nueva edición'|trans }}</a></li>
+                                            {% endif %}
+                                            <li><a href="{{path('nononsense_tm_template_changes_history', {'id': item.id})}}"><i class="fa fa-file-text-o"></i> {{ ' Historial de cambios'|trans }}</a></li>
+                                            <li><a href="{{path('nononsense_tm_template_audit_trail', {'id': item.id})}}"><i class="fa fa-book"></i> {{ 'Audit Trail'|trans }}</a></li>
+                                            <li><a href="{{path('nononsense_tm_template_cover_page', {'id': item.id})}}"><i class="fa fa-print"></i> {{ 'Imprimir plantilla'|trans }}</a></li>
+                                        </ul>
+                                    </div>
+                                </td>
+                                <td>
+                                    {% if item.status == 1 %}
+                                        <a class="btn btn-xs btn-danger" href="{{path('nononsense_tm_template_detail', {'id': item.id}) }}" target="_self"><i class="fa fa-gavel" aria-hidden="true"></i> {{'Consultar solicitud'|trans}}</a>
+                                    {% endif %}
+
+                                    {% if item.status == 2 %}
+                                        <a class="btn btn-xs btn-danger" href="{{path('nononsense_tm_elaborate_detail', {'id': item.id}) }}" target="_self"><i class="fa fa-scissors" aria-hidden="true"></i> {{'Elaborar'|trans}}</a>
+                                    {% endif %}
+
+                                    {% if item.status == 3 %}
+                                        <a class="btn btn-xs btn-danger" href="{{path('nononsense_tm_test_detail', {'id': item.id}) }}" target="_self"><i class="fa fa-flask" aria-hidden="true"></i> {{'Testear'|trans}}</a>
+                                    {% endif %}
+
+                                    {% if item.status == 4 %}
+                                        <a class="btn btn-xs btn-danger" href="#" target="_self"><i class="fa fa-check" aria-hidden="true"></i> {{'Aprobar'|trans}}</a>
+                                    {% endif %}
+
+                                    {% if item.status == 5 %}
+                                        <a class="btn btn-xs btn-danger" href="#" target="_self"><i class="fa fa-gear" aria-hidden="true"></i> {{'Configurar'|trans}}</a>
+                                    {% endif %}
+
+                                    {% if item.status == 6 %}
+                                        <a class="btn btn-xs btn-primary disabled" href="#" target="_self"><i class="fa fa-thumbs-o-up" aria-hidden="true"></i> {{'En vigor'|trans}}</a>
+                                    {% endif %}
+
+                                    {% if item.status == 7 %}
+                                        <a class="btn btn-xs btn-default disabled" href="#" target="_self"><i class="fa fa-ban" aria-hidden="true"></i> {{'Obsoleta'|trans}}</a>
+                                    {% endif %}
+                                </td>
+                                
+                                <th>
+                                    {% if item.status == 6 and not item.inactive %}
+                                        <a class="btn btn-xs btn-danger" href="#" target="_self"><i class="fa fa-pencil" aria-hidden="true"></i> {{'Iniciar cumpl.'|trans}}</a>
+                                    {% endif %}
+                                </th>
+                            </tr>
+                            {% endfor %}
+                        {% endif %}
+                    </table>
+                    {% if count==0 %}
+                        <br><b>No se han encontrado solicitudes disponibles</b>
+                    {% endif %}
+                    {% if pagination is defined and pagination.needed %}
+                        {% include '::pagination2.html.twig' %}
+                    {% endif %}
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+{{ parent() }}
+<script>
+$( document ).ready(function() {
+    {% if filters.state is defined %}
+        {% if filters.state==1 %}
+            ActivateMenu('solicitudes_gestion_plantillas');
+        {% elseif filters.state==2 %}
+            ActivateMenu('elaboracion_gestion_plantillas');
+        {% elseif filters.state==3 %}
+            ActivateMenu('test_gestion_plantillas');
+        {% elseif filters.state==4 %}
+            ActivateMenu('aprobacion_gestion_plantillas');
+        {% elseif filters.state==5 %}
+            ActivateMenu('pendientes_gestion_plantillas');
+        {% else %}
+            ActivateMenu('en_vigor_gestion_plantillas');
+        {% endif %}
+    {% endif %}
+    $('#side-menu').metisMenu();
+});
+</script>
+{% endblock %}

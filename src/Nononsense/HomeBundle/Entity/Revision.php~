@@ -61,13 +61,13 @@ class Revision
 
     /**
      * @var integer
-     * @ORM\Column(name="$userrevisionid", type="integer", options={"default" = 3})
+     * @ORM\Column(name="userrevisionid", type="integer", options={"default" = 3})
      */
     protected $userrevisionid;
 
     /**
      * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="Revisions")
-     * @ORM\JoinColumn(name="$userrevisionid", referencedColumnName="id")
+     * @ORM\JoinColumn(name="userrevisionid", referencedColumnName="id")
      */
     protected $userRevisionEntiy;
 

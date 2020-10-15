@@ -677,17 +677,90 @@ nononsense_tm_request_save:
     methods:    [POST]
     defaults: { _controller: NononsenseHomeBundle:TemplateManagementRequest:saveCreate}
 
+nononsense_tm_template_changes_history:
+    path: /mt/templates/{id}/list
+    methods:    [GET]
+    defaults: { _controller: NononsenseHomeBundle:TemplateManagementTemplates:changesHistory,id: 0}
+
+nononsense_tm_template_audit_trail:
+    path: /mt/templates/{id}/audittrail
+    methods:    [GET]
+    defaults: { _controller: NononsenseHomeBundle:TemplateManagementTemplates:auditTrail,id: 0}
+
+nononsense_tm_template_cover_page:
+    path: /mt/templates/{id}/coverpage
+    methods:    [GET]
+    defaults: { _controller: NononsenseHomeBundle:TemplateManagementTemplates:coverPage,id: 0}
+
+
+nononsense_tm_templates:
+    path: /mt/templates
+    methods:    [GET]
+    defaults: { _controller: NononsenseHomeBundle:TemplateManagementTemplates:list}
+
+nononsense_tm_template_action_pending:
+    path: /mt/templates/{id}/actionrequest
+    methods:    [POST]
+    defaults: { _controller: NononsenseHomeBundle:TemplateManagementTemplates:actionRequest,id: 0}
+
+nononsense_tm_template_detail:
+    path: /mt/templates/{id}
+    methods:    [GET]
+    defaults: { _controller: NononsenseHomeBundle:TemplateManagementTemplates:detail,id: 0}
+
+nononsense_tm_elaborate_detail:
+    path: /mt/elaborate/{id}
+    methods:    [GET]
+    defaults: { _controller: NononsenseHomeBundle:TemplateElaborateTemplates:detail,id: 0}
+
+nononsense_tm_elaborate_update:
+    path: /mt/elaborate/{id}
+    methods:    [POST]
+    defaults: { _controller: NononsenseHomeBundle:TemplateElaborateTemplates:update,id: 0}
+
+nononsense_tm_elaborate_configuration:
+    path: /mt/elaborate/{id}/configuration
+    methods:    [GET]
+    defaults: { _controller: NononsenseHomeBundle:TemplateElaborateTemplates:configuration,id: 0}
+
+nononsense_tm_elaborate_restore:
+    path: /mt/elaborate/{id}/restore
+    methods:    [POST]
+    defaults: { _controller: NononsenseHomeBundle:TemplateElaborateTemplates:restoreLastConfiguration,id: 0}
+
+nononsense_tm_test_detail:
+    path: /mt/test/{id}
+    methods:    [GET]
+    defaults: { _controller: NononsenseHomeBundle:TemplateTestTemplates:detail,id: 0}
+
+nononsense_tm_test_update:
+    path: /mt/test/{id}
+    methods:    [POST]
+    defaults: { _controller: NononsenseHomeBundle:TemplateTestTemplates:update,id: 0}
+
+nononsense_tm_test_new:
+    path: /mt/test/{id}/new
+    methods:    [GET]
+    defaults: { _controller: NononsenseHomeBundle:TemplateTestTemplates:link,id: 0}
+
+nononsense_tm_test_get_data:
+    path: /mt/test/{id}/getdata
+    methods:    [GET]
+    defaults: { _controller: NononsenseHomeBundle:TemplateTestTemplates:getData,id: 0}
+
+nononsense_tm_test_save_data:
+    path: /mt/test/{id}/save
+    methods:    [POST]
+    defaults: { _controller: NononsenseHomeBundle:TemplateTestTemplates:save,id: 0}
+
 nononsense_tm_request_detail:
     path: /mt/requests/0
+    methods:    [GET]
     defaults: { _controller: NononsenseHomeBundle:TemplateManagementRequest:detail}
 
 nononsense_tm_request_preadmin:
     path: /mt/requests/preadmin
     defaults: { _controller: NononsenseHomeBundle:TemplateManagementRequest:edit}
-
-nononsense_tm_requests:
-    path: /mt/requests
-    defaults: { _controller: NononsenseHomeBundle:TemplateManagementRequest:list}
 
 nononsense_templates_active_json:
     path:     /templates/active/json

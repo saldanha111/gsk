@@ -20,7 +20,7 @@ class TMTemplates
      * @ORM\Column(type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
-     * @Groups({"detail_document","json","detail_area"})
+     * @Groups({"detail_document","json","detail","detail_area"})
      */
     protected $id;
     
@@ -29,7 +29,7 @@ class TMTemplates
      *
      * @ORM\Column(name="name", type="string", length=200)
      * @Assert\NotBlank(message = "You shoud insert a name")
-     * @Groups({"detail_document","json","detail_area"})
+     * @Groups({"detail_document","json","detail","detail_area"})
      */
     protected $name;
 
@@ -46,9 +46,17 @@ class TMTemplates
      * @var string
      *
      * @ORM\Column(name="number", type="string")
-     * @Groups({"detail_document","json"})
+     * @Groups({"detail_document","json","detail","detail_area"})
      */
     protected $number;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="reference", type="string", nullable=true)
+     * @Groups({"detail_document","json"})
+     */
+    protected $reference;
 
     /**
      * @var integer
@@ -121,6 +129,14 @@ class TMTemplates
     protected $isSimple;
 
     /**
+     * @var boolean $inactive
+     *
+     * @ORM\Column(name="inactive", type="boolean",  options={"default" = false}, nullable=true)
+     * @Groups({"detail_document"})
+     */
+    protected $inactive;
+
+    /**
      * @ORM\Column(type="date")
      */
     protected $created;
@@ -129,6 +145,21 @@ class TMTemplates
      * @ORM\Column(type="date")
      */
     protected $modified;
+
+    /**
+     * @ORM\Column(type="date", nullable=true)
+     */
+    protected $estimatedEffectiveDate;
+
+    /**
+     * @ORM\Column(type="date", nullable=true)
+     */
+    protected $effectiveDate;
+
+    /**
+     * @ORM\Column(type="date", nullable=true)
+     */
+    protected $reviewDate;
 
     /**
      * @ORM\ManyToMany(targetEntity="\Nononsense\HomeBundle\Entity\RetentionCategories", inversedBy="templates")
@@ -166,9 +197,53 @@ class TMTemplates
     protected $tmWorkflows;
 
     /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMSecondWorkflow", mappedBy="template")
+     */
+    protected $tmSecondWorkflows;
+
+    /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\Areas", mappedBy="template")
      */
     protected $areas;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="ownerTemplates")
+     * @ORM\JoinColumn(name="owner_id", referencedColumnName="id")
+     */
+    protected $owner;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="backupTeamplates")
+     * @ORM\JoinColumn(name="backup_id", referencedColumnName="id")
+     */
+    protected $backup;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="applicantTeamplates")
+     * @ORM\JoinColumn(name="applicant_id", referencedColumnName="id")
+     */
+    protected $applicant;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="openedByTeamplates")
+     * @ORM\JoinColumn(name="opened_by_id", referencedColumnName="id", nullable=true)
+     */
+    protected $openedBy;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="token", type="string", nullable=true)
+     */
+    protected $token;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="tmp_configuration", type="string", nullable=true)
+     */
+    protected $tmpConfiguration;
+
 
 
     public function __construct()
@@ -750,5 +825,291 @@ class TMTemplates
     public function getNumberId()
     {
         return $this->number_id;
+    }
+
+    /**
+     * Set owner
+     *
+     * @param \Nononsense\UserBundle\Entity\Users $owner
+     * @return TMTemplates
+     */
+    public function setOwner(\Nononsense\UserBundle\Entity\Users $owner = null)
+    {
+        $this->owner = $owner;
+
+        return $this;
+    }
+
+    /**
+     * Get owner
+     *
+     * @return \Nononsense\UserBundle\Entity\Users 
+     */
+    public function getOwner()
+    {
+        return $this->owner;
+    }
+
+    /**
+     * Set backup
+     *
+     * @param \Nononsense\UserBundle\Entity\Users $backup
+     * @return TMTemplates
+     */
+    public function setBackup(\Nononsense\UserBundle\Entity\Users $backup = null)
+    {
+        $this->backup = $backup;
+
+        return $this;
+    }
+
+    /**
+     * Get backup
+     *
+     * @return \Nononsense\UserBundle\Entity\Users 
+     */
+    public function getBackup()
+    {
+        return $this->backup;
+    }
+
+    /**
+     * Set reference
+     *
+     * @param string $reference
+     * @return TMTemplates
+     */
+    public function setReference($reference)
+    {
+        $this->reference = $reference;
+
+        return $this;
+    }
+
+    /**
+     * Get reference
+     *
+     * @return string 
+     */
+    public function getReference()
+    {
+        return $this->reference;
+    }
+
+    /**
+     * Set applicant
+     *
+     * @param \Nononsense\UserBundle\Entity\Users $applicant
+     * @return TMTemplates
+     */
+    public function setApplicant(\Nononsense\UserBundle\Entity\Users $applicant = null)
+    {
+        $this->applicant = $applicant;
+
+        return $this;
+    }
+
+    /**
+     * Get applicant
+     *
+     * @return \Nononsense\UserBundle\Entity\Users 
+     */
+    public function getApplicant()
+    {
+        return $this->applicant;
+    }
+
+    /**
+     * Set inactive
+     *
+     * @param boolean $inactive
+     * @return TMTemplates
+     */
+    public function setInactive($inactive)
+    {
+        $this->inactive = $inactive;
+
+        return $this;
+    }
+
+    /**
+     * Get inactive
+     *
+     * @return boolean 
+     */
+    public function getInactive()
+    {
+        return $this->inactive;
+    }
+
+    /**
+     * Set estimatedEffectiveDate
+     *
+     * @param \DateTime $estimatedEffectiveDate
+     * @return TMTemplates
+     */
+    public function setEstimatedEffectiveDate($estimatedEffectiveDate)
+    {
+        $this->estimatedEffectiveDate = $estimatedEffectiveDate;
+
+        return $this;
+    }
+
+    /**
+     * Get estimatedEffectiveDate
+     *
+     * @return \DateTime 
+     */
+    public function getEstimatedEffectiveDate()
+    {
+        return $this->estimatedEffectiveDate;
+    }
+
+    /**
+     * Set effectiveDate
+     *
+     * @param \DateTime $effectiveDate
+     * @return TMTemplates
+     */
+    public function setEffectiveDate($effectiveDate)
+    {
+        $this->effectiveDate = $effectiveDate;
+
+        return $this;
+    }
+
+    /**
+     * Get effectiveDate
+     *
+     * @return \DateTime 
+     */
+    public function getEffectiveDate()
+    {
+        return $this->effectiveDate;
+    }
+
+    /**
+     * Set reviewDate
+     *
+     * @param \DateTime $reviewDate
+     * @return TMTemplates
+     */
+    public function setReviewDate($reviewDate)
+    {
+        $this->reviewDate = $reviewDate;
+
+        return $this;
+    }
+
+    /**
+     * Get reviewDate
+     *
+     * @return \DateTime 
+     */
+    public function getReviewDate()
+    {
+        return $this->reviewDate;
+    }
+
+    /**
+     * Set token
+     *
+     * @param string $token
+     * @return TMTemplates
+     */
+    public function setToken($token)
+    {
+        $this->token = $token;
+
+        return $this;
+    }
+
+    /**
+     * Get token
+     *
+     * @return string 
+     */
+    public function getToken()
+    {
+        return $this->token;
+    }
+
+    /**
+     * Set openedBy
+     *
+     * @param \Nononsense\UserBundle\Entity\Users $openedBy
+     * @return TMTemplates
+     */
+    public function setOpenedBy(\Nononsense\UserBundle\Entity\Users $openedBy = null)
+    {
+        $this->openedBy = $openedBy;
+
+        return $this;
+    }
+
+    /**
+     * Get openedBy
+     *
+     * @return \Nononsense\UserBundle\Entity\Users 
+     */
+    public function getOpenedBy()
+    {
+        return $this->openedBy;
+    }
+
+    /**
+     * Set tmpConfiguration
+     *
+     * @param string $tmpConfiguration
+     * @return TMTemplates
+     */
+    public function setTmpConfiguration($tmpConfiguration)
+    {
+        $this->tmpConfiguration = $tmpConfiguration;
+
+        return $this;
+    }
+
+    /**
+     * Get tmpConfiguration
+     *
+     * @return string 
+     */
+    public function getTmpConfiguration()
+    {
+        return $this->tmpConfiguration;
+    }
+
+    /**
+     * Add tmSecondWorkflows
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMSecondWorkflow $tmSecondWorkflows
+     * @return TMTemplates
+     */
+    public function addTmSecondWorkflow(\Nononsense\HomeBundle\Entity\TMSecondWorkflow $tmSecondWorkflows)
+    {
+        $this->tmSecondWorkflows[] = $tmSecondWorkflows;
+
+        return $this;
+    }
+
+    /**
+     * Remove tmSecondWorkflows
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMSecondWorkflow $tmSecondWorkflows
+     */
+    public function removeTmSecondWorkflow(\Nononsense\HomeBundle\Entity\TMSecondWorkflow $tmSecondWorkflows)
+    {
+        $this->tmSecondWorkflows->removeElement($tmSecondWorkflows);
+    }
+
+    /**
+     * Get tmSecondWorkflows
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getTmSecondWorkflows()
+    {
+        return $this->tmSecondWorkflows;
     }
 }

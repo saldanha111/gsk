@@ -42,29 +42,32 @@
                         {% endif %}
                         {% if 'admin_gp' in array_subsecciones %}
                             <li id="solicitudes_gestion_plantillas">
-                                <a href="{{path('nononsense_tm_requests')}}"><span class="nav-label">Solicitudes pendientes</span></a>
+                                <a href="{{path('nononsense_tm_templates')}}?state=1"><span class="nav-label">Solicitudes pendientes</span></a>
                             </li>
                         {% endif %}
                         {% if 'elaborador_gp' in array_subsecciones %}
                             <li id="elaboracion_gestion_plantillas">
-                                <a href="#"><span class="nav-label">En elaboración</span></a>
+                                <a href="{{path('nononsense_tm_templates')}}?state=2"><span class="nav-label">En elaboración</span></a>
                             </li>
                         {% endif %}
                         {% if 'tester_gp' in array_subsecciones %}
                             <li id="test_gestion_plantillas">
-                                <a href="#"><span class="nav-label">En test</span></a>
+                                <a href="{{path('nononsense_tm_templates')}}?state=3"><span class="nav-label">En test</span></a>
                             </li>
                         {% endif %}
                         {% if 'aprobador_gp' in array_subsecciones %}
                             <li id="aprobacion_gestion_plantillas">
-                                <a href="#"><span class="nav-label">En aprobación</span></a>
+                                <a href="{{path('nononsense_tm_templates')}}?state=4"><span class="nav-label">En aprobación</span></a>
                             </li>
                         {% endif %}
                         {% if 'admin_gp' in array_subsecciones %}
                             <li id="pendientes_gestion_plantillas">
-                                <a href="#"><span class="nav-label">Pdt. puesta en vigor</span></a>
+                                <a href="{{path('nononsense_tm_templates')}}?state=5"><span class="nav-label">Pdt. puesta en vigor</span></a>
                             </li>
                         {% endif %}
+                            <li id="en_vigor_gestion_plantillas">
+                                <a href="{{path('nononsense_tm_templates')}}?state=6"><span class="nav-label">En vigor</span></a>
+                            </li>
                     </ul>
                 </li>
             {% endif %}

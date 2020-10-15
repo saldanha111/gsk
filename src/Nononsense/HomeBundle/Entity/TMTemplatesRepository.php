@@ -20,7 +20,7 @@ class TMTemplatesRepository extends EntityRepository
         $logical=" AND ";
 
         if(isset($filters["no_request_in_proccess"]) && $filters["no_request_in_proccess"]==1){
-            $sintax.=" AND (SELECT COUNT(aux.template_id) FROM Nononsense\HomeBundle\Entity\TMTemplates aux WHERE aux.tmState IN (1,2,3,4,5))=0";
+            $sintax.=" AND ((SELECT COUNT(aux.template_id) FROM Nononsense\HomeBundle\Entity\TMTemplates aux WHERE aux.tmState IN (1,2,3,4,5))=0)";
         }
 
         if(!empty($filters)){
@@ -57,4 +57,176 @@ class TMTemplatesRepository extends EntityRepository
 
         return $items;
     }
+
+    public function list($filters)
+    {
+        $em = $this->getEntityManager();
+
+        $sintax=" ";
+        $logical=" WHERE ";
+        $orderby=" ORDER BY t.id DESC";
+
+        if(!empty($filters)){
+
+            if(isset($filters["name"])){
+                $terms = explode(" ", $filters["name"]);
+                foreach($terms as $key => $term){
+                    $sintax.=$logical." t.name LIKE :name".$key;
+                    $parameters["name".$key]="%".$term."%";
+                    $logical=" AND ";
+                }
+            }
+
+            if(isset($filters["number"])){
+                $sintax.=$logical." t.number=:number";
+                $parameters["number"]=$filters["number"];
+                $logical=" AND ";
+            }
+
+            if(isset($filters["area"])){
+                $sintax.=$logical." a.id=:area";
+                $parameters["area"]=$filters["area"];
+                $logical=" AND ";
+            }
+
+            if(isset($filters["state"])){
+                $sintax.=$logical." s.id=:state";
+                $parameters["state"]=$filters["state"];
+                $logical=" AND ";
+            }
+
+            if(isset($filters["applicant"])){
+                $sintax.=$logical." ua.id=:applicant";
+                $parameters["applicant"]=$filters["applicant"];
+                $logical=" AND ";
+            }
+
+            if(isset($filters["owner"])){
+                $sintax.=$logical." uo.id=:owner";
+                $parameters["owner"]=$filters["owner"];
+                $logical=" AND ";
+            }
+
+            if(isset($filters["backup"])){
+                $sintax.=$logical." ub.id=:backup";
+                $parameters["backup"]=$filters["backup"];
+                $logical=" AND ";
+            }
+
+            if(isset($filters["draft"])){
+                $sintax.=$logical." s.id<5";
+                $logical=" AND ";
+            }
+
+            if(isset($filters["changes_history"])){
+                $sintax.=$logical." (t.id=:changes_history1 OR t.firstEdition=:changes_history2)";
+                $parameters["changes_history1"]=$filters["changes_history"];
+                $parameters["changes_history2"]=$filters["changes_history"];
+                $logical=" AND ";
+                $orderby="Order by t.id ASC";
+            }
+        }
+
+
+        $query = $em->createQuery("SELECT t.id,t.name,a.name nameArea,t.number,t.numEdition,s.id status,t.inactive,s.name stateName,t.created,t.reference,ua.name applicantName,uo.name ownerName,ub.name backupName,t.effectiveDate,t.reviewDate,t.historyChange FROM Nononsense\HomeBundle\Entity\TMTemplates t LEFT JOIN Nononsense\HomeBundle\Entity\Areas a WITH t.area=a.id LEFT JOIN Nononsense\HomeBundle\Entity\TMStates s WITH t.tmState=s.id LEFT JOIN Nononsense\UserBundle\Entity\Users ua WITH t.applicant=ua.id LEFT JOIN Nononsense\UserBundle\Entity\Users uo WITH t.owner=uo.id LEFT JOIN Nononsense\UserBundle\Entity\Users ub WITH t.backup=ub.id ".$sintax." ".$orderby);
+
+        if(isset($filters["limit_from"])){
+            $query->setFirstResult($filters["limit_from"]*$filters["limit_many"])->setMaxResults($filters["limit_many"]);
+        }
+        
+        if(!empty($parameters)){
+            $query->setParameters($parameters);
+        }
+
+        $items=$query->getResult();
+
+        return $items;
+    }
+
+    public function count($filters = array(),$types = array())
+    {
+        $em = $this->getEntityManager();
+
+        $sintax=" ";
+        $logical=" WHERE ";
+
+        if(!empty($filters)){
+
+            if(isset($filters["name"])){
+                $terms = explode(" ", $filters["name"]);
+                foreach($terms as $key => $term){
+                    $sintax.=$logical." t.name LIKE :name".$key;
+                    $parameters["name".$key]="%".$term."%";
+                    $logical=" AND ";
+                }
+            }
+
+            if(isset($filters["number"])){
+                $sintax.=$logical." t.number=:number";
+                $parameters["number"]=$filters["number"];
+                $logical=" AND ";
+            }
+
+            if(isset($filters["area"])){
+                $sintax.=$logical." a.id=:area";
+                $parameters["area"]=$filters["area"];
+                $logical=" AND ";
+            }
+
+            if(isset($filters["state"])){
+                $sintax.=$logical." s.id=:state";
+                $parameters["state"]=$filters["state"];
+                $logical=" AND ";
+            }
+
+            if(isset($filters["applicant"])){
+                $sintax.=$logical." ua.id=:applicant";
+                $parameters["applicant"]=$filters["applicant"];
+                $logical=" AND ";
+            }
+
+            if(isset($filters["owner"])){
+                $sintax.=$logical." uo.id=:owner";
+                $parameters["owner"]=$filters["owner"];
+                $logical=" AND ";
+            }
+
+            if(isset($filters["backup"])){
+                $sintax.=$logical." ub.id=:backup";
+                $parameters["backup"]=$filters["backup"];
+                $logical=" AND ";
+            }
+
+            if(isset($filters["draft"])){
+                $sintax.=$logical." s.id<5";
+                $logical=" AND ";
+            }
+
+            if(isset($filters["changes_history"])){
+                $sintax.=$logical." (t.id=:changes_history1 OR t.firstEdition=:changes_history2)";
+                $parameters["changes_history1"]=$filters["changes_history"];
+                $parameters["changes_history2"]=$filters["changes_history"];
+                $logical=" AND ";
+                $orderby="Order by t.id ASC";
+            }
+        }
+
+
+        $query = $em->createQuery("SELECT COUNT(t.id) conta FROM Nononsense\HomeBundle\Entity\TMTemplates t LEFT JOIN Nononsense\HomeBundle\Entity\Areas a WITH t.area=a.id LEFT JOIN Nononsense\HomeBundle\Entity\TMStates s WITH t.tmState=s.id LEFT JOIN Nononsense\UserBundle\Entity\Users ua WITH t.applicant=ua.id LEFT JOIN Nononsense\UserBundle\Entity\Users uo WITH t.owner=uo.id LEFT JOIN Nononsense\UserBundle\Entity\Users ub WITH t.backup=ub.id ".$sintax);
+
+        if(isset($filters["limit_from"])){
+            $query->setFirstResult($filters["limit_from"]*$filters["limit_many"])->setMaxResults($filters["limit_many"]);
+        }
+        
+        if(!empty($parameters)){
+            $query->setParameters($parameters);
+        }
+
+        $items=$query->getResult();
+
+        $item=$query->getSingleResult()["conta"];
+
+        return $item;
+    }
+
 }

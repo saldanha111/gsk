@@ -1,0 +1,85 @@
+{% extends '::base.html.twig' %}
+{% block page_title %} {{template.name}} | {{template.number}} |
+{{template.tmState.id<5 ? 'DRAFT' : ''}}
+{{template.tmState.id==7 ? 'Confidencial. Es responsabilidad del usuario el uso de esta información' : ''}}
+{{template.tmState.id==8 ? 'BAJA' : ''}}
+{% endblock %}
+{% block head %}
+{{ parent() }}
+{% endblock %}
+{% block main_title %} {{'Cover Page'|trans}}{% endblock %}
+{% block content %}
+
+
+<div class="wrapper wrapper-content">
+    <div class="row">
+        <div class="col-sm-12">
+            <div id="cover_page">
+                <br><img src="/img/logo-gsk.png"/><br><br><br>
+                Nombre: <b>{{template.name}}</b><br>
+                Código Plantilla: <b>{{template.number}}</b><br>
+                Edición: <b>{{template.numEdition}}</b><br>
+                Norma de referencia: <b>{{template.reference}}</b><br>
+                Historia del cambio: <b>{{template.historyChange}}</b><br>
+                Estado: <b>{{template.tmState.name}}</b><br>
+                {{template.tmState.id<5 ? '<b>Draft</b><br>' : ''}}
+                MudID: <b>{{app.user.id}}</b><br>
+                Fecha impresión:<b>{{ "now"|date("d/m/Y H:i:s") }}</b><br>
+                {{template.effectiveDate is defined and template.effectiveDate is not null ? ('Fecha efectiva: <b>'~template.effectiveDate|date("d/m/Y")~'</b><br>')|raw : ''}}
+                {{template.reviewDate is defined and template.reviewDate is not null ? ('Fecha de revisión periódica: <b>'~template.reviewDate|date("d/m/Y")~'</b><br>')|raw : ''}}
+                {% if signatures is defined and signatures|length > 0 %}
+                    <br><br><table id="inProcess" class="table" style="font-size:13px">
+                        <thead>
+                        <tr>
+                            <th style="font-size:13px">Nº</th>
+                            <th style="font-size:13px">Nombre</th>
+                            <th style="font-size:13px">Acción</th>
+                            <th style="font-size:13px">Fecha</th>
+                            <th style="font-size:13px">Firma</th>
+                        </tr>
+                        </thead>
+                        {% for key,signature in signatures %}
+
+                            <tr>
+                                <td style="font-size:13px">{{key+1}}</td>
+                                <td style="font-size:13px">{{signature.userEntiy.name}}</td>
+                                <td style="font-size:13px">{{signature.action.name}}</td>
+                                <td style="font-size:13px">{{signature.created is defined and signature.created is not null ? signature.created|date("d/m/Y H:i:s") : ''}}</td>
+                                <td style="font-size:13px" rowspan="2"><img src="{{signature.signature}}" style="height:100px"></td>
+                            </tr>
+                            <tr>
+                                <td colspan="4">{{signature.description}}</td>
+                            </tr>
+                            
+                        {% endfor %}
+                    </table>
+                {% endif %}
+                
+                <div style="page-break-before: always;"></div>
+                {{html|raw}}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+{{ parent() }}
+<script>
+$(function () {
+    $("#cover_page").print({
+        globalStyles: true,
+        mediaPrint: false,
+        stylesheet: null,
+        noPrintSelector: ".no-print",
+        iframe: true,
+        append: null,
+        prepend: null,
+        manuallyCopyFormValues: true,
+        deferred: $.Deferred(),
+        timeout: 5750,
+        title: null,
+        doctype: '<!doctype html>'
+    });
+});
+</script>
+{% endblock %}

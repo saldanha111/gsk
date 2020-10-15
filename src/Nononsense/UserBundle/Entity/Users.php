@@ -211,9 +211,34 @@ class Users implements AdvancedUserInterface, \Serializable
     protected $Firmas;
 
     /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMTests", mappedBy="userEntiy")
+     */
+    protected $tmTests;
+
+    /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMSignatures", mappedBy="userEntiy")
      */
     protected $tmSignatures;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMTemplates", mappedBy="owner")
+     */
+    protected $ownerTemplates;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMTemplates", mappedBy="backup")
+     */
+    protected $backupTeamplates;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMTemplates", mappedBy="applicant")
+     */
+    protected $applicantTeamplates;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMTemplates", mappedBy="openedBy")
+     */
+    protected $openedByTeamplates;
 
     /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMWorkflow", mappedBy="userEntiy")
@@ -2048,5 +2073,170 @@ class Users implements AdvancedUserInterface, \Serializable
     public function getPinComite()
     {
         return $this->pinComite;
+    }
+
+    /**
+     * Add ownerTemplates
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMTemplates $ownerTemplates
+     * @return Users
+     */
+    public function addOwnerTemplate(\Nononsense\HomeBundle\Entity\TMTemplates $ownerTemplates)
+    {
+        $this->ownerTemplates[] = $ownerTemplates;
+
+        return $this;
+    }
+
+    /**
+     * Remove ownerTemplates
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMTemplates $ownerTemplates
+     */
+    public function removeOwnerTemplate(\Nononsense\HomeBundle\Entity\TMTemplates $ownerTemplates)
+    {
+        $this->ownerTemplates->removeElement($ownerTemplates);
+    }
+
+    /**
+     * Get ownerTemplates
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getOwnerTemplates()
+    {
+        return $this->ownerTemplates;
+    }
+
+    /**
+     * Add backupTeamplates
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMTemplates $backupTeamplates
+     * @return Users
+     */
+    public function addBackupTeamplate(\Nononsense\HomeBundle\Entity\TMTemplates $backupTeamplates)
+    {
+        $this->backupTeamplates[] = $backupTeamplates;
+
+        return $this;
+    }
+
+    /**
+     * Remove backupTeamplates
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMTemplates $backupTeamplates
+     */
+    public function removeBackupTeamplate(\Nononsense\HomeBundle\Entity\TMTemplates $backupTeamplates)
+    {
+        $this->backupTeamplates->removeElement($backupTeamplates);
+    }
+
+    /**
+     * Get backupTeamplates
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getBackupTeamplates()
+    {
+        return $this->backupTeamplates;
+    }
+
+    /**
+     * Add applicantTeamplates
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMTemplates $applicantTeamplates
+     * @return Users
+     */
+    public function addApplicantTeamplate(\Nononsense\HomeBundle\Entity\TMTemplates $applicantTeamplates)
+    {
+        $this->applicantTeamplates[] = $applicantTeamplates;
+
+        return $this;
+    }
+
+    /**
+     * Remove applicantTeamplates
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMTemplates $applicantTeamplates
+     */
+    public function removeApplicantTeamplate(\Nononsense\HomeBundle\Entity\TMTemplates $applicantTeamplates)
+    {
+        $this->applicantTeamplates->removeElement($applicantTeamplates);
+    }
+
+    /**
+     * Get applicantTeamplates
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getApplicantTeamplates()
+    {
+        return $this->applicantTeamplates;
+    }
+
+    /**
+     * Add openedByTeamplates
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMTemplates $openedByTeamplates
+     * @return Users
+     */
+    public function addOpenedByTeamplate(\Nononsense\HomeBundle\Entity\TMTemplates $openedByTeamplates)
+    {
+        $this->openedByTeamplates[] = $openedByTeamplates;
+
+        return $this;
+    }
+
+    /**
+     * Remove openedByTeamplates
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMTemplates $openedByTeamplates
+     */
+    public function removeOpenedByTeamplate(\Nononsense\HomeBundle\Entity\TMTemplates $openedByTeamplates)
+    {
+        $this->openedByTeamplates->removeElement($openedByTeamplates);
+    }
+
+    /**
+     * Get openedByTeamplates
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getOpenedByTeamplates()
+    {
+        return $this->openedByTeamplates;
+    }
+
+    /**
+     * Add tmTests
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMTests $tmTests
+     * @return Users
+     */
+    public function addTmTest(\Nononsense\HomeBundle\Entity\TMTests $tmTests)
+    {
+        $this->tmTests[] = $tmTests;
+
+        return $this;
+    }
+
+    /**
+     * Remove tmTests
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMTests $tmTests
+     */
+    public function removeTmTest(\Nononsense\HomeBundle\Entity\TMTests $tmTests)
+    {
+        $this->tmTests->removeElement($tmTests);
+    }
+
+    /**
+     * Get tmTests
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getTmTests()
+    {
+        return $this->tmTests;
     }
 }

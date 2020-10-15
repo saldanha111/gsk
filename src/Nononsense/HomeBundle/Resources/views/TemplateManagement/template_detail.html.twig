@@ -1,0 +1,213 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}DOCXPRESSO | {{'Homepage'|trans}} {% endblock %}
+{% block head %}
+{{ parent() }}
+{% endblock %}
+{% block main_title %} {{'Detalle de la solicitud'|trans}}{% endblock %}
+{% block content %}
+
+
+<div class="wrapper wrapper-content">
+        <div class="col-lg-10 col-lg-offset-1">
+            <div class="row form-horizontal">
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Nombre Plantilla</label>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control" value="{{template.name}}" readonly="readonly">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Solicitante</label>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control" value="{{template.applicant.name}}" readonly="readonly">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Fecha Solicitud</label>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control" value="{{template.created is defined and template.created is not null ? template.created|date("d/m/Y") : ''}}" readonly="readonly">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Area</label>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control" value="{{template.area.name}}" readonly="readonly">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Edición</label>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control" value="{{template.numEdition}}" readonly="readonly">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Código plantilla</label>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control" value="{{template.number}}" readonly="readonly">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Categorías retención</label>
+                    <div class="col-sm-7">
+                        <textarea rows="10" cols="40" required="required" style="width:100%" readonly="readonly">{% for key,retention in template.retentions %}{{retention.name}},{% endfor %}</textarea>
+                    </div>
+                </div> 
+
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Desc. solicitud</label>
+                    <div class="col-sm-7">
+                        <textarea rows="10" cols="40" required="required" style="width:100%" readonly="readonly">{{template.description}}</textarea>
+                    </div>
+                </div> 
+
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Historia del cambio</label>
+                    <div class="col-sm-7">
+                        <textarea rows="10" cols="40" required="required" style="width:100%" readonly="readonly">{{template.historyChange}}</textarea>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Norma de referencia</label>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control" value="{{template.reference}}" readonly="readonly">
+                    </div>
+                </div> 
+
+                
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Dueño</label>
+                    <div class="col-sm-4">
+                      <input type="text" class="form-control" value="{{template.owner.name}}" readonly="readonly">
+                    </div>
+                </div> 
+
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Backup</label>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control" value="{{template.backup.name}}" readonly="readonly">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Fecha entrada en vigor</label>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control" value="{{template.effectiveDate is defined and template.effectiveDate is not null ? template.effectiveDate|date("d/m/Y") : ''}}" readonly="readonly">
+                    </div>
+                </div>
+
+                
+            </div>          
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-10 col-lg-offset-1">
+            <div id="master_workflow">
+                <h1>Workflow</h1>
+                <div class="row">
+                    
+                    <div class="col-sm-3 pre_col_workflow" data-bloque-type="elab">
+                        <div class="col_workflow">
+                            <h2>Elaboradores</h2>
+                            <hr>
+                            <div class="row line_workflow">
+                                {% for wfitem in elab %}
+                                    {{wfitem.userEntiy is defined and wfitem.userEntiy is not null ? ('<i class="fa fa-user"></i> '~wfitem.userEntiy.name)|raw : ('<i class="fa fa-users"></i> '~wfitem.groupEntiy.name)|raw}}<br>
+                                {% endfor %}
+                            </div>
+                        </div> 
+                    </div>
+                    <div class="col-sm-3 pre_col_workflow" data-bloque-type="test">
+                        <div class="col_workflow">
+                            <h2>Testers</h2>
+                            <hr>
+                            <div class="row line_workflow">
+                                {% for wfitem in test %}
+                                    {{wfitem.userEntiy is defined and wfitem.userEntiy is not null ? ('<i class="fa fa-user"></i> '~wfitem.userEntiy.name)|raw : ('<i class="fa fa-users"></i> '~wfitem.groupEntiy.name)|raw}}<br>
+                                {% endfor %}
+                            </div>
+                        </div> 
+                    </div>
+                    <div class="col-sm-3 pre_col_workflow" data-bloque-type="aprob">
+                        <div class="col_workflow">
+                            <h2>Aprobadores</h2>
+                            <hr>
+                            <div class="row line_workflow">
+                                {% for wfitem in aprob %}
+                                    {{wfitem.userEntiy is defined and wfitem.userEntiy is not null ? ('<i class="fa fa-user"></i> '~wfitem.userEntiy.name)|raw : ('<i class="fa fa-users"></i> '~wfitem.groupEntiy.name)|raw}}<br>
+                                {% endfor %}
+                            </div>
+                        </div>  
+                    </div>
+                    <div class="col-sm-3 pre_col_workflow"  data-bloque-type="admin">
+                        <div class="col_workflow">
+                            <h2>Administrador</h2>
+                            <hr>
+                            <div class="row line_workflow">
+                                {% for wfitem in admin %}
+                                    {{wfitem.userEntiy is defined and wfitem.userEntiy is not null ? ('<i class="fa fa-user"></i> '~wfitem.userEntiy.name)|raw : ('<i class="fa fa-users"></i> '~wfitem.groupEntiy.name)|raw}}<br>
+                                {% endfor %}
+                            </div>
+                        </div> 
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                
+            </div><br>
+        </div>
+    </div>
+
+    {% if template is defined and template.tmState.id==1 and (template.owner.id==app.user.id or template.backup.id==app.user.id ) %}
+        {% include 'NononsenseHomeBundle:TemplateManagement:action_pending_template.html.twig' %}
+    {% endif %}
+    
+
+
+
+
+
+
+</div>
+{% endblock %}
+{% block scripts %}
+{{ parent() }}
+<script src="/js/plugins/signature-pad/signature-pad.min.js"></script>
+<script>
+
+{% if template is defined and template.tmState.id==1 and (template.owner.id==app.user.id or template.backup.id==app.user.id ) %}
+    var canvas = document.querySelector("canvas");
+    var signaturePad = new SignaturePad(canvas);
+    $( document ).ready(function() {
+        $('#borrarFirmar').on('click', function () {
+            signaturePad.clear();
+        });
+
+        $('#saveRequest').on('click', function () {
+            $('[name="action"]').val(1);
+            action_request_pending();
+        });
+
+        $('#cancelRequest').on('click', function () {
+            $('[name="action"]').val(7);
+            action_request_pending();
+        });
+    });
+
+    function action_request_pending(){
+        if (signaturePad.isEmpty()){
+            toastr.error("La firma es obligatoria",'aviso');
+        }else{
+            $("#signature").val(signaturePad.toDataURL());
+            $('#form_action_pending').submit();
+        }
+    }
+{% endif %}
+</script>
+{% endblock %}

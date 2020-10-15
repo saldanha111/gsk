@@ -34,6 +34,12 @@ class TMSignatures
     protected $action;
 
     /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMTests", mappedBy="signature")
+     */
+    protected $tmTests;
+
+
+    /**
      * @var string
      *
      * @ORM\Column(name="signature", type="text")
@@ -56,6 +62,13 @@ class TMSignatures
     /**
      * @var string
      *
+     * @ORM\Column(name="description", type="text", nullable=true)
+     */
+    protected $description;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(name="configuration", type="string")
      */
     protected $configuration;
@@ -69,20 +82,6 @@ class TMSignatures
      * @ORM\Column(type="datetime")
      */
     protected $modified;
-
-     /**
-     * @var string
-     *
-     * @ORM\Column(name="test", type="text", nullable=true)
-     */
-    protected $test;
-
-    /**
-     * @var boolean
-     *
-     * @ORM\Column(name="test_successed", type="boolean",  nullable=true, options={"default" = false})
-     */
-    protected $testSuccessed;
 
     
     public function __construct()
@@ -305,48 +304,58 @@ class TMSignatures
     }
 
     /**
-     * Set test
+     * Set description
      *
-     * @param string $test
+     * @param string $description
      * @return TMSignatures
      */
-    public function setTest($test)
+    public function setDescription($description)
     {
-        $this->test = $test;
+        $this->description = $description;
 
         return $this;
     }
 
     /**
-     * Get test
+     * Get description
      *
      * @return string 
      */
-    public function getTest()
+    public function getDescription()
     {
-        return $this->test;
+        return $this->description;
     }
 
     /**
-     * Set testSuccessed
+     * Add tmTests
      *
-     * @param boolean $testSuccessed
+     * @param \Nononsense\HomeBundle\Entity\TMTests $tmTests
      * @return TMSignatures
      */
-    public function setTestSuccessed($testSuccessed)
+    public function addTmTest(\Nononsense\HomeBundle\Entity\TMTests $tmTests)
     {
-        $this->testSuccessed = $testSuccessed;
+        $this->tmTests[] = $tmTests;
 
         return $this;
     }
 
     /**
-     * Get testSuccessed
+     * Remove tmTests
      *
-     * @return boolean 
+     * @param \Nononsense\HomeBundle\Entity\TMTests $tmTests
      */
-    public function getTestSuccessed()
+    public function removeTmTest(\Nononsense\HomeBundle\Entity\TMTests $tmTests)
     {
-        return $this->testSuccessed;
+        $this->tmTests->removeElement($tmTests);
+    }
+
+    /**
+     * Get tmTests
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getTmTests()
+    {
+        return $this->tmTests;
     }
 }
