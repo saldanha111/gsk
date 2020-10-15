@@ -753,6 +753,11 @@ nononsense_tm_test_save_data:
     methods:    [POST]
     defaults: { _controller: NononsenseHomeBundle:TemplateTestTemplates:save,id: 0}
 
+nononsense_tm_approve_detail:
+    path: /mt/approve/{id}
+    methods:    [GET]
+    defaults: { _controller: NononsenseHomeBundle:TemplateTestTemplates:detail,id: 0}
+
 nononsense_tm_request_detail:
     path: /mt/requests/0
     methods:    [GET]

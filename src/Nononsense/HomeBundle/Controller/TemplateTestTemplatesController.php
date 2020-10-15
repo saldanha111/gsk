@@ -8,6 +8,7 @@ use Nononsense\UtilsBundle\Classes;
 
 use Nononsense\UserBundle\Entity\Users;
 use Nononsense\GroupBundle\Entity\Groups;
+use Nononsense\GroupBundle\Entity\GroupsUsers;
 use Nononsense\HomeBundle\Entity\Areas;
 use Nononsense\HomeBundle\Entity\TMStates;
 use Nononsense\HomeBundle\Entity\RetentionCategories;
@@ -498,8 +499,8 @@ class TemplateTestTemplatesController extends Controller
 	        if($next_step==1){
 	        	//Vaciamos el control de los que ya han firmado puesto que la plantilla cambia de estado
 	        	foreach($testers as $tester){
-	        		$test->setSigned(0);
-	        		$em->persist($test);
+	        		$tester->setSigned(0);
+	        		$em->persist($tester);
 	        	}
 
 	        	$next_state=4;
@@ -517,7 +518,7 @@ class TemplateTestTemplatesController extends Controller
 	        		}
 	        		else{
 	        			//Si hay un error en la prueba la plantilla vuelve hacia atrás
-	        			if($us->getResult()->getId()>1){
+	        			if($us->getTmTests()[0]->getResult()->getId()>1){
 	        				$next_state=2;
 	        			}
 	        		}
@@ -533,8 +534,8 @@ class TemplateTestTemplatesController extends Controller
 	        				$users_notifications[]=$aprob->getUserEntiy()->getEmail();
 	        			}
 	        			else{
-	        				foreach($aprob->groupEntiy()->getUsers() as $user_group){
-								$users_notifications[]=$user_group->getEmail();
+	        				foreach($aprob->getGroupEntiy()->getUsers() as $user_group){
+								$users_notifications[]=$user_group->getUser()->getEmail();
 	        				}
 	        			}
 	        		}
@@ -542,9 +543,21 @@ class TemplateTestTemplatesController extends Controller
 
 	            $state = $this->getDoctrine()->getRepository(TMStates::class)->findOneBy(array("id"=> $next_state));
 	            $template->setTmState($state);
-
-	            var_dump($users_notifications);die();
-	            //Enviamos email
+	            
+                foreach($users_notifications as $email){
+                    if($next_state==4){
+                        $subject="Plantilla a aprobar";
+                        $mensaje='La plantilla con ID '.$id.' está pendiente de aprobación por su parte. Para poder revisarlo puede acceder a "Gestión de plantillas -> En aprobación", buscar la plantilla correspondiente y pulsar en Aprobar';
+                        $baseURL=$this->container->get('router')->generate('nononsense_tm_approve_detail', array("id" => $id),TRUE);
+                    }
+                    else{
+                        $subject="La plantilla no ha pasado los tests";
+                        $mensaje='La plantilla con ID '.$id.' no ha pasado los tests realizados y require de nuevo de su elaboración. Para poder realizar las correcciones pertinentes, puede acceder a "Gestión de plantillas -> En elaboración", buscar la plantilla correspondiente y pulsar en Elaborar. Podrá ver los tests y comentarios de cada uno de llos pulsando en el Audit Trail';
+                        $baseURL=$this->container->get('router')->generate('nononsense_tm_elaborate_detail', array("id" => $id),TRUE);
+                    }
+                    
+                    $this->get('utilities')->sendNotification($email, $baseURL, "", "", $subject, $mensaje);
+                }
 	        }
 
         }

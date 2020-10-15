@@ -74,7 +74,6 @@
                                     <th>Fecha</th>
                                     <th>Resultado</th>
                                     <th>Nombre</th>
-                                    
                                 </tr>
                                 </thead>
                                 {% for test in tests %}
@@ -83,7 +82,7 @@
                                         <td>{{test.created is defined and test.created is not null ? test.created|date("d/m/Y H:i:s") : ''}}</td>
                                         <td>{% if test.result.id == 1 %}<span class="label bg-green">{% else %}<span class="label bg-red">{% endif %}{{test.result.name}}</span></td>
                                         <td>{{test.userEntiy.name}}</td>
-                                        <td><a href="{{path('nononsense_tm_test_new', {'id': template.id}) }}?test={{test.id}}&mode=v&configuration={{test.signature.configuration}}" class="btn btn-xs btn-primary pull-right"><i class="fa fa-flask"></i> Añadir test de verificación</a></td>
+                                        <td><a href="{{path('nononsense_tm_test_new', {'id': template.id}) }}?test={{test.id}}&mode=v&configuration={{test.signature.configuration}}" class="btn btn-xs btn-primary pull-right">Añadir test de verificación <i class="fa fa-arrow-circle-right"></i></a></td>
                                         <td></td>
                                         <td></td>
                                         <td></td>
@@ -97,7 +96,6 @@
                                             <td>{% if subtest.result.id == 1 %}<span class="label bg-green">{% else %}<span class="label bg-red">{% endif %}{{subtest.result.name}}</span></td>
                                             <td>{{subtest.userEntiy.name}}</td>
                                         </tr>
-
                                     {% endfor %}
                                 {% endfor %}
                             </table>
@@ -117,7 +115,7 @@
 </div>
 
 {% if template is defined %}
-    {% include 'NononsenseHomeBundle:TemplateManagement:action_template.html.twig' %}
+    {% include 'NononsenseHomeBundle:TemplateManagement:action_template.html.twig' %}<br><br><br>
 {% endif %}
 
 <div class="modal fade" tabindex="-1" role="dialog" id="modalSignTest">
