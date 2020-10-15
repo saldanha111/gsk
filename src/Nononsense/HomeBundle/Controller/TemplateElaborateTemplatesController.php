@@ -305,6 +305,12 @@ class TemplateElaborateTemplatesController extends Controller
         }
 
         if($next_step==1){
+
+            foreach($elaborators as $elaborator){
+                $elaborator->setSigned(0);
+                $em->persist($elaborator);
+            }
+                
             if(($template->getArea()->getId()==10 || $template->getArea()->getId()==11) && !$testers){
                 $state = $this->getDoctrine()->getRepository(TMStates::class)->findOneBy(array("id"=> 4));
             }

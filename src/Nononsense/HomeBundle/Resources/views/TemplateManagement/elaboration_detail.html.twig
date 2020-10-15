@@ -168,6 +168,10 @@
     </div>
 </div>
 
+{% if template is defined %}
+    {% include 'NononsenseHomeBundle:TemplateManagement:action_template.html.twig' %}
+{% endif %}
+
 <div class="modal fade" tabindex="-1" role="dialog" id="modalUploadFile">
   <div class="modal-dialog" role="document">
     <div class="modal-content">

@@ -162,29 +162,6 @@ class TMTests
     }
 
     /**
-     * Set test_id
-     *
-     * @param integer $testId
-     * @return TMTests
-     */
-    public function setTestId($testId)
-    {
-        $this->test_id = $testId;
-
-        return $this;
-    }
-
-    /**
-     * Get test_id
-     *
-     * @return integer 
-     */
-    public function getTestId()
-    {
-        return $this->test_id;
-    }
-
-    /**
      * Set signature
      *
      * @param \Nononsense\HomeBundle\Entity\TMSignatures $signature
@@ -251,5 +228,28 @@ class TMTests
     public function getUserEntiy()
     {
         return $this->userEntiy;
+    }
+
+    /**
+     * Set test_id
+     *
+     * @param integer $testId
+     * @return TMTests
+     */
+    public function setTestId($testId)
+    {
+        $this->test_id = $testId;
+
+        return $this;
+    }
+
+    /**
+     * Get test_id
+     *
+     * @return integer 
+     */
+    public function getTestId()
+    {
+        return $this->test_id;
     }
 }

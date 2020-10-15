@@ -108,7 +108,7 @@ class DocumentsController extends Controller
                 $array_item["not_update"]=1;
             }
 
-            $base_url=$this->getParameter('api_docoaro')."/documents/".$array_item["item"]["plantilla_id"];
+            $base_url=$this->getParameter('api_docoaro')."/documents/".$array_item["item"]["plantilla_id"]."?keyPrivated=".$this->getParameter('key_privated_config_docoaro');
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, $base_url);
             curl_setopt($ch, CURLOPT_CUSTOMREQUEST,"GET");

@@ -53,6 +53,9 @@
                             <div class="timeline-body">
                               {{signature.description is defined and signature.description is not null ? (signature.description~"<br>")|raw : ''}}
                               <img src="{{signature.signature}}" style="height:100px">
+                              {% if signature.action.id == 3 %}
+                                <br><a href="{{path('nononsense_tm_test_new', {'id': item.id}) }}?pdf=1&test={{signature.tmTests[0].id}}&configuration={{signature.configuration}}" class="btn btn-xs btn-danger"  target="_blank"><i class="fa fa-file-pdf-o"></i> Descargar test</a>
+                              {% endif %}
                             </div>
                           </div>
                         </li>

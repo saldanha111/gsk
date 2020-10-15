@@ -325,4 +325,37 @@ class TMSignatures
     {
         return $this->description;
     }
+
+    /**
+     * Add tmTests
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMTests $tmTests
+     * @return TMSignatures
+     */
+    public function addTmTest(\Nononsense\HomeBundle\Entity\TMTests $tmTests)
+    {
+        $this->tmTests[] = $tmTests;
+
+        return $this;
+    }
+
+    /**
+     * Remove tmTests
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMTests $tmTests
+     */
+    public function removeTmTest(\Nononsense\HomeBundle\Entity\TMTests $tmTests)
+    {
+        $this->tmTests->removeElement($tmTests);
+    }
+
+    /**
+     * Get tmTests
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getTmTests()
+    {
+        return $this->tmTests;
+    }
 }

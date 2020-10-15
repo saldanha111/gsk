@@ -29,7 +29,7 @@ class TMTests
 
     /**
      * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\TMTestResults", inversedBy="tmTests")
-     * @ORM\JoinColumn(name="reult_id", referencedColumnName="id")
+     * @ORM\JoinColumn(name="reult_id", referencedColumnName="id", nullable=true)
      */
     protected $result;
 
@@ -113,5 +113,120 @@ class TMTests
     public function getCreated()
     {
         return $this->created;
+    }
+
+    /**
+     * Set test
+     *
+     * @param string $test
+     * @return TMTests
+     */
+    public function setTest($test)
+    {
+        $this->test = $test;
+
+        return $this;
+    }
+
+    /**
+     * Get test
+     *
+     * @return string 
+     */
+    public function getTest()
+    {
+        return $this->test;
+    }
+
+    /**
+     * Set token
+     *
+     * @param string $token
+     * @return TMTests
+     */
+    public function setToken($token)
+    {
+        $this->token = $token;
+
+        return $this;
+    }
+
+    /**
+     * Get token
+     *
+     * @return string 
+     */
+    public function getToken()
+    {
+        return $this->token;
+    }
+
+    /**
+     * Set signature
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMSignatures $signature
+     * @return TMTests
+     */
+    public function setSignature(\Nononsense\HomeBundle\Entity\TMSignatures $signature = null)
+    {
+        $this->signature = $signature;
+
+        return $this;
+    }
+
+    /**
+     * Get signature
+     *
+     * @return \Nononsense\HomeBundle\Entity\TMSignatures 
+     */
+    public function getSignature()
+    {
+        return $this->signature;
+    }
+
+    /**
+     * Set result
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMTestResults $result
+     * @return TMTests
+     */
+    public function setResult(\Nononsense\HomeBundle\Entity\TMTestResults $result = null)
+    {
+        $this->result = $result;
+
+        return $this;
+    }
+
+    /**
+     * Get result
+     *
+     * @return \Nononsense\HomeBundle\Entity\TMTestResults 
+     */
+    public function getResult()
+    {
+        return $this->result;
+    }
+
+    /**
+     * Set userEntiy
+     *
+     * @param \Nononsense\UserBundle\Entity\Users $userEntiy
+     * @return TMTests
+     */
+    public function setUserEntiy(\Nononsense\UserBundle\Entity\Users $userEntiy = null)
+    {
+        $this->userEntiy = $userEntiy;
+
+        return $this;
+    }
+
+    /**
+     * Get userEntiy
+     *
+     * @return \Nononsense\UserBundle\Entity\Users 
+     */
+    public function getUserEntiy()
+    {
+        return $this->userEntiy;
     }
 }

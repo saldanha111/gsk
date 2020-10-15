@@ -214,7 +214,7 @@ class ContractsController extends Controller
     {
         $result = [];
         if ($templateId) {
-            $base_url = $this->getParameter('api_docoaro') . "/documents/" . $templateId;
+            $base_url = $this->getParameter('api_docoaro') . "/documents/" . $templateId."?keyPrivated=".$this->getParameter('key_privated_config_docoaro');
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, $base_url);
             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
