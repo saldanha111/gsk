@@ -75,10 +75,10 @@ class SearchController extends Controller
         $array_item["items"] = $this->getDoctrine()->getRepository(InstanciasSteps::class)->search("list",$filters);
         foreach($array_item["items"] as $key => $record){
             if(($record["validate1"] || $record["validate2"]) && $record["validate3"]){
-                $array_item["items"][$key]["validate"]=TRUE;
+                $array_item["items"][$key]["validate"]=FALSE;
             }
             else{
-                $array_item["items"][$key]["validate"]=FALSE;
+                $array_item["items"][$key]["validate"]=TRUE;
             }
         }
         $array_item["count"] = $this->getDoctrine()->getRepository(InstanciasSteps::class)->search("count",$filters2);
