@@ -196,6 +196,9 @@ class NuevoRegistroController extends Controller
                     $records2 = $this->getDoctrine()->getRepository(InstanciasSteps::class)->search("count",array("master_step_id"=>$ms->getId()),1);
                     if($records2>0){
                         $not_update2=1;
+                        if(!empty($ms)){
+                            $plantilla_id=$ms->getPlantillaId();
+                        }
                     }
                     else{
                         if(!empty($ms)){
