@@ -194,7 +194,6 @@ class NuevoRegistroController extends Controller
                 }
                 else{
                     $records2 = $this->getDoctrine()->getRepository(InstanciasSteps::class)->search("count",array("master_step_id"=>$ms->getId()),1);
-                    echo $records."-".$records2;die();
                     if($records2>0){
                         $not_update2=1;
                     }
