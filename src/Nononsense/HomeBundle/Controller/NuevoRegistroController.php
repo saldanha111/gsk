@@ -194,6 +194,7 @@ class NuevoRegistroController extends Controller
                 }
                 else{
                     $records2 = $this->getDoctrine()->getRepository(InstanciasSteps::class)->search("count",array("master_step_id"=>$ms->getId()),1);
+                    echo $records."-".$records2;die();
                     if($records2>0){
                         $not_update2=1;
                     }
@@ -201,16 +202,10 @@ class NuevoRegistroController extends Controller
                         if(!empty($ms)){
                             $plantilla_id=$ms->getPlantillaId();
                             $em->remove($ms);
+                            $ms=NULL;
                         }
                         if(!empty($ms2)){
                             $em->remove($ms2);
-                        }
-
-                        if(!empty($ms)){
-                            $ms=NULL;
-                        }
-
-                        if(!empty($ms2)){
                             $ms2=NULL;
                         }
                     }
