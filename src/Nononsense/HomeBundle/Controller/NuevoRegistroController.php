@@ -170,6 +170,7 @@ class NuevoRegistroController extends Controller
         $update_template=0;
         try {
             $not_update=0;
+            $not_update2=0;
             $category = $this->getDoctrine()->getRepository(Categories::class)->findOneById($request->get("category_id"));
             $group = $this->getDoctrine()->getRepository(Groups::class)->findOneById(1);
 
@@ -185,20 +186,32 @@ class NuevoRegistroController extends Controller
 
                 $base_url=$this->getParameter('api_docoaro')."/documents/".$ms->getPlantillaId();
 
-                $records = $this->getDoctrine()->getRepository(InstanciasSteps::class)->search("count",array("master_step_id"=>$ms->getId()));
+                $records = $this->getDoctrine()->getRepository(InstanciasSteps::class)->search("count",array("master_step_id"=>$ms->getId()),1);
+                
                 if($records>0){
                     $not_update=1;
 
                 }
                 else{
-                    if(!empty($ms)){
-                        $plantilla_id=$ms->getPlantillaId();
-                        $em->remove($ms);
-                        $ms=NULL;
+                    try{
+                        if(!empty($ms)){
+                            $plantilla_id=$ms->getPlantillaId();
+                            $em->remove($ms);
+                        }
+                        if(!empty($ms2)){
+                            $em->remove($ms2);
+                        }
+
+                        if(!empty($ms)){
+                            $ms=NULL;
+                        }
+
+                        if(!empty($ms2)){
+                            $ms2=NULL;
+                        }
                     }
-                    if(!empty($ms2)){
-                        $em->remove($ms2);
-                        $ms2=NULL;
+                    catch (\Exception $e) {
+                       $not_update2=1;
                     }
                 }
 
@@ -234,39 +247,38 @@ class NuevoRegistroController extends Controller
             $mw->setGrupoVerificacion($group);
 
             if(!$not_update){
+                if(!$not_update2){
+                    $mw->setPrecreation($request->get("precreation"));
 
-                
+                    if($request->get("precreation")=="codigolote"){
+                        $mw->setPrevalidation("codigoloteunico");
+                    }
+                    else{
+                        $mw->setPrevalidation("default");
+                    }
+                    
+                    
 
-                $mw->setPrecreation($request->get("precreation"));
-
-                if($request->get("precreation")=="codigolote"){
-                    $mw->setPrevalidation("codigoloteunico");
+                    $ms = new MasterSteps();
+                    $ms->setMasterWorkflow($mw);
+                    $ms->setGroups($group);
+                    //$ms->setPlantillaId($request->get("plantilla_id"));
+                    $ms->setPosition(1);
+                    $ms->setBlock(1);
+                    $ms->setOptional(0);
+                    $ms->setDependsOn(0);
+                    $ms->setNotification(1);
+                    $ms->setCloneable(0);
+                    $ms->setName($request->get("name"));
+                    $ms->setStatusId(1);
+                    $ms->setCreated(new \DateTime());
+                    $ms->setModified(new \DateTime());
+                    $ms->setChecklist(0);
+                    $ms->setPlantillaPrefix("");
+                    $ms->setRules("");
+                    $ms->setStepData("");
+                    $ms->setValidation("self");
                 }
-                else{
-                    $mw->setPrevalidation("default");
-                }
-                
-                
-
-                $ms = new MasterSteps();
-                $ms->setMasterWorkflow($mw);
-                $ms->setGroups($group);
-                //$ms->setPlantillaId($request->get("plantilla_id"));
-                $ms->setPosition(1);
-                $ms->setBlock(1);
-                $ms->setOptional(0);
-                $ms->setDependsOn(0);
-                $ms->setNotification(1);
-                $ms->setCloneable(0);
-                $ms->setName($request->get("name"));
-                $ms->setStatusId(1);
-                $ms->setCreated(new \DateTime());
-                $ms->setModified(new \DateTime());
-                $ms->setChecklist(0);
-                $ms->setPlantillaPrefix("");
-                $ms->setRules("");
-                $ms->setStepData("");
-                $ms->setValidation("self");
 
                 if($update_template==1){
                     $fs = new Filesystem();
@@ -297,32 +309,34 @@ class NuevoRegistroController extends Controller
                     $ms->setPlantillaId($plantilla_id);
                 }
                 
-                if($request->get("tiene_checklist")){
-                    $mw->setChecklist(1);
-                    $ms2 = new MasterSteps();
+                if(!$not_update2){
+                    if($request->get("tiene_checklist")){
+                        $mw->setChecklist(1);
+                        $ms2 = new MasterSteps();
 
-                    $ms2->setMasterWorkflow($mw);
-                    $ms2->setGroups($group);
-                    $ms2->setPlantillaId(23);
-                    $ms2->setPosition(1);
-                    $ms2->setBlock(1);
-                    $ms2->setOptional(0);
-                    $ms2->setDependsOn(0);
-                    $ms2->setNotification(1);
-                    $ms2->setCloneable(0);
-                    $ms2->setName("IT-C-OP-144ANEXO5");
-                    $ms2->setStatusId(1);
-                    $ms2->setCreated(new \DateTime());
-                    $ms2->setModified(new \DateTime());
-                    $ms2->setChecklist(1);
-                    $ms2->setValidation("self");
-                    $ms2->setPlantillaPrefix("");
-                    $ms2->setRules("");
-                    $ms2->setStepData("");
-                }
-                else{
-                    $mw->setChecklist(0);
-                    $ms->setValidation("self");
+                        $ms2->setMasterWorkflow($mw);
+                        $ms2->setGroups($group);
+                        $ms2->setPlantillaId(23);
+                        $ms2->setPosition(1);
+                        $ms2->setBlock(1);
+                        $ms2->setOptional(0);
+                        $ms2->setDependsOn(0);
+                        $ms2->setNotification(1);
+                        $ms2->setCloneable(0);
+                        $ms2->setName("IT-C-OP-144ANEXO5");
+                        $ms2->setStatusId(1);
+                        $ms2->setCreated(new \DateTime());
+                        $ms2->setModified(new \DateTime());
+                        $ms2->setChecklist(1);
+                        $ms2->setValidation("self");
+                        $ms2->setPlantillaPrefix("");
+                        $ms2->setRules("");
+                        $ms2->setStepData("");
+                    }
+                    else{
+                        $mw->setChecklist(0);
+                        $ms->setValidation("self");
+                    }
                 }
             }
 
