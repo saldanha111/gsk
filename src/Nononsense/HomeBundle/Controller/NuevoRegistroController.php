@@ -186,14 +186,18 @@ class NuevoRegistroController extends Controller
 
                 $base_url=$this->getParameter('api_docoaro')."/documents/".$ms->getPlantillaId();
 
-                $records = $this->getDoctrine()->getRepository(InstanciasSteps::class)->search("count",array("master_step_id"=>$ms->getId()),1);
+                $records = $this->getDoctrine()->getRepository(InstanciasSteps::class)->search("count",array("master_step_id"=>$ms->getId()));
                 
                 if($records>0){
                     $not_update=1;
 
                 }
                 else{
-                    try{
+                    $records2 = $this->getDoctrine()->getRepository(InstanciasSteps::class)->search("count",array("master_step_id"=>$ms->getId()),1);
+                    if($records2>0){
+                        $not_update2=1;
+                    }
+                    else{
                         if(!empty($ms)){
                             $plantilla_id=$ms->getPlantillaId();
                             $em->remove($ms);
@@ -209,9 +213,6 @@ class NuevoRegistroController extends Controller
                         if(!empty($ms2)){
                             $ms2=NULL;
                         }
-                    }
-                    catch (\Exception $e) {
-                       $not_update2=1;
                     }
                 }
 
