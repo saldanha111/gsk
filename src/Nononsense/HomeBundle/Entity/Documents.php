@@ -44,7 +44,7 @@ class Documents
     /**
      * @var string
      *
-     * @ORM\Column(name="description", type="string", length=200)
+     * @ORM\Column(name="description", type="text")
      * @Assert\NotBlank(message = "You shoud insert a description")
      * @Groups({"detail_document"})
      */

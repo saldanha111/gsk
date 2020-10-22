@@ -2,6 +2,8 @@
 
 namespace Nononsense\UtilsBundle\Classes;
 
+use Symfony\Component\HttpFoundation\Request;
+
 /**
  * Static methods to be used by any class
  */
@@ -709,6 +711,30 @@ class Utils
         $data["skip"] = $skip;
 
         return $data;
+    }
+
+    /**
+     * @param Request $request
+     * @return array
+     */
+    public static function getListFilters(Request $request)
+    {
+        $filters = [];
+
+        if ($request->get("page")) {
+            $filters["limit_from"] = $request->get("page") - 1;
+        } else {
+            $filters["limit_from"] = 0;
+        }
+
+        foreach ($request->query->all() as $key => $element) {
+            if (strpos($key, 'f_') === 0 && ($element != '')) {
+                $filterName = str_replace('f_', '', $key);
+                $filters[$filterName] = $element;
+            }
+        }
+
+        return $filters;
     }
 
 }

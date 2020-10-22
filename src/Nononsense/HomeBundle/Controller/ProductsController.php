@@ -80,7 +80,7 @@ class ProductsController extends Controller
 
         $em = $this->getDoctrine()->getManager();
 
-        $filters = $this->getListFilters($request);
+        $filters = Utils::getListFilters($request);
         $filters["limit_many"] = 15;
 
         /** @var ProductsInputsRepository $productInputRepository */
@@ -109,30 +109,6 @@ class ProductsController extends Controller
         ];
 
         return $this->render('NononsenseHomeBundle:Products:index.html.twig', $array_item);
-    }
-
-    /**
-     * @param Request $request
-     * @return array
-     */
-    private function getListFilters(Request $request)
-    {
-        $filters = [];
-
-        if ($request->get("page")) {
-            $filters["limit_from"] = $request->get("page") - 1;
-        } else {
-            $filters["limit_from"] = 0;
-        }
-
-        foreach ($request->query->all() as $key => $element) {
-            if (strpos($key, 'f_') === 0 && $element) {
-                $filterName = str_replace('f_', '', $key);
-                $filters[$filterName] = $element;
-            }
-        }
-
-        return $filters;
     }
 
     public function editAction(Request $request, $type, $id, $qrCode)
@@ -651,7 +627,7 @@ class ProductsController extends Controller
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
 
-        $filters = $this->getListFilters($request);
+        $filters = Utils::getListFilters($request);
         $filters['type'] = $type;
         $filters["limit_many"] = 15;
 
@@ -687,7 +663,7 @@ class ProductsController extends Controller
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
 
-        $filters = $this->getListFilters($request);
+        $filters = Utils::getListFilters($request);
         $filters["limit_many"] = 15;
 
         /** @var ProductsOutputsRepository $productsOutputsRepository */

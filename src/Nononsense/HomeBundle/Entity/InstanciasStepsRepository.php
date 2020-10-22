@@ -201,7 +201,7 @@ class InstanciasStepsRepository extends EntityRepository
 
     }
 
-    public function search($type,$filters)
+    public function search($type,$filters,$nulls=0)
     {
         $em = $this->getEntityManager();
 
@@ -249,10 +249,11 @@ class InstanciasStepsRepository extends EntityRepository
             ->leftJoin("i.ReconciliadoDe","r","WITH", 'r.status>0')
             ->leftJoin("i.ReconciliadoA","r2","WITH", 'r2.status>0')
             ->andWhere('s.status_id>=0')
-            ->andWhere('i.status>=0')
             ->andWhere('ms.dependsOn=0 OR (ms.dependsOn > 0 AND (i.status = 6 or i.status = 4 or i.status = 7 or  i.status = 12 or i.status = 13 or i.status = 15 or i.status = 9 or i.status = 10))')
             ->andWhere('(f.id IS NULL OR f.id = (SELECT MAX(aux.id) FROM Nononsense\HomeBundle\Entity\FirmasStep aux WHERE aux.step_id=f.step_id))');
-
+            if(!$nulls){
+                $list->andWhere('i.status>=0');
+            }
         if($type=="list"){
             $list->orderBy('s.workflow_id', 'DESC')
             ->addOrderBy('s.dependsOn', 'ASC');
@@ -283,8 +284,7 @@ class InstanciasStepsRepository extends EntityRepository
             if(isset($filters["name"])){
                 $terms = explode(" ", $filters["name"]);
                 foreach($terms as $key => $term){
-                    $list->andWhere('mw.name LIKE :name'.$key);
-                    $list->orWhere('ms.name LIKE :name2'.$key);
+                    $list->andWhere('(mw.name LIKE :name'.$key.' OR ms.name LIKE :name2'.$key.")");
                     $list->setParameter('name'.$key, '%' . $term. '%');
                     $list->setParameter('name2'.$key, '%' . $term. '%');
                 }
