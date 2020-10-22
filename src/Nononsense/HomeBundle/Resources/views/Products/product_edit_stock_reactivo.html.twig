@@ -161,7 +161,7 @@
                     {% else %}
                         No hay stock para este reactivo.
                     {% endif %}
-                    <a href="{{ path('nononsense_products_reception',{'type': type.slug}) }}" target="_self" class="btn btn-primary pull-right m-r-md">
+                    <a href="{{ path('nononsense_products_reception',{'type': type.slug, 'casNumber' : product.casNumber|url_encode}) }}" target="_self" class="btn btn-primary pull-right m-r-md">
                         <i class="fa fa-plus"></i> Añadir stock
                     </a>
                 </div>
