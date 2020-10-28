@@ -9,11 +9,11 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="tm_test_results")
- * @ORM\Entity(repositoryClass="Nononsense\HomeBundle\Entity\TMResultsRepository")
+ * @ORM\Table(name="tm_test_aprob")
+ * @ORM\Entity(repositoryClass="Nononsense\HomeBundle\Entity\TMTestAprobRepository")
  * @ORM\HasLifecycleCallbacks
  */
-class TMTestResults
+class TMTestAprob
 {
     /**
      * @ORM\Column(type="integer")
@@ -31,10 +31,9 @@ class TMTestResults
     protected $name;
 
     /**
-     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMTests", mappedBy="result")
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMSignatures", mappedBy="tmAprobAction")
      */
-    protected $tmTests;
-
+    protected $tmSignatures;
 
 
     public function __construct()
@@ -75,36 +74,37 @@ class TMTestResults
         return $this->name;
     }
 
+
     /**
-     * Add tmTests
+     * Add tmSignatures
      *
-     * @param \Nononsense\HomeBundle\Entity\TMTests $tmTests
-     * @return TMTestResults
+     * @param \Nononsense\HomeBundle\Entity\TMSignatures $tmSignatures
+     * @return TMTestAprob
      */
-    public function addTmTest(\Nononsense\HomeBundle\Entity\TMTests $tmTests)
+    public function addTmSignature(\Nononsense\HomeBundle\Entity\TMSignatures $tmSignatures)
     {
-        $this->tmTests[] = $tmTests;
+        $this->tmSignatures[] = $tmSignatures;
 
         return $this;
     }
 
     /**
-     * Remove tmTests
+     * Remove tmSignatures
      *
-     * @param \Nononsense\HomeBundle\Entity\TMTests $tmTests
+     * @param \Nononsense\HomeBundle\Entity\TMSignatures $tmSignatures
      */
-    public function removeTmTest(\Nononsense\HomeBundle\Entity\TMTests $tmTests)
+    public function removeTmSignature(\Nononsense\HomeBundle\Entity\TMSignatures $tmSignatures)
     {
-        $this->tmTests->removeElement($tmTests);
+        $this->tmSignatures->removeElement($tmSignatures);
     }
 
     /**
-     * Get tmTests
+     * Get tmSignatures
      *
      * @return \Doctrine\Common\Collections\Collection 
      */
-    public function getTmTests()
+    public function getTmSignatures()
     {
-        return $this->tmTests;
+        return $this->tmSignatures;
     }
 }

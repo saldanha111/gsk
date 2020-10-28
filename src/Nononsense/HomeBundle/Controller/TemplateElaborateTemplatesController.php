@@ -140,7 +140,7 @@ class TemplateElaborateTemplatesController extends Controller
         if(!$template->getOpenedBy() || $template->getOpenedBy()!=$user){
             $this->get('session')->getFlashBag()->add(
                 'error',
-                'No se puedo efectuar la operación'
+                'No se puede efectuar la operación'
             );
             $route=$this->container->get('router')->generate('nononsense_tm_templates');
             return $this->redirect($route);

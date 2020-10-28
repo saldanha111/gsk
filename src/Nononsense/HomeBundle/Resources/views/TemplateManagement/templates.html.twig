@@ -188,7 +188,7 @@
                                     {% endif %}
 
                                     {% if item.status == 4 %}
-                                        <a class="btn btn-xs btn-danger" href="#" target="_self"><i class="fa fa-check" aria-hidden="true"></i> {{'Aprobar'|trans}}</a>
+                                        <a class="btn btn-xs btn-danger" href="{{path('nononsense_tm_aprob_detail', {'id': item.id}) }}" target="_self"><i class="fa fa-check" aria-hidden="true"></i> {{'Aprobar'|trans}}</a>
                                     {% endif %}
 
                                     {% if item.status == 5 %}

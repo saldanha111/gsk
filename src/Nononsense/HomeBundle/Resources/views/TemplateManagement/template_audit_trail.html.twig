@@ -48,13 +48,20 @@
                           <div class="timeline-item">
                             <span class="time"><i class="fa fa-clock-o"></i> {{signature.created|date("d/m/Y H:i:s")}}</span>
 
-                            <h3 class="timeline-header"><a href="#">{{signature.userEntiy.name}}</a> - {{signature.action.name}}</h3>
+                            <h3 class="timeline-header"><a href="#">{{signature.userEntiy.name}}</a> - {{signature.action.name}}
+                            {% if signature.action.id == 3 %}
+                              - {% if signature.tmTests[0].result.id == 1 %}<span class="label bg-green">{% else %}<span class="label bg-red">{% endif %}{{signature.tmTests[0].result.name}}</span>
+                            {% endif %}
+                            </h3>
+
+                            
 
                             <div class="timeline-body">
                               {{signature.description is defined and signature.description is not null ? (signature.description~"<br>")|raw : ''}}
                               <img src="{{signature.signature}}" style="height:100px">
                               {% if signature.action.id == 3 %}
-                                <br><a href="{{path('nononsense_tm_test_new', {'id': item.id}) }}?pdf=1&test={{signature.tmTests[0].id}}&configuration={{signature.configuration}}" class="btn btn-xs btn-danger"  target="_blank"><i class="fa fa-file-pdf-o"></i> Descargar test</a>
+                                <br>
+                                <a href="{{path('nononsense_tm_test_new', {'id': item.id}) }}?pdf=1&test={{signature.tmTests[0].id}}&configuration={{signature.configuration}}" class="btn btn-xs btn-danger"  target="_blank"><i class="fa fa-file-pdf-o"></i> Descargar test</a>
                               {% endif %}
                             </div>
                           </div>

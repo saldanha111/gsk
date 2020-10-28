@@ -63,6 +63,11 @@ class TMWorkflow
      */
     protected $signed;
 
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMSignatures", mappedBy="tmWhoAprobFromWorkflow")
+     */
+    protected $tmSignatures;
+
     
     public function __construct()
     {

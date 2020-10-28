@@ -6226,6 +6226,13 @@ a.navbar-minimalize.btn-primary {
     cursor: default!important;
 }
 
+.strikeout td{
+  color:#CCCCCC;
+}
+.strikeout .label, .strikeout .btn{
+  opacity: 0.5;
+}
+
 @media (min-width: 768px) {
 	.border-sm-top {border-top:1px solid #e7eaec;}
 }

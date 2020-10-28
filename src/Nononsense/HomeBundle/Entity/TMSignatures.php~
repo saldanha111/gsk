@@ -38,6 +38,24 @@ class TMSignatures
      */
     protected $tmTests;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\TMTests", inversedBy="tmSignatures")
+     * @ORM\JoinColumn(name="test_id", referencedColumnName="id", nullable=true)
+     */
+    protected $tmTest;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\TMTestAprob", inversedBy="tmSignatures")
+     * @ORM\JoinColumn(name="aprob_action_id", referencedColumnName="id", nullable=true)
+     */
+    protected $tmAprobAction;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\TMWorkflow", inversedBy="tmSignatures")
+     * @ORM\JoinColumn(name="who_aprob_from_workflow", referencedColumnName="id", nullable=true)
+     */
+    protected $tmWhoAprobFromWorkflow;
+
 
     /**
      * @var string
@@ -357,5 +375,51 @@ class TMSignatures
     public function getTmTests()
     {
         return $this->tmTests;
+    }
+
+    /**
+     * Set tmTest
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMTests $tmTest
+     * @return TMSignatures
+     */
+    public function setTmTest(\Nononsense\HomeBundle\Entity\TMTests $tmTest = null)
+    {
+        $this->tmTest = $tmTest;
+
+        return $this;
+    }
+
+    /**
+     * Get tmTest
+     *
+     * @return \Nononsense\HomeBundle\Entity\TMTests 
+     */
+    public function getTmTest()
+    {
+        return $this->tmTest;
+    }
+
+    /**
+     * Set tmAprobAction
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMTestAprob $tmAprobAction
+     * @return TMSignatures
+     */
+    public function setTmAprobAction(\Nononsense\HomeBundle\Entity\TMTestAprob $tmAprobAction = null)
+    {
+        $this->tmAprobAction = $tmAprobAction;
+
+        return $this;
+    }
+
+    /**
+     * Get tmAprobAction
+     *
+     * @return \Nononsense\HomeBundle\Entity\TMTestAprob 
+     */
+    public function getTmAprobAction()
+    {
+        return $this->tmAprobAction;
     }
 }

@@ -728,6 +728,16 @@ nononsense_tm_elaborate_restore:
     methods:    [POST]
     defaults: { _controller: NononsenseHomeBundle:TemplateElaborateTemplates:restoreLastConfiguration,id: 0}
 
+nononsense_tm_aprob_detail:
+    path: /mt/aprob/{id}
+    methods:    [GET]
+    defaults: { _controller: NononsenseHomeBundle:TemplateAprobTemplates:detail,id: 0}
+
+nononsense_tm_aprob_update:
+    path: /mt/aprob/{id}
+    methods:    [POST]
+    defaults: { _controller: NononsenseHomeBundle:TemplateAprobTemplates:update,id: 0}
+
 nononsense_tm_test_detail:
     path: /mt/test/{id}
     methods:    [GET]

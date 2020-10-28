@@ -174,13 +174,13 @@ class TMTemplates
      */
     protected $area;
 
-     /**
+    /**
      * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\QrsTypes", inversedBy="tmTemplates")
      * @ORM\JoinColumn(name="qr_type_id", referencedColumnName="id", nullable=true)
      */
     protected $QRType;
 
-     /**
+    /**
      * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\TMStates", inversedBy="tmTemplates")
      * @ORM\JoinColumn(name="state_id", referencedColumnName="id")
      */
