@@ -95,7 +95,7 @@ class TemplateAprobTemplatesController extends Controller
 
         $all_signatures = $this->getDoctrine()->getRepository(TMSignatures::class)->findBy(array("template" => $array_item["template"]),array("id" => "ASC"));
         foreach($all_signatures as $key_all => $item_all){
-            if($item_all->getAction()->getId()!=3){
+            if($item_all->getAction()->getId()<3){
                 $array_item["max_id_no_test"]=$item_all->getId();
             }
         }
@@ -108,7 +108,7 @@ class TemplateAprobTemplatesController extends Controller
         foreach($array_item["tests"] as $key_test => $item_test){
         	$array_item["subtests"][$item_test->getId()] = $this->getDoctrine()->getRepository(TMTests::class)->findBy(array("signature" => $signatures, "test_id" => $item_test->getId()),array("id" => "DESC"));
 
-            $array_item["subtests_results_aprobs"] = $this->getDoctrine()->getRepository(TMSignatures::class)->findBy(array("tmTest" => $array_item["subtests"][$item_test->getId()], "action" => $action),array("id" => "ASC"));
+            $array_item["subtests_results_aprobs"][$item_test->getId()] = $this->getDoctrine()->getRepository(TMSignatures::class)->findBy(array("tmTest" => $array_item["subtests"][$item_test->getId()], "action" => $action),array("id" => "ASC"));
         }
 
         $base_url=$this->getParameter('api_docoaro')."/documents/".$array_item["template"]->getPlantillaId();
@@ -268,7 +268,7 @@ class TemplateAprobTemplatesController extends Controller
         $all_signatures = $this->getDoctrine()->getRepository(TMSignatures::class)->findBy(array("template" => $template),array("id" => "ASC"));
         $last_signatures_tests=array();
         foreach($all_signatures as $key_all => $item_all){
-            if($item_all->getAction()->getId()!=3){
+            if($item_all->getAction()->getId()<3){
                 unset($last_signatures_tests);
             }
             else{
@@ -281,13 +281,14 @@ class TemplateAprobTemplatesController extends Controller
         $user_workflow_finish=1;
         foreach($last_tests as $item_test){
             //Miramos si esos tests tienen alguna aprobación
-            $exist_aprob = $this->getDoctrine()->getRepository(TMSignatures::class)->findBy(array("template" => $template, "tmTest" => $item_test));
+            $exist_aprob = $this->getDoctrine()->getRepository(TMSignatures::class)->findBy(array("template" => $template, "tmTest" => $item_test, "tmWhoAprobFromWorkflow" => $wich_workflow));
             //Miramos si exceptuando la aprobacion que vamos a hacer, queda aún pendiente alguna para este usuario
             if(!$exist_aprob && $item_test!=$test_to_approve){
                 $user_workflow_finish=0;
             }
         }
         
+
         $next_step=0;
         if($user_workflow_finish){
             $wich_workflow->setSigned(TRUE);
@@ -314,62 +315,99 @@ class TemplateAprobTemplatesController extends Controller
 	        	}
 
 	        	$next_state=5;
-	        	/*$users_notifications=array();
+	        	$users_notifications=array();
+                $users_elaborations=array();
+                $users_tests=array();
 	        	$userssignatures = $this->getDoctrine()->getRepository(TMSignatures::class)->findBy(array("template" => $template),array("id" => "ASC"));
 	        	//Comprobamos los test realizados para saber a que estado debemos pasar la plantilla
 	        	foreach($userssignatures as $us){
-	        		//Tenemos en cuenta solo las pruebas desde la última firma que no sea de test
-	        		if($us->getAction()->getId()!=3){
-	        			$next_state=4;
+	        		//Tenemos en cuenta solo las pruebas desde la última firma que no sea de aprobación
+	        		if($us->getAction()->getId()!=4){
+	        			$next_state=5;
 	        			//Metemos aquellos usuarios que sean elaboradores para que estos sean notificados en caso de que la plantilla vuelva hacia atrás
 	        			if($us->getAction()->getId()==2){
-	        				$users_notifications[]=$us->getUserEntiy()->getEmail();
+	        				$users_elaborations[]=$us->getUserEntiy()->getEmail();
 	        			}
+
+                        if($us->getAction()->getId()==3){
+                            $users_tests[]=$us->getUserEntiy()->getEmail();
+                        }
 	        		}
 	        		else{
 	        			//Si hay un error en la prueba la plantilla vuelve hacia atrás
-	        			if($us->getResult()->getId()>1){
-	        				$next_state=2;
+	        			if($us->getTmAprobAction()->getId()>1){
+                            if($us->getTmAprobAction()->getId()==2 && $next_state>2){
+	        				   $next_state=3;
+                            }
+                            else{
+                                $next_state=2;
+                            }
 	        			}
 	        		}
 	        	}
 
 	        	//Si el resultado es que la plantilla pasa a aprobación, se vacía los usuarios a notificar (elaboradores) y metemos los aprobadores
-	        	if($next_state==4){
-	        		$users_notifications=array();
-	        		$action_aprob = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 4));
-	        		$aprobs = $this->getDoctrine()->getRepository(TMWorkflow::class)->findBy(array("template" => $template, "action" => $action_aprob));
-	        		foreach($aprobs as $aprob){
-	        			if($aprob->getUserEntiy()){
-	        				$users_notifications[]=$aprob->getUserEntiy()->getEmail();
-	        			}
-	        			else{
-	        				foreach($aprob->groupEntiy()->getUsers() as $user_group){
-								$users_notifications[]=$user_group->getEmail();
-	        				}
-	        			}
-	        		}
+                switch($next_state){
+                    case 2: $users_notifications=$users_elaborations;
+                        break;
+                    case 3: $users_notifications=$users_tests;
+                        break;
+    	        	case 5:
+    	        		$users_notifications=array();
+    	        		$action_admin = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 5));
+    	        		$admins = $this->getDoctrine()->getRepository(TMWorkflow::class)->findBy(array("template" => $template, "action" => $action_admin));
+    	        		foreach($admins as $admin){
+    	        			if($admin->getUserEntiy()){
+    	        				$users_notifications[]=$admin->getUserEntiy()->getEmail();
+    	        			}
+    	        			else{
+    	        				foreach($aprob->getGroupEntiy()->getUsers() as $user_group){
+                                    $users_notifications[]=$user_group->getUser()->getEmail();
+                                }
+    	        			}
+    	        		}
+                        break;
 	        	}
 
 	            $state = $this->getDoctrine()->getRepository(TMStates::class)->findOneBy(array("id"=> $next_state));
 	            $template->setTmState($state);
 
-	            var_dump($users_notifications);die();
-	            //Enviamos email */
+                switch($next_state){
+                    case 5:
+                        $subject="Plantilla aprobada";
+                        $mensaje='La plantilla con ID '.$id.' está pendiente de configuración por su parte. Para poder revisarlo puede acceder a "Gestión de plantillas -> Pdt. configuración", buscar la plantilla correspondiente y pulsar en Configurar';
+                        $baseURL=$this->container->get('router')->generate('nononsense_tm_config_detail', array("id" => $id),TRUE);
+                        break;
+                    case 3:
+                        $subject="Test rechazados";
+                        $mensaje='La plantilla con ID '.$id.' está pendiente de realizar nuevos tests por su parte. Para poder revisarlos puede acceder a "Gestión de plantillas -> En test", buscar la plantilla correspondiente y pulsar en Testear';
+                        $baseURL=$this->container->get('router')->generate('nononsense_tm_test_detail', array("id" => $id),TRUE);
+                        break;
+                    case 2:
+                        $subject="Plantilla rechazada/cancelada";
+                        $mensaje='La plantilla con ID '.$id.' está pendiente de revisión por su parte. Para poder revisarlo puede acceder a "Gestión de plantillas -> En elaboración", buscar la plantilla correspondiente y pulsar en Elaborar';
+                        $baseURL=$this->container->get('router')->generate('nononsense_tm_elaborate_detail', array("id" => $id),TRUE);
+                        break;
+                }
+
+	            foreach($users_notifications as $email){
+                    $this->get('utilities')->sendNotification($email, $baseURL, "", "", $subject, $mensaje);
+                }
+
+                $em->persist($template);
 	        }
         }
 
-        /*$em->persist($template);
-        $em->flush();*/
+        $em->flush();
 
-        die();
         $this->get('session')->getFlashBag()->add('message', "La aprobación se ha realizado correctamente");
-        if($workflow_finish){
+        if($user_workflow_finish){
         	$route = $this->container->get('router')->generate('nononsense_tm_templates');
         }
         else{
         	$route = $this->container->get('router')->generate('nononsense_tm_aprob_detail', array("id" => $template->getId()),TRUE);
         }
+
         return $this->redirect($route);
     }
 }

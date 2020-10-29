@@ -738,6 +738,16 @@ nononsense_tm_aprob_update:
     methods:    [POST]
     defaults: { _controller: NononsenseHomeBundle:TemplateAprobTemplates:update,id: 0}
 
+nononsense_tm_config_detail:
+    path: /mt/config/{id}
+    methods:    [GET]
+    defaults: { _controller: NononsenseHomeBundle:TemplateAprobTemplates:detail,id: 0}
+
+nononsense_tm_config_update:
+    path: /mt/config/{id}
+    methods:    [POST]
+    defaults: { _controller: NononsenseHomeBundle:TemplateAprobTemplates:update,id: 0}
+
 nononsense_tm_test_detail:
     path: /mt/test/{id}
     methods:    [GET]
@@ -762,11 +772,6 @@ nononsense_tm_test_save_data:
     path: /mt/test/{id}/save
     methods:    [POST]
     defaults: { _controller: NononsenseHomeBundle:TemplateTestTemplates:save,id: 0}
-
-nononsense_tm_approve_detail:
-    path: /mt/approve/{id}
-    methods:    [GET]
-    defaults: { _controller: NononsenseHomeBundle:TemplateTestTemplates:detail,id: 0}
 
 nononsense_tm_request_detail:
     path: /mt/requests/0

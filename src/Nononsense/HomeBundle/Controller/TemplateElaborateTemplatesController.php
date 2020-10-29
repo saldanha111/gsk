@@ -18,6 +18,7 @@ use Nononsense\HomeBundle\Entity\TMSignatures;
 use Nononsense\HomeBundle\Entity\TMWorkflow;
 use Nononsense\HomeBundle\Entity\TMCumplimentations;
 use Nononsense\HomeBundle\Entity\TMSecondWorkflow;
+use Nononsense\HomeBundle\Entity\TMTests;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
@@ -111,6 +112,28 @@ class TemplateElaborateTemplatesController extends Controller
        		$em->persist($array_item["template"]);
 			$em->flush();
        	}
+
+        /* Para el listado de tests */
+        $all_signatures = $this->getDoctrine()->getRepository(TMSignatures::class)->findBy(array("template" => $array_item["template"]),array("id" => "ASC"));
+        foreach($all_signatures as $key_all => $item_all){
+            if($item_all->getAction()->getId()==2){
+                $array_item["max_id_no_test"]=$item_all->getId();
+            }
+        }
+        $action_test = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 3));
+        $action_aprob = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 4));
+        $signatures = $this->getDoctrine()->getRepository(TMSignatures::class)->findBy(array("template" => $array_item["template"], "action" => $action_test),array("id" => "ASC"));
+        $array_item["tests"] = $this->getDoctrine()->getRepository(TMTests::class)->findBy(array("signature" => $signatures, "test_id" => NULL),array("id" => "DESC"));
+
+        $array_item["tests_results_aprobs"] = $this->getDoctrine()->getRepository(TMSignatures::class)->findBy(array("tmTest" => $array_item["tests"], "action" => $action_aprob),array("id" => "ASC"));
+
+        foreach($array_item["tests"] as $key_test => $item_test){
+            $array_item["subtests"][$item_test->getId()] = $this->getDoctrine()->getRepository(TMTests::class)->findBy(array("signature" => $signatures, "test_id" => $item_test->getId()),array("id" => "DESC"));
+
+            $array_item["subtests_results_aprobs"][$item_test->getId()] = $this->getDoctrine()->getRepository(TMSignatures::class)->findBy(array("tmTest" => $array_item["subtests"][$item_test->getId()], "action" => $action_aprob),array("id" => "ASC"));
+        }
+        $array_item["aprobs"] = $this->getDoctrine()->getRepository(TMWorkflow::class)->findBy(array("template" => $array_item["template"], "action" => $action_aprob),array("id" => "ASC"));
+        /* Fin listado de tests */
 
         $action = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 2));
         $array_item["elab"] = $this->getDoctrine()->getRepository(TMWorkflow::class)->findBy(array("template" => $array_item["template"], "action" => $action),array("id" => "ASC"));

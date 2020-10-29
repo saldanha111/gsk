@@ -52,6 +52,10 @@
                             {% if signature.action.id == 3 %}
                               - {% if signature.tmTests[0].result.id == 1 %}<span class="label bg-green">{% else %}<span class="label bg-red">{% endif %}{{signature.tmTests[0].result.name}}</span>
                             {% endif %}
+
+                            {% if signature.action.id == 4 %}
+                              - {% if signature.tmAprobAction.id == 1 %}<span class="label bg-green">{% else %}<span class="label bg-red">{% endif %}{{signature.tmAprobAction.name}}</span>
+                            {% endif %}
                             </h3>
 
                             
@@ -62,6 +66,11 @@
                               {% if signature.action.id == 3 %}
                                 <br>
                                 <a href="{{path('nononsense_tm_test_new', {'id': item.id}) }}?pdf=1&test={{signature.tmTests[0].id}}&configuration={{signature.configuration}}" class="btn btn-xs btn-danger"  target="_blank"><i class="fa fa-file-pdf-o"></i> Descargar test</a>
+                              {% endif %}
+
+                              {% if signature.action.id == 4 %}
+                                <br>
+                                <a href="{{path('nononsense_tm_test_new', {'id': item.id}) }}?pdf=1&test={{signature.tmTest.id}}&configuration={{signature.configuration}}" class="btn btn-xs btn-danger"  target="_blank"><i class="fa fa-file-pdf-o"></i> Descargar test</a>
                               {% endif %}
                             </div>
                           </div>
