@@ -96,13 +96,31 @@ class TemplateTestTemplatesController extends Controller
         	}
         }
 
+        $approval_exists=0;
+        $all_signatures = $this->getDoctrine()->getRepository(TMSignatures::class)->findBy(array("template" => $array_item["template"]),array("id" => "ASC"));
+        foreach($all_signatures as $key_all => $item_all){
+            if($item_all->getAction()->getId()==2 || $item_all->getAction()->getId()==4){
+                $array_item["max_id_no_test"]=$item_all->getId();
+            }
+            if($item_all->getAction()->getId()==4){
+                $approval_exists=1;
+            }
+        }
+        $action_aprob = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 4));
         $signatures = $this->getDoctrine()->getRepository(TMSignatures::class)->findBy(array("template" => $array_item["template"], "action" => $action),array("id" => "ASC"));
         $array_item["tests"] = $this->getDoctrine()->getRepository(TMTests::class)->findBy(array("signature" => $signatures, "test_id" => NULL),array("id" => "DESC"));
+        $array_item["tests_results_aprobs"] = $this->getDoctrine()->getRepository(TMSignatures::class)->findBy(array("tmTest" => $array_item["tests"], "action" => $action_aprob),array("id" => "ASC"));
         foreach($array_item["tests"] as $key_test => $item_test){
         	$array_item["subtests"][$item_test->getId()] = $this->getDoctrine()->getRepository(TMTests::class)->findBy(array("signature" => $signatures, "test_id" => $item_test->getId()),array("id" => "DESC"));
+            $array_item["subtests_results_aprobs"][$item_test->getId()] = $this->getDoctrine()->getRepository(TMSignatures::class)->findBy(array("tmTest" => $array_item["subtests"][$item_test->getId()], "action" => $action_aprob),array("id" => "ASC"));
         }
 
-        
+        if($approval_exists==1){
+            $array_item["aprobs"] = $this->getDoctrine()->getRepository(TMWorkflow::class)->findBy(array("template" => $array_item["template"], "action" => $action_aprob),array("id" => "ASC"));
+        }
+        else{
+            $array_item["aprobs"]=array();
+        }
 
         $base_url=$this->getParameter('api_docoaro')."/documents/".$array_item["template"]->getPlantillaId();
         $ch = curl_init();

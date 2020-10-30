@@ -114,10 +114,14 @@ class TemplateElaborateTemplatesController extends Controller
        	}
 
         /* Para el listado de tests */
+        $approval_exists=0;
         $all_signatures = $this->getDoctrine()->getRepository(TMSignatures::class)->findBy(array("template" => $array_item["template"]),array("id" => "ASC"));
         foreach($all_signatures as $key_all => $item_all){
             if($item_all->getAction()->getId()==2){
                 $array_item["max_id_no_test"]=$item_all->getId();
+            }
+            if($item_all->getAction()->getId()==4){
+                $approval_exists=1;
             }
         }
         $action_test = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 3));
@@ -132,7 +136,12 @@ class TemplateElaborateTemplatesController extends Controller
 
             $array_item["subtests_results_aprobs"][$item_test->getId()] = $this->getDoctrine()->getRepository(TMSignatures::class)->findBy(array("tmTest" => $array_item["subtests"][$item_test->getId()], "action" => $action_aprob),array("id" => "ASC"));
         }
-        $array_item["aprobs"] = $this->getDoctrine()->getRepository(TMWorkflow::class)->findBy(array("template" => $array_item["template"], "action" => $action_aprob),array("id" => "ASC"));
+        if($approval_exists==1){
+            $array_item["aprobs"] = $this->getDoctrine()->getRepository(TMWorkflow::class)->findBy(array("template" => $array_item["template"], "action" => $action_aprob),array("id" => "ASC"));
+        }
+        else{
+            $array_item["aprobs"]=array();
+        }
         /* Fin listado de tests */
 
         $action = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 2));

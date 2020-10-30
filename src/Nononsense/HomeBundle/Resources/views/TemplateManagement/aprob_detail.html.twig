@@ -127,7 +127,7 @@ var canvas = document.querySelector("canvas");
 var signaturePad = new SignaturePad(canvas);
 
 $( document ).ready(function() {
-
+    $('[data-toggle="tooltip"]').tooltip();
     $('#borrarFirmar').on('click', function () {
         signaturePad.clear();
     });
