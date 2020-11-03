@@ -985,7 +985,7 @@ class ProductsController extends Controller
             switch($input->getState()->getSlug()){
                 case 'retirado':
                 case 'usado':
-                    $openDate = $input->getOpenDate();
+                $openDate = $input->getOpenDate()?: new DateTime();
                     $data = [
                         'u_nombre_sustancia' => $input->getProduct()->getName(),
                         'u_cas' => ($input->getProduct()->getCasNumber())?:'',
