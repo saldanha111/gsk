@@ -87,6 +87,7 @@ security:
         - { path: ^/microsites/external/ , roles: ROLE_EXTERNAL}
         - { path: ^/notificacion_semanal , roles: IS_AUTHENTICATED_ANONYMOUSLY}
         - { path: ^/backoffice_bloquear_registros , roles: IS_AUTHENTICATED_ANONYMOUSLY}
+        - { path: ^/products-output-data/.* , roles: IS_AUTHENTICATED_ANONYMOUSLY}
         - { path: ^/$ , roles: ROLE_EXTERNAL}
         - { path: ^/ , roles: ROLE_USER}
         # require ROLE_ADMIN

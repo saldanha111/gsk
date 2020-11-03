@@ -349,12 +349,12 @@ nononsense_products:
     defaults: { _controller: NononsenseHomeBundle:Products:list}
 
 nononsense_products_reception:
-    path: /products/reception/{type}
-    defaults: { _controller: NononsenseHomeBundle:Products:reception}
+    path: /products/reception/{type}/{casNumber}
+    defaults: { _controller: NononsenseHomeBundle:Products:reception, casNumber: null}
 
 nononsense_products_inputs:
-    path: /products-inputs/{type}/{qrCode}
-    defaults: { _controller: NononsenseHomeBundle:Products:input}
+    path: /products-inputs/{type}/{qrCode}/{casNumber}
+    defaults: { _controller: NononsenseHomeBundle:Products:input, casNumber: null }
 
 nononsense_qrs_json_qr:
     path: /qrs-json/{id}
@@ -417,7 +417,7 @@ nononsense_products_inputs_get_data_json:
     defaults: { _controller: NononsenseHomeBundle:Products:inputDataJson}
 
 nononsense_products_output_data:
-    path: /products-output-data/{type}/{code}
+    path: /products-output-data/{code}
     defaults: { _controller: NononsenseHomeBundle:Products:jsonOutputData}
 
 # /Gestión de reactivos

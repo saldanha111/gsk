@@ -1,187 +1,266 @@
 {% extends '::base.html.twig' %}
-{% block page_title %}DOCXPRESSO | {{'Homepage'|trans}} {% endblock %}
+{% block page_title %}DOCXPRESSO | {{ 'Homepage'|trans }} {% endblock %}
 {% block head %}
-{{ parent() }}
-<link rel="stylesheet" href="/css/plugins/datapicker/datepicker3.css">
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('/css/plugins/datapicker/datepicker3.css') }}">
 {% endblock %}
 {% block main_title %} Listado de productos{% endblock %}
 {% block content %}
 
-<div class="wrapper wrapper-content">
-    <div class="row">
-        <div class="col-sm-12">
-            <div>
-                <div class="row">
-                    {% for flashMessage in app.session.flashbag.get('error') %}
-                        <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
-                            <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
-                            {{ flashMessage }}
-                        </div>
+    <div class="wrapper wrapper-content">
+        <div class="row">
+            <div class="col-sm-12">
+                <div>
+                    <div class="row">
+                        {% for flashMessage in app.session.flashbag.get('error') %}
+                            <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+                                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                                {{ flashMessage }}
+                            </div>
+                            <br>
+                        {% endfor %}
+                        {% for flashMessage in app.session.flashbag.get('message') %}
+                            <div class="alert alert-success alert-dismissable" style="margin: 10px 16px 0 16px">
+                                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                                {{ flashMessage }}
+                            </div>
+                            <br>
+                        {% endfor %}
+                        <form class="form-horizontal" id="form_item" action="{{ path('nononsense_products') }}"
+                              method="GET">
+                            <input type="hidden" id='url_product_list' value="{{ path('nononsense_products') }}"/>
+                            <input type="hidden" id='a_excel' name='a_excel'/>
+                            <div class="form-group">
+                                <label class="col-sm-1 control-label item_filter">Nombre</label>
+                                <div class="col-sm-2 item_filter">
+                                    <input type="text" name="f_name" class="form-control"
+                                           value="{{ filters.name is defined ? filters.name : '' }}">
+                                </div>
+                                <label class="col-sm-2 control-label item_filter">Part. Number</label>
+                                <div class="col-sm-2 item_filter">
+                                    <input type="text" name="f_partNumber" class="form-control"
+                                           value="{{ filters.partNumber is defined ? filters.partNumber : '' }}">
+                                </div>
+
+                                <label class="col-sm-1 control-label item_filter">CAS Number</label>
+                                <div class="col-sm-2 item_filter">
+                                    <input type="text" name="f_casNumber" class="form-control"
+                                           value="{{ filters.casNumber is defined ? filters.casNumber : '' }}">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-1 control-label item_filter">Cod. Interno</label>
+                                <div class="col-sm-2 item_filter">
+                                    <input type="text" name="f_internalCode" class="form-control"
+                                           value="{{ filters.internalCode is defined ? filters.internalCode : '' }}">
+                                </div>
+                                <label class="col-sm-2 control-label item_filter">Proveedor</label>
+                                <div class="col-sm-2 item_filter">
+                                    <input type="text" name="f_provider" class="form-control"
+                                           value="{{ filters.provider is defined ? filters.provider : '' }}">
+                                </div>
+                                <label class="col-sm-1 control-label item_filter">State</label>
+                                <div class="col-sm-2 item_filter">
+                                    <select class="form-control" name="f_state">
+                                        <option value="">Todos</option>
+                                        {% for state in states %}
+                                            <option value="{{ state.id }}" {{ filters.state is defined and filters.state is not null and filters.state == state.id  ? 'selected="selected"' : '' }}>{{ state.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-1 control-label item_filter">Stock</label>
+                                <div class="col-sm-1 item_filter">
+                                    <input type="text" class="form-control pull-right" autocomplete="off"
+                                           name="f_stockFrom" id="stock_from"
+                                           value="{{ filters.stock_from is defined ? filters.stock_from : '' }}">
+                                </div>
+
+                                <div class="col-sm-1 item_filter">
+                                    <input type="text" class="form-control pull-right" autocomplete="off"
+                                           name="f_stockTo" id="stock_to"
+                                           value="{{ filters.stock_to is defined ? filters.stock_to : '' }}">
+                                </div>
+
+                                <label class="col-sm-2 control-label item_filter">Por debajo de stock mínimo</label>
+                                <div class="col-sm-2 item_filter">
+                                    <select name="f_underMinimumStock" class="form-control pull-right">
+                                        <option {% if filters.underMinimumStock is not defined or filters.underMinimumStock == 0 %} selected="selected" {% endif %}
+                                                value="0">Todos
+                                        </option>
+                                        <option {% if filters.underMinimumStock is defined and  filters.underMinimumStock == 1 %} selected="selected" {% endif %}
+                                                value="1">Si
+                                        </option>
+                                        <option {% if filters.underMinimumStock is defined and  filters.underMinimumStock == 2 %} selected="selected" {% endif %}
+                                                value="2">No
+                                        </option>
+                                    </select>
+                                </div>
+                                <label class="col-sm-1 control-label item_filter">Activo</label>
+                                <div class="col-sm-2 item_filter">
+                                    <select name="f_active" class="form-control pull-right">
+                                        <option {% if filters.active is not defined or filters.active == 0 %} selected="selected" {% endif %}
+                                                value="0">Todos
+                                        </option>
+                                        <option {% if filters.active is defined and  filters.active == 1 %} selected="selected" {% endif %}
+                                                value="1">Si
+                                        </option>
+                                        <option {% if filters.active is defined and  filters.active == 2 %} selected="selected" {% endif %}
+                                                value="2">No
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-1 control-label item_filter">Tipo</label>
+                                <div class="col-sm-2 item_filter">
+                                    <select class="form-control" name="f_type">
+                                        <option value="">Todos</option>
+                                        {% for type in types %}
+                                            <option value="{{ type.slug }}" {{ filters.type is defined and filters.type is not null and filters.type == type.slug  ? 'selected="selected"' : '' }}>{{ type.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <label class="col-sm-2 control-label item_filter">Fecha de destrucción</label>
+                                <div class="col-md-3 col-sm-4 item_filter">
+                                    <div class="input-group input-daterange">
+                                        <input type="text" name="f_destructionDateFrom" class="form-control"
+                                               value="{{ filters.destructionDateFrom is defined ? filters.destructionDateFrom : '' }}">
+                                        <div class="input-group-addon">hasta</div>
+                                        <input type="text" name="f_destructionDateTo" class="form-control"
+                                               value="{{ filters.destructionDateTo is defined ? filters.destructionDateTo : '' }}">
+                                    </div>
+                                </div>
+                                <div class="col-sm-1 col-sm-offset-1 item_filter">
+                                    <button type="button" onclick="javascript:filtering();"
+                                            class="btn btn-primary pull-right">Filtrar
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="row">
                         <br>
-                    {% endfor %}
-                    {% for flashMessage in app.session.flashbag.get('message') %}
-                        <div class="alert alert-success alert-dismissable" style="margin: 10px 16px 0 16px">
-                            <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
-                            {{ flashMessage }}
-                        </div>
-                        <br>
-                    {% endfor %}
-                    <form class="form-horizontal" id="form_item" action="{{ path('nononsense_products') }}" method="GET">
-                        <input type="hidden" id='url_product_list' value="{{ path('nononsense_products') }}" />
-                        <input type="hidden" id='a_excel' name='a_excel' />
-                        <div class="form-group">
-                            <label class="col-sm-2 control-label item_filter">Part. Number</label>
-                            <div class="col-sm-2 item_filter">
-                                <input type="text" name="f_partNumber" class="form-control" value="{{filters.partNumber is defined ? filters.partNumber : ''}}">
-                            </div>
-
-                            <label class="col-sm-1 control-label item_filter">CAS Number</label>
-                            <div class="col-sm-2 item_filter">
-                                <input type="text" name="f_casNumber" class="form-control" value="{{filters.casNumber is defined ? filters.casNumber : ''}}">
-                            </div>
-
-                            <label class="col-sm-1 control-label item_filter">Nombre</label>
-                            <div class="col-sm-2 item_filter">
-                                <input type="text" name="f_name" class="form-control" value="{{filters.name is defined ? filters.name : ''}}">
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="col-sm-2 control-label item_filter">Activo</label>
-                            <div class="col-sm-2 item_filter">
-                                <select name="f_active" class="form-control pull-right">
-                                    <option {% if filters.active is not defined or filters.active == 0 %} selected="selected" {% endif %} value="0">Todos</option>
-                                    <option {% if filters.active is defined and  filters.active == 1 %} selected="selected" {% endif %} value="1">Si</option>
-                                    <option {% if filters.active is defined and  filters.active == 2 %} selected="selected" {% endif %} value="2">No</option>
-                                </select>
-                            </div>
-                            <label class="col-sm-1 control-label item_filter">Stock</label>
-                            <div class="col-sm-1 item_filter">
-                                <input type="text" class="form-control pull-right" autocomplete="off" name="f_stock_from" id="stock_from" value="{{filters.stock_from is defined ? filters.stock_from : ''}}">
-                            </div>
-
-                            <div class="col-sm-1 item_filter">
-                                <input type="text" class="form-control pull-right" autocomplete="off" name="f_stock_to" id="stock_to" value="{{filters.stock_to is defined ? filters.stock_to : ''}}">
-                            </div>
-
-                            <label class="col-sm-1 control-label item_filter">Por debajo de stock mínimo</label>
-                            <div class="col-sm-2 item_filter">
-                                <select name="f_underMinimumStock" class="form-control pull-right">
-                                    <option {% if filters.underMinimumStock is not defined or filters.underMinimumStock == 0 %} selected="selected" {% endif %} value="0">Todos</option>
-                                    <option {% if filters.underMinimumStock is defined and  filters.underMinimumStock == 1 %} selected="selected" {% endif %} value="1">Si</option>
-                                    <option {% if filters.underMinimumStock is defined and  filters.underMinimumStock == 2 %} selected="selected" {% endif %} value="2">No</option>
-                                </select>
-                            </div>
-
-                            <div class="col-sm-1 item_filter">
-                                <button type="button" onclick="javascript:filtering();" class="btn btn-primary pull-right">Filtrar</button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <div class="row">
-                    <div>
-                      <a href="{{ path('nononsense_products_edit',{'type': 'material', 'id': '0'}) }}" target="_self" class="btn btn-primary pull-right"><i class="fa fa-plus"></i> Nuevo Producto</a>
-                    </div><br>
-                    <table id="inProcessParcial" class="table table-striped">
-                        <thead>
-                        <tr>
-                            <th>Id.</th>
-                            <th>Part. Number</th>
-                            <th>Cas Number</th>
-                            <th>Nombre</th>
-                            <th>Stock</th>
-                            <th>Proveedor</th>
-                            <th>Presentación</th>
-                            <th>Stock mínimo</th>
-                            <th>Tipo</th>
-                            <th>Activo</th>
-                            <th></th>
-                        </tr>
-                        </thead>
-                        {% if items is defined %}
-                            {% for item in items %}
-                            <tr {% if item.product.stock < item.product.stockMinimum %} style="background-color: red; color: white;" {% endif %}>
-                                <td>{{item.product.id}}</td>
-                                <td>{{item.product.partNumber}}</td>
-                                <td>{{item.product.casNumber}}</td>
-                                <td>{{item.product.name}}</td>
-                                <td>{{item.product.stock}}</td>
-                                <td>{{item.product.provider}}</td>
-                                <td>{{item.product.presentation}}</td>
-                                <td>{{item.product.stockMinimum}}</td>
-                                <td>{{item.nameType}}</td>
-                                <td>
-                                    {% if item.product.active %}
-                                        Si
-                                    {% else %}
-                                        No
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <a {% if item.product.stock < item.product.stockMinimum %} style="color: white;" {% endif %}
-                                            href="{{path('nononsense_products_edit_stock', {'id': item.product.id}) }}"
-                                            class="btn btn-xs" target="_self">
-                                        <i class="fa fa-pencil" aria-hidden="true"></i> Editar Stock
-                                    </a>
-                                </td>
+                        <table id="inProcessParcial" class="table table-striped">
+                            <thead>
+                            <tr>
+                                <th>Tipo</th>
+                                <th>Nombre</th>
+                                <th>QR</th>
+                                <th>Part. Number</th>
+                                <th>Cas Number</th>
+                                <th>Código interno</th>
+                                <th>Proveedor</th>
+                                <th>Presentación</th>
+                                <th>Fecha de destrucción</th>
+                                <th>Estado</th>
+                                <th>Stock actual</th>
+                                <th>Stock mínimo</th>
+                                <th>Observaciones</th>
+                                <th>Activo</th>
+                                <th></th>
                             </tr>
-                            {% endfor %}
-                        {% endif %}
-                    </table>
+                            </thead>
+                            {% if items is defined %}
+                                {% for item in items %}
+                                    <tr {% if item.stock < item.minStock and false %} style="background-color: red; color: white;" {% endif %}>
+                                        <td>{{ item.productType }}</td>
+                                        <td>{{ item.productName }}</td>
+                                        <td>{{ item.qrCode }}</td>
+                                        <td>{{ item.partNumber }}</td>
+                                        <td>{{ item.casNumber }}</td>
+                                        <td>{{ item.internalCode }}</td>
+                                        <td>{{ item.provider }}</td>
+                                        <td>{{ item.presentation }}</td>
+                                        <td>
+                                            {% if item.destructionDate is defined and item.destructionDate is not null %}
+                                                {{ item.destructionDate | date('d-m-Y') }}
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ item.state }}</td>
+                                        <td>{{ item.stock }}</td>
+                                        <td>{{ item.minStock }}</td>
+                                        <td>{{ item.observations }}</td>
+                                        <td>
+                                            {% if item.active %}
+                                                Si
+                                            {% else %}
+                                                No
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <a {% if item.stock < item.minStock and false %} style="color: white;" {% endif %}
+                                                    href="{{ path('nononsense_products_edit_stock', {'id': item.idProduct}) }}"
+                                                    class="btn btn-xs" target="_self">
+                                                <i class="fa fa-pencil" aria-hidden="true"></i> Editar Stock
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            {% endif %}
+                        </table>
 
-                    {% if count==0 %}
-                        <br><b>No se han encontrado datos disponibles</b>
-                    {% endif %}
-                    {% if pagination is defined and pagination.needed %}
-                        {% include '::pagination2.html.twig' %}
-                    {% endif %}
-                    <a href="javascript:export_excel();" class="btn btn-primary pull-right"><i class="fa fa-file-excel-o" aria-hidden="true"></i> Excel</a> 
+                        {% if count==0 %}
+                            <br><b>No se han encontrado datos disponibles</b>
+                        {% endif %}
+                        {% if pagination is defined and pagination.needed %}
+                            {% include '::pagination2.html.twig' %}
+                        {% endif %}
+                        <a href="javascript:export_excel();" class="btn btn-primary pull-right"><i
+                                    class="fa fa-file-excel-o" aria-hidden="true"></i> Excel</a>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 {% endblock %}
 {% block scripts %}
-{{ parent() }}
-<script>
-  $(function () {
-    ActivateMenu('browse_products');
-    $('#side-menu').metisMenu();
-  });
+    {{ parent() }}
+    <script src="{{ asset('/js/plugins/datapicker/bootstrap-datepicker.js') }}"></script>
+    <script src="{{ asset('/js/plugins/datapicker/locales/bootstrap-datepicker.es.js') }}" charset="UTF-8"></script>
+    <script>
+        $(function () {
+            ActivateMenu('browse_products');
+            $('#side-menu').metisMenu();
+            $('.input-daterange').datepicker({
+                orientation: 'auto',
+                format: 'dd-mm-yyyy',
+                language: 'es'
+            });
+        });
 
-  function delete_product(id){
-    var url_product_delete = $('#url_product_delete').val();     
-    url_product_delete = url_product_delete.replace("xxx", id);
+        function delete_product(id) {
+            var url_product_delete = $('#url_product_delete').val();
+            url_product_delete = url_product_delete.replace("xxx", id);
 
-    if(confirm('¿Seguro que quieres borrar el producto?')){
-        window.location.href = url_product_delete;
-    }
-  }
+            if (confirm('¿Seguro que quieres borrar el producto?')) {
+                window.location.href = url_product_delete;
+            }
+        }
 
-  function destroy_product(id){
-    var url_product_destroy = $('#url_product_destroy').val();     
-    url_product_destroy = url_product_destroy.replace("xxx", id);
+        function destroy_product(id) {
+            var url_product_destroy = $('#url_product_destroy').val();
+            url_product_destroy = url_product_destroy.replace("xxx", id);
 
-    if(confirm('¿Seguro que quieres destruir el producto?')){
-        window.location.href = url_product_destroy;
-    }
-  }
+            if (confirm('¿Seguro que quieres destruir el producto?')) {
+                window.location.href = url_product_destroy;
+            }
+        }
 
-  function filtering(){
-    $('#a_excel').val(0);
-    var url_product_list = $('#url_product_list').val(); 
-    $('#form_item').attr("action", url_product_list);
-    $('#form_item').attr("target","_self");
-    $('#form_item').submit();
-  }
+        function filtering() {
+            $('#a_excel').val(0);
+            var url_product_list = $('#url_product_list').val();
+            $('#form_item').attr("action", url_product_list);
+            $('#form_item').attr("target", "_self");
+            $('#form_item').submit();
+        }
 
-  function export_excel(){
-    $('#a_excel').val(1);
-    $('#form_item').attr("target","_blank");
-    $('#form_item').submit();
-  }
-</script>
+        function export_excel() {
+            $('#a_excel').val(1);
+            $('#form_item').attr("target", "_blank");
+            $('#form_item').submit();
+        }
+    </script>
 {% endblock %}
                         
