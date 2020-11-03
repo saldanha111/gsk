@@ -943,27 +943,72 @@ class ProductsController extends Controller
         exit();
     }
 
-    public function jsonOutputDataAction($type, $code){
-        if($type == 'outputReactivos'){
-            /** @var ProductsOutputsRepository $outputsRepository */
-            $outputsRepository = $this->getDoctrine()->getRepository(ProductsOutputs::class);
-            /** @var ProductsOutputs $output */
-            $output = $outputsRepository->find($code);
-
-            if($output){
-                $input = $output->getProductInput();
-                $data = [
-                    'u_nombre_sustancia' => $input->getProduct()->getName(),
-                    'u_cas' => ($input->getProduct()->getCasNumber())?:'',
-                    'u_lote' => ($input->getLotNumber())?:'',
-                    'u_caducidad' => ($input->getExpiryDate()) ? $input->getExpiryDate()->format('d-m-Y'):'',
-                    'u_n_vial' => ($input->getProduct()->getProvider())?:''
-                ];
-
-                return new Response(json_encode($data), 200);
+    public function useProductAction($data)
+    {
+        $em = $this->getDoctrine()->getManager();
+        /** @var ProductsInputsRepository $inputsRepository */
+        $inputsRepository = $em->getRepository(ProductsInputs::class);
+        /** @var ProductsInputs $input */
+        $statusRepository = $em->getRepository(ProductsInputStatus::class);
+        $openState = $statusRepository->findOneBy(['slug' => 'usado']);
+        $finishedState = $statusRepository->findOneBy(['slug' => 'terminado']);
+        foreach($data->data->u_qr_data as $key => $qrCode){
+            $input = $inputsRepository->findOneBy(['qrCode' => $qrCode]);
+            if($input){
+                $change = false;
+                if($input->getOpenDate() === null){
+                    $input->setOpenDate(new DateTime());
+                    $input->setState($openState);
+                    $change = true;
+                }
+                if($data->data->u_terminado->{$key} === '1'){
+                    $input->setState($finishedState);
+                    $change = true;
+                }
+                if($change){
+                    $em->persist($input);
+                }
             }
         }
-        return new Response(json_encode(array("error" => "QR not found")), 404);
+        $em->flush();
+        return new Response(true);
+    }
+
+    public function jsonOutputDataAction($code){
+        $data = ['u_qr_data' => 'Reactivo no registrado'];
+        /** @var ProductsInputsRepository $inputsRepository */
+        $inputsRepository = $this->getDoctrine()->getRepository(ProductsInputs::class);
+        /** @var ProductsInputs $output */
+        $input = $inputsRepository->findOneBy(['qrCode' => $code]);
+
+        if($input){
+            switch($input->getState()->getSlug()){
+                case 'retirado':
+                case 'usado':
+                    $openDate = $input->getOpenDate();
+                    $data = [
+                        'u_nombre_sustancia' => $input->getProduct()->getName(),
+                        'u_cas' => ($input->getProduct()->getCasNumber())?:'',
+                        'u_lote' => ($input->getLotNumber())?:'',
+                        'u_caducidad' => ($input->getExpiryDate()) ? $input->getExpiryDate()->format('Y-m-d'):'',
+                        'u_n_vial' => ($input->getProduct()->getProvider())?:'',
+                        'u_date' => $openDate->format('Y-m-d'),
+                        'u_qr_data' => $input->getQrCode()
+                    ];
+                    break;
+                case 'recibido':
+                    $data = ['u_qr_data' => 'Extracción no registrada'];
+                    break;
+                case 'terminado':
+                    $data = ['u_qr_data' => 'Reactivo terminado'];
+                    break;
+            }
+            if($input->getExpiryDate() < (new DateTime()) || $input->getDestructionDate() < (new DateTime())){
+                $data = ['u_qr_data' => 'Caducidad alcanzada.'];
+            }
+        }
+
+        return new Response(json_encode($data));
     }
 
     private function exportExcelProducts($items)

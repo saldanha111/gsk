@@ -417,7 +417,7 @@ nononsense_products_inputs_get_data_json:
     defaults: { _controller: NononsenseHomeBundle:Products:inputDataJson}
 
 nononsense_products_output_data:
-    path: /products-output-data/{type}/{code}
+    path: /products-output-data/{code}
     defaults: { _controller: NononsenseHomeBundle:Products:jsonOutputData}
 
 # /Gestión de reactivos

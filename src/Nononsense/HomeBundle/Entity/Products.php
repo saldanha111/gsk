@@ -122,7 +122,7 @@ class Products
     /**
      * @var bool
      *
-     * @ORM\Column(name="static", type="boolean", options={"default" : false})
+     * @ORM\Column(name="static", type="boolean",  nullable=true, options={"default" : false})
      */
     private $static;
 
