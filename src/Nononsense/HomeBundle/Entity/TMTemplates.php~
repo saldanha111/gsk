@@ -121,6 +121,14 @@ class TMTemplates
     protected $logbook;
 
     /**
+     * @var boolean $uniqid
+     *
+     * @ORM\Column(name="uniqid", type="boolean",  options={"default" = false})
+     * @Groups({"detail_document"})
+     */
+    protected $uniqid;
+
+    /**
      * @var boolean $isSimple
      *
      * @ORM\Column(name="is_simple", type="boolean",  options={"default" = false})
@@ -200,6 +208,16 @@ class TMTemplates
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMSecondWorkflow", mappedBy="template")
      */
     protected $tmSecondWorkflows;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMNestTemplates", mappedBy="template")
+     */
+    protected $tmNestMasterTemplates;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMNestTemplates", mappedBy="nestTemplate")
+     */
+    protected $tmNestTemplates;
 
     /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\Areas", mappedBy="template")

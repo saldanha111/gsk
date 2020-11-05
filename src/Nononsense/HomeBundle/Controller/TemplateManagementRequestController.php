@@ -35,6 +35,7 @@ class TemplateManagementRequestController extends Controller
     {
     	$serializer = $this->get('serializer');
         $array_item=array();
+
         $array_item["areas"] = $this->getDoctrine()->getRepository(Areas::class)->findBy(array(),array("name" => "ASC"));
         $array_item["groups"] = $this->getDoctrine()->getRepository(Groups::class)->findBy(array(),array("name" => "ASC"));
         $array_item["users"] = $this->getDoctrine()->getRepository(Users::class)->findBy(array(),array("name" => "ASC"));
@@ -363,7 +364,13 @@ class TemplateManagementRequestController extends Controller
         else{
             $template->setIsSimple(0); 
         }
+
+        if($request->get("public_date")){
+           $template->setEstimatedEffectiveDate($request->get("public_date")); 
+        }
+
         $template->setLogbook(0);
+        $template->setUniqid(0);
         $template->setCreated(new \DateTime());
         $template->setModified(new \DateTime());
         $template->setTemplateId($itemplate);

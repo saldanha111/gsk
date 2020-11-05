@@ -195,8 +195,13 @@
                                         <a class="btn btn-xs btn-danger" href="{{path('nononsense_tm_config_detail', {'id': item.id}) }}" target="_self"><i class="fa fa-gear" aria-hidden="true"></i> {{'Configurar'|trans}}</a>
                                     {% endif %}
 
+
+                                    {% if item.status == 11 %}
+                                        <a class="btn btn-xs btn-danger" href="{{path('nononsense_tm_config_detail', {'id': item.id}) }}" target="_self"><i class="fa fa-gear" aria-hidden="true"></i> {{'Modificar configuración'|trans}}</a>
+                                    {% endif %}
+
                                     {% if item.status == 6 %}
-                                        <a class="btn btn-xs btn-primary disabled" href="#" target="_self"><i class="fa fa-thumbs-o-up" aria-hidden="true"></i> {{'En vigor'|trans}}</a>
+                                        <a class="btn btn-xs btn-primary" href="{{path('nononsense_tm_config_detail', {'id': item.id}) }}" target="_self"><i class="fa fa-thumbs-o-up" aria-hidden="true"></i> {{'En vigor'|trans}}</a>
                                     {% endif %}
 
                                     {% if item.status == 7 %}

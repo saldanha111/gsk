@@ -35,14 +35,23 @@ class TemplateManagementTemplatesController extends Controller
     	$em = $this->getDoctrine()->getManager();
         $array=array();
 
+        $filters["limit_from"]=0;
+        $filters["limit_many"]=10;
+
         if($request->get("no_request_in_proccess")){
-            $in_proccess=1;
-        }
-        else{
-            $in_proccess=0;
+            $filters["no_request_in_proccess"]=1;
         }
 
-        $items=$em->getRepository('NononsenseHomeBundle:TMTemplates')->listActiveForRequest(array("name"=>$request->get("name"),"no_request_in_proccess" => $in_proccess,"limit_from" => 0, "limit_many" => 10));
+        if($request->get("nest")){
+            $filters["nest"]=1;
+        }
+
+        if($request->get("name")){
+            $filters["name"]=$request->get("name");
+        }
+
+
+        $items=$em->getRepository('NononsenseHomeBundle:TMTemplates')->listActiveForRequest($filters);
         $serializer = $this->get('serializer');
         $array_items = json_decode($serializer->serialize($items,'json',array('groups' => array('json'))),true);
         foreach($array_items as $key => $item){
@@ -170,13 +179,22 @@ class TemplateManagementTemplatesController extends Controller
         $em = $this->getDoctrine()->getManager();
         $array=array();
 
+        $is_valid = $this->get('app.security')->permissionSeccion('dueno_gp');
+        if(!$is_valid){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                'No tiene permisos suficientes'
+            );
+            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            return $this->redirect($route);
+        }
+
         $user = $this->container->get('security.context')->getToken()->getUser();
         if($request->get("action") && $request->get("signature")){
             $template = $this->getDoctrine()->getRepository(TMTemplates::class)->findOneBy(array("id" => $id));
             if($template){
                 $action = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => $request->get("action")));
                 if($action){
-
                     if($user!=$template->getOwner() && $user!=$template->getBackup()){
                         $this->get('session')->getFlashBag()->add(
                             'error',

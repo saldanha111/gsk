@@ -41,6 +41,16 @@ class TemplateAprobTemplatesController extends Controller
         $em = $this->getDoctrine()->getManager();
         $array_item=array();
 
+        $is_valid = $this->get('app.security')->permissionSeccion('aprobador_gp');
+        if(!$is_valid){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                'No tiene permisos suficientes'
+            );
+            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            return $this->redirect($route);
+        }
+
         $user = $this->container->get('security.context')->getToken()->getUser();
 
         $array_item["template"] = $this->getDoctrine()->getRepository(TMTemplates::class)->findOneBy(array("id" => $id));
@@ -147,6 +157,16 @@ class TemplateAprobTemplatesController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
         $array_item=array();
+
+        $is_valid = $this->get('app.security')->permissionSeccion('aprobador_gp');
+        if(!$is_valid){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                'No tiene permisos suficientes'
+            );
+            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            return $this->redirect($route);
+        }
 
         $user = $this->container->get('security.context')->getToken()->getUser();
 

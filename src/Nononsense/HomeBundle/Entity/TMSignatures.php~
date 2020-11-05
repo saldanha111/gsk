@@ -422,4 +422,27 @@ class TMSignatures
     {
         return $this->tmAprobAction;
     }
+
+    /**
+     * Set tmWhoAprobFromWorkflow
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMWorkflow $tmWhoAprobFromWorkflow
+     * @return TMSignatures
+     */
+    public function setTmWhoAprobFromWorkflow(\Nononsense\HomeBundle\Entity\TMWorkflow $tmWhoAprobFromWorkflow = null)
+    {
+        $this->tmWhoAprobFromWorkflow = $tmWhoAprobFromWorkflow;
+
+        return $this;
+    }
+
+    /**
+     * Get tmWhoAprobFromWorkflow
+     *
+     * @return \Nononsense\HomeBundle\Entity\TMWorkflow 
+     */
+    public function getTmWhoAprobFromWorkflow()
+    {
+        return $this->tmWhoAprobFromWorkflow;
+    }
 }

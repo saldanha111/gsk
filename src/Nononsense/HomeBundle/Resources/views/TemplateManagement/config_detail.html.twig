@@ -1,0 +1,243 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}DOCXPRESSO | {{'Homepage'|trans}} {% endblock %}
+{% block head %}
+{{ parent() }}
+    <link rel="stylesheet" href="/css/plugins/datapicker/datepicker3.css">
+    <link rel="stylesheet" href="/plugins/select2/dist/css/select2.min.css">
+{% endblock %}
+{% block main_title %} {{'Configuración de la plantilla'|trans}}{% endblock %}
+{% block content %}
+
+
+    <div class="wrapper wrapper-content">
+        <div class="col-lg-11 col-lg-offset-1">
+            <form class="form-horizontal" id="form_item" action="{{ path('nononsense_tm_config_update') }}" method="POST"  enctype="multipart/form-data">
+                <div class="row form-horizontal">
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">Nombre Plantilla</label>
+                        <div class="col-sm-4">
+                            <input type="text" class="form-control" value="{{template.name}}" readonly="readonly">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">Dueño</label>
+                        <div class="col-sm-4">
+                            <select class="form-control" name="owner" id="owner">
+                              {% for user in users %}
+                                <option value="{{user.id}}" {{template.onwer is defined and template.onwer.id==user.id ? "selected='selected'" : ''}}>{{user.name}}</option>
+                              {% endfor %}
+                            </select>
+                        </div>
+                    </div> 
+
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">Backup</label>
+                        <div class="col-sm-4">
+                            <select class="form-control" name="backup" id="backup">
+                              {% for user in users %}
+                                <option value="{{user.id}}" {{template.backup is defined and template.backup.id==user.id ? "selected='selected'" : ''}}>{{user.name}}</option>
+                              {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">Anidar Plantillas</label>
+                        <div class="col-sm-4" id="box_templates">
+                            {% if templates is defined %}
+                                {% for children in templates %}
+                                    <div class="child_template row">
+                                        <div class="col-xs-10">
+                                            <select class="form-control select_template" style="width: 100%;" required="required"  {{template.tmState.id == 6 ? 'readonly="readonly"' : ''}}>
+                                                <option value="{{children.id}}" selected="selected">{{children.name}}</option>
+                                            </select>
+                                            <input type="hidden" name="templates[]" value="{{children.id}}" required="required"  {{template.tmState.id == 6 ? 'readonly="readonly"' : ''}}>
+                                        </div>
+                                        {% if template.tmState.id != 6 %}
+                                            <div class="col-xs-2">
+                                                <a href="javascript:void(0)" class="btn btn-xs btn-danger remove_line"><i class="fa fa-times" aria-hidden="true"></i></a>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        {% if template.tmState.id != 6 %}
+                            <div class="col-sm-2">
+                                <button type="button" class="btn btn-default pull-left add_template" data-type="aprob"><i class="fa fa-plus"></i> Añadir</button>
+                            </div>
+                        {% endif %}
+                    </div>
+
+
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">Fecha entrada en vigor<br><span style="font-weight: normal">(Estimada:{{template.estimatedEffectiveDate is defined and template.estimatedEffectiveDate is not null ? template.estimatedEffectiveDate|date("d/m/Y") : ''}})</span></label>
+                        <div class="col-sm-2">
+                            <input type="text" id="public_date" class="form-control"  {{template.tmState.id == 6 ? 'readonly="readonly"' : ''}} value="{{template.effectiveDate is defined and template.effectiveDate is not null ? template.effectiveDate|date("d/m/Y") : ''}}" required="required">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">QR</label>
+                        <div class="col-sm-4">
+                            <select class="form-control" name="qr" id="qr" {{template.tmState.id == 6 ? 'readonly="readonly"' : ''}}>
+                                <option value="">-- No requiere QR --</option>
+                                  {% for qr in qrs %}
+                                        <option value="{{qr.id}}" {{template.QRType is defined and template.QRType==qr ? "selected='selected'" : ''}}>{{qr.name}}</option>
+                                  {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-sm-7 col-sm-offset-2">
+                            <div class="checkbox">
+                                <label>
+                                    <input name="logbook" value="1" type="checkbox"  {{template.tmState.id == 6 ? 'disabled="disabled"' : ''}} {{template.logbook is defined and template.logbook==1 ? "checked='checked'" : ''}}> Logbook
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-sm-7 col-sm-offset-2">
+                            <div class="checkbox">
+                                <label>
+                                    <input name="unique" value="1" type="checkbox"  {{template.tmState.id == 6 ? 'disabled="disabled"' : ''}} {{template.uniqid is defined and template.uniqid==1 ? "checked='checked'" : ''}}> Identificador único
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-10 col-lg-offset-2">
+                        <div id="signature-pad" class="input-group">
+                                <h2>Introduzca su firma</h2>
+                                <canvas width="300" height="150" style="touch-action: none; border: 2px solid #eee; box-shadow: 0px 0px 6px 1px rgba(80, 90, 100, 0.5)"></canvas>
+                            </div>
+                            <input type="hidden" id="signature" name="signature" />
+                            <a name="borrarFirmar" class="btn btn-secondary" id="borrarFirmar">Limpiar firma</a>
+                            <button type="submit" class="btn btn-primary"><i class="fa fa-floppy-o" aria-hidden="true"></i> Guardar y firmar</button>
+                        </div>
+                    </div>
+                    <br><br>
+                </div>
+                {% if template is defined %}
+                    <br><br>{% include 'NononsenseHomeBundle:TemplateManagement:action_template.html.twig' %}<br><br>
+                {% endif %}
+            </form>       
+        </div>
+    </div>
+
+    <did style="display:none" id="new_template">
+        <div class="child_template row">
+            <div class="col-xs-10">
+                <select class="form-control select_template" style="width: 100%;" required="required">
+                    <option value="" selected="selected"></option>
+                </select>
+                <input type="hidden" name="templates[]" value="" required="required">
+            </div>
+            <div class="col-xs-2">
+                <a href="javascript:void(0)" class="btn btn-xs btn-danger remove_template"><i class="fa fa-times" aria-hidden="true"></i></a>
+            </div>
+        </div>
+    </did>
+
+    
+
+{% endblock %}
+{% block scripts %}
+{{ parent() }}
+<script src="/js/plugins/signature-pad/signature-pad.min.js"></script>
+<script src="/js/plugins/datapicker/bootstrap-datepicker.js"></script>
+<script src="/js/plugins/datapicker/locales/bootstrap-datepicker.es.js" charset="UTF-8"></script>
+<script src="/plugins/select2/dist/js/select2.full.min.js"></script>
+<script src="/plugins/select2/es.js"></script>
+<script>
+
+    $( document ).ready(function() {
+        $('#public_date').datepicker({
+          autoclose: true,
+          orientation: 'bottom auto',
+          format: 'yyyy-mm-dd',
+          language: 'es',
+          startDate: '+0d'
+        });
+
+        $(document).on('click', '.add_template', function() {
+            add_template();
+        });
+
+        $(document).on('click', '.remove_template', function() {
+            $(this).closest(".child_template").remove();
+        }); 
+
+        var canvas = document.querySelector("canvas");
+
+        var signaturePad = new SignaturePad(canvas);
+
+
+        $('#borrarFirmar').on('click', function () {
+            signaturePad.clear();
+        });
+
+        $('#form_item').on('submit', function(e){
+            if (signaturePad.isEmpty()){
+                toastr.error("Debe firmar la solicitud",'aviso');
+            }else{
+                $("#signature").val(signaturePad.toDataURL());
+                return true;  
+            }
+            return false;
+        });
+    });
+
+    function init_select(element){
+        element.select2({
+            templateResult: format_template,
+            minimumInputLength: 3,
+                ajax: { // instead of writing the function to execute the request we use Select2's convenient helper
+                  url: function () {
+                    return url_templates_json();
+                  },
+                  dataType: 'json',
+                  quietMillis: 250,
+                  data: function (params, page) {
+                      return {
+                          name: params.term, // search term
+                      };
+                      
+                  },
+                  processResults: function (data, page) { // parse the results into the format expected by Select2.
+                    console.log(data);
+                    return {results: data.items};
+                  },
+                  cache: false
+            },
+            escapeMarkup: function(m) { return m; }
+        });
+
+        element.on("select2:select", function(e) { 
+            $(this).next().val(e.params.data.id);
+        });
+    }
+
+    function format_template (option) {
+      if (!option.id) { return option.text; }
+      var ob = option.text;  // replace image source with option.img (available in JSON)
+      return ob;
+    }
+
+    function url_templates_json(){
+       url="{{ path('nononsense_templates_active_json') }}?nest=1";
+       return url;
+    }
+
+    function add_template(){
+        $("#box_templates").append($("#new_template").html());
+        init_select($("#box_templates").find(".select_template:last"));
+    }
+</script>
+{% endblock %}

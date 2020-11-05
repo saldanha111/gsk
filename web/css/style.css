@@ -5642,6 +5642,10 @@ div.multipleLabel {
     /*margin-left: 0 !important;*/
 }
 
+.child_template{
+    margin-bottom: 20px;
+}
+
 textarea { resize:vertical ; }
 
 

@@ -121,6 +121,14 @@ class TMTemplates
     protected $logbook;
 
     /**
+     * @var boolean $uniqid
+     *
+     * @ORM\Column(name="uniqid", type="boolean",  options={"default" = false})
+     * @Groups({"detail_document"})
+     */
+    protected $uniqid;
+
+    /**
      * @var boolean $isSimple
      *
      * @ORM\Column(name="is_simple", type="boolean",  options={"default" = false})
@@ -200,6 +208,16 @@ class TMTemplates
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMSecondWorkflow", mappedBy="template")
      */
     protected $tmSecondWorkflows;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMNestTemplates", mappedBy="template")
+     */
+    protected $tmNestMasterTemplates;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMNestTemplates", mappedBy="nestTemplate")
+     */
+    protected $tmNestTemplates;
 
     /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\Areas", mappedBy="template")
@@ -1111,5 +1129,94 @@ class TMTemplates
     public function getTmSecondWorkflows()
     {
         return $this->tmSecondWorkflows;
+    }
+
+    /**
+     * Set uniqid
+     *
+     * @param boolean $uniqid
+     * @return TMTemplates
+     */
+    public function setUniqid($uniqid)
+    {
+        $this->uniqid = $uniqid;
+
+        return $this;
+    }
+
+    /**
+     * Get uniqid
+     *
+     * @return boolean 
+     */
+    public function getUniqid()
+    {
+        return $this->uniqid;
+    }
+
+    /**
+     * Add tmNestMasterTemplates
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMNestTemplates $tmNestMasterTemplates
+     * @return TMTemplates
+     */
+    public function addTmNestMasterTemplate(\Nononsense\HomeBundle\Entity\TMNestTemplates $tmNestMasterTemplates)
+    {
+        $this->tmNestMasterTemplates[] = $tmNestMasterTemplates;
+
+        return $this;
+    }
+
+    /**
+     * Remove tmNestMasterTemplates
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMNestTemplates $tmNestMasterTemplates
+     */
+    public function removeTmNestMasterTemplate(\Nononsense\HomeBundle\Entity\TMNestTemplates $tmNestMasterTemplates)
+    {
+        $this->tmNestMasterTemplates->removeElement($tmNestMasterTemplates);
+    }
+
+    /**
+     * Get tmNestMasterTemplates
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getTmNestMasterTemplates()
+    {
+        return $this->tmNestMasterTemplates;
+    }
+
+    /**
+     * Add tmNestTemplates
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMNestTemplates $tmNestTemplates
+     * @return TMTemplates
+     */
+    public function addTmNestTemplate(\Nononsense\HomeBundle\Entity\TMNestTemplates $tmNestTemplates)
+    {
+        $this->tmNestTemplates[] = $tmNestTemplates;
+
+        return $this;
+    }
+
+    /**
+     * Remove tmNestTemplates
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMNestTemplates $tmNestTemplates
+     */
+    public function removeTmNestTemplate(\Nononsense\HomeBundle\Entity\TMNestTemplates $tmNestTemplates)
+    {
+        $this->tmNestTemplates->removeElement($tmNestTemplates);
+    }
+
+    /**
+     * Get tmNestTemplates
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getTmNestTemplates()
+    {
+        return $this->tmNestTemplates;
     }
 }

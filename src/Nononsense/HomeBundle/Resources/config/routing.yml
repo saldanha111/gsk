@@ -741,12 +741,12 @@ nononsense_tm_aprob_update:
 nononsense_tm_config_detail:
     path: /mt/config/{id}
     methods:    [GET]
-    defaults: { _controller: NononsenseHomeBundle:TemplateAprobTemplates:detail,id: 0}
+    defaults: { _controller: NononsenseHomeBundle:TemplateConfigTemplates:detail,id: 0}
 
 nononsense_tm_config_update:
     path: /mt/config/{id}
     methods:    [POST]
-    defaults: { _controller: NononsenseHomeBundle:TemplateAprobTemplates:update,id: 0}
+    defaults: { _controller: NononsenseHomeBundle:TemplateConfigTemplates:update,id: 0}
 
 nononsense_tm_test_detail:
     path: /mt/test/{id}

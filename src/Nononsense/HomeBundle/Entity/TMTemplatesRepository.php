@@ -16,12 +16,8 @@ class TMTemplatesRepository extends EntityRepository
     {
         $em = $this->getEntityManager();
 
-        $sintax=" WHERE t.tmState=6";
-        $logical=" AND ";
-
-        if(isset($filters["no_request_in_proccess"]) && $filters["no_request_in_proccess"]==1){
-            $sintax.=" AND ((SELECT COUNT(aux.template_id) FROM Nononsense\HomeBundle\Entity\TMTemplates aux WHERE aux.tmState IN (1,2,3,4,5))=0)";
-        }
+        $sintax="";
+        $logical=" WHERE ";
 
         if(!empty($filters)){
 
@@ -38,6 +34,16 @@ class TMTemplatesRepository extends EntityRepository
             if(isset($filters["id"])){
                 $sintax.=$logical." t.id=:id";
                 $parameters["id"]=$filters["id"];
+                $logical=" AND ";
+            }
+
+            if(isset($filters["no_request_in_proccess"]) && $filters["no_request_in_proccess"]==1){
+                $sintax.=$logical." t.tmState=6 AND ((SELECT COUNT(aux.template_id) FROM Nononsense\HomeBundle\Entity\TMTemplates aux WHERE aux.tmState IN (1,2,3,4,5))=0)";
+                $logical=" AND ";
+            }
+
+            if(isset($filters["nest"]) && $filters["nest"]==1){
+                $sintax.=$logical." t.tmState=6";
                 $logical=" AND ";
             }
         }
