@@ -8,6 +8,7 @@ use Nononsense\HomeBundle\Entity\Logs;
 use Nononsense\HomeBundle\Entity\LogsTypes;
 use Nononsense\HomeBundle\Entity\LogsTypesRepository;
 use Nononsense\HomeBundle\Entity\Tokens;
+use Nononsense\UserBundle\Entity\Users;
 
 class Utilities{
     
@@ -134,5 +135,24 @@ class Utilities{
             $this->em->flush();
         } catch (OptimisticLockException $e) {
         }
+    }
+
+    public function checkUser($password, $username=''){
+
+        if (!$username) $username = $this->container->get('security.context')->getToken()->getUsername();
+        $password       = $password;
+
+        $user           = $this->em->getRepository('NononsenseUserBundle:Users')->findOneBy(array('email' => $username));
+
+        if ($user) {
+            
+            $factory    = $this->container->get('security.encoder_factory');
+            $encoder    = $factory->getEncoder($user);
+
+            $validPassword = ($encoder->isPasswordValid($user->getPassword(), $password, $user->getSalt())) ? true : false;
+            return $validPassword;
+        }
+
+        return false;   
     }
 }
