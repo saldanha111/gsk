@@ -54,7 +54,8 @@
                     <p class="text-right">Material: </p>
                 </div>
                 <div class="col-lg-10 col-md-9 col-sm-8 col-xs-7">
-                    <p>{{ trace.material.name }}</p>
+                    <p>{{ trace.material.name }}{{ trace.materialOther is defined and
+                        trace.materialOther is not null ? (' - ' ~ trace.materialOther) : ''}}</p>
                 </div>
             </div>
             <div class="row">

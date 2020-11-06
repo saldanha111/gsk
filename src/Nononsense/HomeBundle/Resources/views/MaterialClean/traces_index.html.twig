@@ -159,7 +159,8 @@
                                 {% for item in items %}
                                     <tr class="link-block" data-url="{{ path('nononsense_mclean_trace_view',{'id': item.id}) }}">
                                         <td>{{item.lotNumber}}</td>
-                                        <td>{{item.material.name}}</td>
+                                        <td>{{ item.material.name }}{{ item.materialOther is defined and
+                                            item.materialOther is not null ? (' - ' ~ item.materialOther) : ''}}</td>
                                         <td>{{status[item.status]}}</td>
                                         <td>{{item.code}}</td>
                                         <td>{{item.cleanUser.name}}</td>

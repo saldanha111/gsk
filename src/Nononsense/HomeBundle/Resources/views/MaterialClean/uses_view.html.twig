@@ -45,7 +45,8 @@
                     <label class="col-md-2 col-sm-4 control-label">Material</label>
                     <div class="col-sm-7">
                         <input type="text" name="material" class="form-control" required="required" readonly="readonly"
-                               value="{{ material.name }}">
+                            value="{{ material.name }}{{ materialCleanClean.materialOther is defined and
+                            materialCleanClean.materialOther is not null ? (' - ' ~ materialCleanClean.materialOther) : ''}}">
                     </div>
                 </div>
                 <div class="form-group">
