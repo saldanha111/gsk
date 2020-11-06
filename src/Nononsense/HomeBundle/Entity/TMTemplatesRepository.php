@@ -38,13 +38,17 @@ class TMTemplatesRepository extends EntityRepository
             }
 
             if(isset($filters["no_request_in_proccess"]) && $filters["no_request_in_proccess"]==1){
-                $sintax.=$logical." t.tmState=6 AND ((SELECT COUNT(aux.template_id) FROM Nononsense\HomeBundle\Entity\TMTemplates aux WHERE aux.tmState IN (1,2,3,4,5))=0)";
+                $sintax.=$logical." (t.tmState=6 OR t.tmState=8) AND ((SELECT COUNT(aux.template_id) FROM Nononsense\HomeBundle\Entity\TMTemplates aux WHERE aux.tmState IN (1,2,3,4,5,11))=0)";
                 $logical=" AND ";
             }
 
             if(isset($filters["nest"]) && $filters["nest"]==1){
                 $sintax.=$logical." t.tmState=6";
                 $logical=" AND ";
+                if(isset($filters["parent"])){
+                    $sintax.=$logical." t.id!=:parent";
+                    $parameters["parent"]=$filters["parent"];
+                }
             }
         }
 

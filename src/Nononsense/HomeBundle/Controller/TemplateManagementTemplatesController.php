@@ -44,6 +44,9 @@ class TemplateManagementTemplatesController extends Controller
 
         if($request->get("nest")){
             $filters["nest"]=1;
+            if($request->get("parent")){
+                $filters["parent"]=$request->get("parent");
+            }
         }
 
         if($request->get("name")){

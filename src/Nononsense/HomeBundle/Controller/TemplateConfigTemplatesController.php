@@ -22,6 +22,7 @@ use Nononsense\HomeBundle\Entity\TMTests;
 use Nononsense\HomeBundle\Entity\TMTestResults;
 use Nononsense\HomeBundle\Entity\TMTestAprob;
 use Nononsense\HomeBundle\Entity\QrsTypes;
+use Nononsense\HomeBundle\Entity\TMNestTemplates;
 
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -170,7 +171,7 @@ class TemplateConfigTemplatesController extends Controller
 
         $next_state = $this->getDoctrine()->getRepository(TMStates::class)->findOneBy(array("id"=>"11"));
 
-        if($array_item["template"]->getTmState()->getId()!=6){
+        if($template->getTmState()->getId()!=6){
             if($request->get("logbook")){
                $template->setLogbook(1); 
             }
@@ -191,10 +192,49 @@ class TemplateConfigTemplatesController extends Controller
             }
 
             if($request->get("public_date")){
-                if($request->get("public_date")<=date("Y-m-d")){
+                $date_public=\DateTime::createFromFormat('d/m/Y', $request->get("public_date"));
+                if($request->get("public_date")<=$date_public->format("Y-m-d")){
                     $next_state = $this->getDoctrine()->getRepository(TMStates::class)->findOneBy(array("id"=>"6"));
+
+                    if($template->getTemplateId()){
+                        $obsolete = $this->getDoctrine()->getRepository(TMStates::class)->findOneBy(array("id"=>"7"));
+                        $last_edition = $this->getDoctrine()->getRepository(TMTemplates::class)->findOneBy(array("id" => $template->getTemplateId()));
+                        $last_edition->setTmState($obsolete);
+                        $em->persist($last_edition);
+
+                        /* Cambiamos la versión de las anidaciones para plantillas que no estén en un estado final */
+                        $nests = $this->getDoctrine()->getRepository(TMNestTemplates::class)->findBy(array("nestTemplate" => $last_edition));
+                        foreach($nests as $nest){
+                            // Si la plantilla no está en un estado final
+                            if (in_array($nest->getTemplate()->getTmState()->getId(), array(0,1,2,3,4,5,6,9,11))) {
+                                $nest->setNestTemplate($template);
+                                $em->persist($nest);
+                            }
+                        }
+
+                        /* Cambiamos las categorías de retención de TODAS las versiones anteriores, aplicandoles las de la nueva versión */
+                        while($last_edition){
+                            foreach($last_edition->getRetentions() as $old_retention){
+                                $last_edition->removeRetention($old_retention);
+                            }
+
+                            foreach($template->getRetentions() as $new_retention){
+                                $last_edition->addRetention($new_retention);
+                            }
+
+                            $em->persist($last_edition);
+
+                            if($last_edition->getTemplateId()){
+                                $last_edition = $this->getDoctrine()->getRepository(TMTemplates::class)->findOneBy(array("id" => $last_edition->getTemplateId()));
+                            }
+                            else{
+                                $last_edition=NULL;
+                            }
+                        }
+                    }
                 }
-                $template->setEffectiveDate($request->get("public_date")); 
+
+                $template->setEffectiveDate($date_public); 
             }
 
             $template->setTmState($next_state);
@@ -244,7 +284,6 @@ class TemplateConfigTemplatesController extends Controller
 
 
         $em->persist($template);
-
         $em->flush();
 
         
