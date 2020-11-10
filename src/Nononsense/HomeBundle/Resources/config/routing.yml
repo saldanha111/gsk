@@ -748,6 +748,11 @@ nononsense_tm_config_update:
     methods:    [POST]
     defaults: { _controller: NononsenseHomeBundle:TemplateConfigTemplates:update,id: 0}
 
+nononsense_tm_template_request_drop:
+    path: /mt/request-drop/{id}
+    methods:    [POST]
+    defaults: { _controller: NononsenseHomeBundle:TemplateManagementTemplates:requestDrop,id: 0}
+
 nononsense_tm_test_detail:
     path: /mt/test/{id}
     methods:    [GET]

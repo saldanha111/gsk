@@ -158,18 +158,23 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Acciones para plantillas en estado pendientes a aprobar/rechazar por el dueño o backup del documento -->
             {% if template is defined and template.tmState.id==1 and (template.owner.id==app.user.id or template.backup.id==app.user.id ) %}
                 {% include 'NononsenseHomeBundle:TemplateManagement:action_pending_template.html.twig' %}
-            {% endif %}<br><br>
+            {% endif %}
+
+            <!-- Formulario de solicitud de baja para plantillas en vigor únicamente accesible por el dueño o backup del documento -->
+            {% if template is defined and template.tmState.id==6 and app.request.query.get('request_drop') is defined and app.request.query.get('request_drop') is not empty and (template.owner.id==app.user.id or template.backup.id==app.user.id ) %}
+                {% include 'NononsenseHomeBundle:TemplateManagement:action_request_drop_template.html.twig' %}
+            {% endif %}
+
+            <br><br>
         </div>
     </div>
     
     {% if template is defined %}
-        <div class="row">
-            <div class="col-lg-10 col-lg-offset-1">
-                {% include 'NononsenseHomeBundle:TemplateManagement:action_template.html.twig' %}<br><br>
-            </div>
-        </div>
+        {% include 'NononsenseHomeBundle:TemplateManagement:action_template.html.twig' %}<br><br>
     {% endif %}
     
 </div>
@@ -178,7 +183,7 @@
 {{ parent() }}
 <script src="/js/plugins/signature-pad/signature-pad.min.js"></script>
 <script>
-
+// Js para acciones para plantillas en estado pendientes a aprobar/rechazar por el dueño o backup del documento
 {% if template is defined and template.tmState.id==1 and (template.owner.id==app.user.id or template.backup.id==app.user.id ) %}
     var canvas = document.querySelector("canvas");
     var signaturePad = new SignaturePad(canvas);
@@ -206,6 +211,30 @@
             $('#form_action_pending').submit();
         }
     }
+{% endif %}
+
+// Js para Formulario de solicitud de baja para plantillas en vigor únicamente accesible por el dueño o backup del documento
+{% if template is defined and template.tmState.id==6 and app.request.query.get('request_drop') is defined and app.request.query.get('request_drop') is not empty and (template.owner.id==app.user.id or template.backup.id==app.user.id ) %}
+    
+    var canvas = document.querySelector("canvas");
+    var signaturePad = new SignaturePad(canvas);
+    $( document ).ready(function() {
+        $('#borrarFirmar').on('click', function () {
+            signaturePad.clear();
+        });
+    
+        $('#modalSignRequestDrop').modal('show');
+
+        $('#form_sign_request_drop').on('submit', function(e){
+            if (signaturePad.isEmpty()){
+                toastr.error("La firma es obligatoria",'aviso');
+            }else{
+                $("#signature").val(signaturePad.toDataURL());
+                return true;
+            }
+            return false;
+        });
+    });
 {% endif %}
 </script>
 {% endblock %}
