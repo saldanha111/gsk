@@ -103,9 +103,10 @@ class MaterialCleanUsesController extends Controller
 
         try {
             $po = $request->get('lot-code');
-            if (!($request->get("firma")) || !(strpos($request->get("firma"),'data:image/png;base64') === 0)) {
-                $this->get('session')->getFlashBag()->add('error', "No se ha podido procesar la firma, por favor vuelva a intentarlo");
-                $error = true;
+            $password = $request->get('password');
+            if(!$this->get('utilities')->checkUser($password)){
+                $this->get('session')->getFlashBag()->add('error', "La contraseña no es correcta.");
+                $error = 1;
             }
 
             if(!$request->get('lot-code')){
@@ -129,10 +130,12 @@ class MaterialCleanUsesController extends Controller
             $error = ($error || $this->checkIfCanCleanUse($materialCleanClean, $materialCleanRepository, $po));
 
             if (!$error) {
+                $now = new DateTime();
+                $firma = 'Utilización de material registrada con contraseña de usuario el día ' . $now->format('d-m-Y H:i:s');
                 $materialCleanClean
                     ->setVerificationDate(new DateTime())
                     ->setVerificationUser($this->getUser())
-                    ->setVerificationSignature($request->get('firma'))
+                    ->setVerificationSignature($firma)
                     ->setLotNumber($po)
                     ->setUseInformation($request->get('additionalInfo'))
                     ->setStatus(2);

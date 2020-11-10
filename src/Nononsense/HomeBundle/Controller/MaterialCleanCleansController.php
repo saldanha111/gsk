@@ -8,6 +8,7 @@ use Nononsense\HomeBundle\Entity\MaterialCleanCenters;
 use Nononsense\HomeBundle\Entity\MaterialCleanCleans;
 use Nononsense\HomeBundle\Entity\MaterialCleanCodes;
 use Nononsense\HomeBundle\Entity\MaterialCleanMaterials;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -81,11 +82,9 @@ class MaterialCleanCleansController extends Controller
         try {
             $error = 0;
 
-            if (!($request->get("firma")) || !(strpos($request->get("firma"), 'data:image/png;base64') === 0)) {
-                $this->get('session')->getFlashBag()->add(
-                    'error',
-                    "No se ha podido procesar la firma, por favor vuelva a intentarlo"
-                );
+            $password = $request->get('password');
+            if(!$this->get('utilities')->checkUser($password)){
+                $this->get('session')->getFlashBag()->add('error', "La contraseña no es correcta.");
                 $error = 1;
             }
 
@@ -125,6 +124,8 @@ class MaterialCleanCleansController extends Controller
             }
 
             if ($error == 0) {
+                $now = new DateTime();
+                $firma = 'Limpieza registrada con contraseña de usuario el día ' . $now->format('d-m-Y H:i:s');
                 $materialClean = new MaterialCleanCleans();
                 $cleanDate = new DateTime();
                 $expirationDate = $this->getCleanDate($material->getExpirationDays());
@@ -135,7 +136,7 @@ class MaterialCleanCleansController extends Controller
                     ->setCleanExpiredDate($expirationDate)
                     ->setCode($request->get('code'))
                     ->setCleanUser($this->getUser())
-                    ->setSignature($request->get('firma'))
+                    ->setSignature($firma)
                     ->setMaterialOther($request->get('materialOther'))
                     ->setStatus(1);
                 $em->persist($materialClean);
@@ -171,4 +172,14 @@ class MaterialCleanCleansController extends Controller
         return $expirationDate;
     }
 
+    public function checkPassAction(Request $request)
+    {
+        $valid = false;
+        $password = $request->get('password');
+        if($this->get('utilities')->checkUser($password)){
+            $valid = true;
+        }
+
+        return new JsonResponse(['valid' => $valid]);
+    }
 }

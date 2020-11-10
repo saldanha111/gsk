@@ -620,7 +620,6 @@ nononsense_mclean_trace_view:
     path: /mclean/traces/view/{id}
     defaults: { _controller: NononsenseHomeBundle:MaterialCleanTraces:showTrace}
 
-
 nononsense_mclean_products_list:
     path: /mclean/products
     defaults: { _controller: NononsenseHomeBundle:MaterialCleanProducts:list}
@@ -632,6 +631,10 @@ nononsense_mclean_products_edit:
 nononsense_mclean_products_delete:
     path: /mclean/product/delete/{id}
     defaults: { _controller: NononsenseHomeBundle:MaterialCleanProducts:delete}
+
+nononsense_mclean_get_sign_valid:
+    path: /mclean/cleans/checkpass
+    defaults: { _controller: NononsenseHomeBundle:MaterialCleanCleans:checkPass}
 
 # /Material Limipo
 

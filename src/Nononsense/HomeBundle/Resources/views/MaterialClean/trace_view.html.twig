@@ -55,7 +55,7 @@
                 </div>
                 <div class="col-lg-10 col-md-9 col-sm-8 col-xs-7">
                     <p>{{ trace.material.name }}{{ trace.materialOther is defined and
-                        trace.materialOther is not null ? (' - ' ~ trace.materialOther) : ''}}</p>
+                        trace.materialOther is not empty ? (' - ' ~ trace.materialOther) : ''}}</p>
                 </div>
             </div>
             <div class="row">
@@ -101,7 +101,7 @@
                     <p class="text-right">Firma limpieza: </p>
                 </div>
                 <div class="col-lg-10 col-md-9 col-sm-8 col-xs-7">
-                    <img src="{{ trace.signature }}" alt="firma limpieza" style="border:1px solid black; width:150px;">
+                    <p>{{ trace.signature }}</p>
                 </div>
             </div>
             <hr/>
@@ -150,7 +150,7 @@
                 </div>
                 <div class="col-lg-10 col-md-9 col-sm-8 col-xs-7">
                     {% if trace.verificationSignature is defined and trace.verificationSignature is not empty %}
-                        <img src="{{ trace.verificationSignature }}" alt="firma verificación" style="border:1px solid black; width:150px;">
+                        <p>{{ trace.verificationSignature }}</p>
                     {% endif %}
                 </div>
             </div>
@@ -190,7 +190,7 @@
                 </div>
                 <div class="col-lg-10 col-md-9 col-sm-8 col-xs-7">
                     {% if trace.dirtyMaterialSignature is defined and trace.dirtyMaterialSignature is not empty %}
-                        <img src="{{ trace.dirtyMaterialSignature }}" alt="firma material sucio" style="border:1px solid black; width:150px;">
+                        <p>{{ trace.dirtyMaterialSignature }}</p>
                     {% endif %}
                 </div>
             </div>
@@ -240,7 +240,7 @@
                 </div>
                 <div class="col-lg-10 col-md-9 col-sm-8 col-xs-7">
                     {% if trace.reviewSignature is defined and trace.reviewSignature is not empty %}
-                        <img src="{{ trace.reviewSignature }}" alt="firma revisión" style="border:1px solid black; width:150px;">
+                        <p>{{ trace.reviewSignature }}</p>
                     {% endif %}
                 </div>
             </div>
