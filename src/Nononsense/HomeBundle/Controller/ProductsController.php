@@ -1144,9 +1144,9 @@ class ProductsController extends Controller
     private function getEndDate(Request $request)
     {
         if(strtotime($request->get("destructionDate")) < strtotime($request->get("expiryDate"))){
-            $endDate = $request->get("expiryDate");
-        }else{
             $endDate = $request->get("destructionDate");
+        }else{
+            $endDate = $request->get("expiryDate");
         }
         return $endDate;
     }
