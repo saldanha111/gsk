@@ -8,6 +8,7 @@ use Nononsense\HomeBundle\Entity\MaterialCleanCenters;
 use Nononsense\HomeBundle\Entity\MaterialCleanCleans;
 use Nononsense\HomeBundle\Entity\MaterialCleanCodes;
 use Nononsense\HomeBundle\Entity\MaterialCleanMaterials;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -45,7 +46,7 @@ class MaterialCleanCleansController extends Controller
         $em = $this->getDoctrine()->getManager();
         $materialCleanCode = null;
 
-        $materialCleanCode = $em->getRepository('NononsenseHomeBundle:MaterialCleanCodes')->findOneByCode($barcode);
+        $materialCleanCode = $em->getRepository(MaterialCleanCodes::class)->findOneBy(['code' => $barcode]);
 
         if (!$materialCleanCode) {
             $materialCleanCode = new MaterialCleanCodes();
@@ -55,8 +56,14 @@ class MaterialCleanCleansController extends Controller
         $expirationDate = $this->getCleanDate($materialCleanCode->getIdMaterial()->getExpirationDays());
 
         $array_item = array();
-        $array_item["materials"] = $this->getDoctrine()->getRepository(MaterialCleanMaterials::class)->findBy([], ['name' => 'ASC']);
-        $array_item["centers"] = $this->getDoctrine()->getRepository(MaterialCleanCenters::class)->findBy([], ['name' => 'ASC']);
+        $array_item["materials"] = $this->getDoctrine()->getRepository(MaterialCleanMaterials::class)->findBy(
+            [],
+            ['name' => 'ASC']
+        );
+        $array_item["centers"] = $this->getDoctrine()->getRepository(MaterialCleanCenters::class)->findBy(
+            [],
+            ['name' => 'ASC']
+        );
         $array_item['code'] = $barcode;
         $array_item['materialCleanCode'] = $materialCleanCode;
         $array_item['cleanDate'] = $cleanDate->format('d-m-Y');
@@ -75,34 +82,50 @@ class MaterialCleanCleansController extends Controller
         try {
             $error = 0;
 
-            if (!($request->get("firma")) || !(strpos($request->get("firma"),'data:image/png;base64') === 0)) {
-                $this->get('session')->getFlashBag()->add('error', "No se ha podido procesar la firma, por favor vuelva a intentarlo");
+            $password = $request->get('password');
+            if(!$this->get('utilities')->checkUser($password)){
+                $this->get('session')->getFlashBag()->add('error', "La contraseña no es correcta.");
                 $error = 1;
             }
 
-            if(urldecode($id) !== $request->get('code')){
-                $this->get('session')->getFlashBag()->add('error', "Ha ocurrido un error al procesar el código, por favor vuelva a intentarlo");
+            if (urldecode($id) !== $request->get('code')) {
+                $this->get('session')->getFlashBag()->add(
+                    'error',
+                    "Ha ocurrido un error al procesar el código, por favor vuelva a intentarlo"
+                );
                 $error = 1;
             }
 
             $em = $this->getDoctrine()->getManager();
-            $materialCleanCode = $em->getRepository('NononsenseHomeBundle:MaterialCleanCodes')->findOneByCode(urldecode($id));
+            $materialCleanCode = $em->getRepository('NononsenseHomeBundle:MaterialCleanCodes')->findOneByCode(
+                urldecode($id)
+            );
 
-            if($materialCleanCode){
+            if ($materialCleanCode) {
                 $material = $materialCleanCode->getIdMaterial();
                 $center = $materialCleanCode->getIdCenter();
-            }else{
-                $material = $em->getRepository('NononsenseHomeBundle:MaterialCleanMaterials')->find($request->get("material"));
-                $center = $em->getRepository('NononsenseHomeBundle:MaterialCleanCenters')->find($request->get("center"));
+            } else {
+                $material = $em->getRepository('NononsenseHomeBundle:MaterialCleanMaterials')->find(
+                    $request->get("material")
+                );
+                $center = $em->getRepository('NononsenseHomeBundle:MaterialCleanCenters')->find(
+                    $request->get("center")
+                );
             }
 
-            if (!$material || !$center) {
-                $this->get('session')->getFlashBag()->add('error', "Tienes que seleccionar un centro de trabajo y un material");
+            if (!$material || !$center || ($material->getOtherName() === true && $request->get(
+                        'materialOther'
+                    ) == '')) {
+                $this->get('session')->getFlashBag()->add(
+                    'error',
+                    "Tienes que seleccionar un centro de trabajo y un material"
+                );
                 $error = 1;
             }
 
             if ($error == 0) {
-
+                $now = new DateTime();
+                $firma = 'Limpieza registrada con contraseña de usuario el día ' . $now->format('d-m-Y H:i:s');
                 $materialClean = new MaterialCleanCleans();
                 $cleanDate = new DateTime();
                 $expirationDate = $this->getCleanDate($material->getExpirationDays());
@@ -113,13 +136,16 @@ class MaterialCleanCleansController extends Controller
                     ->setCleanExpiredDate($expirationDate)
                     ->setCode($request->get('code'))
                     ->setCleanUser($this->getUser())
-                    ->setSignature($request->get('firma'))
+                    ->setSignature($firma)
+                    ->setMaterialOther($request->get('materialOther'))
                     ->setStatus(1);
-
                 $em->persist($materialClean);
                 $em->flush();
 
-                $this->get('session')->getFlashBag()->add('message', "La limpieza de material se ha guardado correctamente");
+                $this->get('session')->getFlashBag()->add(
+                    'message',
+                    "La limpieza de material se ha guardado correctamente"
+                );
                 return $this->redirect($this->generateUrl('nononsense_mclean_cleans_scan'));
             }
         } catch (Exception $e) {
@@ -127,20 +153,33 @@ class MaterialCleanCleansController extends Controller
                 'error',
                 "Error al intentar guardar los datos de la limpieza: " . $e->getMessage()
             );
-            return $this->redirect($this->generateUrl('nononsense_mclean_cleans_view',['barcode' => $id]));
         }
+        return $this->redirect($this->generateUrl('nononsense_mclean_cleans_view', ['barcode' => $id]));
     }
 
     private function getCleanDate($expirationDays)
     {
-        try{
-            $expirationInterval = new \DateInterval('P'.$expirationDays.'D');
+        try {
+            $expirationInterval = new \DateInterval('P' . $expirationDays . 'D');
             $expirationDate = (new DateTime())->add($expirationInterval);
-        }catch(Exception $e){
+        } catch (Exception $e) {
             $expirationDate = null;
-            $this->get('session')->getFlashBag()->add('error',"No se ha podido recuperar el tiempo de caducidad de la limpieza: ".$e->getMessage());
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                "No se ha podido recuperar el tiempo de caducidad de la limpieza: " . $e->getMessage()
+            );
         }
         return $expirationDate;
     }
 
+    public function checkPassAction(Request $request)
+    {
+        $valid = false;
+        $password = $request->get('password');
+        if($this->get('utilities')->checkUser($password)){
+            $valid = true;
+        }
+
+        return new JsonResponse(['valid' => $valid]);
+    }
 }

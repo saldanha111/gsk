@@ -2,6 +2,7 @@
 {% block page_title %}DOCXPRESSO | {{ 'Homepage'|trans }} {% endblock %}
 {% block head %}
     {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('/js/plugins/sweetalert/sweetalert.min.css') }}">
 {% endblock %}
 {% block main_title %} Guardar limpieza{% endblock %}
 {% block content %}
@@ -26,7 +27,7 @@
     </div>
     <div class="wrapper-content">
         <form class="form-horizontal" id="form_item" action="{{ path('nononsense_mclean_cleans_save',{'id': code}) }}" method="POST">
-            <input type="hidden" id='url_get_data_input_json' value="{{ path('nononsense_mclean_material_get_expiration_json',{'id': 'xxx'}) }}" />
+            <input type="hidden" id='url_get_data_input_json' value="{{ path('nononsense_mclean_material_get_data_json',{'id': 'xxx'}) }}" />
             <div class="row">
                 <div class="form-group">
                     <label class="col-md-2 col-sm-4 control-label">Código asociado</label>
@@ -55,24 +56,34 @@
                         </select>
                     </div>
                 </div>
+
                 <div class="form-group">
                     <label class="col-md-2 col-sm-4 control-label">Material</label>
                     <div class="col-sm-7">
                         <select class="form-control select-material" name="material"
                                 {{ materialCleanCode.idMaterial.id ? 'readonly="readonly"' : '' }}>
                             {% if materialCleanCode.idMaterial.id is defined and materialCleanCode.idMaterial.id is not null %}
-                            {% for material in materials %}
-                                {% if materialCleanCode.idMaterial.id == material.id %}
-                                    <option value="{{ material.id }}" selected="selected">{{ material.name }}</option>
-                                {% endif %}
-                            {% endfor %}
+                                {% for material in materials %}
+                                    {% if materialCleanCode.idMaterial.id == material.id %}
+                                        <option value="{{ material.id }}" selected="selected">{{ material.name }}</option>
+                                    {% endif %}
+                                {% endfor %}
                             {% else %}
                                 <option value=""></option>
                                 {% for material in materials %}
-                                    <option value="{{ material.id }}" {{ materialCleanCode.idMaterial.id is defined and materialCleanCode.idMaterial.id==material.id ? 'selected="selected"' : '' }}>{{ material.name }}</option>
+                                    <option value="{{ material.id }}"
+                                            {{ materialCleanCode.idMaterial.id is defined and materialCleanCode.idMaterial.id==material.id ? 'selected="selected"' : '' }}>
+                                        {{ material.name }}
+                                    </option>
                                 {% endfor %}
                             {% endif %}
                         </select>
+                    </div>
+                </div>
+                <div class="form-group other-name-input" style="display:none;">
+                    <label class="col-md-2 col-sm-4 control-label">Información del material</label>
+                    <div class="col-sm-7">
+                        <input type="text" name="materialOther" class="form-control">
                     </div>
                 </div>
                 <div class="form-group">
@@ -96,17 +107,6 @@
                                value="{{ app.user.name }}">
                     </div>
                 </div>
-                <div class="form-group">
-                    <label class="col-md-2 col-sm-4 control-label">Firma</label>
-                    <div class="col-sm-7">
-                        <div id="signature-pad" class="input-group">
-                            <canvas width="300" height="150"
-                                    style="touch-action: none; border: 2px solid #eee; box-shadow: 0px 0px 6px 1px rgba(80, 90, 100, 0.5)"></canvas>
-                        </div>
-                        <input type="hidden" id="firma" name="firma"/>
-                        <a href="#" class="btn btn-primary" id="borrar-firma">Limpiar firma</a>
-                    </div>
-                </div>
             </div>
             <div class="row">
                 <div class="form-group">
@@ -117,17 +117,17 @@
                     </div>
                 </div>
             </div>
+            <input type="hidden" name="password">
+            <input type="hidden" name="passCheck" value="{{ path('nononsense_mclean_get_sign_valid') }}">
         </form>
-
     </div>
 
 {% endblock %}
 {% block scripts %}
     {{ parent() }}
-    <script src="{{ asset('js/plugins/signature-pad/signature-pad.min.js') }}"></script>
+    <script src="{{ asset('js/plugins/sweetalert/sweetalert.min.js') }}"></script>
     <script>
         $(function () {
-
             toastr.options = {
                 "closeButton": true,
                 "debug": false,
@@ -147,13 +147,9 @@
             ActivateMenu('admin_cleans');
             $('#side-menu').metisMenu();
 
-            const canvas = document.querySelector("canvas");
-            const signaturePad = new SignaturePad(canvas);
-
             $(document).on('click', '.btn-submit', function (e) {
                 e.preventDefault();
                 let error = false;
-                $("#firma").val(signaturePad.toDataURL()) // save image as PNG
 
                 if(!checkCenter()){
                     toastr.error("Debe seleccionar un centro de trabajo", 'aviso');
@@ -165,8 +161,9 @@
                     error = true;
                 }
 
-                if (!checkSignature(signaturePad)) {
-                    toastr.error("Debe rellenar una fima, no puede dejar el cuadro en blanco", 'aviso');
+                const other = $('input[name="materialOther"]');
+                if (other[0].hasAttribute('required') && other.val() === ''){
+                    toastr.error("Debe escribir el nombre o la descripción del material", 'aviso');
                     error = true;
                 }
 
@@ -189,8 +186,14 @@
                             let datos = JSON.parse(response.responseText);
                             if(datos.status === 200){
                                 $('input[name="expirationDate"]').val(datos.data.expirationDate);
+                                if(datos.data.otherName){
+                                    showOtherInput();
+                                }else{
+                                    hideOtherInput();
+                                }
                             }else{
                                 $('input[name="expirationDate"]').val('');
+                                hideOtherInput();
                                 toastr.error("Ha ocurrido un error al intentar cargar la fecha de caducidad", 'aviso');
                             }
                         }
@@ -213,45 +216,69 @@
                 return $('.select-material').val() > 0;
             }
 
-            function checkSignature(signaturePad){
-                return !signaturePad.isEmpty();
+            function showOtherInput()
+            {
+                $('.other-name-input').show();
+                $('input[name="materialOther"]').attr('required','required');
             }
 
-            function saveClean(){
-                toastr.info(
-                    '<br />' +
-                    '<button type="button" id="confirm-save-clean" class="btn btn-success">Si</button>' +
-                    '&nbsp;&nbsp;&nbsp;' +
-                    '<button type="button" id="cancel-save-clean" class="btn btn-danger">No</button>',
-                    '¿Quieres guardar la limpieza del material?',
-                    {
-                        allowHtml: true,
-                        timeOut: 0,
-                        extendedTimeOut:0,
-                        preventDuplicates:true,
-                        tapToDismiss: false,
-                        progressBar: false,
-                        closeButton: true,
-                        onShown: function (toast) {
-                            $(document).on('click','#confirm-save-clean',function(){
-                                console.log('click');
-                                $('#form_item').submit();
-                            });
-                            $(document).on('click','#cancel-save-clean',function(){
-                                $('.toast-close-button').trigger('click');
-                            });
-                        }
+            function hideOtherInput()
+            {
+                $('.other-name-input').hide();
+                $('input[name="materialOther"]').removeAttr('required');
+            }
+
+            function saveClean()
+            {
+                swal({
+                    title: "Contraseña necesaria",
+                    text: "Introduce tu contraseña para guardar la limpieza del material.",
+                    type: "input",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#62bbe2',
+                    cancelButtonColor: '#ac2925',
+                    confirmButtonText: "Guardar",
+                    cancelButtonText: "Cancelar",
+                    closeOnConfirm: false
+                }, function (password) {
+                    if(password !== false && password !== ''){
+                        $.ajax({
+                            url: $('input[name="passCheck"]').val(),
+                            type: 'POST',
+                            dataType: 'json',
+                            data: {password: password},
+                            success: function(response) {
+                                if(response.valid){
+                                    $('input[name="password"]').val(password);
+                                    $('#form_item').submit();
+                                }else{
+                                    swal({
+                                        title: "Error",
+                                        text: "La contraseña no es válida",
+                                        icon: 'warning',
+                                        showCancelButton: false,
+                                        confirmButtonColor: '#62bbe2',
+                                        confirmButtonText: "Ok",
+                                        closeOnConfirm: true
+                                    });
+                                }
+                            },
+                            error: function() {
+                                swal({
+                                    title: "Error",
+                                    text: "Ha ocurrido un error al intentar validar la contraseña",
+                                    icon: 'warning',
+                                    showCancelButton: false,
+                                    confirmButtonColor: '#62bbe2',
+                                    confirmButtonText: "Ok",
+                                    closeOnConfirm: true
+                                });
+                            }
+                        });
                     }
-                );
+                });
             }
-
         });
     </script>
-
-<script>
-
-
-
-
-</script>
 {% endblock %}
