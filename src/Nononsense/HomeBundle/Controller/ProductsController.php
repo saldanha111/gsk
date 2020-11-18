@@ -60,7 +60,7 @@ class ProductsController extends Controller
                 }
             }
             return $this->redirect(
-                $this->generateUrl('nononsense_products_inputs', ['type' => $type, 'qrCode' => $qrCode, 'casNumber' => $casNumber])
+                $this->generateUrl('nononsense_products_inputs', ['type' => $type, 'qrCode' => $qrCode, 'casNb' => $casNumber])
             );
         }
 
@@ -402,7 +402,7 @@ class ProductsController extends Controller
         return true;
     }
 
-    public function inputAction(Request $request, $type, $qrCode, $casNumber = null)
+    public function inputAction(Request $request, $type, $qrCode, $casNb = null)
     {
         $errorMessage = null;
         $is_valid = $this->get('app.security')->permissionSeccion('productos_recepcion');
@@ -516,8 +516,8 @@ class ProductsController extends Controller
             $array_item['product'] = $productsRepository->findOneBy(['qrCode' => $qrCode]);
             return $this->render('NononsenseHomeBundle:Products:input_material.html.twig', $array_item);
         } elseif ($actualType->getSlug() === 'reactivo') {
-            if($casNumber){
-                $array_item['product'] = $productsRepository->findOneBy(['casNumber' => urldecode($casNumber)]);
+            if($casNb){
+                $array_item['product'] = $productsRepository->findOneBy(['casNumber' => urldecode($casNb)]);
             }
             return $this->render('NononsenseHomeBundle:Products:input_reactivo.html.twig', $array_item);
         } else {
@@ -1144,9 +1144,9 @@ class ProductsController extends Controller
     private function getEndDate(Request $request)
     {
         if(strtotime($request->get("destructionDate")) < strtotime($request->get("expiryDate"))){
-            $endDate = $request->get("expiryDate");
-        }else{
             $endDate = $request->get("destructionDate");
+        }else{
+            $endDate = $request->get("expiryDate");
         }
         return $endDate;
     }

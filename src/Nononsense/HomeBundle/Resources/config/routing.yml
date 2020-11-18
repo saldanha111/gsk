@@ -349,12 +349,12 @@ nononsense_products:
     defaults: { _controller: NononsenseHomeBundle:Products:list}
 
 nononsense_products_reception:
-    path: /products/reception/{type}/{casNumber}
-    defaults: { _controller: NononsenseHomeBundle:Products:reception, casNumber: null}
+    path: /products/reception/{type}/{casNb}
+    defaults: { _controller: NononsenseHomeBundle:Products:reception, casNb: null}
 
 nononsense_products_inputs:
-    path: /products-inputs/{type}/{qrCode}/{casNumber}
-    defaults: { _controller: NononsenseHomeBundle:Products:input, casNumber: null }
+    path: /products-inputs/{type}/{qrCode}/{casNb}
+    defaults: { _controller: NononsenseHomeBundle:Products:input, casNb: null }
 
 nononsense_qrs_json_qr:
     path: /qrs-json/{id}
