@@ -46,7 +46,7 @@ security:
             security: false
         #view:
             #pattern: ^/documents/preview
-            #anonymous: true
+            #anonymous: true 
         # secures part of the application
         main:
             pattern: ^/
@@ -71,6 +71,7 @@ security:
     # of your application based on roles, ip, host or methods
     # http://symfony.com/doc/current/cookbook/security/access_control.html
     access_control:
+        - { path: ^/users/apply , roles: IS_AUTHENTICATED_ANONYMOUSLY}
         - { path: ^/users/accessByToken , roles: IS_AUTHENTICATED_ANONYMOUSLY}
         - { path: ^/RESTservices/ , roles: IS_AUTHENTICATED_ANONYMOUSLY}
         - { path: ^/data/ , roles: IS_AUTHENTICATED_ANONYMOUSLY}

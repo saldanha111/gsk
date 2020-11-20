@@ -314,4 +314,57 @@ class UsersRepository extends EntityRepository
         return $users->getQuery()->getArrayResult();
 
     }
+
+    public function listBy($filter, $limit = 10){
+        $list  = $this->createQueryBuilder('u')
+                ->orderBy('u.id','DESC');
+
+        if (isset($filter['is_active']) && is_numeric($filter['is_active'])) {
+            $list->andWhere('u.isActive = :is_active');
+            $list->setParameter('is_active', $filter["is_active"]);
+        }
+
+        if (isset($filter['name']) && $filter['name']) {
+            $list->andWhere('u.name LIKE :name');
+            $list->setParameter('name', '%'.$filter["name"].'%');
+        }
+
+        if (isset($filter['email']) && $filter['email']) {
+            $list->andWhere('u.email LIKE :email');
+            $list->setParameter('email', '%'.$filter["email"].'%');
+        }
+
+        if (isset($filter['phone']) && $filter['phone']) {
+           $list->andWhere('u.phone LIKE :phone');
+            $list->setParameter('phone', '%'.$filter["phone"].'%');
+        }
+
+        if(isset($filter["from"]) && $filter['from']){
+            $list->andWhere('u.created >= :from');
+            $list->setParameter('from', $filter["from"]);
+        }
+
+        if(isset($filter["until"]) && $filter['until']){
+            $list->andWhere('u.created <= :until');
+            $list->setParameter('until', $filter["until"]);
+        }
+
+         if(isset($filter["locked_from"]) && $filter['locked_from']){
+            $list->andWhere('u.locked >= :locked_from');
+            $list->setParameter('locked_from', $filter["locked_from"]);
+        }
+
+        if(isset($filter["locked_until"]) && $filter['locked_until']){
+            $list->andWhere('u.locked <= :locked_until');
+            $list->setParameter('locked_until', $filter["locked_until"]);
+        }
+
+        $list->setFirstResult($limit*($filter["page"]-1))->setMaxResults($limit);
+
+        $users['rows']  = $list->getQuery()->getResult();
+        $users['count'] = count(new Paginator($list));
+
+        return $users;
+    }
+
 }

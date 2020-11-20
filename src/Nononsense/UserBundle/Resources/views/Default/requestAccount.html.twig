@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>DOCXPRESSO</title>
+
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/font-awesome/css/font-awesome.css" rel="stylesheet">
+
+    <link href="/css/animate.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+
+    <style type="text/css">
+        .box-middle{
+            margin: 0 auto;
+            left: 0;
+            right: 0;
+            position: absolute;
+            max-width: 700px;
+        }
+    </style>
+
+</head>
+
+<body class="gray-bg">
+<h1 class="logo-name text-center"><img src="/img/logo-gsk.png" style="height: 65px"></h1>
+    <div class="box-middle animated fadeInDown">
+        
+        {% for flashMessage in app.session.flashbag.get('errors') %}
+            <div class="alert alert-danger alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                {{ flashMessage }}
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('success') %}
+            <div class="alert alert-success alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                {{ flashMessage }}
+            </div>
+        {% endfor %}
+
+        <h2 class="font-bold text-center">Solicitud de acceso</h2>
+        <div >
+        {{ form_start(form, {'attr': {'class': 'm-t'} }) }}
+        
+            <div class="row">
+                <div class="col-md-4 b-r">
+                    <div class="form-group">
+                        {{ form_row(form.mud_id, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+                    <div class="form-group">
+                        {{ form_row(form.username, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    {{ form_row(form.groups, {'attr': {'class': 'rol'}}) }}
+                </div>
+            </div>
+
+            <div class="form-group">
+                {{ form_row(form.description, {'attr': {'class': 'form-control', 'rows':'4'}}) }}
+            </div>
+
+            <div class="checkbox">
+                <label>{{ form_widget(form.activeDirectory, {'attr': {'class': ''}}) }} {{ form_label(form.activeDirectory) }} </label>
+            </div>
+
+            {{ form_widget(form.save, {'attr': {'class': 'btn btn-primary block full-width m-b'}}) }}
+        
+        {{ form_end(form) }}
+        </div>
+        </div>
+    </div>
+
+    <script src="/js/jquery-2.1.1.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="/plugins/dual_listbox/dist/multi.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/plugins/dual_listbox/dist/multi.min.css">
+
+    <script type="text/javascript">
+        $('.rol').multi({
+            "search_placeholder": "Buscar...",
+        });
+    </script>
+</body>
+</html>
+

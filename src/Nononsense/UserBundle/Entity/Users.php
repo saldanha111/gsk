@@ -14,8 +14,9 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  * @ORM\Table(name="users")
  * @ORM\Entity(repositoryClass="Nononsense\UserBundle\Entity\UsersRepository")
  * @ORM\HasLifecycleCallbacks
- * @UniqueEntity("email")
- * @UniqueEntity("username")
+ * @UniqueEntity("email", message="El email ya está en uso.")
+ * @UniqueEntity("username", message="El nombre de usuario ya está en uso.")
+ * @UniqueEntity("mudId", message="El MUD_ID del usuario ya está en uso.")
  */
 class Users implements AdvancedUserInterface, \Serializable
 {
@@ -39,7 +40,10 @@ class Users implements AdvancedUserInterface, \Serializable
      * @var string
      *
      * @ORM\Column(name="password", type="string", length=90, nullable=true)
-     * @Assert\Length(min = "6")
+     * @Assert\Regex(
+     *     pattern     = "/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).{8,}$/",
+     *     message     = "La contraseña debe tener 8 caracteres como mínimo y contener al menos uno de los siguientes elementos: mayúsculas, minúsculas y números."
+     * )
      */
     protected $password;
     
@@ -68,6 +72,10 @@ class Users implements AdvancedUserInterface, \Serializable
     
     /**
      * @ORM\Column(name="phone", type="text", nullable=true)
+     * @Assert\Regex(
+     *     pattern     = "/^([0-9]){9}$/",
+     *     message     = "El número de teléfono debe tener 9 dígitos."
+     * )
      */
     protected $phone;
     
@@ -139,6 +147,16 @@ class Users implements AdvancedUserInterface, \Serializable
      * @ORM\Column(type="date")
      */
     protected $modified;
+
+    /**
+     * @ORM\Column(type="date", nullable=true)
+     */
+    protected $locked;
+
+    /**
+     * @ORM\Column(name="mud_id", type="string", length=20, nullable=true)
+     */
+    protected $mudId;
     
     /**
      * @ORM\OneToMany(targetEntity="\Nononsense\NotificationsBundle\Entity\Notifications", mappedBy="author")
@@ -2276,5 +2294,51 @@ class Users implements AdvancedUserInterface, \Serializable
     public function getRcSignatures()
     {
         return $this->rcSignatures;
+    }
+
+    /**
+     * Set mudId
+     *
+     * @param string $mudId
+     * @return Users
+     */
+    public function setMudId($mudId)
+    {
+        $this->mudId = $mudId;
+
+        return $this;
+    }
+
+    /**
+     * Get mudId
+     *
+     * @return string 
+     */
+    public function getMudId()
+    {
+        return $this->mudId;
+    }
+
+    /**
+     * Set locked
+     *
+     * @param \DateTime $locked
+     * @return Users
+     */
+    public function setLocked($locked)
+    {
+        $this->locked = $locked;
+
+        return $this;
+    }
+
+    /**
+     * Get locked
+     *
+     * @return \DateTime 
+     */
+    public function getLocked()
+    {
+        return $this->locked;
     }
 }
