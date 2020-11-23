@@ -1,0 +1,63 @@
+<div class="modal fade" tabindex="-1" role="dialog" id="responseModalSignRequestDrop">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Tramitar baja</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+        <form id="response_request_drop" action="{{path('nononsense_tm_template_response_drop', {'id': template.id}) }}" method="POST"  enctype="multipart/form-data">
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-10 col-lg-offset-1">
+                        <b>Solicitante</b><br>
+                        <div class="form-group">
+                            {{drop_request.userEntiy.name}}
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-10 col-lg-offset-1">
+                        <b>Fecha</b><br>
+                        <div class="form-group">
+                            {{drop_request.created is defined and drop_request.created is not null ? drop_request.created|date("d/m/Y H:i:s") : ''}}
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-10 col-lg-offset-1">
+                        <b>Solicitud baja</b><br>
+                        <div class="form-group">
+                            {{drop_request.description}}
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-10 col-lg-offset-1">
+                        <b>Comentarios</b><br>
+                        <div class="form-group">
+                            <textarea class="form-control" name="description" rows="10" cols="40" style="width:100%"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-10 col-lg-offset-1">
+                        <div id="signature-pad" class="input-group">
+                            <b>Introduzca su firma</b><br>
+                            <canvas id="canvas2" width="300" height="150" style="touch-action: none; border: 2px solid #eee; box-shadow: 0px 0px 6px 1px rgba(80, 90, 100, 0.5)"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <input type="hidden" id="signature" name="signature" />
+                <input type="hidden" name="action" value="" />
+            </div>
+            <div class="modal-footer">
+                <a name="borrarFirmar" class="btn btn-secondary" id="borrarFirmar">Limpiar firma</a>
+                <input type="submit" class="btn btn-danger" data-action="2" value="Rechazar solicitud">
+                <input type="submit" class="btn btn-primary" data-action="1" value="Aprobar solicitud">
+            </div>
+        </form>
+    </div>
+  </div>
+</div>

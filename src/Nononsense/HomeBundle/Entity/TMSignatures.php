@@ -56,6 +56,13 @@ class TMSignatures
      */
     protected $tmWhoAprobFromWorkflow;
 
+    /**
+     * @var boolean $TmDropAction
+     *
+     * @ORM\Column(name="drop_action", type="boolean",  nullable=true)
+     */
+    protected $tmDropAction;
+
 
     /**
      * @var string
@@ -444,5 +451,28 @@ class TMSignatures
     public function getTmWhoAprobFromWorkflow()
     {
         return $this->tmWhoAprobFromWorkflow;
+    }
+
+    /**
+     * Set tmDropAction
+     *
+     * @param boolean $tmDropAction
+     * @return TMSignatures
+     */
+    public function setTmDropAction($tmDropAction)
+    {
+        $this->tmDropAction = $tmDropAction;
+
+        return $this;
+    }
+
+    /**
+     * Get tmDropAction
+     *
+     * @return boolean 
+     */
+    public function getTmDropAction()
+    {
+        return $this->tmDropAction;
     }
 }

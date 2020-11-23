@@ -30,6 +30,7 @@ use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 class TemplateManagementTemplatesController extends Controller
 {
+    /* Listado de plantillas que están disponibles para crear una nueva edición */
     public function listActiveJsonAction(Request $request)
     {
     	$em = $this->getDoctrine()->getManager();
@@ -69,6 +70,7 @@ class TemplateManagementTemplatesController extends Controller
         return $response;
     }
 
+    /* Listado de plantillas o de solicitudes de baja */
     public function listAction(Request $request)
     {
         $filters=Array();
@@ -162,10 +164,12 @@ class TemplateManagementTemplatesController extends Controller
         
     }
 
+    /* Detalle de una solicitud o una plantilla */
     public function detailAction(Request $request, int $id)
     {
         $em = $this->getDoctrine()->getManager();
         $array_item=array();
+        $user = $this->container->get('security.context')->getToken()->getUser();
 
         $array_item["template"] = $this->getDoctrine()->getRepository(TMTemplates::class)->findOneBy(array("id" => $id));
 
@@ -178,10 +182,72 @@ class TemplateManagementTemplatesController extends Controller
         $action = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 5));
         $array_item["admin"] = $this->getDoctrine()->getRepository(TMWorkflow::class)->findBy(array("template" => $array_item["template"], "action" => $action),array("id" => "ASC"));
 
+        /* Popup de solicitar baja de plantilla */
+        if($request->get("request_drop")){
+            $is_valid = $this->get('app.security')->permissionSeccion('dueno_gp');
+            if(!$is_valid){
+                $this->get('session')->getFlashBag()->add(
+                    'error',
+                    'No tiene permisos suficientes'
+                );
+                $route=$this->container->get('router')->generate('nononsense_tm_templates');
+                return $this->redirect($route);
+            }
+
+            $action = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 8));
+            $drop_request = $this->getDoctrine()->getRepository(TMSignatures::class)->findOneBy(array("template" => $array_item["template"], "action" => $action, "tmDropAction" => NULL));
+
+            if($drop_request){
+                $this->get('session')->getFlashBag()->add(
+                    'error',
+                    'Ya existe una solicitud de baja para esta plantilla'
+                );
+                $route=$this->container->get('router')->generate('nononsense_tm_templates');
+                return $this->redirect($route);
+            }
+        }
+
+        /* Popup de firma para aceptar o rechazar la baja de plantilla */
+        if($request->get("request_drop_action")){
+            $is_valid = $this->get('app.security')->permissionSeccion('admin_gp');
+            if(!$is_valid){
+                $this->get('session')->getFlashBag()->add(
+                    'error',
+                    'No tiene permisos suficientes'
+                );
+                $route=$this->container->get('router')->generate('nononsense_tm_templates');
+                return $this->redirect($route);
+            }
+
+            $action_admin = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 5));
+            $workflow_admin = $this->getDoctrine()->getRepository(TMWorkflow::class)->findOneBy(array("template" => $array_item["template"], "action" => $action_admin),array("id" => "ASC"));
+
+            if(!$workflow_admin || $workflow_admin->getUserEntiy()!=$user){
+                $this->get('session')->getFlashBag()->add(
+                    'error',
+                    'No tiene permisos suficientes para tramitar la solicitud de baja de esta plantilla'
+                );
+                $route=$this->container->get('router')->generate('nononsense_tm_templates');
+                return $this->redirect($route);
+            }
+
+            $action = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 8));
+            $array_item["drop_request"] = $this->getDoctrine()->getRepository(TMSignatures::class)->findOneBy(array("template" => $array_item["template"], "action" => $action, "tmDropAction" => NULL));
+            if(!$array_item["drop_request"]){
+                $this->get('session')->getFlashBag()->add(
+                    'error',
+                    'No hay una solicitud de baja para esta plantilla'
+                );
+                $route=$this->container->get('router')->generate('nononsense_tm_templates');
+                return $this->redirect($route);
+            }
+        }
+
 
         return $this->render('NononsenseHomeBundle:TemplateManagement:template_detail.html.twig',$array_item);
     }
 
+    /* Se acepta o se rechaza la solicitud de creación de una plantilla */
     public function actionRequestAction(Request $request, int $id)
     {
         $em = $this->getDoctrine()->getManager();
@@ -259,6 +325,7 @@ class TemplateManagementTemplatesController extends Controller
         return $this->redirect($route);
     }
 
+    /* Se crea una solicitud de baja de una plantilla */
     public function requestDropAction(Request $request, int $id)
     {
         $em = $this->getDoctrine()->getManager();
@@ -280,6 +347,16 @@ class TemplateManagementTemplatesController extends Controller
             if($template){
                 $action = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 8));
                 if($action){
+                    $drop_request = $this->getDoctrine()->getRepository(TMSignatures::class)->findOneBy(array("template" => $template, "action" => $action, "tmDropAction" => NULL));
+                    if($drop_request){
+                        $this->get('session')->getFlashBag()->add(
+                            'error',
+                            'Ya hay una solicitud de baja para esta plantilla'
+                        );
+                        $route=$this->container->get('router')->generate('nononsense_tm_templates');
+                        return $this->redirect($route);
+                    }
+
                     if($user!=$template->getOwner() && $user!=$template->getBackup()){
                         $this->get('session')->getFlashBag()->add(
                             'error',
@@ -344,12 +421,126 @@ class TemplateManagementTemplatesController extends Controller
 
         $this->get('session')->getFlashBag()->add(
             'error',
-            'No se ha podido efectuar la operación sobre la plantilla especifiada. Es posible que ya se haya realizado una acción sobre ella o que la plantilla ya no exista'
+            'No se ha podido efectuar la operación sobre la plantilla especificada. Es posible que ya se haya realizado una acción sobre ella o que la plantilla ya no exista'
         );
         $route=$this->container->get('router')->generate('nononsense_tm_templates');
         return $this->redirect($route);
     }
 
+    /* Aceptar o rechazar solicitud de baja de una plantilla */
+    public function responseRequestDropAction(Request $request, int $id)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $array=array();
+
+        $is_valid = $this->get('app.security')->permissionSeccion('admin_gp');
+        if(!$is_valid){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                'No tiene permisos suficientes'
+            );
+            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            return $this->redirect($route);
+        }
+
+        $user = $this->container->get('security.context')->getToken()->getUser();
+        if($request->get("signature") && $request->get("action")){
+            $template = $this->getDoctrine()->getRepository(TMTemplates::class)->findOneBy(array("id" => $id));
+            if($template){
+                $action = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 8));
+                if($action){
+
+                    $drop_request = $this->getDoctrine()->getRepository(TMSignatures::class)->findOneBy(array("template" => $template, "action" => $action, "tmDropAction" => NULL));
+                    if(!$drop_request){
+                        $this->get('session')->getFlashBag()->add(
+                            'error',
+                            'No existe una solicitud de baja sobre esta plantilla'
+                        );
+                        $route=$this->container->get('router')->generate('nononsense_tm_templates');
+                        return $this->redirect($route);
+                    }
+
+                    $action_admin = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 5));
+                    $workflow_admin = $this->getDoctrine()->getRepository(TMWorkflow::class)->findOneBy(array("template" => $template, "action" => $action_admin),array("id" => "ASC"));
+
+                    if(!$workflow_admin || $workflow_admin->getUserEntiy()!=$user){
+                        $this->get('session')->getFlashBag()->add(
+                            'error',
+                            'No tiene permisos para aceptar la solicitud de esta plantilla'
+                        );
+                        $route=$this->container->get('router')->generate('nononsense_tm_templates');
+                        return $this->redirect($route);
+                    }
+
+                    $drop_request->setTmDropAction($request->get("action"));
+                    $em->persist($drop_request);
+                    
+                    $previous_signature = $this->getDoctrine()->getRepository(TMSignatures::class)->findOneBy(array("template"=>$template),array("id" => "ASC"));
+
+                    if($template->getTmState()->getId()==6){
+
+                        $signature = new TMSignatures();
+                        $signature->setTemplate($template);
+                        switch($request->get("action")){
+                            case 1: 
+                                $action_response = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 9));
+                                $description="Esta firma significa la autorización para la efectuar la baja de esta plantilla conforme a los procedimientos vigentes.";
+                                if($request->get("description")){
+                                    $description.=" ".$request->get("description");
+                                }
+
+                                $next_state = $this->getDoctrine()->getRepository(TMStates::class)->findOneBy(array("id" => 8));
+                                $template->setTmState($next_state);
+                                $em->persist($template);
+
+                                while($template->getTemplateId()!=NULL){
+                                    $template = $this->getDoctrine()->getRepository(TMTemplates::class)->findOneBy(array("id" => $id));
+                                    $template->setTmState($next_state);
+                                    $em->persist($template);
+                                }
+
+
+                                $signature->setDescription($description);
+                                $desc_error="La plantilla ha sido dada de baja con éxito";
+                                break;
+                            case 2: 
+                                $action_response = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 10));
+                                if($request->get("description")){
+                                    $signature->setDescription($request->get("description"));
+                                }
+                                $desc_error="La solicitud de baja ha sido rechazada con éxito";
+                                break;
+                        }
+                        
+                        $signature->setAction($action_response);
+                        $signature->setUserEntiy($user);
+                        $signature->setCreated(new \DateTime());
+                        $signature->setModified(new \DateTime());
+                        $signature->setSignature($request->get("signature"));
+                        $signature->setVersion($previous_signature->getVersion());
+                        $signature->setConfiguration($previous_signature->getConfiguration());
+                        $em->persist($signature);
+                        
+                        $em->flush();
+
+                        $this->get('session')->getFlashBag()->add('message',$desc_error);
+                        $route=$this->container->get('router')->generate('nononsense_tm_templates');
+                        return $this->redirect($route);
+                    }
+                    
+                }
+            }
+        }
+
+        $this->get('session')->getFlashBag()->add(
+            'error',
+            'No se ha podido efectuar la operación sobre la solicitud especificada. Es posible que ya se haya realizado una acción sobre ella'
+        );
+        $route=$this->container->get('router')->generate('nononsense_tm_templates');
+        return $this->redirect($route);
+    }
+
+    /* Detalle historial de cambios de una plantilla */
     public function changesHistoryAction(Request $request, int $id)
     {
         $em = $this->getDoctrine()->getManager();
@@ -365,26 +556,39 @@ class TemplateManagementTemplatesController extends Controller
             $filters["changes_history"]=$template->getId();
         }
 
-        $array_item["templates"] = $this->getDoctrine()->getRepository(TMTemplates::class)->list($filters);
+        $array_item["templates"] = $this->getDoctrine()->getRepository(TMTemplates::class)->list("list",$filters);
         foreach($array_item["templates"] as $key => $item){
             $signatures = $this->getDoctrine()->getRepository(TMSignatures::class)->findBy(array("template"=>$item["id"]),array("id" => "ASC"));
+
             $array_item["templates"][$key]["elab"]="";
             $array_item["templates"][$key]["test"]="";
             $array_item["templates"][$key]["aprob"]="";
             $array_item["templates"][$key]["admin"]="";
+
+            $elabs=array();
+            $tests=array();
+            $aprobs=array();
+            $admins=array();
+
             foreach($signatures as $signature){
                 switch($signature->getAction()->getId()){
-                    case 2:$array_item["templates"][$key]["elab"].=$signature->getUserEntiy()->getName().",";break;
-                    case 3:$array_item["templates"][$key]["test"].=$signature->getUserEntiy()->getName().",";break;
-                    case 4:$array_item["templates"][$key]["aprob"].=$signature->getUserEntiy()->getName().",";break;
-                    case 5:$array_item["templates"][$key]["admin"].=$signature->getUserEntiy()->getName().",";break;
+                    case 2:$elabs[]=$signature->getUserEntiy()->getName();break;
+                    case 3:$tests[]=$signature->getUserEntiy()->getName();break;
+                    case 4:$aprobs[]=$signature->getUserEntiy()->getName();break;
+                    case 5:$admins[]=$signature->getUserEntiy()->getName();break;
                 }
             }
+
+            $array_item["templates"][$key]["elab"]=implode(",", array_unique($elabs));
+            $array_item["templates"][$key]["test"]=implode(",", array_unique($tests));
+            $array_item["templates"][$key]["aprob"]=implode(",", array_unique($aprobs));
+            $array_item["templates"][$key]["admin"]=implode(",", array_unique($admins));
         }
 
         return $this->render('NononsenseHomeBundle:TemplateManagement:template_history.html.twig',$array_item);
     }
 
+    /* Auditrail de una plantilla */
     public function auditTrailAction(Request $request, int $id)
     {
         $em = $this->getDoctrine()->getManager();
@@ -398,6 +602,7 @@ class TemplateManagementTemplatesController extends Controller
         return $this->render('NononsenseHomeBundle:TemplateManagement:template_audit_trail.html.twig',$array_item);
     }
 
+    /* Página imprimible con la configuración base de la plantilla */
     public function coverPageAction(Request $request, int $id)
     {
         $em = $this->getDoctrine()->getManager();

@@ -56,6 +56,13 @@ class TMSignatures
      */
     protected $tmWhoAprobFromWorkflow;
 
+    /**
+     * @var boolean $TmDropAction
+     *
+     * @ORM\Column(name="drop_action", type="boolean",  nullable=true)
+     */
+    protected $tmDropAction;
+
 
     /**
      * @var string

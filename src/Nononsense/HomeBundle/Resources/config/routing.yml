@@ -753,6 +753,11 @@ nononsense_tm_template_request_drop:
     methods:    [POST]
     defaults: { _controller: NononsenseHomeBundle:TemplateManagementTemplates:requestDrop,id: 0}
 
+nononsense_tm_template_response_drop:
+    path: /mt/response-drop/{id}
+    methods:    [POST]
+    defaults: { _controller: NononsenseHomeBundle:TemplateManagementTemplates:responseRequestDrop,id: 0}
+
 nononsense_tm_test_detail:
     path: /mt/test/{id}
     methods:    [GET]

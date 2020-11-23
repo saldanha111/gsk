@@ -76,6 +76,9 @@ class TMTemplatesRepository extends EntityRepository
         $logical=" WHERE ";
         $orderby=" ORDER BY t.id DESC, s.id DESC";
 
+        $tables_drop="";
+        $fields_drop="";
+
         if(!empty($filters)){
 
             if(isset($filters["name"])){
@@ -129,8 +132,11 @@ class TMTemplatesRepository extends EntityRepository
             }
 
             if(isset($filters["request_drop"])){
-                $sintax.=$logical." sg.action=8";
+                $sintax.=$logical." sg.action=8 AND sg.tmDropAction IS NULL";
                 $logical=" AND ";
+
+                $tables_drop="LEFT JOIN Nononsense\HomeBundle\Entity\TMSignatures sg WITH t.id=sg.template LEFT JOIN Nononsense\UserBundle\Entity\Users ud WITH sg.userEntiy=ud.id";
+                $fields_drop=",ud.name applicantDropRequestName,sg.created dropRequestDate";
             }
 
             if(isset($filters["applicant_drop"])){
@@ -148,11 +154,11 @@ class TMTemplatesRepository extends EntityRepository
             }
         }
 
-        $sintax = " FROM Nononsense\HomeBundle\Entity\TMTemplates t LEFT JOIN Nononsense\HomeBundle\Entity\Areas a WITH t.area=a.id LEFT JOIN Nononsense\HomeBundle\Entity\TMStates s WITH t.tmState=s.id LEFT JOIN Nononsense\UserBundle\Entity\Users ua WITH t.applicant=ua.id LEFT JOIN Nononsense\UserBundle\Entity\Users uo WITH t.owner=uo.id LEFT JOIN Nononsense\UserBundle\Entity\Users ub WITH t.backup=ub.id LEFT JOIN Nononsense\HomeBundle\Entity\TMSignatures sg WITH t.id=sg.template LEFT JOIN Nononsense\UserBundle\Entity\Users ud WITH sg.userEntiy=ud.id ".$sintax;
+        $sintax = " FROM Nononsense\HomeBundle\Entity\TMTemplates t LEFT JOIN Nononsense\HomeBundle\Entity\Areas a WITH t.area=a.id LEFT JOIN Nononsense\HomeBundle\Entity\TMStates s WITH t.tmState=s.id LEFT JOIN Nononsense\UserBundle\Entity\Users ua WITH t.applicant=ua.id LEFT JOIN Nononsense\UserBundle\Entity\Users uo WITH t.owner=uo.id LEFT JOIN Nononsense\UserBundle\Entity\Users ub WITH t.backup=ub.id ".$tables_drop.$sintax;
 
         switch($type){
             case "list": 
-                $query = $em->createQuery("SELECT t.id,t.name,a.name nameArea,t.number,t.numEdition,s.id status,t.inactive,s.name stateName,t.created,t.reference,ua.name applicantName,uo.name ownerName,ub.name backupName,t.effectiveDate,t.reviewDate,t.historyChange,uo.id ownerId,ub.id backupId,ud.name applicantDropRequestName,sg.created dropRequestDate ".$sintax." ".$orderby);
+                $query = $em->createQuery("SELECT t.id,t.name,a.name nameArea,t.number,t.numEdition,s.id status,t.inactive,s.name stateName,t.created,t.reference,ua.name applicantName,uo.name ownerName,ub.name backupName,t.effectiveDate,t.reviewDate,t.historyChange,uo.id ownerId,ub.id backupId ".$fields_drop.$sintax." ".$orderby);
                 if(isset($filters["limit_from"])){
                     $query->setFirstResult($filters["limit_from"]*$filters["limit_many"])->setMaxResults($filters["limit_many"]);
                 }
@@ -166,7 +172,7 @@ class TMTemplatesRepository extends EntityRepository
                 break;
 
             case "count":
-                $query = $em->createQuery("SELECT COUNT(t.id) conta ".$sintax);
+                $query = $em->createQuery("SELECT COUNT(DISTINCT t.id) conta ".$sintax);
 
                 if(!empty($parameters)){
                     $query->setParameters($parameters);
