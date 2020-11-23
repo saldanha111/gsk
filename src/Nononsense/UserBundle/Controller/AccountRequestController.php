@@ -75,7 +75,7 @@ class AccountRequestController extends Controller
 
 	public function updateAction(Request $request, $id){
 
-		//if (!$this->isAllowed('usuarios_gestion')) return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+		if (!$this->isAllowed('usuarios_gestion')) return $this->redirect($this->generateUrl('nononsense_home_homepage'));
 
 		$accountRequest      = $this->getDoctrine()->getRepository(AccountRequests::class)->find($id);
 
