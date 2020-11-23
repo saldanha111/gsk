@@ -110,6 +110,7 @@ class ProductsController extends Controller
         }
 
         $totalItems = $productInputRepository->countForStock($filters);
+        $listItems = $productInputRepository->listForStock($filters,1);
 
         if(isset($filters['destructionDateFrom']) && $filters['destructionDateFrom']){
             $filters['destructionDateFrom'] = $destructionFrom->format('d-m-Y');
@@ -121,7 +122,7 @@ class ProductsController extends Controller
 
         $array_item = [
             "filters" => $filters,
-            "items" => $productInputRepository->listForStock($filters,1),
+            "items" => $listItems,
             "count" => $totalItems,
             "states" => $productInputStatusRepository->findAll(),
             "types" => $productsTypesRepository->findAll(),

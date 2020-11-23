@@ -64,7 +64,7 @@ class ProductsInputsRepository extends EntityRepository
             }
             if (isset($filters["receptionDateTo"])) {
                 $list->andWhere("pi.receptionDate<=:receptionDateTo");
-                $list->setParameter('receptionDateTo', $filters["receptionDateTo"] . " 23:59:59");
+                $list->setParameter('receptionDateTo', $filters["receptionDateTo"]);
             }
             if (isset($filters["expiryDateFrom"])) {
                 $list->andWhere("pi.expiryDate>=:expiryDateFrom");
@@ -72,7 +72,7 @@ class ProductsInputsRepository extends EntityRepository
             }
             if (isset($filters["expiryDateTo"])) {
                 $list->andWhere("pi.expiryDate<=:expiryDateTo");
-                $list->setParameter('expiryDateTo', $filters["expiryDateTo"] . " 23:59:59");
+                $list->setParameter('expiryDateTo', $filters["expiryDateTo"]);
             }
             if (isset($filters["destructionDateFrom"])) {
                 $list->andWhere("pi.destructionDate>=:destructionDateFrom");
@@ -80,7 +80,7 @@ class ProductsInputsRepository extends EntityRepository
             }
             if (isset($filters["destructionDateTo"])) {
                 $list->andWhere("pi.destructionDate<=:destructionDateTo");
-                $list->setParameter('destructionDateTo', $filters["destructionDateTo"] . " 23:59:59");
+                $list->setParameter('destructionDateTo', $filters["destructionDateTo"]);
             }
             if (isset($filters["openDateFrom"])) {
                 $list->andWhere("pi.openDate>=:openDateFrom");
@@ -88,7 +88,7 @@ class ProductsInputsRepository extends EntityRepository
             }
             if (isset($filters["openDateTo"])) {
                 $list->andWhere("pi.openDate<=:openDateTo");
-                $list->setParameter('openDateTo', $filters["openDateTo"] . " 23:59:59");
+                $list->setParameter('openDateTo', $filters["openDateTo"]);
             }
             if(isset($filters['type'])){
                 $list->andWhere("t.slug =:type");
