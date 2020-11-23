@@ -4,6 +4,8 @@ namespace Nononsense\HomeBundle\Controller;
 
 use Datetime;
 use Exception;
+use Nononsense\HomeBundle\Entity\ProductsDissolution;
+use Nononsense\HomeBundle\Entity\ProductsDissolutionRepository;
 use Nononsense\HomeBundle\Entity\ProductsInputsRepository;
 use Nononsense\HomeBundle\Entity\ProductsInputStatus;
 use Nononsense\HomeBundle\Entity\ProductsInputStatusRepository;
@@ -92,12 +94,30 @@ class ProductsController extends Controller
         /** @var ProductsTypesRepository $productsTypesRepository */
         $productsTypesRepository = $em->getRepository(ProductsTypes::class);
 
+        if(isset($filters['destructionDateFrom']) && $filters['destructionDateFrom']){
+            $destructionFrom = DateTime::createFromFormat('d-m-Y', $filters['destructionDateFrom']);
+            $filters['destructionDateFrom'] = $destructionFrom->format('Y-m-d');
+        }
+
+        if(isset($filters['destructionDateTo']) && $filters['destructionDateTo']){
+            $destructionTo = DateTime::createFromFormat('d-m-Y', $filters['destructionDateTo']);
+            $filters['destructionDateTo'] = $destructionTo->format('Y-m-d');
+        }
+
         if ($request->get("a_excel") == 1) {
             $items = $productInputRepository->listForStock($filters, 0);
             return $this->exportExcelProducts($items);
         }
 
         $totalItems = $productInputRepository->countForStock($filters);
+
+        if(isset($filters['destructionDateFrom']) && $filters['destructionDateFrom']){
+            $filters['destructionDateFrom'] = $destructionFrom->format('d-m-Y');
+        }
+
+        if(isset($filters['destructionDateTo']) && $filters['destructionDateTo']){
+            $filters['destructionDateTo'] = $destructionTo->format('d-m-Y');
+        }
 
         $array_item = [
             "filters" => $filters,
@@ -805,6 +825,7 @@ class ProductsController extends Controller
                     $isReactivo = false;
                 }
 
+                $data['id'] = $productInput->getId();
                 $data['partNumber'] = $product->getPartNumber();
                 $data['stock'] = $stock;
                 $data['casNumber'] = $product->getCasNumber();
@@ -981,30 +1002,44 @@ class ProductsController extends Controller
         /** @var ProductsInputs $output */
         $input = $inputsRepository->findOneBy(['qrCode' => $code]);
 
-        if($input){
-            switch($input->getState()->getSlug()){
-                case 'retirado':
-                case 'usado':
-                $openDate = $input->getOpenDate()?: new DateTime();
-                    $data = [
-                        'u_nombre_sustancia' => $input->getProduct()->getName(),
-                        'u_cas' => ($input->getProduct()->getCasNumber())?:'',
-                        'u_lote' => ($input->getLotNumber())?:'',
-                        'u_caducidad' => ($input->getExpiryDate()) ? $input->getExpiryDate()->format('Y-m-d'):'',
-                        'u_n_vial' => ($input->getProduct()->getProvider())?:'',
-                        'u_date' => $openDate->format('Y-m-d'),
-                        'u_qr_data' => $input->getQrCode()
-                    ];
-                    break;
-                case 'recibido':
-                    $data = ['u_qr_data' => 'Extracción no registrada'];
-                    break;
-                case 'terminado':
-                    $data = ['u_qr_data' => 'Reactivo terminado'];
-                    break;
-            }
-            if($input->getExpiryDate() < (new DateTime()) || $input->getDestructionDate() < (new DateTime())){
-                $data = ['u_qr_data' => 'Caducidad alcanzada.'];
+        if(!$input){
+            /** @var ProductsDissolutionRepository $dissolutionRepository */
+            $dissolutionRepository = $this->getDoctrine()->getRepository(ProductsDissolution::class);
+            /** @var ProductsDissolution $dissolution */
+            $dissolution = $dissolutionRepository->findOneBy(['qrCode' => $code]);
+            $arrInput = $dissolution ? $dissolution->getLines() : [];
+        }else {
+            $arrInput = [$input];
+        }
+
+        if(count($arrInput) > 0){
+            $data = [];
+            foreach($arrInput as $key => $input){
+                switch($input->getState()->getSlug()){
+                    case 'retirado':
+                    case 'usado':
+                        $openDate = $input->getOpenDate()?: new DateTime();
+                        $data[$key] = [
+                            'u_nombre_sustancia' => $input->getProduct()->getName(),
+                            'u_cas' => ($input->getProduct()->getCasNumber())?:'',
+                            'u_lote' => ($input->getLotNumber())?:'',
+                            'u_caduc' => ($input->getExpiryDate()) ? $input->getExpiryDate()->format('Y-m-d'):'',
+                            'u_cad_prep' => 'test1',
+                            'u_proveed' => ($input->getProduct()->getProvider())?:'',
+                            'u_date' => $openDate->format('Y-m-d'),
+                            'u_qr_data' => $input->getQrCode()
+                        ];
+                        break;
+                    case 'recibido':
+                        $data[$key] = ['u_qr_data' => 'Extracción no registrada'];
+                        break;
+                    case 'terminado':
+                        $data[$key] = ['u_qr_data' => 'Reactivo terminado'];
+                        break;
+                }
+                if($input->getExpiryDate() < (new DateTime()) || $input->getDestructionDate() < (new DateTime())){
+                    $data[$key] = ['u_qr_data' => 'Caducidad alcanzada.'];
+                }
             }
         }
 
