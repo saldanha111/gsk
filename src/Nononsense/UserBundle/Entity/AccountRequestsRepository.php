@@ -17,14 +17,10 @@ class AccountRequestsRepository extends EntityRepository
         $list  = $this->createQueryBuilder('u')
                 ->addOrderBy('u.status','ASC')
                 ->addOrderBy('u.created','ASC');
-                
-
 
         if (isset($filter['status']) && is_numeric($filter['status'])) {
             $list->andWhere('u.status = :status');
             $list->setParameter('status', $filter["status"]);
-        }else{
-            //$list->andWhere('u.status is NULL'); //By default we show the requests that have no assigned status
         }
 
         if (isset($filter['username']) && $filter['username']) {

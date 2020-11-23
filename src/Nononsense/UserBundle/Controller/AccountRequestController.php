@@ -6,6 +6,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
+use Symfony\Component\Security\Core\Util\SecureRandom;
 use Nononsense\UserBundle\Entity\Users;
 use Nononsense\GroupBundle\Entity\GroupUsers;
 use Nononsense\GroupBundle\Entity\Groups;
@@ -74,9 +75,9 @@ class AccountRequestController extends Controller
 
 	public function updateAction(Request $request, $id){
 
-		if (!$this->isAllowed('usuarios_gestion')) return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+		//if (!$this->isAllowed('usuarios_gestion')) return $this->redirect($this->generateUrl('nononsense_home_homepage'));
 
-		$accountRequest      = $this->getDoctrine()->getRepository('NononsenseUserBundle:AccountRequests')->find($id);
+		$accountRequest      = $this->getDoctrine()->getRepository(AccountRequests::class)->find($id);
 
 		$form = $this->createForm(new Form\AccountRequestUpdateType(), $accountRequest);
 		$form->handleRequest($request);
@@ -98,13 +99,21 @@ class AccountRequestController extends Controller
 		    $user = new Users();
             $user->setUsername($accountRequest->getUsername());
             $user->setName($accountRequest->getUsername());
-            $user->setDescription('');
-            $user->setPassword('5mFJK89RErgDsF46216GRuO5LjDiZH/NTRIE1WvQJo5xMFZuLJz3j5yZk5AQTSW8VPPMo2T2Yl8HK1xYCv5WTA==');
-            $user->setSalt('AD6ClmxSuKOVVw==');
+            $user->setDescription('<p>Insert <strong>here</strong> the user description.</p>'); //Required parameter. TO DO FIXE IT.
+            //$user->setIsActive(1);
+
+            //Start Block Password DEV ONLY. TO DO GET AZURE ACTIVE DIRECTORY TOKEN
+	            $generator = new SecureRandom();
+	            $user->setSalt(base64_encode($generator->nextBytes(10)));
+
+	            $factory 	= $this->get('security.encoder_factory');
+	            $encoder 	= $factory->getEncoder($user);
+	            $password 	= $encoder->encodePassword('DAKda$da1lK', $user->getSalt());
+	            $user->setPassword($password);
+            //End Block Password
+
             $user->setMudId($accountRequest->getMudId()); 
             $user->setEmail($accountRequest->getUsername().'@manual.com'); // TO DO GET AZURE ACTIVE DIRECTORY EMAIL.
-
-            $em = $this->getDoctrine()->getManager();
 
 		    $validator 	= $this->get('validator');
 		    $errors 	= $validator->validate($user);
@@ -118,6 +127,7 @@ class AccountRequestController extends Controller
 		    	return false;
 		    }
 
+		    $em = $this->getDoctrine()->getManager();
             $em->persist($user);
             $em->flush();
 
@@ -225,7 +235,6 @@ class AccountRequestController extends Controller
 		}
 
 		return true;
-
 	}
 
 }

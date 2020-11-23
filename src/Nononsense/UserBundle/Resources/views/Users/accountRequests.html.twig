@@ -24,7 +24,7 @@
                             <label class="col-sm-2 control-label item_filter">Estado de la solicitud:</label>
                             <div class="col-sm-2 item_filter">
                                 <select class="form-control" name="status">
-                                    <option value="">Pendiente de revisión</option>
+                                    <option value="">Todos</option>
                                     {% for i in 0..1 %}
                                         <option value="{{i}}" {{ filters.status is not empty and filters.status == i ? 'selected="selected"' : ''}}>
                                              {{ i == 1 ? "Aceptada" : "Cancelada"}}
