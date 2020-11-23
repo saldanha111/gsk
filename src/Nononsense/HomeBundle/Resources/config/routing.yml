@@ -420,6 +420,22 @@ nononsense_products_output_data:
     path: /products-output-data/{code}
     defaults: { _controller: NononsenseHomeBundle:Products:jsonOutputData}
 
+nononsense_products_dissolution:
+    path: /products-dissolution
+    defaults: { _controller: NononsenseHomeBundle:ProductsDissolution:list}
+
+nononsense_products_dissolution_edit:
+    path: /products-dissolution/{id}
+    defaults: { _controller: NononsenseHomeBundle:ProductsDissolution:edit}
+
+nononsense_products_dissolution_delete:
+    path: /products-dissolution-delete/{id}
+    defaults: { _controller: NononsenseHomeBundle:Productsdissolution:delete}
+
+nononsense_products_dissolution_view_qr:
+    path: /products-dissolution-qr/{id}
+    defaults: { _controller: NononsenseHomeBundle:ProductsDissolution:dissolutionQr }
+
 # /Gestión de reactivos
 
 nononsense_qr_list:
