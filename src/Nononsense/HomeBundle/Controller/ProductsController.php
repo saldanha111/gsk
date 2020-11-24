@@ -1090,33 +1090,42 @@ class ProductsController extends Controller
         return $response;
     }
 
+    /** ProductInpus[] $items
+     * @param ProductsInputs[] $items
+     * @return
+     */
     private function exportExcelProductsInputs($items)
     {
         $phpExcelObject = $this->get('phpexcel')->createPHPExcelObject();
 
         $phpExcelObject->getProperties();
         $phpExcelObject->setActiveSheetIndex(0)
-            ->setCellValue('A1', 'Part. Number')
-            ->setCellValue('B1', 'Nombre')
-            ->setCellValue('C1', 'Unidades entrantes')
-            ->setCellValue('D1', 'Unidades restantes')
-            ->setCellValue('E1', 'Fecha recepción')
-            ->setCellValue('F1', 'Fecha caducidad')
-            ->setCellValue('G1', 'Fecha destrucción')
-            ->setCellValue('H1', 'Fecha apertura');
+            ->setCellValue('A1', 'Id')
+            ->setCellValue('B1', 'CAS Number')
+            ->setCellValue('C1', 'Part. Number')
+            ->setCellValue('D1', 'Nombre')
+            ->setCellValue('E1', 'Proveedor')
+            ->setCellValue('F1', 'Presentación')
+            ->setCellValue('G1', 'Unidades entrantes')
+            ->setCellValue('H1', 'Unidades restantes')
+            ->setCellValue('I1', 'Fecha de recepción')
+            ->setCellValue('J1', 'Comentarios')
+            ->setCellValue('K1', 'Usuario');
 
         $i = 2;
         foreach ($items as $item) {
             $phpExcelObject->getActiveSheet()
                 ->setCellValue('A' . $i, $item->getProduct()->getPartNumber())
-                ->setCellValue('B' . $i, $item->getProduct()->getName())
-                ->setCellValue('C' . $i, $item->getAmount())
-                ->setCellValue('D' . $i, $item->getRemainingAmount())
-                ->setCellValue('E' . $i, $item->getReceptionDate()->format('Y-m-d H:i:s'))
-                ->setCellValue('F' . $i, $item->getExpiryDate()->format('Y-m-d H:i:s'))
-                ->setCellValue('G' . $i, $item->getDestructionDate()->format('Y-m-d H:i:s'))
-                ->setCellValue('H' . $i, $item->getOpenDate()->format('Y-m-d H:i:s'));
-
+                ->setCellValue('B' . $i, $item->getProduct()->getCasNumber())
+                ->setCellValue('C' . $i, $item->getProduct()->getPartNumber())
+                ->setCellValue('D' . $i, $item->getProduct()->getName())
+                ->setCellValue('E' . $i, $item->getProduct()->getProvider())
+                ->setCellValue('F' . $i, $item->getProduct()->getPresentation())
+                ->setCellValue('G' . $i, $item->getAmount())
+                ->setCellValue('H' . $i, $item->getProduct()->getStock())
+                ->setCellValue('I' . $i, $item->getReceptionDate()->format('Y-m-d H:i:s'))
+                ->setCellValue('J' . $i, $item->getObservations())
+                ->setCellValue('K' . $i, $item->getUser()->getName());
             $i++;
         }
 
