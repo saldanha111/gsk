@@ -37,30 +37,23 @@ class ReviewRecordsCommand extends ContainerAwareCommand
 	    				//->andWhere('st.dependsOn = 0')
 	    				->getQuery();
 
-	    $loked 	= [];
+	    $lokedSteps 	= [];
 
 	    foreach ($instancias->getResult() as $key => $instancia) {
-
-    		// $steps	 = $em->getRepository('NononsenseHomeBundle:InstanciasSteps')->findOneBy(array('workflow_id' => $instancia->getId(), 'dependsOn' => 0));
-    		// $loked[] = $steps->getId();
 
     		$instancia->setInEdition(0);
     		$instancia->setStatus(11);
 
     		$em->persist($instancia);
-    		// $output->writeln([$instancia->getSteps()->getId()]);
-    		// $output->writeln([$instancia->getId()]);
 
-    		foreach ($instancia->getSteps() as $key => $value) {
-    			if (isset($value)) {
-    				$loked[] = $value->getId();
-    			}
+    		foreach ($instancia->getSteps() as $key => $step) {
+    			$lokedSteps[] = $step->getId();
     		}
 	    }
 
 	    $em->flush();
 
-	    if (!empty($loked)) {
+	    if (!empty($lokedSteps)) {
 
 	    	$qb 	= $em->createQueryBuilder();
 			$query 	= $qb->select('u.email')
@@ -72,29 +65,14 @@ class ReviewRecordsCommand extends ContainerAwareCommand
 			   ->getQuery();
 
 			$users = $query->getResult();
-			//$output->writeln(['Enters!']);
 	    }
 
-	
-
-
-	    // if (!empty($loked)) {
-	    // 	$groups = $em->getRepository('NononsenseGroupBundle:Groups')->findBy(array('tipo' => 'FLL'));
-	    // 	foreach ($groups as $key => $group) {
-	    // 		$groupUsers = $em->getRepository('NononsenseGroupBundle:GroupUsers')->findBy(array('group' => $group));
-	    // 		foreach ($groupUsers as $key => $groupUser) {
-	    // 			$emails[] = $groupUser->getUser()->getEmail();
-	    // 		}
-	    // 	}
-	    // }
-
-	    //$emails = array_unique($emails);
-	    $log_records_stand_by = implode("<br>", $loked);
+	    $log_records_stand_by = implode("<br>", $lokedSteps);
+    	$subject = "Registros bloqueados";
+        $mensaje = 'Los siguientes registros han sido bloqueados y necesitan ser gestionados por su parte o algún otro FLL. Acceda al siguiente  Link para gestionar los bloqueos.<br><br>'.$log_records_stand_by;
+        $baseURL = $this->getContainer()->get('router')->generate('nononsense_backoffice_standby_documents_list',array(),TRUE);
 
 	    foreach ($users as $key => $user) {
-	    	$subject = "Registros bloqueados";
-            $mensaje = 'Los siguientes registros han sido bloqueados y necesitan ser gestionados por su parte o algún otro FLL. Acceda al siguiente  Link para gestionar los bloqueos.<br><br>'.$log_records_stand_by;
-            $baseURL = $this->getContainer()->get('router')->generate('nononsense_backoffice_standby_documents_list',array(),TRUE);
             
             //$this->getContainer()->get('utilities')->sendNotification($email, $baseURL, "", "", $subject, $mensaje)	
             if (true) {
