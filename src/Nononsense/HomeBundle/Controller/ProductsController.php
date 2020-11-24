@@ -1107,25 +1107,23 @@ class ProductsController extends Controller
             ->setCellValue('E1', 'Proveedor')
             ->setCellValue('F1', 'Presentación')
             ->setCellValue('G1', 'Unidades entrantes')
-            ->setCellValue('H1', 'Unidades restantes')
-            ->setCellValue('I1', 'Fecha de recepción')
-            ->setCellValue('J1', 'Comentarios')
-            ->setCellValue('K1', 'Usuario');
+            ->setCellValue('H1', 'Fecha de recepción')
+            ->setCellValue('I1', 'Comentarios')
+            ->setCellValue('J1', 'Usuario');
 
         $i = 2;
         foreach ($items as $item) {
             $phpExcelObject->getActiveSheet()
-                ->setCellValue('A' . $i, $item->getProduct()->getPartNumber())
+                ->setCellValue('A' . $i, $item->getId())
                 ->setCellValue('B' . $i, $item->getProduct()->getCasNumber())
                 ->setCellValue('C' . $i, $item->getProduct()->getPartNumber())
                 ->setCellValue('D' . $i, $item->getProduct()->getName())
                 ->setCellValue('E' . $i, $item->getProduct()->getProvider())
                 ->setCellValue('F' . $i, $item->getProduct()->getPresentation())
                 ->setCellValue('G' . $i, $item->getAmount())
-                ->setCellValue('H' . $i, $item->getProduct()->getStock())
-                ->setCellValue('I' . $i, $item->getReceptionDate()->format('Y-m-d H:i:s'))
-                ->setCellValue('J' . $i, $item->getObservations())
-                ->setCellValue('K' . $i, $item->getUser()->getName());
+                ->setCellValue('H' . $i, $item->getReceptionDate()->format('Y-m-d H:i:s'))
+                ->setCellValue('I' . $i, $item->getObservations())
+                ->setCellValue('J' . $i, $item->getUser()->getName());
             $i++;
         }
 
@@ -1145,23 +1143,33 @@ class ProductsController extends Controller
         return $response;
     }
 
+    /**
+     * @param ProductsOutputs[] $items
+     * @return
+     */
     private function exportExcelProductsOutputs($items)
     {
         $phpExcelObject = $this->get('phpexcel')->createPHPExcelObject();
         $phpExcelObject->getProperties();
         $phpExcelObject->setActiveSheetIndex(0)
-            ->setCellValue('A1', 'Part. Number')
-            ->setCellValue('B1', 'Nombre')
-            ->setCellValue('C1', 'Cantidad')
-            ->setCellValue('D1', 'Fecha retirada');
+            ->setCellValue('A1', 'Id salida')
+            ->setCellValue('B1', 'Id entrada')
+            ->setCellValue('C1', 'Part Number')
+            ->setCellValue('D1', 'Nombre')
+            ->setCellValue('E1', 'Cantidad')
+            ->setCellValue('F1', 'Fecha de retirada')
+            ->setCellValue('G1', 'Usuario');
 
         $i = 2;
         foreach ($items as $item) {
             $phpExcelObject->getActiveSheet()
-                ->setCellValue('A' . $i, $item["productPartNumber"])
-                ->setCellValue('B' . $i, $item["productName"])
-                ->setCellValue('C' . $i, $item["amount"])
-                ->setCellValue('D' . $i, $item["date"]->format('Y-m-d'));
+                ->setCellValue('A' . $i, $item->getId())
+                ->setCellValue('B' . $i, $item->getProductInput()->getId())
+                ->setCellValue('C' . $i, $item->getProductInput()->getProduct()->getPartNumber())
+                ->setCellValue('D' . $i, $item->getProductInput()->getProduct()->getName())
+                ->setCellValue('E' . $i, $item->getAmount())
+                ->setCellValue('F' . $i, $item->getDate()->format('Y-m-d H:i:s'))
+                ->setCellValue('G' . $i, $item->getUser()->getName());
 
             $i++;
         }
