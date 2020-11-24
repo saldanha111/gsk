@@ -282,7 +282,7 @@ class ProductsController extends Controller
             $minStockEdited = $this->editMinStock($request->get('stockMinimum'), $product);
 
             if($productType->getSlug() == 'material' && $product->getStock() != $request->get('stock')){
-                $stockEdited = $this->editStockMaterial($product->getStock(), $product);
+                $stockEdited = $this->editStockMaterial($request->get('stock'), $product);
             }elseif(
                 $productType->getSlug() == 'reactivo' &&
                 $product->getStock() > 0 &&
@@ -1003,14 +1003,14 @@ class ProductsController extends Controller
         /** @var ProductsInputs $output */
         $input = $inputsRepository->findOneBy(['qrCode' => $code]);
 
-        if(!$input){
+        if($input){
+            $arrInput = [$input];
+        }else {
             /** @var ProductsDissolutionRepository $dissolutionRepository */
             $dissolutionRepository = $this->getDoctrine()->getRepository(ProductsDissolution::class);
             /** @var ProductsDissolution $dissolution */
             $dissolution = $dissolutionRepository->findOneBy(['qrCode' => $code]);
             $arrInput = $dissolution ? $dissolution->getLines() : [];
-        }else {
-            $arrInput = [$input];
         }
 
         if(count($arrInput) > 0){
@@ -1044,7 +1044,7 @@ class ProductsController extends Controller
             }
         }
 
-        return new Response(json_encode($data));
+        return new Response(json_encode($data, JSON_FORCE_OBJECT));
     }
 
     private function exportExcelProducts($items)
