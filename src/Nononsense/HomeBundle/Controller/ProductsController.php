@@ -11,6 +11,7 @@ use Nononsense\HomeBundle\Entity\ProductsInputStatus;
 use Nononsense\HomeBundle\Entity\ProductsInputStatusRepository;
 use Nononsense\HomeBundle\Entity\ProductsOutputsRepository;
 use Nononsense\HomeBundle\Entity\ProductsRepository;
+use Nononsense\HomeBundle\Entity\ProductsSignatures;
 use Nononsense\HomeBundle\Entity\ProductsTypes;
 use Nononsense\HomeBundle\Entity\ProductsTypesRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -28,7 +29,7 @@ use Endroid\QrCode\QrCode;
 class ProductsController extends Controller
 {
 
-    public function receptionAction(Request $request, $type, $casNumber = null)
+    public function receptionAction(Request $request, $type, $casNb = null)
     {
         $is_valid = $this->get('app.security')->permissionSeccion('productos_gestion');
         if (!$is_valid) {
@@ -68,7 +69,7 @@ class ProductsController extends Controller
 
         $data = [
             'type' => $type,
-            'casNumber' => urldecode($casNumber)
+            'casNumber' => urldecode($casNb)
         ];
         return $this->render('NononsenseHomeBundle:Products:reception_index.html.twig', $data);
     }
@@ -278,22 +279,76 @@ class ProductsController extends Controller
         $productType = $product->getType();
 
         if ($request->getMethod() == 'POST') {
-            $stockEdited = false;
-            $minStockEdited = $this->editMinStock($request->get('stockMinimum'), $product);
-
-            if($productType->getSlug() == 'material' && $product->getStock() != $request->get('stock')){
-                $stockEdited = $this->editStockMaterial($request->get('stock'), $product);
-            }elseif(
-                $productType->getSlug() == 'reactivo' &&
-                $product->getStock() > 0 &&
-                $request->get('output') &&
-                count($request->get('output'))
-            ){
-                $stockEdited = $this->editStockReactivo([$request->get('output')], $product);
+            $error = 0;
+            $password = $request->get('password');
+            if(!$this->get('utilities')->checkUser($password)){
+                $this->get('session')->getFlashBag()->add('error', "La contraseña no es correcta.");
+                $error = 1;
             }
 
-            if($minStockEdited || $stockEdited){
-                $this->get('session')->getFlashBag()->add('message', 'Datos actualizados con éxito');
+            $observations = $request->get('observations');
+            if(!$observations){
+                $this->get('session')->getFlashBag()->add('error', "Para realizar alguna modificación necesitas escribir el motivo en el cuadro de observaciones.");
+                $error = 1;
+            }
+
+            if(!$error){
+                $stockEdited = false;
+                $oldMinStock = $product->getStockMinimum();
+                $minStockEdited = $this->editMinStock($request->get('stockMinimum'), $product);
+                if($minStockEdited){
+                    $now = new DateTime();
+                    $signature = 'Modificación de stock mínimo registrado con contraseña de usuario ' . $this->getUser()->getName() . ' el día ' . $now->format('d-m-Y H:i:s');
+                    $this->saveSignature(
+                        $product,
+                        $oldMinStock,
+                        $request->get('stockMinimum'),
+                        'Edit minStock',
+                        $signature,
+                        $this->getUser(), $request->get('observations')
+                    );
+                }
+                if($productType->getSlug() == 'material' && $product->getStock() != $request->get('stock')){
+                    $oldStock = $product->getStock();
+                    $stockEdited = $this->editStockMaterial($request->get('stock'), $product);
+                    if($stockEdited){
+                        $now = new DateTime();
+                        $signature = 'Modificación de stock registrado con contraseña de usuario ' . $this->getUser()->getName() . ' el día ' . $now->format('d-m-Y H:i:s');
+                        $this->saveSignature(
+                            $product,
+                            $oldStock,
+                            $request->get('stock'),
+                            'Edit stock',
+                            $signature,
+                            $this->getUser(),
+                            $request->get('observations')
+                        );
+                    }
+                }elseif(
+                    $productType->getSlug() == 'reactivo' &&
+                    $product->getStock() > 0 &&
+                    $request->get('output') &&
+                    count($request->get('output'))
+                ){
+                    $oldStock = $product->getStock();
+                    $stockEdited = $this->editStockReactivo([$request->get('output')], $product);
+                    if($stockEdited){
+                        $now = new DateTime();
+                        $signature = 'Modificación de stock registrado con contraseña de usuario ' . $this->getUser()->getName() . ' el día ' . $now->format('d-m-Y H:i:s');
+                        $this->saveSignature(
+                            $product,
+                            $oldStock,
+                            ($oldStock - count($request->get('output'))),
+                            'Edit stock',
+                            $signature,
+                            $this->getUser(),
+                            $request->get('observations')
+                        );
+                    }
+                }
+                if($minStockEdited || $stockEdited){
+                    $this->get('session')->getFlashBag()->add('message', 'Datos actualizados con éxito');
+                }
             }
         }
 
@@ -320,7 +375,7 @@ class ProductsController extends Controller
     {
         $result = false;
         $productType = $product->getType();
-        if($product->getStockMinimum() != $minStock){
+        if($minStock && $product->getStockMinimum() != $minStock){
             $minStockRequest = new Request(['stockMinimum' => $minStock]);
             $saved = $this->saveProduct($product, $product->getQrCode(), $minStockRequest, $productType);
             if ($saved['error'] === 0) {
@@ -423,6 +478,22 @@ class ProductsController extends Controller
         return true;
     }
 
+    private function saveSignature($product, $oldValue, $newValue, $action, $signature, $user, $observations)
+    {
+        $productSignature = new ProductsSignatures();
+        $productSignature->setAction($action)
+            ->setUser($user)
+            ->setProduct($product)
+            ->setOldValue($oldValue)
+            ->setNewValue($newValue)
+            ->setSignature($signature)
+            ->setObservations($observations);
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($productSignature);
+        $em->flush();
+        return true;
+    }
+
     public function inputAction(Request $request, $type, $qrCode, $casNb = null)
     {
         $errorMessage = null;
@@ -450,7 +521,7 @@ class ProductsController extends Controller
 
                 if ($actualType->getSlug() === 'reactivo') {
                     $amount = 1;
-                    $endDate = $this->getEndDate($request);
+                    $endDate = $request->get("destructionDate");
                     $product = $productsRepository->findOneBy(['casNumber' => $request->get("casNumber")]);
                     if (!$product) {
                         $saved = $this->saveProduct(new Products(), $qrCode, $request, $actualType);
@@ -981,6 +1052,13 @@ class ProductsController extends Controller
                 if($input->getOpenDate() === null){
                     $input->setOpenDate(new DateTime());
                     $input->setState($openState);
+                    if($data->data->u_caduc{$key}){
+                        $expiryDate = $this->getEndDate($input->getDestructionDate()->format('Y-m-d H:i:s'), $data->data->u_caduc{$key});
+                        if($expiryDate){
+                            $input->setDestructionDate(new DateTime($expiryDate));
+                            $input->setExpiryDate(new DateTime($expiryDate));
+                        }
+                    }
                     $change = true;
                 }
                 if($data->data->u_terminado->{$key} === '1'){
@@ -1018,6 +1096,16 @@ class ProductsController extends Controller
             foreach($arrInput as $key => $input){
                 switch($input->getState()->getSlug()){
                     case 'retirado':
+                        $openDate = $input->getOpenDate()?: new DateTime();
+                        $data[$key] = [
+                            'u_nombre_sustancia' => $input->getProduct()->getName(),
+                            'u_cas' => ($input->getProduct()->getCasNumber())?:'',
+                            'u_lote' => ($input->getLotNumber())?:'',
+                            'u_proveed' => ($input->getProduct()->getProvider())?:'',
+                            'u_date' => $openDate->format('Y-m-d'),
+                            'u_qr_data' => $input->getQrCode()
+                        ];
+                        break;
                     case 'usado':
                         $openDate = $input->getOpenDate()?: new DateTime();
                         $data[$key] = [
@@ -1025,7 +1113,6 @@ class ProductsController extends Controller
                             'u_cas' => ($input->getProduct()->getCasNumber())?:'',
                             'u_lote' => ($input->getLotNumber())?:'',
                             'u_caduc' => ($input->getExpiryDate()) ? $input->getExpiryDate()->format('Y-m-d'):'',
-                            'u_cad_prep' => 'test1',
                             'u_proveed' => ($input->getProduct()->getProvider())?:'',
                             'u_date' => $openDate->format('Y-m-d'),
                             'u_qr_data' => $input->getQrCode()
@@ -1053,24 +1140,38 @@ class ProductsController extends Controller
 
         $phpExcelObject->getProperties();
         $phpExcelObject->setActiveSheetIndex(0)
-            ->setCellValue('A1', 'Part. Number')
-            ->setCellValue('B1', 'Cash Number')
-            ->setCellValue('C1', 'Nombre')
-            ->setCellValue('D1', 'Stock')
-            ->setCellValue('E1', 'Proveedor')
-            ->setCellValue('F1', 'Stock Mínimo');
+            ->setCellValue('A1', 'Tipo')
+            ->setCellValue('B1', 'Nombre')
+            ->setCellValue('C1', 'Qr')
+            ->setCellValue('D1', 'Part. Number')
+            ->setCellValue('E1', 'CAS Number')
+            ->setCellValue('F1', 'Código interno')
+            ->setCellValue('G1', 'Proveedor')
+            ->setCellValue('H1', 'Presentación')
+            ->setCellValue('I1', 'Fecha de destrucción')
+            ->setCellValue('J1', 'Estado')
+            ->setCellValue('K1', 'Stock actual')
+            ->setCellValue('L1', 'Stock Mínimo')
+            ->setCellValue('M1', 'Observaciones')
+            ->setCellValue('N1', 'Activo');
 
         $i = 2;
-        foreach ($items as $item) {
-            /** @var Products $product */
-            $product = $item['product'];
+        foreach ($items as $product) {
             $phpExcelObject->getActiveSheet()
-                ->setCellValue('A' . $i, $product->getPartNumber())
-                ->setCellValue('B' . $i, $product->getCasNumber())
-                ->setCellValue('C' . $i, $product->getName())
-                ->setCellValue('D' . $i, $product->getStock())
-                ->setCellValue('E' . $i, $product->getProvider())
-                ->setCellValue('F' . $i, $product->getStockMinimum());
+                ->setCellValue('A' . $i, $product['productType'])
+                ->setCellValue('B' . $i, $product['productName'])
+                ->setCellValue('C' . $i, $product['qrCode'])
+                ->setCellValue('D' . $i, $product['partNumber'])
+                ->setCellValue('E' . $i, $product['casNumber'])
+                ->setCellValue('F' . $i, $product['internalCode'])
+                ->setCellValue('G' . $i, $product['provider'])
+                ->setCellValue('H' . $i, $product['presentation'])
+                ->setCellValue('I' . $i, $product['destructionDate'])
+                ->setCellValue('J' . $i, $product['state'])
+                ->setCellValue('K' . $i, $product['stock'])
+                ->setCellValue('L' . $i, $product['minStock'])
+                ->setCellValue('M' . $i, $product['observations'])
+                ->setCellValue('N' . $i, ($product['active'] === true) ? 'Activo' : 'Desactivado');
             $i++;
         }
 
@@ -1191,15 +1292,16 @@ class ProductsController extends Controller
     }
 
     /**
-     * @param Request $request
+     * @param string $destructionDate
+     * @param string $expiryDate
      * @return string|null
      */
-    private function getEndDate(Request $request)
+    private function getEndDate($destructionDate, $expiryDate)
     {
-        if(strtotime($request->get("destructionDate")) < strtotime($request->get("expiryDate"))){
-            $endDate = $request->get("destructionDate");
+        if(strtotime($destructionDate) < strtotime($expiryDate)){
+            $endDate = $destructionDate;
         }else{
-            $endDate = $request->get("expiryDate");
+            $endDate = $expiryDate;
         }
         return $endDate;
     }

@@ -99,14 +99,22 @@
                                 <input name="active" value="1" type="checkbox" {% if product.active == true %} checked="checked" {% endif %}>
                             </div>
                         </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Observaciones</label>
+                            <div class="col-sm-7">
+                                <textarea class="form-control" name="observations" rows="4" required="required"></textarea>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="col-sm-11">
-                    <button type="submit" class="btn btn-primary  pull-right">
+                    <a href="#" class="btn btn-primary pull-right btn-save">
                         <i class="fa fa-floppy-o" aria-hidden="true"></i>
                         {{product.id is not null ? 'Editar' : 'Registrar'}} {{ type is defined ? type.name : ''}}
-                    </button>
+                    </a>
                 </div>
+                <input type="hidden" name="password">
+                <input type="hidden" name="passCheck" value="{{ path('nononsense_mclean_get_sign_valid') }}">
             </form>
         </div>
         <div class="row">
@@ -152,6 +160,17 @@
                         {% include '::pagination2.html.twig' %}
                     {% endif %}
                 </div>
+                <div class="col-xs-12">
+                    <div class="row">
+                        <label class="col-sm-4 col-sm-offset-5 control-label">Observaciones</label>
+                        <div class="col-sm-3">
+                            <textarea class="form-control" name="observations" rows="4" required="required"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12">
+                    <br/>
+                </div>
                 <div class="col-sm-12">
                     {% if productsInput is defined and productsInput is not empty %}
                     <a href="#" class="btn btn-primary pull-right btn-del-stock">
@@ -165,6 +184,7 @@
                         <i class="fa fa-plus"></i> Añadir stock
                     </a>
                 </div>
+                <input type="hidden" name="password">
             </form>
         </div>
     </div>
@@ -190,18 +210,54 @@
                 );
                 if(checked){
                     swal({
-                        title: "Estás seguro de que quieres eliminar estos reactivos del stock?",
-                        text: "Si se eliminan no se podrán recuperar.",
+                        title: "Contraseña necesaria",
+                        text: "Introduce tu contraseña para eliminar stock.",
+                        type: "input",
+                        inputType: "password",
                         icon: 'warning',
                         showCancelButton: true,
                         confirmButtonColor: '#62bbe2',
                         cancelButtonColor: '#ac2925',
-                        confirmButtonText: "Si, borrarlo",
+                        confirmButtonText: "Guardar",
                         cancelButtonText: "Cancelar",
                         closeOnConfirm: false
-                    }, function () {
-                        console.log('delete');
-                        $('#form_delete').submit();
+                    }, function (password) {
+                        if(password !== false && password !== ''){
+                            $.ajax({
+                                url: $('input[name="passCheck"]').val(),
+                                type: 'POST',
+                                dataType: 'json',
+                                data: {password: password},
+                                success: function(response) {
+                                    console.log(response);
+                                    if(response.valid){
+                                        $('input[name="password"]').val(password);
+                                        $('#form_delete').submit();
+                                    }else{
+                                        swal({
+                                            title: "Error",
+                                            text: "La contraseña no es válida",
+                                            icon: 'warning',
+                                            showCancelButton: false,
+                                            confirmButtonColor: '#62bbe2',
+                                            confirmButtonText: "Ok",
+                                            closeOnConfirm: true
+                                        });
+                                    }
+                                },
+                                error: function() {
+                                    swal({
+                                        title: "Error",
+                                        text: "Ha ocurrido un error al intentar validar la contraseña",
+                                        icon: 'warning',
+                                        showCancelButton: false,
+                                        confirmButtonColor: '#62bbe2',
+                                        confirmButtonText: "Ok",
+                                        closeOnConfirm: true
+                                    });
+                                }
+                            });
+                        }
                     });
                 }else{
                     swal({
@@ -216,5 +272,65 @@
                 }
             });
         });
+
+        $(document).on('click', '.btn-save', function(e){
+            e.preventDefault();
+            modify();
+        });
+
+        function modify()
+        {
+            swal({
+                title: "Contraseña necesaria",
+                text: "Introduce tu contraseña para modificar los datos.",
+                type: "input",
+                inputType: "password",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#62bbe2',
+                cancelButtonColor: '#ac2925',
+                confirmButtonText: "Guardar",
+                cancelButtonText: "Cancelar",
+                closeOnConfirm: false
+            }, function (password) {
+                if(password !== false && password !== ''){
+                    $.ajax({
+                        url: $('input[name="passCheck"]').val(),
+                        type: 'POST',
+                        dataType: 'json',
+                        data: {password: password},
+                        success: function(response) {
+                            console.log(response);
+                            if(response.valid){
+                                $('input[name="password"]').val(password);
+                                $('#form_item').submit();
+                            }else{
+                                swal({
+                                    title: "Error",
+                                    text: "La contraseña no es válida",
+                                    icon: 'warning',
+                                    showCancelButton: false,
+                                    confirmButtonColor: '#62bbe2',
+                                    confirmButtonText: "Ok",
+                                    closeOnConfirm: true
+                                });
+                            }
+                        },
+                        error: function() {
+                            swal({
+                                title: "Error",
+                                text: "Ha ocurrido un error al intentar validar la contraseña",
+                                icon: 'warning',
+                                showCancelButton: false,
+                                confirmButtonColor: '#62bbe2',
+                                confirmButtonText: "Ok",
+                                closeOnConfirm: true
+                            });
+                        }
+                    });
+                }
+            });
+        }
+
     </script>
 {% endblock %}
