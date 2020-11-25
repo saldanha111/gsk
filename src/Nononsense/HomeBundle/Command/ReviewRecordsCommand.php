@@ -4,7 +4,8 @@ namespace Nononsense\HomeBundle\Command;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Input\InputArgument;
+//use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputOption;
 
 /**
 * 
@@ -16,9 +17,9 @@ class ReviewRecordsCommand extends ContainerAwareCommand
 		$this
 		->setName('gsk:review-records')
 		->setDescription('Revisar registros bloqueados.')
-	    ->addArgument(
+	    ->addOption(
             'msg',
-            InputArgument::OPTIONAL
+            InputOption::VALUE_NONE
         );
 	}
 
@@ -26,23 +27,21 @@ class ReviewRecordsCommand extends ContainerAwareCommand
 
 		$steps = $this->getSteps();
 
-		if (!empty($steps)) {
+		if ($steps) {
 
 			$users = $this->getUsers();
 
-		    $log_records_stand_by = implode("<br>", $steps);
-	    	$subject = "Registros bloqueados";
-	        $message = 'Los siguientes registros han sido bloqueados y necesitan ser gestionados por su parte o algún otro FLL. Acceda al siguiente  Link para gestionar los bloqueos.<br><br>'.$log_records_stand_by;
-	        $baseURL = $this->getContainer()->get('router')->generate('nononsense_backoffice_standby_documents_list',array(),TRUE);
+	    	$subject = 'Registros bloqueados';
+	        $message = 'Los siguientes registros han sido bloqueados y necesitan ser gestionados por su parte o algún otro FLL. Acceda al siguiente  Link para gestionar los bloqueos.<br><br>'.implode('<br>', $steps);
+	        $baseUrl = $this->getContainer()->get('router')->generate('nononsense_backoffice_standby_documents_list',array(),TRUE);
 
 		    foreach ($users as $key => $user) {
-	            //$this->getContainer()->get('utilities')->sendNotification($email, $baseURL, "", "", $subject, $message)	
-	            if (true) {
+	            if ($this->getContainer()->get('utilities')->sendNotification($email, $baseUrl, "", "", $subject, $message)) {
 	                
 	                $output->writeln(['Mensaje enviado: '.$user['email']]);
 
-	                if ($input->getArgument('msg') !== null && $input->getArgument('msg')) {
-	                	$output->writeln(['Asunto: '.$message]);	
+	                if ($input->getOption('msg')) {
+	                	$output->writeln(['Asunto: '.$subject]);	
 	                	$output->writeln(['Cuerpo del mensaje: '.$message]);
 	                	$output->writeln(['']);	
 	                }
@@ -76,7 +75,7 @@ class ReviewRecordsCommand extends ContainerAwareCommand
 	    				->getQuery()
 	    				->getResult();
 
-	    if (isset($instancias) && $instancias) {
+	    if ($instancias) {
 	    							
 		    foreach ($instancias as $key => $instancia) {
 	    		$instancia->setInEdition(0);

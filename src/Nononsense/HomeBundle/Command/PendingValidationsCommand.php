@@ -4,7 +4,8 @@ namespace Nononsense\HomeBundle\Command;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Input\InputArgument;
+//use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputOption;
 
 /**
 * 
@@ -16,9 +17,9 @@ class PendingValidationsCommand extends ContainerAwareCommand
 		$this
 		->setName('gsk:pending-validations')
 		->setDescription('Notificación de documentos pendientes de verificar.')
-	    ->addArgument(
+	    ->addOption(
             'msg',
-            InputArgument::OPTIONAL
+            InputOption::VALUE_NONE
         );
 	}
 
@@ -30,19 +31,19 @@ class PendingValidationsCommand extends ContainerAwareCommand
 			
 			$users = $this->getUsers();
 		
-			$subject = "Documento pendiente de verificar";
-	        $message = "Los siguientes registros: " . $pendingWorkflows . " están pendientes de verificar en el sistema";
+			$subject = 'Documento pendiente de verificar';
+	        $message = 'Los siguientes registros: <options=bold>'.$pendingWorkflows.'</> están pendientes de verificar en el sistema';
 	        $baseUrl = $this->getContainer()->get('router')->generate('nononsense_search', array(),TRUE);
 
 	        foreach ($users as $key => $user) {
-	        	//$this->get('utilities')->sendNotification($email, $baseUrl, "", "", $subject, $message)
-	        	if (true) {
+	        	if ($this->get('utilities')->sendNotification($email, $baseUrl, "", "", $subject, $message)) {
 	        		
-	        		$output->writeln(['Mensaje enviado: '.$user['email']]);
+	        		$output->writeln(['<options=bold>Mensaje enviado:</> '.$user['email']]);
 
-	        		if ($input->getArgument('msg') !== null && $input->getArgument('msg')) {
-	                	$output->writeln(['Asunto: '.$message]);	
-	                	$output->writeln(['Cuerpo del mensaje: '.$message]);
+	        		if ($input->getOption('msg')) {
+	                	$output->writeln(['<options=bold>Asunto:</> '.$subject]);	
+	                	$output->writeln(['<options=bold>Cuerpo del mensaje:</> '.$message]);
+	                	$output->writeln(['<options=bold>URL:</> '.$baseUrl]);
 	                	$output->writeln(['']);	
 	                }
 
@@ -63,11 +64,16 @@ class PendingValidationsCommand extends ContainerAwareCommand
 
 		$em = $this->getContainer()->get('doctrine')->getManager();
 
-		$result = $em->getRepository('NononsenseHomeBundle:InstanciasWorkflows')->findBy(array("status" => [4,7]));
+		$result = $em->getRepository('NononsenseHomeBundle:InstanciasWorkflows')->findBy(array("status" => [4,7,12,13,14,15]));
 
-		$pendingWorkflows = implode(', ', array_map(function($c){ return $c->getId(); }, $result));
+		if ($result) {
 
-		return $pendingWorkflows;
+			$pendingWorkflows = implode(', ', array_map(function($c){ return $c->getId(); }, $result));
+
+			return $pendingWorkflows;
+		}
+		
+		return false;
 	}
 
 	protected function getUsers(){
