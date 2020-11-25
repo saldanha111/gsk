@@ -24,7 +24,45 @@ class ReviewRecordsCommand extends ContainerAwareCommand
 
 	protected function execute(InputInterface $input, OutputInterface $output){
 
-	    $em = $this->getContainer()->get('doctrine')->getManager();
+		$steps = $this->getSteps();
+
+		if (!empty($steps)) {
+
+			$users = $this->getUsers();
+
+		    $log_records_stand_by = implode("<br>", $steps);
+	    	$subject = "Registros bloqueados";
+	        $message = 'Los siguientes registros han sido bloqueados y necesitan ser gestionados por su parte o algún otro FLL. Acceda al siguiente  Link para gestionar los bloqueos.<br><br>'.$log_records_stand_by;
+	        $baseURL = $this->getContainer()->get('router')->generate('nononsense_backoffice_standby_documents_list',array(),TRUE);
+
+		    foreach ($users as $key => $user) {
+	            //$this->getContainer()->get('utilities')->sendNotification($email, $baseURL, "", "", $subject, $message)	
+	            if (true) {
+	                
+	                $output->writeln(['Mensaje enviado: '.$user['email']]);
+
+	                if ($input->getArgument('msg') !== null && $input->getArgument('msg')) {
+	                	$output->writeln(['Asunto: '.$message]);	
+	                	$output->writeln(['Cuerpo del mensaje: '.$message]);
+	                	$output->writeln(['']);	
+	                }
+
+	            }else{
+
+	            	$output->writeln(['<error>Error: '.$user['email'].'</error>']);
+	            }
+		    }
+
+	    }else{
+	    	$output->writeln(['<comment>Ningún registro bloqueado</comment>']);
+	    }
+
+	    $output->writeln(['<info>Proceso completado</info>']);	
+	}
+
+	protected function getSteps(){
+
+		$em = $this->getContainer()->get('doctrine')->getManager();
 
 	    $qb 		= $em->createQueryBuilder();
 	    $instancias = $qb->select('iw, st')
@@ -35,62 +73,45 @@ class ReviewRecordsCommand extends ContainerAwareCommand
 	    				->setParameter('modified', new \DateTime('-8 hour'))
 	    				->andWhere('iw.in_edition = 1')
 	    				//->andWhere('st.dependsOn = 0')
-	    				->getQuery();
+	    				->getQuery()
+	    				->getResult();
 
-	    $lokedSteps 	= [];
+	    if (isset($instancias) && $instancias) {
+	    							
+		    foreach ($instancias as $key => $instancia) {
+	    		$instancia->setInEdition(0);
+	    		$instancia->setStatus(11);
 
-	    foreach ($instancias->getResult() as $key => $instancia) {
+	    		$em->persist($instancia);
 
-    		$instancia->setInEdition(0);
-    		$instancia->setStatus(11);
+	    		foreach ($instancia->getSteps() as $key => $step) {
+	    			$steps[] = $step->getId();
+	    		}
+		    }
 
-    		$em->persist($instancia);
+		    $em->flush();
 
-    		foreach ($instancia->getSteps() as $key => $step) {
-    			$lokedSteps[] = $step->getId();
-    		}
-	    }
+		    return $steps;
+		}
 
-	    $em->flush();
+		return false;
+	}
 
-	    if (!empty($lokedSteps)) {
+	protected function getUsers(){
 
-	    	$qb 	= $em->createQueryBuilder();
-			$query 	= $qb->select('u.email')
-			   ->distinct()
-			   ->from('NononsenseGroupBundle:GroupUsers', 'gu')
-			   ->join('gu.group', 'g')
-			   ->join('gu.user', 'u')
-			   ->where("g.tipo = 'FLL'")
-			   ->getQuery();
+		$em = $this->getContainer()->get('doctrine')->getManager();
 
-			$users = $query->getResult();
-	    }
+		$qb 	= $em->createQueryBuilder();
+		$query 	= $qb->select('u.email')
+		   ->distinct()
+		   ->from('NononsenseGroupBundle:GroupUsers', 'gu')
+		   ->join('gu.group', 'g')
+		   ->join('gu.user', 'u')
+		   ->where("g.tipo = 'FLL'")
+		   ->getQuery();
 
-	    $log_records_stand_by = implode("<br>", $lokedSteps);
-    	$subject = "Registros bloqueados";
-        $mensaje = 'Los siguientes registros han sido bloqueados y necesitan ser gestionados por su parte o algún otro FLL. Acceda al siguiente  Link para gestionar los bloqueos.<br><br>'.$log_records_stand_by;
-        $baseURL = $this->getContainer()->get('router')->generate('nononsense_backoffice_standby_documents_list',array(),TRUE);
+		$users = $query->getResult();
 
-	    foreach ($users as $key => $user) {
-            
-            //$this->getContainer()->get('utilities')->sendNotification($email, $baseURL, "", "", $subject, $mensaje)	
-            if (true) {
-                
-                $output->writeln(['Mensaje enviado: '.$user['email']]);
-
-                if ($input->getArgument('msg') !== null && $input->getArgument('msg')) {
-                	$output->writeln(['Asunto: '.$mensaje]);	
-                	$output->writeln(['Cuerpo del mensaje: '.$mensaje]);
-                	$output->writeln(['']);	
-                }
-
-            }else{
-
-            	$output->writeln(['<error>Error: '.$user['email'].'</error>']);
-            }
-	    }
-
-	    $output->writeln(['<info>Proceso completado</info>']);	
+		return $users;
 	}
 }

@@ -24,11 +24,55 @@ class PendingValidationsCommand extends ContainerAwareCommand
 
 	protected function execute(InputInterface $input, OutputInterface $output){
 
+		$pendingWorkflows = $this->getWorkflows();
+
+		if ($pendingWorkflows) {
+			
+			$users = $this->getUsers();
+		
+			$subject = "Documento pendiente de verificar";
+	        $message = "Los siguientes registros: " . $pendingWorkflows . " están pendientes de verificar en el sistema";
+	        $baseUrl = $this->getContainer()->get('router')->generate('nononsense_search', array(),TRUE);
+
+	        foreach ($users as $key => $user) {
+	        	//$this->get('utilities')->sendNotification($email, $baseUrl, "", "", $subject, $message)
+	        	if (true) {
+	        		
+	        		$output->writeln(['Mensaje enviado: '.$user['email']]);
+
+	        		if ($input->getArgument('msg') !== null && $input->getArgument('msg')) {
+	                	$output->writeln(['Asunto: '.$message]);	
+	                	$output->writeln(['Cuerpo del mensaje: '.$message]);
+	                	$output->writeln(['']);	
+	                }
+
+	        	}else{
+
+	        		$output->writeln(['<error>Error: '.$user['email'].'</error>']);
+	        	}
+	        }
+    	}else{
+
+    		$output->writeln(['<comment>Ningún documento pendiente</comment>']);
+    	}
+
+        $output->writeln(['<info>Proceso completado</info>']);
+	}
+
+	protected function getWorkflows(){
+
 		$em = $this->getContainer()->get('doctrine')->getManager();
 
-		$result = $em->getRepository('NononsenseHomeBundle:InstanciasWorkflows')->findBy(array("status" => [4,7,12,13,14,15]));
+		$result = $em->getRepository('NononsenseHomeBundle:InstanciasWorkflows')->findBy(array("status" => [4,7]));
 
-		$idPendientesString = implode(', ', array_map(function($c){ return $c->getId(); }, $result));
+		$pendingWorkflows = implode(', ', array_map(function($c){ return $c->getId(); }, $result));
+
+		return $pendingWorkflows;
+	}
+
+	protected function getUsers(){
+
+		$em 	= $this->getContainer()->get('doctrine')->getManager();
 
 		$qb 	= $em->createQueryBuilder();
 		$query 	= $qb->select('u.email')
@@ -41,27 +85,6 @@ class PendingValidationsCommand extends ContainerAwareCommand
 
 		$users = $query->getResult();
 
-		$subject = "Documento pendiente de verificar";
-        $mensaje = "Los siguientes registros: " . $idPendientesString . " están pendientes de verificar en el sistema";
-        //$baseUrl = $this->getParameter("cm_installation");
-        $linkToEnProcess = $this->getContainer()->get('router')->generate('nononsense_search', array(),TRUE);
-
-        foreach ($users as $key => $user) {
-        	//$this->get('utilities')->sendNotification($email, $linkToEnProcess, "", "", $subject, $mensaje)
-        	if (true) {
-        		$output->writeln(['Mensaje enviado: '.$user['email']]);
-
-        		if ($input->getArgument('msg') !== null && $input->getArgument('msg')) {
-                	$output->writeln(['Asunto: '.$mensaje]);	
-                	$output->writeln(['Cuerpo del mensaje: '.$mensaje]);
-                	$output->writeln(['']);	
-                }
-
-        	}else{
-        		$output->writeln(['<error>Error: '.$user['email'].'</error>']);
-        	}
-        }
-
-        $output->writeln(['<info>Proceso completado</info>']);
+		return $users;
 	}
 }
