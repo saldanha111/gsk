@@ -1,0 +1,63 @@
+{% extends '::base.html.twig' %}
+{% block page_title %} Buzón | GSK {% endblock %}
+{% block main_title %} Buzón {% endblock %}
+{% block breadcrumb %}
+<ol class="breadcrumb">
+    <li>
+        <a href="{{ path('nononsense_home_homepage')}}">Home</a>
+    </li>
+    <li class="active">
+        <strong>Mensajes</strong>
+    </li>
+</ol>
+{% endblock %}
+{% block content %}
+
+    <div class="mail-box-header">
+
+        <form method="get" action="index.html" class="float-right mail-search">
+            <div class="input-group">
+                <input type="text" class="form-control form-control-sm" name="search" placeholder="Buscar mensaje">
+                <div class="input-group-btn">
+                    <button type="submit" class="btn btn-sm btn-primary">
+                        Buscar
+                    </button>
+                </div>
+            </div>
+        </form>
+        <h2>
+            Inbox ({{emails|length }})
+        </h2>
+        <div class="mail-tools tooltip-demo m-t-md">
+            <div class="btn-group float-right">
+                <button class="btn btn-white btn-sm"><i class="fa fa-arrow-left"></i></button>
+                <button class="btn btn-white btn-sm"><i class="fa fa-arrow-right"></i></button>
+
+            </div>
+            <button class="btn btn-white btn-sm" data-toggle="tooltip" data-placement="left" title="Refresh inbox"><i class="fa fa-refresh"></i> Refrescar</button>
+            <button class="btn btn-white btn-sm" data-toggle="tooltip" data-placement="top" title="Mark as read"><i class="fa fa-eye"></i> </button>
+            <button class="btn btn-white btn-sm" data-toggle="tooltip" data-placement="top" title="Mark as important"><i class="fa fa-exclamation"></i> </button>
+            <button class="btn btn-white btn-sm" data-toggle="tooltip" data-placement="top" title="Move to trash"><i class="fa fa-trash-o"></i> </button>
+
+        </div>
+    </div>
+        <div class="mail-box">
+
+        <table class="table table-hover table-mail">
+        <tbody>
+        {% for email in emails %}
+            <tr class="unread">
+                <td class="check-mail"><input type="checkbox" class="i-checks"></td>
+                <td class="mail-ontact"><span class="label label-warning float-right">System</span></td>
+                <td class="mail-subject">{{email.subject}}</td>
+                <td class="mail-body">{{email.body|slice(0,80)}}...</td>
+                <td class="text-right mail-date">{{email.created|date('Y-m-d')}}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+        </table>
+
+
+        </div>
+           
+{% endblock %}

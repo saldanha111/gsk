@@ -5,6 +5,7 @@ namespace Nononsense\NotificationsBundle\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Nononsense\NotificationsBundle\Entity\Notifications;
 use Nononsense\NotificationsBundle\Entity\MessagesUsers;
+use Nononsense\NotificationsBundle\Entity\Users;
 use Nononsense\NotificationsBundle\Form\Type as FormMessages;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -277,5 +278,17 @@ class MailboxController extends Controller
             $mar->setTrash($val);
             $em->flush();
         } 
+    }
+
+    public function mailsAction(Request $request){
+
+        $em     = $this->getDoctrine()->getManager();
+
+        $user   = $this->container->get('security.context')->getToken()->getUser();
+
+        $emails = $em->getRepository(Notifications::class)->findBy(array('author' => $user));
+
+        return $this->render('NononsenseNotificationsBundle:Mailbox:mails.html.twig', ['emails' => $emails]);
+
     }
 }

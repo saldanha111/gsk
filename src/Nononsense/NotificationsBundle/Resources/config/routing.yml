@@ -25,6 +25,10 @@ nononsense_notifications_show:
 nononsense_notifications_trash:
     path:     /trash/{messageId}
     defaults: { _controller: NononsenseNotificationsBundle:Mailbox:trash, messageId: 0 }
+
+nononsense_notifications_mails:
+    path:   /mails
+    defaults: { _controller: NononsenseNotificationsBundle:Mailbox:mails}
     
 nononsense_notifications_homepage:
     path:     /{page}/{query}/{group}/{filter}
