@@ -66,10 +66,12 @@ class ReviewRecordsCommand extends ContainerAwareCommand
 	    $qb 		= $em->createQueryBuilder();
 	    $instancias = $qb->select('iw, st')
 	    				->from('NononsenseHomeBundle:InstanciasWorkflows', 'iw')
+	    				//->join('iw.Steps','st')
 	    				->join("iw.Steps", "st", "WITH", 'st.dependsOn = 0')
 	    				->where('iw.modified <= :modified')
 	    				->setParameter('modified', new \DateTime('-8 hour'))
 	    				->andWhere('iw.in_edition = 1')
+	    				//->andWhere('st.dependsOn = 0')
 	    				->getQuery()
 	    				->getResult();
 
