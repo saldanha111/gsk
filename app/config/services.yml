@@ -68,4 +68,13 @@ services:
         class: Nononsense\UtilsBundle\Classes\JSON\Tools
         arguments: [ @doctrine.orm.entity_manager,'@service_container']
 
+    ldap:
+        class: Symfony\Component\Ldap\LdapClient
+        arguments:
+            host: 127.0.0.1
+            port: 389
+            version: 3
+            ssl: false
+            tls: false  
+
 
