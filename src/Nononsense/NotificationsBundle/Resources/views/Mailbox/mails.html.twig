@@ -1,6 +1,24 @@
 {% extends '::base.html.twig' %}
 {% block page_title %} Buzón | GSK {% endblock %}
 {% block main_title %} Buzón {% endblock %}
+
+    {% block head %}
+    {{ parent() }}
+        <style type="text/css">
+            .mail-box table{
+                cursor: pointer;
+            }
+            .mail-box table tr:hover{
+               box-shadow: 0px 2px 2px 0px rgba(0, 0, 0, 0.2);
+            }
+            .mail-box table tr:hover input[type=checkbox]{
+                transform: scale(1.2);
+            }
+        </style>
+    {% endblock %}
+
+
+
 {% block breadcrumb %}
 <ol class="breadcrumb">
     <li>
@@ -34,8 +52,8 @@
                 <button class="btn btn-white btn-sm"><i class="fa fa-arrow-right"></i></button>
 
             </div>
-            <button class="btn btn-white btn-sm" data-toggle="tooltip" data-placement="left" title="Refresh inbox"><i class="fa fa-refresh"></i> Refrescar</button>
-            <button class="btn btn-white btn-sm" data-toggle="tooltip" data-placement="top" title="Mark as read"><i class="fa fa-eye"></i> </button>
+
+            <button class="btn btn-white btn-sm" data-toggle="tooltip" data-placement="top" id="read" title="Mark as read"><i class="fa fa-eye"></i> </button>
             <button class="btn btn-white btn-sm" data-toggle="tooltip" data-placement="top" title="Mark as important"><i class="fa fa-exclamation"></i> </button>
             <button class="btn btn-white btn-sm" data-toggle="tooltip" data-placement="top" title="Move to trash"><i class="fa fa-trash-o"></i> </button>
 
@@ -46,8 +64,9 @@
         <table class="table table-hover table-mail">
         <tbody>
         {% for email in emails %}
-            <tr class="unread">
+            <tr data-id="{{email.id}}" class="{{email.created < email.modified ? 'read' : 'unread'}}">
                 <td class="check-mail"><input type="checkbox" class="i-checks"></td>
+                <td class="check-mail"><i class="fa fa-star"></i></td>
                 <td class="mail-ontact"><span class="label label-warning float-right">System</span></td>
                 <td class="mail-subject">{{email.subject}}</td>
                 <td class="mail-body">{{email.body|slice(0,80)}}...</td>
@@ -60,4 +79,37 @@
 
         </div>
            
+{% endblock %}
+
+{% block scripts %}
+{{ parent() }}
+
+    <script type="text/javascript">
+        $('td:not(.check-mail)').click(function(){
+            var url = "{{ path('nononsense_notifications_mails_view', {id:0})}}";
+            url = url.replace('0', $(this).parent().data('id'))
+            window.location.href = url;
+        })
+
+
+
+        $('#read').click(function(){
+            var emails = [];
+            console.log()
+            $('input[type="checkbox"]:checked').each(function(){
+                emails.push($(this).closest('tr').data('id'));
+            })
+
+            $.ajax({
+                url: 'http://gsk.localhost/app_dev.php/messages/mails/edit',
+                data: {data: JSON.stringify(emails)},
+                method: 'PUT',
+                success: function(response){
+                    console.log(response)
+                }
+            })
+
+            // window.location = window.location;
+        })
+    </script>
 {% endblock %}

@@ -29,6 +29,17 @@ nononsense_notifications_trash:
 nononsense_notifications_mails:
     path:   /mails
     defaults: { _controller: NononsenseNotificationsBundle:Mailbox:mails}
+
+nononsense_notifications_mails_edit:
+    path:   /mails/edit
+    defaults: { _controller: NononsenseNotificationsBundle:Mailbox:mailsEdit}
+    
+
+nononsense_notifications_mails_view:
+    path:   /mails/{id}
+    defaults: { _controller: NononsenseNotificationsBundle:Mailbox:mailsView}
+    requirements:
+        id: '\d+'
     
 nononsense_notifications_homepage:
     path:     /{page}/{query}/{group}/{filter}
