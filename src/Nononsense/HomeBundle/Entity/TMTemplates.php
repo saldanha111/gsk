@@ -262,6 +262,14 @@ class TMTemplates
      */
     protected $tmpConfiguration;
 
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="request_review", type="integer", nullable=true)
+     */
+    protected $requestReview;
+
+
 
 
     public function __construct()
@@ -1218,5 +1226,28 @@ class TMTemplates
     public function getTmNestTemplates()
     {
         return $this->tmNestTemplates;
+    }
+
+    /**
+     * Set requestReview
+     *
+     * @param integer $requestReview
+     * @return TMTemplates
+     */
+    public function setRequestReview($requestReview)
+    {
+        $this->requestReview = $requestReview;
+
+        return $this;
+    }
+
+    /**
+     * Get requestReview
+     *
+     * @return integer 
+     */
+    public function getRequestReview()
+    {
+        return $this->requestReview;
     }
 }

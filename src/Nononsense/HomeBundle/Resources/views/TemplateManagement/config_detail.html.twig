@@ -119,7 +119,10 @@
                             </div>
                             <input type="hidden" id="signature" name="signature" />
                             <a name="borrarFirmar" class="btn btn-secondary" id="borrarFirmar">Limpiar firma</a>
-                            <button type="submit" class="btn btn-primary"><i class="fa fa-floppy-o" aria-hidden="true"></i> Guardar y firmar</button>
+                            {% if template.tmState.id == 11 %}
+                                <button type="submit" class="btn btn-danger" data-action="2">Rechazar</button>
+                            {% endif %}
+                            <button type="submit" class="btn btn-primary" data-action="1"><i class="fa fa-floppy-o" aria-hidden="true"></i> Aceptar</button>
                         </div>
                     </div>
                     <br><br>
@@ -127,6 +130,7 @@
                 {% if template is defined %}
                     <br><br>{% include 'NononsenseHomeBundle:TemplateManagement:action_template.html.twig' %}<br><br>
                 {% endif %}
+                <input type="hidden" name="action" value="1">
             </form>       
         </div>
     </div>
@@ -184,11 +188,24 @@
         });
 
         $('#form_item').on('submit', function(e){
+            var today = new Date();
+            var EnteredDate = $("#public_date").val(); // For JQuery
+            var date = EnteredDate.substring(0, 2);
+            var month = EnteredDate.substring(3, 5);
+            var year = EnteredDate.substring(6, 10);
+            var myDate = new Date(year, month - 1, date);
             if (signaturePad.isEmpty()){
                 toastr.error("Debe firmar la solicitud",'aviso');
             }else{
                 $("#signature").val(signaturePad.toDataURL());
-                return true;  
+                $("[name='action']").val($(document.activeElement).data("action"));
+                if($(document.activeElement).data("action")=="2" || myDate > today){
+                    return true;  
+                }
+                else{
+                    toastr.error("La fecha no puede ser inferior a la del día de hoy",'aviso');
+                }
+                
             }
             return false;
         });

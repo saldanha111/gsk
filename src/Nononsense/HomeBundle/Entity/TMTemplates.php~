@@ -262,6 +262,14 @@ class TMTemplates
      */
     protected $tmpConfiguration;
 
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="request_review", type="integer", nullable=true)
+     */
+    protected $requestReview;
+
+
 
 
     public function __construct()

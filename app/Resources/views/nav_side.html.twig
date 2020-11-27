@@ -75,6 +75,11 @@
                                 <a href="{{path('nononsense_tm_templates')}}?request_drop=1"><span class="nav-label">Solicitudes baja</span></a>
                             </li>
                         {% endif %}
+                        {% if 'elaborador_gp' in array_subsecciones  or 'dueno_gp' in array_subsecciones %}
+                            <li id="solicitudes_baja_plantillas">
+                                <a href="{{path('nononsense_tm_templates')}}?request_review=1"><span class="nav-label">Solicitudes revisiones</span></a>
+                            </li>
+                        {% endif %}
                             <li id="en_vigor_gestion_plantillas">
                                 <a href="{{path('nononsense_tm_templates')}}?state=6"><span class="nav-label">En vigor</span></a>
                             </li>

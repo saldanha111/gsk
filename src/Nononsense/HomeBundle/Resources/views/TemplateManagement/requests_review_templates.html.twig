@@ -3,7 +3,7 @@
 {% block head %}
 {{ parent() }}
 {% endblock %}
-{% block main_title %} Solicitudes baja de plantillas {% endblock %}
+{% block main_title %} Solicitudes de revisión de plantillas {% endblock %}
 {% block content %}
 
 <div class="wrapper wrapper-content">
@@ -48,6 +48,9 @@
                                   </select>
                                 </div>
                             {% endif %}
+
+                            
+
                             
                         </div><br>
                         <div class="row">  
@@ -55,10 +58,10 @@
                             {% if users is defined %}
                                 <label class="col-sm-1 control-label item_filter">Solicitante</label>
                                 <div class="col-sm-2 item_filter">
-                                  <select class="form-control" style="width: 100%;" name="applicant_drop">
+                                  <select class="form-control" style="width: 100%;" name="applicant">
                                     <option value=""></option>
                                     {% for user in users %}
-                                      <option value="{{user.id}}" {{ filters.applicant_drop is defined and filters.applicant_drop==user.id ? 'selected="selected"' : ''}}>{{user.name}}</option>
+                                      <option value="{{user.id}}" {{ filters.applicant is defined and filters.applicant==user.id ? 'selected="selected"' : ''}}>{{user.name}}</option>
                                     {% endfor %}
                                   </select>
                                 </div>
@@ -87,12 +90,13 @@
                                   </select>
                                 </div>
                             {% endif %}
-
-                            <div class="col-sm-2 item_filter">
+                        </div><br>
+                        <div class="row">
+                            <div class="col-sm-4 item_filter">
                                 <button type="submit" class="btn btn-primary">Filtrar</button>
                             </div>
-                        </div><br>
-                        <input type="hidden" name="request_drop" class="form-control" value="{{filters.request_drop is defined ? filters.request_drop : ''}}">
+                        </div>
+                        <input type="hidden" name="request_review" value="{{filters.request_review is defined ? filters.request_review : ''}}">
                       </form>
                 </div>
                 <br>
@@ -106,7 +110,7 @@
                             <th>Nombre</th>
                             <th>Area</th>
                             <th>F.solicitud</th>
-                            <th>Solicitante baja</th>
+                            <th>Solicitante revision</th>
                             <th>F.efectiva</th>
                             <th>F.revisión</th>
                             <th>Dueño</th>
@@ -123,8 +127,8 @@
                                 <td>{{item.numEdition}}</td>
                                 <td><a href="{{path('nononsense_tm_template_detail', {'id': item.id}) }}">{{item.name}}</a></td>
                                 <td>{{item.nameArea}}</td>
-                                <td><b>{{item.dropRequestDate is defined and item.dropRequestDate is not null ? item.dropRequestDate|date("d/m/Y H:i:s") : ''}}</b></td>
-                                <td><b>{{item.applicantDropRequestName}}</b></td>
+                                <td><b>{{item.ReviewRequestDate is defined and item.ReviewRequestDate is not null ? item.ReviewRequestDate|date("d/m/Y H:i:s") : ''}}</b></td>
+                                <td><b>{{item.ReviewRequestName}}</b></td>
                                 <td>{{item.effectiveDate is defined and item.effectiveDate is not null ? item.effectiveDate|date("d/m/Y") : ''}}</td>
                                 <td>{{item.reviewDate is defined and item.reviewDate is not null ? item.reviewDate|date("d/m/Y") : ''}}</td>
                                 <td>{{item.ownerName}}</td>
@@ -154,7 +158,23 @@
 {{ parent() }}
 <script>
 $( document ).ready(function() {
-    ActivateMenu('solicitudes_baja_plantillas');
+    {% if filters.state is defined %}
+        {% if filters.state==1 %}
+            ActivateMenu('solicitudes_gestion_plantillas');
+        {% elseif filters.state==2 %}
+            ActivateMenu('elaboracion_gestion_plantillas');
+        {% elseif filters.state==3 %}
+            ActivateMenu('test_gestion_plantillas');
+        {% elseif filters.state==4 %}
+            ActivateMenu('aprobacion_gestion_plantillas');
+        {% elseif filters.state==5 %}
+            ActivateMenu('pendientes_gestion_plantillas');
+        {% elseif filters.state==11 %}
+            ActivateMenu('pendientes_vigor_gestion_plantillas');
+        {% elseif filters.state==6 %}
+            ActivateMenu('en_vigor_gestion_plantillas');
+        {% endif %}
+    {% endif %}
     $('#side-menu').metisMenu();
 });
 </script>

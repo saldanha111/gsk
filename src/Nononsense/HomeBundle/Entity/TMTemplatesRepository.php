@@ -38,7 +38,7 @@ class TMTemplatesRepository extends EntityRepository
             }
 
             if(isset($filters["no_request_in_proccess"]) && $filters["no_request_in_proccess"]==1){
-                $sintax.=$logical." (t.tmState=6 OR t.tmState=8) AND ((SELECT COUNT(aux.template_id) FROM Nononsense\HomeBundle\Entity\TMTemplates aux WHERE aux.tmState IN (1,2,3,4,5,11))=0)";
+                $sintax.=$logical." (t.tmState=6 OR t.tmState=8) AND ((SELECT COUNT(aux.template_id) FROM Nononsense\HomeBundle\Entity\TMTemplates aux WHERE aux.tmState IN (1,2,3,4,5,11))=0) AND t.id NOT IN (SELECT aux2.template_id FROM Nononsense\HomeBundle\Entity\TMTemplates aux2 WHERE aux2.template_id=t.id)";
                 $logical=" AND ";
             }
 
@@ -151,6 +151,11 @@ class TMTemplatesRepository extends EntityRepository
                 $parameters["changes_history2"]=$filters["changes_history"];
                 $logical=" AND ";
                 $orderby="Order by t.id ASC";
+            }
+
+            if(isset($filters["request_review"])){
+                $sintax.=$logical." t.requestReview IS NOT NULL AND s.id=6";
+                $logical=" AND ";
             }
         }
 

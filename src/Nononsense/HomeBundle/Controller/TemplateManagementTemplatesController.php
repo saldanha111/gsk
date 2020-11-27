@@ -138,6 +138,10 @@ class TemplateManagementTemplatesController extends Controller
             $filters["applicant_drop"]=$request->get("applicant_drop");
         }
 
+        if($request->get("request_review")){
+            $filters["request_review"]=$request->get("request_review");
+        }
+
 
         $array_item["filters"]=$filters;
         $array_item["items"] = $this->getDoctrine()->getRepository(TMTemplates::class)->list("list",$filters);
@@ -155,7 +159,12 @@ class TemplateManagementTemplatesController extends Controller
         $array_item["pagination"]=\Nononsense\UtilsBundle\Classes\Utils::paginador($filters["limit_many"],$request,$url,$array_item["count"],"/", $parameters);
 
         if(!$request->get("request_drop")){
-            return $this->render('NononsenseHomeBundle:TemplateManagement:templates.html.twig',$array_item);
+            if(!$request->get("request_review")){
+                return $this->render('NononsenseHomeBundle:TemplateManagement:templates.html.twig',$array_item);  
+            }
+            else{
+                return $this->render('NononsenseHomeBundle:TemplateManagement:requests_review_templates.html.twig',$array_item);
+            }
         }
         else{
             return $this->render('NononsenseHomeBundle:TemplateManagement:request_drop_templates.html.twig',$array_item);            
@@ -472,8 +481,7 @@ class TemplateManagementTemplatesController extends Controller
                         return $this->redirect($route);
                     }
 
-                    $drop_request->setTmDropAction($request->get("action"));
-                    $em->persist($drop_request);
+                    
                     
                     $previous_signature = $this->getDoctrine()->getRepository(TMSignatures::class)->findOneBy(array("template"=>$template),array("id" => "ASC"));
 
@@ -483,6 +491,8 @@ class TemplateManagementTemplatesController extends Controller
                         $signature->setTemplate($template);
                         switch($request->get("action")){
                             case 1: 
+                                $drop_request->setTmDropAction(TRUE);
+                                $em->persist($drop_request);
                                 $action_response = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 9));
                                 $description="Esta firma significa la autorización para la efectuar la baja de esta plantilla conforme a los procedimientos vigentes.";
                                 if($request->get("description")){
@@ -494,7 +504,7 @@ class TemplateManagementTemplatesController extends Controller
                                 $em->persist($template);
 
                                 while($template->getTemplateId()!=NULL){
-                                    $template = $this->getDoctrine()->getRepository(TMTemplates::class)->findOneBy(array("id" => $id));
+                                    $template = $this->getDoctrine()->getRepository(TMTemplates::class)->findOneBy(array("id" => $template->getTemplateId()));
                                     $template->setTmState($next_state);
                                     $em->persist($template);
                                 }
@@ -504,6 +514,8 @@ class TemplateManagementTemplatesController extends Controller
                                 $desc_error="La plantilla ha sido dada de baja con éxito";
                                 break;
                             case 2: 
+                                $drop_request->setTmDropAction(FALSE);
+                                $em->persist($drop_request);
                                 $action_response = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 10));
                                 if($request->get("description")){
                                     $signature->setDescription($request->get("description"));

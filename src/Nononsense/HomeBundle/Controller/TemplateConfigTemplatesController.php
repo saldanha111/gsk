@@ -191,7 +191,9 @@ class TemplateConfigTemplatesController extends Controller
                $template->setQRType($qr);
             }
 
-            if($request->get("public_date")){
+            $description="Esta firma significa la puesta en vigor de la plantilla en la fecha indicada y habiendo sido aprobada, marcando la efectividad de la misma desde dicho momento. Declarando que las actividades asociados a la gestión de la plantilla se han realizado de manera satisfactoria";
+          
+            if($request->get("public_date") && $request->get("action")=="1"){
                 $date_public=\DateTime::createFromFormat('d/m/Y', $request->get("public_date"));
                 if($request->get("public_date")<=$date_public->format("Y-m-d")){
                     $next_state = $this->getDoctrine()->getRepository(TMStates::class)->findOneBy(array("id"=>"6"));
@@ -236,6 +238,11 @@ class TemplateConfigTemplatesController extends Controller
 
                 $template->setEffectiveDate($date_public); 
             }
+            else{
+                $next_state = $this->getDoctrine()->getRepository(TMStates::class)->findOneBy(array("id"=>"5"));
+                $template->setEffectiveDate(NULL);
+                $description="Esta firma significa la cancelación de la puesta en vigor de la plantilla en la fecha indicada pasado de nuevo a estado aprobada";
+            }
 
             $template->setTmState($next_state);
             
@@ -256,7 +263,7 @@ class TemplateConfigTemplatesController extends Controller
                     $number++;
                 }
             }
-            $description="Esta firma significa la puesta en vigor de la plantilla en la fecha indicada y habiendo sido aprobada, marcando la efectividad de la misma desde dicho momento. Declarando que las actividades asociados a la gestión de la plantilla se han realizado de manera satisfactoria";
+            
         }
         else{
             $description="Esta firma significa la posible edición del dueño o backup del documento con la plantilla ya en vigor";
