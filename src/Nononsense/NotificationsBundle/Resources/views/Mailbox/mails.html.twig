@@ -11,8 +11,13 @@
             .mail-box table tr:hover{
                box-shadow: 0px 2px 2px 0px rgba(0, 0, 0, 0.2);
             }
-            .mail-box table tr:hover input[type=checkbox]{
+            .mail-box table tr input[type=checkbox]{
                 transform: scale(1.2);
+                cursor: pointer;
+            }
+            .mail-box .check-important{
+                color: #e41e1e;
+                font-size: 16px;
             }
         </style>
     {% endblock %}
@@ -30,6 +35,28 @@
 </ol>
 {% endblock %}
 {% block content %}
+
+<div class="wrapper wrapper-content">
+<div class="row">
+  <div class="col-lg-3">
+                <div class="ibox ">
+                    <div class="ibox-content mailbox-content">
+                        <div class="file-manager">
+                            <a class="btn btn-block btn-primary compose-mail" href="mail_compose.html">Compose Mail</a>
+                            <div class="space-25"></div>
+                            <ul class="folder-list m-b-md" style="padding: 0">
+                                <li><a href="http://gsk.localhost/app_dev.php/messages/mails?section=inbox"> <i class="fa fa-inbox "></i> Recibidos <span class="label label-warning float-right"></span> </a></li>
+                                <!-- <li><a href="#archived" data-event="archived"> <i class="fa fa-envelope-o"></i> Archivados</a></li> -->
+                                <li><a href="http://gsk.localhost/app_dev.php/messages/mails?section=important" data-event="important"> <i class="fa fa-certificate"></i> Important</a></li>
+                            </ul>
+                            <div class="clearfix"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>  
+
+<div class="col-lg-9 animated fadeInRight">
+    
 
     <div class="mail-box-header">
 
@@ -66,7 +93,7 @@
         {% for email in emails %}
             <tr data-id="{{email.id}}" class="{{email.created < email.modified ? 'read' : 'unread'}}">
                 <td class="check-mail"><input type="checkbox" class="i-checks"></td>
-                <td class="check-mail"><i class="fa fa-star"></i></td>
+                <td class="check-important"><i class="fa fa-exclamation-triangle"></i></td>
                 <td class="mail-ontact"><span class="label label-warning float-right">System</span></td>
                 <td class="mail-subject">{{email.subject}}</td>
                 <td class="mail-body">{{email.body|slice(0,80)}}...</td>
@@ -78,7 +105,9 @@
 
 
         </div>
-           
+</div>  
+</div>
+</div>
 {% endblock %}
 
 {% block scripts %}
@@ -92,6 +121,16 @@
         })
 
 
+        $('.folder-list > li > a').click(function(){
+            $.ajax({
+                url: 'http://gsk.localhost/app_dev.php/messages/mails',
+                data: {section: $(this).data('event')},
+                method: 'GET',
+                success: function(response){
+                    console.log(response)
+                }
+            })
+        })
 
         $('#read').click(function(){
             var emails = [];

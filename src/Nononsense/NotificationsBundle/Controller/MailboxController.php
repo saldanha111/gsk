@@ -285,11 +285,15 @@ class MailboxController extends Controller
 
         $em     = $this->getDoctrine()->getManager();
 
-        $user   = $this->container->get('security.context')->getToken()->getUser();
+        $filters['user']        = $this->container->get('security.context')->getToken()->getUser();
+        $filters['page']        = (!$request->get('page')) ? 1 : $request->get('page');
+        $filters['section']     = $request->get('section');
 
-        $emails = $em->getRepository(Notifications::class)->findBy(array('author' => $user));
+        $limit  = 15;
 
-        return $this->render('NononsenseNotificationsBundle:Mailbox:mails.html.twig', ['emails' => $emails]);
+        $emails = $em->getRepository(Notifications::class)->listBy($filters, $limit);
+
+        return $this->render('NononsenseNotificationsBundle:Mailbox:mails.html.twig', ['emails' => $emails['rows']]);
 
     }
 

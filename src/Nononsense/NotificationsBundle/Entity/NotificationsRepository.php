@@ -183,4 +183,27 @@ class NotificationsRepository extends EntityRepository
         return $query->getResult();
         
     }
+
+    public function listBy($filters, $limit = 20){
+
+        $list  = $this->createQueryBuilder('n')
+                        ->join("n.author", "u", "WITH", 'u = :user')
+                        ->setParameter('user', $filters['user'])
+                        ->addOrderBy('n.created','ASC');
+
+        if (isset($filters['section']) && $filters['section'] == 'archived') {
+            $list->andWhere('n.archived = 1');
+        }
+       
+        if (isset($filters['section']) && $filters['section'] == 'important') {
+            $list->andWhere('n.important = 1');
+        }
+
+        $list->setFirstResult($limit*($filters["page"]-1))->setMaxResults($limit);
+
+        $emails['rows']  = $list->getQuery()->getResult();
+        $emails['count'] = count(new Paginator($list));
+
+        return $emails;
+    }
 }

@@ -68,6 +68,13 @@ class Notifications
      */
     protected $messages;
     
+    /**
+     * @var boolean
+     *
+     * @ORM\Column(name="important", type="boolean", nullable=true)
+     */
+    protected $important;
+
     
     public function __construct()
     {
