@@ -98,6 +98,8 @@ doctrine:
         dql:
             datetime_functions:
                 datediff: Nononsense\UtilsBundle\DQL\DateDiff
+            string_functions:
+                GROUP_CONCAT: Nononsense\UtilsBundle\DQL\GroupConcat
 
 # Swiftmailer Configuration
 swiftmailer:

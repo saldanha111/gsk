@@ -73,7 +73,8 @@ class TemplateManagementTemplatesController extends Controller
     /* Listado de plantillas o de solicitudes de baja */
     public function listAction(Request $request)
     {
-        $filters=Array();
+        $user = $this->container->get('security.context')->getToken()->getUser();
+        $filters=Array("user" => $user->getId());
         $types=array();
 
         $array_item["areas"] = $this->getDoctrine()->getRepository(Areas::class)->findBy(array(),array("name" => "ASC"));
@@ -140,6 +141,10 @@ class TemplateManagementTemplatesController extends Controller
 
         if($request->get("request_review")){
             $filters["request_review"]=$request->get("request_review");
+        }
+
+        if($request->get("pending_for_me")){
+            $filters["pending_for_me"]=$request->get("pending_for_me");
         }
 
 

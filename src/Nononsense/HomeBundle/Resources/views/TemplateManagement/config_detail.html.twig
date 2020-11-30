@@ -199,7 +199,7 @@
             }else{
                 $("#signature").val(signaturePad.toDataURL());
                 $("[name='action']").val($(document.activeElement).data("action"));
-                if($(document.activeElement).data("action")=="2" || myDate > today){
+                if($(document.activeElement).data("action")=="2" || formatDate(myDate) >= formatDate(today)){
                     return true;  
                 }
                 else{
@@ -255,6 +255,20 @@
     function add_template(){
         $("#box_templates").append($("#new_template").html());
         init_select($("#box_templates").find(".select_template:last"));
+    }
+
+    function formatDate(date) {
+        var d = new Date(date),
+            month = '' + (d.getMonth() + 1),
+            day = '' + d.getDate(),
+            year = d.getFullYear();
+
+        if (month.length < 2) 
+            month = '0' + month;
+        if (day.length < 2) 
+            day = '0' + day;
+
+        return [year, month, day].join('-');
     }
 </script>
 {% endblock %}

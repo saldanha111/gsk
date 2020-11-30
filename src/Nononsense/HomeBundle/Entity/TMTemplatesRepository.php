@@ -137,6 +137,11 @@ class TMTemplatesRepository extends EntityRepository
 
                 $tables_drop="LEFT JOIN Nononsense\HomeBundle\Entity\TMSignatures sg WITH t.id=sg.template LEFT JOIN Nononsense\UserBundle\Entity\Users ud WITH sg.userEntiy=ud.id";
                 $fields_drop=",ud.name applicantDropRequestName,sg.created dropRequestDate";
+
+                if (isset($filters["pending_for_me"])) {
+                    $sintax.=$logical." (t.id IN (SELECT IDENTITY(w_admin.template) FROM Nononsense\HomeBundle\Entity\TMWorkflow w_admin WHERE w_admin.template=t.id AND w_admin.action=5 AND w_admin.userEntiy=:user))";
+                    $parameters["user"]=$filters["user"];
+                }
             }
 
             if(isset($filters["applicant_drop"])){
@@ -157,13 +162,28 @@ class TMTemplatesRepository extends EntityRepository
                 $sintax.=$logical." t.requestReview IS NOT NULL AND s.id=6";
                 $logical=" AND ";
             }
+
+            if (isset($filters["pending_for_me"])) {
+                $admins="CASE WHEN t.tmState=5 OR t.tmState=11 THEN 5 ELSE IDENTITY(workflow.action) END";
+                $aprobs="CASE WHEN t.tmState=4 THEN 4 ELSE ".$admins." END";
+                $testers="CASE WHEN t.tmState=3 THEN 3 ELSE ".$aprobs." END";
+                $elaborators="CASE WHEN t.tmState=2 OR t.tmState=9 THEN 2 ELSE ".$testers." END";
+                $sintax.=$logical." (t.tmState=1 AND (t.backup=:user OR t.owner=:user)) OR (t.id IN (SELECT IDENTITY(workflow.template) FROM Nononsense\HomeBundle\Entity\TMWorkflow workflow WHERE workflow.template=t.id AND workflow.action=".$elaborators." AND workflow.userEntiy=:user))";
+                $parameters["user"]=$filters["user"];
+                $parameters["user"]=$filters["user"];
+            }
         }
 
         $sintax = " FROM Nononsense\HomeBundle\Entity\TMTemplates t LEFT JOIN Nononsense\HomeBundle\Entity\Areas a WITH t.area=a.id LEFT JOIN Nononsense\HomeBundle\Entity\TMStates s WITH t.tmState=s.id LEFT JOIN Nononsense\UserBundle\Entity\Users ua WITH t.applicant=ua.id LEFT JOIN Nononsense\UserBundle\Entity\Users uo WITH t.owner=uo.id LEFT JOIN Nononsense\UserBundle\Entity\Users ub WITH t.backup=ub.id ".$tables_drop.$sintax;
 
         switch($type){
             case "list": 
-                $query = $em->createQuery("SELECT t.id,t.name,a.name nameArea,t.number,t.numEdition,s.id status,t.inactive,s.name stateName,t.created,t.reference,ua.name applicantName,uo.name ownerName,ub.name backupName,t.effectiveDate,t.reviewDate,t.historyChange,uo.id ownerId,ub.id backupId ".$fields_drop.$sintax." ".$orderby);
+
+                if(isset($filters["user"])){
+                    $parameters["user"]=$filters["user"];
+                }
+
+                $query = $em->createQuery("SELECT t.id,t.name,a.name nameArea,t.number,t.numEdition,s.id status,t.inactive,s.name stateName,t.created,t.reference,ua.name applicantName,uo.name ownerName,ub.name backupName,t.effectiveDate,t.reviewDate,t.historyChange,uo.id ownerId,ub.id backupId,t.dateReview,t.requestReview, CASE WHEN (SELECT COUNT(elab.id) FROM Nononsense\HomeBundle\Entity\TMWorkflow elab WHERE elab.template=t.id AND elab.action=2 AND elab.userEntiy=:user)>0 THEN 1 ELSE 0 END is_elaborator ".$fields_drop.$sintax." ".$orderby);
                 if(isset($filters["limit_from"])){
                     $query->setFirstResult($filters["limit_from"]*$filters["limit_many"])->setMaxResults($filters["limit_many"]);
                 }

@@ -269,6 +269,11 @@ class TMTemplates
      */
     protected $requestReview;
 
+    /**
+     * @ORM\Column(name="date_review", type="date", nullable=true)
+     */
+    protected $dateReview;
+
 
 
 
@@ -1249,5 +1254,28 @@ class TMTemplates
     public function getRequestReview()
     {
         return $this->requestReview;
+    }
+
+    /**
+     * Set dateReview
+     *
+     * @param \DateTime $dateReview
+     * @return TMTemplates
+     */
+    public function setDateReview($dateReview)
+    {
+        $this->dateReview = $dateReview;
+
+        return $this;
+    }
+
+    /**
+     * Get dateReview
+     *
+     * @return \DateTime 
+     */
+    public function getDateReview()
+    {
+        return $this->dateReview;
     }
 }
