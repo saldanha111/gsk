@@ -1,5 +1,5 @@
 {% extends '::base.html.twig' %}
-{% block page_title %}DOCXPRESSO | {{'Homepage'|trans}} {% endblock %}
+{% block page_title %}Docoaro - GSK | {{'Homepage'|trans}} {% endblock %}
 {% block head %}
     {{ parent() }}
     <link href="/css/plugins/jasny/jasny-bootstrap.min.css" rel="stylesheet">
@@ -11,7 +11,7 @@
         .form-control {width: 120px !important}
     </style>
 {% endblock %}
-{% block main_title %} {{'Welcome to'|trans}} DOCXPRESSO {% endblock %}
+{% block main_title %} {{'Welcome to'|trans}} GSK {% endblock %}
 {% block content %}
     <div class="wrapper wrapper-content"> 
         {% for flashMessage in app.session.flashbag.get('error') %}
