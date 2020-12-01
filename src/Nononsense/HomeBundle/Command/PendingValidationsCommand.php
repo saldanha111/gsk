@@ -36,7 +36,7 @@ class PendingValidationsCommand extends ContainerAwareCommand
 	        $baseUrl = trim($this->getContainer()->getParameter('cm_installation'), '/').$this->getContainer()->get('router')->generate('nononsense_search');
 
 	        foreach ($users as $key => $user) {
-	        	if ($this->get('utilities')->sendNotification($user['email'], $baseUrl, "", "", $subject, $message)) {
+	        	if ($this->getContainer()->get('utilities')->sendNotification($user['email'], $baseUrl, "", "", $subject, $message)) {
 	        		
 	        		$output->writeln(['<options=bold>Mensaje enviado:</> '.$user['email']]);
 
