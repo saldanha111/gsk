@@ -36,8 +36,7 @@ class ReviewRecordsCommand extends ContainerAwareCommand
 	        $baseUrl = trim($this->getContainer()->getParameter('cm_installation'), '/').$this->getContainer()->get('router')->generate('nononsense_backoffice_standby_documents_list');
 
 		    foreach ($users as $key => $user) {
-		    	//$this->getContainer()->get('utilities')->sendNotification($user['email'], $baseUrl, "", "", $subject, $message)
-	            if (true) {
+	            if ($this->getContainer()->get('utilities')->sendNotification($user['email'], $baseUrl, "", "", $subject, $message)) {
 	                
 	                $output->writeln(['Mensaje enviado: '.$user['email']]);
 
