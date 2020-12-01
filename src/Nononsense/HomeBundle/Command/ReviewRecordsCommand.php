@@ -33,10 +33,11 @@ class ReviewRecordsCommand extends ContainerAwareCommand
 
 	    	$subject = 'Registros bloqueados';
 	        $message = 'Los siguientes registros han sido bloqueados y necesitan ser gestionados por su parte o algún otro FLL. Acceda al siguiente  Link para gestionar los bloqueos.<br><br>'.implode('<br>', $steps);
-	        $baseUrl = $this->getContainer()->get('router')->generate('nononsense_backoffice_standby_documents_list',array(),TRUE);
+	        $baseUrl = trim($this->getContainer()->getParameter('cm_installation'), '/').$this->getContainer()->get('router')->generate('nononsense_backoffice_standby_documents_list');
 
 		    foreach ($users as $key => $user) {
-	            if ($this->getContainer()->get('utilities')->sendNotification($email, $baseUrl, "", "", $subject, $message)) {
+		    	//$this->getContainer()->get('utilities')->sendNotification($user['email'], $baseUrl, "", "", $subject, $message)
+	            if (true) {
 	                
 	                $output->writeln(['Mensaje enviado: '.$user['email']]);
 
