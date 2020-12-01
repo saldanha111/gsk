@@ -191,19 +191,20 @@ class NotificationsRepository extends EntityRepository
                         ->setParameter('user', $filters['user'])
                         ->addOrderBy('n.created','ASC');
 
-        if (isset($filters['section']) && $filters['section'] == 'archived') {
-            $list->andWhere('n.archived = 1');
-        }
-       
-        if (isset($filters['section']) && $filters['section'] == 'important') {
-            $list->andWhere('n.important = 1');
+        if (isset($filters['search']) && $filters['search']) {
+            $list->andWhere('n.subject LIKE :subject')
+                  ->setParameter('subject', '%'.$filters["search"].'%')
+                  ->orWhere('n.body LIKE :body')
+                  ->setParameter('body', '%'.$filters["search"].'%');
         }
 
         $list->setFirstResult($limit*($filters["page"]-1))->setMaxResults($limit);
 
-        $emails['rows']  = $list->getQuery()->getResult();
-        $emails['count'] = count(new Paginator($list));
+      
+        $paginator = new Paginator($list);
+        $paginator->getQuery()->setFirstResult($limit*($filters['page']-1))->setMaxResults($limit);
+        $paginator->setUseOutputWalkers(false);
 
-        return $emails;
+        return $paginator;
     }
 }

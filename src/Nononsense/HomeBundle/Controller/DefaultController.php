@@ -33,4 +33,15 @@ class DefaultController extends Controller
 
         return $this->render('::nav_side.html.twig', $data);
     }
+
+    public function topSideAction(){
+
+        $em     = $this->getDoctrine()->getManager();
+
+        $user   = $this->container->get('security.context')->getToken()->getUser();
+
+        $messages = $em->getRepository('NononsenseNotificationsBundle:Notifications')->findBy(array('author' => $user));
+
+        return $this->render('::nav_top.html.twig', ['messages' => $messages]);
+    }
 }

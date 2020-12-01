@@ -1,28 +1,42 @@
 {% extends '::base.html.twig' %}
+
 {% block page_title %} Buzón | GSK {% endblock %}
+
 {% block main_title %} Buzón {% endblock %}
 
-    {% block head %}
+{% block head %}
     {{ parent() }}
-        <style type="text/css">
-            .mail-box table{
-                cursor: pointer;
-            }
-            .mail-box table tr:hover{
-               box-shadow: 0px 2px 2px 0px rgba(0, 0, 0, 0.2);
-            }
-            .mail-box table tr input[type=checkbox]{
-                transform: scale(1.2);
-                cursor: pointer;
-            }
-            .mail-box .check-important{
-                color: #e41e1e;
-                font-size: 16px;
-            }
-        </style>
-    {% endblock %}
 
-
+    <style type="text/css">
+        .mail-box table{
+            cursor: pointer;
+        }
+        .mail-box table tr:hover{
+           box-shadow: 0px 2px 2px 0px rgba(0, 0, 0, 0.2);
+        }
+        input[type=checkbox]{
+            transform: scale(1.2);
+            cursor: pointer;
+        }
+        .mail-box .check-important{
+            color: #e41e1e;
+            font-size: 16px;
+        }
+        #select-all{
+            margin-right: 10px;
+        }
+        .backdrop.on{
+            position: absolute;
+            z-index: 999;
+            opacity: 0.5;
+            background: #fff;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+    </style>
+{% endblock %}
 
 {% block breadcrumb %}
 <ol class="breadcrumb">
@@ -34,121 +48,114 @@
     </li>
 </ol>
 {% endblock %}
+
 {% block content %}
-
 <div class="wrapper wrapper-content">
-<div class="row">
-  <div class="col-lg-3">
-                <div class="ibox ">
-                    <div class="ibox-content mailbox-content">
-                        <div class="file-manager">
-                            <a class="btn btn-block btn-primary compose-mail" href="mail_compose.html">Compose Mail</a>
-                            <div class="space-25"></div>
-                            <ul class="folder-list m-b-md" style="padding: 0">
-                                <li><a href="http://gsk.localhost/app_dev.php/messages/mails?section=inbox"> <i class="fa fa-inbox "></i> Recibidos <span class="label label-warning float-right"></span> </a></li>
-                                <!-- <li><a href="#archived" data-event="archived"> <i class="fa fa-envelope-o"></i> Archivados</a></li> -->
-                                <li><a href="http://gsk.localhost/app_dev.php/messages/mails?section=important" data-event="important"> <i class="fa fa-certificate"></i> Important</a></li>
-                            </ul>
-                            <div class="clearfix"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>  
-
-<div class="col-lg-9 animated fadeInRight">
-    
-
-    <div class="mail-box-header">
-
-        <form method="get" action="index.html" class="float-right mail-search">
-            <div class="input-group">
-                <input type="text" class="form-control form-control-sm" name="search" placeholder="Buscar mensaje">
-                <div class="input-group-btn">
-                    <button type="submit" class="btn btn-sm btn-primary">
-                        Buscar
-                    </button>
+    <div class="row"> 
+        <div class="col-lg-12 animated fadeInRight">
+            <div class="mail-box-header">
+                <h2><a href="{{ path('nononsense_notifications_mails')}}">Bandeja de entrada</a> ({{emails|length }})</h2>
+                <div class="mail-tools tooltip-demo m-t-md">
+                    <input class="btn btn-white btn-sm" data-toggle="tooltip" data-placement="top" title="Seleccionar todos" type="checkbox" id="select-all">
+                    <button class="btn btn-white btn-sm" data-toggle="tooltip" data-placement="top" data-event="read" title="Marcar como leído"><i class="fa fa-eye"></i></button>
                 </div>
             </div>
-        </form>
-        <h2>
-            Inbox ({{emails|length }})
-        </h2>
-        <div class="mail-tools tooltip-demo m-t-md">
-            <div class="btn-group float-right">
-                <button class="btn btn-white btn-sm"><i class="fa fa-arrow-left"></i></button>
-                <button class="btn btn-white btn-sm"><i class="fa fa-arrow-right"></i></button>
-
+            <div class="mail-box">
+                <table class="table table-hover table-mail">
+                    <tbody>
+                        {% for email in emails %}
+                            <tr data-id="{{email.id}}" class="{{email.created < email.modified ? 'read' : 'unread'}}">
+                                <td class="check-mail"><input type="checkbox" class="i-checks"></td>
+                                <td class="mail-ontact"><span class="label label-warning float-right">System</span></td>
+                                <td class="mail-subject">{{email.subject}}</td>
+                                <td class="mail-body">{{email.body|striptags|slice(0,80)}}...</td>
+                                <td class="text-right mail-date">{{email.created|time_diff}}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
 
-            <button class="btn btn-white btn-sm" data-toggle="tooltip" data-placement="top" id="read" title="Mark as read"><i class="fa fa-eye"></i> </button>
-            <button class="btn btn-white btn-sm" data-toggle="tooltip" data-placement="top" title="Mark as important"><i class="fa fa-exclamation"></i> </button>
-            <button class="btn btn-white btn-sm" data-toggle="tooltip" data-placement="top" title="Move to trash"><i class="fa fa-trash-o"></i> </button>
-
-        </div>
+            {% if pagination.count==0 %}
+                <br><b>No se han encontrado datos disponibles</b>
+            {% endif %}
+            {% if pagination is defined and pagination.needed %}
+                {% include '::pagination2.html.twig' %}
+            {% endif %}
+        </div>  
     </div>
-        <div class="mail-box">
-
-        <table class="table table-hover table-mail">
-        <tbody>
-        {% for email in emails %}
-            <tr data-id="{{email.id}}" class="{{email.created < email.modified ? 'read' : 'unread'}}">
-                <td class="check-mail"><input type="checkbox" class="i-checks"></td>
-                <td class="check-important"><i class="fa fa-exclamation-triangle"></i></td>
-                <td class="mail-ontact"><span class="label label-warning float-right">System</span></td>
-                <td class="mail-subject">{{email.subject}}</td>
-                <td class="mail-body">{{email.body|slice(0,80)}}...</td>
-                <td class="text-right mail-date">{{email.created|date('Y-m-d')}}</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-        </table>
-
-
-        </div>
-</div>  
+    <div class="backdrop"></div>
 </div>
-</div>
+
 {% endblock %}
 
 {% block scripts %}
-{{ parent() }}
+    {{ parent() }}
 
     <script type="text/javascript">
         $('td:not(.check-mail)').click(function(){
-            var url = "{{ path('nononsense_notifications_mails_view', {id:0})}}";
+            var url = "{{ path('nononsense_notifications_mails_edit', {id:0})}}";
             url = url.replace('0', $(this).parent().data('id'))
             window.location.href = url;
         })
 
-
-        $('.folder-list > li > a').click(function(){
-            $.ajax({
-                url: 'http://gsk.localhost/app_dev.php/messages/mails',
-                data: {section: $(this).data('event')},
-                method: 'GET',
-                success: function(response){
-                    console.log(response)
-                }
-            })
+        $('#select-all').click(function(){
+            $('input[type="checkbox"]').prop('checked', $(this)[0].checked);
         })
 
-        $('#read').click(function(){
+        $('.mail-tools button').click(function(){
             var emails = [];
-            console.log()
-            $('input[type="checkbox"]:checked').each(function(){
+
+            $('.mail-box input[type="checkbox"]:checked').each(function(){
                 emails.push($(this).closest('tr').data('id'));
             })
 
-            $.ajax({
-                url: 'http://gsk.localhost/app_dev.php/messages/mails/edit',
-                data: {data: JSON.stringify(emails)},
-                method: 'PUT',
-                success: function(response){
-                    console.log(response)
-                }
-            })
+            toastr.options = {
+              "progressBar": true,
+              "positionClass": "toast-top-right",
+              "preventDuplicates": true,
+              "onclick": null,
+              "showDuration": "300",
+              "hideDuration": "1000",
+              "timeOut": "5000",
+              "extendedTimeOut": "1000",
+              "showEasing": "swing",
+              "hideEasing": "linear",
+              "showMethod": "fadeIn",
+              "hideMethod": "fadeOut"
+            }
 
-            // window.location = window.location;
+            if (emails.length > 0) {
+
+                $('.backdrop').addClass('on');
+
+                $.ajax({
+                    url: 'http://gsk.localhost/app_dev.php/messages/mails/read',
+                    data: {emails: JSON.stringify(emails), event: $(this).data('event')},
+                    method: 'PUT',
+                    dataType: 'json',
+                    success: function(response){
+                        if (response.success) {
+
+                            $('.backdrop').removeClass('on');
+
+                            $(emails).each(function(index, value){
+                                $('tr[data-id='+value+']').removeClass('unread').addClass('read');
+                            });
+                            
+                            var message = (emails.length <= 1) ? 'Se ha marcado la conversación como leída.' : 'Se han marcado '+emails.length+' conversaciones como leídas.';
+                            
+                            toastr.success(message)
+
+                            $('input[type="checkbox"]').prop('checked', false);
+                        }
+                    }
+                })
+               
+            }else{
+
+                toastr.error('Seleccione al menos 1 mensaje.');
+            }
         })
     </script>
 {% endblock %}

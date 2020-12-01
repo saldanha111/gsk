@@ -316,28 +316,33 @@ class MailboxController extends Controller
 
     public function mailsEditAction(Request $request){
 
-        $emails = json_decode($request->get('data'));
+        $emails = json_decode($request->get('emails'));
 
-        if ($emails) {
+        echo $request->get('event');
 
-            $user   = $this->container->get('security.context')->getToken()->getUser();
+        print_r($emails);
+    
+        die();        
+        // if ($emails) {
+
+        //     $user   = $this->container->get('security.context')->getToken()->getUser();
         
-            $em     = $this->getDoctrine()->getManager();
-            $emails = $em->getRepository(Notifications::class)->findBy(['author'=> $user, 'id' => $emails]);
+        //     $em     = $this->getDoctrine()->getManager();
+        //     $emails = $em->getRepository(Notifications::class)->findBy(['author'=> $user, 'id' => $emails]);
 
-            foreach ($emails as $key => $email) {
-                $email->setModified(new \DateTime());
-                $em->persist($email);
-            }
+        //     foreach ($emails as $key => $email) {
+        //         $email->setModified(new \DateTime());
+        //         $em->persist($email);
+        //     }
 
-            $em->flush($email);
-        }
+        //     $em->flush($email);
+        // }
 
-        $response = new Response();
-        $response->setContent(json_encode([
-            'success' => true,
-        ]));
-        $response->headers->set('Content-Type', 'application/json');
-        return $response;
+        // $response = new Response();
+        // $response->setContent(json_encode([
+        //     'success' => true,
+        // ]));
+        // $response->headers->set('Content-Type', 'application/json');
+        // return $response;
     }
 }
