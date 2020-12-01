@@ -38,9 +38,10 @@ class DefaultController extends Controller
 
         $em     = $this->getDoctrine()->getManager();
 
-        $user   = $this->container->get('security.context')->getToken()->getUser();
+        $filters['user']    =  $this->container->get('security.context')->getToken()->getUser();
+        $filters['unread']  = true;
 
-        $messages = $em->getRepository('NononsenseNotificationsBundle:Notifications')->findBy(array('author' => $user));
+        $messages = $em->getRepository('NononsenseNotificationsBundle:Notifications')->countBy($filters);
 
         return $this->render('::nav_top.html.twig', ['messages' => $messages]);
     }
