@@ -246,7 +246,7 @@ class InstanciasWorkflowsRepository extends EntityRepository
         return $query->getResult();
     }
 
-    public function listStandBy($status)
+    public function listStandBy($filters, $limit = 15)
     {
         $list = $this->createQueryBuilder('n')
             ->select('n.id', 'ms.name', 'ms.description', 'c.name as companyName', 'n.status', 'mt.fechainicio as fecha', 'n.in_edition', 'ms.id as masterworkflowid', 'ms.logbook')
@@ -254,12 +254,14 @@ class InstanciasWorkflowsRepository extends EntityRepository
             ->leftJoin("ms.category", "c")
             ->innerJoin("n.metaData", "mt")
             ->andWhere('n.status in (:stst)')
-            ->setParameter('stst', $status)
+            ->setParameter('stst', $filters['status'])
             ->orderBy('n.id', 'DESC');
 
-        $query = $list->getQuery();
+        $paginator = new Paginator($list);
+        $paginator->getQuery()->setFirstResult($limit*($filters['page']-1))->setMaxResults($limit);    
+        $paginator->setUseOutputWalkers(false);
 
-        return $query->getResult();
+        return $paginator;
     }
 
     public function listProcessParcial($page, $max, $idregistro, $idcodigomaterial, $idlote, $idcodigoequipo, $idworkordersap, $idcodigodocumento)

@@ -22,6 +22,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
+use Nononsense\UtilsBundle\Classes\Utils;
+
 class BackOfficeController extends Controller
 {
     public function indexAction()
@@ -39,7 +41,7 @@ class BackOfficeController extends Controller
         exit;
     }
 
-    public function standByDocumentsListAction()
+    public function standByDocumentsListAction(Request $request)
     {
         $user = $this->container->get('security.context')->getToken()->getUser();
         $grupos = array('FLL', 'ECO');
@@ -66,11 +68,17 @@ class BackOfficeController extends Controller
             }
         }
 
+        $filters['page']        = (!$request->get('page')) ? 1 : $request->get('page');
+        $filters['status']      = $status;
+        $limit                  = 15;
+
         $documentsProcess = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:InstanciasWorkflows')
-            ->listStandBy($status);
+            ->listStandBy($filters, $limit);
 
-        foreach ($documentsProcess as &$element2) {
+        $documents = $documentsProcess->getIterator();
+
+        foreach ($documents as &$element2) {
             $idRegistro = $element2['id'];
 
             $step = $this->getDoctrine()
@@ -101,9 +109,14 @@ class BackOfficeController extends Controller
 
         }
 
+        $params    = $request->query->all();
+        unset($params["page"]);
+        $parameters = (!empty($params)) ? true : false;
+
+        $pagination = Utils::paginador($limit, $request, false, $documentsProcess->count(), "/", $parameters);
 
         return $this->render('NononsenseHomeBundle:Backoffice:stand_by_documents_list.html.twig', array(
-            "documentsProcess" => $documentsProcess,
+            "documentsProcess" => $documents, 'pagination' => $pagination
         ));
     }
 
