@@ -263,9 +263,9 @@ class TMTemplates
     protected $tmpConfiguration;
 
     /**
-     * @var integer
+     * @var boolean
      *
-     * @ORM\Column(name="request_review", type="integer", nullable=true)
+     * @ORM\Column(name="request_review", type="boolean", nullable=true)
      */
     protected $requestReview;
 

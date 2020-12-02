@@ -88,6 +88,14 @@
                                 </div>
                             {% endif %}
 
+                            <div class="col-sm-1">
+                              <div class="checkbox">
+                                <label>
+                                  <input name="pending_for_me" value="1" type="checkbox" {% if filters.pending_for_me is defined and  filters.pending_for_me == true %} checked="checked" {% endif %}> Mis Reg. Pend.
+                                </label>
+                              </div>
+                            </div>
+
                             <div class="col-sm-2 item_filter">
                                 <button type="submit" class="btn btn-primary">Filtrar</button>
                             </div>

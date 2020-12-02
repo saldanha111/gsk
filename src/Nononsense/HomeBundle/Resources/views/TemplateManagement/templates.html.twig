@@ -183,38 +183,40 @@
                                                 <li><a href="{{path('nononsense_tm_template_detail', {'id': item.id})}}?request_drop=1"><i class="fa fa-thumbs-o-down"></i> {{ 'Solicitar baja'|trans }}</a></li>
                                             {% endif %}
 
-                                            {% if item is defined and item.status==6 and (item.dateReview is empty or item.dateReview|date > date()) and (item.ownerId==app.user.id or item.is_elaborator ) %}
-                                                <li><a href="{{path('nononsense_tm_template_detail', {'id': item.id})}}?request_drop=1"><i class="fa fa-eye"></i> {{ 'Solicitar revisión'|trans }}</a></li>
+                                            {% if item is defined and item.status==6 and (item.dateReview is empty or item.dateReview|date > date()) %}
+                                                <li><a href="{{path('nononsense_tm_template_detail', {'id': item.id})}}?request_review=1"><i class="fa fa-eye"></i> {{ 'Solicitar revisión'|trans }}</a></li>
                                             {% endif %}
                                         </ul>
                                     </div>
                                 </td>
                                 <td>
-                                    {% if item.status == 1 %}
-                                        <a class="btn btn-xs btn-danger" href="{{path('nononsense_tm_template_detail', {'id': item.id}) }}" target="_self"><i class="fa fa-gavel" aria-hidden="true"></i> {{'Consultar solicitud'|trans}}</a>
+                                    {% if item.require_action %}
+                                        {% if item.status == 1 %}
+                                            <a class="btn btn-xs btn-danger" href="{{path('nononsense_tm_template_detail', {'id': item.id}) }}" target="_self"><i class="fa fa-gavel" aria-hidden="true"></i> {{'Consultar solicitud'|trans}}</a>
+                                        {% endif %}
+
+                                        {% if item.status == 2 %}
+                                            <a class="btn btn-xs btn-danger" href="{{path('nononsense_tm_elaborate_detail', {'id': item.id}) }}" target="_self"><i class="fa fa-scissors" aria-hidden="true"></i> {{'Elaborar'|trans}}</a>
+                                        {% endif %}
+
+                                        {% if item.status == 3 %}
+                                            <a class="btn btn-xs btn-danger" href="{{path('nononsense_tm_test_detail', {'id': item.id}) }}" target="_self"><i class="fa fa-flask" aria-hidden="true"></i> {{'Testear'|trans}}</a>
+                                        {% endif %}
+
+                                        {% if item.status == 4 %}
+                                            <a class="btn btn-xs btn-danger" href="{{path('nononsense_tm_aprob_detail', {'id': item.id}) }}" target="_self"><i class="fa fa-check" aria-hidden="true"></i> {{'Aprobar'|trans}}</a>
+                                        {% endif %}
+
+                                        {% if item.status == 5 %}
+                                            <a class="btn btn-xs btn-danger" href="{{path('nononsense_tm_config_detail', {'id': item.id}) }}" target="_self"><i class="fa fa-gear" aria-hidden="true"></i> {{'Configurar'|trans}}</a>
+                                        {% endif %}
+
+
+                                        {% if item.status == 11 %}
+                                            <a class="btn btn-xs btn-danger" href="{{path('nononsense_tm_config_detail', {'id': item.id}) }}" target="_self"><i class="fa fa-gear" aria-hidden="true"></i> {{'Modificar configuración'|trans}}</a>
+                                        {% endif %}
                                     {% endif %}
-
-                                    {% if item.status == 2 %}
-                                        <a class="btn btn-xs btn-danger" href="{{path('nononsense_tm_elaborate_detail', {'id': item.id}) }}" target="_self"><i class="fa fa-scissors" aria-hidden="true"></i> {{'Elaborar'|trans}}</a>
-                                    {% endif %}
-
-                                    {% if item.status == 3 %}
-                                        <a class="btn btn-xs btn-danger" href="{{path('nononsense_tm_test_detail', {'id': item.id}) }}" target="_self"><i class="fa fa-flask" aria-hidden="true"></i> {{'Testear'|trans}}</a>
-                                    {% endif %}
-
-                                    {% if item.status == 4 %}
-                                        <a class="btn btn-xs btn-danger" href="{{path('nononsense_tm_aprob_detail', {'id': item.id}) }}" target="_self"><i class="fa fa-check" aria-hidden="true"></i> {{'Aprobar'|trans}}</a>
-                                    {% endif %}
-
-                                    {% if item.status == 5 %}
-                                        <a class="btn btn-xs btn-danger" href="{{path('nononsense_tm_config_detail', {'id': item.id}) }}" target="_self"><i class="fa fa-gear" aria-hidden="true"></i> {{'Configurar'|trans}}</a>
-                                    {% endif %}
-
-
-                                    {% if item.status == 11 %}
-                                        <a class="btn btn-xs btn-danger" href="{{path('nononsense_tm_config_detail', {'id': item.id}) }}" target="_self"><i class="fa fa-gear" aria-hidden="true"></i> {{'Modificar configuración'|trans}}</a>
-                                    {% endif %}
-
+                                    
                                     {% if item.status == 6 %}
                                         <a class="btn btn-xs btn-primary" href="{{path('nononsense_tm_config_detail', {'id': item.id}) }}" target="_self"><i class="fa fa-thumbs-o-up" aria-hidden="true"></i> {{'En vigor'|trans}}</a>
                                     {% endif %}

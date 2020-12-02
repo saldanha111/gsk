@@ -168,10 +168,27 @@ class TemplateManagementTemplatesController extends Controller
                 return $this->render('NononsenseHomeBundle:TemplateManagement:templates.html.twig',$array_item);  
             }
             else{
+                if(!$this->get('app.security')->permissionSeccion('elaborador_gp') && !$this->get('app.security')->permissionSeccion('aprobador_gp')){
+                    $this->get('session')->getFlashBag()->add(
+                        'error',
+                        'No tiene permisos suficientes'
+                    );
+                    $route=$this->container->get('router')->generate('nononsense_tm_templates');
+                    return $this->redirect($route);
+                }
                 return $this->render('NononsenseHomeBundle:TemplateManagement:requests_review_templates.html.twig',$array_item);
             }
         }
         else{
+            $is_valid = $this->get('app.security')->permissionSeccion('admin_gp');
+            if(!$is_valid){
+                $this->get('session')->getFlashBag()->add(
+                    'error',
+                    'No tiene permisos suficientes'
+                );
+                $route=$this->container->get('router')->generate('nononsense_tm_templates');
+                return $this->redirect($route);
+            }
             return $this->render('NononsenseHomeBundle:TemplateManagement:request_drop_templates.html.twig',$array_item);            
         }
         
@@ -196,6 +213,18 @@ class TemplateManagementTemplatesController extends Controller
         $action = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 5));
         $array_item["admin"] = $this->getDoctrine()->getRepository(TMWorkflow::class)->findBy(array("template" => $array_item["template"], "action" => $action),array("id" => "ASC"));
 
+
+        if($request->get("request_review") || $request->get("request_drop") || $request->get("request_drop_action")){
+            if($array_item["template"]->getTmState()->getId()!=6){
+                $this->get('session')->getFlashBag()->add(
+                    'error',
+                    'La plantilla indicada no se encuentra en vigor y por tanto no se puede realizar ninguna acción de solicitud sobre ella'
+                );
+                $route=$this->container->get('router')->generate('nononsense_tm_templates');
+                return $this->redirect($route);
+            }
+        }
+
         /* Popup de solicitar baja de plantilla */
         if($request->get("request_drop")){
             $is_valid = $this->get('app.security')->permissionSeccion('dueno_gp');
@@ -203,6 +232,15 @@ class TemplateManagementTemplatesController extends Controller
                 $this->get('session')->getFlashBag()->add(
                     'error',
                     'No tiene permisos suficientes'
+                );
+                $route=$this->container->get('router')->generate('nononsense_tm_templates');
+                return $this->redirect($route);
+            }
+
+            if($user!=$array_item["template"]->getOwner() && $user!=$array_item["template"]->getBackup()){
+                $this->get('session')->getFlashBag()->add(
+                    'error',
+                    'Solo el dueño o backup de esta plantilla puede crear una solicitud de baja'
                 );
                 $route=$this->container->get('router')->generate('nononsense_tm_templates');
                 return $this->redirect($route);
@@ -239,7 +277,7 @@ class TemplateManagementTemplatesController extends Controller
             if(!$workflow_admin || $workflow_admin->getUserEntiy()!=$user){
                 $this->get('session')->getFlashBag()->add(
                     'error',
-                    'No tiene permisos suficientes para tramitar la solicitud de baja de esta plantilla'
+                    'No esta denominado como administrador de esta plantilla y por tanto no puede tramitar aprobar o rechazar la solicitud de baja'
                 );
                 $route=$this->container->get('router')->generate('nononsense_tm_templates');
                 return $this->redirect($route);
@@ -255,6 +293,56 @@ class TemplateManagementTemplatesController extends Controller
                 $route=$this->container->get('router')->generate('nononsense_tm_templates');
                 return $this->redirect($route);
             }
+        }
+
+        /* Popup de solicitar revisión de plantilla */
+        if($request->get("request_review")){
+            if(!$this->get('app.security')->permissionSeccion('dueno_gp') && !$this->get('app.security')->permissionSeccion('elaborador_gp')){
+                $this->get('session')->getFlashBag()->add(
+                    'error',
+                    'No tiene permisos suficientes'
+                );
+                $route=$this->container->get('router')->generate('nononsense_tm_templates');
+                return $this->redirect($route);
+            }
+
+            $action = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 2));
+            $elaborators = $this->getDoctrine()->getRepository(TMWorkflow::class)->findBy(array("template" => $array_item["template"], "action" => $action),array("id" => "ASC"));
+            $find=0;
+            foreach($elaborators as $elaborator){
+                if($elaborator->getUserEntiy() && $elaborator->getUserEntiy()==$user){
+                    $find=1;
+                }
+            }
+
+            if($user!=$array_item["template"]->getOwner() && $find==0){
+                $this->get('session')->getFlashBag()->add(
+                    'error',
+                    'Solo el dueño o elaborador de esta plantilla puede crear una solicitud de revisión'
+                );
+                $route=$this->container->get('router')->generate('nononsense_tm_templates');
+                return $this->redirect($route);
+            }
+
+            if($array_item["template"]->getRequestReview()){
+                $this->get('session')->getFlashBag()->add(
+                    'error',
+                    'Ya existe una solicitud de revisión abierta para esta plantilla'
+                );
+                $route=$this->container->get('router')->generate('nononsense_tm_templates');
+                return $this->redirect($route);
+            }
+
+            if(!empty($array_item["template"]->getDateReview()) && $array_item["template"]->getDateReview()>date("Y-m-d")){
+                $this->get('session')->getFlashBag()->add(
+                    'error',
+                    'No se puede realizar una solicitud de esta plantilla puesto que aún ha llegado la fecha de su revisión periódica'
+                );
+                $route=$this->container->get('router')->generate('nononsense_tm_templates');
+                return $this->redirect($route);
+            }
+
+            $array_item["can_review"]=1;
         }
 
 
@@ -374,7 +462,7 @@ class TemplateManagementTemplatesController extends Controller
                     if($user!=$template->getOwner() && $user!=$template->getBackup()){
                         $this->get('session')->getFlashBag()->add(
                             'error',
-                            'Solo el dueño o backup puede aceptar o rechazar la solicitud'
+                            'Solo el dueño o backup puede crear una solicitud de baja'
                         );
                         $route=$this->container->get('router')->generate('nononsense_tm_templates');
                         return $this->redirect($route);
@@ -410,7 +498,7 @@ class TemplateManagementTemplatesController extends Controller
                                 $users_notifications[]=$admin->getUserEntiy()->getEmail();
                             }
                             else{
-                                foreach($aprob->getGroupEntiy()->getUsers() as $user_group){
+                                foreach($admin->getGroupEntiy()->getUsers() as $user_group){
                                     $users_notifications[]=$user_group->getUser()->getEmail();
                                 }
                             }

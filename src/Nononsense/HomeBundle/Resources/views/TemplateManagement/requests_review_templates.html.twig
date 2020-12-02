@@ -158,23 +158,7 @@
 {{ parent() }}
 <script>
 $( document ).ready(function() {
-    {% if filters.state is defined %}
-        {% if filters.state==1 %}
-            ActivateMenu('solicitudes_gestion_plantillas');
-        {% elseif filters.state==2 %}
-            ActivateMenu('elaboracion_gestion_plantillas');
-        {% elseif filters.state==3 %}
-            ActivateMenu('test_gestion_plantillas');
-        {% elseif filters.state==4 %}
-            ActivateMenu('aprobacion_gestion_plantillas');
-        {% elseif filters.state==5 %}
-            ActivateMenu('pendientes_gestion_plantillas');
-        {% elseif filters.state==11 %}
-            ActivateMenu('pendientes_vigor_gestion_plantillas');
-        {% elseif filters.state==6 %}
-            ActivateMenu('en_vigor_gestion_plantillas');
-        {% endif %}
-    {% endif %}
+    ActivateMenu('solicitudes_revision_plantillas');
     $('#side-menu').metisMenu();
 });
 </script>
