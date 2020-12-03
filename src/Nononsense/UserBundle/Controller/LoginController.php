@@ -200,7 +200,7 @@ class LoginController extends Controller
         
         error_reporting(0);
 
-        echo 'v2';
+        echo 'v3';
 
         $form = $this->createForm(new FormUsers\ldapType());
         $form->handleRequest($request);
@@ -210,7 +210,7 @@ class LoginController extends Controller
             $response   = new Response();
             $data       = $form->getData();
 
-            $justthese = array("cn", "givenname", "mail", "displayname", "sAMAccountName", "telephonenumber");
+            $justthese = array("cn");
 
             try {
 
