@@ -135,7 +135,7 @@
                                 <td>{{item.backupName}}</td>
                                 <td>{{item.reference}}</td>
                                 <td>
-                                    <a class="btn btn-xs btn-danger" href="{{path('nononsense_tm_template_detail', {'id': item.id})}}?request_drop_action=1" target="_self"><i class="fa fa-gavel" aria-hidden="true"></i> {{'Tramitar solicitud.'|trans}}</a>
+                                    <a class="btn btn-xs btn-danger" href="{{path('nononsense_tm_template_detail_review', {'id': item.id})}}" target="_self"><i class="fa fa-gavel" aria-hidden="true"></i> {{'Tramitar solicitud.'|trans}}</a>
                                 </td>
                             </tr>
                             {% endfor %}

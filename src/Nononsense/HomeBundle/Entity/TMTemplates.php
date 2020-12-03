@@ -263,9 +263,8 @@ class TMTemplates
     protected $tmpConfiguration;
 
     /**
-     * @var boolean
-     *
-     * @ORM\Column(name="request_review", type="boolean", nullable=true)
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\TMSignatures", inversedBy="templateReviews")
+     * @ORM\JoinColumn(name="request_review", referencedColumnName="id", nullable=true)
      */
     protected $requestReview;
 
@@ -1234,29 +1233,6 @@ class TMTemplates
     }
 
     /**
-     * Set requestReview
-     *
-     * @param integer $requestReview
-     * @return TMTemplates
-     */
-    public function setRequestReview($requestReview)
-    {
-        $this->requestReview = $requestReview;
-
-        return $this;
-    }
-
-    /**
-     * Get requestReview
-     *
-     * @return integer 
-     */
-    public function getRequestReview()
-    {
-        return $this->requestReview;
-    }
-
-    /**
      * Set dateReview
      *
      * @param \DateTime $dateReview
@@ -1277,5 +1253,28 @@ class TMTemplates
     public function getDateReview()
     {
         return $this->dateReview;
+    }
+
+    /**
+     * Set requestReview
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMSignatures $requestReview
+     * @return TMTemplates
+     */
+    public function setRequestReview(\Nononsense\HomeBundle\Entity\TMSignatures $requestReview = null)
+    {
+        $this->requestReview = $requestReview;
+
+        return $this;
+    }
+
+    /**
+     * Get requestReview
+     *
+     * @return \Nononsense\HomeBundle\Entity\TMSignatures 
+     */
+    public function getRequestReview()
+    {
+        return $this->requestReview;
     }
 }

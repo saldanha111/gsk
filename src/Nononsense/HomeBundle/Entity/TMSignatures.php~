@@ -39,6 +39,11 @@ class TMSignatures
     protected $tmTests;
 
     /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMTemplates", mappedBy="requestReview")
+     */
+    protected $templateReviews;
+
+    /**
      * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\TMTests", inversedBy="tmSignatures")
      * @ORM\JoinColumn(name="test_id", referencedColumnName="id", nullable=true)
      */

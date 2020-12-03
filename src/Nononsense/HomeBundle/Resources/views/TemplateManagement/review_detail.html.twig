@@ -1,0 +1,218 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}DOCXPRESSO | {{'Homepage'|trans}} {% endblock %}
+{% block head %}
+{{ parent() }}
+<link rel="stylesheet" type="text/css" href="{{ asset('bundles/nononsensehome/css/adminlte.css') }}">
+{% endblock %}
+{% block main_title %} {{'Revisión de plantilla'|trans}}{% endblock %}
+{% block content %}
+
+
+<div class="wrapper wrapper-content">
+    <h3>{{template.name}} {{template.number}}</h3>
+
+    <div class="row">
+        {% for flashMessage in app.session.flashbag.get('message') %}
+            <div class="alert alert-success alert-dismissable" style="margin: 10px 16px 0 16px">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                {{ flashMessage }}
+            </div><br>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('error') %}
+            <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                {{ flashMessage }}
+            </div><br>
+        {% endfor %}
+
+        {% if template.openedBy is defined and template.openedBy is not empty and template.openedBy.id!=app.user.id %}
+            <div class="col-lg-4">
+                <div class="callout callout-warning">
+                    <h4>¡Atención!</h4>
+                    <p>La plantilla esta abierta por {{template.openedBy.name}}</p>
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="col-lg-4">
+            <div class="box box-default">
+                <div class="box-header with-border">
+                  <h3 class="box-title">Elaboradores</h3>
+                </div>
+                <!-- /.box-header -->
+                <div class="box-body">
+                    {% for wfitem in elabs %}
+                        {% if not wfitem.signed %}<div class="box box-danger">{% else %}<div class="box box-success">{% endif %}
+                            <div class="box-header">
+                                <h3 class="box-title">{{wfitem.userEntiy is defined and wfitem.userEntiy is not null ? ('<i class="fa fa-user"></i> '~wfitem.userEntiy.name)|raw : ('<i class="fa fa-users"></i> '~wfitem.groupEntiy.name)|raw}}</h3>
+
+                                {% if not wfitem.signed %}<small class="label pull-right bg-red">Pendiente</small>{% else %}<small class="label pull-right bg-green">Elaborado</small>{% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                <!-- /.box-body -->
+            </div>   
+        </div>
+        <div class="col-lg-4">
+            <div class="box box-default">
+                <div class="box-header with-border">
+                  <h3 class="box-title">Aprobadores</h3>
+                </div>
+                <!-- /.box-header -->
+                <div class="box-body">
+                    {% for wfitem in aprobs %}
+                        {% if not wfitem.signed %}<div class="box box-danger">{% else %}<div class="box box-success">{% endif %}
+                            <div class="box-header">
+                                <h3 class="box-title">{{wfitem.userEntiy is defined and wfitem.userEntiy is not null ? ('<i class="fa fa-user"></i> '~wfitem.userEntiy.name)|raw : ('<i class="fa fa-users"></i> '~wfitem.groupEntiy.name)|raw}}</h3>
+
+                                {% if not wfitem.signed %}<small class="label pull-right bg-red">Pendiente</small>{% else %}<small class="label pull-right bg-green">Aprobado</small>{% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                <!-- /.box-body -->
+            </div>   
+        </div>
+
+        <div class="col-lg-4">
+            <div class="box box-default">
+                <div class="box-header with-border">
+                  <h3 class="box-title">Elaboración actual</h3>
+                </div>
+                <!-- /.box-header -->
+                <div class="box-body">
+                    <div class="form-group">
+                        <a href="{{downloadUrl}}" class="btn btn-primary pull-right" style="margin-left:4px"><i class="fa fa-download"></i> Descargar plantilla actual</a>
+                        <a href="{{configurationUrl}}" class="btn btn-primary pull-right"><i class="fa fa-magic"></i> Ver configuración actual</a>
+                    </div>   
+                </div>
+                <!-- /.box-body -->
+            </div>  
+
+            <div class="box box-default">
+                <div class="box-header with-border">
+                  <h3 class="box-title">Firmar revisión</h3>
+                </div>
+                <!-- /.box-header -->
+                <div class="box-body">
+                    <div class="form-group">
+                        <input type="button" onclick="sign_review()" class="btn btn-primary pull-right" value="Firmar">
+                    </div>  
+                </div>
+                {% if template.openedBy is defined and template.openedBy is not empty and template.openedBy.id!=app.user.id %}
+                    <div class="overlay">
+                      <i class="fa fa-cog fa-spin"></i>
+                    </div>
+                {% endif %}
+                <!-- /.box-body -->
+            </div>  
+        </div>
+        <div class="col-lg-12">
+            {% include 'NononsenseHomeBundle:TemplateManagement:list_tests.html.twig' %}
+        </div>
+    </div>
+</div>
+
+{% if template is defined %}
+    {% include 'NononsenseHomeBundle:TemplateManagement:action_template.html.twig' %}<br><br><br>
+{% endif %}
+
+<div class="modal fade" tabindex="-1" role="dialog" id="modalSignReview">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Firmar revisión</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+        <form id="form_sign_review" action="{{path('nononsense_tm_template_update_review', {'id': template.id}) }}" method="POST"  enctype="multipart/form-data">
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-10 col-lg-offset-1">
+                        Comentarios<br>
+                        <div class="form-group">
+                            <textarea class="form-control" name="description" rows="10" cols="40" style="width:100%"></textarea>
+                        </div>
+                    </div>
+                </div>
+                {% if results is defined %}
+                    <div class="row">
+                        <div class="col-lg-10 col-lg-offset-1">
+                            Resultado<br>
+                            <div class="form-group">
+                              <select class="form-control" name="result" style="width: 100%;" required="required">
+                                <option value=""></option>
+                                {% for result in results %}
+                                  <option value="{{result.id}}">{{result.name}}</option>
+                                {% endfor %}
+                              </select>
+                            </div>
+                        </div>
+                    </div> 
+                {% endif %}
+                <br>
+                <div class="row">
+                    <div class="col-lg-10 col-lg-offset-1">
+                        <div id="signature-pad" class="input-group">
+                            Introduzca su firma<br>
+                            <canvas id="canvas" width="300" height="150" style="touch-action: none; border: 2px solid #eee; box-shadow: 0px 0px 6px 1px rgba(80, 90, 100, 0.5)"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <input type="hidden" id="signature" name="signature" />
+                <input type="hidden" id="id_test" name="test" />
+            </div>
+            <div class="modal-footer">
+                <a name="borrarFirmar" class="btn btn-secondary" id="borrarFirmar">Limpiar firma</a>
+                <input type="submit" class="btn btn-primary" value="Firmar revisión">
+            </div>
+        </form>
+    </div>
+  </div>
+</div>
+
+
+
+{% endblock %}
+{% block scripts %}
+{{ parent() }}
+<script src="/js/plugins/signature-pad/signature-pad.min.js"></script>
+<script>
+
+var canvas = document.querySelector("canvas");
+var signaturePad = new SignaturePad(canvas);
+
+$( document ).ready(function() {
+    $('[data-toggle="tooltip"]').tooltip();
+    $('#borrarFirmar').on('click', function () {
+        signaturePad.clear();
+    });
+
+    $(document).on('change', '[name="result"]', function() {
+        if($(this).val()==14){
+            $("[name='description']").prop('required',true);
+        }
+        else{
+            $("[name='description']").prop('required',false);
+        }
+    });
+
+    $('#form_sign_review').on('submit', function(e){
+        if (signaturePad.isEmpty()){
+            toastr.error("La firma es obligatoria",'aviso');
+        }else{
+            $("#signature").val(signaturePad.toDataURL());
+            return true;
+        }
+        return false;
+    });
+
+});
+
+function sign_review(){
+    $('#modalSignReview').modal('show');
+}
+</script>
+{% endblock %}

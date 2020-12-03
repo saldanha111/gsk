@@ -94,7 +94,7 @@ class TemplateReviewTemplatesController extends Controller
                     $this->get('session')->getFlashBag()->add('message','La solicitud de revisión ha sido tramitada');
                     $previous_signature = $this->getDoctrine()->getRepository(TMSignatures::class)->findOneBy(array("template"=>$template),array("id" => "ASC"));
                     if($template->getTmState()->getId()==6){
-                        $template->setRequestReview(TRUE);
+                        
 
                         $signature = new TMSignatures();
                         $signature->setTemplate($template);
@@ -109,6 +109,7 @@ class TemplateReviewTemplatesController extends Controller
                             $signature->setDescription($request->get("description"));
                         }
                         $em->persist($signature);
+                        $template->setRequestReview($signature);
                         $em->persist($template);
 
                         $users_notifications=array();
@@ -155,8 +156,7 @@ class TemplateReviewTemplatesController extends Controller
         $em = $this->getDoctrine()->getManager();
         $array_item=array();
 
-        $is_valid = $this->get('app.security')->permissionSeccion('elaborador_gp');
-        if(!$is_valid){
+        if(!$this->get('app.security')->permissionSeccion('aprobador_gp') && $this->get('app.security')->permissionSeccion('elaborador_gp')){
             $this->get('session')->getFlashBag()->add(
                 'error',
                 'No tiene permisos suficientes'
@@ -168,30 +168,30 @@ class TemplateReviewTemplatesController extends Controller
         $user = $this->container->get('security.context')->getToken()->getUser();
 
         $array_item["template"] = $this->getDoctrine()->getRepository(TMTemplates::class)->findOneBy(array("id" => $id));
-        if($array_item["template"]->getTmState()->getId()!=2){
+        if($array_item["template"]->getTmState()->getId()!=6){
         	$this->get('session')->getFlashBag()->add(
                 'error',
-                'La plantilla indicada no se encuentra en estado de elaboración'
+                'La plantilla indicada no se encuentra en vigor para poder realizar una revisión'
             );
             $route=$this->container->get('router')->generate('nononsense_tm_templates');
             return $this->redirect($route);
         }
 
-        $action = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 2));
-        $elaborators = $this->getDoctrine()->getRepository(TMWorkflow::class)->findBy(array("template" => $array_item["template"], "action" => $action),array("id" => "ASC"));
+        $actions = $this->getDoctrine()->getRepository(TMActions::class)->findBy(array("id" => array(2,4)));
+        $reviewers = $this->getDoctrine()->getRepository(TMWorkflow::class)->findBy(array("template" => $array_item["template"], "action" => $actions),array("id" => "ASC"));
         $find=0;
-        foreach($elaborators as $elaborator){
-            if($elaborator->getUserEntiy() && $elaborator->getUserEntiy()==$user){
+        foreach($reviewers as $reviewer){
+            if($reviewer->getUserEntiy() && $reviewer->getUserEntiy()==$user){
                 $find=1;
             }
         }
         
         if($find==0){
-            foreach($elaborators as $elaborator){
-                if($elaborator->getGroupEntiy() && !$elaborator->getSigned()){
+            foreach($reviewers as $reviewer){
+                if($reviewer->getGroupEntiy() && !$reviewer->getSigned()){
                     $in_group=0;
                     foreach($user->getGroups() as $uniq_group){
-                        if($uniq_group->getGroup()==$elaborator->getGroupEntiy()){
+                        if($uniq_group->getGroup()==$reviewer->getGroupEntiy()){
                             $in_group=1;
                             break;
                         }
@@ -207,13 +207,11 @@ class TemplateReviewTemplatesController extends Controller
         if($find==0){
             $this->get('session')->getFlashBag()->add(
                 'error',
-                'No tiene permisos para elaborar este documento'
+                'No tiene permisos para revisar este documento'
             );
             $route=$this->container->get('router')->generate('nononsense_tm_templates');
             return $this->redirect($route);
         }
-
-        $array_item["type_cumplimentations"] = $this->getDoctrine()->getRepository(TMCumplimentations::class)->findBy(array(),array("id" => "ASC"));
 
         $base_url=$this->getParameter('api_docoaro')."/documents/".$array_item["template"]->getPlantillaId();
         $ch = curl_init();
@@ -228,7 +226,9 @@ class TemplateReviewTemplatesController extends Controller
         $response = json_decode($raw_response, true);
 
         $url_edit_documento=$response["configurationUrl"];
+        $array_item["configurationUrl"]=$response["configurationUrl"];
         $array_item["downloadUrl"]=$response["downloadUrl"];
+
         
         preg_match_all('/token=(.*?)$/s',$url_edit_documento,$var_token);
        	$token=$var_token[1][0];
@@ -241,16 +241,6 @@ class TemplateReviewTemplatesController extends Controller
        	}
 
         /* Para el listado de tests */
-        $approval_exists=0;
-        $all_signatures = $this->getDoctrine()->getRepository(TMSignatures::class)->findBy(array("template" => $array_item["template"]),array("id" => "ASC"));
-        foreach($all_signatures as $key_all => $item_all){
-            if($item_all->getAction()->getId()==2){
-                $array_item["max_id_no_test"]=$item_all->getId();
-            }
-            if($item_all->getAction()->getId()==4){
-                $approval_exists=1;
-            }
-        }
         $action_test = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 3));
         $action_aprob = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 4));
         $signatures = $this->getDoctrine()->getRepository(TMSignatures::class)->findBy(array("template" => $array_item["template"], "action" => $action_test),array("id" => "ASC"));
@@ -263,20 +253,18 @@ class TemplateReviewTemplatesController extends Controller
 
             $array_item["subtests_results_aprobs"][$item_test->getId()] = $this->getDoctrine()->getRepository(TMSignatures::class)->findBy(array("tmTest" => $array_item["subtests"][$item_test->getId()], "action" => $action_aprob),array("id" => "ASC"));
         }
-        if($approval_exists==1){
-            $array_item["aprobs"] = $this->getDoctrine()->getRepository(TMWorkflow::class)->findBy(array("template" => $array_item["template"], "action" => $action_aprob),array("id" => "ASC"));
-        }
-        else{
-            $array_item["aprobs"]=array();
-        }
         /* Fin listado de tests */
 
+
         $action = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 2));
-        $array_item["elab"] = $this->getDoctrine()->getRepository(TMWorkflow::class)->findBy(array("template" => $array_item["template"], "action" => $action),array("id" => "ASC"));
+        $array_item["elabs"] = $this->getDoctrine()->getRepository(TMWorkflow::class)->findBy(array("template" => $array_item["template"], "action" => $action),array("id" => "ASC"));
+        $action = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 4));
+        $array_item["aprobs"] = $this->getDoctrine()->getRepository(TMWorkflow::class)->findBy(array("template" => $array_item["template"], "action" => $action),array("id" => "ASC"));
         $array_item["cumplimentations"] = $this->getDoctrine()->getRepository(TMSecondWorkflow::class)->findBy(array("template" => $array_item["template"]),array("id" => "ASC"));
+        $array_item["results"] = $this->getDoctrine()->getRepository(TMActions::class)->findBy(array("id" => array(13,14,15)),array("id" => "ASC"));
 
 
-        return $this->render('NononsenseHomeBundle:TemplateManagement:elaboration_detail.html.twig',$array_item);
+        return $this->render('NononsenseHomeBundle:TemplateManagement:review_detail.html.twig',$array_item);
     }
 
     public function updateAction(Request $request, int $id)

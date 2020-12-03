@@ -763,7 +763,7 @@ nononsense_tm_template_detail_review:
     methods:    [GET]
     defaults: { _controller: NononsenseHomeBundle:TemplateReviewTemplates:detail,id: 0}
 
-nononsense_tm_template_detail_update:
+nononsense_tm_template_update_review:
     path: /mt/review/{id}
     methods:    [POST]
     defaults: { _controller: NononsenseHomeBundle:TemplateReviewTemplates:update,id: 0}

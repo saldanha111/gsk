@@ -39,6 +39,11 @@ class TMSignatures
     protected $tmTests;
 
     /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMTemplates", mappedBy="requestReview")
+     */
+    protected $templateReviews;
+
+    /**
      * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\TMTests", inversedBy="tmSignatures")
      * @ORM\JoinColumn(name="test_id", referencedColumnName="id", nullable=true)
      */
@@ -474,5 +479,38 @@ class TMSignatures
     public function getTmDropAction()
     {
         return $this->tmDropAction;
+    }
+
+    /**
+     * Add templateReviews
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMTemplates $templateReviews
+     * @return TMSignatures
+     */
+    public function addTemplateReview(\Nononsense\HomeBundle\Entity\TMTemplates $templateReviews)
+    {
+        $this->templateReviews[] = $templateReviews;
+
+        return $this;
+    }
+
+    /**
+     * Remove templateReviews
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMTemplates $templateReviews
+     */
+    public function removeTemplateReview(\Nononsense\HomeBundle\Entity\TMTemplates $templateReviews)
+    {
+        $this->templateReviews->removeElement($templateReviews);
+    }
+
+    /**
+     * Get templateReviews
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getTemplateReviews()
+    {
+        return $this->templateReviews;
     }
 }
