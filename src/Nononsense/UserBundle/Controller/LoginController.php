@@ -200,6 +200,8 @@ class LoginController extends Controller
         
         error_reporting(0);
 
+        echo 'v2';
+
         $form = $this->createForm(new FormUsers\ldapType());
         $form->handleRequest($request);
 
@@ -207,6 +209,8 @@ class LoginController extends Controller
 
             $response   = new Response();
             $data       = $form->getData();
+
+            $justthese = array("cn", "ou", "sn", "uid","givenname", "mail", "displayname", "sAMAccountName", "telephonenumber");
 
             try {
 
@@ -219,11 +223,9 @@ class LoginController extends Controller
                 $queryDn    = $data['querydn']; //dc=wmservice,dc=corpnet1,dc=com
 
                 $bind       = $ldap->bind($ldaprdn, $ldappass);
-                $query      = $ldap->find($queryDn, $filter);
+                $query      = $ldap->find($queryDn, $filter, $justthese);
 
-                $response->setContent(json_encode([
-                    'Success: ' => $query
-                ], JSON_PRETTY_PRINT));
+                var_dump($query);
 
             } catch (\Exception $e) {
 
