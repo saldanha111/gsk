@@ -210,7 +210,7 @@ class LoginController extends Controller
             $response   = new Response();
             $data       = $form->getData();
 
-            //$justthese = array("cn", "ou", "sn", "uid","givenname", "mail", "displayname", "sAMAccountName", "telephonenumber");
+            $justthese = array("cn", "givenname", "mail", "displayname", "sAMAccountName", "telephonenumber");
 
             try {
 
@@ -223,7 +223,7 @@ class LoginController extends Controller
                 $queryDn    = $data['querydn']; //dc=wmservice,dc=corpnet1,dc=com
 
                 $bind       = $ldap->bind($ldaprdn, $ldappass);
-                $query      = $ldap->find($queryDn, $filter);
+                $query      = $ldap->find($queryDn, $filter, $justthese);
 
                 var_dump($query);
 
