@@ -223,7 +223,7 @@ class LoginController extends Controller
                 $queryDn    = $data['querydn']; //dc=wmservice,dc=corpnet1,dc=com
 
                 $bind       = $ldap->bind($ldaprdn, $ldappass);
-                $query      = $ldap->find($queryDn, $filter, $justthese);
+                $query      = $ldap->find($queryDn, $filter);
 
                 var_dump($query);
 
