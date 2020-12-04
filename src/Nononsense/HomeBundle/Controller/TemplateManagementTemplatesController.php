@@ -650,6 +650,8 @@ class TemplateManagementTemplatesController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
         $array_item=array();
+        $user = $this->container->get('security.context')->getToken()->getUser();
+        $filters=Array("user" => $user->getId());
 
         $template = $this->getDoctrine()->getRepository(TMTemplates::class)->findOneBy(array("id" => $id));
         $serializer = $this->get('serializer');

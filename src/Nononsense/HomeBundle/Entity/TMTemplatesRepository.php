@@ -146,9 +146,8 @@ class TMTemplatesRepository extends EntityRepository
             }
 
             if(isset($filters["changes_history"])){
-                $sintax.=$logical." (t.id=:changes_history1 OR t.firstEdition=:changes_history2)";
-                $parameters["changes_history1"]=$filters["changes_history"];
-                $parameters["changes_history2"]=$filters["changes_history"];
+                $sintax.=$logical." (t.id=:changes_history OR t.firstEdition=:changes_history)";
+                $parameters["changes_history"]=$filters["changes_history"];
                 $logical=" AND ";
                 $orderby="Order by t.id ASC";
             }
