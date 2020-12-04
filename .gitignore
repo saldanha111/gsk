@@ -7,6 +7,8 @@
 !/app/files/material_inputs_qr
 /app/files/material_inputs_qr/*
 !app/files/material_inputs_qr/.gitkeep
+/app/files/material_dissolution_qr/*
+!app/files/material_dissolution_qr/.gitkeep
 !/app/files/qrs
 /app/files/qrs/*
 !app/files/qrs/.gitkeep

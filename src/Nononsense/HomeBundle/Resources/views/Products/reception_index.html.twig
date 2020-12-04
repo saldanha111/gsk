@@ -1,5 +1,5 @@
 {% extends '::base.html.twig' %}
-{% block page_title %}DOCXPRESSO |  Productos / Recepción de {{ type is defined ? type : ''}} {% endblock %}
+{% block page_title %}Docoaro - GSK |  Productos / Recepción de {{ type is defined ? type : ''}} {% endblock %}
 {% block head %}
     {{ parent() }}
 {% endblock %}
@@ -27,6 +27,7 @@
     <div class="wrapper wrapper-content animated fadeInUp">
         <form class="form-horizontal" id="form_item" action="{{ path('nononsense_products_reception',{'type': type}) }}" method="POST">
             <input type="hidden" id="QrValue" name="qr-value"/>
+            <input type="hidden" name="cas-number" value="{{ casNumber }}"/>
             <div class="form-group">
                 <div class="col-md-3 col-sm-4 col-xs-6">
                     <button id="btn-scanner-use" type="button" class="btn btn-primary">Escanear con scanner</button>

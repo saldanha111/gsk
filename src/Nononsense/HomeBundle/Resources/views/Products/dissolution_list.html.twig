@@ -1,0 +1,110 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}Docoaro - GSK | {{ 'Homepage'|trans }} {% endblock %}
+{% block head %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('/css/plugins/datapicker/datepicker3.css') }}">
+{% endblock %}
+{% block main_title %} Listado de disoluciones{% endblock %}
+{% block content %}
+
+    <div class="wrapper wrapper-content">
+        <div class="row">
+            <div class="col-sm-12">
+                <div>
+                    <div class="row">
+                        {% for flashMessage in app.session.flashbag.get('error') %}
+                            <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+                                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                                {{ flashMessage }}
+                            </div>
+                            <br>
+                        {% endfor %}
+                        {% for flashMessage in app.session.flashbag.get('message') %}
+                            <div class="alert alert-success alert-dismissable" style="margin: 10px 16px 0 16px">
+                                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                                {{ flashMessage }}
+                            </div>
+                            <br>
+                        {% endfor %}
+                        <form class="form-horizontal" id="form_item" action="{{ path('nononsense_products_dissolution') }}" method="GET">
+                            <input type="hidden" id='url_product_list' value="{{ path('nononsense_products_dissolution') }}"/>
+                            <div class="form-group">
+                                <label class="col-sm-1 control-label item_filter">Nombre</label>
+                                <div class="col-sm-2 item_filter">
+                                    <input type="text" name="f_name" class="form-control"
+                                           value="{{ filters.name is defined ? filters.name : '' }}">
+                                </div>
+                                <div class="col-sm-1 col-sm-offset-1 item_filter">
+                                    <button type="button" onclick="filtering();" class="btn btn-primary pull-right">
+                                        Filtrar
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="row">
+                        <div>
+                            <a href="{{ path('nononsense_products_dissolution_edit', {id: 0}) }}" target="_self" class="btn btn-primary pull-right"><i class="fa fa-plus"></i> Nueva disolución</a>
+                        </div><br>
+                        <table id="inProcessParcial" class="table table-striped">
+                            <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Fecha de creación</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            {% if items is defined %}
+                                {% for item in items %}
+                                    <tr>
+                                        <td>{{ item.name }}</td>
+                                        <td>
+                                            {% if item.created is defined and item.created is not null %}
+                                                {{ item.created | date('d-m-Y H:i:s') }}
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <a href="{{path('nononsense_products_dissolution_view_qr', {'id': item.id}) }}" target="_blank" class="btn btn-xs"><i class="fa fa-qrcode" aria-hidden="true"></i> Ver QR</a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            {% endif %}
+                        </table>
+
+                        {% if count==0 %}
+                            <br><b>No se han encontrado datos disponibles</b>
+                        {% endif %}
+                        {% if pagination is defined and pagination.needed %}
+                            {% include '::pagination2.html.twig' %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block scripts %}
+    {{ parent() }}
+    <script src="{{ asset('/js/plugins/datapicker/bootstrap-datepicker.js') }}"></script>
+    <script src="{{ asset('/js/plugins/datapicker/locales/bootstrap-datepicker.es.js') }}" charset="UTF-8"></script>
+    <script>
+        $(function () {
+            ActivateMenu('browse_products');
+            $('#side-menu').metisMenu();
+            $('.input-daterange').datepicker({
+                orientation: 'auto',
+                format: 'dd-mm-yyyy',
+                language: 'es'
+            });
+        });
+
+        function filtering() {
+            $('#a_excel').val(0);
+            var url_product_list = $('#url_product_list').val();
+            $('#form_item').attr("action", url_product_list);
+            $('#form_item').attr("target", "_self");
+            $('#form_item').submit();
+        }
+    </script>
+{% endblock %}
+                        

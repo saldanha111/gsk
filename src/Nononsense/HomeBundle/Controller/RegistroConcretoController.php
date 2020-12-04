@@ -258,7 +258,7 @@ class RegistroConcretoController extends Controller
 
 
         //$options['requestExternalJS'] = $validacionURL1;
-        $callback_url = $baseUrlAux . 'data/get_data_from_document/' . $stepid."?token=".$token_get_data;
+        $callback_url = $baseUrlAux . 'data/get_data_from_document/' . $stepid."?token=".$token_get_data. '&XDEBUG_SESSION_START=PHPSTORM';
         $get_data_url = $baseUrlAux . 'data/requestData/' . $step->getId() . '/' . $logbook.'/'.$modo."?token=".$token_get_data;
         
         if($readonly){
@@ -829,6 +829,7 @@ class RegistroConcretoController extends Controller
             ->getRepository('NononsenseHomeBundle:InstanciasSteps')
             ->find($stepid);
 
+        /** @var InstanciasWorkflows $registro */
         $registro = $step->getInstanciaWorkflow();
         $registro->setInEdition(0);
 
@@ -859,7 +860,7 @@ class RegistroConcretoController extends Controller
             $registro->setStatus(2);
             $descp = 'Guardado y enviado a verificación';
             $route = $this->container->get('router')->generate('nononsense_contrato_registro_completado', array('stepid' => $stepid, 'comment' => $comment));
-
+            $this->saveProductsUsed($registro, $dataJson);
         } else if ($dataJson->action == 'close') {
             $firmas = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:FirmasStep')
@@ -921,7 +922,7 @@ class RegistroConcretoController extends Controller
         $em->persist($registro);
         $em->flush();
 
-        return $this->redirect($route);
+        return $this->redirect($route. '?XDEBUG_SESSION_START=PHPSTORM');
     }
 
     public function controlValidacionAction($stepid)
@@ -1626,4 +1627,19 @@ class RegistroConcretoController extends Controller
 
         return $resultado;
     }
+
+    /**
+     * @param InstanciasWorkflows $registro
+     * @param  $data
+     * @return bool
+     */
+    private function saveProductsUsed(InstanciasWorkflows $registro, $data)
+    {
+        $workflowIds = $this->getParameter('use_reactive_masterworkflow');
+        if(in_array($registro->getMasterWorkflow(), $workflowIds)){
+            $this->forward('NononsenseHomeBundle:Products:UseProduct', ['data'  => $data]);
+        }
+        return true;
+    }
+
 }

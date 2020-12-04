@@ -3,7 +3,6 @@
 namespace Nononsense\HomeBundle\Entity;
 
 use Doctrine\ORM\EntityRepository;
-use PDO;
 
 /**
  * ProductsInputsRepository
@@ -23,8 +22,10 @@ class ProductsInputsRepository extends EntityRepository
 
         $list = self::fillFilersQuery($filters, $list);
 
-        if($paginate==1 && isset($filters["limit_from"])){
-            $list->setFirstResult($filters["limit_from"]*$filters["limit_many"])->setMaxResults($filters["limit_many"]);
+        if ($paginate == 1 && isset($filters["limit_from"])) {
+            $list->setFirstResult($filters["limit_from"] * $filters["limit_many"])->setMaxResults(
+                $filters["limit_many"]
+            );
         }
 
         $query = $list->getQuery();
@@ -32,7 +33,7 @@ class ProductsInputsRepository extends EntityRepository
         return $query->getResult();
     }
 
-    public function count($filters = array())
+    public function count($filters = [])
     {
         $list = $this->createQueryBuilder('pi')
             ->select('COUNT(pi.id) as conta')
@@ -44,55 +45,66 @@ class ProductsInputsRepository extends EntityRepository
         return $query->getSingleResult()["conta"];
     }
 
-    private function fillFilersQuery($filters, $list){
-
-    	if(!empty($filters)){
-        	if(isset($filters["partNumber"])){
+    private function fillFilersQuery($filters, $list)
+    {
+        if (!empty($filters)) {
+            if (isset($filters["partNumber"])) {
                 $list->andWhere('p.partNumber=:partNumber');
                 $list->setParameter('partNumber', $filters["partNumber"]);
             }
-            if(isset($filters["name"])){
-                $list->andWhere("p.name LIKE '%".$filters["name"]."%'");
+            if (isset($filters["name"])) {
+                $list->andWhere("p.name LIKE '%" . $filters["name"] . "%'");
             }
-            if(isset($filters["receptionDateFrom"])){
+            if (isset($filters["provider"])) {
+                $list->andWhere("p.provider LIKE '%" . $filters["provider"] . "%'");
+            }
+            if (isset($filters["receptionDateFrom"])) {
                 $list->andWhere("pi.receptionDate>=:receptionDateFrom");
                 $list->setParameter('receptionDateFrom', $filters["receptionDateFrom"]);
             }
-            if(isset($filters["receptionDateTo"])){
+            if (isset($filters["receptionDateTo"])) {
                 $list->andWhere("pi.receptionDate<=:receptionDateTo");
-                $list->setParameter('receptionDateTo', $filters["receptionDateTo"]." 23:59:59");
+                $list->setParameter('receptionDateTo', $filters["receptionDateTo"]);
             }
-            if(isset($filters["expiryDateFrom"])){
+            if (isset($filters["expiryDateFrom"])) {
                 $list->andWhere("pi.expiryDate>=:expiryDateFrom");
                 $list->setParameter('expiryDateFrom', $filters["expiryDateFrom"]);
             }
-            if(isset($filters["expiryDateTo"])){
+            if (isset($filters["expiryDateTo"])) {
                 $list->andWhere("pi.expiryDate<=:expiryDateTo");
-                $list->setParameter('expiryDateTo', $filters["expiryDateTo"]." 23:59:59");
+                $list->setParameter('expiryDateTo', $filters["expiryDateTo"]);
             }
-            if(isset($filters["destructionDateFrom"])){
+            if (isset($filters["destructionDateFrom"])) {
                 $list->andWhere("pi.destructionDate>=:destructionDateFrom");
                 $list->setParameter('destructionDateFrom', $filters["destructionDateFrom"]);
             }
-            if(isset($filters["destructionDateTo"])){
+            if (isset($filters["destructionDateTo"])) {
                 $list->andWhere("pi.destructionDate<=:destructionDateTo");
-                $list->setParameter('destructionDateTo', $filters["destructionDateTo"]." 23:59:59");
+                $list->setParameter('destructionDateTo', $filters["destructionDateTo"]);
             }
-            if(isset($filters["openDateFrom"])){
+            if (isset($filters["openDateFrom"])) {
                 $list->andWhere("pi.openDate>=:openDateFrom");
                 $list->setParameter('openDateFrom', $filters["openDateFrom"]);
             }
-            if(isset($filters["openDateTo"])){
+            if (isset($filters["openDateTo"])) {
                 $list->andWhere("pi.openDate<=:openDateTo");
-                $list->setParameter('openDateTo', $filters["openDateTo"]." 23:59:59");
+                $list->setParameter('openDateTo', $filters["openDateTo"]);
             }
             if(isset($filters['type'])){
-                $list->andWhere("t.name =:type");
+                $list->andWhere("t.slug =:type");
                 $list->setParameter('type', $filters['type']);
+            }
+            if (isset($filters['state'])) {
+                $list->andWhere("s.id =:state");
+                $list->setParameter('state', $filters['state']);
+            }
+            if (isset($filters['internalCode'])) {
+                $list->andWhere("p.internalCode =:internalCode");
+                $list->setParameter('internalCode', $filters['internalCode']);
             }
         }
 
-    	return $list;
+        return $list;
     }
 
     public function getOneByQrCode($qrCode)
@@ -109,5 +121,48 @@ class ProductsInputsRepository extends EntityRepository
 
         $query = $list->getQuery();
         return $query->getOneOrNullResult();
+    }
+
+    public function listForStock($filters, $paginate=1)
+    {
+        $list = $this->createQueryBuilder('pi')
+            ->select('t.name as productType', 'p.name as productName', 'p.partNumber as partNumber',
+                'p.casNumber as casNumber', 'p.internalCode as internalCode', 'p.provider as provider',
+                'p.presentation as presentation', 'MAX(pi.destructionDate) as destructionDate', 's.name as state',
+                'p.stock as stock', 'p.stockMinimum as minStock', 'MAX(pi.observations) as observations', 'p.active as active',
+                'p.id as idProduct', 'pi.qrCode as qrCode')
+            ->innerJoin("pi.product", "p")
+            ->innerJoin("p.type", "t")
+            ->innerJoin("pi.state", "s")
+            ->groupBy('pi.qrCode')
+            ->addGroupBy('p')
+            ->addGroupBy('t')
+            ->addGroupBy('s');
+//            ->orderBy('destructionDate', 'DESC');
+
+        $list = self::fillFilersQuery($filters, $list);
+        if ($paginate == 1 && isset($filters["limit_from"])) {
+            $list->setFirstResult($filters["limit_from"] * $filters["limit_many"])->setMaxResults(
+                $filters["limit_many"]
+            );
+        }
+        $query = $list->getQuery();
+
+        return $query->getResult();
+    }
+
+    public function countForStock($filters = [])
+    {
+        $list = $this->createQueryBuilder('pi')
+            ->select('COUNT(DISTINCT pi.qrCode) as conta')
+            ->innerJoin("pi.product", "p")
+            ->innerJoin("p.type", "t")
+            ->innerJoin("pi.state", "s")
+            ->groupBy("pi.qrCode", "s");
+
+        $list = self::fillFilersQuery($filters, $list);
+        $query = $list->getQuery();
+
+        return count($query->getResult());
     }
 }

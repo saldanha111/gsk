@@ -4,15 +4,19 @@ namespace Nononsense\HomeBundle\Controller;
 
 use Datetime;
 use Exception;
+use Nononsense\HomeBundle\Entity\ProductsDissolution;
+use Nononsense\HomeBundle\Entity\ProductsDissolutionRepository;
 use Nononsense\HomeBundle\Entity\ProductsInputsRepository;
 use Nononsense\HomeBundle\Entity\ProductsInputStatus;
 use Nononsense\HomeBundle\Entity\ProductsInputStatusRepository;
 use Nononsense\HomeBundle\Entity\ProductsOutputsRepository;
 use Nononsense\HomeBundle\Entity\ProductsRepository;
+use Nononsense\HomeBundle\Entity\ProductsSignatures;
+use Nononsense\HomeBundle\Entity\ProductsTypes;
 use Nononsense\HomeBundle\Entity\ProductsTypesRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Nononsense\HomeBundle\Entity\Products;
-use Nononsense\HomeBundle\Entity\ProductsTypes;
+use Nononsense\HomeBundle\Entity\ProductsPresentation;
 use Nononsense\HomeBundle\Entity\ProductsInputs;
 use Nononsense\HomeBundle\Entity\ProductsOutputs;
 use Symfony\Component\HttpFoundation\Response;
@@ -25,7 +29,7 @@ use Endroid\QrCode\QrCode;
 class ProductsController extends Controller
 {
 
-    public function receptionAction(Request $request, $type)
+    public function receptionAction(Request $request, $type, $casNb = null)
     {
         $is_valid = $this->get('app.security')->permissionSeccion('productos_gestion');
         if (!$is_valid) {
@@ -39,7 +43,7 @@ class ProductsController extends Controller
 
         if ($request->getMethod() == 'POST' && $activeType) {
             $qrCode = $request->get("qr-value");
-
+            $casNumber = $request->get('cas-number');
             if ($activeType->getSlug() == 'material') {
                 /** @var ProductsRepository $productsRepository */
                 $productsRepository = $this->getDoctrine()->getRepository(Products::class);
@@ -59,11 +63,14 @@ class ProductsController extends Controller
                 }
             }
             return $this->redirect(
-                $this->generateUrl('nononsense_products_inputs', ['type' => $type, 'qrCode' => $qrCode])
+                $this->generateUrl('nononsense_products_inputs', ['type' => $type, 'qrCode' => $qrCode, 'casNb' => $casNumber])
             );
         }
 
-        $data = ['type' => $type];
+        $data = [
+            'type' => $type,
+            'casNumber' => urldecode($casNb)
+        ];
         return $this->render('NononsenseHomeBundle:Products:reception_index.html.twig', $data);
     }
 
@@ -74,51 +81,56 @@ class ProductsController extends Controller
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
 
-        $filters = $this->getListFilters($request);
+        $em = $this->getDoctrine()->getManager();
+
+        $filters = Utils::getListFilters($request);
         $filters["limit_many"] = 15;
 
-        /** @var ProductsRepository $productRepository */
-        $productRepository = $this->getDoctrine()->getRepository(Products::class);
+        /** @var ProductsInputsRepository $productInputRepository */
+        $productInputRepository = $em->getRepository(ProductsInputs::class);
+
+        /** @var ProductsInputStatusRepository $productInputStatusRepository */
+        $productInputStatusRepository = $em->getRepository(ProductsInputStatus::class);
+
+        /** @var ProductsTypesRepository $productsTypesRepository */
+        $productsTypesRepository = $em->getRepository(ProductsTypes::class);
+
+        if(isset($filters['destructionDateFrom']) && $filters['destructionDateFrom']){
+            $destructionFrom = DateTime::createFromFormat('d-m-Y', $filters['destructionDateFrom']);
+            $filters['destructionDateFrom'] = $destructionFrom->format('Y-m-d');
+        }
+
+        if(isset($filters['destructionDateTo']) && $filters['destructionDateTo']){
+            $destructionTo = DateTime::createFromFormat('d-m-Y', $filters['destructionDateTo']);
+            $filters['destructionDateTo'] = $destructionTo->format('Y-m-d');
+        }
 
         if ($request->get("a_excel") == 1) {
-            $items = $productRepository->list($filters, 0);
+            $items = $productInputRepository->listForStock($filters, 0);
             return $this->exportExcelProducts($items);
         }
 
-        $totalItems = $productRepository->count($filters);
+        $totalItems = $productInputRepository->countForStock($filters);
+        $listItems = $productInputRepository->listForStock($filters,1);
+
+        if(isset($filters['destructionDateFrom']) && $filters['destructionDateFrom']){
+            $filters['destructionDateFrom'] = $destructionFrom->format('d-m-Y');
+        }
+
+        if(isset($filters['destructionDateTo']) && $filters['destructionDateTo']){
+            $filters['destructionDateTo'] = $destructionTo->format('d-m-Y');
+        }
 
         $array_item = [
             "filters" => $filters,
-            "items" => $productRepository->list($filters),
+            "items" => $listItems,
             "count" => $totalItems,
+            "states" => $productInputStatusRepository->findAll(),
+            "types" => $productsTypesRepository->findAll(),
             "pagination" => Utils::getPaginator($request, $filters['limit_many'], $totalItems)
         ];
 
         return $this->render('NononsenseHomeBundle:Products:index.html.twig', $array_item);
-    }
-
-    /**
-     * @param Request $request
-     * @return array
-     */
-    private function getListFilters(Request $request)
-    {
-        $filters = [];
-
-        if ($request->get("page")) {
-            $filters["limit_from"] = $request->get("page") - 1;
-        } else {
-            $filters["limit_from"] = 0;
-        }
-
-        foreach ($request->query->all() as $key => $element) {
-            if (strpos($key, 'f_') === 0 && $element) {
-                $filterName = str_replace('f_', '', $key);
-                $filters[$filterName] = $element;
-            }
-        }
-
-        return $filters;
     }
 
     public function editAction(Request $request, $type, $id, $qrCode)
@@ -217,6 +229,9 @@ class ProductsController extends Controller
             if($request->get("active")) {
                 $product->setActive($request->get("active"));
             }
+            if($request->get("static")) {
+                $product->setStatic($request->get("static"));
+            }
 
             /** @var ProductsRepository $productsRepository */
             $productsRepository = $this->getDoctrine()->getRepository(Products::class);
@@ -264,22 +279,76 @@ class ProductsController extends Controller
         $productType = $product->getType();
 
         if ($request->getMethod() == 'POST') {
-            $stockEdited = false;
-            $minStockEdited = $this->editMinStock($request->get('stockMinimum'), $product);
-
-            if($productType->getSlug() == 'material' && $product->getStock() != $request->get('stock')){
-                $stockEdited = $this->editStockMaterial($product->getStock(), $product);
-            }elseif(
-                $productType->getSlug() == 'reactivo' &&
-                $product->getStock() > 0 &&
-                $request->get('output') &&
-                count($request->get('output'))
-            ){
-                $stockEdited = $this->editStockReactivo($request->get('output'), $product);
+            $error = 0;
+            $password = $request->get('password');
+            if(!$this->get('utilities')->checkUser($password)){
+                $this->get('session')->getFlashBag()->add('error', "La contraseña no es correcta.");
+                $error = 1;
             }
 
-            if($minStockEdited || $stockEdited){
-                $this->get('session')->getFlashBag()->add('message', 'Datos actualizados con éxito');
+            $observations = $request->get('observations');
+            if(!$observations){
+                $this->get('session')->getFlashBag()->add('error', "Para realizar alguna modificación necesitas escribir el motivo en el cuadro de observaciones.");
+                $error = 1;
+            }
+
+            if(!$error){
+                $stockEdited = false;
+                $oldMinStock = $product->getStockMinimum();
+                $minStockEdited = $this->editMinStock($request->get('stockMinimum'), $product);
+                if($minStockEdited){
+                    $now = new DateTime();
+                    $signature = 'Modificación de stock mínimo registrado con contraseña de usuario ' . $this->getUser()->getName() . ' el día ' . $now->format('d-m-Y H:i:s');
+                    $this->saveSignature(
+                        $product,
+                        $oldMinStock,
+                        $request->get('stockMinimum'),
+                        'Edit minStock',
+                        $signature,
+                        $this->getUser(), $request->get('observations')
+                    );
+                }
+                if($productType->getSlug() == 'material' && $product->getStock() != $request->get('stock')){
+                    $oldStock = $product->getStock();
+                    $stockEdited = $this->editStockMaterial($request->get('stock'), $product);
+                    if($stockEdited){
+                        $now = new DateTime();
+                        $signature = 'Modificación de stock registrado con contraseña de usuario ' . $this->getUser()->getName() . ' el día ' . $now->format('d-m-Y H:i:s');
+                        $this->saveSignature(
+                            $product,
+                            $oldStock,
+                            $request->get('stock'),
+                            'Edit stock',
+                            $signature,
+                            $this->getUser(),
+                            $request->get('observations')
+                        );
+                    }
+                }elseif(
+                    $productType->getSlug() == 'reactivo' &&
+                    $product->getStock() > 0 &&
+                    $request->get('output') &&
+                    count($request->get('output'))
+                ){
+                    $oldStock = $product->getStock();
+                    $stockEdited = $this->editStockReactivo([$request->get('output')], $product);
+                    if($stockEdited){
+                        $now = new DateTime();
+                        $signature = 'Modificación de stock registrado con contraseña de usuario ' . $this->getUser()->getName() . ' el día ' . $now->format('d-m-Y H:i:s');
+                        $this->saveSignature(
+                            $product,
+                            $oldStock,
+                            ($oldStock - count($request->get('output'))),
+                            'Edit stock',
+                            $signature,
+                            $this->getUser(),
+                            $request->get('observations')
+                        );
+                    }
+                }
+                if($minStockEdited || $stockEdited){
+                    $this->get('session')->getFlashBag()->add('message', 'Datos actualizados con éxito');
+                }
             }
         }
 
@@ -306,7 +375,7 @@ class ProductsController extends Controller
     {
         $result = false;
         $productType = $product->getType();
-        if($product->getStockMinimum() != $minStock){
+        if($minStock && $product->getStockMinimum() != $minStock){
             $minStockRequest = new Request(['stockMinimum' => $minStock]);
             $saved = $this->saveProduct($product, $product->getQrCode(), $minStockRequest, $productType);
             if ($saved['error'] === 0) {
@@ -358,7 +427,7 @@ class ProductsController extends Controller
      * @return bool
      * @throws Exception
      */
-    private function editStockReactivo($inputIds, Products $product)
+    private function editStockReactivo(array $inputIds, Products $product)
     {
         $result = false;
         if(count($inputIds)){
@@ -409,8 +478,25 @@ class ProductsController extends Controller
         return true;
     }
 
-    public function inputAction(Request $request, $type, $qrCode)
+    private function saveSignature($product, $oldValue, $newValue, $action, $signature, $user, $observations)
     {
+        $productSignature = new ProductsSignatures();
+        $productSignature->setAction($action)
+            ->setUser($user)
+            ->setProduct($product)
+            ->setOldValue($oldValue)
+            ->setNewValue($newValue)
+            ->setSignature($signature)
+            ->setObservations($observations);
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($productSignature);
+        $em->flush();
+        return true;
+    }
+
+    public function inputAction(Request $request, $type, $qrCode, $casNb = null)
+    {
+        $errorMessage = null;
         $is_valid = $this->get('app.security')->permissionSeccion('productos_recepcion');
         if (!$is_valid) {
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
@@ -434,6 +520,8 @@ class ProductsController extends Controller
                 /** @var Products $product */
 
                 if ($actualType->getSlug() === 'reactivo') {
+                    $amount = 1;
+                    $endDate = $request->get("destructionDate");
                     $product = $productsRepository->findOneBy(['casNumber' => $request->get("casNumber")]);
                     if (!$product) {
                         $saved = $this->saveProduct(new Products(), $qrCode, $request, $actualType);
@@ -444,28 +532,35 @@ class ProductsController extends Controller
                         }
                     }
                 } else {
+                    $amount = $request->get("amount");
                     $product = $productsRepository->find($request->get("productId"));
+                    $endDate = null;
                 }
 
                 if (!$state || !$product) {
-                    $this->get('session')->getFlashBag()->add(
-                        'error',
-                        "Se ha producido un error al crear la entrada. Vuelva a intentarlo."
-                    );
+                    $errorMessage = 'Se ha producido un error al crear la entrada. Vuelva a intentarlo.';
+                }
+
+                if($actualType->getSlug() === 'reactivo' && !$endDate){
+                    $errorMessage = 'La fecha de caducidad y de destrucción son obligatorias';
+                }
+
+                if($errorMessage){
+                    $this->get('session')->getFlashBag()->add('error', $errorMessage);
                     return $this->redirect(
                         $this->generateUrl('nononsense_products_inputs', ['type' => $type, 'qrCode' => $qrCode])
                     );
                 }
 
-                $destructionDate = ($request->get("destructionDate")) ? new Datetime($request->get("destructionDate")) : null;
-                $expiryDate = ($request->get("expiryDate")) ? new Datetime($request->get("expiryDate")) : null;
+                $destructionDate = ($endDate) ? new Datetime($endDate) : null;
+                $expiryDate = ($endDate) ? new Datetime($endDate) : null;
 
                 $productInput->setQrCode($qrCode);
                 $productInput->setReceptionDate(new Datetime());
                 $productInput->setDestructionDate($destructionDate);
                 $productInput->setExpiryDate($expiryDate);
-                $productInput->setAmount($request->get("amount"));
-                $productInput->setRemainingAmount($request->get("amount"));
+                $productInput->setAmount($amount);
+                $productInput->setRemainingAmount($amount);
                 $productInput->setObservations($request->get("observations"));
                 $productInput->setLotNumber($request->get("lotNumber"));
                 $productInput->setState($state);
@@ -478,7 +573,7 @@ class ProductsController extends Controller
 
                 if ($em->contains($productInput)) {
                     $stock = $product->getStock();
-                    $product->setStock($stock + $request->get("amount"));
+                    $product->setStock($stock + $amount);
                     $em->persist($product);
                     $em->flush();
                 }
@@ -498,17 +593,24 @@ class ProductsController extends Controller
             }
         }
 
+        /** @var ProductsRepository $productsRepository */
+        $productsRepository = $this->getDoctrine()->getRepository(Products::class);
+
         $array_item = array();
         $array_item['type'] = $actualType;
         $array_item['productInput'] = $productInput;
         $array_item['qrCode'] = $qrCode;
+        $array_item['presentations'] =
+            $this->getDoctrine()
+                ->getRepository(ProductsPresentation::class)
+                ->findBy(['active' => true]);
         if ($actualType->getSlug() === 'material') {
-            /** @var ProductsRepository $productsRepository */
-            $productsRepository = $this->getDoctrine()->getRepository(Products::class);
-            /** @var Products $product */
             $array_item['product'] = $productsRepository->findOneBy(['qrCode' => $qrCode]);
             return $this->render('NononsenseHomeBundle:Products:input_material.html.twig', $array_item);
         } elseif ($actualType->getSlug() === 'reactivo') {
+            if($casNb){
+                $array_item['product'] = $productsRepository->findOneBy(['casNumber' => urldecode($casNb)]);
+            }
             return $this->render('NononsenseHomeBundle:Products:input_reactivo.html.twig', $array_item);
         } else {
             $this->get('session')->getFlashBag()->add('error', "No se encuentra el tipo de material del producto");
@@ -593,7 +695,8 @@ class ProductsController extends Controller
                         'internalCode' => $product->getInternalCode(),
                         'presentation' => $product->getPresentation(),
                         'provider' => $product->getProvider(),
-                        'minStock' => $product->getStockMinimum()
+                        'minStock' => $product->getStockMinimum(),
+                        'static' => $product->getStatic()
                     ];
                     $status = 200;
                 }
@@ -616,7 +719,7 @@ class ProductsController extends Controller
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
 
-        $filters = $this->getListFilters($request);
+        $filters = Utils::getListFilters($request);
         $filters['type'] = $type;
         $filters["limit_many"] = 15;
 
@@ -652,7 +755,7 @@ class ProductsController extends Controller
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
 
-        $filters = $this->getListFilters($request);
+        $filters = Utils::getListFilters($request);
         $filters["limit_many"] = 15;
 
         /** @var ProductsOutputsRepository $productsOutputsRepository */
@@ -786,11 +889,15 @@ class ProductsController extends Controller
                 $destructionDate = $productInput->getDestructionDate();
 
                 if($product->getType()->getSlug() === 'reactivo'){
+                    $isReactivo = true;
                     $stock = $productInput->getRemainingAmount();
+
                 }else{
                     $stock = $product->getStock();
+                    $isReactivo = false;
                 }
 
+                $data['id'] = $productInput->getId();
                 $data['partNumber'] = $product->getPartNumber();
                 $data['stock'] = $stock;
                 $data['casNumber'] = $product->getCasNumber();
@@ -803,6 +910,7 @@ class ProductsController extends Controller
                 $data['expiryDate'] = ($expiryDate) ? $expiryDate->format('d-m-Y') : '';
                 $data['destructionDate'] = ($destructionDate) ? $destructionDate->format('d-m-Y') : '';
                 $data['observations'] = $productInput->getObservations();
+                $data['isReactivo'] = $isReactivo;
 
                 $status = 200;
             }
@@ -928,27 +1036,102 @@ class ProductsController extends Controller
         exit();
     }
 
-    public function jsonOutputDataAction($type, $code){
-        if($type == 'outputReactivos'){
-            /** @var ProductsOutputsRepository $outputsRepository */
-            $outputsRepository = $this->getDoctrine()->getRepository(ProductsOutputs::class);
-            /** @var ProductsOutputs $output */
-            $output = $outputsRepository->find($code);
-
-            if($output){
-                $input = $output->getProductInput();
-                $data = [
-                    'u_nombre_sustancia' => $input->getProduct()->getName(),
-                    'u_cas' => ($input->getProduct()->getCasNumber())?:'',
-                    'u_lote' => ($input->getLotNumber())?:'',
-                    'u_caducidad' => ($input->getExpiryDate()) ? $input->getExpiryDate()->format('d-m-Y'):'',
-                    'u_n_vial' => ($input->getProduct()->getProvider())?:''
-                ];
-
-                return new Response(json_encode($data), 200);
+    public function useProductAction($data)
+    {
+        $em = $this->getDoctrine()->getManager();
+        /** @var ProductsInputsRepository $inputsRepository */
+        $inputsRepository = $em->getRepository(ProductsInputs::class);
+        /** @var ProductsInputs $input */
+        $statusRepository = $em->getRepository(ProductsInputStatus::class);
+        $openState = $statusRepository->findOneBy(['slug' => 'usado']);
+        $finishedState = $statusRepository->findOneBy(['slug' => 'terminado']);
+        foreach($data->data->u_qr_data as $key => $qrCode){
+            $input = $inputsRepository->findOneBy(['qrCode' => $qrCode]);
+            if($input){
+                $change = false;
+                if($input->getOpenDate() === null){
+                    $input->setOpenDate(new DateTime());
+                    $input->setState($openState);
+                    if($data->data->u_caduc{$key}){
+                        $expiryDate = $this->getEndDate($input->getDestructionDate()->format('Y-m-d H:i:s'), $data->data->u_caduc{$key});
+                        if($expiryDate){
+                            $input->setDestructionDate(new DateTime($expiryDate));
+                            $input->setExpiryDate(new DateTime($expiryDate));
+                        }
+                    }
+                    $change = true;
+                }
+                if($data->data->u_terminado->{$key} === '1'){
+                    $input->setState($finishedState);
+                    $change = true;
+                }
+                if($change){
+                    $em->persist($input);
+                }
             }
         }
-        return new Response(json_encode(array("error" => "QR not found")), 404);
+        $em->flush();
+        return new Response(true);
+    }
+
+    public function jsonOutputDataAction($code){
+        $data = ['u_qr_data' => 'Reactivo no registrado'];
+        /** @var ProductsInputsRepository $inputsRepository */
+        $inputsRepository = $this->getDoctrine()->getRepository(ProductsInputs::class);
+        /** @var ProductsInputs $output */
+        $input = $inputsRepository->findOneBy(['qrCode' => $code]);
+
+        if($input){
+            $arrInput = [$input];
+        }else {
+            /** @var ProductsDissolutionRepository $dissolutionRepository */
+            $dissolutionRepository = $this->getDoctrine()->getRepository(ProductsDissolution::class);
+            /** @var ProductsDissolution $dissolution */
+            $dissolution = $dissolutionRepository->findOneBy(['qrCode' => $code]);
+            $arrInput = $dissolution ? $dissolution->getLines() : [];
+        }
+
+        if(count($arrInput) > 0){
+            $data = [];
+            foreach($arrInput as $key => $input){
+                switch($input->getState()->getSlug()){
+                    case 'retirado':
+                        $openDate = $input->getOpenDate()?: new DateTime();
+                        $data[$key] = [
+                            'u_nombre_sustancia' => $input->getProduct()->getName(),
+                            'u_cas' => ($input->getProduct()->getCasNumber())?:'',
+                            'u_lote' => ($input->getLotNumber())?:'',
+                            'u_proveed' => ($input->getProduct()->getProvider())?:'',
+                            'u_date' => $openDate->format('Y-m-d'),
+                            'u_qr_data' => $input->getQrCode()
+                        ];
+                        break;
+                    case 'usado':
+                        $openDate = $input->getOpenDate()?: new DateTime();
+                        $data[$key] = [
+                            'u_nombre_sustancia' => $input->getProduct()->getName(),
+                            'u_cas' => ($input->getProduct()->getCasNumber())?:'',
+                            'u_lote' => ($input->getLotNumber())?:'',
+                            'u_caduc' => ($input->getExpiryDate()) ? $input->getExpiryDate()->format('Y-m-d'):'',
+                            'u_proveed' => ($input->getProduct()->getProvider())?:'',
+                            'u_date' => $openDate->format('Y-m-d'),
+                            'u_qr_data' => $input->getQrCode()
+                        ];
+                        break;
+                    case 'recibido':
+                        $data[$key] = ['u_qr_data' => 'Extracción no registrada'];
+                        break;
+                    case 'terminado':
+                        $data[$key] = ['u_qr_data' => 'Reactivo terminado'];
+                        break;
+                }
+                if($input->getExpiryDate() < (new DateTime()) || $input->getDestructionDate() < (new DateTime())){
+                    $data[$key] = ['u_qr_data' => 'Caducidad alcanzada.'];
+                }
+            }
+        }
+
+        return new Response(json_encode($data, JSON_FORCE_OBJECT));
     }
 
     private function exportExcelProducts($items)
@@ -957,24 +1140,38 @@ class ProductsController extends Controller
 
         $phpExcelObject->getProperties();
         $phpExcelObject->setActiveSheetIndex(0)
-            ->setCellValue('A1', 'Part. Number')
-            ->setCellValue('B1', 'Cash Number')
-            ->setCellValue('C1', 'Nombre')
-            ->setCellValue('D1', 'Stock')
-            ->setCellValue('E1', 'Proveedor')
-            ->setCellValue('F1', 'Stock Mínimo');
+            ->setCellValue('A1', 'Tipo')
+            ->setCellValue('B1', 'Nombre')
+            ->setCellValue('C1', 'Qr')
+            ->setCellValue('D1', 'Part. Number')
+            ->setCellValue('E1', 'CAS Number')
+            ->setCellValue('F1', 'Código interno')
+            ->setCellValue('G1', 'Proveedor')
+            ->setCellValue('H1', 'Presentación')
+            ->setCellValue('I1', 'Fecha de destrucción')
+            ->setCellValue('J1', 'Estado')
+            ->setCellValue('K1', 'Stock actual')
+            ->setCellValue('L1', 'Stock Mínimo')
+            ->setCellValue('M1', 'Observaciones')
+            ->setCellValue('N1', 'Activo');
 
         $i = 2;
-        foreach ($items as $item) {
-            /** @var Products $product */
-            $product = $item['product'];
+        foreach ($items as $product) {
             $phpExcelObject->getActiveSheet()
-                ->setCellValue('A' . $i, $product->getPartNumber())
-                ->setCellValue('B' . $i, $product->getCasNumber())
-                ->setCellValue('C' . $i, $product->getName())
-                ->setCellValue('D' . $i, $product->getStock())
-                ->setCellValue('E' . $i, $product->getProvider())
-                ->setCellValue('F' . $i, $product->getStockMinimum());
+                ->setCellValue('A' . $i, $product['productType'])
+                ->setCellValue('B' . $i, $product['productName'])
+                ->setCellValue('C' . $i, $product['qrCode'])
+                ->setCellValue('D' . $i, $product['partNumber'])
+                ->setCellValue('E' . $i, $product['casNumber'])
+                ->setCellValue('F' . $i, $product['internalCode'])
+                ->setCellValue('G' . $i, $product['provider'])
+                ->setCellValue('H' . $i, $product['presentation'])
+                ->setCellValue('I' . $i, $product['destructionDate'])
+                ->setCellValue('J' . $i, $product['state'])
+                ->setCellValue('K' . $i, $product['stock'])
+                ->setCellValue('L' . $i, $product['minStock'])
+                ->setCellValue('M' . $i, $product['observations'])
+                ->setCellValue('N' . $i, ($product['active'] === true) ? 'Activo' : 'Desactivado');
             $i++;
         }
 
@@ -994,33 +1191,40 @@ class ProductsController extends Controller
         return $response;
     }
 
+    /** ProductInpus[] $items
+     * @param ProductsInputs[] $items
+     * @return
+     */
     private function exportExcelProductsInputs($items)
     {
         $phpExcelObject = $this->get('phpexcel')->createPHPExcelObject();
 
         $phpExcelObject->getProperties();
         $phpExcelObject->setActiveSheetIndex(0)
-            ->setCellValue('A1', 'Part. Number')
-            ->setCellValue('B1', 'Nombre')
-            ->setCellValue('C1', 'Unidades entrantes')
-            ->setCellValue('D1', 'Unidades restantes')
-            ->setCellValue('E1', 'Fecha recepción')
-            ->setCellValue('F1', 'Fecha caducidad')
-            ->setCellValue('G1', 'Fecha destrucción')
-            ->setCellValue('H1', 'Fecha apertura');
+            ->setCellValue('A1', 'Id')
+            ->setCellValue('B1', 'CAS Number')
+            ->setCellValue('C1', 'Part. Number')
+            ->setCellValue('D1', 'Nombre')
+            ->setCellValue('E1', 'Proveedor')
+            ->setCellValue('F1', 'Presentación')
+            ->setCellValue('G1', 'Unidades entrantes')
+            ->setCellValue('H1', 'Fecha de recepción')
+            ->setCellValue('I1', 'Comentarios')
+            ->setCellValue('J1', 'Usuario');
 
         $i = 2;
         foreach ($items as $item) {
             $phpExcelObject->getActiveSheet()
-                ->setCellValue('A' . $i, $item->getProduct()->getPartNumber())
-                ->setCellValue('B' . $i, $item->getProduct()->getName())
-                ->setCellValue('C' . $i, $item->getAmount())
-                ->setCellValue('D' . $i, $item->getRemainingAmount())
-                ->setCellValue('E' . $i, $item->getReceptionDate()->format('Y-m-d H:i:s'))
-                ->setCellValue('F' . $i, $item->getExpiryDate()->format('Y-m-d H:i:s'))
-                ->setCellValue('G' . $i, $item->getDestructionDate()->format('Y-m-d H:i:s'))
-                ->setCellValue('H' . $i, $item->getOpenDate()->format('Y-m-d H:i:s'));
-
+                ->setCellValue('A' . $i, $item->getId())
+                ->setCellValue('B' . $i, $item->getProduct()->getCasNumber())
+                ->setCellValue('C' . $i, $item->getProduct()->getPartNumber())
+                ->setCellValue('D' . $i, $item->getProduct()->getName())
+                ->setCellValue('E' . $i, $item->getProduct()->getProvider())
+                ->setCellValue('F' . $i, $item->getProduct()->getPresentation())
+                ->setCellValue('G' . $i, $item->getAmount())
+                ->setCellValue('H' . $i, $item->getReceptionDate()->format('Y-m-d H:i:s'))
+                ->setCellValue('I' . $i, $item->getObservations())
+                ->setCellValue('J' . $i, $item->getUser()->getName());
             $i++;
         }
 
@@ -1040,23 +1244,33 @@ class ProductsController extends Controller
         return $response;
     }
 
+    /**
+     * @param ProductsOutputs[] $items
+     * @return
+     */
     private function exportExcelProductsOutputs($items)
     {
         $phpExcelObject = $this->get('phpexcel')->createPHPExcelObject();
         $phpExcelObject->getProperties();
         $phpExcelObject->setActiveSheetIndex(0)
-            ->setCellValue('A1', 'Part. Number')
-            ->setCellValue('B1', 'Nombre')
-            ->setCellValue('C1', 'Cantidad')
-            ->setCellValue('D1', 'Fecha retirada');
+            ->setCellValue('A1', 'Id salida')
+            ->setCellValue('B1', 'Id entrada')
+            ->setCellValue('C1', 'Part Number')
+            ->setCellValue('D1', 'Nombre')
+            ->setCellValue('E1', 'Cantidad')
+            ->setCellValue('F1', 'Fecha de retirada')
+            ->setCellValue('G1', 'Usuario');
 
         $i = 2;
         foreach ($items as $item) {
             $phpExcelObject->getActiveSheet()
-                ->setCellValue('A' . $i, $item["productPartNumber"])
-                ->setCellValue('B' . $i, $item["productName"])
-                ->setCellValue('C' . $i, $item["amount"])
-                ->setCellValue('D' . $i, $item["date"]->format('Y-m-d'));
+                ->setCellValue('A' . $i, $item->getId())
+                ->setCellValue('B' . $i, $item->getProductInput()->getId())
+                ->setCellValue('C' . $i, $item->getProductInput()->getProduct()->getPartNumber())
+                ->setCellValue('D' . $i, $item->getProductInput()->getProduct()->getName())
+                ->setCellValue('E' . $i, $item->getAmount())
+                ->setCellValue('F' . $i, $item->getDate()->format('Y-m-d H:i:s'))
+                ->setCellValue('G' . $i, $item->getUser()->getName());
 
             $i++;
         }
@@ -1075,6 +1289,21 @@ class ProductsController extends Controller
         $response->headers->set('Content-Disposition', $dispositionHeader);
 
         return $response;
+    }
+
+    /**
+     * @param string $destructionDate
+     * @param string $expiryDate
+     * @return string|null
+     */
+    private function getEndDate($destructionDate, $expiryDate)
+    {
+        if(strtotime($destructionDate) < strtotime($expiryDate)){
+            $endDate = $destructionDate;
+        }else{
+            $endDate = $expiryDate;
+        }
+        return $endDate;
     }
 
 }

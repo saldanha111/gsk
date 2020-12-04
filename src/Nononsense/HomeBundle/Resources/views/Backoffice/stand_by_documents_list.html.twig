@@ -1,5 +1,5 @@
 {% extends '::base.html.twig' %}
-{% block page_title %}DOCXPRESSO | {{'Homepage'|trans}} {% endblock %}
+{% block page_title %}Docoaro - GSK | {{'Homepage'|trans}} {% endblock %}
 {% block head %}
 {{ parent() }}
 <style>
@@ -312,7 +312,10 @@
                     {% endfor %}
                 </table>
                 {% else %}
-                <p>No hay registros en stand by</p>
+                <p>No se han encontrado datos disponibles</p>
+                {% endif %}
+                {% if pagination is defined and pagination.needed %}
+                    {% include '::pagination2.html.twig' %}
                 {% endif %}
             </div>
         </div>

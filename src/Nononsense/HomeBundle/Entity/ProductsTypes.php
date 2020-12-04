@@ -2,10 +2,9 @@
 
 namespace Nononsense\HomeBundle\Entity;
 
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
-use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * @ORM\Entity
@@ -46,7 +45,7 @@ class ProductsTypes
     /**
      * Get id
      *
-     * @return integer 
+     * @return int
      */
     public function getId()
     {
@@ -59,7 +58,7 @@ class ProductsTypes
      * @param string $name
      * @return ProductsTypes
      */
-    public function setName($name)
+    public function setName(string $name)
     {
         $this->name = $name;
 
@@ -80,16 +79,16 @@ class ProductsTypes
      */
     public function __construct()
     {
-        $this->products = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->products = new ArrayCollection();
     }
 
     /**
      * Add products
      *
-     * @param \Nononsense\HomeBundle\Entity\Products $products
+     * @param Products $products
      * @return ProductsTypes
      */
-    public function addProduct(\Nononsense\HomeBundle\Entity\Products $products)
+    public function addProduct(Products $products)
     {
         $this->products[] = $products;
 
@@ -99,9 +98,9 @@ class ProductsTypes
     /**
      * Remove products
      *
-     * @param \Nononsense\HomeBundle\Entity\Products $products
+     * @param Products $products
      */
-    public function removeProduct(\Nononsense\HomeBundle\Entity\Products $products)
+    public function removeProduct(Products $products)
     {
         $this->products->removeElement($products);
     }
@@ -109,7 +108,7 @@ class ProductsTypes
     /**
      * Get products
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return Collection
      */
     public function getProducts()
     {
@@ -122,7 +121,7 @@ class ProductsTypes
      * @param string $slug
      * @return ProductsTypes
      */
-    public function setSlug($slug)
+    public function setSlug(string $slug)
     {
         $this->slug = $slug;
 

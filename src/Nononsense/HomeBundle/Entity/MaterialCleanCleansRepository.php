@@ -152,8 +152,7 @@ class MaterialCleanCleansRepository extends EntityRepository
             ->innerJoin('cle.cleanUser','clu')
             ->leftJoin('cle.verificationUser','veu')
             ->leftJoin('cle.dirtyMaterialUser','dmu')
-            ->leftJoin('cle.reviewUser','rvu')
-            ->orderBy('cle.id', 'DESC');
+            ->leftJoin('cle.reviewUser','rvu');
 
         $list = self::fillFilersQuery($filters, $list);
         $query = $list->getQuery();

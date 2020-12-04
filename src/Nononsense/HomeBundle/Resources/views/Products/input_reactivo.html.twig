@@ -1,5 +1,5 @@
 {% extends '::base.html.twig' %}
-{% block page_title %}DOCXPRESSO |  Productos / {{productInput.id is not null ? 'Editar' : 'Crear'}} recepción de {{ type is defined ? type.name : ''}} {% endblock %}
+{% block page_title %}Docoaro - GSK |  Productos / {{productInput.id is not null ? 'Editar' : 'Crear'}} recepción de {{ type is defined ? type.name : ''}} {% endblock %}
 {% block head %}
     {{ parent() }}
 {% endblock %}
@@ -32,94 +32,100 @@
                         <div class="form-group">
                             <label class="col-sm-4 control-label">CAS Number</label>
                             <div class="col-sm-5">
-                                <input type="text" name="casNumber" class="form-control" required="required">
+                                <input type="text" name="casNumber" class="form-control" required="required"
+                                       value="{{ product.casNumber is defined and product.casNumber is not null ? product.casNumber : '' }}">
                             </div>
-                            <div class="col-sm-3">
-                                <a href="#" class="btn btn-primary casNumberBtn">Comprobar</a>
-                            </div>
+                            {% if not (product.casNumber is defined and product.casNumber is not null) %}
+                                <div class="col-sm-3">
+                                    <a href="#" class="btn btn-primary casNumberBtn">Comprobar</a>
+                                </div>
+                            {% endif %}
                         </div>
-                        <div class="product-data" style="display:none;">
+                        <div class="product-data" {{ product.casNumber is defined and product.casNumber is not null ? '' : 'style="display:none;' }}">
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Part. Number</label>
                                 <div class="col-sm-5">
                                     <input type="text" name="partNumber" readonly="readonly" class="form-control" required="required"
-                                           value="{{productInput.product.partNumber is defined and productInput.product.partNumber is not null ? productInput.product.partNumber : ''}}">
+                                           value="{{ product.partNumber is defined and product.partNumber is not null ? product.partNumber : '' }}">
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Nombre</label>
                                 <div class="col-sm-5">
                                     <input type="text" name="name" readonly="readonly" class="form-control" required="required"
-                                           value="{{productInput.product.name is defined and productInput.product.name is not null ? productInput.product.name : ''}}">
+                                           value="{{product.name is defined and product.name is not null ? product.name : ''}}">
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Código interno</label>
                                 <div class="col-sm-5">
                                     <input type="text" name="internalCode" readonly="readonly" class="form-control" required="required"
-                                           value="{{productInput.product.internalCode is defined and productInput.product.internalCode is not null ? productInput.product.internalCode : ''}}">
+                                           value="{{ product.internalCode is defined and product.internalCode is not null ? product.internalCode : ''}}">
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Proveedor</label>
                                 <div class="col-sm-5">
                                     <input type="text" name="provider" readonly="readonly" class="form-control" required="required"
-                                           value="{{productInput.product.provider is defined and productInput.product.provider is not null ? productInput.product.provider : ''}}">
+                                           value="{{ product.provider is defined and product.provider is not null ? product.provider : ''}}">
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Presentación</label>
                                 <div class="col-sm-5">
-                                    <input type="text" name="presentation" readonly="readonly" class="form-control" required="required"
-                                           value="{{productInput.product.presentation is defined and productInput.product.presentation is not null ? productInput.product.presentation : ''}}">
+                                    <select class="form-control" name="presentation">
+                                        <option value=""></option>
+                                        {% for presentation in presentations %}
+                                            <option value="{{ presentation.name }}">{{ presentation.name }}</option>
+                                        {% endfor %}
+                                    </select>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Stock mínimo</label>
                                 <div class="col-sm-5">
                                     <input type="text" name="stockMinimum" readonly="readonly" class="form-control" required="required"
-                                           value="{{productInput.product.minStock is defined and productInput.product.minStock is not null ? productInput.product.minStock : ''}}">
+                                           value="{{ product.stockMinimum is defined and product.stockMinimum is not null ? product.stockMinimum : '' }}">
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Lote</label>
                                 <div class="col-sm-5">
                                     <input type="text" name="lotNumber" class="form-control" required="required"
-                                           value="{{productInput.lotNumber is defined and productInput.lotNumber is not null ? productInput.lotNumber : ''}}">
+                                           value="">
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Fecha recepción</label>
                                 <div class="col-sm-5">
                                     <input type="text" class="form-control pull-right my_date" readonly="readonly" autocomplete="off" name="receptionDate" id="receptionDate"  required="required"
-                                           value="{{productInput.receptionDate is not null ? productInput.receptionDate|date('Y-m-d') : 'now'|date('Y-m-d')}}">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="col-sm-4 control-label">Fecha caducidad</label>
-                                <div class="col-sm-5">
-                                    <input type="text" class="form-control pull-right my_date" autocomplete="off" name="expiryDate" id="expiryDate" required="required"
-                                        value="{{productInput.expiryDate is not null ? productInput.expiryDate|date('Y-m-d') : ''}}">
+                                           value="{{ 'now'|date('Y-m-d') }}">
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Fecha destrucción</label>
                                 <div class="col-sm-5">
                                     <input type="text" class="form-control pull-right my_date" autocomplete="off" name="destructionDate" id="destructionDate" required="required"
-                                        value="{{productInput.destructionDate is not null ? productInput.destructionDate|date('d-m-Y') : ''}}">
+                                        value="">
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Cantidad</label>
                                 <div class="col-sm-5">
-                                    <input {% if productInput.id is not null %} readonly="readonly" {% endif %} type="text" name="amount" class="form-control" required="required"
-                                        value="{{productInput.amount is not null ? productInput.amount : ''}}">
+                                    <input readonly="readonly" type="text" name="amount" class="form-control" required="required" value="1">
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Observaciones</label>
                                 <div class="col-sm-5">
-                                    <textarea class="form-control" name="observations" rows="4">{{productInput.observations is not null ? productInput.observations : ''}}</textarea>
+                                    <textarea class="form-control" name="observations" rows="4"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">QR Estático</label>
+                                <div class="col-sm-7">
+                                    <input name="static" value="1" type="checkbox"
+                                            {% if product.static is defined and product.static is not null  and product.static == true %} checked="checked" {% endif %}>
                                 </div>
                             </div>
                         </div>
@@ -184,7 +190,7 @@
         });
     });
 
-    function getFormItems()
+    function getFormInputs()
     {
         return {
             'partNumber': $('input[name="partNumber"]'),
@@ -196,21 +202,40 @@
         };
     }
 
+    function getFormCheckbox()
+    {
+        return {
+            'static': $('input[name="static"]'),
+        };
+    }
+
     function fillForm(data)
     {
-        const formItems = getFormItems();
-        $.each(formItems,function(key,item){
+        const formInputs = getFormInputs();
+        const formCheckbox = getFormCheckbox();
+        $.each(formInputs,function(key,item){
             item.val(data[key]);
             item.attr('readonly','readonly');
+        });
+        $.each(formCheckbox,function(key,item){
+            if(data[key]){
+                item.attr('checked','checked');
+            }
+            item.attr('disabled','disabled');
         });
     }
 
     function cleanForm()
     {
-        const formItems = getFormItems();
+        const formItems = getFormInputs();
+        const formCheckbox = getFormCheckbox();
         $.each(formItems,function(key,item){
             item.val('');
             item.removeAttr('readonly');
+        });
+        $.each(formCheckbox,function(key,item){
+            item.removeAttr('checked');
+            item.removeAttr('disabled');
         });
     }
 

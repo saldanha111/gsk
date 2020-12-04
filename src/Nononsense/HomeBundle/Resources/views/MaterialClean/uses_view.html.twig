@@ -1,7 +1,8 @@
 {% extends '::base.html.twig' %}
-{% block page_title %}DOCXPRESSO | {{ 'Homepage'|trans }} {% endblock %}
+{% block page_title %}Docoaro - GSK | {{ 'Homepage'|trans }} {% endblock %}
 {% block head %}
     {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('/js/plugins/sweetalert/sweetalert.min.css') }}">
 {% endblock %}
 {% block main_title %} Utilización de material{% endblock %}
 {% block content %}
@@ -45,7 +46,8 @@
                     <label class="col-md-2 col-sm-4 control-label">Material</label>
                     <div class="col-sm-7">
                         <input type="text" name="material" class="form-control" required="required" readonly="readonly"
-                               value="{{ material.name }}">
+                            value="{{ material.name }}{{ materialCleanClean.materialOther is defined and
+                            materialCleanClean.materialOther is not empty ? (' - ' ~ materialCleanClean.materialOther) : ''}}">
                     </div>
                 </div>
                 <div class="form-group">
@@ -90,17 +92,6 @@
                         </div>
                     </div>
                 {% endif %}
-                <div class="form-group">
-                    <label class="col-md-2 col-sm-4 control-label">Firma</label>
-                    <div class="col-sm-7">
-                        <div id="signature-pad" class="input-group">
-                            <canvas width="300" height="150"
-                                    style="touch-action: none; border: 2px solid #eee; box-shadow: 0px 0px 6px 1px rgba(80, 90, 100, 0.5)"></canvas>
-                        </div>
-                        <input type="hidden" id="firma" name="firma"/>
-                        <a href="#" class="btn btn-primary" id="borrar-firma">Limpiar firma</a>
-                    </div>
-                </div>
             </div>
             {% if not error %}
                 <div class="row">
@@ -112,6 +103,8 @@
                         </div>
                     </div>
                 </div>
+                <input type="hidden" name="password">
+                <input type="hidden" name="passCheck" value="{{ path('nononsense_mclean_get_sign_valid') }}">
             {% else %}
                 <div class="row">
                     <div class="form-group">
@@ -129,7 +122,7 @@
 {% endblock %}
 {% block scripts %}
     {{ parent() }}
-    <script src="{{ asset('js/plugins/signature-pad/signature-pad.min.js') }}"></script>
+    <script src="{{ asset('js/plugins/sweetalert/sweetalert.min.js') }}"></script>
     <script>
         $(function () {
 
@@ -152,18 +145,9 @@
             ActivateMenu('admin_uses');
             $('#side-menu').metisMenu();
 
-            const canvas = document.querySelector("canvas");
-            const signaturePad = new SignaturePad(canvas);
-
             $(document).on('click', '.btn-submit', function (e) {
                 e.preventDefault();
                 let error = false;
-                $("#firma").val(signaturePad.toDataURL()) // save image as PNG
-
-                if (!checkSignature(signaturePad)) {
-                    toastr.error("Debe rellenar una fima, no puede dejar el cuadro en blanco", 'aviso');
-                    error = true;
-                }
 
                 if (!$('.lot-code-input').val()) {
                     toastr.error("Debe marcar un process order.", 'aviso');
@@ -175,118 +159,58 @@
                 }
             });
 
-            $(document).on('click','#borrar-firma', function (e) {
-                e.preventDefault();
-                signaturePad.clear();
-            });
-
-            function checkSignature(signaturePad){
-                return !signaturePad.isEmpty();
-            }
-
-            function saveVerification(){
-                toastr.info(
-                    '<br />' +
-                    '<button type="button" id="confirm-save-use" class="btn btn-success">Si</button>' +
-                    '&nbsp;&nbsp;&nbsp;' +
-                    '<button type="button" id="cancel-save-use" class="btn btn-danger">No</button>',
-                    '¿Quieres registrar verificación del material?',
-                    {
-                        allowHtml: true,
-                        timeOut: 0,
-                        extendedTimeOut:0,
-                        preventDuplicates:true,
-                        tapToDismiss: false,
-                        progressBar: false,
-                        closeButton: true,
-                        onShown: function (toast) {
-                            $(document).on('click','#confirm-save-use',function(){
-                                $('#form_item').submit();
-                            });
-                            $(document).on('click','#cancel-save-use',function(){
-                                $('.toast-close-button').trigger('click');
-                            });
-                        }
-                    }
-                );
-            }
-
-        });
-    </script>
-    <script type="text/javascript" src="{{ asset('js/barcode-reader.min.js') }}"></script>
-    <script>
-        window.addEventListener('load', function () {
-            let selectedDeviceId;
-            const codeReader = new ZXing.BrowserMultiFormatReader()
-            codeReader.getVideoInputDevices()
-                .then((videoInputDevices) => {
-                    const sourceSelect = document.getElementById('sourceSelect')
-                    selectedDeviceId = videoInputDevices[0].deviceId
-                    if (videoInputDevices.length >= 1) {
-                        videoInputDevices.forEach((element) => {
-                            const sourceOption = document.createElement('option')
-                            sourceOption.text = element.label
-                            if(element.label.indexOf('back')){
-                                sourceOption.setAttribute('selected','selected');
-                                selectedDeviceId = element.deviceId
+            function saveVerification()
+            {
+                swal({
+                    title: "Contraseña necesaria",
+                    text: "Introduce tu contraseña para guardar la utilización del material.",
+                    type: "input",
+                    inputType: "password",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#62bbe2',
+                    cancelButtonColor: '#ac2925',
+                    confirmButtonText: "Guardar",
+                    cancelButtonText: "Cancelar",
+                    closeOnConfirm: false
+                }, function (password) {
+                    if(password !== false && password !== ''){
+                        $.ajax({
+                            url: $('input[name="passCheck"]').val(),
+                            type: 'POST',
+                            dataType: 'json',
+                            data: {password: password},
+                            success: function(response) {
+                                if(response.valid){
+                                    $('input[name="password"]').val(password);
+                                    $('#form_item').submit();
+                                }else{
+                                    swal({
+                                        title: "Error",
+                                        text: "La contraseña no es válida",
+                                        icon: 'warning',
+                                        showCancelButton: false,
+                                        confirmButtonColor: '#62bbe2',
+                                        confirmButtonText: "Ok",
+                                        closeOnConfirm: true
+                                    });
+                                }
+                            },
+                            error: function() {
+                                swal({
+                                    title: "Error",
+                                    text: "Ha ocurrido un error al intentar validar la contraseña",
+                                    icon: 'warning',
+                                    showCancelButton: false,
+                                    confirmButtonColor: '#62bbe2',
+                                    confirmButtonText: "Ok",
+                                    closeOnConfirm: true
+                                });
                             }
-                            sourceOption.value = element.deviceId
-                            sourceSelect.appendChild(sourceOption)
-                        })
-
-                        sourceSelect.onchange = () => {
-                            selectedDeviceId = sourceSelect.value;
-                            startCapture(codeReader,selectedDeviceId);
-                        };
-
-                        const sourceSelectPanel = document.getElementById('sourceSelectPanel')
-                        sourceSelectPanel.style.display = 'block'
+                        });
                     }
-                    document.getElementById('btn-camera-use').addEventListener('click', () => {
-                        activeCamera();
-                        startCapture(codeReader,selectedDeviceId);
-                    })
-
-                    document.getElementById('btn-scanner-use').addEventListener('click', () => {
-                        activeScanner();
-                        codeReader.reset();
-                    })
-                })
-                .catch((err) => {
-                    console.error(err)
-                })
-        })
-
-        function activeCamera(){
-            $('.lot-code-input').val('');
-            $('.camera-group').show();
-        }
-
-        function activeScanner(){
-            const codeInput = $('.lot-code-input');
-            codeInput.val('');
-            codeInput.focus();
-            $('.camera-group').hide();
-
-        }
-
-        function startCapture(codeReader, selectedDeviceId){
-            codeReader.reset()
-            codeReader.decodeFromVideoDevice(selectedDeviceId, 'video', (result, err) => {
-                if (result) {
-                    const element = document.getElementsByClassName('lot-code-input')[0]
-                    element.value = result.text
-                    codeReader.reset()
-                    const groupElement = document.getElementsByClassName('camera-group')[0]
-                    groupElement.style.display = 'none';
-                }
-                if (err && !(err instanceof ZXing.NotFoundException)) {
-                    console.error(err)
-                    const element = document.getElementsByClassName('lot-code-input')[0]
-                    element.value = ''
-                    toastr.error("El código de barras no se ha leído correctamente", 'aviso');
-                }
-            })
-        }
+                });
+            }
+        });
     </script>
 {% endblock %}

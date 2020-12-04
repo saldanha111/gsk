@@ -1,7 +1,8 @@
 {% extends '::base.html.twig' %}
-{% block page_title %}DOCXPRESSO |  Productos / Crear retirada {% endblock %}
+{% block page_title %}Docoaro - GSK |  Productos / Crear retirada {% endblock %}
 {% block head %}
     {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('/js/plugins/sweetalert/sweetalert.min.css') }}">
 {% endblock %}
 {% block main_title %} Productos / Crear retirada{% endblock %}
 
@@ -137,6 +138,7 @@
 
 {% block scripts %}
     {{ parent() }}
+    <script src="{{ asset('js/plugins/sweetalert/sweetalert.min.js') }}"></script>
     <script type="text/javascript" src="/js/plugins/jsqrcode-master/src/grid.js"></script>
     <script type="text/javascript" src="/js/plugins/jsqrcode-master/src/version.js"></script>
     <script type="text/javascript" src="/js/plugins/jsqrcode-master/src/detector.js"></script>
@@ -187,6 +189,7 @@
             var url = $('#url_get_data_input_json').val();
             url = url.replace("xxx", input_id);
             if (input_id != '') {
+                $('#div_data_input').hide();
                 show_loader();
                 $.ajax({
                     async: true,
@@ -195,16 +198,34 @@
                     complete: function (respuesta) {
                         hide_loader();
                         const datos = JSON.parse(respuesta.responseText);
-                        console.log(datos);
                         if (datos.status === 200) {
-                            fillInputs(datos.data);
+                            if(datos.data.isReactivo && datos.data.stock === 0){
+                                swal({
+                                    title: "Error",
+                                    text: "El reactivo ya no está en el sistema",
+                                    icon: 'warning',
+                                    showCancelButton: false,
+                                    confirmButtonColor: '#62bbe2',
+                                    confirmButtonText: "Ok",
+                                    closeOnConfirm: true
+                                });
+                            }else{
+                                fillInputs(datos.data, datos.data.isReactivo);
+                                $('#div_data_input').show();
+                            }
                             if(datos.data.stock){
                                 $('input[name="amount"]').attr('max',datos.data.stock);
                             }
-                            $('#div_data_input').show();
                         } else {
-                            alert("El QR no se corresponde con una entrada válida");
-                            $('#div_data_input').hide();
+                            swal({
+                                title: "Error",
+                                text: "El QR no se corresponde con una entrada válida",
+                                icon: 'warning',
+                                showCancelButton: false,
+                                confirmButtonColor: '#62bbe2',
+                                confirmButtonText: "Ok",
+                                closeOnConfirm: true
+                            });
                         }
                     }
                 });
@@ -213,8 +234,9 @@
             }
         }
 
-        function fillInputs(data){
+        function fillInputs(data, isReactivo = false){
             const formItems = getFormItems();
+            const amount = $('input[name="amount"]');
             $.each(formItems,function(key,item){
                 if(data[key] || data[key] === 0){
                     item.val(data[key]);
@@ -224,6 +246,14 @@
                 }
                 item.attr('readonly','readonly');
             });
+
+            if(isReactivo){
+                amount.val(1);
+                amount.attr('readonly','readonly');
+            }else{
+                amount.val('');
+                amount.removeAttr('readonly');
+            }
         }
 
         function getFormItems()

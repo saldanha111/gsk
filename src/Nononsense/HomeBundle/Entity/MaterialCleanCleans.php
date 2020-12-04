@@ -39,6 +39,11 @@ class MaterialCleanCleans
     protected $material;
 
     /**
+     * @ORM\Column(name="material_other", type="text",  nullable=true)
+     */
+    protected $materialOther;
+
+    /**
      * @ORM\Column(name="code", type="string", length=255,  nullable=false)
      */
     protected $code;
@@ -602,5 +607,28 @@ class MaterialCleanCleans
     public function getReviewInformation()
     {
         return $this->reviewInformation;
+    }
+
+    /**
+     * Set materialOther
+     *
+     * @param string $materialOther
+     * @return MaterialCleanCleans
+     */
+    public function setMaterialOther($materialOther)
+    {
+        $this->materialOther = $materialOther;
+
+        return $this;
+    }
+
+    /**
+     * Get materialOther
+     *
+     * @return string 
+     */
+    public function getMaterialOther()
+    {
+        return $this->materialOther;
     }
 }
