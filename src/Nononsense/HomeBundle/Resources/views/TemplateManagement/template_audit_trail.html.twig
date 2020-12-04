@@ -50,13 +50,22 @@
                                <i class="fa fa-gavel bg-orange"></i>
                             {% elseif signature.action.id == 12 %}
                                <i class="fa fa-paper-plane bg-red"></i>
+                            {% elseif signature.action.id == 13 or signature.action.id == 14 or signature.action.id == 15 %}
+                               <i class="fa fa-eye bg-navy"></i>
                             {% endif %}
                           
 
                           <div class="timeline-item">
                             <span class="time"><i class="fa fa-clock-o"></i> {{signature.created|date("d/m/Y H:i:s")}}</span>
 
-                            <h3 class="timeline-header"><a href="#">{{signature.userEntiy.name}}</a> - {{signature.action.name}}
+                            <h3 class="timeline-header"><a href="#">{{signature.userEntiy.name}}</a> - 
+
+                            {% if signature.action.id == 13 or signature.action.id == 14 or signature.action.id == 15 %}
+                               Revisa plantilla
+                            {% else %}
+                              {{signature.action.name}}
+                            {% endif %}
+                            
                             {% if signature.action.id == 3 %}
                               - {% if signature.tmTests[0].result.id == 1 %}<span class="label bg-green">{% else %}<span class="label bg-red">{% endif %}{{signature.tmTests[0].result.name}}</span>
                             {% endif %}
@@ -64,6 +73,20 @@
                             {% if signature.action.id == 4 %}
                               - {% if signature.tmAprobAction.id == 1 %}<span class="label bg-green">{% else %}<span class="label bg-red">{% endif %}{{signature.tmAprobAction.name}}</span>
                             {% endif %}
+
+                            {% if signature.action.id == 13 %}
+                              <span class="label bg-green">{{signature.action.name}}</span>
+                            {% endif %}
+
+                            {% if signature.action.id == 14 %}
+                              <span class="label bg-red">{{signature.action.name}}</span>
+                            {% endif %}
+
+                            {% if signature.action.id == 15 %}
+                              <span class="label bg-default">{{signature.action.name}}</span>
+                            {% endif %}
+
+                            <a href="{{path('nononsense_tm_view_configuration', {'id': item.id}) }}?configuration={{signature.configuration}}" class="btn btn-xs btn-primary"  target="_blank"><i class="fa fa-magic"></i> Ver configuración</a>
                             </h3>
 
                             

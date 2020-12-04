@@ -480,4 +480,37 @@ class TMSignatures
     {
         return $this->tmDropAction;
     }
+
+    /**
+     * Add templateReviews
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMTemplates $templateReviews
+     * @return TMSignatures
+     */
+    public function addTemplateReview(\Nononsense\HomeBundle\Entity\TMTemplates $templateReviews)
+    {
+        $this->templateReviews[] = $templateReviews;
+
+        return $this;
+    }
+
+    /**
+     * Remove templateReviews
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMTemplates $templateReviews
+     */
+    public function removeTemplateReview(\Nononsense\HomeBundle\Entity\TMTemplates $templateReviews)
+    {
+        $this->templateReviews->removeElement($templateReviews);
+    }
+
+    /**
+     * Get templateReviews
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getTemplateReviews()
+    {
+        return $this->templateReviews;
+    }
 }

@@ -273,6 +273,14 @@ class TMTemplates
      */
     protected $dateReview;
 
+    /**
+     * @var boolean $needNewEdition
+     *
+     * @ORM\Column(name="need_new_edition", type="boolean",  options={"default" = false}, nullable=true)
+     * @Groups({"detail_document"})
+     */
+    protected $needNewEdition;
+
 
 
 
@@ -1276,5 +1284,28 @@ class TMTemplates
     public function getRequestReview()
     {
         return $this->requestReview;
+    }
+
+    /**
+     * Set needNewEdition
+     *
+     * @param boolean $needNewEdition
+     * @return TMTemplates
+     */
+    public function setNeedNewEdition($needNewEdition)
+    {
+        $this->needNewEdition = $needNewEdition;
+
+        return $this;
+    }
+
+    /**
+     * Get needNewEdition
+     *
+     * @return boolean 
+     */
+    public function getNeedNewEdition()
+    {
+        return $this->needNewEdition;
     }
 }

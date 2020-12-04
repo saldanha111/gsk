@@ -147,6 +147,7 @@
                             <th></th>
                             <th></th>
                             <th></th>
+                            <th></th>
                         </tr>
                         </thead>
                         {% if items is defined %}
@@ -159,7 +160,7 @@
                                 <td>{{item.nameArea}}</td>
                                 <td>{{item.applicantName}}</td>
                                 <td>{{item.effectiveDate is defined and item.effectiveDate is not null ? item.effectiveDate|date("d/m/Y") : ''}}</td>
-                                <td>{{item.reviewDate is defined and item.reviewDate is not null ? item.reviewDate|date("d/m/Y") : ''}}</td>
+                                <td>{{item.dateReview is defined and item.dateReview is not null ? item.dateReview|date("d/m/Y") : ''}}</td>
                                 <td>{{item.ownerName}}</td>
                                 <td>{{item.backupName}}</td>
                                 <td>{{item.reference}}</td>
@@ -226,11 +227,16 @@
                                     {% endif %}
                                 </td>
                                 
-                                <th>
+                                <td>
                                     {% if item.status == 6 and not item.inactive %}
                                         <a class="btn btn-xs btn-danger" href="#" target="_self"><i class="fa fa-pencil" aria-hidden="true"></i> {{'Iniciar cumpl.'|trans}}</a>
                                     {% endif %}
-                                </th>
+                                </td>
+                                <td>
+                                    {% if item.needNewEdition is defined and item.needNewEdition is not empty %}
+                                        <a href="{{path('nononsense_tm_request')}}?id={{item.id}}" class="btn btn-xs btn-warning" data-toggle="tooltip" data-placement="left" title="Es necesario crear una nueva edición de esta plantilla tras la última revisión"><i class="fa fa-warning"></i></a>
+                                    {% endif %}
+                                </td>
                             </tr>
                             {% endfor %}
                         {% endif %}
@@ -252,6 +258,7 @@
 {{ parent() }}
 <script>
 $( document ).ready(function() {
+    $('[data-toggle="tooltip"]').tooltip();
     {% if filters.state is defined %}
         {% if filters.state==1 %}
             ActivateMenu('solicitudes_gestion_plantillas');

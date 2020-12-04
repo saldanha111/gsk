@@ -273,6 +273,14 @@ class TMTemplates
      */
     protected $dateReview;
 
+    /**
+     * @var boolean $needNewEdition
+     *
+     * @ORM\Column(name="need_new_edition", type="boolean",  options={"default" = false}, nullable=true)
+     * @Groups({"detail_document"})
+     */
+    protected $needNewEdition;
+
 
 
 
@@ -1253,5 +1261,28 @@ class TMTemplates
     public function getDateReview()
     {
         return $this->dateReview;
+    }
+
+    /**
+     * Set requestReview
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMSignatures $requestReview
+     * @return TMTemplates
+     */
+    public function setRequestReview(\Nononsense\HomeBundle\Entity\TMSignatures $requestReview = null)
+    {
+        $this->requestReview = $requestReview;
+
+        return $this;
+    }
+
+    /**
+     * Get requestReview
+     *
+     * @return \Nononsense\HomeBundle\Entity\TMSignatures 
+     */
+    public function getRequestReview()
+    {
+        return $this->requestReview;
     }
 }

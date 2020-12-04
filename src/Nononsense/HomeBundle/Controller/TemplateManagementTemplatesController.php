@@ -737,4 +737,34 @@ class TemplateManagementTemplatesController extends Controller
 
         return $this->render('NononsenseHomeBundle:TemplateManagement:template_cover_page.html.twig',$array_item);
     }
+
+    public function configurationAction(Request $request, int $id)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $array_item=array();
+
+        $template = $this->getDoctrine()->getRepository(TMTemplates::class)->findOneBy(array("id" => $id));
+        
+        if($request->get("configuration")){
+            $configuration="?configuration=".$request->get("configuration");
+        }
+        else{
+            $configuration="";
+        }
+
+
+        $base_url=$this->getParameter('api_docoaro')."/documents/".$template->getPlantillaId().$configuration;
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $base_url);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST,"GET");
+        curl_setopt($ch, CURLOPT_HTTPHEADER,array("Api-Key: ".$this->getParameter('api_key_docoaro')));
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, array());    
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); 
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        $raw_response = curl_exec($ch);
+        $response = json_decode($raw_response, true);
+        
+        return $this->redirect($response["configurationUrl"]);
+    }
 }
