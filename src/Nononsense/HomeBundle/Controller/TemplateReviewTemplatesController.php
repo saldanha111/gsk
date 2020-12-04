@@ -346,7 +346,7 @@ class TemplateReviewTemplatesController extends Controller
         if($request->get("result") && in_array($request->get("result"), array(13,14,15))){
             $action_review = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => $request->get("result")));
             switch($request->get("result")){
-                case 1: $description="La plantilla ha sido revisada. No es necesario realizar ningún cambio, la edición no se actualiza hasta la próxima revisión.";break;
+                case 13: $description="La plantilla ha sido revisada. No es necesario realizar ningún cambio, la edición no se actualiza hasta la próxima revisión.";break;
                 default: $description="";break;
             }
         }
