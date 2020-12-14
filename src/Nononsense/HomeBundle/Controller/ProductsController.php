@@ -723,7 +723,7 @@ class ProductsController extends Controller
         $filters['type'] = $type;
         $filters["limit_many"] = 15;
 
-        /** @var ProductsRepository $productsInputsRepository */
+        /** @var ProductsInputsRepository $productsInputsRepository */
         $productsInputsRepository = $this->getDoctrine()->getRepository(ProductsInputs::class);
 
         /** @var ProductsTypesRepository $typesRepository */

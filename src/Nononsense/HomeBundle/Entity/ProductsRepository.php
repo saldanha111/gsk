@@ -15,7 +15,6 @@ class ProductsRepository extends EntityRepository
 	public function list($filters, $paginate=1)
     {
         $list = $this->createQueryBuilder('p')
-            ->select('p AS product', 't.name AS nameType')
             ->innerJoin("p.type", "t")
             ->orderBy('p.name', 'ASC');
 
