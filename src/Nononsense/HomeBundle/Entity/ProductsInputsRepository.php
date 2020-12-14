@@ -2,6 +2,7 @@
 
 namespace Nononsense\HomeBundle\Entity;
 
+use DateTime;
 use Doctrine\ORM\EntityRepository;
 
 /**
@@ -18,6 +19,7 @@ class ProductsInputsRepository extends EntityRepository
             ->select('pi')
             ->innerJoin("pi.product", "p")
             ->innerJoin("p.type", "t")
+            ->innerJoin("pi.state", "s")
             ->orderBy('pi.receptionDate', 'DESC');
 
         $list = self::fillFilersQuery($filters, $list);
@@ -38,7 +40,8 @@ class ProductsInputsRepository extends EntityRepository
         $list = $this->createQueryBuilder('pi')
             ->select('COUNT(pi.id) as conta')
             ->innerJoin("pi.product", "p")
-            ->innerJoin("p.type", "t");
+            ->innerJoin("p.type", "t")
+            ->innerJoin("pi.state", "s");
 
         $list = self::fillFilersQuery($filters, $list);
         $query = $list->getQuery();
@@ -101,6 +104,16 @@ class ProductsInputsRepository extends EntityRepository
             if (isset($filters['internalCode'])) {
                 $list->andWhere("p.internalCode =:internalCode");
                 $list->setParameter('internalCode', $filters['internalCode']);
+            }
+            if (isset($filters['expired']) && $filters['expired'] === true) {
+                $now = new Datetime();
+                $list->andWhere("pi.destructionDate<=:destructionDateTo");
+                $list->setParameter('destructionDateTo', $now->format('Y-m-d H:i:s'));
+                $list->orWhere("pi.expiryDate<=:expiryDateTo");
+                $list->setParameter('expiryDateTo', $now->format('Y-m-d H:i:s'));
+                $list->andWhere("s.id NOT IN (:endState, :expiredState)");
+                $list->setParameter('expiredState', $filters['expiredState']);
+                $list->setParameter('endState', $filters['endState']);
             }
         }
 

@@ -2,6 +2,7 @@
 
 namespace Nononsense\UserBundle\Entity;
 
+use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 
@@ -90,6 +91,24 @@ class UsersRepository extends EntityRepository
         } catch (\Doctrine\ORM\NoResultException $e) {
             return null;
         }
+    }
+
+    /**
+     * Get all users in a group
+     * @param int $groupId
+     * @return array
+     */
+    public function findAllUsersInGroup(int $groupId): array
+    {
+        $list = $this->createQueryBuilder('u')
+            ->select('u')
+            ->innerJoin('u.groups','g')
+            ->andWhere('g.id = :id')
+            ->setParameter('id', $groupId, Type::INTEGER)
+            ->orderBy('u.id', 'DESC');
+
+        $query = $list->getQuery();
+        return $query->getResult();
     }
 
     /**

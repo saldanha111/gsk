@@ -1,44 +1,32 @@
 <!DOCTYPE html>
 <html>
-
-<head>
-
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>GSK</title>
-
-</head>
-
-<body>
-<h3>GSK</h3>
-
-<p>Los siguientes productos tienen un stock por debajo de su stock mínimo</p>
-
-<table border="1">
-	<thead>
-		<th>Producto</th>
-		<th>Part. Number</th>
-		<th>Cash Number</th>
-		<th>Stock</th>
-		<th>Stock mínimo</th>
-		<th></th>
-	</thead>
-	<tbody>
-		{% for product in productsStockUnderMinimum %}
-			<tr>
-		        <td>{{ product.name }}</td>
-		        <td>{{ product.partNumber }}</td>
-		        <td>{{ product.cashNumber }}</td>
-		        <td>{{ product.stock }}</td>
-		        <td>{{ product.stockMinimum }}</td>
-		        <td><a href="{{cm_installation}}{{ path('nononsense_products_edit', {'id': product.id}) }}"  target="_blank">{{cm_installation}}{{ path('nononsense_products_edit', {'id': product.id}) }}</a></td>
-		    </tr>
-	    {% endfor %}
-	</tbody>
-</table>
-
-</body>
-
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>GSK</title>
+    </head>
+    <body>
+        <h3>GSK</h3>
+        <p>Los siguientes productos tienen un stock por debajo de su stock mínimo</p>
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Código interno</th>
+                    <th>Stock</th>
+                    <th>Stock mínimo</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for product in productsUnderMinStock %}
+                <tr>
+                    <td>{{ product.name }}</td>
+                    <td>{{ product.internalCode }}</td>
+                    <td>{{ product.stock }}</td>
+                    <td>{{ product.stockMinimum }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </body>
 </html>
-
