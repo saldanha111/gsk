@@ -200,7 +200,7 @@ class LoginController extends Controller
         
         error_reporting(0);
 
-        echo 'v4';
+        echo 'v5';
 
         $form = $this->createForm(new FormUsers\ldapType());
         $form->handleRequest($request);
@@ -209,7 +209,7 @@ class LoginController extends Controller
 
             $response   = new Response();
             $data       = $form->getData();
-
+            $justthese  = array("mail");
             //$justthese = array("cn", "ou", "sn", "uid","givenname", "mail", "displayname", "sAMAccountName", "telephonenumber");
 
             try {
@@ -225,7 +225,7 @@ class LoginController extends Controller
                 $bind       = $ldap->bind($ldaprdn, $ldappass);
                 $query      = $ldap->find($queryDn, $filter);
 
-                var_dump($query);
+                print_r($query);
 
             } catch (\Exception $e) {
 
@@ -234,8 +234,6 @@ class LoginController extends Controller
                 ]));
             }
 
-
-            $response->headers->set('Content-Type', 'application/json');
             return $response;
             
         }

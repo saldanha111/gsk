@@ -71,10 +71,10 @@ services:
     ldap:
         class: Symfony\Component\Ldap\LdapClient
         arguments:
-            host: 127.0.0.1
-            port: 389
+            host: 'demoserver.demo.local'
+            port: 636
             version: 3
-            ssl: false
+            ssl: true
             tls: false  
 
 
