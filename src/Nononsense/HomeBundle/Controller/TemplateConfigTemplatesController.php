@@ -69,7 +69,23 @@ class TemplateConfigTemplatesController extends Controller
         $action = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 5));
         $workflow_admin = $this->getDoctrine()->getRepository(TMWorkflow::class)->findOneBy(array("template" => $array_item["template"], "action" => $action),array("id" => "ASC"));
 
-        if(!$workflow_admin || $workflow_admin->getUserEntiy()!=$user){
+        $find=0;
+        if($workflow_admin->getUserEntiy() && $workflow_admin->getUserEntiy()==$user){
+            $find=1;
+        }
+        if($find==0){
+            if($workflow_admin->getGroupEntiy()){
+                $in_group=0;
+                foreach($user->getGroups() as $uniq_group){
+                    if($uniq_group->getGroup()==$workflow_admin->getGroupEntiy()){
+                        $find=1;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if(!$find){
             $this->get('session')->getFlashBag()->add(
                 'error',
                 'No tiene permisos para configurar esta plantilla'
