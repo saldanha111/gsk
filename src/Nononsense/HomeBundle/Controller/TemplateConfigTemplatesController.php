@@ -202,6 +202,13 @@ class TemplateConfigTemplatesController extends Controller
                 $template->setUniqid(0); 
             }
 
+            if($request->get("not_fillable_it_self")){
+               $template->setNotFillableItSelf(1); 
+            }
+            else{
+                $template->setNotFillableItSelf(NULL); 
+            }
+
             if($request->get("qr")){
                $qr = $this->getDoctrine()->getRepository(QrsTypes::class)->findOneBy(array("id" => $request->get("qr")));
                $template->setQRType($qr);
@@ -211,7 +218,7 @@ class TemplateConfigTemplatesController extends Controller
           
             if($request->get("public_date") && $request->get("action")=="1"){
                 $date_public=\DateTime::createFromFormat('d/m/Y', $request->get("public_date"));
-                if(date("Y-m-d")<=$date_public->format("Y-m-d")){
+                if(date("Y-m-d")>=$date_public->format("Y-m-d")){
                     $next_state = $this->getDoctrine()->getRepository(TMStates::class)->findOneBy(array("id"=>"6"));
 
                     if($template->getTemplateId()){

@@ -281,6 +281,14 @@ class TMTemplates
      */
     protected $needNewEdition;
 
+    /**
+     * @var boolean $notFillableItSelf
+     *
+     * @ORM\Column(name="not_fillable_itself", type="boolean",  options={"default" = false}, nullable=true)
+     * @Groups({"detail_document"})
+     */
+    protected $notFillableItSelf;
+
 
 
 
@@ -1307,5 +1315,28 @@ class TMTemplates
     public function getNeedNewEdition()
     {
         return $this->needNewEdition;
+    }
+
+    /**
+     * Set notFillableItSelf
+     *
+     * @param boolean $notFillableItSelf
+     * @return TMTemplates
+     */
+    public function setNotFillableItSelf($notFillableItSelf)
+    {
+        $this->notFillableItSelf = $notFillableItSelf;
+
+        return $this;
+    }
+
+    /**
+     * Get notFillableItSelf
+     *
+     * @return boolean 
+     */
+    public function getNotFillableItSelf()
+    {
+        return $this->notFillableItSelf;
     }
 }

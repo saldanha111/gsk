@@ -101,6 +101,11 @@ class Products
     protected $productsInputs;
 
     /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\ProductsSignatures", mappedBy="product")
+     */
+    protected $productsSignatures;
+    
+    /**
      * @var bool
      *
      * @ORM\Column(name="active", type="boolean")
@@ -118,6 +123,14 @@ class Products
      * @ORM\Column(type="datetime")
      */
     protected $created;
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="static", type="boolean",  nullable=true, options={"default" : false})
+     */
+    private $static;
+
     /**
      * Constructor
      */
@@ -128,6 +141,7 @@ class Products
         $this->destroyed = 0;
         $this->created = new DateTime();
         $this->active = 1;
+        $this->static = false;
     }
 
     /**
@@ -235,7 +249,7 @@ class Products
     /**
      * Set stock
      *
-     * @param string $stock
+     * @param int $stock
      * @return Products
      */
     public function setStock($stock)
@@ -248,7 +262,7 @@ class Products
     /**
      * Get stock
      *
-     * @return string 
+     * @return int
      */
     public function getStock()
     {
@@ -470,5 +484,61 @@ class Products
     public function getPresentation()
     {
         return $this->presentation;
+    }
+
+    /**
+     * Set static
+     *
+     * @param boolean $static
+     * @return Products
+     */
+    public function setStatic($static)
+    {
+        $this->static = $static;
+
+        return $this;
+    }
+
+    /**
+     * Get static
+     *
+     * @return boolean 
+     */
+    public function getStatic()
+    {
+        return $this->static;
+    }
+
+    /**
+     * Add productsSignatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\ProductsSignatures $productsSignatures
+     * @return Products
+     */
+    public function addProductsSignature(\Nononsense\HomeBundle\Entity\ProductsSignatures $productsSignatures)
+    {
+        $this->productsSignatures[] = $productsSignatures;
+
+        return $this;
+    }
+
+    /**
+     * Remove productsSignatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\ProductsSignatures $productsSignatures
+     */
+    public function removeProductsSignature(\Nononsense\HomeBundle\Entity\ProductsSignatures $productsSignatures)
+    {
+        $this->productsSignatures->removeElement($productsSignatures);
+    }
+
+    /**
+     * Get productsSignatures
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getProductsSignatures()
+    {
+        return $this->productsSignatures;
     }
 }

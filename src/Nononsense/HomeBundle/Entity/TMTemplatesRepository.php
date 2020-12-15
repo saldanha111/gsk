@@ -181,7 +181,7 @@ class TMTemplatesRepository extends EntityRepository
                 if(isset($filters["user"])){
                     $parameters["user"]=$filters["user"];
                 }
-                $query = $em->createQuery("SELECT t.id,t.name,a.name nameArea,t.number,t.numEdition,s.id status,t.inactive,s.name stateName,t.created,t.reference,ua.name applicantName,uo.name ownerName,ub.name backupName,t.effectiveDate,t.reviewDate,t.historyChange,uo.id ownerId,ub.id backupId,t.dateReview,t.needNewEdition, CASE WHEN ".$this->sintax_pending('workflow_select')." THEN 1 ELSE 0 END require_action ".$fields_extra.$sintax." ".$orderby);
+                $query = $em->createQuery("SELECT t.id,t.name,a.name nameArea,t.number,t.numEdition,s.id status,t.inactive,s.name stateName,t.created,t.reference,ua.name applicantName,uo.name ownerName,ub.name backupName,t.effectiveDate,t.reviewDate,t.historyChange,uo.id ownerId,ub.id backupId,t.dateReview,t.needNewEdition,t.notFillableItSelf, CASE WHEN ".$this->sintax_pending('workflow_select')." THEN 1 ELSE 0 END require_action ".$fields_extra.$sintax." ".$orderby);
                 if(isset($filters["limit_from"])){
                     $query->setFirstResult($filters["limit_from"]*$filters["limit_many"])->setMaxResults($filters["limit_many"]);
                 }

@@ -281,6 +281,14 @@ class TMTemplates
      */
     protected $needNewEdition;
 
+    /**
+     * @var boolean $notFillableItSelf
+     *
+     * @ORM\Column(name="not_fillable_itself", type="boolean",  options={"default" = false}, nullable=true)
+     * @Groups({"detail_document"})
+     */
+    protected $notFillableItSelf;
+
 
 
 
@@ -1284,5 +1292,28 @@ class TMTemplates
     public function getRequestReview()
     {
         return $this->requestReview;
+    }
+
+    /**
+     * Set needNewEdition
+     *
+     * @param boolean $needNewEdition
+     * @return TMTemplates
+     */
+    public function setNeedNewEdition($needNewEdition)
+    {
+        $this->needNewEdition = $needNewEdition;
+
+        return $this;
+    }
+
+    /**
+     * Get needNewEdition
+     *
+     * @return boolean 
+     */
+    public function getNeedNewEdition()
+    {
+        return $this->needNewEdition;
     }
 }
