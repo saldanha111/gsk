@@ -365,8 +365,10 @@ class TemplateManagementRequestController extends Controller
             $template->setIsSimple(0); 
         }
 
+        $date_public=\DateTime::createFromFormat('Y-m-d', $request->get("public_date"));
+
         if($request->get("public_date")){
-           $template->setEstimatedEffectiveDate($request->get("public_date")); 
+           $template->setEstimatedEffectiveDate($date_public); 
         }
 
         $template->setLogbook(0);

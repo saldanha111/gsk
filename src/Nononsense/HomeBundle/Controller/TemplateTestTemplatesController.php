@@ -556,6 +556,7 @@ class TemplateTestTemplatesController extends Controller
 	        	$next_state=4;
 	        	$users_notifications=array();
 	        	$userssignatures = $this->getDoctrine()->getRepository(TMSignatures::class)->findBy(array("template" => $template),array("id" => "ASC"));
+                $userssignatures[]=$signature;
 	        	//Comprobamos los test realizados para saber a que estado debemos pasar la plantilla
 	        	foreach($userssignatures as $us){
 	        		//Tenemos en cuenta solo las pruebas desde la última firma que no sea de test

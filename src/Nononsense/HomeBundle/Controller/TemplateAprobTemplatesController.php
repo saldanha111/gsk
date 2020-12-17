@@ -339,6 +339,7 @@ class TemplateAprobTemplatesController extends Controller
                 $users_elaborations=array();
                 $users_tests=array();
 	        	$userssignatures = $this->getDoctrine()->getRepository(TMSignatures::class)->findBy(array("template" => $template),array("id" => "ASC"));
+                $userssignatures[]=$signature;
 	        	//Comprobamos los test realizados para saber a que estado debemos pasar la plantilla
 	        	foreach($userssignatures as $us){
 	        		//Tenemos en cuenta solo las pruebas desde la última firma que no sea de aprobación
