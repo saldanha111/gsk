@@ -103,8 +103,16 @@ class TMTemplatesRepository extends EntityRepository
             }
 
             if(isset($filters["state"])){
-                $sintax.=$logical." s.id=:state";
-                $parameters["state"]=$filters["state"];
+                switch($filters["state"]){
+                    case 2:
+                    case 9:
+                        $sintax.=$logical." (s.id=2 OR s.id=9)";
+                        break;
+                    default:
+                        $sintax.=$logical." s.id=:state";
+                        $parameters["state"]=$filters["state"];
+                }
+                
                 $logical=" AND ";
             }
 

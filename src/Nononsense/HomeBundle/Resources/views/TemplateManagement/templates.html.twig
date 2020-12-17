@@ -98,7 +98,9 @@
                                   <select class="form-control" style="width: 100%;" name="state">
                                     <option value=""></option>
                                     {% for state in states %}
-                                        <option value="{{state.id}}" {{ filters.state is defined and filters.state==state.id ? 'selected="selected"' : ''}}>{{state.name}}</option>
+                                        {% if state.id != 9 %}
+                                            <option value="{{state.id}}" {{ filters.state is defined and filters.state==state.id ? 'selected="selected"' : ''}}>{{state.name}}</option>
+                                        {% endif %}
                                     {% endfor %}
                                   </select>
                                 </div>
@@ -212,6 +214,10 @@
                                             <a class="btn btn-xs btn-danger" href="{{path('nononsense_tm_config_detail', {'id': item.id}) }}" target="_self"><i class="fa fa-gear" aria-hidden="true"></i> {{'Configurar'|trans}}</a>
                                         {% endif %}
 
+                                        {% if item.status == 9 %}
+                                            <a class="btn btn-xs btn-danger" href="{{path('nononsense_tm_elaborate_detail_cancel', {'id': item.id}) }}" target="_self"><i class="fa fa-scissors" aria-hidden="true"></i> {{'Tramitar cancelación'|trans}}</a>
+                                        {% endif %}
+
 
                                         {% if item.status == 11 %}
                                             <a class="btn btn-xs btn-danger" href="{{path('nononsense_tm_config_detail', {'id': item.id}) }}" target="_self"><i class="fa fa-gear" aria-hidden="true"></i> {{'Modificar configuración'|trans}}</a>
@@ -224,6 +230,10 @@
 
                                     {% if item.status == 7 %}
                                         <a class="btn btn-xs btn-default disabled" href="#" target="_self"><i class="fa fa-ban" aria-hidden="true"></i> {{'Obsoleta'|trans}}</a>
+                                    {% endif %}
+
+                                    {% if item.status == 14 %}
+                                        <a class="btn btn-xs btn-default disabled" href="#" target="_self"><i class="fa fa-remove" aria-hidden="true"></i> {{'Cancelada'|trans}}</a>
                                     {% endif %}
                                 </td>
                                 

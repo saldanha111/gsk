@@ -737,6 +737,16 @@ nononsense_tm_elaborate_update:
     methods:    [POST]
     defaults: { _controller: NononsenseHomeBundle:TemplateElaborateTemplates:update,id: 0}
 
+nononsense_tm_elaborate_detail_cancel:
+    path: /mt/elaborate/{id}/cancel
+    methods:    [GET]
+    defaults: { _controller: NononsenseHomeBundle:TemplateElaborateTemplates:detailCancel,id: 0}
+
+nononsense_tm_elaborate_update_cancel:
+    path: /mt/elaborate/{id}/cancel
+    methods:    [POST]
+    defaults: { _controller: NononsenseHomeBundle:TemplateElaborateTemplates:updateCancel,id: 0}
+
 nononsense_tm_view_configuration:
     path: /mt/view/{id}/configuration
     methods:    [GET]
