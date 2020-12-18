@@ -71,10 +71,40 @@ services:
     ldap:
         class: Symfony\Component\Ldap\LdapClient
         arguments:
-            host: 'demoserver.demo.local'
-            port: 636
-            version: 3
-            ssl: true
-            tls: false  
+            host: '%ldap.host%'
+            port: '%ldap.port%'
+            version: '%ldap.version%'
+            ssl: '%ldap.ssl%'
+            tls: '%ldap.tls%'
+
+    ldap.user.provider:
+        class: Nononsense\UserBundle\Security\Authentication\Provider\FormLdapUserProvider
+        arguments:
+            ldap: '@ldap'
+            container: '@service_container'
+            base_dn: '%ldap.base_dn%'
+            search_dn: '%ldap.search_dn%'
+            search_password: '%ldap.search_password%'
+            default_roles: '%ldap.default_roles%'
+            uid_key: '%ldap.uid_key%'
+        public: false
+
+    ldap.auth.provider:
+        class: Nononsense\UserBundle\Security\Authentication\Provider\FormLdapBindAuthProvider
+        arguments: ['','','','','','@Validator','%security.authentication.hide_user_not_found%', '@doctrine.orm.entity_manager']
+        public: false
+        abstract: true
+
+    app.exception_listener.success:
+        class: Nononsense\UserBundle\Security\Events\ExceptionListenerSuccess
+        arguments: ['@doctrine.orm.entity_manager', '@request_stack']
+        tags:
+            - { name: kernel.event_listener, event: security.interactive_login, method: onSecurityInteractiveLogin }
+
+    app.exception_listener.failure:
+        class: Nononsense\UserBundle\Security\Events\ExceptionListenerFail
+        arguments: ['@doctrine.orm.entity_manager', '@request_stack']
+        tags:
+            - { name: kernel.event_listener, event: security.authentication.failure, method: onAuthenticationFailureLogin }
 
 

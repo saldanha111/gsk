@@ -21,13 +21,13 @@ security:
     providers:
         chain_users:
             chain:
-                providers: [main]
+                providers: [my_ldap_users, main]
         main:
             entity:
                 class: Nononsense\UserBundle\Entity\Users
                 property: email
-        #users_ldap:
-         #   id: app.users_ldap_service
+        my_ldap_users:
+                id: ldap.user.provider
 
     # the main part of the security, where you can set up firewalls
     # for specific sections of your app
@@ -56,6 +56,11 @@ security:
                 login_path: /users/login
                 remember_me: true
                 default_target_path: /users/login_init
+            form_ldap:
+                check_path: /users/check_user
+                login_path: /users/login
+                service: ldap
+                dn_string: '%ldap.search_dn%'
             logout:
                 path:   /users/logout
                 target: /
@@ -66,6 +71,7 @@ security:
                 domain: ~
             anonymous: ~
             switch_user: true
+
 
     # with these settings you can restrict or allow access for different parts
     # of your application based on roles, ip, host or methods
