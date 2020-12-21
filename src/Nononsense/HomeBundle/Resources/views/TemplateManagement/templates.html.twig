@@ -243,7 +243,7 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    {% if item.needNewEdition is defined and item.needNewEdition is not empty %}
+                                    {% if item.needNewEdition is defined and item.needNewEdition is not empty and item.status == 6 %}
                                         <a href="{{path('nononsense_tm_request')}}?id={{item.id}}" class="btn btn-xs btn-warning" data-toggle="tooltip" data-placement="left" title="Es necesario crear una nueva edición de esta plantilla tras la última revisión"><i class="fa fa-warning"></i></a>
                                     {% endif %}
                                 </td>
