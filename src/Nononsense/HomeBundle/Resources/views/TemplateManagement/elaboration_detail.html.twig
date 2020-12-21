@@ -10,7 +10,9 @@
 
 <div class="wrapper wrapper-content">
     <h3>{{template.name}} {{template.number}}</h3>
-    <a  href="{{downloadUrl}}" class="btn btn-xs btn-primary" target="_blank"><i class="fa fa-download"></i> Descargar plantilla</a><br><br>
+    {% if downloadUrl is defined %}
+        <a  href="{{downloadUrl}}" class="btn btn-xs btn-primary" target="_blank"><i class="fa fa-download"></i> Descargar plantilla</a><br><br>
+    {% endif %}
     <div class="row">
         <div class="col-lg-4">
             {% if template.openedBy is defined and template.openedBy is not empty and template.openedBy.id!=app.user.id %}
@@ -40,24 +42,25 @@
         </div>
 
         <div class="col-lg-4">
-            <div class="box box-default">
-                <div class="box-header with-border">
-                  <h3 class="box-title">Configurar</h3>
-                </div>
-                <!-- /.box-header -->
-                <div class="box-body">
-                    <div class="form-group">
-                        <a href="{{path('nononsense_tm_elaborate_configuration', {'id': template.id}) }}" class="btn btn-primary pull-right"><i class="fa fa-magic"></i> Configurar</a>
-                    </div>  
-                </div>
-                {% if template.openedBy is defined and template.openedBy is not empty and template.openedBy.id!=app.user.id %}
-                    <div class="overlay">
-                      <i class="fa fa-cog fa-spin"></i>
+            {% if downloadUrl is defined %}
+                <div class="box box-default">
+                    <div class="box-header with-border">
+                      <h3 class="box-title">Configurar</h3>
                     </div>
-                {% endif %}
-                <!-- /.box-body -->
-            </div>  
-
+                    <!-- /.box-header -->
+                    <div class="box-body">
+                        <div class="form-group">
+                            <a href="{{path('nononsense_tm_elaborate_configuration', {'id': template.id}) }}" class="btn btn-primary pull-right"><i class="fa fa-magic"></i> Configurar</a>
+                        </div>  
+                    </div>
+                    {% if template.openedBy is defined and template.openedBy is not empty and template.openedBy.id!=app.user.id %}
+                        <div class="overlay">
+                          <i class="fa fa-cog fa-spin"></i>
+                        </div>
+                    {% endif %}
+                    <!-- /.box-body -->
+                </div>  
+            {% endif %}
             <div class="box box-default">
                 <div class="box-header with-border">
                   <h3 class="box-title">Sobreescribir plantilla</h3>
@@ -77,99 +80,101 @@
             </div> 
         </div>
 
-        <div class="col-lg-4">
-            <div class="box box-default">
-                <div class="box-header with-border">
-                  <h3 class="box-title">Workflow cumplimentación</h3>
-                </div>
-                <!-- /.box-header -->
-                <div class="box-body">
-                    <form id="form_sign_workflow" action="{{path('nononsense_tm_elaborate_update', {'id': template.id}) }}" method="POST"  enctype="multipart/form-data">
-                        <div class="box_workflow">
-                            {% for cumplimentation in cumplimentations %}
-                                <div class="row line_workflow" style="margin-bottom:10px">
-                                    <div class="form-group">
-                                        <div class="col-sm-7 box_cumplimentation">
-                                            {% if type_cumplimentations is defined %}
-                                                <select class="form-control field_cumplimentation field_cumpl" name="cumplimentation[]" style="width: 100%;" required="required">
-                                                    <option value=""></option>
-                                                    {% for type in type_cumplimentations %}
-                                                        <option value="{{type.id}}" class="{{type.tmType.name}}" {{ cumplimentation.tmCumplimentation is defined and cumplimentation.tmCumplimentation.id==type.id ? 'selected="selected"' : ''}}>{{type.name}}</option>
-                                                    {% endfor %}
-                                                </select>
-                                            {% endif %}
+        {% if downloadUrl is defined %}
+            <div class="col-lg-4">
+                <div class="box box-default">
+                    <div class="box-header with-border">
+                      <h3 class="box-title">Workflow cumplimentación</h3>
+                    </div>
+                    <!-- /.box-header -->
+                    <div class="box-body">
+                        <form id="form_sign_workflow" action="{{path('nononsense_tm_elaborate_update', {'id': template.id}) }}" method="POST"  enctype="multipart/form-data">
+                            <div class="box_workflow">
+                                {% for cumplimentation in cumplimentations %}
+                                    <div class="row line_workflow" style="margin-bottom:10px">
+                                        <div class="form-group">
+                                            <div class="col-sm-7 box_cumplimentation">
+                                                {% if type_cumplimentations is defined %}
+                                                    <select class="form-control field_cumplimentation field_cumpl" name="cumplimentation[]" style="width: 100%;" required="required">
+                                                        <option value=""></option>
+                                                        {% for type in type_cumplimentations %}
+                                                            <option value="{{type.id}}" class="{{type.tmType.name}}" {{ cumplimentation.tmCumplimentation is defined and cumplimentation.tmCumplimentation.id==type.id ? 'selected="selected"' : ''}}>{{type.name}}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                {% endif %}
+                                            </div>
+                                            <div class="col-sm-3 box_signatures">
+                                                <input type="number" name="signatures[]" class="form-control field_cumplimentation" value="{{cumplimentation.signaturesNumber is defined ? cumplimentation.signaturesNumber : ''}}" required="required">
+                                            </div>
+                                            <div class="col-sm-1">
+                                                <a href="javascript:void(0)" class="btn btn-xs btn-danger remove_line"><i class="fa fa-times" aria-hidden="true"></i></a>
+                                            </div>
                                         </div>
-                                        <div class="col-sm-3 box_signatures">
-                                            <input type="number" name="signatures[]" class="form-control field_cumplimentation" value="{{cumplimentation.signaturesNumber is defined ? cumplimentation.signaturesNumber : ''}}" required="required">
-                                        </div>
-                                        <div class="col-sm-1">
-                                            <a href="javascript:void(0)" class="btn btn-xs btn-danger remove_line"><i class="fa fa-times" aria-hidden="true"></i></a>
-                                        </div>
-                                    </div>
-                                </div> 
-                            {% endfor %}
-                        </div>
-                        <br>
-                        <div class="row">
-                            <div class="col-lg-11">
-                                <input type="submit" class="btn btn-primary pull-right" value="Firmar">
-                                <button type="button" class="btn btn-default pull-right add_line" style="margin-right:4px"><i class="fa fa-plus"></i> Añadir</button>
+                                    </div> 
+                                {% endfor %}
                             </div>
-                        </div><br> 
+                            <br>
+                            <div class="row">
+                                <div class="col-lg-11">
+                                    <input type="submit" class="btn btn-primary pull-right" value="Firmar">
+                                    <button type="button" class="btn btn-default pull-right add_line" style="margin-right:4px"><i class="fa fa-plus"></i> Añadir</button>
+                                </div>
+                            </div><br> 
 
-                        <div class="modal fade" tabindex="-1" role="dialog" id="modalSignWorkflow">
-                            <div class="modal-dialog" role="document">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title">Firmar elaboración</h5>
-                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                          <span aria-hidden="true">&times;</span>
-                                        </button>
-                                    </div>
-                                
-                                    <div class="modal-body">
-                                        <div class="row justify_workflow" style="display: none">
-                                            <div class="col-lg-10 col-lg-offset-1">
-                                                Comentarios<br>
-                                                <div class="form-group">
-                                                    <textarea class="form-control" id="description_workflow" rows="10" cols="40" required="required" style="width:100%" required="required"></textarea>
+                            <div class="modal fade" tabindex="-1" role="dialog" id="modalSignWorkflow">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Firmar elaboración</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                              <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                    
+                                        <div class="modal-body">
+                                            <div class="row justify_workflow" style="display: none">
+                                                <div class="col-lg-10 col-lg-offset-1">
+                                                    Comentarios<br>
+                                                    <div class="form-group">
+                                                        <textarea class="form-control" id="description_workflow" rows="10" cols="40" required="required" style="width:100%" required="required"></textarea>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-lg-10 col-lg-offset-1">
-                                                <input name="finish_elaboration" value="1" type="checkbox"> Finalizar elaboración
-                                            </div>
-                                        </div><br>
-                                        <div class="row">
-                                            <div class="col-lg-10 col-lg-offset-1">
-                                                <div id="signature-pad3" class="input-group">
-                                                    Introduzca su firma<br>
-                                                    <canvas id="canvas3" width="300" height="150" style="touch-action: none; border: 2px solid #eee; box-shadow: 0px 0px 6px 1px rgba(80, 90, 100, 0.5)"></canvas>
+                                            <div class="row">
+                                                <div class="col-lg-10 col-lg-offset-1">
+                                                    <input name="finish_elaboration" value="1" type="checkbox"> Finalizar elaboración
+                                                </div>
+                                            </div><br>
+                                            <div class="row">
+                                                <div class="col-lg-10 col-lg-offset-1">
+                                                    <div id="signature-pad3" class="input-group">
+                                                        Introduzca su firma<br>
+                                                        <canvas id="canvas3" width="300" height="150" style="touch-action: none; border: 2px solid #eee; box-shadow: 0px 0px 6px 1px rgba(80, 90, 100, 0.5)"></canvas>
+                                                    </div>
                                                 </div>
                                             </div>
+                                            
                                         </div>
-                                        
-                                    </div>
-                                    <div class="modal-footer">
-                                        <a name="borrarFirmar" class="btn btn-secondary" id="borrarFirmar3">Limpiar firma</a>
-                                        <input type="button" class="btn btn-primary" id="sign_workflow" value="Firmar">
+                                        <div class="modal-footer">
+                                            <a name="borrarFirmar" class="btn btn-secondary" id="borrarFirmar3">Limpiar firma</a>
+                                            <input type="button" class="btn btn-primary" id="sign_workflow" value="Firmar">
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <textarea name="description" style="display: none"></textarea>
-                        <input type="hidden" id="signature3" name="signature" />
-                    </form>
-                </div>
-                {% if template.openedBy is defined and template.openedBy is not empty and template.openedBy.id!=app.user.id %}
-                    <div class="overlay">
-                      <i class="fa fa-cog fa-spin"></i>
+                            <textarea name="description" style="display: none"></textarea>
+                            <input type="hidden" id="signature3" name="signature" />
+                        </form>
                     </div>
-                {% endif %}
-                <!-- /.box-body -->
-            </div>   
-        </div>
+                    {% if template.openedBy is defined and template.openedBy is not empty and template.openedBy.id!=app.user.id %}
+                        <div class="overlay">
+                          <i class="fa fa-cog fa-spin"></i>
+                        </div>
+                    {% endif %}
+                    <!-- /.box-body -->
+                </div>   
+            </div>
+        {% endif %}
 
         <div class="col-lg-12">
             {% include 'NononsenseHomeBundle:TemplateManagement:list_tests.html.twig' %}
@@ -190,7 +195,7 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-        <form id="form_upload_document" action="{{path('nononsense_tm_test_update', {'id': template.id}) }}" method="POST"  enctype="multipart/form-data">
+        <form id="form_upload_document" action="{{path('nononsense_tm_elaborate_update', {'id': template.id}) }}" method="POST"  enctype="multipart/form-data">
             <div class="modal-body">
                 <div class="row">
                     <div class="col-lg-10 col-lg-offset-1">

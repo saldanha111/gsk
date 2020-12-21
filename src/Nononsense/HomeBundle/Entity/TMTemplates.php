@@ -90,7 +90,7 @@ class TMTemplates
     /**
      * @var string
      *
-     * @ORM\Column(name="plantilla_id", type="string")
+     * @ORM\Column(name="plantilla_id", type="string", nullable=true)
      */
     protected $plantilla_id;
 

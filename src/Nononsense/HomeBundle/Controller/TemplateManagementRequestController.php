@@ -272,7 +272,13 @@ class TemplateManagementRequestController extends Controller
                 $retentions = $this->getDoctrine()->getRepository(RetentionCategories::class)->findBy(array("id"=> $request->get("retention")));
 
                 $name=$request->get("name");
-                $plantilla=$area->getTemplate()->getPlantillaId();
+                if($area->getTemplate()){
+                    $plantilla=$area->getTemplate()->getPlantillaId();
+                }
+                else{
+                    $plantilla=NULL;
+                }
+
                 $itemplate=NULL;
                 $num_edition=1;
                 $first_edition=NULL;
@@ -342,9 +348,9 @@ class TemplateManagementRequestController extends Controller
         $response = json_decode($raw_response, true);
 
         if(!$response["version"]){
-            $this->get('session')->getFlashBag()->add('error','No pudo clonarse la plantilla maestra o de la anterior edición');
-            $route = $this->container->get('router')->generate('nononsense_tm_request');
-            return $this->redirect($route);
+            $response["id"]=NULL;
+            $response["version"]["id"]=NULL;
+            $response["version"]["configuration"]["id"]=NULL;
         }
         
         $template = new TMTemplates();

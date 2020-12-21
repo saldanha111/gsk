@@ -110,13 +110,18 @@ class TemplateElaborateTemplatesController extends Controller
         $raw_response = curl_exec($ch);
         $response = json_decode($raw_response, true);
 
-        $url_edit_documento=$response["configurationUrl"];
-        $array_item["downloadUrl"]=$response["downloadUrl"];
+        if($response["configurationUrl"]){
+            $url_edit_documento=$response["configurationUrl"];
+            $array_item["downloadUrl"]=$response["downloadUrl"];
         
-        preg_match_all('/token=(.*?)$/s',$url_edit_documento,$var_token);
-       	$token=$var_token[1][0];
+            preg_match_all('/token=(.*?)$/s',$url_edit_documento,$var_token);
+       	    $token=$var_token[1][0];
+        }
+        else{
+            $token=NULL;
+        }
        	
-       	if(!$array_item["template"]->getOpenedBy() || $token!=$array_item["template"]->getToken()){
+       	if(!$array_item["template"]->getOpenedBy() || $token!=$array_item["template"]->getToken() || $token==NULL){
        		$array_item["template"]->setOpenedBy($user);
        		$array_item["template"]->setToken($token);
        		$em->persist($array_item["template"]);
@@ -258,7 +263,12 @@ class TemplateElaborateTemplatesController extends Controller
         }
 
         if($request->files->get('template')){
-            $base_url=$this->getParameter('api_docoaro')."/documents/".$template->getPlantillaId();
+            if($template->getPlantillaId()){
+                $base_url=$this->getParameter('api_docoaro')."/documents/".$template->getPlantillaId();
+            }
+            else{
+                $base_url=$this->getParameter('api_docoaro')."/documents";
+            }
             $fs = new Filesystem();
             $file = $request->files->get('template');
             $data_file = curl_file_create($file->getRealPath(), $file->getClientMimeType(), $file->getClientOriginalName());
@@ -273,6 +283,16 @@ class TemplateElaborateTemplatesController extends Controller
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
             $raw_response = curl_exec($ch);
             $response = json_decode($raw_response, true);
+            
+            if(!$template->getPlantillaId() && isset($response["id"])){               
+                preg_match_all('/token=(.*?)$/s',$response["configurationUrl"],$var_token);
+                $token=$var_token[1][0];
+
+                $template->setToken($token);
+                $template->setPlantillaId($response["id"]);
+                $em->persist($template);
+            }
+            
         }
         else{
             if($request->get('activate_configuration')){
