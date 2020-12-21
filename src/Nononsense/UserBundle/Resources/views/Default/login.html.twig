@@ -37,7 +37,7 @@
                 {% if error %}
                 <div class="alert alert-danger alert-dismissable" style="text-align: center;">
                     <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
-                    &emsp;&emsp;{{'Bad credentials.'|trans}}
+                    &emsp;&emsp;{{error.message|trans}}
                 </div>
                 {% endif %}
                 <form role="form" action="{{path('nononsense_user_check')}}" method="post">

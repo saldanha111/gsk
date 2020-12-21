@@ -19,7 +19,7 @@ use Nononsense\UserBundle\Entity\AccountRequests;
 class LoginController extends Controller
 {
     public function loginAction(Request $request)
-    {
+    {   
         
         // $this->ldap();
 
@@ -220,6 +220,52 @@ class LoginController extends Controller
                 echo 'Successful Binding LDAP';
             }
         }
+    }
+ 
+    public function ldapComponentAction(Request $request){
+        
+        error_reporting(0);
+
+        echo 'v5';
+
+        $form = $this->createForm(new FormUsers\ldapType());
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+
+            $response   = new Response();
+            $data       = $form->getData();
+            $justthese  = array("mail");
+            //$justthese = array("cn", "ou", "sn", "uid","givenname", "mail", "displayname", "sAMAccountName", "telephonenumber");
+
+            try {
+
+                $ldap       = $this->container->get('ldap');
+
+                $ldaprdn    = $data['dn']; //cn=admin,ou=users,dc=wmservice,dc=corpnet1,dc=com
+                $ldappass   = $data['_password'];
+
+                $filter     = $data['filter']; //(objectClass=inetOrgPerson)
+                $queryDn    = $data['querydn']; //dc=wmservice,dc=corpnet1,dc=com
+
+                $bind       = $ldap->bind($ldaprdn, $ldappass);
+                $query      = $ldap->find($queryDn, $filter);
+
+                print_r($query);
+
+            } catch (\Exception $e) {
+
+                $response->setContent(json_encode([
+                    'Error: ' => $e->getMessage()
+                ]));
+            }
+
+            return $response;
+            
+        }
+
+        return $this->render('NononsenseUserBundle:Default:ldapLogin.html.twig', ['form'=>$form->createView()]);
+
     }
 
 }

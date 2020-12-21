@@ -1,8 +1,9 @@
 {% extends '::base.html.twig' %}
 {% block page_title %}DOCXPRESSO | {{'Homepage'|trans}} {% endblock %}
 {% block head %}
-{{ parent() }}
-<link rel="stylesheet" href="{{ asset('/css/plugins/datapicker/datepicker3.css') }}">
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('/js/plugins/sweetalert/sweetalert.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('/css/plugins/datapicker/datepicker3.css') }}">
 {% endblock %}
 {% block main_title %} Trazabilidad del material{% endblock %}
 {% block content %}
@@ -104,13 +105,15 @@
                     <div class="col-xs-12">
                         {% if formAction is defined %}
                                 <form class="form-vertical" id="form_register" action="{{ formAction }}" method="POST">
+                                    <input type="hidden" name="password">
+                                    <input type="hidden" name="passCheck" value="{{ path('nononsense_mclean_get_sign_valid') }}">
                                     <div class="form-group">
-                                        <a href="#" class="btn btn-primary show-signature">
+                                        <a href="#" class="btn btn-primary show-signature" id="send-firma">
                                             <i class="fa fa-floppy-o" aria-hidden="true"></i> {{ buttonName }}
                                         </a>
                                     </div>
                                     {% if showCommentBox is defined and showCommentBox %}
-                                        <div class="form-group signature-comment" style="display:none;">
+                                        <div class="form-group signature-comment">
                                             <div class="row">
                                                 <div class="col-sm-3">
                                                     <label class="control-label">Comentarios</label>
@@ -119,16 +122,6 @@
                                             </div>
                                         </div>
                                     {% endif %}
-                                    <div class="form-group signature-box" style="display:none;">
-                                        <label class="control-label">Firma</label>
-                                        <div id="signature-pad" class="input-group">
-                                            <canvas width="300" height="150"
-                                                    style="touch-action: none; border: 2px solid #eee; box-shadow: 0px 0px 6px 1px rgba(80, 90, 100, 0.5)"></canvas>
-                                        </div>
-                                        <input type="hidden" id="firma" name="firma"/>
-                                        <a href="#" class="btn btn-primary" id="borrar-firma">Limpiar firma</a>
-                                        <a href="#" class="btn btn-primary" id="send-firma">Enviar</a>
-                                    </div>
                                 </form>
                         {% endif %}
                     </div>
@@ -159,7 +152,8 @@
                                 {% for item in items %}
                                     <tr class="link-block" data-url="{{ path('nononsense_mclean_trace_view',{'id': item.id}) }}">
                                         <td>{{item.lotNumber}}</td>
-                                        <td>{{item.material.name}}</td>
+                                        <td>{{ item.material.name }}{{ item.materialOther is defined and
+                                            item.materialOther is not empty ? (' - ' ~ item.materialOther) : ''}}</td>
                                         <td>{{status[item.status]}}</td>
                                         <td>{{item.code}}</td>
                                         <td>{{item.cleanUser.name}}</td>
@@ -225,7 +219,7 @@
 {% endblock %}
 {% block scripts %}
 {{ parent() }}
-<script src="{{ asset('js/plugins/signature-pad/signature-pad.min.js') }}"></script>
+<script src="{{ asset('js/plugins/sweetalert/sweetalert.min.js') }}"></script>
 <script src="{{ asset('/js/plugins/datapicker/bootstrap-datepicker.js') }}"></script>
 <script src="{{ asset('/js/plugins/datapicker/locales/bootstrap-datepicker.es.js') }}" charset="UTF-8"></script>
 <script>
@@ -262,69 +256,66 @@
             language: 'es'
         });
 
-        $(document).on('click', '.show-signature', function(){
-            $('.signature-box').toggle();
-            $('.signature-comment').toggle();
-        });
-
-        const canvas = document.querySelector("canvas");
-        if(canvas != null) {
-            var signaturePad = new SignaturePad(canvas);
-        }
-
         $(document).on('click', '#send-firma', function (e) {
             e.preventDefault();
-            let error = false;
-            $("#firma").val(signaturePad.toDataURL()) // save image as PNG
-
-            if (!checkSignature(signaturePad)) {
-                toastr.error("Debe rellenar una fima, no puede dejar el cuadro en blanco", 'aviso');
-                error = true;
-            }
-
-            if(!error){
-                saveVerification();
-            }
-        });
-
-        $(document).on('click','#borrar-firma', function (e) {
-            e.preventDefault();
-            signaturePad.clear();
+            saveVerification();
         });
 
         $(document).on('click','.link-block',function(){
             window.location.href = $(this).data('url');
         });
 
-        function checkSignature(signaturePad){
-            return !signaturePad.isEmpty();
-        }
-
-        function saveVerification(){
-            toastr.info(
-                '<br />' +
-                '<button type="button" id="confirm-save-use" class="btn btn-success">Si</button>' +
-                '&nbsp;&nbsp;&nbsp;' +
-                '<button type="button" id="cancel-save-use" class="btn btn-danger">No</button>',
-                'Se va a cambiar el estado de todo el material del process order. ¿Estás seguro? ',
-                {
-                    allowHtml: true,
-                    timeOut: 0,
-                    extendedTimeOut:0,
-                    preventDuplicates:true,
-                    tapToDismiss: false,
-                    progressBar: false,
-                    closeButton: true,
-                    onShown: function (toast) {
-                        $(document).on('click','#confirm-save-use',function(){
-                            $('#form_register').submit();
-                        });
-                        $(document).on('click','#cancel-save-use',function(){
-                            $('.toast-close-button').trigger('click');
-                        });
-                    }
+        function saveVerification()
+        {
+            swal({
+                title: "Contraseña necesaria",
+                text: "Introduce tu contraseña para cambiar el estado de todo el material del process order.",
+                type: "input",
+                inputType: "password",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#62bbe2',
+                cancelButtonColor: '#ac2925',
+                confirmButtonText: "Guardar",
+                cancelButtonText: "Cancelar",
+                closeOnConfirm: false
+            }, function (password) {
+                if(password !== false && password !== ''){
+                    $.ajax({
+                        url: $('input[name="passCheck"]').val(),
+                        type: 'POST',
+                        dataType: 'json',
+                        data: {password: password},
+                        success: function(response) {
+                            if(response.valid){
+                                $('input[name="password"]').val(password);
+                                $('#form_register').submit();
+                            }else{
+                                swal({
+                                    title: "Error",
+                                    text: "La contraseña no es válida",
+                                    icon: 'warning',
+                                    showCancelButton: false,
+                                    confirmButtonColor: '#62bbe2',
+                                    confirmButtonText: "Ok",
+                                    closeOnConfirm: true
+                                });
+                            }
+                        },
+                        error: function() {
+                            swal({
+                                title: "Error",
+                                text: "Ha ocurrido un error al intentar validar la contraseña",
+                                icon: 'warning',
+                                showCancelButton: false,
+                                confirmButtonColor: '#62bbe2',
+                                confirmButtonText: "Ok",
+                                closeOnConfirm: true
+                            });
+                        }
+                    });
                 }
-            );
+            });
         }
 
     });

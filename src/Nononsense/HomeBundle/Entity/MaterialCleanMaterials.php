@@ -64,6 +64,12 @@ class MaterialCleanMaterials
      */
     private $additionalInfo;
 
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="other_name", type="boolean", nullable=false, options={"default" : 0})
+     */
+    private $otherName;
 
     /**
      * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\MaterialCleanProducts", inversedBy="material")
@@ -77,6 +83,7 @@ class MaterialCleanMaterials
         $this->expirationDays = 30;
         $this->active = 1;
         $this->additionalInfo = 0;
+        $this->otherName = 0;
     }
 
     /**
@@ -291,5 +298,28 @@ class MaterialCleanMaterials
     public function getAdditionalInfo()
     {
         return $this->additionalInfo;
+    }
+
+    /**
+     * Set otherName
+     *
+     * @param boolean $otherName
+     * @return MaterialCleanMaterials
+     */
+    public function setOtherName($otherName)
+    {
+        $this->otherName = $otherName;
+
+        return $this;
+    }
+
+    /**
+     * Get otherName
+     *
+     * @return boolean 
+     */
+    public function getOtherName()
+    {
+        return $this->otherName;
     }
 }

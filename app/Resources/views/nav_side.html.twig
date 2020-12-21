@@ -166,7 +166,7 @@
                     </ul>
                 </li>
             {% endif %}
-            {% if 'productos_gestion' in array_subsecciones or 'productos_recepcion' in array_subsecciones or 'productos_retirada' in array_subsecciones %}
+            {% if 'productos_gestion' in array_subsecciones or 'productos_recepcion' in array_subsecciones or 'productos_retirada' in array_subsecciones or 'reactivos_disolucion' in array_subsecciones %}
                 <li>
                     <a href="#">
                         <i class="fa fa-medkit" aria-hidden="true"></i>
@@ -196,6 +196,11 @@
                                 <a href="{{ path('nononsense_products_outputs') }}">{{'Retirada de almacén'|trans}}</a>
                             </li>
                         {% endif %}
+                        {% if 'reactivos_disolucion' in array_subsecciones %}
+                            <li id="browse_product_dissolution">
+                                <a href="{{ path('nononsense_products_dissolution') }}">{{'Disolución final'|trans}}</a>
+                            </li>
+                        {% endif %}
                         {% if 'productos_gestion' in array_subsecciones %}
                             <li id="browse_products">
                                 <a href="{{ path('nononsense_products',{'type': 'material'}) }}">{{'Revisión del stock'|trans}}</a>
@@ -218,7 +223,7 @@
                 </a>
                 <ul class="nav nav-second-level">
                     {% if 'mc_products_list' in array_subsecciones %}
-                        <li id="admin_materials"><a href="{{path('nononsense_mclean_products_list')}}">{{'Listado de Productos'|trans}}</a></li>
+                        <li id="admin_products"><a href="{{path('nononsense_mclean_products_list')}}">{{'Listado de Productos'|trans}}</a></li>
                     {% endif %}
                     {% if 'mc_materials_list' in array_subsecciones %}
                         <li id="admin_materials"><a href="{{path('nononsense_mclean_materials_list')}}">{{'Listado de Materiales'|trans}}</a></li>

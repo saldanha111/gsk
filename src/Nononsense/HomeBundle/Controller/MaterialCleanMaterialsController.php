@@ -102,6 +102,7 @@ class MaterialCleanMaterialsController extends Controller
                 $material->setName($request->get("name"));
                 $material->setExpirationDays($request->get("expiration_days"));
                 $material->setActive($request->get("active"));
+                $material->setotherName($request->get("otherName"));
                 $material->setAdditionalInfo($request->get('additionalInfo'));
                 $materialName = $materialRepository->findOneBy(['name' => $request->get("name")]);
                 if ($materialName && $materialName->getId() != $material->getId()) {
@@ -130,7 +131,7 @@ class MaterialCleanMaterialsController extends Controller
         return $this->render('NononsenseHomeBundle:MaterialClean:material_edit.html.twig', $array_item);
     }
 
-    public function expirationAction($id)
+    public function ajaxDataAction($id)
     {
         $em = $this->getDoctrine()->getManager();
         $array_return = array();
@@ -144,9 +145,11 @@ class MaterialCleanMaterialsController extends Controller
                 $expirationDays = $materialInput->getExpirationDays();
                 $expirationInterval = new DateInterval('P' . $expirationDays . 'D');
                 $expirationDate = (new DateTime())->add($expirationInterval);
+                $otherName = $materialInput->getOtherName();
 
                 $data['expirationDays'] = $expirationDays;
                 $data['expirationDate'] = $expirationDate->format('d-m-Y');
+                $data['otherName'] = $otherName;
                 $status = 200;
             }
         } catch (Exception $e) {

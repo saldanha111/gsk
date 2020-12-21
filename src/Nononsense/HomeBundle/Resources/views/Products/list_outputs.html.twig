@@ -70,7 +70,7 @@
                             <th>Cantidad</th>
                             <th>Fecha retirada</th>
                             <th>Usuario</th>
-                            <th>Qr</th>
+{#                            <th>Qr</th>#}
                         </tr>
                         </thead>
                         {% if items is defined %}
@@ -83,9 +83,9 @@
                                 <td>{{ item.amount }}</td>
                                 <td>{{ item.date|date('Y-m-d') }}</td>
                                 <td>{{ item.user.name }}</td>
-                                <td>
-                                    <a href="{{path('nononsense_products_outputs_view_qr', {'id': item.id}) }}" target="_blank" class="btn btn-xs"><i class="fa fa-qrcode" aria-hidden="true"></i> Ver QR</a>
-                                </td>
+{#                                <td>#}
+{#                                    <a href="{{path('nononsense_products_outputs_view_qr', {'id': item.id}) }}" target="_blank" class="btn btn-xs"><i class="fa fa-qrcode" aria-hidden="true"></i> Ver QR</a>#}
+{#                                </td>#}
                             </tr>
                             {% endfor %}
                         {% endif %}

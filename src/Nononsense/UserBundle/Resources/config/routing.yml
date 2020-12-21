@@ -93,6 +93,10 @@ nononsense_user_update_requests:
     requirements:
         id: '\d+'
     methods:  [GET, PUT]
+    
+nononsense_users_ldap:
+    path:     /ldap
+    defaults: { _controller: NononsenseUserBundle:Login:ldapComponent}
 
 nononsense_users_homepage:
     # path:     /{page}/{query}

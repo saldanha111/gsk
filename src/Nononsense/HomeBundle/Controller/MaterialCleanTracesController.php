@@ -228,14 +228,22 @@ class MaterialCleanTracesController extends Controller
             $error = true;
         }
 
+        $password = $request->get('password');
+        if(!$this->get('utilities')->checkUser($password)){
+            $this->get('session')->getFlashBag()->add('error', "La contraseña no es correcta.");
+            $error = true;
+        }
+
         if(!$error){
+            $now = new DateTime();
+            $firma = 'Material sucio registrado con contraseña de usuario el día ' . $now->format('d-m-Y H:i:s');
             try{
                 /** @var MaterialCleanCleans $trace */
                 foreach($traces as $trace){
                     $trace->setStatus(3)
                         ->setDirtyMaterialUser($this->getUser())
                         ->setDirtyMaterialDate(new DateTime())
-                        ->setDirtyMaterialSignature($request->get('firma'));
+                        ->setDirtyMaterialSignature($firma);
 
                     $em->persist($trace);
                     $em->flush();
@@ -269,14 +277,22 @@ class MaterialCleanTracesController extends Controller
             $error = true;
         }
 
+        $password = $request->get('password');
+        if(!$this->get('utilities')->checkUser($password)){
+            $this->get('session')->getFlashBag()->add('error', "La contraseña no es correcta.");
+            $error = true;
+        }
+
         if(!$error){
+            $now = new DateTime();
+            $firma = 'Utilización de material registrada con contraseña de usuario el día ' . $now->format('d-m-Y H:i:s');
             try{
                 /** @var MaterialCleanCleans $trace */
                 foreach($traces as $trace){
                     $trace->setStatus(4)
                         ->setReviewUser($this->getUser())
                         ->setReviewDate(new DateTime())
-                        ->setReviewSignature($request->get('firma'))
+                        ->setReviewSignature($firma)
                         ->setReviewInformation($request->get('comment-box'));
 
                     $em->persist($trace);

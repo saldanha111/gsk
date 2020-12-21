@@ -109,6 +109,11 @@ class ProductsInputs
     protected $user;
 
     /**
+     * @ORM\ManyToMany(targetEntity="\Nononsense\HomeBundle\Entity\ProductsDissolution", mappedBy="lines")
+     */
+    protected $dissolutions;
+
+    /**
      * Constructor
      */
     public function __construct()
@@ -433,5 +438,38 @@ class ProductsInputs
     public function getUser()
     {
         return $this->user;
+    }
+
+    /**
+     * Add dissolutions
+     *
+     * @param \Nononsense\HomeBundle\Entity\ProductsDissolution $dissolutions
+     * @return ProductsInputs
+     */
+    public function addDissolution(\Nononsense\HomeBundle\Entity\ProductsDissolution $dissolutions)
+    {
+        $this->dissolutions[] = $dissolutions;
+
+        return $this;
+    }
+
+    /**
+     * Remove dissolutions
+     *
+     * @param \Nononsense\HomeBundle\Entity\ProductsDissolution $dissolutions
+     */
+    public function removeDissolution(\Nononsense\HomeBundle\Entity\ProductsDissolution $dissolutions)
+    {
+        $this->dissolutions->removeElement($dissolutions);
+    }
+
+    /**
+     * Get dissolutions
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getDissolutions()
+    {
+        return $this->dissolutions;
     }
 }

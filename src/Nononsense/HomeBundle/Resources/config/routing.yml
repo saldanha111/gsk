@@ -349,12 +349,12 @@ nononsense_products:
     defaults: { _controller: NononsenseHomeBundle:Products:list}
 
 nononsense_products_reception:
-    path: /products/reception/{type}/{casNumber}
-    defaults: { _controller: NononsenseHomeBundle:Products:reception, casNumber: null}
+    path: /products/reception/{type}/{casNb}
+    defaults: { _controller: NononsenseHomeBundle:Products:reception, casNb: null}
 
 nononsense_products_inputs:
-    path: /products-inputs/{type}/{qrCode}/{casNumber}
-    defaults: { _controller: NononsenseHomeBundle:Products:input, casNumber: null }
+    path: /products-inputs/{type}/{qrCode}/{casNb}
+    defaults: { _controller: NononsenseHomeBundle:Products:input, casNb: null }
 
 nononsense_qrs_json_qr:
     path: /qrs-json/{id}
@@ -419,6 +419,22 @@ nononsense_products_inputs_get_data_json:
 nononsense_products_output_data:
     path: /products-output-data/{code}
     defaults: { _controller: NononsenseHomeBundle:Products:jsonOutputData}
+
+nononsense_products_dissolution:
+    path: /products-dissolution
+    defaults: { _controller: NononsenseHomeBundle:ProductsDissolution:list}
+
+nononsense_products_dissolution_edit:
+    path: /products-dissolution/{id}
+    defaults: { _controller: NononsenseHomeBundle:ProductsDissolution:edit}
+
+nononsense_products_dissolution_delete:
+    path: /products-dissolution-delete/{id}
+    defaults: { _controller: NononsenseHomeBundle:Productsdissolution:delete}
+
+nononsense_products_dissolution_view_qr:
+    path: /products-dissolution-qr/{id}
+    defaults: { _controller: NononsenseHomeBundle:ProductsDissolution:dissolutionQr }
 
 # /Gestión de reactivos
 
@@ -588,9 +604,9 @@ nononsense_mclean_cleans_save:
     path: /mclean/cleans/save/{id}
     defaults: { _controller: NononsenseHomeBundle:MaterialCleanCleans:save}
 
-nononsense_mclean_material_get_expiration_json:
-    path: /mclean/cleans/material/expiration/{id}
-    defaults: { _controller: NononsenseHomeBundle:MaterialCleanMaterials:expiration, id: 0}
+nononsense_mclean_material_get_data_json:
+    path: /mclean/cleans/material/data/{id}
+    defaults: { _controller: NononsenseHomeBundle:MaterialCleanMaterials:ajaxData, id: 0}
 
 nononsense_mclean_uses_scan:
     path: /mclean/uses/scan
@@ -620,7 +636,6 @@ nononsense_mclean_trace_view:
     path: /mclean/traces/view/{id}
     defaults: { _controller: NononsenseHomeBundle:MaterialCleanTraces:showTrace}
 
-
 nononsense_mclean_products_list:
     path: /mclean/products
     defaults: { _controller: NononsenseHomeBundle:MaterialCleanProducts:list}
@@ -632,6 +647,10 @@ nononsense_mclean_products_edit:
 nononsense_mclean_products_delete:
     path: /mclean/product/delete/{id}
     defaults: { _controller: NononsenseHomeBundle:MaterialCleanProducts:delete}
+
+nononsense_mclean_get_sign_valid:
+    path: /mclean/cleans/checkpass
+    defaults: { _controller: NononsenseHomeBundle:MaterialCleanCleans:checkPass}
 
 # /Material Limipo
 

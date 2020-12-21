@@ -1,0 +1,317 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}DOCXPRESSO |  Disoluciones / {{dissolution.id is not null ? 'Editar' : 'Crear'}} disolución {% endblock %}
+{% block head %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('/js/plugins/sweetalert/sweetalert.min.css') }}">
+{% endblock %}
+{% block main_title %} Disoluciones / {{dissolution.id is not null ? 'Editar' : 'Crear'}} disolución {% endblock %}
+
+{% block content %}
+    <div class="wrapper wrapper-content animated fadeInUp">
+        {% for flashMessage in app.session.flashbag.get('error') %}
+            <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                {{ flashMessage }}
+            </div>
+            <br>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('message') %}
+            <div class="alert alert-success alert-dismissable" style="margin: 10px 16px 0 16px">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                {{ flashMessage }}
+            </div>
+            <br>
+        {% endfor %}
+        <form class="form-horizontal" id="form_item" method="POST"
+              action="{{ path('nononsense_products_dissolution_edit',{'id' : dissolution.id is defined and  dissolution.id is not null ? dissolution.id : '0'}) }}">
+            <input type="hidden" id='url_get_data_input_json' value="{{ path('nononsense_products_inputs_get_data_json',{'id': 'xxx'}) }}" />
+            <div class="row">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">Nombre de disolución</label>
+                    <div class="col-sm-5">
+                        <input type="text" name="name" class="form-control"  required="required"
+                               value="{{ dissolution.name is defined and dissolution.name is not null ? dissolution.name : ''}}">
+                    </div>
+                </div>
+                <input type="hidden" id="QrValue" name="qr-value"/>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">Qr del reactivo</label>
+                    <div class="col-md-3 col-sm-4 col-xs-6">
+                        <button id="btn-scanner-use" type="button" class="btn btn-primary">Escanear con scanner</button>
+                    </div>
+                    <div class="col-md-3 col-sm-4 col-xs-6">
+                        <button id="btn-camera-use" type="button" class="btn btn-primary">Escanear con camara</button>
+                    </div>
+                </div>
+                <div class="form-group camera-group" style="display:none;">
+                    <label class="col-sm-3 control-label">Imagen Qr</label>
+                    <div class="col-sm-4">
+                        <input id="imageQR" type="file" name="pic" accept="image/*" capture="camera">
+                        <input type="hidden" name="camera_use" class="form-control code-input camera-use">
+                    </div>
+                    <div class="col-sm-2">
+                        <a href="#" class="btn btn-primary pull-right insert-reactivo">
+                            <i class="fa fa-plus" aria-hidden="true"></i> Insertar reactivo
+                        </a>
+                    </div>
+                </div>
+                <div class="form-group scan-group" style="display:none;">
+                    <label class="col-sm-3 control-label">Código Qr</label>
+                    <div class="col-sm-4">
+                        <input type="text" placeholder="Código" name="scan_use" class="form-control code-input scan-use">
+                    </div>
+                    <div class="col-sm-2">
+                        <a href="#" class="btn btn-primary pull-right insert-reactivo">
+                            <i class="fa fa-plus" aria-hidden="true"></i> Insertar reactivo
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <hr/>
+            <div class="row">
+                <div class="col-xs-12">
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>CAS Number</th>
+                            <th>Lote</th>
+                            <th>Fecha destrucción</th>
+                            <th>Eliminar</th>
+                        </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                        {% if dissolution.lines is defined and dissolution.lines is not null %}
+                        {% for item in dissolution.lines %}
+                            <tr>
+                                <td>
+                                    <input type="hidden" name="line[]" value="{{ item.id }}">
+                                    <span>{{ item.product.name }}</span></td>
+                                <td>{{ item.product.casNumber }}</td>
+                                <td>{{ item.lotNumber }}</td>
+                                <td>{{ item.destructionDate | date('d-m-Y H:i:s') }}</td>
+                                <td><a href="#" class="del-line"><i class="fa fa-trash-o" aria-hidden="true"></i> Eliminar</a></td>
+                            </tr>
+                        {% endfor %}
+                        {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-11">
+                    <button type="submit" class="btn btn-primary  pull-right"><i class="fa fa-floppy-o" aria-hidden="true"></i> registrar disolución</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+{% endblock %}
+
+{% block scripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/plugins/sweetalert/sweetalert.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/grid.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/version.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/detector.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/formatinf.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/errorlevel.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/bitmat.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/datablock.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/bmparser.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/datamask.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/rsdecoder.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/gf256poly.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/gf256.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/decoder.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/qrcode.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/findpat.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/alignpat.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/databr.js') }}"></script>
+    <script>
+
+    $( document ).ready(function() {
+        ActivateMenu('browse_product_dissolution');
+        $('#side-menu').metisMenu();
+    });
+
+    function putQrValue(data) {
+        if(data !== 'error decoding QR Code'){
+            $('.camera-use').val(data);
+        }else{
+            swal({
+                title: "Error",
+                text: "El código no se ha leído correctamente",
+                icon: 'warning',
+                showCancelButton: false,
+                confirmButtonColor: '#62bbe2',
+                confirmButtonText: "Ok",
+                closeOnConfirm: true
+            });
+        }
+    }
+
+    $(function(){
+        qrcode.callback = putQrValue;
+        $(document).on('change','#imageQR',function(event){
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            reader.onload = (function (event) {
+                qrcode.decode(event.target.result);
+            });
+            reader.readAsDataURL(file);
+        });
+    });
+
+    function activeCamera(){
+        $('.code-input').val('');
+        $('#imageQR').val(null);
+        $('.scan-group').hide();
+        $('.scan-use').removeClass('active');
+        $('.camera-group').show();
+        $('.camera-use').addClass('active');
+    }
+
+    function activeScanner(){
+        $('.code-input').val('');
+        $('.camera-group').hide();
+        $('.camera-use').removeClass('active');
+        $('.scan-group').show();
+        $('.scan-use').addClass('active').focus();
+    }
+
+    $(document).on('click','#btn-scanner-use',function(e){
+        e.preventDefault();
+        activeScanner();
+    });
+
+    $(document).on('click','#btn-camera-use',function(e){
+        e.preventDefault();
+        activeCamera();
+    });
+
+    $(document).on('click', '.insert-reactivo', function(e){
+        e.preventDefault();
+        const activeVal = $('.code-input.active').val();
+        const qrInput = $('#QrValue');
+        console.log(activeVal);
+        if(activeVal !== ''){
+            qrInput.val(activeVal);
+            show_data_inputs(activeVal);
+        }else{
+            qrInput.val('');
+            swal({
+                title: "Error",
+                text: "El código no se ha leído correctamente",
+                icon: 'warning',
+                showCancelButton: false,
+                confirmButtonColor: '#62bbe2',
+                confirmButtonText: "Ok",
+                closeOnConfirm: true
+            });
+        }
+    });
+
+    $(document).on('click', '.del-line', function(e){
+        e.preventDefault();
+        const element = $(this);
+        const tr = element.closest('tr');
+        tr.remove();
+    });
+
+    function show_data_inputs(input_id) {
+        var url = $('#url_get_data_input_json').val();
+        url = url.replace("xxx", input_id);
+        $.ajax({
+            async: true,
+            url: url,
+            type: 'GET',
+            complete: function (respuesta) {
+                hide_loader();
+                const datos = JSON.parse(respuesta.responseText);
+                console.log(datos);
+                if (datos.status === 200) {
+                    if(datos.data.isReactivo){
+                        insertReactiveData(datos.data);
+                        resetQr();
+                    }else{
+                        swal({
+                            title: "Error",
+                            text: "El QR no pertenece a un reactivo",
+                            icon: 'warning',
+                            showCancelButton: false,
+                            confirmButtonColor: '#62bbe2',
+                            confirmButtonText: "Ok",
+                            closeOnConfirm: true
+                        });
+                    }
+                } else {
+                    swal({
+                        title: "Error",
+                        text: "El QR no se corresponde con una entrada válida",
+                        icon: 'warning',
+                        showCancelButton: false,
+                        confirmButtonColor: '#62bbe2',
+                        confirmButtonText: "Ok",
+                        closeOnConfirm: true
+                    });
+                }
+            }
+        });
+    }
+
+    function insertReactiveData(data)
+    {
+        if(typeof($('input[value="' + data.id + '"]').val()) != 'undefined'){
+            swal({
+                title: "Error",
+                text: "El reactivo ya forma parte de la disolución",
+                icon: 'warning',
+                showCancelButton: false,
+                confirmButtonColor: '#62bbe2',
+                confirmButtonText: "Ok",
+                closeOnConfirm: true
+            });
+        }else{
+            const lineNumber = '<input type="hidden" name="line[]" value="' + data.id + '">';
+            const deleteLink = '<a href="#" class="del-line"><i class="fa fa-trash-o" aria-hidden="true"></i> Eliminar</a>';
+            const row = document.createElement('tr');
+            // first td
+            const firstTd = document.createElement('td');
+            firstTd.innerHTML = lineNumber;
+            const firstSpan = document.createElement('span');
+            firstSpan.innerHTML = data.name;
+            firstTd.appendChild(firstSpan);
+            row.appendChild(firstTd);
+            // second td
+            const secondTd = document.createElement('td');
+            secondTd.innerHTML = data.casNumber;
+            row.appendChild(secondTd);
+            // third td
+            const thirdTd = document.createElement('td');
+            thirdTd.innerHTML = data.lotNumber;
+            row.appendChild(thirdTd);
+            // fourth td
+            const fourthTd = document.createElement('td');
+            fourthTd.innerHTML = data.destructionDate;
+            row.appendChild(fourthTd);
+            // fifth td
+            const fifthTd = document.createElement('td');
+            fifthTd.innerHTML = deleteLink;
+            row.appendChild(fifthTd);
+            const lastRow = document.getElementById("tableBody").lastChild;
+            lastRow.after(row);
+        }
+    }
+
+    function resetQr()
+    {
+        if($('.scan-use').hasClass('active')){
+            activeScanner();
+        }else if($('.camera-use').hasClass('active')){
+            activeCamera();
+        }
+    }
+
+    </script>
+{% endblock %}
