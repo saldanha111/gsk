@@ -50,7 +50,7 @@
                                 <td>
                                     {% set approved = false %}
                                     {% for result_aprob in tests_results_aprobs %}
-                                        {% if result_aprob.tmTest == test and wfitem==result_aprob.tmWhoAprobFromWorkflow %}
+                                        {% if result_aprob.tmTest == test and wfitem==result_aprob.tmWhoAprobFromWorkflow and (max_id_re_approv is not defined or max_id_re_approv<=result_aprob.id) %}
                                             {% if result_aprob.tmAprobAction.id == 1 %}<span class="label bg-green"{% else %}<span class="label bg-red"{% endif %} data-toggle="tooltip" data-placement="left" title="{{ result_aprob.description }}">{{result_aprob.tmAprobAction.name}}</span>
                                             {% set approved = true %}
                                         {% endif %}

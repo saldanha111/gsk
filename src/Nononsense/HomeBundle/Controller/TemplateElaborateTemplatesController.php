@@ -130,6 +130,11 @@ class TemplateElaborateTemplatesController extends Controller
             if($item_all->getAction()->getId()==2){
                 $array_item["max_id_no_test"]=$item_all->getId();
             }
+
+            if($item_all->getAction()->getId()==17){
+                $array_item["max_id_re_approv"]=$item_all->getId();
+            }
+
             if($item_all->getAction()->getId()==4){
                 $approval_exists=1;
             }
@@ -205,8 +210,10 @@ class TemplateElaborateTemplatesController extends Controller
         $find=0;
         foreach($elaborators as $elaborator){
             if($elaborator->getUserEntiy() && $elaborator->getUserEntiy()==$user){
-                $elaborator->setSigned(TRUE);
-                $em->persist($elaborator);
+                if($request->get("finish_elaboration")){
+                    $elaborator->setSigned(TRUE);
+                    $em->persist($elaborator);
+                }
                 $find=1;
             }
             else{
@@ -231,8 +238,10 @@ class TemplateElaborateTemplatesController extends Controller
                     }
                     if($in_group==1){
                         $find=1;
-                        $elaborator->setSigned(TRUE);
-                        $em->persist($elaborator);
+                        if($request->get("finish_elaboration")){
+                            $elaborator->setSigned(TRUE);
+                            $em->persist($elaborator);
+                        }
                         break;
                     }
                 }

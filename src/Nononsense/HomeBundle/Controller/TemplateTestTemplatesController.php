@@ -115,6 +115,9 @@ class TemplateTestTemplatesController extends Controller
             if($item_all->getAction()->getId()==4){
                 $approval_exists=1;
             }
+            if($item_all->getAction()->getId()==17){
+                $array_item["max_id_re_approv"]=$item_all->getId();
+            }
         }
         $action_aprob = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 4));
         $signatures = $this->getDoctrine()->getRepository(TMSignatures::class)->findBy(array("template" => $array_item["template"], "action" => $action),array("id" => "ASC"));
@@ -525,14 +528,16 @@ class TemplateTestTemplatesController extends Controller
         		$signature->setDescription($request->get("description"));
         	}
         }
-        $em->persist($signature);
+        
 
         
         $result = $this->getDoctrine()->getRepository(TMTestResults::class)->findOneBy(array("id" => $request->get("result")));
+
         $last_test->setSignature($signature);
         $last_test->setResult($result);
+        $signature->addTmTest($last_test);
         $em->persist($last_test);
-        
+        $em->persist($signature);
 
         if($request->get("finish_tests")){
 	        $template->setOpenedBy(NULL);

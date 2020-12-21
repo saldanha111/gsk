@@ -108,6 +108,10 @@ class TemplateAprobTemplatesController extends Controller
             if($item_all->getAction()->getId()<3){
                 $array_item["max_id_no_test"]=$item_all->getId();
             }
+
+            if($item_all->getAction()->getId()==17){
+                $array_item["max_id_re_approv"]=$item_all->getId();
+            }
         }
 
         $signatures = $this->getDoctrine()->getRepository(TMSignatures::class)->findBy(array("template" => $array_item["template"], "action" => $action_test),array("id" => "ASC"));
