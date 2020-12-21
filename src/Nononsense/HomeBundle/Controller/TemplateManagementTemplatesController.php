@@ -766,6 +766,15 @@ class TemplateManagementTemplatesController extends Controller
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         $raw_response = curl_exec($ch);
         $response = json_decode($raw_response, true);
+
+        if(!isset($response["configurationUrl"])){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                'No se puede cargar la configuración de esta plantilla'
+            );
+            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            return $this->redirect($route);
+        }
         
         return $this->redirect($response["configurationUrl"]);
     }

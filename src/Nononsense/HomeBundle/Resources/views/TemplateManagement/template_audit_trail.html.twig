@@ -86,7 +86,9 @@
                               <span class="label bg-default">{{signature.action.name}}</span>
                             {% endif %}
 
-                            <a href="{{path('nononsense_tm_view_configuration', {'id': item.id}) }}?configuration={{signature.configuration}}" class="btn btn-xs btn-primary"  target="_blank"><i class="fa fa-magic"></i> Ver configuración</a>
+                            {% if signature.configuration is defined and signature.configuration is not empty %}
+                              <a href="{{path('nononsense_tm_view_configuration', {'id': item.id}) }}?configuration={{signature.configuration}}" class="btn btn-xs btn-primary"  target="_blank"><i class="fa fa-magic"></i> Ver configuración</a>
+                            {% endif %}
                             </h3>
 
                             
