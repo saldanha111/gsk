@@ -32,7 +32,7 @@ class TMCumplimentations
 
     /**
      * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\TMCumplimentationsType", inversedBy="tmCumplimentations")
-     * @ORM\JoinColumn(name="state_id", referencedColumnName="id")
+     * @ORM\JoinColumn(name="type_id", referencedColumnName="id")
      */
     protected $tmType;
 
