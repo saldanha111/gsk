@@ -10,7 +10,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * @ORM\Entity
  * @ORM\Table(name="tm_test_results")
- * @ORM\Entity(repositoryClass="Nononsense\HomeBundle\Entity\TMStatesRepository")
+ * @ORM\Entity(repositoryClass="Nononsense\HomeBundle\Entity\TMTestResultsRepository")
  * @ORM\HasLifecycleCallbacks
  */
 class TMTestResults

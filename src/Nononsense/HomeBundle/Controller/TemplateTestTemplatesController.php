@@ -8,6 +8,7 @@ use Nononsense\UtilsBundle\Classes;
 
 use Nononsense\UserBundle\Entity\Users;
 use Nononsense\GroupBundle\Entity\Groups;
+use Nononsense\GroupBundle\Entity\GroupsUsers;
 use Nononsense\HomeBundle\Entity\Areas;
 use Nononsense\HomeBundle\Entity\TMStates;
 use Nononsense\HomeBundle\Entity\RetentionCategories;
@@ -38,6 +39,16 @@ class TemplateTestTemplatesController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
         $array_item=array();
+
+        $is_valid = $this->get('app.security')->permissionSeccion('tester_gp');
+        if(!$is_valid){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                'No tiene permisos suficientes'
+            );
+            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            return $this->redirect($route);
+        }
 
         $user = $this->container->get('security.context')->getToken()->getUser();
 
@@ -95,10 +106,33 @@ class TemplateTestTemplatesController extends Controller
         	}
         }
 
+        $approval_exists=0;
+        $all_signatures = $this->getDoctrine()->getRepository(TMSignatures::class)->findBy(array("template" => $array_item["template"]),array("id" => "ASC"));
+        foreach($all_signatures as $key_all => $item_all){
+            if($item_all->getAction()->getId()==2 || $item_all->getAction()->getId()==4){
+                $array_item["max_id_no_test"]=$item_all->getId();
+            }
+            if($item_all->getAction()->getId()==4){
+                $approval_exists=1;
+            }
+            if($item_all->getAction()->getId()==17){
+                $array_item["max_id_re_approv"]=$item_all->getId();
+            }
+        }
+        $action_aprob = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 4));
         $signatures = $this->getDoctrine()->getRepository(TMSignatures::class)->findBy(array("template" => $array_item["template"], "action" => $action),array("id" => "ASC"));
         $array_item["tests"] = $this->getDoctrine()->getRepository(TMTests::class)->findBy(array("signature" => $signatures, "test_id" => NULL),array("id" => "DESC"));
+        $array_item["tests_results_aprobs"] = $this->getDoctrine()->getRepository(TMSignatures::class)->findBy(array("tmTest" => $array_item["tests"], "action" => $action_aprob),array("id" => "ASC"));
         foreach($array_item["tests"] as $key_test => $item_test){
         	$array_item["subtests"][$item_test->getId()] = $this->getDoctrine()->getRepository(TMTests::class)->findBy(array("signature" => $signatures, "test_id" => $item_test->getId()),array("id" => "DESC"));
+            $array_item["subtests_results_aprobs"][$item_test->getId()] = $this->getDoctrine()->getRepository(TMSignatures::class)->findBy(array("tmTest" => $array_item["subtests"][$item_test->getId()], "action" => $action_aprob),array("id" => "ASC"));
+        }
+
+        if($approval_exists==1){
+            $array_item["aprobs"] = $this->getDoctrine()->getRepository(TMWorkflow::class)->findBy(array("template" => $array_item["template"], "action" => $action_aprob),array("id" => "ASC"));
+        }
+        else{
+            $array_item["aprobs"]=array();
         }
 
         $base_url=$this->getParameter('api_docoaro')."/documents/".$array_item["template"]->getPlantillaId();
@@ -138,6 +172,16 @@ class TemplateTestTemplatesController extends Controller
     	$em = $this->getDoctrine()->getManager();
         $array_item=array();
 
+        $is_valid = $this->get('app.security')->permissionSeccion('tester_gp');
+        if(!$is_valid){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                'No tiene permisos suficientes'
+            );
+            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            return $this->redirect($route);
+        }
+
         $user = $this->container->get('security.context')->getToken()->getUser();
 
         $template = $this->getDoctrine()->getRepository(TMTemplates::class)->findOneBy(array("id" => $id));
@@ -172,7 +216,7 @@ class TemplateTestTemplatesController extends Controller
 	        if(!$template->getOpenedBy() || $template->getOpenedBy()!=$user){
 	            $this->get('session')->getFlashBag()->add(
 	                'error',
-	                'No se puedo efectuar la operación'
+	                'No se puede efectuar la operación'
 	            );
 	            $route=$this->container->get('router')->generate('nononsense_tm_templates');
 	            return $this->redirect($route);
@@ -322,6 +366,16 @@ class TemplateTestTemplatesController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
         $array_item=array();
+
+        $is_valid = $this->get('app.security')->permissionSeccion('tester_gp');
+        if(!$is_valid){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                'No tiene permisos suficientes'
+            );
+            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            return $this->redirect($route);
+        }
 
         $user = $this->container->get('security.context')->getToken()->getUser();
 
@@ -474,14 +528,16 @@ class TemplateTestTemplatesController extends Controller
         		$signature->setDescription($request->get("description"));
         	}
         }
-        $em->persist($signature);
+        
 
         
         $result = $this->getDoctrine()->getRepository(TMTestResults::class)->findOneBy(array("id" => $request->get("result")));
+
         $last_test->setSignature($signature);
         $last_test->setResult($result);
+        $signature->addTmTest($last_test);
         $em->persist($last_test);
-        
+        $em->persist($signature);
 
         if($request->get("finish_tests")){
 	        $template->setOpenedBy(NULL);
@@ -498,13 +554,14 @@ class TemplateTestTemplatesController extends Controller
 	        if($next_step==1){
 	        	//Vaciamos el control de los que ya han firmado puesto que la plantilla cambia de estado
 	        	foreach($testers as $tester){
-	        		$test->setSigned(0);
-	        		$em->persist($test);
+	        		$tester->setSigned(0);
+	        		$em->persist($tester);
 	        	}
 
 	        	$next_state=4;
 	        	$users_notifications=array();
 	        	$userssignatures = $this->getDoctrine()->getRepository(TMSignatures::class)->findBy(array("template" => $template),array("id" => "ASC"));
+                $userssignatures[]=$signature;
 	        	//Comprobamos los test realizados para saber a que estado debemos pasar la plantilla
 	        	foreach($userssignatures as $us){
 	        		//Tenemos en cuenta solo las pruebas desde la última firma que no sea de test
@@ -517,7 +574,7 @@ class TemplateTestTemplatesController extends Controller
 	        		}
 	        		else{
 	        			//Si hay un error en la prueba la plantilla vuelve hacia atrás
-	        			if($us->getResult()->getId()>1){
+	        			if($us->getTmTests()[0]->getResult()->getId()>1){
 	        				$next_state=2;
 	        			}
 	        		}
@@ -533,8 +590,8 @@ class TemplateTestTemplatesController extends Controller
 	        				$users_notifications[]=$aprob->getUserEntiy()->getEmail();
 	        			}
 	        			else{
-	        				foreach($aprob->groupEntiy()->getUsers() as $user_group){
-								$users_notifications[]=$user_group->getEmail();
+	        				foreach($aprob->getGroupEntiy()->getUsers() as $user_group){
+								$users_notifications[]=$user_group->getUser()->getEmail();
 	        				}
 	        			}
 	        		}
@@ -543,8 +600,20 @@ class TemplateTestTemplatesController extends Controller
 	            $state = $this->getDoctrine()->getRepository(TMStates::class)->findOneBy(array("id"=> $next_state));
 	            $template->setTmState($state);
 
-	            var_dump($users_notifications);die();
-	            //Enviamos email
+                if($next_state==4){
+                    $subject="Plantilla a aprobar";
+                    $mensaje='La plantilla con ID '.$id.' está pendiente de aprobación por su parte. Para poder revisarlo puede acceder a "Gestión de plantillas -> En aprobación", buscar la plantilla correspondiente y pulsar en Aprobar';
+                    $baseURL=$this->container->get('router')->generate('nononsense_tm_aprob_detail', array("id" => $id),TRUE);
+                }
+                else{
+                    $subject="La plantilla no ha pasado los tests";
+                    $mensaje='La plantilla con ID '.$id.' no ha pasado los tests realizados y require de nuevo de su elaboración. Para poder realizar las correcciones pertinentes, puede acceder a "Gestión de plantillas -> En elaboración", buscar la plantilla correspondiente y pulsar en Elaborar. Podrá ver los tests y comentarios de cada uno de llos pulsando en el Audit Trail';
+                    $baseURL=$this->container->get('router')->generate('nononsense_tm_elaborate_detail', array("id" => $id),TRUE);
+                }
+
+                foreach($users_notifications as $email){
+                    $this->get('utilities')->sendNotification($email, $baseURL, "", "", $subject, $mensaje);
+                }
 	        }
 
         }

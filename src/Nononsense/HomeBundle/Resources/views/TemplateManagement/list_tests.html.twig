@@ -1,0 +1,109 @@
+{% if tests is defined %}
+<div class="box box-default">
+    <div class="box-header with-border">
+      <h3 class="box-title">Tests</h3>
+    </div>
+    <!-- /.box-header -->
+    <div class="box-body">
+        {% if template.tmState.id == 3 %}
+            <a href="{{path('nononsense_tm_test_new', {'id': template.id}) }}" class="btn btn-primary pull-right"><i class="fa fa-flask"></i> Nuevo</a><br>
+        {% endif %}
+        <br>
+        <div class="form-group div_list_tests">
+            <table id="inProcessParcial" class="table table-striped table_test">
+                <thead>
+                <tr>
+                    <th></th>
+                    <th>Fecha</th>
+                    <th>Resultado</th>
+                    <th>Nombre tester</th>
+                    {% if template.tmState.id == 3 %}
+                        <th></th>
+                    {% endif %}
+                    {% if aprobs is defined %}
+                        {% for wfitem in aprobs %}
+                            <th>{{wfitem.userEntiy is defined and wfitem.userEntiy is not null ? ('<i class="fa fa-user"></i> '~wfitem.userEntiy.name)|raw : ('<i class="fa fa-users"></i> '~wfitem.groupEntiy.name)|raw}}</th>
+                        {% endfor %}
+                    {% endif %}
+                    <th></th>
+                    <th>Fecha</th>
+                    <th>Resultado</th>
+                    <th>Nombre tester</th>
+                    {% if aprobs is defined %}
+                        {% for wfitem in aprobs %}
+                            <th>{{wfitem.userEntiy is defined and wfitem.userEntiy is not null ? ('<i class="fa fa-user"></i> '~wfitem.userEntiy.name)|raw : ('<i class="fa fa-users"></i> '~wfitem.groupEntiy.name)|raw}}</th>
+                        {% endfor %}
+                    {% endif %}
+                </tr>
+                </thead>
+                {% for test in tests %}
+                    <tr {% if max_id_no_test is defined and test.signature.id < max_id_no_test %} class="strikeout" {% endif %}>
+                        <td><a href="{{path('nononsense_tm_test_new', {'id': template.id}) }}?pdf=1&test={{test.id}}&configuration={{test.signature.configuration}}" class="btn btn-xs btn-danger pull-right"  target="_blank"><i class="fa fa-file-pdf-o"></i> Cumpl.</a></td>
+                        <td>{{test.created is defined and test.created is not null ? test.created|date("d/m/Y H:i:s") : ''}}</td>
+                        <td>{% if test.result.id == 1 %}<span class="label bg-green"{% else %}<span class="label bg-red"{% endif %} data-toggle="tooltip" data-placement="left" title="{{ test.signature.description }}">{{test.result.name}}</span></td>
+                        <td>{{test.userEntiy.name}}</td>
+                        {% if template.tmState.id == 3 %}
+                            <td><a href="{{path('nononsense_tm_test_new', {'id': template.id}) }}?test={{test.id}}&mode=v&configuration={{test.signature.configuration}}" class="btn btn-xs btn-primary pull-right">Añadir test de verificación <i class="fa fa-arrow-circle-right"></i></a></td>
+                        {% endif %}
+                        {% if aprobs is defined %}
+                            {% for wfitem in aprobs %}
+                                <td>
+                                    {% set approved = false %}
+                                    {% for result_aprob in tests_results_aprobs %}
+                                        {% if result_aprob.tmTest == test and wfitem==result_aprob.tmWhoAprobFromWorkflow and (max_id_re_approv is not defined or max_id_re_approv<=result_aprob.id) %}
+                                            {% if result_aprob.tmAprobAction.id == 1 %}<span class="label bg-green"{% else %}<span class="label bg-red"{% endif %} data-toggle="tooltip" data-placement="left" title="{{ result_aprob.description }}">{{result_aprob.tmAprobAction.name}}</span>
+                                            {% set approved = true %}
+                                        {% endif %}
+                                    {% endfor %}  
+
+
+                                    {% if max_id_no_test is defined and my_id is defined and not approved and my_id == wfitem.id and test.signature.id > max_id_no_test %}<a href="javascript:approve_test({{test.id}})" class="btn btn-xs btn-primary pull-right"><i class="fa fa-check"></i> Aprobar test</a>{% endif %}
+
+                                </td>
+                            {% endfor %}
+                        {% endif %}
+                        <td colspan="{{4+aprobs|length}}"></td>
+                    </tr>
+                    {% for subtest in subtests[test.id] %}
+                        <tr {% if max_id_no_test is defined and subtest.signature.id < max_id_no_test %} class="strikeout" {% endif %}>
+                            <td colspan="{{4+aprobs|length}}"></td>
+                            {% if template.tmState.id == 3 %}
+                                <td></td>
+                            {% endif %}
+                            <td><a href="{{path('nononsense_tm_test_new', {'id': template.id}) }}?pdf=1&test={{subtest.id}}&configuration={{subtest.signature.configuration}}" class="btn btn-xs btn-danger pull-right"  target="_blank"><i class="fa fa-file-pdf-o"></i> Verif.</a></td>
+                            <td>{{subtest.created is defined and subtest.created is not null ? subtest.created|date("d/m/Y H:i:s") : ''}}</td>
+                            <td>{% if subtest.result.id == 1 %}<span class="label bg-green"{% else %}<span class="label bg-red"{% endif %} data-toggle="tooltip" data-placement="left" title="{{ subtest.signature.description }}">{{subtest.result.name}}</span></td>
+                            <td>{{subtest.userEntiy.name}}</td>
+                            {% if aprobs is defined %}
+                                {% for wfitem in aprobs %}
+                                    <td>
+                                        {% set approved = false %}
+                                        {% for result_aprob in subtests_results_aprobs[test.id] %}
+                                            {% if result_aprob.tmTest == subtest and wfitem==result_aprob.tmWhoAprobFromWorkflow %}
+                                                {% if result_aprob.tmAprobAction.id == 1 %}<span class="label bg-green"{% else %}<span class="label bg-red"{% endif %}  data-toggle="tooltip" data-placement="left" title="{{ result_aprob.description }}">{{result_aprob.tmAprobAction.name}}</span>
+                                                {% set approved = true %}
+                                            {% endif %}
+                                        {% endfor %}  
+
+                                        {% if max_id_no_test is defined and my_id is defined and my_id == wfitem.id  and subtest.signature.id > max_id_no_test and not approved %}<a href="javascript:approve_test({{subtest.id}})" class="btn btn-xs btn-primary pull-right"><i class="fa fa-check"></i> Aprobar test</a>{% endif %}
+
+                                    </td>
+                                {% endfor %}
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                {% endfor %}
+            </table>
+        </div>  
+        {% if template.tmState.id == 3 %}
+            <a href="{{path('nononsense_tm_test_new', {'id': template.id}) }}" class="btn btn-primary pull-right"><i class="fa fa-flask"></i> Nuevo</a>
+        {% endif %}
+    </div>
+    {% if template.openedBy is defined and template.openedBy is not empty and template.openedBy.id!=app.user.id %}
+        <div class="overlay">
+          <i class="fa fa-cog fa-spin"></i>
+        </div>
+    {% endif %}
+    <!-- /.box-body -->
+</div>  
+{% endif %}

@@ -1,10 +1,10 @@
 {% extends '::base.html.twig' %}
-{% block page_title %}Docoaro - GSK | {{'Homepage'|trans}} {% endblock %}
+{% block page_title %}DOCXPRESSO | {{'Homepage'|trans}} {% endblock %}
 {% block head %}
 {{ parent() }}
 <link rel="stylesheet" type="text/css" href="{{ asset('bundles/nononsensehome/css/adminlte.css') }}">
 {% endblock %}
-{% block main_title %} {{'Test de plantilla'|trans}}{% endblock %}
+{% block main_title %} {{'Aprobación de plantilla'|trans}}{% endblock %}
 {% block content %}
 
 
@@ -37,7 +37,7 @@
                 </div>
                 <!-- /.box-header -->
                 <div class="box-body">
-                    {% for wfitem in testers %}
+                    {% for wfitem in aprobs %}
                         {% if not wfitem.signed %}<div class="box box-danger">{% else %}<div class="box box-success">{% endif %}
                             <div class="box-header">
                                 <h3 class="box-title">{{wfitem.userEntiy is defined and wfitem.userEntiy is not null ? ('<i class="fa fa-user"></i> '~wfitem.userEntiy.name)|raw : ('<i class="fa fa-users"></i> '~wfitem.groupEntiy.name)|raw}}</h3>
@@ -64,12 +64,12 @@
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Firmar Test</h5>
+        <h5 class="modal-title">Aprobar Test</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-        <form id="form_sign_test" action="{{path('nononsense_tm_test_update', {'id': template.id}) }}" method="POST"  enctype="multipart/form-data">
+        <form id="form_sign_test" action="{{path('nononsense_tm_aprob_update', {'id': template.id}) }}" method="POST"  enctype="multipart/form-data">
             <div class="modal-body">
                 <div class="row">
                     <div class="col-lg-10 col-lg-offset-1">
@@ -94,11 +94,6 @@
                         </div>
                     </div> 
                 {% endif %}
-                <div class="row">
-                    <div class="col-lg-10 col-lg-offset-1">
-                        <input name="finish_tests" value="1" type="checkbox"> Finalizar tests
-                    </div>
-                </div>
                 <br>
                 <div class="row">
                     <div class="col-lg-10 col-lg-offset-1">
@@ -109,11 +104,11 @@
                     </div>
                 </div>
                 <input type="hidden" id="signature" name="signature" />
-                <input type="hidden" name="token" value="{{app.request.query.get('token') is defined  ? app.request.query.get('token') : ''}}" />
+                <input type="hidden" id="id_test" name="test" />
             </div>
             <div class="modal-footer">
                 <a name="borrarFirmar" class="btn btn-secondary" id="borrarFirmar">Limpiar firma</a>
-                <input type="submit" class="btn btn-primary" value="Firmar test">
+                <input type="submit" class="btn btn-primary" value="Aprobar test">
             </div>
         </form>
     </div>
@@ -133,10 +128,6 @@ var signaturePad = new SignaturePad(canvas);
 
 $( document ).ready(function() {
     $('[data-toggle="tooltip"]').tooltip();
-    {% if sign is defined and sign == 1 %}
-        $('#modalSignTest').modal('show');
-    {% endif %}
-
     $('#borrarFirmar').on('click', function () {
         signaturePad.clear();
     });
@@ -161,5 +152,10 @@ $( document ).ready(function() {
     });
 
 });
+
+function approve_test(test_id){
+    $("#id_test").val(test_id);
+    $('#modalSignTest').modal('show');
+}
 </script>
 {% endblock %}

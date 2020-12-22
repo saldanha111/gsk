@@ -35,6 +35,7 @@ class TemplateManagementRequestController extends Controller
     {
     	$serializer = $this->get('serializer');
         $array_item=array();
+
         $array_item["areas"] = $this->getDoctrine()->getRepository(Areas::class)->findBy(array(),array("name" => "ASC"));
         $array_item["groups"] = $this->getDoctrine()->getRepository(Groups::class)->findBy(array(),array("name" => "ASC"));
         $array_item["users"] = $this->getDoctrine()->getRepository(Users::class)->findBy(array(),array("name" => "ASC"));
@@ -271,7 +272,13 @@ class TemplateManagementRequestController extends Controller
                 $retentions = $this->getDoctrine()->getRepository(RetentionCategories::class)->findBy(array("id"=> $request->get("retention")));
 
                 $name=$request->get("name");
-                $plantilla=$area->getTemplate()->getPlantillaId();
+                if($area->getTemplate()){
+                    $plantilla=$area->getTemplate()->getPlantillaId();
+                }
+                else{
+                    $plantilla=NULL;
+                }
+
                 $itemplate=NULL;
                 $num_edition=1;
                 $first_edition=NULL;
@@ -341,9 +348,9 @@ class TemplateManagementRequestController extends Controller
         $response = json_decode($raw_response, true);
 
         if(!$response["version"]){
-            $this->get('session')->getFlashBag()->add('error','No pudo clonarse la plantilla maestra o de la anterior edición');
-            $route = $this->container->get('router')->generate('nononsense_tm_request');
-            return $this->redirect($route);
+            $response["id"]=NULL;
+            $response["version"]["id"]=NULL;
+            $response["version"]["configuration"]["id"]=NULL;
         }
         
         $template = new TMTemplates();
@@ -363,7 +370,15 @@ class TemplateManagementRequestController extends Controller
         else{
             $template->setIsSimple(0); 
         }
+
+        $date_public=\DateTime::createFromFormat('Y-m-d', $request->get("public_date"));
+
+        if($request->get("public_date")){
+           $template->setEstimatedEffectiveDate($date_public); 
+        }
+
         $template->setLogbook(0);
+        $template->setUniqid(0);
         $template->setCreated(new \DateTime());
         $template->setModified(new \DateTime());
         $template->setTemplateId($itemplate);

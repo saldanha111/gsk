@@ -1,17 +1,19 @@
 <?php
 /**
  * Created by IntelliJ IDEA.
- * User: gushe
- * Date: 04/04/2018
- * Time: 13:10
+ * User: ufarte
+ * Date: 02/10/2020
+ * Time: 12:27
  */
 
 namespace Nononsense\HomeBundle\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
+use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
-use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
+use Nononsense\GroupBundle\Entity\Groups;
+use Nononsense\UserBundle\Entity\Users;
 
 /**
  * @ORM\Entity
@@ -29,11 +31,6 @@ class RetentionCategories
     protected $id;
 
     /**
-     * @ORM\ManyToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMTemplates", mappedBy="retentions")
-     */
-    private $templates;
-
-    /**
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=90)
@@ -41,43 +38,88 @@ class RetentionCategories
     protected $name;
 
     /**
-     * @ORM\Column(type="date")
+     * @var string
+     *
+     * @ORM\Column(name="description", type="string", length=255)
+     */
+    protected $description;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="retention_days", type="integer")
+     */
+    protected $retentionDays;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\RCTypes", inversedBy="rCategory")
+     * @ORM\JoinColumn(name="type", referencedColumnName="id")
+     */
+    protected $type;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\RCStates", inversedBy="category")
+     * @ORM\JoinColumn(name="document_state", referencedColumnName="id")
+     */
+    protected $documentState;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="retention")
+     * @ORM\JoinColumn(name="destroy_user", referencedColumnName="id")
+     */
+    protected $destroyUser;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\GroupBundle\Entity\Groups", inversedBy="retention")
+     * @ORM\JoinColumn(name="destroy_group", referencedColumnName="id")
+     */
+    protected $destroyGroup;
+
+    /**
+     * @ORM\Column(name="created", type="datetime", nullable=false)
      */
     protected $created;
 
     /**
-     * @ORM\Column(type="date")
+     * @ORM\Column(name="modified", type="datetime", nullable=false)
      */
     protected $modified;
 
+    /**
+     * @ORM\ManyToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMTemplates", mappedBy="retentions")
+     */
+    protected $templates;
+
+    /**
+     * @var bool
+     * @ORM\Column(name="active", type="boolean", options={"default" : 1})
+     */
+    protected $active;
+
+    /**
+     * @var dateTime
+     * @ORM\Column(name="deletedAt", type="datetime", nullable=true)
+     */
+    protected $deletedAt;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\RCSignatures", mappedBy="retentionCategory")
+     */
+    protected $rcSignatures;
+
+    /**
+     * Constructor
+     */
     public function __construct()
     {
-
-    }
-
-    /**
-     * @ORM\PrePersist
-     */
-    public function setCreatedValue()
-    {
-        if (!$this->created) {
-            $this->created = new \DateTime();
-        }
-        $this->modified = $this->created;
-    }
-
-    /**
-     * @ORM\PreUpdate
-     */
-    public function setModifiedValue()
-    {
-        $this->modified = new \DateTime();
+        $this->created = new DateTime();
+        $this->templates = new ArrayCollection();
     }
 
     /**
      * Get id
      *
-     * @return integer 
+     * @return int
      */
     public function getId()
     {
@@ -88,9 +130,9 @@ class RetentionCategories
      * Set name
      *
      * @param string $name
-     * @return Categories
+     * @return RetentionCategories
      */
-    public function setName($name)
+    public function setName(string $name)
     {
         $this->name = $name;
 
@@ -108,12 +150,58 @@ class RetentionCategories
     }
 
     /**
+     * Set description
+     *
+     * @param string $description
+     * @return RetentionCategories
+     */
+    public function setDescription(string $description)
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    /**
+     * Get description
+     *
+     * @return string 
+     */
+    public function getDescription()
+    {
+        return $this->description;
+    }
+
+    /**
+     * Set retentionDays
+     *
+     * @param int $retentionDays
+     * @return RetentionCategories
+     */
+    public function setRetentionDays(int $retentionDays)
+    {
+        $this->retentionDays = $retentionDays;
+
+        return $this;
+    }
+
+    /**
+     * Get retentionDays
+     *
+     * @return int
+     */
+    public function getRetentionDays()
+    {
+        return $this->retentionDays;
+    }
+
+    /**
      * Set created
      *
-     * @param \DateTime $created
-     * @return Categories
+     * @param DateTime $created
+     * @return RetentionCategories
      */
-    public function setCreated($created)
+    public function setCreated(DateTime $created)
     {
         $this->created = $created;
 
@@ -123,7 +211,7 @@ class RetentionCategories
     /**
      * Get created
      *
-     * @return \DateTime 
+     * @return DateTime
      */
     public function getCreated()
     {
@@ -133,10 +221,10 @@ class RetentionCategories
     /**
      * Set modified
      *
-     * @param \DateTime $modified
-     * @return Categories
+     * @param DateTime $modified
+     * @return RetentionCategories
      */
-    public function setModified($modified)
+    public function setModified(DateTime $modified)
     {
         $this->modified = $modified;
 
@@ -146,7 +234,7 @@ class RetentionCategories
     /**
      * Get modified
      *
-     * @return \DateTime 
+     * @return DateTime
      */
     public function getModified()
     {
@@ -154,12 +242,127 @@ class RetentionCategories
     }
 
     /**
-     * Add templates
+     * Set active
      *
-     * @param \Nononsense\HomeBundle\Entity\TMTemplates $templates
+     * @param bool $active
      * @return RetentionCategories
      */
-    public function addTemplate(\Nononsense\HomeBundle\Entity\TMTemplates $templates)
+    public function setActive(bool $active)
+    {
+        $this->active = ($active)?: false;
+
+        return $this;
+    }
+
+    /**
+     * Get active
+     *
+     * @return bool
+     */
+    public function getActive()
+    {
+        return $this->active;
+    }
+
+    /**
+     * Set type
+     *
+     * @param RCTypes|null $type
+     * @return RetentionCategories
+     */
+    public function setType(RCTypes $type = null)
+    {
+        $this->type = $type;
+
+        return $this;
+    }
+
+    /**
+     * Get type
+     *
+     * @return RCTypes
+     */
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    /**
+     * Set documentState
+     *
+     * @param RCStates|null $documentState
+     * @return RetentionCategories
+     */
+    public function setDocumentState(RCStates $documentState = null)
+    {
+        $this->documentState = $documentState;
+
+        return $this;
+    }
+
+    /**
+     * Get documentState
+     *
+     * @return RCStates
+     */
+    public function getDocumentState()
+    {
+        return $this->documentState;
+    }
+
+    /**
+     * Set destroyUser
+     *
+     * @param Users|null $destroyUser
+     * @return RetentionCategories
+     */
+    public function setDestroyUser(Users $destroyUser = null)
+    {
+        $this->destroyUser = $destroyUser;
+
+        return $this;
+    }
+
+    /**
+     * Get destroyUser
+     *
+     * @return Users
+     */
+    public function getDestroyUser()
+    {
+        return $this->destroyUser;
+    }
+
+    /**
+     * Set destroyGroup
+     *
+     * @param Groups|null $destroyGroup
+     * @return RetentionCategories
+     */
+    public function setDestroyGroup(Groups $destroyGroup = null)
+    {
+        $this->destroyGroup = $destroyGroup;
+
+        return $this;
+    }
+
+    /**
+     * Get destroyGroup
+     *
+     * @return Groups
+     */
+    public function getDestroyGroup()
+    {
+        return $this->destroyGroup;
+    }
+
+    /**
+     * Add templates
+     *
+     * @param TMTemplates $templates
+     * @return RetentionCategories
+     */
+    public function addTemplate(TMTemplates $templates)
     {
         $this->templates[] = $templates;
 
@@ -169,9 +372,9 @@ class RetentionCategories
     /**
      * Remove templates
      *
-     * @param \Nononsense\HomeBundle\Entity\TMTemplates $templates
+     * @param TMTemplates $templates
      */
-    public function removeTemplate(\Nononsense\HomeBundle\Entity\TMTemplates $templates)
+    public function removeTemplate(TMTemplates $templates)
     {
         $this->templates->removeElement($templates);
     }
@@ -179,10 +382,99 @@ class RetentionCategories
     /**
      * Get templates
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return Collection
      */
     public function getTemplates()
     {
         return $this->templates;
+    }
+
+    /**
+     * Get RetentionDays Formatted
+     *
+     * @return array
+     * @return Collection
+     */
+    public function getRetentionDaysFormatted()
+    {
+        $remainingDays = $this->retentionDays;
+        $years = floor($remainingDays / 365);
+        $remainingDays -= $years*365;
+        $months = floor($remainingDays / 30);
+        $remainingDays -= $months*30;
+        $days = $remainingDays;
+
+        return ['days' => $days, 'months' => $months, 'years' => $years];
+    }
+
+    /**
+     * Add RetentionDays Formatted
+     *
+     * @param array $dmy
+     * @return RetentionCategories
+     */
+    public function setRetentionDaysFormatted(array $dmy)
+    {
+        $days = ($dmy['days']) ?: 0;
+        $months = ($dmy['months']) ?: 0;
+        $years = ($dmy['years']) ?: 0;
+
+        return $this->setRetentionDays($days + ($months * 30) + ($years * 365));
+    }
+
+    /**
+     * Set deletedAt
+     *
+     * @param DateTime $deletedAt
+     * @return RetentionCategories
+     */
+    public function setDeletedAt(DateTime $deletedAt)
+    {
+        $this->deletedAt = $deletedAt;
+
+        return $this;
+    }
+
+    /**
+     * Get deletedAt
+     *
+     * @return DateTime
+     */
+    public function getDeletedAt()
+    {
+        return $this->deletedAt;
+    }
+
+    /**
+     * Add rcSignatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\RCSignatures $rcSignatures
+     * @return RetentionCategories
+     */
+    public function addRcSignature(\Nononsense\HomeBundle\Entity\RCSignatures $rcSignatures)
+    {
+        $this->rcSignatures[] = $rcSignatures;
+
+        return $this;
+    }
+
+    /**
+     * Remove rcSignatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\RCSignatures $rcSignatures
+     */
+    public function removeRcSignature(\Nononsense\HomeBundle\Entity\RCSignatures $rcSignatures)
+    {
+        $this->rcSignatures->removeElement($rcSignatures);
+    }
+
+    /**
+     * Get rcSignatures
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getRcSignatures()
+    {
+        return $this->rcSignatures;
     }
 }

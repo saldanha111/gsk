@@ -47,10 +47,6 @@
                         <td>
                             <div class="btn-group btn-xs">
                                 <button type="button" class="btn btn-xs btn-primary" data-toggle="dropdown"><i class="fa fa-ellipsis-h"></i></button>
-                                <button type="button" class="btn btn-xs btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                                  <span class="caret"></span>
-                                  <span class="sr-only">Toggle Dropdown</span>
-                                </button>
                                 <ul class="dropdown-menu" role="menu">
                                     {% if template.status == 6 %}
                                         <li><a href="{{path('nononsense_tm_request')}}?id={{template.id}}"><i class="fa fa-archive"></i> {{ 'Nueva edición'|trans }}</a></li>

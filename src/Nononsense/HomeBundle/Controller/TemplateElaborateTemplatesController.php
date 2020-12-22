@@ -18,6 +18,7 @@ use Nononsense\HomeBundle\Entity\TMSignatures;
 use Nononsense\HomeBundle\Entity\TMWorkflow;
 use Nononsense\HomeBundle\Entity\TMCumplimentations;
 use Nononsense\HomeBundle\Entity\TMSecondWorkflow;
+use Nononsense\HomeBundle\Entity\TMTests;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
@@ -36,6 +37,16 @@ class TemplateElaborateTemplatesController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
         $array_item=array();
+
+        $is_valid = $this->get('app.security')->permissionSeccion('elaborador_gp');
+        if(!$is_valid){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                'No tiene permisos suficientes'
+            );
+            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            return $this->redirect($route);
+        }
 
         $user = $this->container->get('security.context')->getToken()->getUser();
 
@@ -99,18 +110,59 @@ class TemplateElaborateTemplatesController extends Controller
         $raw_response = curl_exec($ch);
         $response = json_decode($raw_response, true);
 
-        $url_edit_documento=$response["configurationUrl"];
-        $array_item["downloadUrl"]=$response["downloadUrl"];
+        if($response["configurationUrl"]){
+            $url_edit_documento=$response["configurationUrl"];
+            $array_item["downloadUrl"]=$response["downloadUrl"];
         
-        preg_match_all('/token=(.*?)$/s',$url_edit_documento,$var_token);
-       	$token=$var_token[1][0];
+            preg_match_all('/token=(.*?)$/s',$url_edit_documento,$var_token);
+       	    $token=$var_token[1][0];
+        }
+        else{
+            $token=NULL;
+        }
        	
-       	if(!$array_item["template"]->getOpenedBy() || $token!=$array_item["template"]->getToken()){
+       	if(!$array_item["template"]->getOpenedBy() || $token!=$array_item["template"]->getToken() || $token==NULL){
        		$array_item["template"]->setOpenedBy($user);
        		$array_item["template"]->setToken($token);
        		$em->persist($array_item["template"]);
 			$em->flush();
        	}
+
+        /* Para el listado de tests */
+        $approval_exists=0;
+        $all_signatures = $this->getDoctrine()->getRepository(TMSignatures::class)->findBy(array("template" => $array_item["template"]),array("id" => "ASC"));
+        foreach($all_signatures as $key_all => $item_all){
+            if($item_all->getAction()->getId()==2){
+                $array_item["max_id_no_test"]=$item_all->getId();
+            }
+
+            if($item_all->getAction()->getId()==17){
+                $array_item["max_id_re_approv"]=$item_all->getId();
+            }
+
+            if($item_all->getAction()->getId()==4){
+                $approval_exists=1;
+            }
+        }
+        $action_test = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 3));
+        $action_aprob = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 4));
+        $signatures = $this->getDoctrine()->getRepository(TMSignatures::class)->findBy(array("template" => $array_item["template"], "action" => $action_test),array("id" => "ASC"));
+        $array_item["tests"] = $this->getDoctrine()->getRepository(TMTests::class)->findBy(array("signature" => $signatures, "test_id" => NULL),array("id" => "DESC"));
+
+        $array_item["tests_results_aprobs"] = $this->getDoctrine()->getRepository(TMSignatures::class)->findBy(array("tmTest" => $array_item["tests"], "action" => $action_aprob),array("id" => "ASC"));
+
+        foreach($array_item["tests"] as $key_test => $item_test){
+            $array_item["subtests"][$item_test->getId()] = $this->getDoctrine()->getRepository(TMTests::class)->findBy(array("signature" => $signatures, "test_id" => $item_test->getId()),array("id" => "DESC"));
+
+            $array_item["subtests_results_aprobs"][$item_test->getId()] = $this->getDoctrine()->getRepository(TMSignatures::class)->findBy(array("tmTest" => $array_item["subtests"][$item_test->getId()], "action" => $action_aprob),array("id" => "ASC"));
+        }
+        if($approval_exists==1){
+            $array_item["aprobs"] = $this->getDoctrine()->getRepository(TMWorkflow::class)->findBy(array("template" => $array_item["template"], "action" => $action_aprob),array("id" => "ASC"));
+        }
+        else{
+            $array_item["aprobs"]=array();
+        }
+        /* Fin listado de tests */
 
         $action = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 2));
         $array_item["elab"] = $this->getDoctrine()->getRepository(TMWorkflow::class)->findBy(array("template" => $array_item["template"], "action" => $action),array("id" => "ASC"));
@@ -124,6 +176,16 @@ class TemplateElaborateTemplatesController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
         $array_item=array();
+
+        $is_valid = $this->get('app.security')->permissionSeccion('elaborador_gp');
+        if(!$is_valid){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                'No tiene permisos suficientes'
+            );
+            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            return $this->redirect($route);
+        }
 
         $user = $this->container->get('security.context')->getToken()->getUser();
 
@@ -140,7 +202,7 @@ class TemplateElaborateTemplatesController extends Controller
         if(!$template->getOpenedBy() || $template->getOpenedBy()!=$user){
             $this->get('session')->getFlashBag()->add(
                 'error',
-                'No se puedo efectuar la operación'
+                'No se puede efectuar la operación'
             );
             $route=$this->container->get('router')->generate('nononsense_tm_templates');
             return $this->redirect($route);
@@ -153,8 +215,10 @@ class TemplateElaborateTemplatesController extends Controller
         $find=0;
         foreach($elaborators as $elaborator){
             if($elaborator->getUserEntiy() && $elaborator->getUserEntiy()==$user){
-                $elaborator->setSigned(TRUE);
-                $em->persist($elaborator);
+                if($request->get("finish_elaboration")){
+                    $elaborator->setSigned(TRUE);
+                    $em->persist($elaborator);
+                }
                 $find=1;
             }
             else{
@@ -179,8 +243,10 @@ class TemplateElaborateTemplatesController extends Controller
                     }
                     if($in_group==1){
                         $find=1;
-                        $elaborator->setSigned(TRUE);
-                        $em->persist($elaborator);
+                        if($request->get("finish_elaboration")){
+                            $elaborator->setSigned(TRUE);
+                            $em->persist($elaborator);
+                        }
                         break;
                     }
                 }
@@ -197,7 +263,12 @@ class TemplateElaborateTemplatesController extends Controller
         }
 
         if($request->files->get('template')){
-            $base_url=$this->getParameter('api_docoaro')."/documents/".$template->getPlantillaId();
+            if($template->getPlantillaId()){
+                $base_url=$this->getParameter('api_docoaro')."/documents/".$template->getPlantillaId();
+            }
+            else{
+                $base_url=$this->getParameter('api_docoaro')."/documents";
+            }
             $fs = new Filesystem();
             $file = $request->files->get('template');
             $data_file = curl_file_create($file->getRealPath(), $file->getClientMimeType(), $file->getClientOriginalName());
@@ -212,6 +283,16 @@ class TemplateElaborateTemplatesController extends Controller
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
             $raw_response = curl_exec($ch);
             $response = json_decode($raw_response, true);
+            
+            if(!$template->getPlantillaId() && isset($response["id"])){               
+                preg_match_all('/token=(.*?)$/s',$response["configurationUrl"],$var_token);
+                $token=$var_token[1][0];
+
+                $template->setToken($token);
+                $template->setPlantillaId($response["id"]);
+                $em->persist($template);
+            }
+            
         }
         else{
             if($request->get('activate_configuration')){
@@ -334,6 +415,16 @@ class TemplateElaborateTemplatesController extends Controller
         $em = $this->getDoctrine()->getManager();
         $array_item=array();
 
+        $is_valid = $this->get('app.security')->permissionSeccion('elaborador_gp');
+        if(!$is_valid){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                'No tiene permisos suficientes'
+            );
+            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            return $this->redirect($route);
+        }
+
         $user = $this->container->get('security.context')->getToken()->getUser();
 
         $template = $this->getDoctrine()->getRepository(TMTemplates::class)->findOneBy(array("id" => $id));
@@ -426,5 +517,287 @@ class TemplateElaborateTemplatesController extends Controller
             return $responseAction;
 
         }
+    }
+
+    public function detailCancelAction(Request $request, int $id)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $array_item=array();
+
+        if(!$this->get('app.security')->permissionSeccion('elaborador_gp')){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                'No tiene permisos suficientes'
+            );
+            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            return $this->redirect($route);
+        }
+
+        $user = $this->container->get('security.context')->getToken()->getUser();
+
+        $array_item["template"] = $this->getDoctrine()->getRepository(TMTemplates::class)->findOneBy(array("id" => $id));
+        if($array_item["template"]->getTmState()->getId()!=9){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                'La plantilla indicada no se encuentra en solicitud de cancelación'
+            );
+            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            return $this->redirect($route);
+        }
+
+        $actions = $this->getDoctrine()->getRepository(TMActions::class)->findBy(array("id" => array(2)));
+        $elaborators = $this->getDoctrine()->getRepository(TMWorkflow::class)->findBy(array("template" => $array_item["template"], "action" => $actions),array("id" => "ASC"));
+        $find=0;
+        foreach($elaborators as $elaborator){
+            if($elaborator->getUserEntiy() && $elaborator->getUserEntiy()==$user && !$elaborator->getSigned()){
+                $find=1;
+            }
+        }
+        
+        if($find==0){
+            foreach($elaborators as $elaborator){
+                if($elaborator->getGroupEntiy() && !$elaborator->getSigned()){
+                    $in_group=0;
+                    foreach($user->getGroups() as $uniq_group){
+                        if($uniq_group->getGroup()==$elaborator->getGroupEntiy()){
+                            $in_group=1;
+                            break;
+                        }
+                    }
+                    if($in_group==1){
+                        $find=1;
+                        break;
+                    }
+                }
+            }
+        }
+        
+        if($find==0){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                'No tiene permisos para tramitar la cancelación de este documento o ya lo ha firmado previamente'
+            );
+            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            return $this->redirect($route);
+        }
+
+        $base_url=$this->getParameter('api_docoaro')."/documents/".$array_item["template"]->getPlantillaId();
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $base_url);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST,"GET");
+        curl_setopt($ch, CURLOPT_HTTPHEADER,array("Api-Key: ".$this->getParameter('api_key_docoaro')));
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, array());    
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); 
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        $raw_response = curl_exec($ch);
+        $response = json_decode($raw_response, true);
+
+        $url_edit_documento=$response["configurationUrl"];
+        $array_item["configurationUrl"]=$response["configurationUrl"];
+        $array_item["downloadUrl"]=$response["downloadUrl"];
+
+        
+        preg_match_all('/token=(.*?)$/s',$url_edit_documento,$var_token);
+        $token=$var_token[1][0];
+        
+        if(!$array_item["template"]->getOpenedBy() || $token!=$array_item["template"]->getToken()){
+            $array_item["template"]->setOpenedBy($user);
+            $array_item["template"]->setToken($token);
+            $em->persist($array_item["template"]);
+            $em->flush();
+        }
+
+        $action = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 2));
+        $array_item["elabs"] = $this->getDoctrine()->getRepository(TMWorkflow::class)->findBy(array("template" => $array_item["template"], "action" => $action),array("id" => "ASC"));
+        $array_item["cumplimentations"] = $this->getDoctrine()->getRepository(TMSecondWorkflow::class)->findBy(array("template" => $array_item["template"]),array("id" => "ASC"));
+        $array_item["results"] = $this->getDoctrine()->getRepository(TMActions::class)->findBy(array("id" => array(16,17)),array("id" => "ASC"));
+
+
+        return $this->render('NononsenseHomeBundle:TemplateManagement:elaboration_cancel.html.twig',$array_item);
+    }
+
+    public function updateCancelAction(Request $request, int $id)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $array_item=array();
+        $description="";
+
+        if(!$this->get('app.security')->permissionSeccion('elaborador_gp')){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                'No tiene permisos suficientes'
+            );
+            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            return $this->redirect($route);
+        }
+
+        $user = $this->container->get('security.context')->getToken()->getUser();
+
+        $template = $this->getDoctrine()->getRepository(TMTemplates::class)->findOneBy(array("id" => $id));
+        if($template->getTmState()->getId()!=9){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                'La plantilla indicada no se encuentra en solicitud de cancelación para poder realizar el trámite'
+            );
+            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            return $this->redirect($route);
+        }
+
+        
+
+        if(!$template->getOpenedBy() || $template->getOpenedBy()!=$user){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                'No se puede efectuar la operación'
+            );
+            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            return $this->redirect($route);
+        }
+
+        $actions = $this->getDoctrine()->getRepository(TMActions::class)->findBy(array("id" => array(2)));
+        $elaborators = $this->getDoctrine()->getRepository(TMWorkflow::class)->findBy(array("template" => $template, "action" => $actions),array("id" => "ASC"));
+        $find=0;
+        foreach($elaborators as $elaborator){
+            if($elaborator->getUserEntiy() && $elaborator->getUserEntiy()==$user && !$elaborator->getSigned()){
+                $find=1;
+                $wich_workflow=$elaborator;
+            }
+        }
+        
+        if($find==0){
+            foreach($elaborators as $elaborator){
+                if($elaborator->getGroupEntiy() && !$elaborator->getSigned()){
+                    $in_group=0;
+                    foreach($user->getGroups() as $uniq_group){
+                        if($uniq_group->getGroup()==$elaborator->getGroupEntiy()){
+                            $in_group=1;
+                            $wich_workflow=$elaborator;
+                            break;
+                        }
+                    }
+                    if($in_group==1){
+                        $find=1;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if($find==0){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                'No tiene permisos para tramitar la cancelación del documento o ya lo ha firmado previamente'
+            );
+            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            return $this->redirect($route);
+        }
+
+        if($request->get("action") && in_array($request->get("action"), array(16,17))){
+            $action_cancel = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => $request->get("action")));
+        }
+        else{
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                'Hubo un problema al tramitar la firma de solicitud de cancelación'
+            );
+            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            return $this->redirect($route);
+        }
+
+        
+
+        $base_url=$this->getParameter('api_docoaro')."/documents/".$template->getPlantillaId();
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $base_url);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST,"GET");
+        curl_setopt($ch, CURLOPT_HTTPHEADER,array("Api-Key: ".$this->getParameter('api_key_docoaro')));
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, array());    
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); 
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        $raw_response = curl_exec($ch);
+        $response = json_decode($raw_response, true);
+
+        $signature = new TMSignatures();
+        $signature->setTemplate($template);
+        $signature->setAction($action_cancel);
+        $signature->setUserEntiy($user);
+        $signature->setCreated(new \DateTime());
+        $signature->setModified(new \DateTime());
+        $signature->setSignature($request->get("signature"));
+        $signature->setVersion($response["version"]["id"]);
+        $signature->setConfiguration($response["version"]["configuration"]["id"]);
+
+        if($request->get("description")){
+            $description.=" ".$request->get("description");
+        }
+
+        $signature->setDescription($description);
+        $em->persist($signature);
+
+        $wich_workflow->setSigned(TRUE);
+        $em->persist($wich_workflow);
+
+        $template->setOpenedBy(NULL);
+        $template->setToken(NULL);
+
+        
+        $user_workflow_finish=1;
+
+        foreach($elaborators as $elaborator){
+            if($wich_workflow!=$elaborator && !$elaborator->getSigned()){
+                $user_workflow_finish=0;
+            }
+        }
+
+        if($user_workflow_finish){
+            //Vaciamos el control de los que ya han firmado puesto que la solicitud de cancelación cambia de estado
+            foreach($elaborators as $elaborator){
+                $elaborator->setSigned(0);
+                $em->persist($elaborator);
+            }
+
+            $next_state=14;
+            $userssignatures = $this->getDoctrine()->getRepository(TMSignatures::class)->findBy(array("template" => $template),array("id" => "ASC"));
+            $userssignatures[]=$signature;
+            //Comprobamos las firmas realizadas para saber a que estado debemos pasar la plantilla
+            foreach($userssignatures as $us){
+                //Tenemos en cuenta solo las firmas correspondientes a la respuesta a la cancelación
+                if($us->getAction()->getId()!=16 && $us->getAction()->getId()!=17){
+                    $next_state=14;
+                }
+                else{
+                    if($us->getAction()->getId()==17){
+                        $next_state=4;
+                    }
+                }
+                echo $us->getAction()->getId()."<br>";
+            }
+
+            $state = $this->getDoctrine()->getRepository(TMStates::class)->findOneBy(array("id"=> $next_state));
+            $template->setTmState($state);
+
+            switch($next_state){
+                case 14:
+                    $this->get('session')->getFlashBag()->add('message', "La plantilla ha sido cancelada");
+                    break;
+                case 4:
+                    $this->get('session')->getFlashBag()->add('message', "Se ha rechazado la cancelación de la plantilla debido a que una de las firmas no ha aprobado la cancelación");
+                    break;
+            }
+        }
+        else{
+            $this->get('session')->getFlashBag()->add('message', "La firma correspondiente a la solicitud de cancelación se ha registrado correctamente");
+        }
+        
+        $em->persist($template);
+        $em->flush();
+
+        
+        $route = $this->container->get('router')->generate('nononsense_tm_templates');
+       
+
+        return $this->redirect($route);
     }
 }
