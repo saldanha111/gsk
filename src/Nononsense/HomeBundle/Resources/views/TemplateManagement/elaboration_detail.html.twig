@@ -142,7 +142,7 @@
                                             </div>
                                             <div class="row">
                                                 <div class="col-lg-10 col-lg-offset-1">
-                                                    <input name="finish_elaboration" value="1" type="checkbox"> Finalizar elaboración
+                                                    <input id="finish_elaboration_aux" value="1" type="checkbox"> Finalizar elaboración
                                                 </div>
                                             </div><br>
                                             <div class="row">
@@ -164,6 +164,7 @@
                             </div>
                             <textarea name="description" style="display: none"></textarea>
                             <input type="hidden" id="signature3" name="signature" />
+                            <input id="finish_elaboration" name="finish_elaboration" value="" type="hidden">
                         </form>
                     </div>
                     {% if template.openedBy is defined and template.openedBy is not empty and template.openedBy.id!=app.user.id %}
@@ -371,6 +372,9 @@ $( document ).ready(function() {
                     $("#signature3").val(signaturePad3.toDataURL());
                     if($(".justify_workflow").is(':visible')){
                         $('#form_sign_workflow').find('[name="description"]').val($.trim($("#description_workflow").val()));
+                    }
+                    if($("#finish_elaboration_aux").is(':checked')){
+                        $("#finish_elaboration").val(1);
                     }
                     return true;
                 }
