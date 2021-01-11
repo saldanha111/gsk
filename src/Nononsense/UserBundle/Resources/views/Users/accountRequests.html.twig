@@ -3,6 +3,19 @@
 {% block head %}
 {{ parent() }}
 <link rel="stylesheet" href="/css/plugins/datapicker/datepicker3.css">
+<style type="text/css">
+    .details-table>tbody>tr:nth-child(4n+1) {
+        background-color: #f9f9f9;
+    }
+    .details-row{
+        padding: 0px 15px !important;
+    }
+    .details-row td{
+        vertical-align: middle !important;
+    }
+
+ 
+</style>
 {% endblock %}
 {% block main_title %} Informe de usuarios{% endblock %}
 {% block content %}
@@ -20,6 +33,10 @@
                                 <input type="text" name="username" class="form-control" value="{{filters.username is defined ? filters.username : ''}}">
                             </div>
 
+                            <label class="col-sm-1 control-label item_filter">MUD ID</label>
+                            <div class="col-sm-2 item_filter">
+                                <input type="text" name="mudid" class="form-control" value="{{filters.mudid is defined ? filters.mudid : ''}}">
+                            </div>
 
                             <label class="col-sm-2 control-label item_filter">Estado de la solicitud:</label>
                             <div class="col-sm-2 item_filter">
@@ -53,35 +70,65 @@
                       </form>
                 </div>
                 <div class="row">
-                    <table id="inProcessParcial" class="table table-striped">
+                    <table id="inProcessParcial" class="table details-table">
                         <thead>
-                        <tr>
-
-                            <th>Nombre y apellidos</th>
-                            <th>Estado de solicitud</th>
-                            <th>Fecha de la solicitud</th>
-                            <th>Opciones</th>
-                        </tr>
+                            <tr>
+                                <th>NUMERO DE SOLICITUD</th>
+                                <th>MUD ID</th>
+                                <th>NOMBRE Y APELLIDOS</th>
+                                <th>FECHA DE SOLICITUD</th>
+                                <th>REVISADOS</th>
+                            </tr>
                         </thead>
                         {% if accountRequests is defined %}
                             {% for row in accountRequests %}
-                            <tr>
-
+                            <tr data-toggle="collapse" data-target="#g_{{row.id}}">
+                                <th>{{row.id}}</th>
+                                <td>{{row.mudId}}</td>
                                 <td>{{row.username}}</td>
-                                <td>
-                                    {% if row.status == 1 %}
-                                        <dd class="mb-1"><span class="label label-primary">Aprobada</span></dd>
-                                    {% elseif row.status is same as(false) %}
-                                        <dd class="mb-1"><span class="label label-danger">Cancelada</span></dd>
-                                    {% else %}
-                                        <dd class="mb-1"><span class="label label-warning">En revision</span></dd>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {{row.created|date("d-m-Y")}}
-                                </td>
-                                <td>
-                                    <a href="{{ path('nononsense_user_update_requests', {id: row.id})}}" class="btn btn-danger btn-sm" style="color: white"><i class="fa fa-edit"> </i> Revisar</a>
+                                <td>{{row.created|date("d-m-Y")}}</td>
+                                <td>{{row.revised}}/{{row.request|length}}</td>
+                                {# <td>
+                                     <a href="{{ path('nononsense_user_update_requests', {id: row.id})}}" class="btn btn-danger btn-sm" style="color: white"><i class="fa fa-edit"> </i> </a> 
+                                </td> #}
+                            </tr>
+                            <tr>
+                                <td colspan="5" class="details-row">
+                                    <div id="g_{{row.id}}" class="collapse">
+                                        <table class="table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <td>Grupo</td>
+                                                    <td>Estado</td>
+                                                    <td>Observaciones</td>
+                                                    <td>Accion</td>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for request in row.request %}
+                                                    <tr id="p_{{request.id}}">
+                                                        <td style="width: 25%">{{ request.groupId.name }}</td>
+                                                        <td class="status">
+                                                            {% if request.status == 1 %}
+                                                                <span class="label label-primary">Aprobada</span>
+                                                            {% elseif request.status is same as(false) %}
+                                                                <span class="label label-danger">Cancelada</span>
+                                                            {% else %}
+                                                                <span class="label label-warning">En revision</span>
+                                                            {% endif %}
+                                                        </td>
+                                                        <td>
+                                                            <textarea class="form-control">{{ request.observation }}</textarea>
+                                                        </td>
+                                                        <td>
+                                                            <button type="button" class="btn btn-success btn-sm btn-submit" data-value="1" data-id="p_{{request.id}}" data-request="{{row.id}}"><i class="fa fa-check" aria-hidden="true"></i></button>
+                                                            <button type="button" class="btn btn-danger btn-sm btn-submit" data-value="0" data-id="p_{{request.id}}" data-request="{{row.id}}"><i class="fa fa-times" aria-hidden="true"></i></button>
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </td>
                             </tr>
                             {% endfor %}
@@ -122,6 +169,54 @@
 
     ActivateMenu('browse_requests');
     $('#side-menu').metisMenu();
+
+
+    $('.btn-submit').click(function(){
+
+
+
+        var id = $(this).data('id');
+        var observation = $('#'+id).find('.form-control').val();
+        var status = $(this).data('value');
+
+        var msg = ($(this).data('value')) ? 'aceptar' : 'rechazar';
+        if (window.confirm('Esta seguro que desea '+msg+' la solicitud: '+$(this).data('request'))) {
+          
+
+        }
+        return false;
+
+        toastr.options = {
+              "progressBar": true,
+              "positionClass": "toast-top-right",
+              "preventDuplicates": true,
+              "onclick": null,
+              "showDuration": "300",
+              "hideDuration": "1000",
+              "timeOut": "5000",
+              "extendedTimeOut": "1000",
+              "showEasing": "swing",
+              "hideEasing": "linear",
+              "showMethod": "fadeIn",
+              "hideMethod": "fadeOut"
+            };
+
+        $.ajax({
+            url: '{{ path("nononsense_user_ajax_update_requests")}}',
+            data: {id: id, status: status, observation: observation },
+            method: 'PUT',
+            success: function(e){
+                toastr[e.type](e.message);
+                var status = (e.type == 'success') ? '<span class="label label-primary">Aceptada</span>' : '<span class="label label-danger">Cancelada</span>';
+                $('#'+id).find('.status').html(status)
+            },
+            error: function(jqXHR, textStatus, errorThrown){
+                toastr.error('Actualmente no podemos procesar su solicitud: '+jqXHR.statusText);
+            }
+        });   
+    });
+
+
   });
 </script>
 {% endblock %}

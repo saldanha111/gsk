@@ -87,6 +87,16 @@ nononsense_user_check_requests:
     defaults: { _controller: NononsenseUserBundle:AccountRequest:index}
     methods:  [GET]
 
+nononsense_user_ajax_update_requests:
+    path:     /requests/ajax
+    defaults: { _controller: NononsenseUserBundle:AccountRequest:ajaxUpdate}
+    methods:  [GET, PUT]
+
+nononsense_user_ajax_get_mudid:
+    path:     /requests/check_user
+    defaults: { _controller: NononsenseUserBundle:AccountRequest:getMudId}
+    methods:  [GET]
+
 nononsense_user_update_requests:
     path:     /requests/{id}
     defaults: { _controller: NononsenseUserBundle:AccountRequest:update}

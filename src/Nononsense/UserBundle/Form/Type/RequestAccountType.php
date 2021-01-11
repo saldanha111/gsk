@@ -9,6 +9,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Nononsense\GroupBundle\Entity\Groups;
 
@@ -24,14 +25,18 @@ class RequestAccountType extends AbstractType
         $builder
             ->add('mud_id', TextType::class, ['label' => 'MUD_ID', 'required' => true])
             ->add('username', TextType::class, ['label' => 'Nombre y Apellidos', 'required' => true])
-            ->add('activeDirectory', CheckboxType::class, ['label' => '¿Posee usted cuenta en Azure Active Directory?', 'required' => false])
-            ->add('save', SubmitType::class, ['label' => 'Solicitar cuenta'])
+            ->add('email', EmailType::class, ['label' => 'Email', 'required' => true])
+            //->add('activeDirectory', CheckboxType::class, ['data' => true])
+            //->add('save', SubmitType::class, ['label' => 'Solicitar cuenta'])
+            ->add('_password', PasswordType::class, ['label' => 'Firma', 'required' => true, 'mapped' => false])
             ->add('description', TextareaType::class, ['label' => 'Motivo de la solicitud'])
-            ->add('groups', EntityType::class, [
+            ->add('request', EntityType::class, [
                 'class' => Groups::class,
                 'choice_label' => 'group',
                 'multiple'=>'true',
-                'label' => 'Seleccionar grupo/s a los que pertenece'
+                'label' => 'Seleccionar grupo/s a los que pertenece',
+                'mapped' => false,
+                'required' => true
             ]);
     }
 

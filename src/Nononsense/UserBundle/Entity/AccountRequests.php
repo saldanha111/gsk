@@ -38,11 +38,11 @@ class AccountRequests
     private $username;
 
     /**
-     * @var array
+     * @var string
      *
-     * @ORM\Column(name="groups", type="array")
+     * @ORM\Column(name="email", type="string", length=90)
      */
-    private $groups;
+    private $email;
 
     /**
      * @var string
@@ -61,9 +61,9 @@ class AccountRequests
     /**
      * @var boolean
      *
-     * @ORM\Column(name="activeDirectory", type="boolean", options={"default":0})
+     * @ORM\Column(name="activeDirectory", type="boolean", options={"default": true})
      */
-    private $activeDirectory;
+    private $activeDirectory = true;
 
     /**
      * @var boolean
@@ -75,6 +75,11 @@ class AccountRequests
      * )
      */
     private $status;
+
+    /**
+    * @ORM\OneToMany(targetEntity="AccountRequestsGroups", mappedBy="requestId", cascade={"persist", "remove"})
+    */
+    private $request;
 
 
     /**
@@ -134,26 +139,26 @@ class AccountRequests
     }
 
     /**
-     * Set groups
+     * Set email
      *
-     * @param array $groups
+     * @param string $email
      * @return AccountRequests
      */
-    public function setGroups($groups)
+    public function setEmail($email)
     {
-        $this->groups = $groups;
+        $this->email = $email;
 
         return $this;
     }
 
     /**
-     * Get groups
+     * Get email
      *
-     * @return array 
+     * @return string 
      */
-    public function getGroups()
+    public function getEmail()
     {
-        return $this->groups;
+        return $this->email;
     }
 
     /**
@@ -256,5 +261,45 @@ class AccountRequests
         if (!$this->created) {
             $this->created = new \DateTime();
         }
+    }
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+        $this->request = new \Doctrine\Common\Collections\ArrayCollection();
+    }
+
+    /**
+     * Add request
+     *
+     * @param \Nononsense\UserBundle\Entity\AccountRequestsGroups $request
+     * @return AccountRequests
+     */
+    public function addRequest(\Nononsense\UserBundle\Entity\AccountRequestsGroups $request)
+    {
+        $this->request[] = $request;
+
+        return $this;
+    }
+
+    /**
+     * Remove request
+     *
+     * @param \Nononsense\UserBundle\Entity\AccountRequestsGroups $request
+     */
+    public function removeRequest(\Nononsense\UserBundle\Entity\AccountRequestsGroups $request)
+    {
+        $this->request->removeElement($request);
+    }
+
+    /**
+     * Get request
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getRequest()
+    {
+        return $this->request;
     }
 }

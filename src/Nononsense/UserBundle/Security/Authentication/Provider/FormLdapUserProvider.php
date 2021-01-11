@@ -112,10 +112,11 @@ class FormLdapUserProvider implements UserProviderInterface
 
         if (!$newUser) {
 
-            $newUser = new Users();
+             throw new UsernameNotFoundException(sprintf('User "%s" not found.', $username));
+            // $newUser = new Users();
 
-            $role = $em->getRepository(Roles::class)->findOneBy(array('name' => 'ROLE_USER'));
-            $newUser->addRole($role);
+            // $role = $em->getRepository(Roles::class)->findOneBy(array('name' => 'ROLE_USER'));
+            // $newUser->addRole($role);
         }
         
         $newUser->setUsername($user['cn'][0]);
