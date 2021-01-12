@@ -97,13 +97,15 @@ class MaterialCleanMaterialsController extends Controller
         if ($request->getMethod() == 'POST') {
             try {
                 $error = 0;
-                $product = $productsRepository->find($request->get("product"));
-                $material->setProduct($product);
-                $material->setName($request->get("name"));
+                if(!$material->getId()){
+                    $product = $productsRepository->find($request->get("product"));
+                    $material->setProduct($product);
+                    $material->setName($request->get("name"));
+                    $material->setActive($request->get("active"));
+                    $material->setotherName($request->get("otherName"));
+                    $material->setAdditionalInfo($request->get('additionalInfo'));
+                }
                 $material->setExpirationDays($request->get("expiration_days"));
-                $material->setActive($request->get("active"));
-                $material->setotherName($request->get("otherName"));
-                $material->setAdditionalInfo($request->get('additionalInfo'));
                 $materialName = $materialRepository->findOneBy(['name' => $request->get("name")]);
                 if ($materialName && $materialName->getId() != $material->getId()) {
                     $this->get('session')->getFlashBag()->add('error', "Ese material ya está registrado.");

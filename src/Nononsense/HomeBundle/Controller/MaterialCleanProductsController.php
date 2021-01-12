@@ -87,7 +87,9 @@ class MaterialCleanProductsController extends Controller
 
         if ($request->getMethod() == 'POST') {
             try {
-                $product->setName($request->get("name"));
+                if(!$product->getName()){
+                    $product->setName($request->get("name"));
+                }
                 $product->setTagsNumber($request->get("tags_number"));
                 $product->setActive($request->get("active"));
 

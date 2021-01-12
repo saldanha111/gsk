@@ -5,8 +5,10 @@ namespace Nononsense\HomeBundle\Controller;
 use Exception;
 use Nononsense\HomeBundle\Entity\MaterialCleanCenters;
 use Nononsense\UtilsBundle\Classes\Utils;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\Response;
 
 class MaterialCleanCentersController extends Controller
 {
@@ -36,6 +38,11 @@ class MaterialCleanCentersController extends Controller
         return $this->render('NononsenseHomeBundle:MaterialClean:center_index.html.twig', $array_item);
     }
 
+    /**
+     * @param Request $request
+     * @param $id
+     * @return RedirectResponse|Response|null
+     */
     public function editAction(Request $request, $id)
     {
         $is_valid = $this->get('app.security')->permissionSeccion('mc_centers_edit');
@@ -52,7 +59,9 @@ class MaterialCleanCentersController extends Controller
 
         if ($request->getMethod() == 'POST') {
             try {
-                $center->setName($request->get("name"));
+                if(!$center->getName()) {
+                    $center->setName($request->get("name"));
+                }
                 $center->setDescription($request->get("description"));
                 $center->setActive($request->get("active"));
 
@@ -85,6 +94,11 @@ class MaterialCleanCentersController extends Controller
         return $this->render('NononsenseHomeBundle:MaterialClean:center_edit.html.twig', $array_item);
     }
 
+    /**
+     * @param Request $request
+     * @param $id
+     * @return RedirectResponse
+     */
     public function deleteAction(Request $request, $id)
     {
         $is_valid = $this->get('app.security')->permissionSeccion('mc_centers_edit');
