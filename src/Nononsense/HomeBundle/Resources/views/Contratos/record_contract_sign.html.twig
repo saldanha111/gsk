@@ -29,13 +29,24 @@
                             <input type="text" id="pin" name='pin' placeholder="Código" class="form-control">
                         </div>
                     </div>
-
                     <div id="signature-pad" class="input-group">
                         <h2>Introduzca su firma</h2>
                         <canvas width="300" height="150" style="touch-action: none; border: 2px solid #eee; box-shadow: 0px 0px 6px 1px rgba(80, 90, 100, 0.5)"></canvas>
                     </div>
-
                     <input type="hidden" id="firma" name="firma" />
+                    <div class="row">
+                        <div class="form-group">
+                            <div class="col-xs-12">
+                                <div class="checkbox">
+                                    <label>
+                                        <input name="privacy" value="1" type="checkbox">
+                                        He leído y acpeto las
+                                        <a href="{{path('nononsense_record_contracts_conditions')}}" target="_blank">Condiciones de uso</a>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <a name="borrarFirmar" class="btn btn-primary" id="borrarFirmar">Limpiar firma</a>
                     <a name="guardarRegistro" class="btn btn-secondary">Firmar</a>
                 </form>
@@ -81,7 +92,8 @@
 
             if(signaturePad.isEmpty()){
                 toastr.error("Debe rellenar una firma, no puede dejar el cuadro en blanco",'aviso');
-
+            }else if(!$('input[name="privacy"]').prop('checked')){
+                toastr.error("Debe aceptar las condiciones de uso",'aviso');
             }else{
                 $("#signForm").submit();
             }

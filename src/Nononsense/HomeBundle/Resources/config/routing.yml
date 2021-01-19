@@ -530,6 +530,10 @@ nononsense_record_contracts_sign:
     path:     /recordsContractsSign/{id}
     defaults: { _controller: NononsenseHomeBundle:RecordsContracts:sign, id: 0 }
 
+nononsense_record_contracts_conditions:
+    path: /recordsContracts/conditions
+    defaults: { _controller: NononsenseHomeBundle:RecordsContracts:showUseConditions}
+
 nononsense_backoffice_standby_documents_list:
     path:     /backoffice_standby_documents_list
     defaults: { _controller: NononsenseHomeBundle:BackOffice:standByDocumentsList}
