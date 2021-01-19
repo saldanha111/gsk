@@ -15,7 +15,7 @@ class RecordsContractsRepository extends EntityRepository
 	public function list($filters, $paginate=1)
     {
         $list = $this->createQueryBuilder('r')
-            ->select('r.id', 'd.name', 'u.name as usuario', 'r.status', 'r.usercreatedid', 'r.files', 'r.created', 'r.comments')
+            ->select('r.id', 'CONCAT(d.name, \' - \', COALESCE(r.workerName, \'\')) as contractName', 'u.name as usuario', 'r.status', 'r.usercreatedid', 'r.files', 'r.created', 'r.comments')
             ->innerJoin("r.userCreatedEntiy", "u")
             ->innerJoin("r.contract", "d")
             ->leftJoin('r.signatures','s')
@@ -57,6 +57,7 @@ class RecordsContractsRepository extends EntityRepository
             $terms = explode(" ", $filters["name"]);
             foreach($terms as $key => $term){
                 $list->andWhere('d.name LIKE :name'.$key);
+                $list->orWhere('r.workerName LIKE :name'.$key);
                 $list->setParameter('name'.$key, '%' . $term. '%');
             }
         }

@@ -484,6 +484,9 @@ class RecordsContractsController extends Controller
             $stepDataJSON = json_decode($stepData, true);
             $status = $record->getStatus();
             $action = $stepDataJSON["action"];
+            if(isset($stepDataJSON['data']["tra_nombre"]) && $stepDataJSON['data']["tra_nombre"] && !$record->getWorkerName()){
+                $record->setWorkerName($stepDataJSON['data']["tra_nombre"]);
+            }
 
             if ($status == 0 && $action == 'save_partial') {//el contrato ha sido rellenando parcialmente
                 $this->get('session')->getFlashBag()->add('message', "El contrato se ha guardado correctamente");
