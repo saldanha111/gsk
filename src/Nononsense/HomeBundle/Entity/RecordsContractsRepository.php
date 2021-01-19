@@ -15,7 +15,7 @@ class RecordsContractsRepository extends EntityRepository
 	public function list($filters, $paginate=1)
     {
         $list = $this->createQueryBuilder('r')
-            ->select('r.id', 'CONCAT(d.name, \' - \', COALESCE(r.workerName, \'\')) as contractName', 'u.name as usuario', 'r.status', 'r.usercreatedid', 'r.files', 'r.created', 'r.comments')
+            ->select('r.id', 'CONCAT(d.name, \' - \', COALESCE(r.workerName, \'\')) as contractName', 'u.name as usuario', 'r.status', 'r.usercreatedid', 'r.files', 'r.created', 'r.comments', 'r.tokenPublicSignature')
             ->innerJoin("r.userCreatedEntiy", "u")
             ->innerJoin("r.contract", "d")
             ->leftJoin('r.signatures','s')
