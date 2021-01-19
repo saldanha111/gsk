@@ -114,7 +114,11 @@
                                         {% elseif item.status==2 %}
                                             <a href="{{path('nononsense_records_contracts_link', {'id': item.id}) }}" class="btn btn-xs btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i> En Comité</a>
                                         {% elseif item.status==3 %}
-                                            <a href="{{path('nononsense_records_contracts_link', {'id': item.id}) }}" class="btn btn-xs btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i> Para enviar</a>
+                                            {% if item.tokenPublicSignature is defined and item.tokenPublicSignature is not null %}
+                                                <a href="{{path('nononsense_records_contracts_link', {'id': item.id}) }}" class="btn btn-xs btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i> Enviado</a>
+                                            {% else %}
+                                                <a href="{{path('nononsense_records_contracts_link', {'id': item.id}) }}" class="btn btn-xs btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i> Para enviar</a>
+                                            {% endif %}
                                         {% elseif item.status==4 %}
                                             <a href="{{path('nononsense_records_contracts_link', {'id': item.id}) }}" target= "_blank" class="btn btn-xs btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i> Firmado</a>
                                         {% endif %}
