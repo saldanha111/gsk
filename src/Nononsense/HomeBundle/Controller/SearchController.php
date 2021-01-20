@@ -230,6 +230,26 @@ class SearchController extends Controller
         return $this->render('NononsenseHomeBundle:Contratos:search_containNew.html.twig', ['histories' => $histories, 'filters' => $filters]);
     }
 
+    public function downloadBase64Action(Request $request, $id){
+
+        $hisotry = $this->getDoctrine()->getRepository(InstanciasStepsHistory::class)->findOneBy(['id' => $id]);
+
+        $file = file_get_contents($hisotry->getValue());
+        $mime = mime_content_type($hisotry->getValue());
+
+        $filename = $hisotry->getField().'.'.explode('/', $mime)[1];
+
+        header('Content-Description: File Transfer');
+        header('Content-Type: '.$mime);
+        header('Content-Disposition: attachment; filename="'.$filename.'"');
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate');
+        header('Pragma: public');
+        header('Content-Length: ' . strlen($file));
+        echo $file;
+        exit;
+    }
+
     private function returnPDFResponseFromHTML($html){
         //set_time_limit(30); uncomment this line according to your needs
         // If you are not in a controller, retrieve of some way the service container and then retrieve it
