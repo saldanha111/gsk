@@ -81,9 +81,15 @@
                     </div>
                 </div>
                 <div class="form-group other-name-input" style="display:none;">
-                    <label class="col-md-2 col-sm-4 control-label">Información del material</label>
+                    <label class="col-md-2 col-sm-4 control-label">Información de material Otros</label>
                     <div class="col-sm-7">
                         <input type="text" name="materialOther" class="form-control">
+                    </div>
+                </div>
+                <div class="form-group additional-info-input" style="display:none;">
+                    <label class="col-md-2 col-sm-4 control-label">Información Adicional</label>
+                    <div class="col-sm-7">
+                        <input type="text" name="additionalInfo" class="form-control">
                     </div>
                 </div>
                 <div class="form-group">
@@ -191,6 +197,11 @@
                                 }else{
                                     hideOtherInput();
                                 }
+                                if(datos.data.additionalInfo){
+                                    showAdditionalInput();
+                                }else{
+                                    hideAdditionalInput();
+                                }
                             }else{
                                 $('input[name="expirationDate"]').val('');
                                 hideOtherInput();
@@ -226,6 +237,18 @@
             {
                 $('.other-name-input').hide();
                 $('input[name="materialOther"]').removeAttr('required');
+            }
+
+            function showAdditionalInput()
+            {
+                $('.additional-info-input').show();
+                $('input[name="additionalInfo"]').attr('required','required');
+            }
+
+            function hideAdditionalInput()
+            {
+                $('.additional-info-input').hide();
+                $('input[name="additionalInfo"]').removeAttr('required');
             }
 
             function saveClean()

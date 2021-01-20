@@ -142,8 +142,8 @@ class MaterialCleanCodesController extends Controller
         }
 
         $array_item = array();
-        $array_item["materials"] = $this->getDoctrine()->getRepository(MaterialCleanMaterials::class)->findBy([], ['name' => 'ASC']);
-        $array_item["centers"] = $this->getDoctrine()->getRepository(MaterialCleanCenters::class)->findBy([], ['name' => 'ASC']);
+        $array_item["materials"] = $this->getDoctrine()->getRepository(MaterialCleanMaterials::class)->findBy(['active' => true], ['name' => 'ASC']);
+        $array_item["centers"] = $this->getDoctrine()->getRepository(MaterialCleanCenters::class)->findBy(['active' => true], ['name' => 'ASC']);
         $array_item['code'] = $code;
 
         return $this->render('NononsenseHomeBundle:MaterialClean:code_edit.html.twig', $array_item);

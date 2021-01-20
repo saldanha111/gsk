@@ -23,7 +23,7 @@
                             <label class="col-sm-4 control-label" for="material_name">Nombre</label>
                             <div class="col-sm-7">
                                 <input type="text" name="name" id="material_name" class="form-control" value="{{material.name is not null ? material.name : ''}}" required="required"
-                                {% material.id is not null %} readonly="readonly" {% endif %}>
+                                {% if material.id is not null %} readonly="readonly" {% endif %}>
                             </div>
                         </div>  
                         <div class="form-group">

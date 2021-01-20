@@ -48,7 +48,7 @@ class MaterialCleanCleansController extends Controller
 
         $materialCleanCode = $em->getRepository(MaterialCleanCodes::class)->findOneBy(['code' => $barcode]);
 
-        if (!$materialCleanCode) {
+        if (!$materialCleanCode || !$materialCleanCode->getIdMaterial()->getActive()) {
             $materialCleanCode = new MaterialCleanCodes();
         }
 
@@ -57,11 +57,11 @@ class MaterialCleanCleansController extends Controller
 
         $array_item = array();
         $array_item["materials"] = $this->getDoctrine()->getRepository(MaterialCleanMaterials::class)->findBy(
-            [],
+            ['active' => true],
             ['name' => 'ASC']
         );
         $array_item["centers"] = $this->getDoctrine()->getRepository(MaterialCleanCenters::class)->findBy(
-            [],
+            ['active' => true],
             ['name' => 'ASC']
         );
         $array_item['code'] = $barcode;
@@ -113,13 +113,12 @@ class MaterialCleanCleansController extends Controller
                 );
             }
 
-            if (!$material || !$center || ($material->getOtherName() === true && $request->get(
-                        'materialOther'
-                    ) == '')) {
-                $this->get('session')->getFlashBag()->add(
-                    'error',
-                    "Tienes que seleccionar un centro de trabajo y un material"
-                );
+            if (
+                !$material || !$center
+                || ($material->getOtherName() === true && $request->get('materialOther') == '')
+                || ($material->getAdditionalInfo() === true && $request->get('additionalInfo') == '')
+            ) {
+                $this->get('session')->getFlashBag()->add('error', "Todos los datos son obligatorios");
                 $error = 1;
             }
 
@@ -138,6 +137,7 @@ class MaterialCleanCleansController extends Controller
                     ->setCleanUser($this->getUser())
                     ->setSignature($firma)
                     ->setMaterialOther($request->get('materialOther'))
+                    ->setAdditionalInfo($request->get('additionalInfo'))
                     ->setStatus(1);
                 $em->persist($materialClean);
                 $em->flush();
