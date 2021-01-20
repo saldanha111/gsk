@@ -24,7 +24,7 @@ class MaterialCleanMaterials
     /**
      * @var string
      *
-     * @ORM\Column(name="name", type="string", length=255,  nullable=false, unique=true)
+     * @ORM\Column(name="name", type="string", length=255,  nullable=false)
      */
     protected $name;
 
@@ -83,7 +83,7 @@ class MaterialCleanMaterials
         $this->expirationDays = 30;
         $this->active = 1;
         $this->additionalInfo = 0;
-        $this->otherName = 0;
+        $this->otherName = false;
     }
 
     /**

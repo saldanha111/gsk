@@ -20,21 +20,22 @@
                 <div class="col-lg-4 col-lg-offset-1">
                     <div class="row">
                         <div class="form-group">
-                            <label class="col-sm-4 control-label">Nombre</label>
+                            <label class="col-sm-4 control-label" for="product_name">Nombre</label>
                             <div class="col-sm-7">
-                                <input type="text" name="name" class="form-control" value="{{product.name is not null ? product.name : ''}}" required="required">
+                                <input type="text" name="name" id="product_name" class="form-control" value="{{product.name is not null ? product.name : ''}}" required="required"
+                                           {% if product.name is not null %} readonly="readonly"{% endif %}>
                             </div>
-                        </div>  
+                        </div>
                         <div class="form-group">
-                            <label class="col-sm-4 control-label">Número de etiquetas</label>
+                            <label class="col-sm-4 control-label" for="tags_number">Número de etiquetas</label>
                             <div class="col-sm-7">
-                                <input type="text" name="tags_number" class="form-control" value="{{product.tagsNumber is not null ? product.tagsNumber : ''}}" required="required">
+                                <input id="tags_number" type="text" name="tags_number" class="form-control" value="{{product.tagsNumber is not null ? product.tagsNumber : ''}}" required="required">
                             </div>
-                        </div>  
+                        </div>
                         <div class="form-group">
-                            <label class="col-sm-4 control-label">Activo</label>
+                            <label class="col-sm-4 control-label" for="product_active">Activo</label>
                             <div class="col-sm-7">
-                                <input name="active" value="1" type="checkbox" {% if product.active == true %} checked="checked" {% endif %}>
+                                <input id="product_active" name="active" value="1" type="checkbox" {% if product.active == true %} checked="checked" {% endif %}>
                             </div>
                         </div>
                     </div>

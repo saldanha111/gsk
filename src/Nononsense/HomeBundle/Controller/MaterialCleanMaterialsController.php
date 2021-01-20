@@ -97,19 +97,15 @@ class MaterialCleanMaterialsController extends Controller
         if ($request->getMethod() == 'POST') {
             try {
                 $error = 0;
-                $product = $productsRepository->find($request->get("product"));
-                $material->setProduct($product);
-                $material->setName($request->get("name"));
-                $material->setExpirationDays($request->get("expiration_days"));
-                $material->setActive($request->get("active"));
-                $material->setotherName($request->get("otherName"));
-                $material->setAdditionalInfo($request->get('additionalInfo'));
-                $materialName = $materialRepository->findOneBy(['name' => $request->get("name")]);
-                if ($materialName && $materialName->getId() != $material->getId()) {
-                    $this->get('session')->getFlashBag()->add('error', "Ese material ya está registrado.");
-                    $error = 1;
+                if(!$material->getId()){
+                    $product = $productsRepository->find($request->get("product"));
+                    $material->setProduct($product);
+                    $material->setName($request->get("name"));
+                    $material->setotherName(($request->get("otherName")) == 1);
+                    $material->setAdditionalInfo($request->get('additionalInfo'));
                 }
-
+                $material->setActive($request->get("active"));
+                $material->setExpirationDays($request->get("expiration_days"));
                 if ($error == 0) {
                     $em->persist($material);
                     $em->flush();
@@ -140,16 +136,18 @@ class MaterialCleanMaterialsController extends Controller
         try {
             /** @var MaterialCleanMaterialsRepository $materialRepository */
             $materialRepository = $em->getRepository(MaterialCleanMaterials::class);
-            $materialInput = $materialRepository->find($id);
+            $materialInput = $materialRepository->findOneBy(['id' =>$id, 'active' => true]);
             if ($materialInput) {
                 $expirationDays = $materialInput->getExpirationDays();
                 $expirationInterval = new DateInterval('P' . $expirationDays . 'D');
                 $expirationDate = (new DateTime())->add($expirationInterval);
                 $otherName = $materialInput->getOtherName();
+                $additionalInfo = $materialInput->getAdditionalInfo();
 
                 $data['expirationDays'] = $expirationDays;
                 $data['expirationDate'] = $expirationDate->format('d-m-Y');
                 $data['otherName'] = $otherName;
+                $data['additionalInfo'] = $additionalInfo;
                 $status = 200;
             }
         } catch (Exception $e) {

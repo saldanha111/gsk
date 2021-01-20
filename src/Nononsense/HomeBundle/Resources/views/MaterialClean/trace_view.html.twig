@@ -88,6 +88,16 @@
                     <p>{{ trace.cleanUser.name }}</p>
                 </div>
             </div>
+            {% if trace.additionalInfo is defined and trace.additionalInfo is not null %}
+            <div class="row">
+                <div class="col-lg-2 col-md-3 col-sm-4 col-xs-5">
+                    <p class="text-right">Información adicional: </p>
+                </div>
+                <div class="col-lg-10 col-md-9 col-sm-8 col-xs-7">
+                    <p>{{ trace.additionalInfo }}</p>
+                </div>
+            </div>
+            {% endif %}
             <div class="row">
                 <div class="col-lg-2 col-md-3 col-sm-4 col-xs-5">
                     <p class="text-right">Fecha de limpieza: </p>
