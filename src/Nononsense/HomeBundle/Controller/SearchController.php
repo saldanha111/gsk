@@ -11,6 +11,8 @@ namespace Nononsense\HomeBundle\Controller;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Nononsense\HomeBundle\Entity\InstanciasWorkflows;
 use Nononsense\HomeBundle\Entity\InstanciasSteps;
+use Nononsense\HomeBundle\Entity\InstanciasStepsHistory;
+use Nononsense\UserBundle\Entity\Users;
 use Nononsense\UtilsBundle\Classes;
 
 
@@ -209,6 +211,23 @@ class SearchController extends Controller
                 $this->returnPDFResponseFromHTML($html);
             }
         }
+    }
+
+
+    public function listContentAction(Request $request){
+        $filters = array_filter($request->query->all());
+
+        // if (isset($filters['creator'])) {
+        //     $filters['creator'] = $this->getDoctrine()->getRepository(Users::class)->findOneBy(['username' => $filters['creator']]);
+        // }
+        //$em = $this->getDoctrine()->getManager();
+
+        $histories = $this->getDoctrine()->getRepository(InstanciasStepsHistory::class)->list($filters);
+
+        //var_dump($content);
+        //var_dump($filters);
+
+        return $this->render('NononsenseHomeBundle:Contratos:search_containNew.html.twig', ['histories' => $histories, 'filters' => $filters]);
     }
 
     private function returnPDFResponseFromHTML($html){
