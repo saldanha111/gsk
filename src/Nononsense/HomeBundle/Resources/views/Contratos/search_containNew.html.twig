@@ -101,14 +101,20 @@
                                 <td>{{history.field}}</td>
                                 <td>{{history.index is defined and history.index != '' ? history.index : 'No duplicado'}}</td>
                                 <td>
-                                {% if 'base64' in history.value %}
-                                    <a href="{{path('nononsense_content_search_file_download', {id: history.id})}}">Descargar archivo</a>
-                                {% else %}
-                                    {{history.value|slice(0,50)}}
-                                {% endif %}
+                                    {% if 'base64' in history.value %}
+                                        <a href="{{path('nononsense_content_search_file_download', {id: history.id})}}">Descargar archivo</a>
+                                    {% else %}
+                                        {{history.value}}
+                                    {% endif %}
                                 </td>
                                 
-                                <td>{{history.prevValue|slice(0,50)}}</td>
+                                <td>
+                                    {% if 'base64' in history.prevValue %}
+                                        <a href="{{path('nononsense_content_search_file_download', {id: history.id})}}?type=prev">Descargar archivo</a>
+                                    {% else %}
+                                        {{history.prevValue}}
+                                    {% endif %}
+                                </td>
                                 <td>{{history.evidencia.userEntiy.username}}</td>
                                 <td>{{history.evidencia.modified|date('Y-m-d H:i:s')}}</td>
                                 <td>

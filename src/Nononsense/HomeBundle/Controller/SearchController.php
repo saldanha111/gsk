@@ -234,10 +234,17 @@ class SearchController extends Controller
 
         $hisotry = $this->getDoctrine()->getRepository(InstanciasStepsHistory::class)->findOneBy(['id' => $id]);
 
-        $file = file_get_contents($hisotry->getValue());
-        $mime = mime_content_type($hisotry->getValue());
+        $value = $hisotry->getValue();
 
-        $filename = $hisotry->getField().'.'.explode('/', $mime)[1];
+        if ($request->get('type') !== null && $request->get('type') == 'prev') {
+            $value = $hisotry->getPrevValue();
+        }
+
+        $file = file_get_contents($value);
+        $mime = mime_content_type($value);
+
+        $extension = preg_split('#(/|;)#', $hisotry->getValue())[1];
+        $filename = $hisotry->getField().'.'.$extension;
 
         header('Content-Description: File Transfer');
         header('Content-Type: '.$mime);
