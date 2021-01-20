@@ -142,7 +142,7 @@ class Utilities{
         if (!$username) $username = $this->container->get('security.context')->getToken()->getUsername();
         $password       = $password;
 
-        $user           = $this->em->getRepository('NononsenseUserBundle:Users')->findOneBy(array('email' => $username));
+        $user           = $this->em->getRepository('NononsenseUserBundle:Users')->findOneBy(array('username' => $username));
 
         if ($user) {
             

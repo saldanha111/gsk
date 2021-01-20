@@ -484,6 +484,9 @@ class RecordsContractsController extends Controller
             $stepDataJSON = json_decode($stepData, true);
             $status = $record->getStatus();
             $action = $stepDataJSON["action"];
+            if(isset($stepDataJSON['data']["tra_nombre"]) && $stepDataJSON['data']["tra_nombre"] && !$record->getWorkerName()){
+                $record->setWorkerName($stepDataJSON['data']["tra_nombre"]);
+            }
 
             if ($status == 0 && $action == 'save_partial') {//el contrato ha sido rellenando parcialmente
                 $this->get('session')->getFlashBag()->add('message', "El contrato se ha guardado correctamente");
@@ -641,10 +644,22 @@ class RecordsContractsController extends Controller
             if ($status == 1) {//la firma es del director de rrhh
                 $this->signAsDirector($record, $request, $user);
             } elseif ($status == 2) {//la firma es del comite de rrhh
-                $this->signAsComite($record, $request, $user);
+                if(!$request->get('privacy')){
+                    $this->get('session')->getFlashBag()->add(
+                        'error',
+                        "Debe aceptar las condiciones de uso"
+                    );
+                }else{
+                    $this->signAsComite($record, $request, $user);
+                }
             }
         }
         return $this->redirect($this->container->get('router')->generate('nononsense_records_contracts'));
+    }
+
+    public function showUseConditionsAction()
+    {
+        return $this->render('NononsenseHomeBundle:Contratos:conditions.html.twig');
     }
 
     private function signAsDirector($record, $request, $user)
