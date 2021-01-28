@@ -1,0 +1,369 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}Docoaro - GSK |  Productos / Utilización de reactivo {% endblock %}
+{% block head %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('/js/plugins/sweetalert/sweetalert.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('/css/plugins/datapicker/datepicker3.css') }}">
+{% endblock %}
+{% block main_title %} Productos / Utilización de reactivo{% endblock %}
+
+{% block content %}
+
+    <div class="wrapper wrapper-content animated fadeInUp">
+        {% for flashMessage in app.session.flashbag.get('error') %}
+            <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                {{ flashMessage }}
+            </div>
+            <br>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('message') %}
+            <div class="alert alert-success alert-dismissable" style="margin: 10px 16px 0 16px">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                {{ flashMessage }}
+            </div>
+            <br>
+        {% endfor %}
+        <input type="hidden" id='url_get_data_input_json' value="{{ path('nononsense_products_use_get_data_json',{'id': 'xxx'}) }}"/>
+        <div class="form-horizontal">
+            <div class="row">
+                <div class="col-lg-4 col-lg-offset-1">
+                    <div class="row">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">Imagen Qr</label>
+                            <div class="col-sm-8">
+                                <input id="imageQR" type="file" name="pic" accept="image/*" capture="camera"
+                                       onchange="handleFiles(this.files)">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">Texto Qr</label>
+                            <div class="col-sm-8">
+                                <div style="float: left; width: 80%;">
+                                    <input type="text" id="input_id" name="input_id" class="form-control" required="required">
+                                </div>
+                                <div style="float: left; width: 20%;">
+                                    <a href="javascript:show_data_inputs();" class="btn" target="_self">
+                                        <i class="fa fa-search" aria-hidden="true"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div id='div_data_input' style="display: none;">
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">CAS Number</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="casNumber" class="form-control" required="required"  readonly="readonly">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Part. Number</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="partNumber" readonly="readonly" class="form-control" required="required">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Nombre</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="name" readonly="readonly" class="form-control" required="required">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Código interno</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="internalCode" readonly="readonly" class="form-control" required="required">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Proveedor</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="provider" readonly="readonly" class="form-control" required="required">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Presentación</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="presentation" readonly="readonly" class="form-control" required="required">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Lote</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="lotNumber" class="form-control" required="required" readonly="readonly">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Fecha recepción</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="receptionDate" class="form-control" readonly="readonly">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Fecha destrucción</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" name="destructionDate" readonly="readonly">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <form class="form-horizontal" id="form_uso" method="POST" action="{{ path('nononsense_products_use') }}" style="display:none">
+            <div class="row">
+                <div class="col-lg-4 col-lg-offset-1">
+                    <div class="row">
+                        <input type="hidden" value="" name="UseInputId" id="UseInputId">
+                        <input type="hidden" value="use" name="type">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">Fecha de caducidad</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control pull-right my_date" autocomplete="off" name="expiryDateUse" id="expiryDateUse" required="required" value="">
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <button type="button" class="btn btn-primary pull-right btn-use">
+                                <i class="fa fa-floppy-o" aria-hidden="true"></i> Marcar reactivo en uso
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <form class="form-horizontal" id="form_terminado" method="POST" action="{{ path('nononsense_products_use') }}" style="display:none">
+            <div class="row">
+                <div class="col-lg-4 col-lg-offset-1">
+                    <div class="row">
+                        <input type="hidden" value="" name="UseInputId" id="EndInputId">
+                        <input type="hidden" value="end" name="type">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">Fecha de caducidad</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control pull-right" name="expiryDate" id="expiryDate" required="required" value="" readonly="readonly">
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <button type="submit" class="btn btn-primary  pull-right">
+                                <i class="fa fa-floppy-o" aria-hidden="true"></i> Marcar reactivo terminado
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+
+{% endblock %}
+
+{% block scripts %}
+    {{ parent() }}
+    <script type="text/javascript" src="{{ asset('js/plugins/sweetalert/sweetalert.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/grid.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/version.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/detector.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/formatinf.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/errorlevel.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/bitmat.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/datablock.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/bmparser.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/datamask.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/rsdecoder.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/gf256poly.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/gf256.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/decoder.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/qrcode.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/findpat.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/alignpat.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/databr.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/datapicker/bootstrap-datepicker.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/datapicker/locales/bootstrap-datepicker.es.js') }}"></script>
+    <script>
+        $(document).ready(function () {
+            ActivateMenu('browse_product_use');
+            $('#side-menu').metisMenu();
+
+            var productInputId = $('#productInputId').val();
+            show_data_inputs(productInputId);
+            qrcode.callback = putQrValue;
+
+            $('.my_date').datepicker({
+                autoclose: true,
+                orientation: 'bottom auto',
+                format: 'yyyy-mm-dd',
+                language: 'es'
+            });
+        });
+
+        function putQrValue(a) {
+            $('#input_id').val(a);
+            show_data_inputs();
+        }
+
+        function handleFiles(files) {
+            var o = [];
+            for (var i = 0; i < files.length; i++) {
+                var reader = new FileReader();
+                reader.onload = (function (theFile) {
+                    return function (e) {
+                        var value = qrcode.decode(e.target.result);
+                    };
+                })(files[i]);
+                reader.readAsDataURL(files[i]);
+            }
+        }
+
+        function show_data_inputs() {
+            var input_id = $('#input_id').val();
+            var url = $('#url_get_data_input_json').val();
+            url = url.replace("xxx", input_id);
+            if (input_id != '') {
+                $('#div_data_input').hide();
+                $('#form_terminado').hide();
+                $('#form_uso').hide();
+                show_loader();
+                $.ajax({
+                    async: true,
+                    url: url,
+                    type: 'GET',
+                    complete: function (respuesta) {
+                        hide_loader();
+                        const datos = JSON.parse(respuesta.responseText);
+                        if (datos.status === 200) {
+                            if(!datos.data.isReactivo){
+                                swal({
+                                    title: "Error",
+                                    text: "El QR proporcionado no se corresponde con ningún reactivo registrado en el sistema",
+                                    icon: 'warning',
+                                    showCancelButton: false,
+                                    confirmButtonColor: '#62bbe2',
+                                    confirmButtonText: "Ok",
+                                    closeOnConfirm: true
+                                });
+                            }else{
+                                fillInputs(datos.data, datos.data.isReactivo);
+                            }
+
+                            if(datos.data.status === 'recibido'){
+                                swal({
+                                    title: "Error",
+                                    text: "Un reactivo debe haber sido previamente retirado del almacén para poder ser utilizado",
+                                    icon: 'warning',
+                                    showCancelButton: false,
+                                    confirmButtonColor: '#62bbe2',
+                                    confirmButtonText: "Ok",
+                                    closeOnConfirm: true
+                                });
+                            }else if (datos.data.isExpired || datos.data.status === 'caducado'){
+                                swal({
+                                    title: "Error",
+                                    text: "El reactivo seleccionado ha superado su fecha de " + datos.data.message,
+                                    icon: 'warning',
+                                    showCancelButton: false,
+                                    confirmButtonColor: '#62bbe2',
+                                    confirmButtonText: "Ok",
+                                    closeOnConfirm: true
+                                });
+                                $('#div_data_input').show();
+                            }else if(datos.data.status === 'retirado'){
+                                $('#form_uso').show();
+                                $('#div_data_input').show();
+                                $('#UseInputId').val(datos.data.id);
+                                $('input[name="ExpiryDate]').removeAttr('readonly');
+                            }else if(datos.data.status === 'usado'){
+                                $('#form_terminado').show();
+                                $('#div_data_input').show();
+                                $('#EndInputId').val(datos.data.id);
+                            }else if(datos.data.status === 'terminado'){
+                                swal({
+                                    title: "Error",
+                                    text: "El reactivo seleccionado está marcado como terminado",
+                                    icon: 'warning',
+                                    showCancelButton: false,
+                                    confirmButtonColor: '#62bbe2',
+                                    confirmButtonText: "Ok",
+                                    closeOnConfirm: true
+                                });
+                                $('#div_data_input').show();
+                            }
+                        } else {
+                            swal({
+                                title: "Error",
+                                text: "El QR no se corresponde con una entrada válida",
+                                icon: 'warning',
+                                showCancelButton: false,
+                                confirmButtonColor: '#62bbe2',
+                                confirmButtonText: "Ok",
+                                closeOnConfirm: true
+                            });
+                        }
+                    }
+                });
+            } else {
+                $('#div_data_input').hide();
+            }
+        }
+
+        function fillInputs(data, isReactivo = false){
+            const formItems = getFormItems();
+            const amount = $('input[name="amount"]');
+            $.each(formItems,function(key,item){
+                if(data[key] || data[key] === 0){
+                    item.val(data[key]);
+                    item.parent().parent().show();
+                }else{
+                    item.parent().parent().hide();
+                }
+                item.attr('readonly','readonly');
+            });
+
+            if(isReactivo){
+                amount.val(1);
+                amount.attr('readonly','readonly');
+            }else{
+                amount.val('');
+                amount.removeAttr('readonly');
+            }
+        }
+
+        function getFormItems()
+        {
+            return {
+                'partNumber': $('input[name="partNumber"]'),
+                'casNumber': $('input[name="casNumber"]'),
+                'internalCode': $('input[name="internalCode"]'),
+                'name': $('input[name="name"]'),
+                'provider': $('input[name="provider"]'),
+                'presentation': $('input[name="presentation"]'),
+                'lotNumber': $('input[name="lotNumber"]'),
+                'receptionDate': $('input[name="receptionDate"]'),
+                'expiryDate': $('input[name="expiryDate"]'),
+                'destructionDate': $('input[name="destructionDate"]'),
+            };
+        }
+
+        $(function(){
+            $(document).on('click', '.btn-use', function(e){
+                e.preventDefault();
+                if($('input[name="expiryDateUse"]').val() === ''){
+                    swal({
+                        title: "Error",
+                        text: "Tienes que seleccionar una fecha de caducidad.",
+                        icon: 'warning',
+                        showCancelButton: false,
+                        confirmButtonColor: '#62bbe2',
+                        confirmButtonText: "Ok",
+                        closeOnConfirm: true
+                    });
+                }else{
+                    $('#form_uso').submit();
+                }
+            });
+        });
+
+
+    </script>
+{% endblock %}
+
+

@@ -45,6 +45,7 @@
                                 <input type="text" name="partNumber" class="form-control" value="{{product.partNumber is not null ? product.partNumber : ''}}" readonly="readonly">
                             </div>
                         </div>
+
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Proveedor</label>
                             <div class="col-sm-7">
@@ -74,6 +75,12 @@
                             <label class="col-sm-4 control-label">Unidades recibidas</label>
                             <div class="col-sm-7">
                                 <input type="text" name="amount" class="form-control" value="{{productInput.amount is not null ? productInput.amount : ''}}" required="required">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Observaciones</label>
+                            <div class="col-sm-7">
+                                <textarea class="form-control" name="observations" rows="4">{{productInput.observations is not null ? productInput.observations : ''}}</textarea>
                             </div>
                         </div>
                     </div>

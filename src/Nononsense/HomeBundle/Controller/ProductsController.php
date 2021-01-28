@@ -4,6 +4,8 @@ namespace Nononsense\HomeBundle\Controller;
 
 use Datetime;
 use Exception;
+use Nononsense\GroupBundle\Entity\Groups;
+use Nononsense\GroupBundle\Entity\GroupUsers;
 use Nononsense\HomeBundle\Entity\ProductsDissolution;
 use Nononsense\HomeBundle\Entity\ProductsDissolutionRepository;
 use Nononsense\HomeBundle\Entity\ProductsInputsRepository;
@@ -71,7 +73,46 @@ class ProductsController extends Controller
             'type' => $type,
             'casNumber' => urldecode($casNb)
         ];
-        return $this->render('NononsenseHomeBundle:Products:reception_index.html.twig', $data);
+
+        if($activeType && $activeType->getSlug() == 'reactivo'){
+            $qrCode = $this->generateReactivoQrCode();
+            return $this->redirect(
+                $this->generateUrl('nononsense_products_inputs', ['type' => $type, 'qrCode' => $qrCode])
+            );
+        }else{
+            return $this->render('NononsenseHomeBundle:Products:reception_index.html.twig', $data);
+        }
+    }
+
+    public function newAction(Request $request, $type)
+    {
+        $is_valid = $this->get('app.security')->permissionSeccion('productos_gestion');
+        if (!$is_valid) {
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+        }
+
+        /** @var ProductsTypesRepository $productsTypeRepository */
+        $productsTypeRepository = $this->getDoctrine()->getRepository(ProductsTypes::class);
+        /** @var ProductsTypes $activeType */
+        $activeType = $productsTypeRepository->findOneBy(['slug' => $type]);
+
+        if($activeType){
+            $qrCode = $this->generateMaterialQrCode();
+            return $this->redirect(
+                $this->generateUrl(
+                    'nononsense_products_edit',
+                    ['type' => $type, 'id' => 0, 'qrCode' => $qrCode]
+                )
+            );
+        }else{
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                "No se reconoce el tipo de material o reactivo. Vuelve a intentarlo."
+            );
+            return $this->redirect(
+                $this->generateUrl('nononsense_home_homepage')
+            );
+        }
     }
 
     public function listAction(Request $request)
@@ -168,23 +209,43 @@ class ProductsController extends Controller
             $saved = $this->saveProduct($product, $qrCode, $request, $actualType);
             if ($saved['error'] === 0) {
                 if ($newProduct) {
-                    $this->get('session')->getFlashBag()->add(
-                        'message',
-                        "El " . $actualType->getName() . " se ha guardado correctamente, Ahora puedes generar la recepción."
-                    );
-                    return $this->redirect(
-                        $this->generateUrl('nononsense_products_reception', ['type' => $actualType->getSlug()])
-                    );
+                    if($actualType->getSlug() === 'material'){
+                        $stockEdited = $this->editStockMaterial(0, $product, 'Alta de producto', true);
+                        if(!$stockEdited){
+                            $em = $this->getDoctrine()->getManager();
+                            $em->remove($product);
+                            $em->flush();
+                            $this->get('session')->getFlashBag()->add(
+                                'error',
+                                'El ' . $actualType->getName() . ' no se ha guardado correctamente, vuelve a intentarlo'
+                            );
+                        }else{
+                            $this->get('session')->getFlashBag()->add(
+                                'message',
+                                'El ' . $actualType->getName() . ' se ha guardado correctamente, Ahora puedes generar la recepción.'
+                            );
+                        }
+                    }else{
+                        $this->get('session')->getFlashBag()->add(
+                            'message',
+                            'El ' . $actualType->getName() . ' se ha guardado correctamente, Ahora puedes generar la recepción.'
+                        );
+                        return $this->redirect(
+                            $this->generateUrl('nononsense_products_reception', ['type' => $actualType->getSlug()])
+                        );
+                    }
                 } else {
                     $this->get('session')->getFlashBag()->add(
                         'message',
                         "El " . $actualType->getName() . " se ha guardado correctamente"
                     );
-                    return $this->redirect($this->generateUrl('nononsense_products'));
                 }
             } else {
                 $this->get('session')->getFlashBag()->add('error', $saved['message']);
             }
+            return $this->redirect(
+                $this->generateUrl('nononsense_products_input_list', ['type' => $actualType->getSlug()])
+            );
         }
 
         if ($qrCode) {
@@ -192,6 +253,10 @@ class ProductsController extends Controller
         }
 
         $array_item = array();
+        $array_item['presentations'] =
+            $this->getDoctrine()
+                ->getRepository(ProductsPresentation::class)
+                ->findBy(['active' => true]);
         $array_item['type'] = $actualType;
         $array_item['product'] = $product;
 
@@ -310,7 +375,7 @@ class ProductsController extends Controller
                 }
                 if($productType->getSlug() == 'material' && $product->getStock() != $request->get('stock')){
                     $oldStock = $product->getStock();
-                    $stockEdited = $this->editStockMaterial($request->get('stock'), $product);
+                    $stockEdited = $this->editStockMaterial((int) $request->get('stock'), $product, $request->get('observations'), false);
                     if($stockEdited){
                         $now = new DateTime();
                         $signature = 'Modificación de stock registrado con contraseña de usuario ' . $this->getUser()->getName() . ' el día ' . $now->format('d-m-Y H:i:s');
@@ -390,16 +455,18 @@ class ProductsController extends Controller
     /** Product $prod
      * @param int $newStock
      * @param Products $product
+     * @param string $comment
+     * @param bool $new
      * @return bool
      * @throws Exception
      */
-    private function editStockMaterial($newStock, Products $product)
+    private function editStockMaterial(int $newStock, Products $product, string $comment = '', $new = false): bool
     {
         $productStock = $product->getStock();
         if($productStock != $newStock){
             $diff = $newStock - $productStock;
             if($diff > 0){
-                $result = $this->insertMaterial($product, $diff);
+                $result = $this->insertMaterial($product, $diff, $comment);
             }else{
                 $outputAmount = $productStock - $newStock;
                 /** @var ProductsInputsRepository $productsInputsRepository */
@@ -415,6 +482,8 @@ class ProductsController extends Controller
                 }
                 $result = true;
             }
+        }elseif ($new){
+            $result = $this->insertMaterial($product, 0, $comment);
         }else{
             $result = true;
         }
@@ -450,7 +519,7 @@ class ProductsController extends Controller
         return $result;
     }
 
-    private function insertMaterial($product, $amount)
+    private function insertMaterial($product, $amount, $comment)
     {
         /** @var ProductsInputStatusRepository $statusRepository */
         $statusRepository = $this->getDoctrine()->getRepository(ProductsInputStatus::class);
@@ -462,6 +531,7 @@ class ProductsController extends Controller
         $productInput->setAmount($amount);
         $productInput->setRemainingAmount($amount);
         $productInput->setState($state);
+        $productInput->setObservations($comment);
         $productInput->setProduct($product);
         $productInput->setUser($this->getUser());
 
@@ -494,7 +564,7 @@ class ProductsController extends Controller
         return true;
     }
 
-    public function inputAction(Request $request, $type, $qrCode, $casNb = null)
+    public function inputAction(Request $request, $type, $qrCode, $internalCode = null)
     {
         $errorMessage = null;
         $is_valid = $this->get('app.security')->permissionSeccion('productos_recepcion');
@@ -608,8 +678,8 @@ class ProductsController extends Controller
             $array_item['product'] = $productsRepository->findOneBy(['qrCode' => $qrCode]);
             return $this->render('NononsenseHomeBundle:Products:input_material.html.twig', $array_item);
         } elseif ($actualType->getSlug() === 'reactivo') {
-            if($casNb){
-                $array_item['product'] = $productsRepository->findOneBy(['casNumber' => urldecode($casNb)]);
+            if($internalCode){
+                $array_item['product'] = $productsRepository->findOneBy(['internalCode' => urldecode($internalCode)]);
             }
             return $this->render('NononsenseHomeBundle:Products:input_reactivo.html.twig', $array_item);
         } else {
@@ -680,18 +750,19 @@ class ProductsController extends Controller
     {
         $data = [];
         $status = 500;
-        $casNumber = $request->get("casNumber");
+        $internalCode = $request->get("internalCode");
 
         try {
-            if ($casNumber) {
+            if ($internalCode) {
                 $productsRepository = $this->getDoctrine()->getRepository(Products::class);
                 /** @var Products $product */
-                $product = $productsRepository->findOneBy(['casNumber' => $casNumber]);
+                $product = $productsRepository->findOneBy(['internalCode' => $internalCode]);
 
                 if ($product) {
                     $data = [
                         'name' => $product->getName(),
                         'partNumber' => $product->getPartNumber(),
+                        'casNumber' => $product->getCasNumber(),
                         'internalCode' => $product->getInternalCode(),
                         'presentation' => $product->getPresentation(),
                         'provider' => $product->getProvider(),
@@ -829,6 +900,54 @@ class ProductsController extends Controller
         return $this->render('NononsenseHomeBundle:Products:output.html.twig');
     }
 
+    public function useReactivoAction(Request $request)
+    {
+        $is_valid = $this->get('app.security')->permissionSeccion('reactivos_use');
+        if (!$is_valid) {
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+        }
+
+        if ($request->getMethod() == 'POST') {
+            try {
+                $em = $this->getDoctrine()->getManager();
+                $type = $request->get("type");
+                $id = $request->get("UseInputId");
+                if ($request->get("expiryDateUse")) {
+                    $expiryDate = new DateTime($request->get("expiryDateUse"));
+                }
+                $productInput = $em->getRepository(ProductsInputs::class)->find($id);
+                $usedState = $em->getRepository(ProductsInputStatus::class)->findOneBy(['slug' => 'usado']);
+                $endState = $em->getRepository(ProductsInputStatus::class)->findOneBy(['slug' => 'terminado']);
+
+                if ($productInput) {
+                    if ($type === 'end' && $productInput->getState()->getSlug() === 'usado') {
+                        $productInput->setState($endState);
+                    } elseif ($type === 'use' && $productInput->getState()->getSlug() === 'retirado') {
+                        $productInput->setExpiryDate($expiryDate);
+                        $productInput->setState($usedState);
+                    }
+                    $em->persist($productInput);
+                    $em->flush();
+                    $this->get('session')->getFlashBag()->add(
+                        'message',
+                        "El producto se ha marcado como " . $productInput->getState()->getName() . " correctamente"
+                    );
+                } else {
+                    $this->get('session')->getFlashBag()->add(
+                        'error',
+                        "No se ha podido marcar el reactivo."
+                    );
+                }
+            } catch (Exception $e) {
+                $this->get('session')->getFlashBag()->add(
+                    'error',
+                    "No se ha podido marcar el reactivo."
+                );
+            }
+        }
+        return $this->render('NononsenseHomeBundle:Products:use.html.twig');
+    }
+
     /**
      * @param ProductsInputs $productInput
      * @param int $outputAmount
@@ -877,6 +996,7 @@ class ProductsController extends Controller
         $array_return = array();
         $data = array();
         $status = 500;
+        $now = new DateTime();
         try {
             /** @var ProductsInputs $productInput */
             $productInput = $this->getDoctrine()->getRepository(ProductsInputs::class)->findOneBy(['qrCode' => $id]);
@@ -909,6 +1029,8 @@ class ProductsController extends Controller
                 $data['receptionDate'] = ($receptionDate) ? $receptionDate->format('d-m-Y') : '';
                 $data['expiryDate'] = ($expiryDate) ? $expiryDate->format('d-m-Y') : '';
                 $data['destructionDate'] = ($destructionDate) ? $destructionDate->format('d-m-Y') : '';
+                $data['isExpired'] = ($destructionDate < $now || $expiryDate < $now);
+                $data['status'] = $productInput->getState()->getSlug();
                 $data['observations'] = $productInput->getObservations();
                 $data['isReactivo'] = $isReactivo;
 
@@ -921,6 +1043,139 @@ class ProductsController extends Controller
         $array_return['status'] = $status;
 
         return new JsonResponse($array_return);
+    }
+
+    public function useDataJsonAction($id)
+    {
+        $array_return = array();
+        $data = array();
+        $status = 500;
+        $now = new DateTime();
+        $em = $this->getDoctrine()->getManager();
+        $message = '';
+        try {
+            /** @var ProductsInputs $productInput */
+            $productInput = $em->getRepository(ProductsInputs::class)->findOneBy(['qrCode' => $id]);
+
+            if ($productInput) {
+                $product = $productInput->getProduct();
+
+                $receptionDate = $productInput->getReceptionDate();
+                $expiryDate = $productInput->getExpiryDate();
+                $destructionDate = $productInput->getDestructionDate();
+
+                if($product->getType()->getSlug() === 'reactivo'){
+                    $isReactivo = true;
+                }else{
+                    $isReactivo = false;
+                }
+
+                if($productInput->getState()->getSlug() == 'recibido'){
+                    /*
+                     * Envío por email al administrador de pedidos
+                     */
+                    $adminGroup = $em->getRepository(Groups::class)->findBy(["name" => 'reactivos-admin']);
+                    $usersAdmin = $em->getRepository(GroupUsers::class)->findBy(["group" => $adminGroup]);
+                    $user = $this->getUser()->getName();
+                    $subject = "Error en la utilización de reactivo";
+                    $message = "El usuario " . $user . " ha intentado utilizar el reactivo " . $product->getName() . " sin realizar previamente la retirada del almacén.";
+                    $message .= "<br/> El " . (new DateTime())->format('d-m-Y H:i:s');
+                    foreach($usersAdmin as $adm){
+                        $this->get('utilities')->sendNotification($adm->getUser()->getEmail(), '', '', '', $subject, $message);
+                    }
+                }
+
+                if($destructionDate < $now || $expiryDate < $now){
+                    if($destructionDate < $now){
+                        $message = 'destrucción ' . $destructionDate->format('Y-m-d H:i:s');
+                    }else{
+                        $message = 'caducidad ' . $expiryDate->format('Y-m-d H:i:s');
+                    }
+                    $state = $em->getRepository(ProductsInputStatus::class)->findOneBy(['slug' => 'caducado']);
+                    $productInput->setState($state);
+                    $em->persist($productInput);
+                    $em->flush();
+                }
+
+                $data['id'] = $productInput->getId();
+                $data['partNumber'] = $product->getPartNumber();
+                $data['casNumber'] = $product->getCasNumber();
+                $data['internalCode'] = $product->getInternalCode();
+                $data['name'] = $product->getName();
+                $data['provider'] = $product->getProvider();
+                $data['presentation'] = $product->getPresentation();
+                $data['lotNumber'] = $productInput->getLotNumber();
+                $data['receptionDate'] = ($receptionDate) ? $receptionDate->format('d-m-Y') : '';
+                $data['expiryDate'] = ($expiryDate) ? $expiryDate->format('d-m-Y') : '';
+                $data['destructionDate'] = ($destructionDate) ? $destructionDate->format('d-m-Y') : '';
+                $data['isExpired'] = ($destructionDate < $now || $expiryDate < $now);
+                $data['status'] = $productInput->getState()->getSlug();
+                $data['observations'] = $productInput->getObservations();
+                $data['isReactivo'] = $isReactivo;
+                $data['message'] = $message;
+
+                $status = 200;
+            }
+        } catch (Exception $e) {
+        }
+
+        $array_return['data'] = $data;
+        $array_return['status'] = $status;
+
+        return new JsonResponse($array_return);
+    }
+
+    public function checkDisolutionAction(Request $request)
+    {
+        $is_valid = $this->get('app.security')->permissionSeccion('reactivos_disolution');
+        if (!$is_valid) {
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+        }
+
+        if ($request->getMethod() == 'POST') {
+            return $this->redirect($this->generateUrl('nononsense_search').'?id=604');
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                "No se ha encontrado la disolución."
+            );
+//            try {
+//                $em = $this->getDoctrine()->getManager();
+//                $type = $request->get("type");
+//                $id = $request->get("UseInputId");
+//                if ($request->get("expiryDateUse")) {
+//                    $expiryDate = new DateTime($request->get("expiryDateUse"));
+//                }
+//                $productInput = $em->getRepository(ProductsInputs::class)->find($id);
+//                $usedState = $em->getRepository(ProductsInputStatus::class)->findOneBy(['slug' => 'usado']);
+//                $endState = $em->getRepository(ProductsInputStatus::class)->findOneBy(['slug' => 'terminado']);
+//
+//                if ($productInput) {
+//                    if ($type === 'end' && $productInput->getState()->getSlug() === 'usado') {
+//                        $productInput->setState($endState);
+//                    } elseif ($type === 'use' && $productInput->getState()->getSlug() === 'retirado') {
+//                        $productInput->setExpiryDate($expiryDate);
+//                        $productInput->setState($usedState);
+//                    }
+//                    $em->persist($productInput);
+//                    $em->flush();
+//                    $this->get('session')->getFlashBag()->add(
+//                        'message',
+//                        "El producto se ha marcado como " . $productInput->getState()->getName() . " correctamente"
+//                    );
+//                } else {
+//                    $this->get('session')->getFlashBag()->add(
+//                        'error',
+//                        "No se ha podido marcar el reactivo."
+//                    );
+//                }
+//            } catch (Exception $e) {
+//                $this->get('session')->getFlashBag()->add(
+//                    'error',
+//                    "No se ha podido marcar el reactivo."
+//                );
+//            }
+        }
+        return $this->render('NononsenseHomeBundle:Products:check_disolution.html.twig');
     }
 
     private function generateQrProductInput(ProductsInputs $productInput)
@@ -1306,4 +1561,35 @@ class ProductsController extends Controller
         return $endDate;
     }
 
+    /**
+     * @return string
+     */
+    private function generateMaterialQrCode()
+    {
+        $prefix = 'MAT';
+        /** @var ProductsRepository $prodcutsRepository */
+        $prodcutsRepository = $this->getDoctrine()->getRepository(Products::class);
+        /** @var Products $lastProduct */
+        $lastProduct = $prodcutsRepository->findBy([],['id'=>'DESC'],1,0);
+
+        $productNumber = str_pad(((int)$lastProduct[0]->getId()+1), 8, '0', STR_PAD_LEFT);
+
+        return $prefix.$productNumber;
+    }
+
+    /**
+     * @return string
+     */
+    private function generateReactivoQrCode()
+    {
+        $prefix = 'REACT';
+        /** @var ProductsInputsRepository $prodcutsRepository */
+        $inputsRepository = $this->getDoctrine()->getRepository(ProductsInputs::class);
+        /** @var ProductsInputs $lastInput */
+        $lastInput = $inputsRepository->findBy([],['id'=>'DESC'],1,0);
+
+        $inputNumber = str_pad(((int)$lastInput[0]->getId()+1), 8, '0', STR_PAD_LEFT);
+
+        return $prefix.$inputNumber;
+    }
 }

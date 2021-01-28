@@ -211,9 +211,14 @@
                                 <a href="{{ path('nononsense_products_outputs') }}">{{'Retirada de almacén'|trans}}</a>
                             </li>
                         {% endif %}
-                        {% if 'reactivos_disolucion' in array_subsecciones %}
+                        {% if 'reactivos_use' in array_subsecciones %}
+                            <li id="browse_product_use">
+                                <a href="{{ path('nononsense_products_use') }}">{{'Utilización de reactivo'|trans}}</a>
+                            </li>
+                        {% endif %}
+                        {% if 'reactivos_disolution' in array_subsecciones %}
                             <li id="browse_product_dissolution">
-                                <a href="{{ path('nononsense_products_dissolution') }}">{{'Disolución final'|trans}}</a>
+                                <a href="{{ path('nononsense_products_disolution') }}">{{'Lector de disoluciones'|trans}}</a>
                             </li>
                         {% endif %}
                         {% if 'productos_gestion' in array_subsecciones %}

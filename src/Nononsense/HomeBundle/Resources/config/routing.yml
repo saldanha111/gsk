@@ -352,9 +352,15 @@ nononsense_products_reception:
     path: /products/reception/{type}/{casNb}
     defaults: { _controller: NononsenseHomeBundle:Products:reception, casNb: null}
 
+nononsense_products_new:
+    path: /products/new/{type}
+    defaults: { _controller: NononsenseHomeBundle:Products:new}
+
 nononsense_products_inputs:
     path: /products-inputs/{type}/{qrCode}/{casNb}
     defaults: { _controller: NononsenseHomeBundle:Products:input, casNb: null }
+
+
 
 nononsense_qrs_json_qr:
     path: /qrs-json/{id}
@@ -408,6 +414,14 @@ nononsense_products_outputs_edit:
     path: /products-outputs/{id}
     defaults: { _controller: NononsenseHomeBundle:Products:editOutput}
 
+nononsense_products_use:
+    path: /products-use
+    defaults: { _controller: NononsenseHomeBundle:Products:useReactivo}
+
+nononsense_products_use_get_data_json:
+    path: /products-use-data/{id}
+    defaults: { _controller: NononsenseHomeBundle:Products:useDataJson}
+
 nononsense_products_outputs_delete:
     path: /products-outputs-delete/{id}
     defaults: { _controller: NononsenseHomeBundle:Products:deleteOutput}
@@ -435,6 +449,10 @@ nononsense_products_dissolution_delete:
 nononsense_products_dissolution_view_qr:
     path: /products-dissolution-qr/{id}
     defaults: { _controller: NononsenseHomeBundle:ProductsDissolution:dissolutionQr }
+
+nononsense_products_disolution:
+    path: /products-disolution
+    defaults: { _controller: NononsenseHomeBundle:Products:checkDisolution}
 
 # /Gestión de reactivos
 
