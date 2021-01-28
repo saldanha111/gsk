@@ -54,9 +54,17 @@
                     </form>
                 </div>
                 <div class="row">
-                    <div>
-                      <a href="{{ path('nononsense_products_reception',{'type': type.getSlug}) }}" target="_self" class="btn btn-primary pull-right"><i class="fa fa-plus"></i> Nueva recepción</a>
-                    </div><br>
+                    <div class="col-xs-6">
+                        <a href="{{ path('nononsense_products_new',{'type': type.getSlug}) }}" target="_self" class="btn btn-primary pull-left">
+                            <i class="fa fa-plus"></i> Añadir material
+                        </a>
+                    </div>
+                    <div class="col-xs-6">
+                        <a href="{{ path('nononsense_products_reception',{'type': type.getSlug}) }}" target="_self" class="btn btn-primary pull-right">
+                            <i class="fa fa-plus"></i> Leer Qr
+                        </a>
+                    </div>
+                    <br>
                     <table id="inProcessParcial" class="table table-striped">
                         <thead>
                         <tr>
@@ -81,7 +89,7 @@
                                 <td>{{item.product.provider}}</td>
                                 <td>{{item.product.presentation}}</td>
                                 <td>{{item.amount}}</td>
-                                <td>{{ item.receptionDate | date("d-m-Y")  }}</td>
+                                <td>{{ item.receptionDate | date("d-m-Y H:i:s")  }}</td>
                                 <td>
                                     <p data-toggle="tooltip" data-placement="left" title="{{ item.observations|length > 50 ? item.observations : '' }}">
                                         {{ item.observations|length > 50 ? item.observations|slice(0, 50) ~ '...' : item.observations  }}

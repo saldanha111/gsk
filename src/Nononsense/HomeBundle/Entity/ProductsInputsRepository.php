@@ -20,7 +20,7 @@ class ProductsInputsRepository extends EntityRepository
             ->innerJoin("pi.product", "p")
             ->innerJoin("p.type", "t")
             ->innerJoin("pi.state", "s")
-            ->orderBy('pi.receptionDate', 'DESC');
+            ->orderBy('pi.id', 'DESC');
 
         $list = self::fillFilersQuery($filters, $list);
 

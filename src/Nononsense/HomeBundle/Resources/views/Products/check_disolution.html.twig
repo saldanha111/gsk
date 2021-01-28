@@ -1,0 +1,104 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}Docoaro - GSK |  Productos / Lector de disoluciones {% endblock %}
+{% block head %}
+    {{ parent() }}
+{% endblock %}
+{% block main_title %} Productos / Lector de disoluciones{% endblock %}
+
+{% block content %}
+
+    <div class="wrapper wrapper-content animated fadeInUp">
+        {% for flashMessage in app.session.flashbag.get('error') %}
+            <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                {{ flashMessage }}
+            </div>
+            <br>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('message') %}
+            <div class="alert alert-success alert-dismissable" style="margin: 10px 16px 0 16px">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                {{ flashMessage }}
+            </div>
+            <br>
+        {% endfor %}
+        <form class="form-horizontal" id="form_item" action="{{ path('nononsense_products_disolution') }}" method="POST">
+            <input type="hidden" name="productId" id='productId' value="" />
+            <div class="row">
+                <div class="col-lg-4 col-lg-offset-1">
+                    <div class="row">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">Imagen Qr</label>
+                            <div class="col-sm-8">
+                                <input id="imageQR" type="file" name="pic" accept="image/*" capture="camera"
+                                       onchange="handleFiles(this.files)">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">Texto Qr</label>
+                            <div class="col-sm-8">
+                                <div style="float: left; width: 80%;">
+                                    <input type="text" id="input_id" name="input_id" class="form-control" required="required">
+                                </div>
+                                <div style="float: left; width: 20%;">
+                                    <button type="submit" class="btn">
+                                        <i class="fa fa-search" aria-hidden="true"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+
+{% endblock %}
+
+{% block scripts %}
+    {{ parent() }}
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/grid.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/version.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/detector.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/formatinf.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/errorlevel.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/bitmat.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/datablock.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/bmparser.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/datamask.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/rsdecoder.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/gf256poly.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/gf256.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/decoder.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/qrcode.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/findpat.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/alignpat.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/plugins/jsqrcode-master/src/databr.js') }}"></script>
+    <script>
+        $(document).ready(function () {
+            ActivateMenu('browse_product_dissolution');
+            $('#side-menu').metisMenu();
+            qrcode.callback = putQrValue;
+        });
+
+        function putQrValue(a) {
+            $('#productId').val(a);
+        }
+
+        function handleFiles(files) {
+            var o = [];
+            for (var i = 0; i < files.length; i++) {
+                var reader = new FileReader();
+                reader.onload = (function (theFile) {
+                    return function (e) {
+                        var value = qrcode.decode(e.target.result);
+                    };
+                })(files[i]);
+                reader.readAsDataURL(files[i]);
+            }
+        }
+    </script>
+{% endblock %}
+
+
