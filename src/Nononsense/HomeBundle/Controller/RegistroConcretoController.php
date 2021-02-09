@@ -258,7 +258,7 @@ class RegistroConcretoController extends Controller
 
 
         //$options['requestExternalJS'] = $validacionURL1;
-        $callback_url = $baseUrlAux . 'data/get_data_from_document/' . $stepid."?token=".$token_get_data. '&XDEBUG_SESSION_START=PHPSTORM';
+        $callback_url = $baseUrlAux . 'data/get_data_from_document/' . $stepid."?token=".$token_get_data;
         $get_data_url = $baseUrlAux . 'data/requestData/' . $step->getId() . '/' . $logbook.'/'.$modo."?token=".$token_get_data;
         
         if($readonly){
@@ -922,7 +922,7 @@ class RegistroConcretoController extends Controller
         $em->persist($registro);
         $em->flush();
 
-        return $this->redirect($route. '?XDEBUG_SESSION_START=PHPSTORM');
+        return $this->redirect($route);
     }
 
     public function controlValidacionAction($stepid)

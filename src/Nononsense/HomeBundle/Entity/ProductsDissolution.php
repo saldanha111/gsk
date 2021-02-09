@@ -32,6 +32,13 @@ class ProductsDissolution
     /**
      * @var string
      *
+     * @ORM\Column(name="method", type="string", length=255,  nullable=true)
+     */
+    protected $method;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(name="qr_code", type="string", length=255, nullable=true)
      */
     protected $qrCode;
@@ -46,6 +53,11 @@ class ProductsDissolution
      * @ORM\Column(type="datetime")
      */
     protected $created;
+
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    protected $expiryDate;
 
     /**
      * @var bool
@@ -197,5 +209,51 @@ class ProductsDissolution
     public function getLines()
     {
         return $this->lines;
+    }
+
+    /**
+     * Set expiryDate
+     *
+     * @param \DateTime $expiryDate
+     * @return ProductsDissolution
+     */
+    public function setExpiryDate($expiryDate)
+    {
+        $this->expiryDate = $expiryDate;
+
+        return $this;
+    }
+
+    /**
+     * Get expiryDate
+     *
+     * @return \DateTime 
+     */
+    public function getExpiryDate()
+    {
+        return $this->expiryDate;
+    }
+
+    /**
+     * Set method
+     *
+     * @param string $method
+     * @return ProductsDissolution
+     */
+    public function setMethod($method)
+    {
+        $this->method = $method;
+
+        return $this;
+    }
+
+    /**
+     * Get method
+     *
+     * @return string 
+     */
+    public function getMethod()
+    {
+        return $this->method;
     }
 }

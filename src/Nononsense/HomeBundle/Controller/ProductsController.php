@@ -6,6 +6,7 @@ use Datetime;
 use Exception;
 use Nononsense\GroupBundle\Entity\Groups;
 use Nononsense\GroupBundle\Entity\GroupUsers;
+use Nononsense\HomeBundle\Entity\InstanciasSteps;
 use Nononsense\HomeBundle\Entity\ProductsDissolution;
 use Nononsense\HomeBundle\Entity\ProductsDissolutionRepository;
 use Nononsense\HomeBundle\Entity\ProductsInputsRepository;
@@ -1183,34 +1184,71 @@ class ProductsController extends Controller
         $filename = "qr_material_input_" . $productInput->getId() . ".png";
         $rootdir = $this->get('kernel')->getRootDir();
         $ruta_img_qr = $rootdir . "/files/material_inputs_qr/";
-        $label = '';
-
-        $cad_text = '';
-        if ($productInput->getExpiryDate()) {
-            $cad_text = $productInput->getExpiryDate()->format('Y-m-d');
-        }
+        $qrWidth = 154;
+        $qrPadding = 2;
 
         $productType = $productInput->getProduct()->getType();
         if ($productType->getSlug() === 'reactivo') {
-            $label = 'Cad.' . $cad_text . " - ";
-            $label .= 'Dest.' . $productInput->getDestructionDate()->format('Y-m-d');
+            $text = [
+                $productInput->getProduct()->getInternalCode(),
+                'F.Destruccion: ' . $productInput->getDestructionDate()->format('Y-m-d')
+            ];
+        }else{
+            $text = [$productInput->getProduct()->getInternalCode()];
         }
 
         $qrCode = new QrCode();
         $qrCode
             ->setText($productInput->getqrCode())
-            ->setSize(500)
-            ->setPadding(5)
+            ->setSize($qrWidth)
+            ->setPadding($qrPadding)
             ->setErrorCorrection('high')
             ->setForegroundColor(['r' => 0, 'g' => 0, 'b' => 0, 'a' => 0])
             ->setBackgroundColor(['r' => 255, 'g' => 255, 'b' => 255, 'a' => 0])
-            ->setLabel($label)
-            ->setLabelFontSize(14)
             ->setImageType(QrCode::IMAGE_TYPE_PNG);
 
         $qrCode->save($ruta_img_qr . $filename);
 
-        return $filename;
+        return $this->addQrInfoData($ruta_img_qr . $filename, ($qrWidth + $qrPadding*2), $text);
+    }
+
+    /**
+     * @param $qrPath
+     * @param $qrWidth
+     * @param $text
+     */
+    private function addQrInfoData($qrPath, $qrWidth, $text)
+    {
+        $lines = count($text);
+        $squareHeight = 20*$lines;
+        $rectangle = imagecreatetruecolor($qrWidth, $squareHeight);
+        $white = imagecolorallocate($rectangle, 255, 255, 255);
+        imagefilledrectangle($rectangle, 1, 1, $qrWidth-2, $squareHeight-3, $white);
+
+        $qrImage = imagecreatefrompng($qrPath);
+        $black = imagecolorallocate($rectangle, 0, 0, 0);
+        $rootdir = $this->get('kernel')->getRootDir();
+        $font_path = $rootdir . '/Resources/font/opensans.ttf';
+
+        $space = 15;
+        foreach($text as $line){
+            imagettftext($rectangle, 7, 0, 4, $space, $black, $font_path, $line);
+            $space += $space;
+        }
+
+        ob_start();
+        $new = imagecreate($qrWidth, $qrWidth+$squareHeight);
+        imagecopy($new, $qrImage, 0, 0, 0, 0, $qrWidth, $qrWidth);
+        imagecopy($new, $rectangle, 0, $qrWidth+1, 0, 0, $qrWidth, $squareHeight);
+        imagepng($new);
+        $content = ob_get_clean();
+
+        // Clear Memory
+        imagedestroy($qrImage);
+        imagedestroy($rectangle);
+        imagedestroy($new);
+
+        return $content;
     }
 
     private function generateQrProductOutput(ProductsOutputs $productOutput)
@@ -1247,18 +1285,13 @@ class ProductsController extends Controller
             $productInput = $this->getDoctrine()->getRepository('NononsenseHomeBundle:ProductsInputs')->find($id);
 
             if ($productInput) {
-                $filename = self::generateQrProductInput($productInput);
-
-                $rootdir = $this->get('kernel')->getRootDir();
-                $ruta_img_qr = $rootdir . "/files/material_inputs_qr/";
-
-                $content = file_get_contents($ruta_img_qr . $filename);
+                $qrImage = self::generateQrProductInput($productInput);
 
                 $response = new Response();
                 $disposition = $response->headers->makeDisposition(ResponseHeaderBag::DISPOSITION_INLINE, 'image.png');
                 $response->headers->set('Content-Disposition', $disposition);
                 $response->headers->set('Content-Type', 'image/png');
-                $response->setContent($content);
+                $response->setContent($qrImage);
                 return $response;
             }
         }
@@ -1330,7 +1363,7 @@ class ProductsController extends Controller
     }
 
     public function jsonOutputDataAction($code){
-        $data = ['u_qr_data' => 'Reactivo no registrado'];
+        $data[0] = ['u_qr_data' => 'Reactivo no registrado'];
         /** @var ProductsInputsRepository $inputsRepository */
         $inputsRepository = $this->getDoctrine()->getRepository(ProductsInputs::class);
         /** @var ProductsInputs $output */
@@ -1338,51 +1371,56 @@ class ProductsController extends Controller
 
         if($input){
             $arrInput = [$input];
+            if(count($arrInput) > 0){
+                $data = [];
+                foreach($arrInput as $key => $input){
+                    switch($input->getState()->getSlug()){
+                        case 'usado':
+                            $openDate = $input->getOpenDate()?: new DateTime();
+                            $data[$key] = [
+                                'u_tipo_muest' => $input->getProduct()->getName(),
+                                'u_cas' => ($input->getProduct()->getCasNumber())?:'',
+                                'u_lote' => ($input->getLotNumber())?:'',
+                                'u_caduc' => ($input->getExpiryDate()) ? $input->getExpiryDate()->format('Y-m-d'):'',
+                                'u_proveed' => ($input->getProduct()->getProvider())?:'',
+                                'u_date' => $openDate->format('Y-m-d'),
+                                'u_qr_data' => $input->getQrCode()
+                            ];
+                            break;
+                        case 'retirado':
+                            $data[$key] = ['u_qr_data' => 'Utilización no registrada'];
+                            break;
+                        case 'recibido':
+                            $data[$key] = ['u_qr_data' => 'Extracción no registrada'];
+                            break;
+                        case 'terminado':
+                            $data[$key] = ['u_qr_data' => 'Reactivo terminado'];
+                            break;
+                    }
+                    if($input->getExpiryDate() < (new DateTime()) || $input->getDestructionDate() < (new DateTime())){
+                        $data[$key] = ['u_qr_data' => 'Caducidad alcanzada.'];
+                    }
+                }
+            }
         }else {
             /** @var ProductsDissolutionRepository $dissolutionRepository */
             $dissolutionRepository = $this->getDoctrine()->getRepository(ProductsDissolution::class);
             /** @var ProductsDissolution $dissolution */
             $dissolution = $dissolutionRepository->findOneBy(['qrCode' => $code]);
-            $arrInput = $dissolution ? $dissolution->getLines() : [];
-        }
-
-        if(count($arrInput) > 0){
-            $data = [];
-            foreach($arrInput as $key => $input){
-                switch($input->getState()->getSlug()){
-                    case 'retirado':
-                        $openDate = $input->getOpenDate()?: new DateTime();
-                        $data[$key] = [
-                            'u_nombre_sustancia' => $input->getProduct()->getName(),
-                            'u_cas' => ($input->getProduct()->getCasNumber())?:'',
-                            'u_lote' => ($input->getLotNumber())?:'',
-                            'u_proveed' => ($input->getProduct()->getProvider())?:'',
-                            'u_date' => $openDate->format('Y-m-d'),
-                            'u_qr_data' => $input->getQrCode()
-                        ];
-                        break;
-                    case 'usado':
-                        $openDate = $input->getOpenDate()?: new DateTime();
-                        $data[$key] = [
-                            'u_nombre_sustancia' => $input->getProduct()->getName(),
-                            'u_cas' => ($input->getProduct()->getCasNumber())?:'',
-                            'u_lote' => ($input->getLotNumber())?:'',
-                            'u_caduc' => ($input->getExpiryDate()) ? $input->getExpiryDate()->format('Y-m-d'):'',
-                            'u_proveed' => ($input->getProduct()->getProvider())?:'',
-                            'u_date' => $openDate->format('Y-m-d'),
-                            'u_qr_data' => $input->getQrCode()
-                        ];
-                        break;
-                    case 'recibido':
-                        $data[$key] = ['u_qr_data' => 'Extracción no registrada'];
-                        break;
-                    case 'terminado':
-                        $data[$key] = ['u_qr_data' => 'Reactivo terminado'];
-                        break;
-                }
-                if($input->getExpiryDate() < (new DateTime()) || $input->getDestructionDate() < (new DateTime())){
-                    $data[$key] = ['u_qr_data' => 'Caducidad alcanzada.'];
-                }
+            if(!$dissolution){
+                $data[0] = ['u_qr_data' => 'Reactivo o disolución no encontrado'];
+            }elseif($dissolution && $dissolution->getExpiryDate() < (new DateTime())){
+                $data[0] = ['u_qr_data' => 'Caducidad alcanzada.'];
+            }else{
+                $data[0] = [
+                    'u_tipo_muest' => $dissolution->getName(),
+                    'u_cas' => 'N/A',
+                    'u_lote' => 'N/A',
+                    'u_caduc' => ($dissolution->getExpiryDate()) ? $dissolution->getExpiryDate()->format('Y-m-d'):'',
+                    'u_proveed' => 'N/A',
+                    'u_date' => $dissolution->getCreated()->format('Y-m-d'),
+                    'u_qr_data' => $dissolution->getQrCode()
+                ];
             }
         }
 
