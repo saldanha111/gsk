@@ -9,6 +9,7 @@
 namespace Nononsense\HomeBundle\Controller;
 
 
+use Doctrine\ORM\EntityManager;
 use Nononsense\HomeBundle\Entity\CancelacionStep;
 use Nononsense\HomeBundle\Entity\FirmasStep;
 use Nononsense\HomeBundle\Entity\MetaData;
@@ -857,7 +858,7 @@ class RegistroValidationController extends Controller
 
     public function verificarOkStepAction($stepid, Request $request)
     {
-
+        $em = $this->getDoctrine()->getManager();
         $user = $this->container->get('security.context')->getToken()->getUser();
 
         $step = $this->getDoctrine()
@@ -872,11 +873,12 @@ class RegistroValidationController extends Controller
         $registro = $step->getInstanciaWorkflow();
         if ($registro->getMasterWorkflowEntity()->getChecklist() == 0) {
             $registro->setStatus(9); // Estado archivado.
-
+            $this->makeReactivosActions($step);
         } else {
             if ($step->getMasterStep()->getChecklist() == 1) {
                 // Yo soy la checklist
                 $registro->setStatus(9); // Estado archivado.
+                $this->makeReactivosActions($step);
             } else {
                 $registro->setStatus(4); // Sigue en estado en validación
             }
@@ -884,7 +886,6 @@ class RegistroValidationController extends Controller
 
         //$step->setStatusId(4);
 
-        $em = $this->getDoctrine()->getManager();
         $em->persist($step);
         $em->persist($registro);
         $em->flush();
@@ -1559,5 +1560,20 @@ class RegistroValidationController extends Controller
             "stepid" => $stepid
         ));
 
+    }
+
+    /**
+     * @param EntityManager $em
+     * @param InstanciasSteps $step
+     * @return bool
+     */
+    private function makeReactivosActions($step)
+    {
+        $typo = $step->getMasterStep()->getMasterWorkflow()->getPrecreation();
+        if($typo === 'reactivo'){
+            $result = $this->forward('NononsenseHomeBundle:ProductsDissolution:saveReactivoUse', ['step'  => $step]);
+        }
+
+        return true;
     }
 }

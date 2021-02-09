@@ -2,16 +2,11 @@
 
 namespace Nononsense\HomeBundle\Controller;
 
+use DateTime;
 use Exception;
+use Nononsense\HomeBundle\Entity\InstanciasSteps;
 use Nononsense\HomeBundle\Entity\ProductsDissolution;
 use Nononsense\HomeBundle\Entity\ProductsDissolutionRepository;
-use Nononsense\HomeBundle\Entity\ProductsInputsRepository;
-use Nononsense\HomeBundle\Entity\ProductsInputStatus;
-use Nononsense\HomeBundle\Entity\ProductsInputStatusRepository;
-use Nononsense\HomeBundle\Entity\ProductsRepository;
-use Nononsense\HomeBundle\Entity\ProductsTypes;
-use Nononsense\HomeBundle\Entity\ProductsTypesRepository;
-use Nononsense\HomeBundle\Entity\Products;
 use Nononsense\HomeBundle\Entity\ProductsInputs;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,6 +14,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Nononsense\UtilsBundle\Classes\Utils;
 use Endroid\QrCode\QrCode;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class ProductsDissolutionController extends Controller
 {
@@ -121,52 +117,158 @@ class ProductsDissolutionController extends Controller
         return $this->render('NononsenseHomeBundle:Products:dissolution_detail.html.twig', $array_item);
     }
 
-    private function generateQrProductDissolution(ProductsDissolution $productDissolution)
+    /**
+     * @param InstanciasSteps $step
+     * @return bool
+     * @throws Exception
+     */
+    public function saveReactivoUseAction(InstanciasSteps $step)
     {
-        $filename = "qr_material_dissolution_" . $productDissolution->getId() . ".png";
-        $rootdir = $this->get('kernel')->getRootDir();
-        $ruta_img_qr = $rootdir . "/files/material_dissolution_qr/";
+        $em = $this->getDoctrine()->getManager();
+        $data = json_decode($step->getStepDataValue(), true);
+        $products = [];
+        if(count($data['data'])){
+            foreach($data['data'] as $key => $item){
+                if(is_array($item)){
+                    foreach($item as $idx => $prod){
+                        $products[$idx][$key] = $prod;
+                    }
+                }
+            }
+            $disoluciones = [];
+            foreach($products as $prod){
+                $nrDisolucion = $prod['u_ndis'];
+                if($nrDisolucion > 0){
+                    $disoluciones[$nrDisolucion]['name'] = $prod['u_tipo'] . ' ' . $prod['u_tipo2'];
+                    $disoluciones[$nrDisolucion]['method'] = $prod['u_met1'] . ' ' . $prod['u_met'];
+                    $disoluciones[$nrDisolucion]['caducidad'] = $prod['u_cad_prep'];
+                }
+            }
 
-        $qrCode = new QrCode();
-        $qrCode
-            ->setText($productDissolution->getqrCode())
-            ->setSize(500)
-            ->setPadding(5)
-            ->setErrorCorrection('high')
-            ->setForegroundColor(['r' => 0, 'g' => 0, 'b' => 0, 'a' => 0])
-            ->setBackgroundColor(['r' => 255, 'g' => 255, 'b' => 255, 'a' => 0])
-            ->setImageType(QrCode::IMAGE_TYPE_PNG);
+            foreach($disoluciones as $key => $disolucion){
+                $dis = new ProductsDissolution();
+                $dis->setName($disolucion['name']);
+                $dis->setMethod($disolucion['method']);
+                $dis->setExpiryDate(new DateTime($disolucion['caducidad']));
+                $dis->setQrCode($this->generateDisolucionQrCode());
+                $em->persist($dis);
+                $em->flush();
+                foreach($data['data']['u_ndis'] as $idx => $val){
+                    if($val == $key){
+                        $imgUrl = $this->generateUrl('nononsense_products_dissolution_view_qr', ['id' => $dis->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
+                        $data['data']['u_qr_disfin'][$idx] = '<a href="' . $imgUrl . '" target="_blank"><img src="' . $imgUrl . '"/></a>';
+                        $data['data']['u_qr_disfin_text'][$idx] = $dis->getQrCode();
+                    }
+                }
+            }
+            $jsonData = json_encode($data);
+            $step->setStepDataValue($jsonData);
+            $em->persist($step);
+            $em->flush();
+        }
 
-        $qrCode->save($ruta_img_qr . $filename);
-
-        return $filename;
+        return true;
     }
 
     public function dissolutionQrAction($id)
     {
         $productInput = null;
         if ($id) {
-            $productInput = $this->getDoctrine()->getRepository(ProductsDissolution::class)->find($id);
+            $productsDissolution = $this->getDoctrine()->getRepository(ProductsDissolution::class)->find($id);
 
-            if ($productInput) {
-                $filename = self::generateQrProductDissolution($productInput);
+            $filename = "qr_disolution_" . $productsDissolution->getId() . ".png";
+            $rootdir = $this->get('kernel')->getRootDir();
+            $ruta_img_qr = $rootdir . "/files/material_dissolution_qr/";
+            $qrWidth = 154;
+            $qrPadding = 2;
 
-                $rootdir = $this->get('kernel')->getRootDir();
-                $ruta_img_qr = $rootdir . "/files/material_dissolution_qr/";
+            $text = [
+                $productsDissolution->getName(),
+                $productsDissolution->getMethod(),
+                'F.Preparacion: ' . $productsDissolution->getCreated()->format('Y-m-d'),
+                'F.Caducidad: ' . $productsDissolution->getExpiryDate()->format('Y-m-d')
+            ];
 
-                $content = file_get_contents($ruta_img_qr . $filename);
+            $qrCode = new QrCode();
+            $qrCode
+                ->setText($productsDissolution->getqrCode())
+                ->setSize($qrWidth)
+                ->setPadding($qrPadding)
+                ->setErrorCorrection('high')
+                ->setForegroundColor(['r' => 0, 'g' => 0, 'b' => 0, 'a' => 0])
+                ->setBackgroundColor(['r' => 255, 'g' => 255, 'b' => 255, 'a' => 0])
+                ->setImageType(QrCode::IMAGE_TYPE_PNG);
 
-                $response = new Response();
-                $disposition = $response->headers->makeDisposition(ResponseHeaderBag::DISPOSITION_INLINE, 'image.png');
-                $response->headers->set('Content-Disposition', $disposition);
-                $response->headers->set('Content-Type', 'image/png');
-                $response->setContent($content);
-                return $response;
-            }
+            $qrCode->save($ruta_img_qr . $filename);
+            $content = $this->addQrInfoData($ruta_img_qr . $filename, ($qrWidth + $qrPadding * 2), $text);
+
+            $response = new Response();
+            $disposition = $response->headers->makeDisposition(ResponseHeaderBag::DISPOSITION_INLINE, 'image.png');
+            $response->headers->set('Content-Disposition', $disposition);
+            $response->headers->set('Content-Type', 'image/png');
+            $response->setContent($content);
+            return $response;
         }
-
         echo "Error al generar el QR";
         exit();
+    }
+
+    /**
+     * @param $qrPath
+     * @param $qrWidth
+     * @param $text
+     */
+    private function addQrInfoData($qrPath, $qrWidth, $text)
+    {
+        $lines = count($text);
+        $squareHeight = 15*$lines;
+        $rectangle = imagecreatetruecolor($qrWidth, $squareHeight);
+        $white = imagecolorallocate($rectangle, 255, 255, 255);
+        imagefilledrectangle($rectangle, 1, 1, $qrWidth-2, $squareHeight-3, $white);
+
+        $qrImage = imagecreatefrompng($qrPath);
+        $black = imagecolorallocate($rectangle, 0, 0, 0);
+        $rootdir = $this->get('kernel')->getRootDir();
+        $font_path = $rootdir . '/Resources/font/opensans.ttf';
+
+        $space = 12;
+        foreach($text as $line){
+            imagettftext($rectangle, 7, 0, 4, $space, $black, $font_path, $line);
+            $space += 12;
+        }
+
+        ob_start();
+        $new = imagecreate($qrWidth, $qrWidth+$squareHeight);
+        imagecopy($new, $qrImage, 0, 0, 0, 0, $qrWidth, $qrWidth);
+        imagecopy($new, $rectangle, 0, $qrWidth+1, 0, 0, $qrWidth, $squareHeight);
+        imagepng($new);
+        $content = ob_get_clean();
+
+        // Clear Memory
+        imagedestroy($qrImage);
+        imagedestroy($rectangle);
+        imagedestroy($new);
+
+        return $content;
+    }
+
+    /**
+     * @return string
+     */
+    private function generateDisolucionQrCode()
+    {
+        $prefix = 'DISOL';
+        /** @var ProductsDissolutionRepository $prodcutsDissolutionRepository */
+        $prodcutsDissolutionRepository = $this->getDoctrine()->getRepository(ProductsDissolution::class);
+        /** @var ProductsDissolution $lastInput */
+        $lastInput = $prodcutsDissolutionRepository->findBy([],['id'=>'DESC'],1,0);
+        if(!$lastInput){
+            $lastId = 0;
+        }else{
+            $lastId = (int)$lastInput[0]->getId();
+        }
+        $inputNumber = str_pad(($lastId+1), 8, '0', STR_PAD_LEFT);
+        return $prefix.$inputNumber;
     }
 
 }
