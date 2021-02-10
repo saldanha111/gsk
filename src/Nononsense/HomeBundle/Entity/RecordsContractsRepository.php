@@ -2,6 +2,7 @@
 
 namespace Nononsense\HomeBundle\Entity;
 
+use DateTime;
 use Doctrine\ORM\EntityRepository;
 
 /**
@@ -82,12 +83,14 @@ class RecordsContractsRepository extends EntityRepository
             $list->setParameter('groups', $groups);
         }
         if(isset($filters["from"])){
+            $dateFrom = DateTime::createFromFormat('d-m-Y',$filters["from"]);
             $list->andWhere('r.created>=:from');
-            $list->setParameter('from', $filters["from"]);
+            $list->setParameter('from', $dateFrom->format('Y-m-d'));
         }
         if(isset($filters["until"])){
+            $dateUntil = DateTime::createFromFormat('d-m-Y',$filters["until"]);
             $list->andWhere('r.created<=:until');
-            $list->setParameter('until', $filters["until"]." 23:59:00");
+            $list->setParameter('until', $dateUntil->format('Y-m-d')." 23:59:00");
         }
     	return $list;
     }

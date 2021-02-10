@@ -1134,47 +1134,23 @@ class ProductsController extends Controller
         }
 
         if ($request->getMethod() == 'POST') {
-            return $this->redirect($this->generateUrl('nononsense_search').'?id=604');
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                "No se ha encontrado la disolución."
-            );
-//            try {
-//                $em = $this->getDoctrine()->getManager();
-//                $type = $request->get("type");
-//                $id = $request->get("UseInputId");
-//                if ($request->get("expiryDateUse")) {
-//                    $expiryDate = new DateTime($request->get("expiryDateUse"));
-//                }
-//                $productInput = $em->getRepository(ProductsInputs::class)->find($id);
-//                $usedState = $em->getRepository(ProductsInputStatus::class)->findOneBy(['slug' => 'usado']);
-//                $endState = $em->getRepository(ProductsInputStatus::class)->findOneBy(['slug' => 'terminado']);
-//
-//                if ($productInput) {
-//                    if ($type === 'end' && $productInput->getState()->getSlug() === 'usado') {
-//                        $productInput->setState($endState);
-//                    } elseif ($type === 'use' && $productInput->getState()->getSlug() === 'retirado') {
-//                        $productInput->setExpiryDate($expiryDate);
-//                        $productInput->setState($usedState);
-//                    }
-//                    $em->persist($productInput);
-//                    $em->flush();
-//                    $this->get('session')->getFlashBag()->add(
-//                        'message',
-//                        "El producto se ha marcado como " . $productInput->getState()->getName() . " correctamente"
-//                    );
-//                } else {
-//                    $this->get('session')->getFlashBag()->add(
-//                        'error',
-//                        "No se ha podido marcar el reactivo."
-//                    );
-//                }
-//            } catch (Exception $e) {
-//                $this->get('session')->getFlashBag()->add(
-//                    'error',
-//                    "No se ha podido marcar el reactivo."
-//                );
-//            }
+            $code = $request->get('input_id');
+            $stepRepository = $this->getDoctrine()->getRepository(InstanciasSteps::class);
+            $instancias = $stepRepository->search('list',["content" => $code , 'user' => $this->getUser()]);
+            $minId = 0;
+            if($instancias){
+                foreach($instancias as $inst){
+                    if($inst['id'] > $minId){
+                        $minId = $inst['id'];
+                    }
+                }
+                return $this->redirect($this->generateUrl('nononsense_search').'?id='.$minId);
+            }else{
+                $this->get('session')->getFlashBag()->add(
+                    'error',
+                    "No se ha encontrado la disolución."
+                );
+            }
         }
         return $this->render('NononsenseHomeBundle:Products:check_disolution.html.twig');
     }

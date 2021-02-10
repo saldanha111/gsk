@@ -99,10 +99,11 @@ class RecordsContractsController extends Controller
         /** @var RecordsContractsRepository $rescordsContractsRepository */
         $rescordsContractsRepository = $this->getDoctrine()->getRepository(RecordsContracts::class);
 
-        $array_item["states"][1] = "Creado";
-        $array_item["states"][2] = "Pendiente de firma";
-        $array_item["states"][3] = "Completado";
-        $array_item["states"][4] = "Cancelado";
+        $array_item["states"][0] = "Creado";
+        $array_item["states"][1] = "Dirección RRHH";
+        $array_item["states"][2] = "En comité";
+        $array_item["states"][3] = "Para enviar";
+        $array_item["states"][4] = "Firmado";
         $array_item["suser"]["groups"] = $groups;
         $array_item["filters"] = $filters;
         $array_item["types"] = $this->getDoctrine()->getRepository(ContractsTypes::class)->findAll();
@@ -1258,9 +1259,15 @@ class RecordsContractsController extends Controller
             readfile($pdfUrl);
             $pdfFile = ob_get_clean();
             $response = new Response();
+
+            $name = $record->getWorkerName();
+            if(!$name){
+                $name = $token;
+            }
+
             $response->headers->set('Cache-Control', 'private');
             $response->headers->set('Content-type', 'application/pdf');
-            $response->headers->set('Content-Disposition', 'attachment; filename="contract_' . $version . '.pdf');
+            $response->headers->set('Content-Disposition', 'attachment; filename="'. str_replace(' ', '_', $name) .'_' . $version . '.pdf');
             $response->sendHeaders();
             $response->setContent($pdfFile);
             return $response;
