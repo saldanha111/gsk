@@ -1140,7 +1140,7 @@ class ProductsController extends Controller
             $minId = 0;
             if($instancias){
                 foreach($instancias as $inst){
-                    if($inst['id'] > $minId){
+                    if($minId === 0 || $inst['id'] < $minId){
                         $minId = $inst['id'];
                     }
                 }
