@@ -1140,8 +1140,8 @@ class ProductsController extends Controller
             $minId = 0;
             if($instancias){
                 foreach($instancias as $inst){
-                    if($minId === 0 || $inst['id'] < $minId){
-                        $minId = $inst['id'];
+                    if($minId === 0 || $inst['id_grid'] < $minId){
+                        $minId = $inst['id_grid'];
                     }
                 }
                 return $this->redirect($this->generateUrl('nononsense_search').'?id='.$minId);
