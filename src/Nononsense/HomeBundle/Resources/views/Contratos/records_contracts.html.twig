@@ -107,20 +107,44 @@
                                 <td>{{item.created|date("d/m/Y")}}</td>
                                 <td>
                                     {% if item.status is defined %}
-                                        {% if item.status==0 %}
-                                            <a href="{{path('nononsense_records_contracts_link', {'id': item.id}) }}" class="btn btn-xs btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i> Creado</a>
-                                        {% elseif item.status==1 %}
-                                            <a href="{{path('nononsense_records_contracts_link', {'id': item.id}) }}" class="btn btn-xs btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i> Dirección RRHH</a>
-                                        {% elseif item.status==2 %}
-                                            <a href="{{path('nononsense_records_contracts_link', {'id': item.id}) }}" class="btn btn-xs btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i> En Comité</a>
-                                        {% elseif item.status==3 %}
-                                            {% if item.tokenPublicSignature is defined and item.tokenPublicSignature is not null %}
-                                                <a href="{{path('nononsense_records_contracts_link', {'id': item.id}) }}" class="btn btn-xs btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i> Enviado</a>
-                                            {% else %}
-                                                <a href="{{path('nononsense_records_contracts_link', {'id': item.id}) }}" class="btn btn-xs btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i> Para enviar</a>
+                                        {% if is_admin %}
+                                            {% if item.status==0 %}
+                                                <a href="{{path('nononsense_records_contracts_link', {'id': item.id, 'version': version_director}) }}" class="btn btn-xs btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i> Creado (versión director)</a>
+                                                <a href="{{path('nononsense_records_contracts_link', {'id': item.id, 'version': version_comite}) }}" class="btn btn-xs btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i> Creado (versión comité)</a>
+                                            {% elseif item.status==1 %}
+                                                <a href="{{path('nononsense_records_contracts_link', {'id': item.id, 'version': version_director}) }}" class="btn btn-xs btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i> Dirección RRHH (versión director)</a>
+                                                <a href="{{path('nononsense_records_contracts_link', {'id': item.id, 'version': version_comite}) }}" class="btn btn-xs btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i> Dirección RRHH (versión comité)</a>
+                                            {% elseif item.status==2 %}
+                                                <a href="{{path('nononsense_records_contracts_link', {'id': item.id, 'version': version_director}) }}" class="btn btn-xs btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i> En Comité (versión director)</a>
+                                                <a href="{{path('nononsense_records_contracts_link', {'id': item.id, 'version': version_comite}) }}" class="btn btn-xs btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i> En Comité (versión comité)</a>
+                                            {% elseif item.status==3 %}
+                                                {% if item.tokenPublicSignature is defined and item.tokenPublicSignature is not null %}
+                                                    <a href="{{path('nononsense_records_contracts_link', {'id': item.id, 'version': version_director}) }}" class="btn btn-xs btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i> Enviado (versión director)</a>
+                                                    <a href="{{path('nononsense_records_contracts_link', {'id': item.id, 'version': version_comite}) }}" class="btn btn-xs btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i> Enviado (versión comité)</a>
+                                                {% else %}
+                                                    <a href="{{path('nononsense_records_contracts_link', {'id': item.id, 'version': version_director}) }}" class="btn btn-xs btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i> Para enviar (versión director)</a>
+                                                    <a href="{{path('nononsense_records_contracts_link', {'id': item.id, 'version': version_comite}) }}" class="btn btn-xs btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i> Para enviar (versión comité)</a>
+                                                {% endif %}
+                                            {% elseif item.status==4 %}
+                                                <a href="{{path('nononsense_records_contracts_link', {'id': item.id, 'version': version_director}) }}" target= "_blank" class="btn btn-xs btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i> Firmado (versión director)</a>
+                                                <a href="{{path('nononsense_records_contracts_link', {'id': item.id, 'version': version_comite}) }}" target= "_blank" class="btn btn-xs btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i> Firmado (versión comité)</a>
                                             {% endif %}
-                                        {% elseif item.status==4 %}
-                                            <a href="{{path('nononsense_records_contracts_link', {'id': item.id}) }}" target= "_blank" class="btn btn-xs btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i> Firmado</a>
+                                        {% else %}
+                                            {% if item.status==0 %}
+                                                <a href="{{path('nononsense_records_contracts_link', {'id': item.id}) }}" class="btn btn-xs btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i> Creado</a>
+                                            {% elseif item.status==1 %}
+                                                <a href="{{path('nononsense_records_contracts_link', {'id': item.id}) }}" class="btn btn-xs btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i> Dirección RRHH</a>
+                                            {% elseif item.status==2 %}
+                                                <a href="{{path('nononsense_records_contracts_link', {'id': item.id}) }}" class="btn btn-xs btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i> En Comité</a>
+                                            {% elseif item.status==3 %}
+                                                {% if item.tokenPublicSignature is defined and item.tokenPublicSignature is not null %}
+                                                    <a href="{{path('nononsense_records_contracts_link', {'id': item.id}) }}" class="btn btn-xs btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i> Enviado</a>
+                                                {% else %}
+                                                    <a href="{{path('nononsense_records_contracts_link', {'id': item.id}) }}" class="btn btn-xs btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i> Para enviar</a>
+                                                {% endif %}
+                                            {% elseif item.status==4 %}
+                                                <a href="{{path('nononsense_records_contracts_link', {'id': item.id}) }}" target= "_blank" class="btn btn-xs btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i> Firmado</a>
+                                            {% endif %}
                                         {% endif %}
                                     {% endif %}
                                 </td>
