@@ -260,10 +260,17 @@ class RecordsContractsController extends Controller
                 $fillInUrl = $this->getFillInUrl($record, $scriptUrl, $version);
                 break;
             case 4 :
-                $fillInUrl = $this->container->get('router')->generate(
-                    'nononsense_records_contracts_public_view_contract',
-                    ["token" => $record->getTokenPublicSignature(), "version" => $version]
-                );
+                if($version === self::VERSION_DIRECTOR){
+                    $fillInUrl = $this->container->get('router')->generate(
+                        'nononsense_records_contracts_public_view_contract',
+                        ["token" => $record->getTokenPublicSignature(), "version" => $version]
+                    );
+                }else{
+                    $fillInUrl = $this->container->get('router')->generate(
+                        'nononsense_records_contracts_public_view_contract',
+                        ["token" => $record->getTokenPublicSignatureComite(), "version" => $version]
+                    );
+                }
                 break;
             default :
                 $this->get('session')->getFlashBag()->add(
