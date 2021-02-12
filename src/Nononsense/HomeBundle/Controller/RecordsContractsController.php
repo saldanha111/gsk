@@ -122,11 +122,22 @@ class RecordsContractsController extends Controller
 
         /** @var GroupUsersRepository $groupUsersRepository */
         $groupUsersRepository = $this->getDoctrine()->getRepository(GroupUsers::class);
-        $isGroupDirectionOrAdmin = $groupUsersRepository->isMemberOfAnyGroup(
+        $isGroupAdmin = $groupUsersRepository->isMemberOfAnyGroup(
             $user->getId(),
-            [$this->getParameter("group_id_direccion_rrhh"),$this->getParameter("group_id_contratos_rrhh")]
+            [$this->getParameter("group_id_contratos_rrhh")]
         );
-        $array_item['direction_or_admin'] = $isGroupDirectionOrAdmin;
+
+        $isGroupDirection = $groupUsersRepository->isMemberOfAnyGroup(
+            $user->getId(),
+            [$this->getParameter("group_id_direccion_rrhh")]
+        );
+
+
+        $array_item['version_comite'] = self::VERSION_COMMISSION;
+        $array_item['version_director'] = self::VERSION_DIRECTOR;
+
+        $array_item['direction_or_admin'] = ($isGroupDirection || $isGroupAdmin);
+        $array_item['is_admin'] = ($isGroupAdmin);
         $array_item["pagination"] = Utils::getPaginator($request, $filters["limit_many"], $array_item["count"]);
 
         return $this->render('NononsenseHomeBundle:Contratos:records_contracts.html.twig', $array_item);
@@ -180,7 +191,7 @@ class RecordsContractsController extends Controller
     }
 
     /* Donde Generamos el link que llama a docxpresso */
-    public function linkAction(Request $request, $id)
+    public function linkAction(Request $request, $id, $version = null)
     {
         $user = $this->container->get('security.context')->getToken()->getUser();
 
@@ -207,7 +218,11 @@ class RecordsContractsController extends Controller
         );
 
         if($isGroup_admin_rrhh){
-            $url_edit_documento = $this->getLinkForAdmin($record);
+            if($version && (int)$version === self::VERSION_COMMISSION){
+                $url_edit_documento = $this->getLinkForAdmin($record, self::VERSION_COMMISSION);
+            }else{
+                $url_edit_documento = $this->getLinkForAdmin($record);
+            }
         }elseif($isGroup_direccion_rrhh){
             $url_edit_documento = $this->getLinkForDirection($record);
         }elseif ($isGroup_comite_rrhh){
@@ -226,24 +241,28 @@ class RecordsContractsController extends Controller
      * @param RecordsContracts $record
      * @return string
      */
-    private function getLinkForAdmin($record)
+    private function getLinkForAdmin($record, $version = self::VERSION_DIRECTOR)
     {
         $baseUrl = $this->getParameter("cm_installation");
         switch ($record->getStatus()){
             case 0 :
                 $scriptUrl = $baseUrl . "../js/js_oarodoc/contracts_creation.js?v=" . uniqid();
-                $fillInUrl = $this->getFillInUrl($record, $scriptUrl, self::VERSION_DIRECTOR);
+                $fillInUrl = $this->getFillInUrl($record, $scriptUrl, $version);
                 break;
             case 1 :
             case 2 :
             case 3 :
-                $scriptUrl = $baseUrl . "../js/js_oarodoc/contracts_without_perms.js?v=" . uniqid();
-                $fillInUrl = $this->getFillInUrl($record, $scriptUrl, self::VERSION_DIRECTOR);
+                if($version === self::VERSION_DIRECTOR){
+                    $scriptUrl = $baseUrl . "../js/js_oarodoc/contracts_without_perms_director.js?v=" . uniqid();
+                }else{
+                    $scriptUrl = $baseUrl . "../js/js_oarodoc/contracts_without_perms_comite.js?v=" . uniqid();
+                }
+                $fillInUrl = $this->getFillInUrl($record, $scriptUrl, $version);
                 break;
             case 4 :
                 $fillInUrl = $this->container->get('router')->generate(
                     'nononsense_records_contracts_public_view_contract',
-                    ["token" => $record->getTokenPublicSignature(), "version" => self::VERSION_DIRECTOR]
+                    ["token" => $record->getTokenPublicSignature(), "version" => $version]
                 );
                 break;
             default :

@@ -493,8 +493,8 @@ nononsense_records_link:
     defaults: { _controller: NononsenseHomeBundle:Records:link, id: 0}
 
 nononsense_records_contracts_link:
-    path:     /records/contract/{id}/link
-    defaults: { _controller: NononsenseHomeBundle:RecordsContracts:link, id: 0}
+    path:     /records/contract/{id}/link/{version}
+    defaults: { _controller: NononsenseHomeBundle:RecordsContracts:link, id: 0, version: null}
 
 nononsense_records_contracts_public_sign_contract:
     path:     /sign-contract/{version}/{token}
