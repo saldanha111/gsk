@@ -121,8 +121,16 @@
                                                             <textarea class="form-control">{{ request.observation }}</textarea>
                                                         </td>
                                                         <td>
-                                                            <button type="button" class="btn btn-success btn-sm btn-submit" data-value="1" data-id="p_{{request.id}}" data-request="{{row.id}}"><i class="fa fa-check" aria-hidden="true"></i></button>
-                                                            <button type="button" class="btn btn-danger btn-sm btn-submit" data-value="0" data-id="p_{{request.id}}" data-request="{{row.id}}"><i class="fa fa-times" aria-hidden="true"></i></button>
+                                                            {% if request.status is null or request.status == 0 %}
+                                                                <button type="button" class="btn btn-success btn-sm btn-submit" data-value="1" data-id="p_{{request.id}}" data-request="{{row.id}}"><i class="fa fa-check" aria-hidden="true"></i></button>
+                                                            {% else %}
+                                                                <button type="button" disabled class="btn btn-success btn-sm disabled" data-value="1" data-id="p_{{request.id}}" data-request="{{row.id}}"><i class="fa fa-check" aria-hidden="true"></i></button>
+                                                            {% endif %}
+                                                            {% if request.status is null %}
+                                                                <button type="button" class="btn btn-danger btn-sm btn-submit" data-value="0" data-id="p_{{request.id}}" data-request="{{row.id}}"><i class="fa fa-times" aria-hidden="true"></i></button>
+                                                            {% else %}
+                                                                <button type="button" disabled class="btn btn-danger btn-sm disabled" data-value="0" data-id="p_{{request.id}}" data-request="{{row.id}}"><i class="fa fa-times" aria-hidden="true"></i></button>
+                                                            {% endif %}
                                                         </td>
                                                     </tr>
                                                 {% endfor %}
@@ -180,40 +188,45 @@
         var status = $(this).data('value');
 
         var msg = ($(this).data('value')) ? 'aceptar' : 'rechazar';
-        if (window.confirm('Esta seguro que desea '+msg+' la solicitud: '+$(this).data('request'))) {
-          
+        var group = $('#'+id).find('td').first();
 
-        }
-        return false;
+        if (window.confirm('¿Seguro que desea '+msg+' la solicitud '+$(this).data('request')+', al grupo '+group.text()+'?')) {
 
-        toastr.options = {
-              "progressBar": true,
-              "positionClass": "toast-top-right",
-              "preventDuplicates": true,
-              "onclick": null,
-              "showDuration": "300",
-              "hideDuration": "1000",
-              "timeOut": "5000",
-              "extendedTimeOut": "1000",
-              "showEasing": "swing",
-              "hideEasing": "linear",
-              "showMethod": "fadeIn",
-              "hideMethod": "fadeOut"
-            };
+            toastr.options = {
+                  "progressBar": true,
+                  "positionClass": "toast-top-right",
+                  "preventDuplicates": true,
+                  "onclick": null,
+                  "showDuration": "300",
+                  "hideDuration": "1000",
+                  "timeOut": "5000",
+                  "extendedTimeOut": "1000",
+                  "showEasing": "swing",
+                  "hideEasing": "linear",
+                  "showMethod": "fadeIn",
+                  "hideMethod": "fadeOut"
+                };
 
-        $.ajax({
-            url: '{{ path("nononsense_user_ajax_update_requests")}}',
-            data: {id: id, status: status, observation: observation },
-            method: 'PUT',
-            success: function(e){
-                toastr[e.type](e.message);
-                var status = (e.type == 'success') ? '<span class="label label-primary">Aceptada</span>' : '<span class="label label-danger">Cancelada</span>';
-                $('#'+id).find('.status').html(status)
-            },
-            error: function(jqXHR, textStatus, errorThrown){
-                toastr.error('Actualmente no podemos procesar su solicitud: '+jqXHR.statusText);
-            }
-        });   
+            $.ajax({
+                url: '{{ path("nononsense_user_ajax_update_requests")}}',
+                data: {id: id, status: status, observation: observation },
+                method: 'PUT',
+                success: function(e){
+                    toastr[e.type](e.message);
+                    var status;
+                    if (e.type == 'success') {
+                        status = '<span class="label label-primary">Aceptada</span>';
+                    }else if(e.type == 'warning'){
+                        status = '<span class="label label-danger">Cancelada</span>';
+                    }
+                    //var status = (e.type == 'success') ? '<span class="label label-primary">Aceptada</span>' : '<span class="label label-danger">Cancelada</span>';
+                    $('#'+id).find('.status').html(status)
+                },
+                error: function(jqXHR, textStatus, errorThrown){
+                    toastr.error('Actualmente no podemos procesar su solicitud: '+jqXHR.statusText);
+                }
+            });
+        }   
     });
 
 

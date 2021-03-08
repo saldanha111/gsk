@@ -361,9 +361,8 @@
                 method: 'GET',
             }).done(function(e){
                 toastr.remove();
-                toastr.options.closeButton = true;
-                toastr[e.type](e.message);
                 if (e.type == 'success') {
+                    $('.backdrop').hide();
                     ajaxDone = true;
                     if (e.message[0].displayname[0]) {
                         $('#request_account_username').add('ad');
@@ -375,6 +374,9 @@
                         $('#request_account_email').val(e.message[0].mail[0]);
                     }
                     nextStep();
+                }else{
+                    toastr.options.closeButton = true;
+                    toastr[e.type](e.message);
                 }
 
             }).fail(function(jqXHR, textStatus, errorThrown){

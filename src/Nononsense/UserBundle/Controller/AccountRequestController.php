@@ -84,7 +84,8 @@ class AccountRequestController extends Controller
 		            $em->persist($accountRequest);
 		            $em->flush();
 
-		            $this->get('session')->getFlashBag()->add('success', 'Application submitted successfully');
+		            //Application submitted successfully
+		            $this->get('session')->getFlashBag()->add('success', 'Solicitud enviada con éxito');
 	            } catch (\Exception $e) {
 	            	$this->get('session')->getFlashBag()->add('errors', $e->getMessage());
 	            }
@@ -148,6 +149,7 @@ class AccountRequestController extends Controller
 				$accountRequest = $this->getDoctrine()->getRepository(AccountRequestsGroups::class)->find($id);
 				$accountRequest->setStatus($request->get('status'));
 				$accountRequest->setObservation(strip_tags($request->get('observation')));
+				$message = ['type' => 'warning', 'message' => 'Solicitud cancelada con éxito'];
 
 				if ($request->get('status') == 1) {
 					$user = $this->checkMudId($accountRequest->getRequestId()->getMudId()); //Get user if exists
@@ -155,13 +157,14 @@ class AccountRequestController extends Controller
 						$user = $this->addUserAction($accountRequest->getRequestId()); //Create new user if not exists
 					}
 					$this->addUserGroupAction($accountRequest->getGroupId(), $user);
+					$message = ['type' => 'success', 'message' => 'Solicitud aceptada con éxito'];
 				}
 
 				$em = $this->getDoctrine()->getManager();
 				$em->persist($accountRequest);
 				$em->flush();
 
-				$message = ['type' => 'success', 'message' => 'Successfully updated application.'];
+				
 			} catch (\Exception $e) {
 				$message = ['type' => 'error', 'message' => $e->getMessage()];
 			}
@@ -332,7 +335,8 @@ class AccountRequestController extends Controller
 			$bind   = $ldap->bind($ldapdn, $pass);
 		} catch (\Exception $e) {
 			if ($hideLdapErrors) {
-				throw new \Exception('The presented password is invalid.', 0, $e);
+				//The presented password is invalid.
+				throw new \Exception('La firma no es válida.', 0, $e);
 			}
 
 			throw $e;
@@ -350,8 +354,8 @@ class AccountRequestController extends Controller
 		// if (isset($mudid) && $mudid) {
 		// 	# code...
 		// }
-		$ldapdn   = 'cn=admin,cn=users,dc=demo,dc=local'; //$this->container->getParameter('ldap.search_dn');
-		$ldappass = 'd€m0.ws1'; //$this->container->getParameter('ldap.search_password');
+		$ldapdn   = $this->container->getParameter('ldap.dn_string'); //'cn=admin,cn=users,dc=demo,dc=local'; $this->container->getParameter('ldap.search_dn');
+		$ldappass = $this->container->getParameter('ldap.search_password');; //$this->container->getParameter('ldap.search_password');
 
 		$uid_key = 'sAMAccountName'; //$this->container->getParameter('ldap.uid_key');
 		$queryDn = 'dc=demo,dc=local'; //$this->container->getParameter('ldap.base_dn');
