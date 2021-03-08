@@ -181,6 +181,12 @@
 
 
 <div class="wrapper wrapper-content">
+    {% for flashMessage in app.session.flashbag.get('success') %}
+    <div class="alert alert-success alert-dismissable" style="margin: 10px 16px 0 16px">
+        <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+        {{ flashMessage }}
+    </div>
+    {% endfor %}
     {% for flashMessage in app.session.flashbag.get('error') %}
     <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
         <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>

@@ -16,9 +16,9 @@ nononsense_user_recover_password:
     path:     /recover_password/{error}
     defaults: { _controller: NononsenseUserBundle:Login:recoverPassword, error: 0 }
     
-nononsense_user_request_account:
-    path:     /request_account
-    defaults: { _controller: NononsenseUserBundle:Login:requestAccount }
+# nononsense_user_request_account:
+#     path:     /request_account
+#     defaults: { _controller: NononsenseUserBundle:Login:requestAccount }
     
 nononsense_user_keep_alive:
     path:     /keep-alive
@@ -71,12 +71,50 @@ nononsense_users_access_token:
 nononsense_users_load_csv:
     path:     /load_users
     defaults: { _controller: NononsenseUserBundle:Users:loadUsers}
+
+# New users index (nononsense_users_report by nononsense_users_homepage)
+# nononsense_users_report:
+#     path:     /report
+#     defaults: { _controller: NononsenseUserBundle:Users:report}
+
+nononsense_user_crate_requests:
+    path:     /apply
+    defaults: { _controller: NononsenseUserBundle:AccountRequest:create}
+    methods:  [GET, POST]
+
+nononsense_user_check_requests:
+    path:     /requests
+    defaults: { _controller: NononsenseUserBundle:AccountRequest:index}
+    methods:  [GET]
+
+nononsense_user_ajax_update_requests:
+    path:     /requests/ajax
+    defaults: { _controller: NononsenseUserBundle:AccountRequest:ajaxUpdate}
+    methods:  [GET, PUT]
+
+nononsense_user_ajax_get_mudid:
+    path:     /requests/check_user
+    defaults: { _controller: NononsenseUserBundle:AccountRequest:getMudId}
+    methods:  [GET]
+
+nononsense_user_update_requests:
+    path:     /requests/{id}
+    defaults: { _controller: NononsenseUserBundle:AccountRequest:update}
+    requirements:
+        id: '\d+'
+    methods:  [GET, PUT]
     
+nononsense_users_ldap:
+    path:     /ldap
+    defaults: { _controller: NononsenseUserBundle:Login:ldapComponent}
+
 nononsense_users_homepage:
-    path:     /{page}/{query}
-    defaults: { _controller: NononsenseUserBundle:Users:index, page: 1, query: 'q'}
+    # path:     /{page}/{query}
+    # defaults: { _controller: NononsenseUserBundle:Users:index, page: 1, query: 'q'} Old users index
+    path:     /{query}
+    defaults: { _controller: NononsenseUserBundle:Users:report, query: 'q'}
         
-nononsense_users_homepage_slash:
-    path:     /
-    defaults: { _controller: NononsenseUserBundle:Users:index, page: 1, query: 'q'}
+# nononsense_users_homepage_slash:
+#     path:     /
+#     defaults: { _controller: NononsenseUserBundle:Users:index, page: 1, query: 'q'}
     

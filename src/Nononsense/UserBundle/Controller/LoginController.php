@@ -10,13 +10,19 @@ use Symfony\Component\Security\Core\Util\SecureRandom;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
 use Nononsense\UserBundle\Entity;
+use Nononsense\GroupBundle\Entity\Groups;
+use Nononsense\GroupBundle\Entity\GroupUsers;
 use Nononsense\UserBundle\Form\Type as FormUsers;
+use Nononsense\UserBundle\Entity\Users;
+use Nononsense\UserBundle\Entity\AccountRequests;
 
 class LoginController extends Controller
 {
     public function loginAction(Request $request)
-    {
+    {   
         
+        // $this->ldap();
+
         $authenticationUtils = $this->get('security.authentication_utils');
 
         // get the login error if there is one
@@ -40,7 +46,7 @@ class LoginController extends Controller
     {
         $this->get('session')->getFlashBag()->add(
             'success',
-            'Login successful.'
+            'Inicio de sesión correcto: '.$this->container->get('security.context')->getToken()->getUsername()
         );
 
         /*
@@ -191,10 +197,75 @@ class LoginController extends Controller
             return $response;
         }
     }
-    
-    public function requestAccountAction()
-    {
+
+
+    public function ldap(){
+
+        $server     = 'wmservice.corpnet1.com';
+        $port       = 389; //636
+        $username   = 'username';
+        $password   = 'password';
+        $domain     = 'corpnet1.com';
+
+        $conn = ldap_connect($server, $port);
+
+        ldap_set_option($conn, LDAP_OPT_PROTOCOL_VERSION, 3); //LdapV3
+        ldap_set_option($conn, LDAP_OPT_REFERRALS, 0);
+
+        if ($conn) {
+            
+            $bind = ldap_bind($conn, $username, $password);
+
+            if ($bind) {
+                echo 'Successful Binding LDAP';
+            }
+        }
     }
-    
+ 
+    public function ldapComponentAction(Request $request){
+        
+        error_reporting(0);
+
+        echo 'v5';
+
+        $form = $this->createForm(new FormUsers\ldapType());
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+
+            $response   = new Response();
+            $data       = $form->getData();
+            $justthese  = array("mail");
+            //$justthese = array("cn", "ou", "sn", "uid","givenname", "mail", "displayname", "sAMAccountName", "telephonenumber");
+
+            try {
+
+                $ldap       = $this->container->get('ldap');
+
+                $ldaprdn    = $data['dn']; //cn=admin,ou=users,dc=wmservice,dc=corpnet1,dc=com
+                $ldappass   = $data['_password'];
+
+                $filter     = $data['filter']; //(objectClass=inetOrgPerson)
+                $queryDn    = $data['querydn']; //dc=wmservice,dc=corpnet1,dc=com
+
+                $bind       = $ldap->bind($ldaprdn, $ldappass);
+                $query      = $ldap->find($queryDn, $filter);
+
+                print_r($query);
+
+            } catch (\Exception $e) {
+
+                $response->setContent(json_encode([
+                    'Error: ' => $e->getMessage()
+                ]));
+            }
+
+            return $response;
+            
+        }
+
+        return $this->render('NononsenseUserBundle:Default:ldapLogin.html.twig', ['form'=>$form->createView()]);
+
+    }
 
 }

@@ -1,0 +1,393 @@
+{% extends "NononsenseUserBundle:Default:base.html.twig" %}
+{% block title %}Solicitud de acceso{% endblock %}
+{% block head %}
+    <link href="/css/plugins/toastr/toastr.min.css" rel="stylesheet"/>
+    {{ parent() }}
+    <link rel="stylesheet" type="text/css" href="/plugins/dual_listbox/dist/multi.min.css">
+
+    <style type="text/css">
+       .box-middle{
+            margin: 0 auto;
+            left: 0;
+            right: 0;
+            position: absolute;
+            max-width: 700px;
+        }
+        .btn-gsk{
+            background-color: #f36b20;
+            border-color: #f04523;
+            color: #FFFFFF;
+            margin-bottom: 1px;
+        }
+        .btn-gsk:focus{
+            color: #fff;
+        }
+        .btn-gsk:hover{
+            background-color: #ff8a49;
+            border-color: #f96d52;
+            color: #fff;
+        }
+        #request_account_request{
+            display: block !important;
+            height: 0;
+            width: 0;
+            border-color: #f3f3f4;
+        }
+        .error-message{
+            color: red;
+            display: block;
+            font-weight: bold;
+        }
+        input:valid, textarea:valid {
+          border-color: green;
+        }
+        .backdrop{
+            display: none;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #f3f3f496;
+            z-index: 999;
+        }
+        .loader{
+            padding: 20px;
+            box-shadow: 1px 1px 15px 5px rgb(121 121 121 / 20%);
+            text-align: center;
+            font-weight: bold;
+            position: absolute;
+            left: 50%;
+            top: 40%;
+            transform: translate(-50%,-50%);
+            background: #f3f3f3;
+        }
+        .sk-spinner-rotating-plane.sk-spinner:before {
+            content: '';
+            width: 30px;
+            height: 30px;
+            background-color: #fff;
+            margin: 0 auto;
+            -webkit-animation: sk-rotatePlane 1.2s infinite ease-in-out;
+            animation: sk-rotatePlane 1.2s infinite ease-in-out;
+        }
+        @-webkit-keyframes sk-rotatePlane {
+          0% {
+            -webkit-transform: perspective(120px) rotateX(0deg) rotateY(0deg);
+            transform: perspective(120px) rotateX(0deg) rotateY(0deg);
+          }
+          50% {
+            -webkit-transform: perspective(120px) rotateX(-180.1deg) rotateY(0deg);
+            transform: perspective(120px) rotateX(-180.1deg) rotateY(0deg);
+          }
+          100% {
+            -webkit-transform: perspective(120px) rotateX(-180deg) rotateY(-179.9deg);
+            transform: perspective(120px) rotateX(-180deg) rotateY(-179.9deg);
+          }
+        }
+        @keyframes sk-rotatePlane {
+          0% {
+            -webkit-transform: perspective(120px) rotateX(0deg) rotateY(0deg);
+            transform: perspective(120px) rotateX(0deg) rotateY(0deg);
+          }
+          50% {
+            -webkit-transform: perspective(120px) rotateX(-180.1deg) rotateY(0deg);
+            transform: perspective(120px) rotateX(-180.1deg) rotateY(0deg);
+          }
+          100% {
+            -webkit-transform: perspective(120px) rotateX(-180deg) rotateY(-179.9deg);
+            transform: perspective(120px) rotateX(-180deg) rotateY(-179.9deg);
+          }
+        }
+        .toast-fix-center{
+            top: 40%;
+        }
+        .nav-tabs li{
+            width: 25%;
+        }
+        .nav-tabs .list-icon{
+            width: 60px;
+            height: 60px;
+            font-size: 30px;
+            position: relative;
+            background-color: #ff8a49;
+            color: #ffffff;
+            border-radius: 50%;
+            margin: 0 auto;
+            transition: .5s all;
+        }
+        .nav-tabs .disabled .list-icon{
+            background-color: #d0d0d0;
+        }
+        .list-icon i{
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%,-50%);
+        }
+        .disabled {
+          pointer-events: none;
+          cursor: default;
+        }
+        .nav-tabs .active .list-icon{
+            background: #f15822;
+            transform: scale(1.2);
+        }
+        .nav-tabs{
+            border: none;
+        }
+        .nav-tabs > li.active > a, .nav-tabs > li.active > a:hover, .nav-tabs > li.active > a:focus{
+            border:none;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <h1 class="logo-name text-center"><img src="/img/logo-gsk.png" style="height: 65px"></h1>
+    <div class="box-middle animated fadeInDown">
+        
+        {% for flashMessage in app.session.flashbag.get('errors') %}
+            <div class="alert alert-danger alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                {{ flashMessage }}
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('success') %}
+            <div class="alert alert-success alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                {{ flashMessage }}
+            </div>
+        {% endfor %}
+
+        <h2 class="font-bold text-center">Solicitud de acceso</h2>
+        <hr>
+          <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" class="active">
+                <a href="#home" aria-controls="home" role="tab" data-toggle="tab">
+                    <div class="list-icon">
+                        <i class="fa fa-id-card-o"></i>
+                    </div>
+                </a>
+            </li>
+            <li role="presentation" class=""><a href="#profile" aria-controls="profile" role="tab" data-toggle="tab" class="disabled"><div class="list-icon">
+                        <i class="fa fa-user"></i>
+                    </div></a></li>
+            <li role="presentation" class=""><a href="#messages" aria-controls="messages" role="tab" data-toggle="tab" class="disabled"><div class="list-icon">
+                        <i class="fa fa-users"></i>
+                    </div></a></li>
+            <li role="presentation" class=""><a href="#settings" aria-controls="settings" role="tab" data-toggle="tab" class="disabled"><div class="list-icon">
+                        <i class="fa fa-check"></i>
+                    </div></a></li>
+            <!-- <li role="presentation" class=""><a href="#settings2" aria-controls="settings2" role="tab" data-toggle="tab" class="disabled">Settings2</a></li> -->
+          </ul>
+
+        {{ form_start(form, {'attr': {'class': 'm-t', 'novalidate': 'novalidate'} }) }}
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane active animated fadeInRight" id="home">
+                <p class="text-center">Bienvenido al formulario de acceso a grupos de GSK. Introduzca su identificador para comenzar la solicitud.</p>
+                <div class="form-group">
+                    {{ form_row(form.mud_id, {'attr': {'class': 'form-control'}}) }}
+                    <small>¿No tiene MUD ID? <a href="#">Contactar con asistencia tecnica</a></small>
+                </div>
+            </div>
+            <div role="tabpanel" class="tab-pane animated fadeInRight" id="profile">
+                <div class="form-group">
+                    {{ form_row(form.username, {'attr': {'class': 'form-control', 'readonly': true}}) }}
+                </div>
+                
+                <div class="form-group">
+                    {{ form_row(form.email, {'attr': {'class': 'form-control', 'readonly': true}}) }}
+                </div>
+                
+                <div class="form-group">
+                    {{ form_row(form.description, {'attr': {'class': 'form-control', 'rows': 6}}) }}
+                </div>
+
+            </div>
+            <div role="tabpanel" class="tab-pane animated fadeInRight" id="messages">
+                <div class="form-group">
+                    {{ form_row(form.request, {'attr': {'class': 'rol'}}) }}
+                </div>
+
+            </div>
+            <div role="tabpanel" class="tab-pane" id="settings">
+                <div class="form-group">
+                    {{ form_row(form._password, {'attr': {'class': 'form-control'}}) }}
+                </div>
+            </div>
+                        <div role="tabpanel" class="tab-pane" id="settings2">
+                <div class="form-group">
+                </div>
+            </div>
+        </div>
+         <div class="text-right">
+            <button class="btn btn-gsk prev-step btn-sm"  type="button">Atras</button>
+            <button class="btn btn-gsk next-step btn-sm" type="button">Siguiente</button>
+        </div>
+        {{ form_end(form) }}
+
+
+    </div>
+    <div class="backdrop"></div>
+
+{% endblock %}
+{% block footer %}
+    {{ parent() }}
+    <script src="/plugins/dual_listbox/dist/multi.min.js"></script>
+    <script src="/js/plugins/toastr/toastr.min.js"></script>
+
+    <script type="text/javascript">
+        $(function () {
+        $('.rol').multi({
+            "search_placeholder": "Buscar...",
+        });
+
+
+        $('.form-control').keyup(function(e){
+            $(this).removeClass('error');
+            $(this).parent().find('span').remove()
+            $(this).before('<span class="error-message">'+$(this)[0].validationMessage+'</span>');
+        });
+
+        toastr.options = {
+          "closeButton": false,
+          "debug": false,
+          "newestOnTop": false,
+          "progressBar": false,
+          "positionClass": "toast-top-center toast-fix-center",
+          "preventDuplicates": false,
+          "onclick": null,
+          "showDuration": "300",
+          "hideDuration": "1000",
+          "timeOut": 0,
+          "extendedTimeOut": 0,
+          "showEasing": "swing",
+          "hideEasing": "linear",
+          "showMethod": "fadeIn",
+          "hideMethod": "fadeOut",
+          "tapToDismiss": false,
+        }
+
+        toastr.options.onHidden = function(e) { 
+            $('.backdrop').hide();
+        }
+
+        $('a[data-toggle="tab"]').on('shown.bs.tab', function(e){
+
+            var nextButtonText = ($('.nav-tabs li.active').index() == $('.nav-tabs li').last().index()) ? 'Firmar y enviar' : 'Siguiente';
+            $('.next-step').text(nextButtonText);
+
+        })
+
+        $('a[data-toggle="tab"]').on('show.bs.tab', function(e){
+
+            var stepId = $('.nav-tabs li.active > a').attr('href')
+            var stepInputs = $(stepId).find('input, textarea, select');
+
+            if ($(this).parent().index() > $('.nav-tabs li.active').index()) {
+                if(validate(stepInputs).length > 0){
+                    return false;
+                }
+            
+                if ($('.nav-tabs li.active').index() == 0 && !ajaxDone) {
+                    getUser();
+                    return false;
+                }
+
+                $('.nav-tabs li.active').next().find('a').removeClass('disabled');
+            }
+
+        });
+
+        $('form').submit(function(e){
+            if ($('.nav-tabs li.active').index() != $('.nav-tabs li').last().index()) {
+                e.preventDefault();
+            }
+        })
+
+        $('.prev-step').click(function(e){
+            prevStep();
+        });
+
+        $('.next-step').click(function(e){
+            nextStep();
+        });
+
+        function prevStep(){
+            $('.nav-tabs li.active').prev().find('a').click();
+        }
+
+        function nextStep(){
+            if ($('.nav-tabs li.active').index() == $('.nav-tabs li').last().index()) {
+                if(validate($('#request_account__password')).length == 0){
+                    $('form').submit();
+                }
+            }
+            $('.nav-tabs li.active').next().find('a').click()
+        }
+
+        function validate(input){
+
+            var errors = [];
+            $('span.error-message').remove();
+
+            if (input) {
+                for (var i = 0; i < input.length; i++){
+
+                    if (!input[i].validity.valid) {
+                        //$(input[i]).addClass('error');
+                        $(input[i]).before('<span class="error-message">'+input[i].validationMessage+'</span>');
+                        errors.push(input[i]);
+                    }
+                }
+            }
+
+            return errors;
+        }
+
+        $('#request_account_mud_id').change(function(e){
+           ajaxDone = false;
+        });
+
+        var ajaxDone;
+
+        function getUser(){
+ 
+            $('.backdrop').show();
+            toastr.info('Comprobando su MUD ID, por favor espere.','', {iconClass: 'sk-spinner-rotating-plane sk-spinner'});
+
+            $.ajax({
+                url: '{{ path("nononsense_user_ajax_get_mudid")}}',
+                data: {mudid: $('#request_account_mud_id').val() },
+                method: 'GET',
+            }).done(function(e){
+                toastr.remove();
+                if (e.type == 'success') {
+                    $('.backdrop').hide();
+                    ajaxDone = true;
+                    if (e.message[0].displayname[0]) {
+                        $('#request_account_username').add('ad');
+                        $('#request_account_username').val(e.message[0].displayname[0]);
+                    }
+
+                    if (e.message[0].mail[0]){
+                        $('#request_account_email').attr('ad');
+                        $('#request_account_email').val(e.message[0].mail[0]);
+                    }
+                    nextStep();
+                }else{
+                    toastr.options.closeButton = true;
+                    toastr[e.type](e.message);
+                }
+
+            }).fail(function(jqXHR, textStatus, errorThrown){
+                console.log(jqXHR.statusText);
+            }).always(function(){
+                toastr.options.closeButton = false;
+            });
+
+        }
+
+    })
+    </script>
+{% endblock %}
+

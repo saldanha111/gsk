@@ -6,12 +6,14 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Nononsense\UserBundle\Entity\Users;
 use Nononsense\UserBundle\Entity\Roles;
 use Nononsense\GroupBundle\Entity\GroupUsers;
+use Nononsense\GroupBundle\Entity\AccountRequests;
 use Nononsense\UserBundle\Form\Type as FormUsers;
 use Symfony\Component\Security\Core\Util\SecureRandom;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
 
 class UsersController extends Controller
@@ -220,6 +222,9 @@ class UsersController extends Controller
 
                 $user->addRole($role); 
             }
+            if (!$user->getIsActive()) {
+                $user->setLocked(new \DateTime());
+            }
             $em = $this->getDoctrine()->getManager();
             $em->persist($user);
             $em->flush();
@@ -364,5 +369,84 @@ class UsersController extends Controller
         exit;
         
     }
-    
+
+    public function reportAction(Request $request){
+
+        $filters['page']         = (!$request->get('page')) ? 1 : $request->get('page');
+        $filters['is_active']    = $request->get('is_active');
+        $filters['name']         = $request->get('name');
+        $filters['email']        = $request->get('email');
+        $filters['phone']        = $request->get('phone');
+        $filters['from']         = $request->get('from');
+        $filters['until']        = $request->get('until');
+        $filters['locked_from']  = $request->get('locked_from');
+        $filters['locked_until'] = $request->get('locked_until');
+        $filters['uri']          = ($request->query->all()) ? $_SERVER['REQUEST_URI'].'&csv=true' : $_SERVER['REQUEST_URI'].'?csv=true';
+
+        if ($request->get('csv')) return $this->reportCsvAction($this->getDoctrine()->getRepository('NononsenseUserBundle:Users')->listBy($filters, 1000)['rows'], $filters);
+
+        $users     = $this->getDoctrine()->getRepository('NononsenseUserBundle:Users')->listBy($filters, 20);
+        $params    = $request->query->all();           
+
+        unset($params["page"]);
+        $parameters = (!empty($params)) ? true : false;
+
+        $pagination    = \Nononsense\UtilsBundle\Classes\Utils::paginador(20, $request, false, $users["count"], "/", $parameters);
+       
+        return $this->render('NononsenseUserBundle:Users:report.html.twig', ['users' => $users['rows'], 'filters' => $filters, 'pagination' => $pagination]);
+    }
+
+    public function reportCsvAction($data, $filters){
+
+        $phpExcelObject = $this->get('phpexcel')->createPHPExcelObject();
+        $phpExcelObject->getProperties();
+        $phpExcelObject->setActiveSheetIndex(0)
+        ->setCellValue('A1','Nombre')
+        ->setCellValue('B1','Email')
+        ->setCellValue('C1','Teléfono')
+        ->setCellValue('D1','Fecha de alta')
+        ->setCellValue('E1','Fecha de modificación')
+        ->setCellValue('F1','Fecha de baja');
+
+        $row = 2;
+        foreach ($data as $key => $value) {
+            $phpExcelObject->getActiveSheet()
+             ->setCellValue('A'.$row, $value->getName())
+             ->setCellValue('B'.$row, $value->getEmail())
+             ->setCellValue('C'.$row, $value->getPhone())
+             ->setCellValue('D'.$row, date_format($value->getCreated(), 'd-m-Y'))
+             ->setCellValue('E'.$row, date_format($value->getModified(), 'd-m-Y'));
+
+             if ($value->getLocked() !== null && $value->getLocked()) {
+                
+                $phpExcelObject->getActiveSheet()
+                ->setCellValue('F'.$row, date_format($value->getLocked(), 'd-m-Y'));
+             }
+             
+            $row++;
+        }
+
+        for($col = 'A'; $col <= 'F'; $col++) {
+            $phpExcelObject->getActiveSheet()
+                ->getColumnDimension($col)
+                ->setAutoSize(true);
+        }
+        
+        $phpExcelObject->getActiveSheet()->setTitle('User report'.date('d-m-y'));
+        $phpExcelObject->setActiveSheetIndex(0);
+
+        $writer     = $this->get('phpexcel')->createWriter($phpExcelObject, 'Excel2007');
+        $response   = $this->get('phpexcel')->createStreamedResponse($writer);
+
+        $dispositionHeader = $response->headers->makeDisposition(
+          ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+          'User-report-'.date('d-m-y').'.xlsx'
+        );
+        $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
+        $response->headers->set('Pragma', 'public');
+        $response->headers->set('Cache-Control', 'maxage=1');
+        $response->headers->set('Content-Disposition', $dispositionHeader);
+
+        return $response;
+    }
 }

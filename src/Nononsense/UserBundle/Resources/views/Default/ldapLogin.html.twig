@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>LDAP | GSK</title>
+
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/font-awesome/css/font-awesome.css" rel="stylesheet">
+
+    <link href="/css/animate.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+
+    <style type="text/css">
+        .box-middle{
+            margin: 0 auto;
+            left: 0;
+            right: 0;
+            position: absolute;
+            max-width: 700px;
+        }
+    </style>
+
+</head>
+
+<body class="gray-bg">
+<h1 class="logo-name text-center"><img src="/img/logo-gsk.png" style="height: 65px"></h1>
+    <div class="box-middle animated fadeInDown">
+        
+        {% for flashMessage in app.session.flashbag.get('errors') %}
+            <div class="alert alert-danger alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                {{ flashMessage }}
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('success') %}
+            <div class="alert alert-success alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                {{ flashMessage }}
+            </div>
+        {% endfor %}
+
+        <h2 class="font-bold text-center">Solicitud LDAP</h2>
+        <div>
+        {{ form_start(form, {'attr': {'class': 'm-t'} }) }}
+        
+            <div class="row">
+                <div class="col-md-12 b-r">
+                    <div class="form-group">
+                        {{ form_row(form.dn, {'attr': {'class': 'form-control', 'value':'cn=admin,ou=users,dc=wmservice,dc=corpnet1,dc=com'}}) }}
+                    </div>
+                    <div class="form-group">
+                        {{ form_row(form._password, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form_row(form.querydn, {'attr': {'class': 'form-control', 'value':'dc=wmservice,dc=corpnet1,dc=com'}}) }}
+                            </div>      
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form_row(form.filter, {'attr': {'class': 'form-control', 'value':'(sAMAccountName=admin)'}}) }}
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        <input type="submit" name="" class="btn btn-primary">
+        {{ form_end(form) }}
+        </div>
+        <h2>JSON</h2>
+        <pre id="pretty-json" style="background: #fff;">{}</pre>
+        </div>
+    </div>
+
+    <script src="/js/jquery-2.1.1.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+
+    <script type="text/javascript">
+        $('form').submit(function(e){
+
+        	$('#pretty-json').html('Cargando...')
+
+        	e.preventDefault();
+
+        	$.ajax({
+			  url: $('form').attr('action'),
+			  data: $('form').serialize(),
+			  method: 'POST',
+			  success: function(e){
+			  	console.log(e);
+			  	$('#pretty-json').html(e)
+			  }
+			})
+        })
+
+    </script>
+</body>
+</html>

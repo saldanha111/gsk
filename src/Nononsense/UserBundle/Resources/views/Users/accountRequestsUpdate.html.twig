@@ -1,0 +1,144 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}DOCXPRESSO | {{'Solicitudes'|trans}} | {{ account.username }} {% endblock %}
+
+{% block main_title %} Nueva solicitud: {{ account.username }} {% endblock %}
+
+{% block breadcrumb %}
+<ol class="breadcrumb">
+    <li>
+        <a href="{{ path('nononsense_home_homepage')}}">{{'Home'|trans}}</a>
+    </li>
+    <li>
+        <a href="{{ path('nononsense_user_check_requests')}}">{{'Solicitudes'|trans}}</a>
+    </li>
+    <li class="active">
+        <strong>{{ account.username }}</strong>
+    </li>
+</ol>
+{% endblock %}
+
+{% block content %}
+<div class="wrapper wrapper-content">
+    <div class="row animated fadeInRight">
+        <div class="col-md-12">
+            <div class="ibox">
+                {% for flashMessage in app.session.flashbag.get('errors') %}
+                    <div class="alert alert-danger alert-dismissable">
+                        <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                        {{ flashMessage }}
+                    </div>
+                {% endfor %}
+                {% for flashMessage in app.session.flashbag.get('success') %}
+                    <div class="alert alert-success alert-dismissable">
+                        <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                        {{ flashMessage }}
+                    </div>
+                {% endfor %}
+                <div class="row">
+                    <div class="col-lg-6">
+                        <dl class="row mb-0">
+                            <div class="col-sm-4 text-sm-right">
+                                <dt>Estado de la solicitud:</dt>
+                            </div>
+                            <div class="col-sm-8 text-sm-left"> 
+                                {% if account.status == 1 %}
+                                    <dd class="mb-1"><span class="label label-primary">Aprobada</span></dd>
+                                {% elseif account.status is same as(false) %}
+                                    <dd class="mb-1"><span class="label label-danger">Cancelada</span></dd>
+                                {% else %}
+                                    <dd class="mb-1"><span class="label label-warning">En revisión</span></dd>
+                                {% endif %}
+                            </div>
+                        </dl>
+                        <dl class="row mb-0">
+                            <div class="col-sm-4 text-sm-right">
+                                <dt>Nombre y Apellidos:</dt>
+                            </div>
+                            <div class="col-sm-8 text-sm-left">
+                                <dd class="mb-1">{{account.username}}</dd>
+                            </div>
+                        </dl>
+
+                        <dl class="row mb-0">
+                            <div class="col-sm-4 text-sm-right">
+                                <dt>Email:</dt>
+                            </div>
+                            <div class="col-sm-8 text-sm-left">
+                                <dd class="mb-1"> {{ account.email }}</dd>
+                            </div>
+                        </dl>
+                        <dl class="row mb-0">
+                            <div class="col-sm-4 text-sm-right">
+                                <dt>MUD ID:</dt>
+                            </div>
+                            <div class="col-sm-8 text-sm-left">
+                                <dd class="mb-1"> {{ account.mudid }}</dd>
+                            </div>
+                        </dl>
+
+                    </div>
+                    <div class="col-lg-6" id="cluster_info">
+                        <dl class="row mb-0">
+                            <div class="col-sm-4 text-sm-right">
+                                <dt>Fecha de solicitud:</dt>
+                            </div>
+                            <div class="col-sm-8 text-sm-left">
+                                <dd class="mb-1"> {{account.created|date('d-m-Y')}}</dd>
+                            </div>
+                        </dl>
+                        <dl class="row mb-0">
+                            <div class="col-sm-12 text-sm-right">
+                                <dt>Grupo al que solicita unirse:</dt>
+                            </div>
+                            <div class="col-sm-12 text-sm-left">
+                                <dd class="mb-1"> <ul class="tag-list" style="padding: 0">
+                                    <li><a href=""><i class="fa fa-users"></i> {{account.request[0].groupId.name}}</a></li>
+                                </ul>
+                            </dd>
+                            </div>
+                        </dl>
+                        <dl class="row mb-0">
+                            <div class="col-sm-4 text-sm-right">
+                                <dt>Motivo de la solicitud:</dt>
+                            </div>
+                            <div class="col-sm-8 text-sm-left">
+                                <dd class="mb-1"> {{account.description}}</dd>
+                            </div>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            {{ form_start(form) }}
+                <button {% if account.status %} disabled {% endif %} type="submit" class="btn btn-success btn-md" data-value="1"><i class="fa fa-user"> </i> Aceptar solicitud</button>
+                <button {% if account.status is not null %} disabled {% endif %} type="submit" class="btn btn-danger btn-md" data-value="0"><i class="fa fa-user-times"> </i> Cancelar solicitud</button>
+            {{ form_end(form) }}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+    {{ parent() }}
+    <!-- Peity -->
+    <script src="/js/plugins/peity/jquery.peity.min.js"></script>
+
+    <!-- Peity -->
+    <script src="/js/demo/peity-demo.js"></script>
+    <script>
+        $(document).ready(function(){
+            
+            ActivateMenu('browse_requests');
+            $('#side-menu').metisMenu();
+
+            $('.btn').click(function(){
+                $('#account_request_update_status').val($(this).data('value'));
+
+                var required = ($(this).data('value') == 0) ? true : false;
+                $('#account_request_update_observation').prop('required', required);
+            });
+       });
+    </script>
+{% endblock %}
+
+

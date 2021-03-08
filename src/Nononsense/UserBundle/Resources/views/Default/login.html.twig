@@ -1,36 +1,23 @@
-<!DOCTYPE html>
-<html>
+{% extends "NononsenseUserBundle:Default:base.html.twig" %}
+{% block title %}Iniciar sesión{% endblock %}
+{% block head %}
+    {{ parent() }}
+    <style type="text/css">
+        .bgimg {
+            background-image: url('/img/imagen-fondo.png');
+            background-repeat: no-repeat;
+            background-position: center;
+            min-height: 900px;
+        }
 
-<head>
-
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Docoaro - GSK | Login</title>
-
-    <link href="/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/font-awesome/css/font-awesome.css" rel="stylesheet">
-
-    <link href="/css/animate.css" rel="stylesheet">
-    <link href="/css/style.css" rel="stylesheet">
-
-</head>
-<style>
-    .bgimg {
-        background-image: url('/img/imagen-fondo.png');
-        background-repeat: no-repeat;
-        background-position: center;
-        min-height: 900px;
-    }
-
-    .bgwhite {
-        background-color: white;
-        padding: 10px;
-        margin: 10px;
-    }
-</style>
-
-<body class="gray-bg">
+        .bgwhite {
+            background-color: white;
+            padding: 10px;
+            margin: 10px;
+        }
+    </style>
+{% endblock %}
+{% block content %}
 <div class="bgimg">
     <div class="middle-box text-center loginscreen  animated fadeInDown ">
         <div>
@@ -50,7 +37,7 @@
                 {% if error %}
                 <div class="alert alert-danger alert-dismissable" style="text-align: center;">
                     <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
-                    &emsp;&emsp;{{'Bad credentials.'|trans}}
+                    &emsp;&emsp;{{error.message|trans}}
                 </div>
                 {% endif %}
                 <form role="form" action="{{path('nononsense_user_check')}}" method="post">
@@ -81,23 +68,16 @@
         </div>
     </div>
 </div>
+{% endblock %}
+{% block footer %}
+    {{ parent() }}
+    <script>
+        $(document).ready(function () {
+            var isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
+            if (!isChrome) {
+                $('#avisoIdNavegador').show();
+            }
 
-<!-- scripts -->
-<script src="/js/jquery-2.1.1.js"></script>
-<script src="/js/bootstrap.min.js"></script>
-
-<script>
-
-    $(document).ready(function () {
-        var isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
-        if (!isChrome) {
-            $('#avisoIdNavegador').show();
-        }
-
-    });
-
-</script>
-
-</body>
-
-</html>
+        });
+    </script>
+{% endblock %}
