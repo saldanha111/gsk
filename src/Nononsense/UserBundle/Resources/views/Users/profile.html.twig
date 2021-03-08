@@ -54,7 +54,7 @@
                         {% if editable %}
                         <div class="row m-t">
                             <div class="col-xs-6">
-                                <a href="{{ path('nononsense_user_edit', {"id" : user.id})}}" class="btn btn-primary btn-xs btn-block"><i class="fa fa-edit"></i> {{'Edit data'|trans}}</a>
+                                <a href="{{ path('nononsense_user_edit', {"id" : user.id})}}" class="btn btn-primary btn-xs btn-block disabled"><i class="fa fa-edit"></i> {{'Edit data'|trans}}</a>
                             </div>
                             <div class="col-xs-6">
                                 <a href="{{path('nononsense_user_modify_password', {'id': user.id}) }}" class="btn btn-danger btn-xs btn-block"><i class="fa fa-lock"></i> {{'New pass.'|trans}}</a>
