@@ -17,10 +17,15 @@ class ldapType extends AbstractType
     {
 
         $builder
-            ->add('dn', TextType::class, ['label' => 'DN', 'required' => true])
-            ->add('_password', PasswordType::class, ['label' => 'Contraseña', 'required' => true])
-            ->add('filter', TextType::class, ['label' => 'Filtros', 'required' => false])
-            ->add('querydn', TextType::class, ['label' => 'Query DN']);
+            ->add('base_dn', TextType::class, ['label' => 'Base DN', 'required' => true, 'empty_data' => 'dc=demo,dc=local'])
+            // ->add('search_dn', TextType::class, ['label' => 'Search DN', 'required' => true, 'empty_data' => 'cn={username},cn=users,dc=demo,dc=local'])
+            ->add('dn_string', TextType::class, ['label' => 'Admin DN', 'required' => true, 'empty_data' => 'cn=admin,cn=users,dc=demo,dc=local'])
+            ->add('search_password', PasswordType::class, ['label' => 'Admin pass', 'required' => true])
+            ->add('mudid', TextType::class, ['label' => 'MUD ID', 'required' => false]);
+            // ->add('dn', TextType::class, ['label' => 'DN', 'required' => true])
+            // ->add('_password', PasswordType::class, ['label' => 'Contraseña', 'required' => true])
+            // ->add('filter', TextType::class, ['label' => 'Filtros', 'required' => false])
+            // ->add('querydn', TextType::class, ['label' => 'Query DN']);
 
     }
 
