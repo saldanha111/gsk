@@ -150,6 +150,9 @@ class ProductsController extends Controller
         if ($request->get("a_excel") == 1) {
             $items = $productInputRepository->listForStock($filters, 0);
             return $this->exportExcelProducts($items);
+        }elseif($request->get("a_pdf") == 1){
+            $items = $productInputRepository->listForStock($filters, 0);
+            return $this->exportPDFProducts($items);
         }
 
         $totalItems = $productInputRepository->countForStock($filters);
@@ -677,7 +680,12 @@ class ProductsController extends Controller
                 ->findBy(['active' => true]);
         if ($actualType->getSlug() === 'material') {
             $array_item['product'] = $productsRepository->findOneBy(['qrCode' => $qrCode]);
-            return $this->render('NononsenseHomeBundle:Products:input_material.html.twig', $array_item);
+            if($array_item['product']){
+                return $this->render('NononsenseHomeBundle:Products:input_material.html.twig', $array_item);
+            }else{
+                $this->get('session')->getFlashBag()->add('error', "No se encuentra el material.");
+                return $this->redirect($this->generateUrl('nononsense_products_input_list', ['type' =>$actualType->getSlug()]));
+            }
         } elseif ($actualType->getSlug() === 'reactivo') {
             if($internalCode){
                 $array_item['product'] = $productsRepository->findOneBy(['internalCode' => urldecode($internalCode)]);
@@ -685,7 +693,7 @@ class ProductsController extends Controller
             return $this->render('NononsenseHomeBundle:Products:input_reactivo.html.twig', $array_item);
         } else {
             $this->get('session')->getFlashBag()->add('error', "No se encuentra el tipo de material del producto");
-            return $this->redirect($this->generateUrl('nononsense_products_inputs'));
+            return $this->redirect($this->generateUrl('nononsense_products'));
         }
     }
 
@@ -768,7 +776,8 @@ class ProductsController extends Controller
                         'presentation' => $product->getPresentation(),
                         'provider' => $product->getProvider(),
                         'minStock' => $product->getStockMinimum(),
-                        'static' => $product->getStatic()
+                        'static' => $product->getStatic(),
+                        'active' => $product->getActive()
                     ];
                     $status = 200;
                 }
@@ -805,6 +814,9 @@ class ProductsController extends Controller
         if ($request->get("a_excel") == 1) {
             $items = $productsInputsRepository->list($filters, 0);
             return self::exportExcelProductsInputs($items);
+        }elseif ($request->get("a_pdf") == 1) {
+            $items = $productsInputsRepository->list($filters, 0);
+            return self::exportPDFProductsInputs($items);
         }
 
         $array_item["filters"] = $filters;
@@ -1034,6 +1046,7 @@ class ProductsController extends Controller
                 $data['status'] = $productInput->getState()->getSlug();
                 $data['observations'] = $productInput->getObservations();
                 $data['isReactivo'] = $isReactivo;
+                $data['minStock'] = $product->getStockMinimum();
 
                 $status = 200;
             }
@@ -1460,6 +1473,89 @@ class ProductsController extends Controller
         return $response;
     }
 
+    private function exportPDFProducts($items)
+    {
+        $html = '<html>
+                    <body style="font-size:8px;width:100%">
+                        <table autosize="1" style="overflow:wrap;width:100%">
+                            <tr style="font-size:8px;width:100%">
+                                <th style="font-size:8px;width:6%">Tipo</th>
+                                <th style="font-size:8px;width:11%">Nombre</th>
+                                <th style="font-size:8px;width:10%">Part. Number</th>
+                                <th style="font-size:8px;width:10%">CAS Number</th>
+                                <th style="font-size:8px;width:10%">Código interno</th>
+                                <th style="font-size:8px;width:10%">Proveedor</th>
+                                <th style="font-size:8px;width:10%">Presentación</th>
+                                <th style="font-size:8px;width:8%">Fecha de destrucción</th>
+                                <th style="font-size:8px;width:5%">Estado</th>
+                                <th style="font-size:8px;width:3%">Stock actual</th>
+                                <th style="font-size:8px;width:3%">Stock Mínimo</th>
+                                <th style="font-size:8px;width:10%">Observaciones</th>
+                                <th style="font-size:8px;width:3%">Activo</th>
+                            </tr>';
+
+        foreach($items as $item) {
+            $destructionFormatted = ($item['destructionDate']) ? (new DateTime($item['destructionDate']))->format('Y-m-d') : '';
+            $productType = $item['productType'];
+            $productName = $item['productName'];
+            $partNumber = $item['partNumber'];
+            $casNumber = $item['casNumber'];
+            $internalCode = $item['internalCode'];
+            $provider = $item['provider'];
+            $presentation = $item['presentation'];
+            $destructionDate = $destructionFormatted;
+            $state = $item['state'];
+            $stock = $item['stock'];
+            $minStock = $item['minStock'];
+            $observations = $item['observations'];
+            $active = ($item['active'] === true) ? 'Si' : 'No';
+            $html .= "
+                            <tr style='font-size:8px'>
+                                <td> $productType </td>
+                                <td> $productName </td>
+                                <td> $partNumber </td>
+                                <td> $casNumber </td>
+                                <td> $internalCode </td>
+                                <td> $provider </td>
+                                <td> $presentation </td>
+                                <td> $destructionDate </td>
+                                <td> $state </td>
+                                <td> $stock </td>
+                                <td> $minStock </td>
+                                <td> $observations </td>
+                                <td> $active </td>
+                            </tr>";
+        }
+
+        $html .= '
+                        </table>
+                    </body>
+                </html>';
+
+        return $this->returnPDFResponseFromHTML($html);
+    }
+
+    private function returnPDFResponseFromHTML($html){
+        //set_time_limit(30); uncomment this line according to your needs
+        // If you are not in a controller, retrieve of some way the service container and then retrieve it
+        //$pdf = $this->container->get("white_october.tcpdf")->create('vertical', PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+        //if you are in a controlller use :
+        $pdf = $this->get("white_october.tcpdf")->create('horizontal', PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+        $pdf->SetAuthor('GSK');
+        $pdf->SetTitle(('Registros GSK'));
+        $pdf->SetSubject('Registros GSK');
+        $pdf->setFontSubsetting(true);
+        $pdf->SetFont('helvetica', '', 9, '', true);
+        //$pdf->SetMargins(20,20,40, true);
+        $pdf->AddPage('L', 'A4');
+
+
+        $filename = 'list_records';
+
+        $pdf->writeHTMLCell($w = 0, $h = 0, $x = '', $y = '', $html, $border = 0, $ln = 1, $fill = 0, $reseth = true, $align = '', $autopadding = true);
+        return $pdf->Output($filename.".pdf",'I'); // This will output the PDF as a response directly
+    }
+
     /** ProductInpus[] $items
      * @param ProductsInputs[] $items
      * @return
@@ -1511,6 +1607,62 @@ class ProductsController extends Controller
         $response->headers->set('Content-Disposition', $dispositionHeader);
 
         return $response;
+    }
+
+    /** ProductInpus[] $items
+     * @param ProductsInputs[] $items
+     * @return
+     */
+    private function exportPDFProductsInputs($items)
+    {
+        $html = '<html>
+                    <body style="font-size:8px;width:100%">
+                        <table autosize="1" style="overflow:wrap;width:100%">
+                            <tr style="font-size:8px;width:100%">
+                                <th style="font-size:8px;width:3%">Id</th>
+                                <th style="font-size:8px;width:11%">CAS Number</th>
+                                <th style="font-size:8px;width:11%">Part. Number</th>
+                                <th style="font-size:8px;width:14%">Nombre</th>
+                                <th style="font-size:8px;width:14%">Proveedor</th>
+                                <th style="font-size:8px;width:14%">Presentación</th>
+                                <th style="font-size:8px;width:3%">Unidades</th>
+                                <th style="font-size:8px;width:12%">Fecha de recepción</th>
+                                <th style="font-size:8px;width:12%">Comentarios</th>
+                                <th style="font-size:8px;width:6%">Usuario</th>
+                            </tr>';
+
+        foreach($items as $item) {
+            $id = $item->getId();
+            $casNumber = $item->getProduct()->getCasNumber();
+            $partNumber = $item->getProduct()->getPartNumber();
+            $name = $item->getProduct()->getName();
+            $provider = $item->getProduct()->getProvider();
+            $presentation = $item->getProduct()->getPresentation();
+            $amount = $item->getAmount();
+            $receptionDate = $item->getReceptionDate()->format('Y-m-d H:i:s');
+            $observations = $item->getObservations();
+            $user = $item->getUser()->getName();
+            $html .= "
+                            <tr style='font-size:8px'>
+                                <td> $id </td>
+                                <td> $casNumber </td>
+                                <td> $partNumber </td>
+                                <td> $name </td>
+                                <td> $provider </td>
+                                <td> $presentation </td>
+                                <td> $amount </td>
+                                <td> $receptionDate </td>
+                                <td> $observations </td>
+                                <td> $user </td>
+                            </tr>";
+        }
+
+        $html .= '
+                        </table>
+                    </body>
+                </html>';
+
+        return $this->returnPDFResponseFromHTML($html);
     }
 
     /**

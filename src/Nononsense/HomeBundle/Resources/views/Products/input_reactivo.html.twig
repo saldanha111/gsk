@@ -128,6 +128,13 @@
                                             {% if product.static is defined and product.static is not null  and product.static == true %} checked="checked" {% endif %}>
                                 </div>
                             </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Activo</label>
+                                <div class="col-sm-7">
+                                    <input name="active" value="1" type="checkbox" disabled="disabled"
+                                            {% if product.active is defined and product.active is not null  and product.active == true %} checked="checked" {% endif %}>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -206,6 +213,7 @@
     {
         return {
             'static': $('input[name="static"]'),
+            'active': $('input[name="active"]'),
         };
     }
 

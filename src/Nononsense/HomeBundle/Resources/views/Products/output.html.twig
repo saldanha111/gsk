@@ -115,6 +115,12 @@
                                 </div>
                             </div>
                             <div class="form-group">
+                                <label class="col-sm-3 control-label">Stock mínimo</label>
+                                <div class="col-sm-5">
+                                    <input type="text" name="minStock" class="form-control" readonly="readonly">
+                                </div>
+                            </div>
+                            <div class="form-group">
                                 <label class="col-sm-3 control-label">Cantidad</label>
                                 <div class="col-sm-5">
                                     <input type="number" name="amount" class="form-control" required="required" min="0" max="">
@@ -270,6 +276,7 @@
                 'expiryDate': $('input[name="expiryDate"]'),
                 'destructionDate': $('input[name="destructionDate"]'),
                 'observations': $('textarea[name="observations"]'),
+                'minStock': $('input[name="minStock"]'),
                 'stock': $('input[name="stock"]')
             };
         }
