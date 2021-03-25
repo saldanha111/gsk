@@ -6263,6 +6263,10 @@ a.navbar-minimalize.btn-primary {
   opacity: 0.5;
 }
 
+.bnt-separator{
+  padding-left:20px;
+}
+
 @media (min-width: 768px) {
 	.border-sm-top {border-top:1px solid #e7eaec;}
 }

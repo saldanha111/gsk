@@ -30,6 +30,7 @@
                               method="GET">
                             <input type="hidden" id='url_product_list' value="{{ path('nononsense_products') }}"/>
                             <input type="hidden" id='a_excel' name='a_excel'/>
+                            <input type="hidden" id='a_pdf' name='a_pdf'/>
                             <div class="form-group">
                                 <label class="col-sm-1 control-label item_filter">Nombre</label>
                                 <div class="col-sm-2 item_filter">
@@ -209,6 +210,9 @@
                         {% endif %}
                         <a href="javascript:export_excel();" class="btn btn-primary pull-right"><i
                                     class="fa fa-file-excel-o" aria-hidden="true"></i> Excel</a>
+                        <span class="bnt-separator pull-right">&nbsp;</span>
+                        <a href="javascript:export_pdf();" class="btn btn-primary pull-right"><i
+                                    class="fa fa-file-pdf-o" aria-hidden="true"></i> PDF</a>
                     </div>
                 </div>
             </div>
@@ -258,6 +262,12 @@
 
         function export_excel() {
             $('#a_excel').val(1);
+            $('#form_item').attr("target", "_blank");
+            $('#form_item').submit();
+        }
+
+        function export_pdf() {
+            $('#a_pdf').val(1);
             $('#form_item').attr("target", "_blank");
             $('#form_item').submit();
         }
