@@ -813,10 +813,10 @@ class ProductsController extends Controller
 
         if ($request->get("a_excel") == 1) {
             $items = $productsInputsRepository->list($filters, 0);
-            return self::exportExcelProductsInputs($items);
+            return self::exportExcelProductsInputs($items, $type);
         }elseif ($request->get("a_pdf") == 1) {
             $items = $productsInputsRepository->list($filters, 0);
-            return self::exportPDFProductsInputs($items);
+            return self::exportPDFProductsInputs($items, $type);
         }
 
         $array_item["filters"] = $filters;
@@ -1560,36 +1560,62 @@ class ProductsController extends Controller
      * @param ProductsInputs[] $items
      * @return
      */
-    private function exportExcelProductsInputs($items)
+    private function exportExcelProductsInputs($items, $type)
     {
         $phpExcelObject = $this->get('phpexcel')->createPHPExcelObject();
 
         $phpExcelObject->getProperties();
-        $phpExcelObject->setActiveSheetIndex(0)
-            ->setCellValue('A1', 'Id')
-            ->setCellValue('B1', 'CAS Number')
-            ->setCellValue('C1', 'Part. Number')
-            ->setCellValue('D1', 'Nombre')
-            ->setCellValue('E1', 'Proveedor')
-            ->setCellValue('F1', 'Presentación')
-            ->setCellValue('G1', 'Unidades entrantes')
-            ->setCellValue('H1', 'Fecha de recepción')
-            ->setCellValue('I1', 'Comentarios')
-            ->setCellValue('J1', 'Usuario');
+        if($type=== 'reactivo'){
+            $phpExcelObject->setActiveSheetIndex(0)
+                ->setCellValue('A1', 'Id')
+                ->setCellValue('B1', 'CAS Number')
+                ->setCellValue('C1', 'Part. Number')
+                ->setCellValue('D1', 'Nombre')
+                ->setCellValue('E1', 'Proveedor')
+                ->setCellValue('F1', 'Presentación')
+                ->setCellValue('G1', 'Cantidad')
+                ->setCellValue('H1', 'Fecha de recepción')
+                ->setCellValue('I1', 'Comentarios')
+                ->setCellValue('J1', 'Usuario');
+        }else{
+            $phpExcelObject->setActiveSheetIndex(0)
+                ->setCellValue('A1', 'Id')
+                ->setCellValue('B1', 'Part. Number')
+                ->setCellValue('C1', 'Nombre')
+                ->setCellValue('D1', 'Proveedor')
+                ->setCellValue('E1', 'Presentación')
+                ->setCellValue('F1', 'Cantidad')
+                ->setCellValue('G1', 'Fecha de recepción')
+                ->setCellValue('H1', 'Comentarios')
+                ->setCellValue('I1', 'Usuario');
+        }
 
         $i = 2;
         foreach ($items as $item) {
-            $phpExcelObject->getActiveSheet()
-                ->setCellValue('A' . $i, $item->getId())
-                ->setCellValue('B' . $i, $item->getProduct()->getCasNumber())
-                ->setCellValue('C' . $i, $item->getProduct()->getPartNumber())
-                ->setCellValue('D' . $i, $item->getProduct()->getName())
-                ->setCellValue('E' . $i, $item->getProduct()->getProvider())
-                ->setCellValue('F' . $i, $item->getProduct()->getPresentation())
-                ->setCellValue('G' . $i, $item->getAmount())
-                ->setCellValue('H' . $i, $item->getReceptionDate()->format('Y-m-d H:i:s'))
-                ->setCellValue('I' . $i, $item->getObservations())
-                ->setCellValue('J' . $i, $item->getUser()->getName());
+            if($type === 'reactivo'){
+                $phpExcelObject->getActiveSheet()
+                    ->setCellValue('A' . $i, $item->getId())
+                    ->setCellValue('B' . $i, $item->getProduct()->getCasNumber())
+                    ->setCellValue('C' . $i, $item->getProduct()->getPartNumber())
+                    ->setCellValue('D' . $i, $item->getProduct()->getName())
+                    ->setCellValue('E' . $i, $item->getProduct()->getProvider())
+                    ->setCellValue('F' . $i, $item->getProduct()->getPresentation())
+                    ->setCellValue('G' . $i, $item->getAmount())
+                    ->setCellValue('H' . $i, $item->getReceptionDate()->format('Y-m-d H:i:s'))
+                    ->setCellValue('I' . $i, $item->getObservations())
+                    ->setCellValue('J' . $i, $item->getUser()->getName());
+            }else{
+                $phpExcelObject->getActiveSheet()
+                    ->setCellValue('A' . $i, $item->getId())
+                    ->setCellValue('B' . $i, $item->getProduct()->getPartNumber())
+                    ->setCellValue('C' . $i, $item->getProduct()->getName())
+                    ->setCellValue('D' . $i, $item->getProduct()->getProvider())
+                    ->setCellValue('E' . $i, $item->getProduct()->getPresentation())
+                    ->setCellValue('F' . $i, $item->getAmount())
+                    ->setCellValue('G' . $i, $item->getReceptionDate()->format('Y-m-d H:i:s'))
+                    ->setCellValue('H' . $i, $item->getObservations())
+                    ->setCellValue('I' . $i, $item->getUser()->getName());
+            }
             $i++;
         }
 
@@ -1611,25 +1637,28 @@ class ProductsController extends Controller
 
     /** ProductInpus[] $items
      * @param ProductsInputs[] $items
+     * @param string $type
      * @return
      */
-    private function exportPDFProductsInputs($items)
+    private function exportPDFProductsInputs($items, $type)
     {
         $html = '<html>
                     <body style="font-size:8px;width:100%">
                         <table autosize="1" style="overflow:wrap;width:100%">
                             <tr style="font-size:8px;width:100%">
-                                <th style="font-size:8px;width:3%">Id</th>
-                                <th style="font-size:8px;width:11%">CAS Number</th>
-                                <th style="font-size:8px;width:11%">Part. Number</th>
-                                <th style="font-size:8px;width:14%">Nombre</th>
-                                <th style="font-size:8px;width:14%">Proveedor</th>
-                                <th style="font-size:8px;width:14%">Presentación</th>
-                                <th style="font-size:8px;width:3%">Unidades</th>
-                                <th style="font-size:8px;width:12%">Fecha de recepción</th>
-                                <th style="font-size:8px;width:12%">Comentarios</th>
-                                <th style="font-size:8px;width:6%">Usuario</th>
-                            </tr>';
+                                <th style="font-size:8px;width:3%">Id</th>';
+        if($type === 'reactivo'){
+            $html.= '<th style="font-size:8px;width:11%">CAS Number</th>';
+        }
+            $html .='<th style="font-size:8px;width:11%">Part. Number</th>
+            <th style="font-size:8px;width:14%">Nombre</th>
+            <th style="font-size:8px;width:14%">Proveedor</th>
+            <th style="font-size:8px;width:14%">Presentación</th>
+            <th style="font-size:8px;width:3%">Cantidad</th>
+            <th style="font-size:8px;width:12%">Fecha de recepción</th>
+            <th style="font-size:8px;width:12%">Comentarios</th>
+            <th style="font-size:8px;width:6%">Usuario</th>
+        </tr>';
 
         foreach($items as $item) {
             $id = $item->getId();
@@ -1644,17 +1673,20 @@ class ProductsController extends Controller
             $user = $item->getUser()->getName();
             $html .= "
                             <tr style='font-size:8px'>
-                                <td> $id </td>
-                                <td> $casNumber </td>
-                                <td> $partNumber </td>
-                                <td> $name </td>
-                                <td> $provider </td>
-                                <td> $presentation </td>
-                                <td> $amount </td>
-                                <td> $receptionDate </td>
-                                <td> $observations </td>
-                                <td> $user </td>
-                            </tr>";
+                                <td> $id </td>";
+            if($type === 'reactivo'){
+                $html.= "<td> $casNumber </td>";
+            }
+
+                $html.="<td> $partNumber </td>
+                <td> $name </td>
+                <td> $provider </td>
+                <td> $presentation </td>
+                <td> $amount </td>
+                <td> $receptionDate </td>
+                <td> $observations </td>
+                <td> $user </td>
+            </tr>";
         }
 
         $html .= '
