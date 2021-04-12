@@ -7,11 +7,14 @@ use Com\Tecnick\Barcode\Exception as BCodeException;
 use Com\Tecnick\Color\Exception as BColorException;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
+use Exception;
 use Nononsense\HomeBundle\Entity\MaterialCleanCenters;
 use Nononsense\HomeBundle\Entity\MaterialCleanCodes;
 use Nononsense\HomeBundle\Entity\MaterialCleanCodesRepository;
 use Nononsense\HomeBundle\Entity\MaterialCleanMaterials;
+use Nononsense\HomeBundle\Entity\MaterialCleanMaterialsRepository;
 use Nononsense\UtilsBundle\Classes\Utils;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -21,7 +24,6 @@ use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 class MaterialCleanCodesController extends Controller
 {
     private const codePrefix = 'ML';
-
 
     /**
      * @param Request $request
@@ -120,18 +122,25 @@ class MaterialCleanCodesController extends Controller
                 if ($error == 0) {
                     $center = $this->getDoctrine()->getRepository('NononsenseHomeBundle:MaterialCleanCenters')->find($request->get("center"));
                     $material = $this->getDoctrine()->getRepository('NononsenseHomeBundle:MaterialCleanMaterials')->find($request->get("material"));
-                    $code->setIdCenter($center);
-                    $code->setIdMaterial($material);
-                    $em->persist($code);
-                    $em->flush();
-                    if($em->contains($code)){
-                        $barCode = self::codePrefix . str_pad($code->getId(), 10, "0", STR_PAD_LEFT);
-                        $code->setCode($barCode);
+                    if($material->getCenter()->getId() === $center->getId()){
+                        $code->setIdCenter($center);
+                        $code->setIdMaterial($material);
                         $em->persist($code);
                         $em->flush();
+                        if($em->contains($code)){
+                            $barCode = self::codePrefix . str_pad($code->getId(), 10, "0", STR_PAD_LEFT);
+                            $code->setCode($barCode);
+                            $em->persist($code);
+                            $em->flush();
+                        }
+                        $this->get('session')->getFlashBag()->add('message', "El código se ha guardado correctamente");
+                        return $this->redirect($this->generateUrl('nononsense_mclean_codes_list'));
+                    }else{
+                        $this->get('session')->getFlashBag()->add(
+                            'error',
+                            "El material seleccionado no pertenece al centro."
+                        );
                     }
-                    $this->get('session')->getFlashBag()->add('message', "El código se ha guardado correctamente");
-                    return $this->redirect($this->generateUrl('nononsense_mclean_codes_list'));
                 }
             } catch (\Exception $e) {
                 $this->get('session')->getFlashBag()->add(
@@ -142,9 +151,9 @@ class MaterialCleanCodesController extends Controller
         }
 
         $array_item = array();
-        $array_item["materials"] = $this->getDoctrine()->getRepository(MaterialCleanMaterials::class)->findBy(['active' => true], ['name' => 'ASC']);
         $array_item["centers"] = $this->getDoctrine()->getRepository(MaterialCleanCenters::class)->findBy(['active' => true], ['name' => 'ASC']);
         $array_item['code'] = $code;
+        $array_item['materialsUrl'] = $this->generateUrl('nononsense_mclean_get_material_by_center_json', ['id' => 'xxx']);
 
         return $this->render('NononsenseHomeBundle:MaterialClean:code_edit.html.twig', $array_item);
     }
@@ -184,6 +193,29 @@ class MaterialCleanCodesController extends Controller
             "Se ha producido un error al intentar obtener el código de barras"
         );
         return $this->redirect($this->generateUrl('nononsense_mclean_codes_list'));
+    }
+
+    public function ajaxGetMaterialDataAction($id)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $array_return = array();
+        $data = array();
+        $status = 500;
+        try {
+            /** @var MaterialCleanMaterialsRepository $materialRepository */
+            $materialRepository = $em->getRepository(MaterialCleanMaterials::class);
+            $materialInput = $materialRepository->findBy(['center' =>$id, 'active' => true]);
+            $data = $this->renderView('NononsenseHomeBundle:MaterialClean:material_select.html.twig', ['materials' => $materialInput]);
+            $status = 200;
+
+        } catch (Exception $e) {
+
+        }
+
+        $array_return['data'] = $data;
+        $array_return['status'] = $status;
+
+        return new JsonResponse(json_encode($array_return));
     }
 
     /**

@@ -15,8 +15,9 @@ class MaterialCleanMaterialsRepository extends EntityRepository
     public function list($filters, $paginate=1)
     {
         $list = $this->createQueryBuilder('m')
-            ->select('m.id', 'm.name', 'm.expirationDays', 'm.created', 'm.active', 'm.additionalInfo', 'p.name as productName')
+            ->select('m')
             ->leftJoin('m.product', 'p')
+            ->leftJoin('m.center', 'c')
             ->orderBy('m.name', 'ASC');
 
         $list = self::fillFilersQuery($filters, $list);
@@ -34,7 +35,8 @@ class MaterialCleanMaterialsRepository extends EntityRepository
     {
         $list = $this->createQueryBuilder('m')
             ->select('COUNT(m.id) as conta')
-            ->leftJoin('m.product', 'p');
+            ->leftJoin('m.product', 'p')
+            ->leftJoin('m.center', 'c');
 
         $list = self::fillFilersQuery($filters, $list);
 
@@ -55,6 +57,13 @@ class MaterialCleanMaterialsRepository extends EntityRepository
             if(isset($filters["product"])){
                 $list->andWhere('p.id = :product');
                 $list->setParameter('product', $filters["product"]);
+            }
+        }
+
+        if(!empty($filters)){
+            if(isset($filters["center"])){
+                $list->andWhere('c.id = :center');
+                $list->setParameter('center', $filters["center"]);
             }
         }
         return $list;
