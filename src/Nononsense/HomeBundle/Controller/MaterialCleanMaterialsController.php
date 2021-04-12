@@ -5,6 +5,8 @@ namespace Nononsense\HomeBundle\Controller;
 use DateInterval;
 use DateTime;
 use Exception;
+use Nononsense\HomeBundle\Entity\MaterialCleanCenters;
+use Nononsense\HomeBundle\Entity\MaterialCleanCentersRepository;
 use Nononsense\HomeBundle\Entity\MaterialCleanMaterials;
 use Nononsense\HomeBundle\Entity\MaterialCleanMaterialsRepository;
 use Nononsense\HomeBundle\Entity\MaterialCleanProducts;
@@ -42,6 +44,12 @@ class MaterialCleanMaterialsController extends Controller
             $filters["product"] = $request->get("product");
             $filters2["product"] = $request->get("product");
         }
+
+        if ($request->get("center")) {
+            $filters["center"] = $request->get("center");
+            $filters2["center"] = $request->get("center");
+        }
+
         $array_item["filters"] = $filters;
 
         $em = $this->getDoctrine()->getManager();
@@ -52,6 +60,9 @@ class MaterialCleanMaterialsController extends Controller
         /** @var MaterialCleanProductsRepository $productsRepository */
         $productsRepository = $em->getRepository(MaterialCleanProducts::class);
         $array_item['products'] = $productsRepository->findBy(['active' => true]);
+        /** @var MaterialCleanCentersRepository $centersRepository */
+        $centersRepository = $em->getRepository(MaterialCleanCenters::class);
+        $array_item['centers'] = $centersRepository->findAll();
         $array_item["filters"] = $filters;
 
         $url = $this->container->get('router')->generate('nononsense_mclean_materials_list');
@@ -90,6 +101,9 @@ class MaterialCleanMaterialsController extends Controller
         /** @var MaterialCleanProductsRepository $productsRepository */
         $productsRepository = $em->getRepository(MaterialCleanProducts::class);
 
+        /** @var MaterialCleanCentersRepository $centersRepository */
+        $centersRepository = $em->getRepository(MaterialCleanCenters::class);
+
         if (!$material) {
             $material = new MaterialCleanMaterials();
         }
@@ -100,6 +114,8 @@ class MaterialCleanMaterialsController extends Controller
                 if(!$material->getId()){
                     $product = $productsRepository->find($request->get("product"));
                     $material->setProduct($product);
+                    $center = $centersRepository->find($request->get("center"));
+                    $material->setCenter($center);
                     $material->setName($request->get("name"));
                     $material->setotherName(($request->get("otherName")) == 1);
                     $material->setAdditionalInfo($request->get('additionalInfo'));
@@ -123,6 +139,7 @@ class MaterialCleanMaterialsController extends Controller
         $array_item = array();
         $array_item['material'] = $material;
         $array_item['products'] = $productsRepository->findBy(['active' => true]);
+        $array_item['centers'] = $centersRepository->findBy(['active' => true]);
 
         return $this->render('NononsenseHomeBundle:MaterialClean:material_edit.html.twig', $array_item);
     }

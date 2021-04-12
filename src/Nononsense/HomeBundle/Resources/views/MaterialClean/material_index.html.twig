@@ -46,6 +46,15 @@
                                         {% endfor %}
                                     </select>
                                 </div>
+                                <div class="col-md-3 col-sm-5 form-group">
+                                    <label class="control-label">Centro</label>
+                                    <select class="form-control" name="center">
+                                        <option value=""></option>
+                                        {% for center in centers %}
+                                            <option value="{{center.id}}" {{ filters.center is defined and filters.center is not null and filters.center==center.id ? 'selected="selected"' : ''}}>{{center.name}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
                             </div>
                             <div class="row">
                                 <div class="col-sm-1 item_filter">
@@ -70,6 +79,7 @@
                                 <th>Id.</th>
                                 <th>Nombre</th>
                                 <th>Cad. Limpieza (días)</th>
+                                <th>Centro</th>
                                 <th>Producto</th>
                                 <th>Desc. Adicional</th>
                                 <th>Activo</th>
@@ -83,7 +93,8 @@
                                         <td>{{item.id}}</td>
                                         <td>{{item.name}}</td>
                                         <td>{{item.expirationDays}}</td>
-                                        <td>{{item.productName}}</td>
+                                        <td>{{item.center.name}}</td>
+                                        <td>{{ item.product is defined and item.product is not null ? item.product.name : '' }}</td>
                                         <td>
                                             {% if item.additionalInfo %}
                                                 Si

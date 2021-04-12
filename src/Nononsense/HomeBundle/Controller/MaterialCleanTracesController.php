@@ -160,17 +160,19 @@ class MaterialCleanTracesController extends Controller
             $nNeed = ($totalNeed == 1) ? '' : 'n';
             $esNeed = ($totalNeed == 1) ? '' : 'es';
             $nUsed = ($materialUsed == 1) ? '' : 'n';
-            $esUsed = ($totalNeed == 1) ? '' : 'es';
+            $esUsed = ($materialUsed == 1) ? '' : 'es';
+            $sUsed = ($materialUsed == 1) ? '' : 's';
             $message[] = [
                 'type' => ($totalNeed != $materialUsed) ? 'danger' : 'success',
-                'message' => 'Se necesitaba'.$nNeed.' '.$totalNeed.' material'.$esNeed.', se ha'.$nUsed.' utilizado '.$materialUsed.' material'.$esUsed
+                'message' => 'Se necesitaba'.$nNeed.' '.$totalNeed.' material'.$esNeed.', se ha'.$nUsed.' utilizado '.$materialUsed.' material'.$esUsed.' no vencido'.$sUsed
             ];
         }elseif ($materialUsed){
             $es = ($materialUsed == 1) ? '' : 'es';
             $n = ($materialUsed == 1) ? '' : 'n';
+            $sUsed = ($materialUsed == 1) ? '' : 's';
             $message[] = [
                 'type' => 'success',
-                'message' => 'Se ha'.$n.' usado '.$materialUsed.' material'.$es
+                'message' => 'Se ha'.$n.' usado '.$materialUsed.' material'.$es.' no vencido'.$sUsed
             ];
         }
         return $message;

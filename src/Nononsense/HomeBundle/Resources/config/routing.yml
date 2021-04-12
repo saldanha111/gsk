@@ -674,6 +674,10 @@ nononsense_mclean_get_sign_valid:
     path: /mclean/cleans/checkpass
     defaults: { _controller: NononsenseHomeBundle:MaterialCleanCleans:checkPass}
 
+nononsense_mclean_get_material_by_center_json:
+    path: /mclean/cleans/material/center/{id}
+    defaults: { _controller: NononsenseHomeBundle:MaterialCleanCodes:ajaxGetMaterialData, id: 0}
+
 # /Material Limipo
 
 nononsense_areas_groups:

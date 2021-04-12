@@ -77,6 +77,12 @@ class MaterialCleanMaterials
      */
     private $product;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\MaterialCleanCenters", inversedBy="material")
+     * @ORM\JoinColumn(name="id_center", referencedColumnName="id")
+     */
+    private $center;
+
     public function __construct()
     {
         $this->created = new DateTime();
@@ -321,5 +327,28 @@ class MaterialCleanMaterials
     public function getOtherName()
     {
         return $this->otherName;
+    }
+
+    /**
+     * Set center
+     *
+     * @param \Nononsense\HomeBundle\Entity\MaterialCleanCenters $center
+     * @return MaterialCleanMaterials
+     */
+    public function setCenter(\Nononsense\HomeBundle\Entity\MaterialCleanCenters $center = null)
+    {
+        $this->center = $center;
+
+        return $this;
+    }
+
+    /**
+     * Get center
+     *
+     * @return \Nononsense\HomeBundle\Entity\MaterialCleanCenters 
+     */
+    public function getCenter()
+    {
+        return $this->center;
     }
 }
