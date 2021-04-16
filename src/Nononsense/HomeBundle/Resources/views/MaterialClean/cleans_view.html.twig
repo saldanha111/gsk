@@ -79,7 +79,11 @@
                         <input type="text" name="materialOther" class="form-control">
                     </div>
                 </div>
-                <div class="form-group additional-info-input" style="display:none;">
+                <div class="form-group additional-info-input"
+                    {% if materialCleanCode.idMaterial.additionalInfo is defined and materialCleanCode.idMaterial.additionalInfo != 1 %}
+                        style="display:none;"
+                    {% endif %}
+                >
                     <label class="col-md-2 col-sm-4 control-label">Información Adicional</label>
                     <div class="col-sm-7">
                         <input type="text" name="additionalInfo" class="form-control">
