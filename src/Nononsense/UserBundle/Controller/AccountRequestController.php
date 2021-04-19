@@ -210,7 +210,7 @@ class AccountRequestController extends Controller
 		    $em = $this->getDoctrine()->getManager();
 
 		    $role = $em->getRepository(Roles::class)->findOneBy(array('name' => 'ROLE_USER'));
-            $newUser->addRole($role);
+            $user->addRole($role);
 
             $em->persist($user);
             $em->flush();
