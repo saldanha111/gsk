@@ -328,7 +328,7 @@ class AccountRequestController extends Controller
 	private function signForm($cn, $pass, $hideLdapErrors = true){
 
 		try {
-			$ldapdn = 'cn={username},cn=users,dc=demo,dc=local';
+			$ldapdn = $this->container->getParameter('ldap.search_dn');
 			$ldapdn = str_replace('{username}', $cn, $ldapdn);
 
 			$ldap   = $this->container->get('ldap');
