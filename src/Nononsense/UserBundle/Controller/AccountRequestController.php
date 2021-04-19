@@ -358,7 +358,7 @@ class AccountRequestController extends Controller
 		$ldappass = $this->container->getParameter('ldap.search_password');; //$this->container->getParameter('ldap.search_password');
 
 		$uid_key = 'sAMAccountName'; //$this->container->getParameter('ldap.uid_key');
-		$queryDn = 'dc=demo,dc=local'; //$this->container->getParameter('ldap.base_dn');
+		$queryDn = $this->container->getParameter('ldap.base_dn'); //$this->container->getParameter('ldap.base_dn');
 
 		$filter  = '({uid_key}='.$mudid.')';
 
