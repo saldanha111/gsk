@@ -141,8 +141,6 @@
                                 <th>Usuario verificación</th>
                                 <th>Fecha verificación</th>
                                 <th>Comentario verificación</th>
-                                <th>Usuario material sucio</th>
-                                <th>Fecha material sucio</th>
                                 <th>Usuario revisión</th>
                                 <th>Fecha revisión</th>
                                 <th>Comentario revisión</th>
@@ -173,16 +171,6 @@
                                             <p data-toggle="tooltip" data-placement="left" title="{{ item.useInformation|length > 50 ? item.useInformation : '' }}">
                                                 {{ item.useInformation|length > 50 ? item.useInformation|slice(0, 50) ~ '...' : item.useInformation  }}
                                             </p>
-                                        </td>
-                                        <td>
-                                            {% if item.dirtyMaterialUser.name is defined %}
-                                                {{item.dirtyMaterialUser.name}}
-                                            {% endif %}
-                                        </td>
-                                        <td>
-                                            {% if item.dirtyMaterialDate is defined and item.dirtyMaterialDate is not null and item.dirtyMaterialDate | date("Y") > 0  %}
-                                                {{item.dirtyMaterialDate | date("d-m-Y")}}
-                                            {% endif %}
                                         </td>
                                         <td>
                                             {% if item.reviewUser.name is defined %}
