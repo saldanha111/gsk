@@ -176,6 +176,7 @@
             var productInputId = $('#productInputId').val();
             show_data_inputs(productInputId);
             qrcode.callback = putQrValue;
+            $('#input_id').focus();
         });
 
         function putQrValue(a) {
