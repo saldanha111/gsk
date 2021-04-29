@@ -32,17 +32,14 @@
 
             {% if can_sign == 1 %}
                 <div id="signature-pad" class="input-group">
-                    <h2>Introduzca su firma{{can_sign}}</h2>
-                    <canvas width="300" height="150" style="touch-action: none; border: 2px solid #eee; box-shadow: 0px 0px 6px 1px rgba(80, 90, 100, 0.5)"></canvas>
-                </div>
+                    <h2>Introduzca su contraseña para firmar el documento</h2>
+                    <input type="password" name="password" id="box_password" class="form-control" required="required"><br>
+                </div><br>
             {% endif %} 
 
             {% if can_sign == 1 or anexo == 1 %}
                 <input type="hidden" id="firma" name="firma"/>
                 <a class="btn btn-default" href="{{path('nononsense_records')}}" name="volver">Volver</a>
-                {% if can_sign == 1 %}
-                    <a name="borrarFirmar" class="btn btn-primary" id="borrarFirmar">Limpiar firma</a>
-                {% endif %} 
                 <a class="btn btn-success" name="guardarenviar" id="guardarenviar">Enviar</a>
 
             {% endif %} 
@@ -62,7 +59,6 @@
 {% endblock %}
 {% block scripts %}
 {{ parent() }}
-<script src="/js/plugins/signature-pad/signature-pad.min.js"></script>
 <script>
 
 
@@ -84,12 +80,6 @@
             "hideMethod": "fadeOut"
         }
 
-        var canvas = document.querySelector("canvas");
-
-        if($("#signature-pad").length){
-            var signaturePad = new SignaturePad(canvas);
-        }
-
         ActivateMenu('docxpresso_home');
         $('#side-menu').metisMenu();
 
@@ -105,15 +95,18 @@
 
         $('#guardarenviar').on('click', function () {
             if($('#anexo').val() || $('#no_anexo').val()){
-                if($("#signature-pad").length){
-                    $("#firma").val(signaturePad.toDataURL()); // save image as PNG
-                    if (signaturePad.isEmpty()) {
-                        toastr.error("Debe rellenar una fima, no puede dejar el cuadro en blanco", 'aviso');
+                if($("#box_password").length){
+                    $(this).hide(function() {
+                        valid_password=password_valid($("#box_password").val());
+                        console.log(valid_password);
+                        if (!valid_password) {
+                            $(this).show();
+                            toastr.error("La contraseña es incorecta", 'aviso');
+                        } else {
+                            $("#guardarenviarForm").submit();
+                        }
+                    });
 
-                    } else {
-                        console.log(signaturePad.toDataURL());
-                        $("#guardarenviarForm").submit();
-                    }
                 }
                 else{
                     $("#guardarenviarForm").submit();
@@ -134,13 +127,11 @@
                     return false;
                 }
             }
-            if($("#signature-pad").length){
-                $("#firma").val(signaturePad.toDataURL()) // save image as PNG
-                if (signaturePad.isEmpty()) {
-                    toastr.error("Debe rellenar una fima, no puede dejar el cuadro en blanco", 'aviso');
+            if($("#box_password").length){
+                if (!password_valid($("#box_password").val())) {
+                    toastr.error("La contraseña es incorecta", 'aviso');
 
                 } else {
-                    console.log(signaturePad.toDataURL());
                     $("#guardarRegistroForm").submit();
                 }
             }
@@ -150,11 +141,32 @@
 
         });
 
+        function password_valid(password){
+            var result;
+            $.ajax({
+                url: "{{ path('nononsense_mclean_get_sign_valid') }}",
+                type: 'POST',
+                dataType: 'json',
+                async: false,
+                data: {password: password},
+                success: function(response) {
+                    console.log(response);
+                    if(response.valid){
+                        result=true;
+                    }else{
+                        result=false;
+                    }
+                },
+                error: function() {
+                    result=false;
+                }
+            });
 
-        $('#borrarFirmar').on('click', function () {
-            if($("#signature-pad").length){
-                signaturePad.clear();
-            }
+            return result;
+        }
+
+        $('#guardarenviarForm input').on('keypress', function(e) {
+            return e.which !== 13;
         });
     });
 
