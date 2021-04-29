@@ -164,6 +164,10 @@
 
             return result;
         }
+
+        $('#guardarenviarForm input').on('keypress', function(e) {
+            return e.which !== 13;
+        });
     });
 
 </script>
