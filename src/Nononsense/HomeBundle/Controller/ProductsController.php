@@ -336,8 +336,9 @@ class ProductsController extends Controller
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
 
+        $em = $this->getDoctrine()->getManager();
         /** @var ProductsRepository $productsRepository */
-        $productsRepository = $this->getDoctrine()->getRepository(Products::class);
+        $productsRepository = $em->getRepository(Products::class);
         /** @var Products $product */
         $product = $productsRepository->find($id);
 
@@ -415,7 +416,29 @@ class ProductsController extends Controller
                         );
                     }
                 }
-                if($minStockEdited || $stockEdited){
+
+                $oldActive = $product->getActive();
+                $active = (bool) $request->get('active');
+                $product->setActive($active );
+                $em->persist($product);
+                $em->flush();
+
+                $activeEdited = $oldActive != $product->getActive();
+                if($activeEdited){
+                    $now = new DateTime();
+                    $signature = 'Modificación del estado registrado con contraseña de usuario ' . $this->getUser()->getName() . ' el día ' . $now->format('d-m-Y H:i:s');
+                    $this->saveSignature(
+                        $product,
+                        (int) $oldActive,
+                        (int) $product->getActive(),
+                        'Edit Active',
+                        $signature,
+                        $this->getUser(),
+                        $request->get('observations')
+                    );
+                }
+
+                if($minStockEdited || $stockEdited || $activeEdited){
                     $this->get('session')->getFlashBag()->add('message', 'Datos actualizados con éxito');
                 }
             }
@@ -896,7 +919,7 @@ class ProductsController extends Controller
                     if($product->getStock() <= $product->getStockMinimum()){
                         $type = $product->getType()->getName();
                         $name = $product->getName();
-                        $this->get('session')->getFlashBag()->add('error', "El " .$type. " " .$name. " ha llagado al límite de stock.");
+                        $this->get('session')->getFlashBag()->add('error', "El " .$type. " " .$name. " ha llegado al límite de stock.");
                     }
                     $this->get('session')->getFlashBag()->add('message', "La retirada se ha guardado correctamente");
                 }else{
