@@ -47,6 +47,7 @@ class RecordsController extends Controller
         $filters2["user"]=$user;
 
         $array_item["suser"]["id"]=$user->getId();
+        $groups=array();
         foreach($Egroups as $group){
             $groups[]=$group->getGroup()->getId();
         }
@@ -750,7 +751,7 @@ class RecordsController extends Controller
                 return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
             }
 
-            //$signature->setFirma($request->get('firma'));
+            $signature->setFirma(1);
             $signature->setNext(0);
             $signature->setUserEntiy($user);
             $signature->setModified(new \DateTime());
@@ -913,7 +914,7 @@ class RecordsController extends Controller
         }
 
 
-        //$signature->setFirma($request->get('firma'));
+        $signature->setFirma(1);
         $signature->setComments($request->get('comment'));
         $signature->setNext(0);
         $signature->setUserEntiy($user);
@@ -1116,7 +1117,7 @@ class RecordsController extends Controller
         //$firmas => array entidad firmas
         $fullText="";
         foreach ($firmas as $firma) {
-            if($firma->getUserEntiy()){
+            if($firma->getUserEntiy() && $firma->getFirma()){
                 
                 $user = $this->getDoctrine()
                 ->getRepository('NononsenseUserBundle:Users')
