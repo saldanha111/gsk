@@ -214,7 +214,7 @@ class AccountRequestController extends Controller
             $em->persist($user);
             $em->flush();
 
-            Utils::api3('/record-counter', 'POST', ['type' => 'user']);
+            Utils::api3($this->container->getParameter('api3.url').'/record-counter', 'POST', ['type' => 'user']);
             
             //$this->get('session')->getFlashBag()->add('success', 'Usuario creado con exito.');
             //$message = ['type' => 'error', 'message' => 'Usuario creado con exito.'];
