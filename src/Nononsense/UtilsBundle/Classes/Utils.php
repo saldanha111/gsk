@@ -813,7 +813,7 @@ class Utils
         
         $fileName = md5(uniqid()).'.pdf';
 
-        $path = $path.'/'.date('Y').'/'.date('m');
+        $path = $path.'/'.$type.'/'.date('Y').'/'.date('m');
 
         if (!is_dir($path)) {
             mkdir($path, 0777, true);
@@ -822,6 +822,22 @@ class Utils
         file_put_contents($path.'/'.$fileName, $file);
 
         return $path.'/'.$fileName;
+    }
+
+    public static function generatePdf($container, string $title = 'GSK', string $subject = 'GSK', string $html = ''){
+
+        $pdf = $container->get("white_october.tcpdf")->create('horizontal', PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+
+        $pdf->SetAuthor('GSK');
+        $pdf->SetTitle($title);
+        $pdf->SetSubject($subject);
+        $pdf->AddPage('L', 'A4');
+
+        $html = 'Test';
+        
+        $pdf->writeHTMLCell(0, 0, '', '', $html, 0, 1, 0, true, '', true);
+        
+        return $pdf->Output(uniqid().'.pdf', 'I');
     }
 
 }

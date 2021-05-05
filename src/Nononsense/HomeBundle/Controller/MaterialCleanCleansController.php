@@ -133,6 +133,19 @@ class MaterialCleanCleansController extends Controller
                         "Material seleccionado no pertenece al centro"
                     );
                 }else{
+
+                    $html = '
+                        <p>Limpieza de material</p>
+                        <ul>
+                            <li>Material:'.$material->getName().'</li>
+                            <li>Código:'.$request->get('code').'</li>
+                            <li>Centro:'.$center->getName().'</li>
+                            <li>Usuario:'.$this->getUser()->getUsername().'</li>
+                        </ul>';
+
+                    $file = Utils::generatePdf($this->container, 'GSK - Material limpio', 'Limpieza de material', $html);
+                    Utils::setCertification($this->container, $file, 'material', $material->getId(), $this->getParameter('crt.root_dir'));
+
                     $materialClean
                         ->setMaterial($material)
                         ->setCenter($center)

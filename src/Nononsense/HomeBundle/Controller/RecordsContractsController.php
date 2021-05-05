@@ -1216,6 +1216,13 @@ class RecordsContractsController extends Controller
                 $p12Pass = $recordSignature->getSignPass();
             }
             $fileSigned = $this->get('utilities')->signWithP12($rootDir . $filePath, $p12Path, $p12Pass);
+
+            if ($fileSigned) {
+                echo $rootDir;
+                echo $filePath;
+                die();
+                //Utils::setCertification($this->container, $rootDir . $filePath, 'contract', $record->getId(), $this->getParameter('crt.root_dir'));
+            }
         }
 
         return $fileSigned;

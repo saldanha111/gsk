@@ -132,6 +132,19 @@ class MaterialCleanUsesController extends Controller
             if (!$error) {
                 $now = new DateTime();
                 $firma = 'Utilización de material registrada con contraseña de usuario el día ' . $now->format('d-m-Y H:i:s');
+
+                $html = '
+                    <p>Utilización del material</p>
+                    <ul>
+                        <li>Material:'.$materialCleanClean->getMaterial()->getName().'</li>
+                        <li>Código:'.$materialCleanClean->getCode().'</li>
+                        <li>Centro:'.$materialCleanClean->getCenter()->getName().'</li>
+                        <li>Usuario:'.$this->getUser()->getUsername().'</li>
+                    </ul>';
+
+                $file = Utils::generatePdf($this->container, 'GSK - Material limpio', 'Utilización del material', $html);
+                Utils::setCertification($this->container, $file, 'material', $material->getId(), $this->getParameter('crt.root_dir'));
+
                 $materialCleanClean
                     ->setVerificationDate(new DateTime())
                     ->setVerificationUser($this->getUser())

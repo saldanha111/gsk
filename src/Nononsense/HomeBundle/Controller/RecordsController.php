@@ -617,7 +617,18 @@ class RecordsController extends Controller
                         }
                         else{
                             $anexo=0;
-                            $record->setStatus(3);
+                            
+                            try {
+                                $record->setStatus(3);
+
+                                $request->attributes->set("mode", 'pdf');
+                                $request->attributes->set("no-redirect", true);
+
+                                $file = Utils::api3($this->linkAction($request, $record->getId()));
+                                Utils::setCertification($this->container, $file, 'plain_document', $record->getId(), $this->getParameter('crt.root_dir'));                
+                            } catch (\Exception $e) {
+                                $this->get('session')->getFlashBag()->add( 'error', "No se pudo certificar el doccumento: ".$e->getMessage());
+                            }
 
                             //CERTIFICADO AQUÍ ALEX
                             //RUTA DEL PDF -> $ruta_pdf=$this->container->get('router')->generate('nononsense_records_link', array("id" => $record->getId()),TRUE)."?mode=pdf";
@@ -821,14 +832,16 @@ class RecordsController extends Controller
             if($signature){
                 $record->setLastSign($signature->getId());
             }
-            $record->setStatus(3);
+            // $record->setStatus(3);
 
             try {
+                $record->setStatus(3);
+
                 $request->attributes->set("mode", 'pdf');
                 $request->attributes->set("no-redirect", true);
 
                 $file = Utils::api3($this->linkAction($request, $record->getId()));
-                Utils::setCertification($this->container, $file, 'plain_document', $record->getId(), $this->getParameter('crt.root_dir'));                
+                Utils::setCertification($this->container, $file, 'plain_document', $record->getId(), $this->getParameter('crt.root_dir'));               
             } catch (\Exception $e) {
                 $this->get('session')->getFlashBag()->add( 'error', "No se pudo certificar el doccumento: ".$e->getMessage());
             }

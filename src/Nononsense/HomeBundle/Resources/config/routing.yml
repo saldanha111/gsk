@@ -892,3 +892,13 @@ nononsense_retention_categories_edit:
 nononsense_retention_categories_delete:
     path: /retention_categories/delete/{id}
     defaults: { _controller: NononsenseHomeBundle:RetentionCategories:delete}
+
+#Crt
+
+nononsense_certifications_list:
+    path: /certificaciones
+    defaults: { _controller: NononsenseHomeBundle:Certification:list}
+
+nononsense_certifications_download:
+    path: /certificaciones/descargar/{id}
+    defaults: { _controller: NononsenseHomeBundle:Certification:download}

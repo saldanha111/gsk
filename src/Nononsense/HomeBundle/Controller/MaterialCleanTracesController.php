@@ -242,9 +242,21 @@ class MaterialCleanTracesController extends Controller
             try{
                 /** @var MaterialCleanCleans $trace */
                 foreach($traces as $trace){
+                    $html = '
+                        <p>Material sucio</p>
+                        <ul>
+                            <li>Material:'.$trace->getMaterial()->getName().'</li>
+                            <li>Código:'.$trace->getCode().'</li>
+                            <li>Centro:'.$trace->getCenter()->getName().'</li>
+                            <li>Usuario:'.$this->getUser()->getUsername().'</li>
+                        </ul>';
+
+                    $file = Utils::generatePdf($this->container, 'GSK - Material limpio', 'Material sucio', $html);
+                    Utils::setCertification($this->container, $file, 'material', $material->getId(), $this->getParameter('crt.root_dir'));
+
                     $trace->setStatus(3)
                         ->setDirtyMaterialUser($this->getUser())
-                        ->setDirtyMaterialDate(new DateTime())
+                        ->setDirtyMaterialDate($now)
                         ->setDirtyMaterialSignature($firma);
 
                     $em->persist($trace);
@@ -287,10 +299,22 @@ class MaterialCleanTracesController extends Controller
 
         if(!$error){
             $now = new DateTime();
-            $firma = 'Utilización de material registrada con contraseña de usuario el día ' . $now->format('d-m-Y H:i:s');
+            $firma = 'Revisión de material registrada con contraseña de usuario el día ' . $now->format('d-m-Y H:i:s');
             try{
                 /** @var MaterialCleanCleans $trace */
                 foreach($traces as $trace){
+                    $html = '
+                        <p>Revisión de material</p>
+                        <ul>
+                            <li>Material:'.$trace->getMaterial()->getName().'</li>
+                            <li>Código:'.$trace->getCode().'</li>
+                            <li>Centro:'.$trace->getCenter()->getName().'</li>
+                            <li>Usuario:'.$this->getUser()->getUsername().'</li>
+                        </ul>';
+
+                    $file = Utils::generatePdf($this->container, 'GSK - Material limpio', 'Revisión de material', $html);
+                    Utils::setCertification($this->container, $file, 'material', $material->getId(), $this->getParameter('crt.root_dir'));
+
                     $trace->setStatus(4)
                         ->setReviewUser($this->getUser())
                         ->setReviewDate(new DateTime())

@@ -299,6 +299,12 @@
                 </li>
              {% endif %}
 
+             {% if 'crt_gestion' in array_subsecciones %}
+                <li id="certifications">
+                    <a href="{{path('nononsense_certifications_list')}}"><i class="fa fa-certificate"></i> <span class="nav-label">Certificados</span></a>
+                </li>
+             {% endif %}
+
         </ul>
     </div>
 </nav>

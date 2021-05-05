@@ -34,6 +34,17 @@ class CertificationsType
     private $certifications;
 
     /**
+     * @ORM\ManyToOne(targetEntity=CertificationsType::class, inversedBy="children")
+     * @ORM\JoinColumn(name="parent_id", referencedColumnName="id")
+     */
+    private $parent;
+
+    /**
+     * @ORM\OneToMany(targetEntity=CertificationsType::class, mappedBy="parent")
+     */
+    private $children;
+
+    /**
      * Get id
      *
      * @return integer 
@@ -104,5 +115,61 @@ class CertificationsType
     public function getCertifications()
     {
         return $this->certifications;
+    }
+
+    /**
+     * Set parent
+     *
+     * @param \Nononsense\HomeBundle\Entity\CertificationsType $parent
+     * @return CertificationsType
+     */
+    public function setParent(\Nononsense\HomeBundle\Entity\CertificationsType $parent = null)
+    {
+        $this->parent = $parent;
+
+        return $this;
+    }
+
+    /**
+     * Get parent
+     *
+     * @return \Nononsense\HomeBundle\Entity\CertificationsType 
+     */
+    public function getParent()
+    {
+        return $this->parent;
+    }
+
+    /**
+     * Add children
+     *
+     * @param \Nononsense\HomeBundle\Entity\CertificationsType $children
+     * @return CertificationsType
+     */
+    public function addChild(\Nononsense\HomeBundle\Entity\CertificationsType $children)
+    {
+        $this->children[] = $children;
+
+        return $this;
+    }
+
+    /**
+     * Remove children
+     *
+     * @param \Nononsense\HomeBundle\Entity\CertificationsType $children
+     */
+    public function removeChild(\Nononsense\HomeBundle\Entity\CertificationsType $children)
+    {
+        $this->children->removeElement($children);
+    }
+
+    /**
+     * Get children
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getChildren()
+    {
+        return $this->children;
     }
 }
