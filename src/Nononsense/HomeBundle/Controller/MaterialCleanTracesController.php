@@ -249,10 +249,11 @@ class MaterialCleanTracesController extends Controller
                             <li>Código:'.$trace->getCode().'</li>
                             <li>Centro:'.$trace->getCenter()->getName().'</li>
                             <li>Usuario:'.$this->getUser()->getUsername().'</li>
+                            <li>Fecha: '.$now->format('d-m-Y H:i:s').'</li>
                         </ul>';
 
-                    $file = Utils::generatePdf($this->container, 'GSK - Material limpio', 'Material sucio', $html);
-                    Utils::setCertification($this->container, $file, 'material', $material->getId(), $this->getParameter('crt.root_dir'));
+                    $file = Utils::generatePdf($this->container, 'GSK - Material limpio', 'Material sucio', $html, 'material', $this->getParameter('crt.root_dir'));
+                    Utils::setCertification($this->container, $file, 'material', $trace->getId());
 
                     $trace->setStatus(3)
                         ->setDirtyMaterialUser($this->getUser())
@@ -310,10 +311,11 @@ class MaterialCleanTracesController extends Controller
                             <li>Código:'.$trace->getCode().'</li>
                             <li>Centro:'.$trace->getCenter()->getName().'</li>
                             <li>Usuario:'.$this->getUser()->getUsername().'</li>
+                            <li>Fecha: '.$now->format('d-m-Y H:i:s').'</li>
                         </ul>';
 
-                    $file = Utils::generatePdf($this->container, 'GSK - Material limpio', 'Revisión de material', $html);
-                    Utils::setCertification($this->container, $file, 'material', $material->getId(), $this->getParameter('crt.root_dir'));
+                    $file = Utils::generatePdf($this->container, 'GSK - Material limpio', 'Revisión de material', $html, 'material', $this->getParameter('crt.root_dir'));
+                    Utils::setCertification($this->container, $file, 'material', $trace->getId());
 
                     $trace->setStatus(4)
                         ->setReviewUser($this->getUser())

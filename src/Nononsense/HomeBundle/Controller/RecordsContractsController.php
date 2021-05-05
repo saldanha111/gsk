@@ -1218,10 +1218,18 @@ class RecordsContractsController extends Controller
             $fileSigned = $this->get('utilities')->signWithP12($rootDir . $filePath, $p12Path, $p12Pass);
 
             if ($fileSigned) {
-                echo $rootDir;
-                echo $filePath;
-                die();
-                //Utils::setCertification($this->container, $rootDir . $filePath, 'contract', $record->getId(), $this->getParameter('crt.root_dir'));
+                try {
+                    $crtDir = Utils::makeFolder($this->getParameter('crt.root_dir'), 'contracts');
+                    $file = $crtDir.'/'.$filename;
+
+                    if (!copy($rootDir.$filePath, $file)) {
+                       throw new \Exception("Error copying the document", 1);
+                    }
+
+                    Utils::setCertification($this->container, $file, 'contract', $record->getId());
+                } catch (\Exception $e) {
+                    return false;
+                }
             }
         }
 

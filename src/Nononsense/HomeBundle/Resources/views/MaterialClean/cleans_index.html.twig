@@ -111,27 +111,29 @@
             const codeReader = new ZXing.BrowserMultiFormatReader()
             codeReader.getVideoInputDevices()
                 .then((videoInputDevices) => {
-                    const sourceSelect = document.getElementById('sourceSelect')
-                    selectedDeviceId = videoInputDevices[0].deviceId
-                    if (videoInputDevices.length >= 1) {
-                        videoInputDevices.forEach((element) => {
-                            const sourceOption = document.createElement('option')
-                            sourceOption.text = element.label
-                            if(element.label.indexOf('back')){
-                                sourceOption.setAttribute('selected','selected');
-                                selectedDeviceId = element.deviceId
-                            }
-                            sourceOption.value = element.deviceId
-                            sourceSelect.appendChild(sourceOption)
-                        })
+                    if (videoInputDevices.length > 0) {
+                        const sourceSelect = document.getElementById('sourceSelect')
+                        selectedDeviceId = videoInputDevices[0].deviceId
+                        // if (videoInputDevices.length >= 1) {
+                            videoInputDevices.forEach((element) => {
+                                const sourceOption = document.createElement('option')
+                                sourceOption.text = element.label
+                                if(element.label.indexOf('back')){
+                                    sourceOption.setAttribute('selected','selected');
+                                    selectedDeviceId = element.deviceId
+                                }
+                                sourceOption.value = element.deviceId
+                                sourceSelect.appendChild(sourceOption)
+                            })
 
-                        sourceSelect.onchange = () => {
-                            selectedDeviceId = sourceSelect.value;
-                            startCapture(codeReader,selectedDeviceId);
-                        };
+                            sourceSelect.onchange = () => {
+                                selectedDeviceId = sourceSelect.value;
+                                startCapture(codeReader,selectedDeviceId);
+                            };
 
-                        const sourceSelectPanel = document.getElementById('sourceSelectPanel')
-                        sourceSelectPanel.style.display = 'block'
+                            const sourceSelectPanel = document.getElementById('sourceSelectPanel')
+                            sourceSelectPanel.style.display = 'block'
+                        //}
                     }
                     document.getElementById('btn-camera-clean').addEventListener('click', () => {
                         activeCamera();

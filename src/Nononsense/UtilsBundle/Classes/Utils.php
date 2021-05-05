@@ -782,7 +782,7 @@ class Utils
         return $output;
     }
 
-    public static function setCertification($container, string $file, string $type, int $recordId, string $path)
+    public static function setCertification($container, string $file, string $type, int $recordId)
     {
         $em = $container->get('doctrine.orm.entity_manager');
 
@@ -793,13 +793,11 @@ class Utils
             $certificationsType->setName($type);
         }
 
-        $path = self::saveFile($file, $type, $path);
-
         $certification = new Certifications();
-        $certification->setHash(hash_file('sha256', $path));
+        $certification->setHash(hash_file('sha256', $file));
         $certification->setType($certificationsType);
         $certification->setRecordId($recordId);
-        $certification->setPath($path);
+        $certification->setPath($file);
 
         $certificationsType->addCertification($certification);
 
@@ -813,31 +811,48 @@ class Utils
         
         $fileName = md5(uniqid()).'.pdf';
 
-        $path = $path.'/'.$type.'/'.date('Y').'/'.date('m');
-
-        if (!is_dir($path)) {
-            mkdir($path, 0777, true);
-        }
+        $path = self::makeFolder($path, $type);
 
         file_put_contents($path.'/'.$fileName, $file);
 
         return $path.'/'.$fileName;
     }
 
-    public static function generatePdf($container, string $title = 'GSK', string $subject = 'GSK', string $html = ''){
+    /*
+    *
+    */
+    public static function generatePdf($container, string $title = 'GSK', string $subject = 'GSK', string $html = '', string $type, string $path){
 
-        $pdf = $container->get("white_october.tcpdf")->create('horizontal', PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+        $pdf = $container->get("white_october.tcpdf")->create('vertical', PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
 
         $pdf->SetAuthor('GSK');
         $pdf->SetTitle($title);
         $pdf->SetSubject($subject);
-        $pdf->AddPage('L', 'A4');
 
-        $html = 'Test';
+        $pdf->SetHeaderData(false, false, $title);
+
+        $pdf->AddPage();
         
         $pdf->writeHTMLCell(0, 0, '', '', $html, 0, 1, 0, true, '', true);
-        
-        return $pdf->Output(uniqid().'.pdf', 'I');
+
+        $fileName = md5(uniqid()).'.pdf';
+
+        $path = self::makeFolder($path, $type);
+
+        $pdf->Output($path.'/'.$fileName, 'F');
+
+        return $path.'/'.$fileName;
+    }
+
+    public static function makeFolder(string $path, string $type){
+
+        $path = $path.'/'.$type.'/'.date('Y').'/'.date('m');
+
+        if (!is_dir($path)) {
+            mkdir($path, 0777, true);
+        }
+
+        return $path;
     }
 
 }

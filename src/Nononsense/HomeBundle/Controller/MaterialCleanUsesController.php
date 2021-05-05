@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Response;
+use Nononsense\UtilsBundle\Classes\Utils;
 
 class MaterialCleanUsesController extends Controller
 {
@@ -142,8 +143,8 @@ class MaterialCleanUsesController extends Controller
                         <li>Usuario:'.$this->getUser()->getUsername().'</li>
                     </ul>';
 
-                $file = Utils::generatePdf($this->container, 'GSK - Material limpio', 'Utilización del material', $html);
-                Utils::setCertification($this->container, $file, 'material', $material->getId(), $this->getParameter('crt.root_dir'));
+                    $file = Utils::generatePdf($this->container, 'GSK - Material limpio', 'Utilización del material', $html, 'material', $this->getParameter('crt.root_dir'));
+                    Utils::setCertification($this->container, $file, 'material', $materialCleanClean->getId());
 
                 $materialCleanClean
                     ->setVerificationDate(new DateTime())

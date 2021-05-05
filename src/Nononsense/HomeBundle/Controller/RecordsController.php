@@ -625,7 +625,8 @@ class RecordsController extends Controller
                                 $request->attributes->set("no-redirect", true);
 
                                 $file = Utils::api3($this->linkAction($request, $record->getId()));
-                                Utils::setCertification($this->container, $file, 'plain_document', $record->getId(), $this->getParameter('crt.root_dir'));                
+                                $file = Utils::saveFile($file, 'plain_document', $this->getParameter('crt.root_dir'));
+                                Utils::setCertification($this->container, $file, 'plain_document', $record->getId());                
                             } catch (\Exception $e) {
                                 $this->get('session')->getFlashBag()->add( 'error', "No se pudo certificar el doccumento: ".$e->getMessage());
                             }
@@ -839,9 +840,10 @@ class RecordsController extends Controller
 
                 $request->attributes->set("mode", 'pdf');
                 $request->attributes->set("no-redirect", true);
-
+                
                 $file = Utils::api3($this->linkAction($request, $record->getId()));
-                Utils::setCertification($this->container, $file, 'plain_document', $record->getId(), $this->getParameter('crt.root_dir'));               
+                $file = Utils::saveFile($file, 'plain_document', $this->getParameter('crt.root_dir'));
+                Utils::setCertification($this->container, $file, 'plain_document', $record->getId());                   
             } catch (\Exception $e) {
                 $this->get('session')->getFlashBag()->add( 'error', "No se pudo certificar el doccumento: ".$e->getMessage());
             }

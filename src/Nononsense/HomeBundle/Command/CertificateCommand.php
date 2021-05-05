@@ -34,6 +34,7 @@ class CertificateCommand extends ContainerAwareCommand
 				$crt = Utils::api3($url, $header, 'POST', ['hash' => $certification->getHash()]);
 				$output->writeln([$certification->getHash()]);
 				$output->writeln([$crt]);
+				die();
 			}
 
 		} catch (\Exception $e) {
