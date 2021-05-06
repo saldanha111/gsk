@@ -80,7 +80,7 @@
                                 <td>{{ item.productInput.id }}</td>
                                 <td>{{ item.productInput.product.partNumber }}</td>
                                 <td>{{ item.productInput.product.name }}</td>
-                                <td>{{ item.amount }}</td>
+                                <td>{{ item.amount|number_format }}</td>
                                 <td>{{ item.date|date('Y-m-d') }}</td>
                                 <td>{{ item.user.name }}</td>
 {#                                <td>#}
