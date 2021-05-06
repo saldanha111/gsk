@@ -214,7 +214,7 @@ class ProductsController extends Controller
             if ($saved['error'] === 0) {
                 if ($newProduct) {
                     if($actualType->getSlug() === 'material'){
-                        $stockEdited = $this->editStockMaterial(0, $product, 'Alta de producto', true);
+                        $stockEdited = $this->editStockMaterial($request->get('amount'), $product, $request->get('observations'), true);
                         if(!$stockEdited){
                             $em = $this->getDoctrine()->getManager();
                             $em->remove($product);
@@ -1729,8 +1729,8 @@ class ProductsController extends Controller
         $phpExcelObject = $this->get('phpexcel')->createPHPExcelObject();
         $phpExcelObject->getProperties();
         $phpExcelObject->setActiveSheetIndex(0)
-            ->setCellValue('A1', 'Id salida')
-            ->setCellValue('B1', 'Id entrada')
+            ->setCellValue('A1', 'Id')
+            ->setCellValue('B1', 'Entrada Id')
             ->setCellValue('C1', 'Part Number')
             ->setCellValue('D1', 'Nombre')
             ->setCellValue('E1', 'Cantidad')
