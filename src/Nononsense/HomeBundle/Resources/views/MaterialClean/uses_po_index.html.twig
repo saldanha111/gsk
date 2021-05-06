@@ -115,21 +115,21 @@
 
         window.addEventListener('load', function () {
             let selectedDeviceId;
-            const codeReader = new ZXing.BrowserMultiFormatReader()
+            const codeReader = new ZXing.BrowserMultiFormatReader();
             codeReader.getVideoInputDevices()
                 .then((videoInputDevices) => {
-                    const sourceSelect = document.getElementById('sourceSelect')
-                    selectedDeviceId = videoInputDevices[0].deviceId
-                    if (videoInputDevices.length >= 1) {
+                    if (videoInputDevices.length > 0) {
+                        const sourceSelect = document.getElementById('sourceSelect');
+                        selectedDeviceId = videoInputDevices[0].deviceId;
                         videoInputDevices.forEach((element) => {
-                            const sourceOption = document.createElement('option')
-                            sourceOption.text = element.label
+                            const sourceOption = document.createElement('option');
+                            sourceOption.text = element.label;
                             if(element.label.indexOf('back')){
                                 sourceOption.setAttribute('selected','selected');
-                                selectedDeviceId = element.deviceId
+                                selectedDeviceId = element.deviceId;
                             }
-                            sourceOption.value = element.deviceId
-                            sourceSelect.appendChild(sourceOption)
+                            sourceOption.value = element.deviceId;
+                            sourceSelect.appendChild(sourceOption);
                         })
 
                         sourceSelect.onchange = () => {
@@ -137,12 +137,21 @@
                             startCapture(codeReader,selectedDeviceId);
                         };
 
-                        const sourceSelectPanel = document.getElementById('sourceSelectPanel')
-                        sourceSelectPanel.style.display = 'block'
+                        const sourceSelectPanel = document.getElementById('sourceSelectPanel');
+                        sourceSelectPanel.style.display = 'block';
                     }
                     document.getElementById('btn-camera-use').addEventListener('click', () => {
-                        activeCamera();
-                        startCapture(codeReader,selectedDeviceId);
+                        selectedDeviceId = 'undefined';
+                        if(selectedDeviceId != 'undefined'){
+                            activeCamera();
+                            startCapture(codeReader,selectedDeviceId);
+                        }else{
+                            toastr.error(
+                                "No se ha detectado ninguna cámara",
+                                'Error',
+                                {preventDuplicates:true}
+                            );
+                        }
                     })
 
                     document.getElementById('btn-scanner-use').addEventListener('click', () => {
@@ -151,7 +160,7 @@
                     })
                 })
                 .catch((err) => {
-                    console.error(err)
+                    console.error(err);
                 })
         })
 
