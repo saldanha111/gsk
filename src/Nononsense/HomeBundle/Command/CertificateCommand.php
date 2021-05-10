@@ -23,6 +23,7 @@ class CertificateCommand extends ContainerAwareCommand
 	protected function execute(InputInterface $input, OutputInterface $output){
 
 		$certifications = $this->getCertifications();
+		$em = $this->getContainer()->get('doctrine')->getManager();
 
 		if ($certifications) {
 			try {
@@ -32,12 +33,18 @@ class CertificateCommand extends ContainerAwareCommand
 				foreach ($certifications as $key => $certification) {
 					if ($certification->getHash()) {
 						$crt = Utils::api3($url, $header, 'POST', ['hash' => $certification->getHash()]);
+						$certification->setTxHash(json_decode($crt['tx_hash']));
+						$em->persist($certification);
+						$em->flush();
 						$output->writeln([$certification->getHash()]);
 						$output->writeln([$crt]);
 					}
 				}
 
 			} catch (\Exception $e) {
+				$subject = 'Error de certificación';
+				$message = 'Error durante la certificación de un documento: '.$e->getMessage();
+				$this->getContainer()->get('utilities')->sendNotification('asantos@oaro.net', false, false, false, $subject, $message);
 				$output->writeln(['<error>'.$e->getMessage().'</error>']);
 			}
 		}
