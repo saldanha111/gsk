@@ -23,36 +23,24 @@ class CertificateCommand extends ContainerAwareCommand
 	protected function execute(InputInterface $input, OutputInterface $output){
 
 		$certifications = $this->getCertifications();
-	    
-	    //if ($certifications) {
 
-		try {
-			$url 	= $this->getContainer()->getParameter('api3.url').'/hash';
-			$header = ['apiKey:'.$this->getContainer()->getParameter('api3.key')];
+		if ($certifications) {
+			try {
+				$url 	= $this->getContainer()->getParameter('api3.url').'/hash';
+				$header = ['apiKey:'.$this->getContainer()->getParameter('api3.key')];
 
-			foreach ($certifications as $key => $certification) {
-				$crt = Utils::api3($url, $header, 'POST', ['hash' => $certification->getHash()]);
-				$output->writeln([$certification->getHash()]);
-				$output->writeln([$crt]);
-				die();
+				foreach ($certifications as $key => $certification) {
+					if ($certification->getHash()) {
+						$crt = Utils::api3($url, $header, 'POST', ['hash' => $certification->getHash()]);
+						$output->writeln([$certification->getHash()]);
+						$output->writeln([$crt]);
+					}
+				}
+
+			} catch (\Exception $e) {
+				$output->writeln(['<error>'.$e->getMessage().'</error>']);
 			}
-
-		} catch (\Exception $e) {
-			$output->writeln(['<error>'.$e->getMessage().'</error>']);
 		}
-		// try {
-		// 	$url 	= $this->getContainer()->getParameter('api3.url').'/record-counter';
-		//     $header = ['apiKey:'.$this->getContainer()->getParameter('api3.key')];
-		//     $data 	= ['type' => 'user'];
-
-		//     $crt = Utils::api3($url, $header, 'POST', $data);
-
-		//     $output->writeln([$crt]);
-		// } catch (\Exception $e) {
-		// 	$output->writeln(['<error>'.$e->getMessage().'</error>']);
-		// }
-
-	    //}
 	}
 
 	protected function getCertifications(){
