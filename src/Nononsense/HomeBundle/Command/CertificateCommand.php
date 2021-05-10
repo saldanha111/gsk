@@ -33,10 +33,9 @@ class CertificateCommand extends ContainerAwareCommand
 				foreach ($certifications as $key => $certification) {
 					if ($certification->getHash()) {
 						$crt = Utils::api3($url, $header, 'POST', ['hash' => $certification->getHash()]);
-						$certification->setTxHash(json_decode($crt['tx_hash']));
+						$certification->setTxHash(json_decode($crt)['tx_hash']);
 						$em->persist($certification);
 						$em->flush();
-						$output->writeln([json_decode($crt['tx_hash'])]);
 						$output->writeln([$certification->getHash()]);
 						$output->writeln([$crt]);
 					}
