@@ -38,7 +38,7 @@ class CertificateCommand extends ContainerAwareCommand
 						// $em->flush();
 						// $output->writeln([$certification->getHash()]);
 						$output->writeln([$crt]);
-						$output->writeln([json_decode($crt)]);
+						$output->writeln([$crt->tx_hash]);
 					}
 				}
 
