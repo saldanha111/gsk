@@ -41,10 +41,7 @@ class MaterialCleanTracesController extends Controller
                 $status = 0;
             }
 
-            if($status == 2 && $this->get('app.security')->permissionSeccion('mc_traces_dirty')){
-                $array_item["formAction"] = $this->container->get('router')->generate('nononsense_mclean_traces_dirty', ['lot' => $lotNumber]);
-                $array_item["buttonName"] = 'Marcar lote como Material Sucio';
-            }elseif($status == 3 && $this->get('app.security')->permissionSeccion('mc_traces_review')){
+            if(($status == 3 || $status == 2) && $this->get('app.security')->permissionSeccion('mc_traces_review')){
                 $array_item["formAction"] = $this->container->get('router')->generate('nononsense_mclean_traces_review', ['lot' => $lotNumber]);
                 $array_item["buttonName"] = 'Revisar Lote';
                 $array_item['showCommentBox'] = true;
@@ -285,7 +282,7 @@ class MaterialCleanTracesController extends Controller
         $em = $this->getDoctrine()->getManager();
         /** @var MaterialCleanCleansRepository $traces */
         $cleansRepository = $em->getRepository('NononsenseHomeBundle:MaterialCleanCleans');
-        $traces = $cleansRepository->findBy(['lotNumber' => $lot, 'status' => 3]);
+        $traces = $cleansRepository->findBy(['lotNumber' => $lot]);
 
         if (!$traces) {
             $this->get('session')->getFlashBag()->add('error', "No se ha encontrado material sucio con ese número de lote.");
