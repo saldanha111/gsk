@@ -892,3 +892,11 @@ nononsense_retention_categories_edit:
 nononsense_retention_categories_delete:
     path: /retention_categories/delete/{id}
     defaults: { _controller: NononsenseHomeBundle:RetentionCategories:delete}
+
+
+# Cumplimentation and verification
+
+nononsense_cv_new:
+    path: /cv/new/{template}/{id}
+    methods:    [GET]
+    defaults: { _controller: NononsenseHomeBundle:CVCumplimentation:new, template: 0, id: 0}

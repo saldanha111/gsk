@@ -35,6 +35,11 @@ class TMCumplimentationsType
      */
     protected $tmCumplimentations;
 
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\CVActions", mappedBy="type")
+     */
+    protected $cvActions;
+
     public function __construct()
     {
 

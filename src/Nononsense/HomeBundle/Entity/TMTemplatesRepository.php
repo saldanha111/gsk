@@ -177,19 +177,34 @@ class TMTemplatesRepository extends EntityRepository
                 }
             }
 
-            
+            if(isset($filters["id"])){
+                $sintax.=$logical." t.id=:id";
+                $parameters["id"]=$filters["id"];
+                $logical=" AND ";
+            }
+
+            if(isset($filters["init_cumplimentation"])){
+                $sintax.=$logical." s.id=6 AND (t.inactive!=1 OR t.inactive IS NULL) AND (t.notFillableItSelf!=1 OR t.notFillableItSelf IS NULL)";
+                $logical=" AND ";
+            }
+
         }
 
 
 
-        $sintax = " FROM Nononsense\HomeBundle\Entity\TMTemplates t LEFT JOIN Nononsense\HomeBundle\Entity\Areas a WITH t.area=a.id LEFT JOIN Nononsense\HomeBundle\Entity\TMStates s WITH t.tmState=s.id LEFT JOIN Nononsense\UserBundle\Entity\Users ua WITH t.applicant=ua.id LEFT JOIN Nononsense\UserBundle\Entity\Users uo WITH t.owner=uo.id LEFT JOIN Nononsense\UserBundle\Entity\Users ub WITH t.backup=ub.id ".$tables_extra.$sintax;
+        $sintax = " FROM Nononsense\HomeBundle\Entity\TMTemplates t LEFT JOIN Nononsense\HomeBundle\Entity\Areas a WITH t.area=a.id LEFT JOIN Nononsense\HomeBundle\Entity\TMStates s WITH t.tmState=s.id  LEFT JOIN Nononsense\HomeBundle\Entity\QrsTypes q WITH t.QRType=q.id LEFT JOIN Nononsense\UserBundle\Entity\Users ua WITH t.applicant=ua.id LEFT JOIN Nononsense\UserBundle\Entity\Users uo WITH t.owner=uo.id LEFT JOIN Nononsense\UserBundle\Entity\Users ub WITH t.backup=ub.id ".$tables_extra.$sintax;
 
         switch($type){
             case "list": 
                 if(isset($filters["user"])){
                     $parameters["user"]=$filters["user"];
+                    $case=", CASE WHEN ".$this->sintax_pending('workflow_select')." THEN 1 ELSE 0 END require_action";
                 }
-                $query = $em->createQuery("SELECT t.id,t.name,a.name nameArea,t.number,t.numEdition,s.id status,t.inactive,s.name stateName,t.created,t.reference,ua.name applicantName,uo.name ownerName,ub.name backupName,t.effectiveDate,t.reviewDate,t.historyChange,uo.id ownerId,ub.id backupId,t.dateReview,t.needNewEdition,t.notFillableItSelf, CASE WHEN ".$this->sintax_pending('workflow_select')." THEN 1 ELSE 0 END require_action ".$fields_extra.$sintax." ".$orderby);
+                else{
+                    $case="";
+                }
+    
+                $query = $em->createQuery("SELECT t.logbook,t.uniqid,t.id,t.name,a.name nameArea,t.number,t.numEdition,s.id status,t.inactive,s.name stateName,t.created,t.reference,ua.name applicantName,uo.name ownerName,ub.name backupName,t.effectiveDate,t.reviewDate,t.historyChange,uo.id ownerId,ub.id backupId,t.dateReview,t.needNewEdition,t.notFillableItSelf,q.id qr".$case.$fields_extra.$sintax." ".$orderby);
                 if(isset($filters["limit_from"])){
                     $query->setFirstResult($filters["limit_from"]*$filters["limit_many"])->setMaxResults($filters["limit_many"]);
                 }
@@ -199,7 +214,6 @@ class TMTemplatesRepository extends EntityRepository
                 }
 
                 $items=$query->getResult();
-
                 break;
 
             case "count":

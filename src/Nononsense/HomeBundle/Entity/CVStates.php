@@ -9,11 +9,11 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="tm_cumplimentations_type")
- * @ORM\Entity(repositoryClass="Nononsense\HomeBundle\Entity\TMCumplimentationsTypeRepository")
+ * @ORM\Table(name="cv_states")
+ * @ORM\Entity(repositoryClass="Nononsense\HomeBundle\Entity\CVStatesRepository")
  * @ORM\HasLifecycleCallbacks
  */
-class TMCumplimentationsType
+class CVStates
 {
     /**
      * @ORM\Column(type="integer")
@@ -31,19 +31,23 @@ class TMCumplimentationsType
     protected $name;
 
     /**
-     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMCumplimentations", mappedBy="tmType")
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\CVRecords", mappedBy="state")
      */
-    protected $tmCumplimentations;
+    protected $cvRecords;
 
     /**
-     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\CVActions", mappedBy="type")
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\CVActions", mappedBy="nextState")
      */
     protected $cvActions;
 
+    
+
     public function __construct()
     {
-
+        
     }
+
+   
 
     /**
      * Get id
@@ -54,6 +58,7 @@ class TMCumplimentationsType
     {
         return $this->id;
     }
+
 
     /**
      * Set name
@@ -78,44 +83,78 @@ class TMCumplimentationsType
         return $this->name;
     }
 
+
     /**
-     * Add tmCumplimentations
+     * Add cvSignatures
      *
-     * @param \Nononsense\HomeBundle\Entity\TMCumplimentations $tmCumplimentations
-     * @return TMCumplimentationsType
+     * @param \Nononsense\HomeBundle\Entity\CVSignatures $cvSignatures
+     * @return CVActions
      */
-    public function addTmCumplimentation(\Nononsense\HomeBundle\Entity\TMCumplimentations $tmCumplimentations)
+    public function addCvSignature(\Nononsense\HomeBundle\Entity\CVSignatures $cvSignatures)
     {
-        $this->tmCumplimentations[] = $tmCumplimentations;
+        $this->cvSignatures[] = $cvSignatures;
 
         return $this;
     }
 
     /**
-     * Remove tmCumplimentations
+     * Remove cvSignatures
      *
-     * @param \Nononsense\HomeBundle\Entity\TMCumplimentations $tmCumplimentations
+     * @param \Nononsense\HomeBundle\Entity\CVSignatures $cvSignatures
      */
-    public function removeTmCumplimentation(\Nononsense\HomeBundle\Entity\TMCumplimentations $tmCumplimentations)
+    public function removeCvSignature(\Nononsense\HomeBundle\Entity\CVSignatures $cvSignatures)
     {
-        $this->tmCumplimentations->removeElement($tmCumplimentations);
+        $this->cvSignatures->removeElement($cvSignatures);
     }
 
     /**
-     * Get tmCumplimentations
+     * Get cvSignatures
      *
      * @return \Doctrine\Common\Collections\Collection 
      */
-    public function getTmCumplimentations()
+    public function getCvSignatures()
     {
-        return $this->tmCumplimentations;
+        return $this->cvSignatures;
+    }
+
+    /**
+     * Add cvRecords
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVRecords $cvRecords
+     * @return CVStates
+     */
+    public function addCvRecord(\Nononsense\HomeBundle\Entity\CVRecords $cvRecords)
+    {
+        $this->cvRecords[] = $cvRecords;
+
+        return $this;
+    }
+
+    /**
+     * Remove cvRecords
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVRecords $cvRecords
+     */
+    public function removeCvRecord(\Nononsense\HomeBundle\Entity\CVRecords $cvRecords)
+    {
+        $this->cvRecords->removeElement($cvRecords);
+    }
+
+    /**
+     * Get cvRecords
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getCvRecords()
+    {
+        return $this->cvRecords;
     }
 
     /**
      * Add cvActions
      *
      * @param \Nononsense\HomeBundle\Entity\CVActions $cvActions
-     * @return TMCumplimentationsType
+     * @return CVStates
      */
     public function addCvAction(\Nononsense\HomeBundle\Entity\CVActions $cvActions)
     {

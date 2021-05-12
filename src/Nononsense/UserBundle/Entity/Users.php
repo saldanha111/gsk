@@ -264,6 +264,16 @@ class Users implements AdvancedUserInterface, \Serializable
     protected $tmWorkflows;
 
     /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\CVWorkflow", mappedBy="user")
+     */
+    protected $cvWorkflows;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\CVSignatures", mappedBy="user")
+     */
+    protected $cvSignatures;
+
+    /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\ActivityUser", mappedBy="userEntiy")
      */
     protected $Activity;
@@ -2340,5 +2350,71 @@ class Users implements AdvancedUserInterface, \Serializable
     public function getLocked()
     {
         return $this->locked;
+    }
+
+    /**
+     * Add cvWorkflows
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVWorkflow $cvWorkflows
+     * @return Users
+     */
+    public function addCvWorkflow(\Nononsense\HomeBundle\Entity\CVWorkflow $cvWorkflows)
+    {
+        $this->cvWorkflows[] = $cvWorkflows;
+
+        return $this;
+    }
+
+    /**
+     * Remove cvWorkflows
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVWorkflow $cvWorkflows
+     */
+    public function removeCvWorkflow(\Nononsense\HomeBundle\Entity\CVWorkflow $cvWorkflows)
+    {
+        $this->cvWorkflows->removeElement($cvWorkflows);
+    }
+
+    /**
+     * Get cvWorkflows
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getCvWorkflows()
+    {
+        return $this->cvWorkflows;
+    }
+
+    /**
+     * Add cvSignatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVSignatures $cvSignatures
+     * @return Users
+     */
+    public function addCvSignature(\Nononsense\HomeBundle\Entity\CVSignatures $cvSignatures)
+    {
+        $this->cvSignatures[] = $cvSignatures;
+
+        return $this;
+    }
+
+    /**
+     * Remove cvSignatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVSignatures $cvSignatures
+     */
+    public function removeCvSignature(\Nononsense\HomeBundle\Entity\CVSignatures $cvSignatures)
+    {
+        $this->cvSignatures->removeElement($cvSignatures);
+    }
+
+    /**
+     * Get cvSignatures
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getCvSignatures()
+    {
+        return $this->cvSignatures;
     }
 }

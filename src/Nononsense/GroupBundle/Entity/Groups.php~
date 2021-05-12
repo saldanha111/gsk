@@ -120,6 +120,11 @@ class Groups
     protected $tmWorkflows;
 
     /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\CVWorkflow", mappedBy="group")
+     */
+    protected $cvWorkflows;
+
+    /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\AreasGroups", mappedBy="agroup")
      */
     protected $areas; 
@@ -814,5 +819,38 @@ class Groups
     public function getAreas()
     {
         return $this->areas;
+    }
+
+    /**
+     * Add cvWorkflows
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVWorkflow $cvWorkflows
+     * @return Groups
+     */
+    public function addCvWorkflow(\Nononsense\HomeBundle\Entity\CVWorkflow $cvWorkflows)
+    {
+        $this->cvWorkflows[] = $cvWorkflows;
+
+        return $this;
+    }
+
+    /**
+     * Remove cvWorkflows
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVWorkflow $cvWorkflows
+     */
+    public function removeCvWorkflow(\Nononsense\HomeBundle\Entity\CVWorkflow $cvWorkflows)
+    {
+        $this->cvWorkflows->removeElement($cvWorkflows);
+    }
+
+    /**
+     * Get cvWorkflows
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getCvWorkflows()
+    {
+        return $this->cvWorkflows;
     }
 }

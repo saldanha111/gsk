@@ -1,0 +1,250 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}Docoaro - GSK | Documentos {% endblock %}
+{% block head %}
+    {{ parent() }}
+    <link rel="stylesheet" href="/css/plugins/datapicker/datepicker3.css">
+    <link rel="stylesheet" href="/plugins/select2/dist/css/select2.min.css">
+    <link rel="stylesheet" href="/plugins/dual_listbox/dist/multi.min.css">
+{% endblock %}
+{% block main_title %} Inicio cumplimentación {% endblock %}
+
+{% block content %}
+
+    <div class="wrapper wrapper-content animated fadeInUp">
+        {% for flashMessage in app.session.flashbag.get('error') %}
+        <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+            <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+            {{ flashMessage }}
+        </div>
+        {% endfor %}
+        <form class="form-horizontal" id="form_item" action="#" method="POST"  enctype="multipart/form-data">
+            <div class="row">
+                <div class="col-lg-5 col-lg-offset-1">
+
+                    {% if item.logbook %}
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Registros Logbook</label>
+                            <div class="col-sm-8">
+                                <div class="col-sm-3">
+                                    <input id="logbook" required="required" name="logbook" type="number" min="0" max="10" step="1" value="" class="form-control">
+                                </div>
+                                <div class="col-sm-9">
+                                    Introduzca el número de registros anteriores que quiere ver en el logbook
+                                </div>
+                            </div>
+                        </div>
+                        <br>
+                    {% endif %}
+
+                    {% if item.uniqid %}
+                        <div id="box_unique_codes">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Código Material</label>
+                                <div class="col-sm-8">
+                                    <input type="text" required="required" name="u_material" id="material" class="form-control">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Lote</label>
+                                <div class="col-sm-8">
+                                    <input type="text" required="required" name="u_lote" id="lote" class="form-control">
+                                </div>
+                            </div>
+                            <br>
+                        </div>
+                    {% endif %}
+
+                    {% if item.qr is defined and item.qr is not empty %}
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Código QR: </label>
+                        <div class="col-sm-8">
+                            <input id="imageQR" type="file" name="pic" accept="image/*" capture="camera" onchange="handleFiles(this.files)"  class="form-control">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">Valor</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="value_qr" id="value_qr" readonly="" required="required" class="form-control">
+                        </div>
+                    </div><br>
+                    {% endif %}
+                </div>
+                <div class="col-lg-5" id="box_workflow">
+                    {% if secondWf is defined and secondWf is not empty %}
+                        {% for wf in secondWf %}
+                            {% for number in 1..wf.signaturesNumber %}
+                                <div class="row line_workflow">
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label">{{wf.tmCumplimentation.name}}: </label>
+                                        <div class="col-sm-4 masterbox_type_workflow">
+                                            <select class="form-control type_workflow" required="required" name="types[]" style="width: 100%;">
+                                                <option value=""></option>
+                                                <option value="1">Grupo</option>
+                                                <option value="2">Usuario</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% endfor %}
+                    {% endif %}
+       
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-10 col-lg-offset-1">
+                    <button type="submit" class="btn btn-primary pull-right"><i class="fa fa-pencil" aria-hidden="true"></i> Iniciar cumplimentación</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+
+    <div style="display:none">
+        <div id="box_groups">
+            <div class="master_box_group">
+                <div class="col-sm-4">
+                    <select class="form-control select_group" name="relationals[]" style="width: 100%;" required="required">
+                        <option value=""></option>
+                        {% for group in groups %}
+                            <option value="{{group.id}}">{{group.name}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div id="box_users">
+            <div class="master_box_user">
+                <div class="col-sm-4">
+                    <select class="form-control select_user" name="relationals[]" style="width: 100%;" required="required">
+                        <option value=""></option>
+                        {% for user in users %}
+                            <option value="{{user.id}}">{{user.name}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ parent() }}
+    <script type="text/javascript" src="/js/plugins/jsqrcode-master/src/grid.js"></script>
+    <script type="text/javascript" src="/js/plugins/jsqrcode-master/src/version.js"></script>
+    <script type="text/javascript" src="/js/plugins/jsqrcode-master/src/detector.js"></script>
+    <script type="text/javascript" src="/js/plugins/jsqrcode-master/src/formatinf.js"></script>
+    <script type="text/javascript" src="/js/plugins/jsqrcode-master/src/errorlevel.js"></script>
+    <script type="text/javascript" src="/js/plugins/jsqrcode-master/src/bitmat.js"></script>
+    <script type="text/javascript" src="/js/plugins/jsqrcode-master/src/datablock.js"></script>
+    <script type="text/javascript" src="/js/plugins/jsqrcode-master/src/bmparser.js"></script>
+    <script type="text/javascript" src="/js/plugins/jsqrcode-master/src/datamask.js"></script>
+    <script type="text/javascript" src="/js/plugins/jsqrcode-master/src/rsdecoder.js"></script>
+    <script type="text/javascript" src="/js/plugins/jsqrcode-master/src/gf256poly.js"></script>
+    <script type="text/javascript" src="/js/plugins/jsqrcode-master/src/gf256.js"></script>
+    <script type="text/javascript" src="/js/plugins/jsqrcode-master/src/decoder.js"></script>
+    <script type="text/javascript" src="/js/plugins/jsqrcode-master/src/qrcode.js"></script>
+    <script type="text/javascript" src="/js/plugins/jsqrcode-master/src/findpat.js"></script>
+    <script type="text/javascript" src="/js/plugins/jsqrcode-master/src/alignpat.js"></script>
+    <script type="text/javascript" src="/js/plugins/jsqrcode-master/src/databr.js"></script>
+    <script  charset="utf-8">
+    var dataworkflow;
+    $( document ).ready(function() {
+        
+        
+        ActivateMenu('en_vigor_gestion_plantillas');
+        $('#side-menu').metisMenu();
+
+        $(document).on('change', '.type_workflow', function() {
+            switch($(this).val()){
+                case "1":
+                    $(this).closest(".line_workflow").find(".master_box_user").remove();
+                    $(this).closest(".line_workflow").find(".masterbox_type_workflow").after($("#box_groups").html());
+                    break;
+                case "2":
+                    $(this).closest(".line_workflow").find(".master_box_group").remove();
+                    $(this).closest(".line_workflow").find(".masterbox_type_workflow").after($("#box_users").html());
+                    break;
+                default:
+                    $(this).closest(".line_workflow").find(".master_box_group").remove();
+                    $(this).closest(".line_workflow").find(".master_box_user").remove();
+                    break;
+            }
+        });
+
+        $('#form_item').on('submit', function(e){
+            if(repeat_workflow()){
+                return true; 
+            }
+            else{
+                toastr.error("No puede haber un mismo usuario en el workflow",'aviso');
+            }
+            return false;
+        });
+
+        qrcode.callback = putQrValue;
+
+    });
+
+    function putQrValue(a) {
+        var read=true;
+        var json;
+        if (isJson(a) && isNaN(a)) {
+            json=decodeURIComponent(escape(a));
+            $('#value_qr').val(json);
+            checkErrors(json);
+        }
+        else{
+            if(validURL(a)){
+                $.getJSON(a, function( data ) {
+                    json=data;
+                    $('#value_qr').val(JSON.stringify(json));
+                    checkErrors(json);
+                });
+            }
+            else{
+                read=false;
+            }
+        }
+        
+        if(!read){
+            toastr.error("El Código escaneado no es compatible.", 'error');
+        }
+    }
+
+    function checkErrors(value) {
+        var error=0;
+        if($("#box_unique_codes input[name]").length){
+            $("#box_unique_codes input[name]").each(function() {
+                if($(this).val() && $("#value_qr").val()){
+                    conflict=getObjects(JSON.parse($("#value_qr").val()), $(this).attr("name"), $(this).val());
+                    if(conflict.length>0){
+                        toastr.error("No puede introduccir valores distintos para los mismos campos en el código único y en el QR", 'error');
+                        error=1;
+                        return false;
+                    }
+                }
+                else{
+                    error=1;
+                    return false;
+                }
+            });
+        }
+        //$("#createform").submit();
+    }
+
+    function repeat_workflow(){
+        var result = false;
+        var array = [];
+        $('.select_user','#box_workflow').each(function() {
+            array.push($(this).val());
+        });
+        if(checkIfArrayIsUnique(array)){
+            return true;
+        }
+        return result;
+    }
+</script>
+{% endblock %}
+
+

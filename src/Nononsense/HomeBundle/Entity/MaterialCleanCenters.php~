@@ -55,6 +55,11 @@ class MaterialCleanCenters
      */
     private $cleans;
 
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\MaterialCleanMaterials", mappedBy="center")
+     */
+    protected $material;
+
     public function __construct()
     {
         $this->created = new \DateTime();
@@ -227,5 +232,38 @@ class MaterialCleanCenters
     public function getCleans()
     {
         return $this->cleans;
+    }
+
+    /**
+     * Add material
+     *
+     * @param \Nononsense\HomeBundle\Entity\MaterialCleanMaterials $material
+     * @return MaterialCleanCenters
+     */
+    public function addMaterial(\Nononsense\HomeBundle\Entity\MaterialCleanMaterials $material)
+    {
+        $this->material[] = $material;
+
+        return $this;
+    }
+
+    /**
+     * Remove material
+     *
+     * @param \Nononsense\HomeBundle\Entity\MaterialCleanMaterials $material
+     */
+    public function removeMaterial(\Nononsense\HomeBundle\Entity\MaterialCleanMaterials $material)
+    {
+        $this->material->removeElement($material);
+    }
+
+    /**
+     * Get material
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getMaterial()
+    {
+        return $this->material;
     }
 }

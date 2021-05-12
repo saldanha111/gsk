@@ -44,6 +44,11 @@ class MaterialCleanCleans
     protected $materialOther;
 
     /**
+     * @ORM\Column(name="additional_info", type="text",  nullable=true)
+     */
+    protected $additionalInfo;
+
+    /**
      * @ORM\Column(name="code", type="string", length=255,  nullable=false)
      */
     protected $code;
@@ -630,5 +635,28 @@ class MaterialCleanCleans
     public function getMaterialOther()
     {
         return $this->materialOther;
+    }
+
+    /**
+     * Set additionalInfo
+     *
+     * @param string $additionalInfo
+     * @return MaterialCleanCleans
+     */
+    public function setAdditionalInfo($additionalInfo)
+    {
+        $this->additionalInfo = $additionalInfo;
+
+        return $this;
+    }
+
+    /**
+     * Get additionalInfo
+     *
+     * @return string 
+     */
+    public function getAdditionalInfo()
+    {
+        return $this->additionalInfo;
     }
 }

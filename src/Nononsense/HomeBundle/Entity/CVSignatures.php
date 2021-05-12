@@ -8,11 +8,11 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="tm_signatures")
- * @ORM\Entity(repositoryClass="Nononsense\HomeBundle\Entity\TMSignaturesRepository")
+ * @ORM\Table(name="cv_signatures")
+ * @ORM\Entity(repositoryClass="Nononsense\HomeBundle\Entity\CVSignaturesRepository")
  * @ORM\HasLifecycleCallbacks
  */
-class TMSignatures
+class CVSignatures
 {
     /**
      * @ORM\Column(type="integer")
@@ -28,59 +28,16 @@ class TMSignatures
     protected $template;
 
     /**
-     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\TMActions", inversedBy="tmSignatures")
+     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="cvSignatures")
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
+     */
+    protected $user;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\CVActions", inversedBy="cvSignatures")
      * @ORM\JoinColumn(name="action_id", referencedColumnName="id")
      */
     protected $action;
-
-    /**
-     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMTests", mappedBy="signature")
-     */
-    protected $tmTests;
-
-    /**
-     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMTemplates", mappedBy="requestReview")
-     */
-    protected $templateReviews;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\TMTests", inversedBy="tmSignatures")
-     * @ORM\JoinColumn(name="test_id", referencedColumnName="id", nullable=true)
-     */
-    protected $tmTest;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\TMTestAprob", inversedBy="tmSignatures")
-     * @ORM\JoinColumn(name="aprob_action_id", referencedColumnName="id", nullable=true)
-     */
-    protected $tmAprobAction;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\TMWorkflow", inversedBy="tmSignatures")
-     * @ORM\JoinColumn(name="who_aprob_from_workflow", referencedColumnName="id", nullable=true)
-     */
-    protected $tmWhoAprobFromWorkflow;
-
-    /**
-     * @var boolean $TmDropAction
-     *
-     * @ORM\Column(name="drop_action", type="boolean",  nullable=true)
-     */
-    protected $tmDropAction;
-
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="signature", type="text")
-     */
-    protected $signature;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="tmSignatures")
-     * @ORM\JoinColumn(name="userid", referencedColumnName="id")
-     */
-    protected $userEntiy;
 
     /**
      * @var string
@@ -102,6 +59,13 @@ class TMSignatures
      * @ORM\Column(name="configuration", type="string", nullable=true)
      */
     protected $configuration;
+
+    /**
+     * @var boolean
+     *
+     * @ORM\Column(name="signed", type="boolean",  nullable=true)
+     */
+    protected $signed;
 
     /**
      * @ORM\Column(type="datetime")
@@ -512,5 +476,74 @@ class TMSignatures
     public function getTemplateReviews()
     {
         return $this->templateReviews;
+    }
+
+    /**
+     * Set signed
+     *
+     * @param boolean $signed
+     * @return CVSignatures
+     */
+    public function setSigned($signed)
+    {
+        $this->signed = $signed;
+
+        return $this;
+    }
+
+    /**
+     * Get signed
+     *
+     * @return boolean 
+     */
+    public function getSigned()
+    {
+        return $this->signed;
+    }
+
+    /**
+     * Set type
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMCumplimentations $type
+     * @return CVSignatures
+     */
+    public function setType(\Nononsense\HomeBundle\Entity\TMCumplimentations $type = null)
+    {
+        $this->type = $type;
+
+        return $this;
+    }
+
+    /**
+     * Get type
+     *
+     * @return \Nononsense\HomeBundle\Entity\TMCumplimentations 
+     */
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    /**
+     * Set user
+     *
+     * @param \Nononsense\UserBundle\Entity\Users $user
+     * @return CVSignatures
+     */
+    public function setUser(\Nononsense\UserBundle\Entity\Users $user = null)
+    {
+        $this->user = $user;
+
+        return $this;
+    }
+
+    /**
+     * Get user
+     *
+     * @return \Nononsense\UserBundle\Entity\Users 
+     */
+    public function getUser()
+    {
+        return $this->user;
     }
 }
