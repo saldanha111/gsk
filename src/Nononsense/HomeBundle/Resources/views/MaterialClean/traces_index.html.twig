@@ -166,7 +166,7 @@
                                         </td>
                                         <td>
                                             {% if item.verificationDate is defined and item.verificationDate is not null and item.verificationDate | date("Y") > 0  %}
-                                                {{ item.verificationDate | date("d-m-Y") }}
+                                                {{ item.verificationDate | date("d-m-Y h:i:s") }}
                                             {% endif %}
                                         </td>
                                         <td>
@@ -181,7 +181,7 @@
                                         </td>
                                         <td>
                                             {% if item.dirtyMaterialDate is defined and item.dirtyMaterialDate is not null and item.dirtyMaterialDate | date("Y") > 0  %}
-                                                {{ item.dirtyMaterialDate | date("d-m-Y") }}
+                                                {{ item.dirtyMaterialDate | date("d-m-Y h:i:s") }}
                                             {% endif %}
                                         </td>
                                         <td>
@@ -191,7 +191,7 @@
                                         </td>
                                         <td>
                                             {% if item.reviewDate is defined and item.reviewDate is not null and item.reviewDate | date("Y") > 0  %}
-                                                {{item.reviewDate | date("d-m-Y")}}
+                                                {{item.reviewDate | date("d-m-Y h:i:s")}}
                                             {% endif %}
                                         </td>
                                         <td>
