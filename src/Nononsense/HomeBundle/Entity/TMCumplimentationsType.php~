@@ -110,4 +110,37 @@ class TMCumplimentationsType
     {
         return $this->tmCumplimentations;
     }
+
+    /**
+     * Add cvActions
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVActions $cvActions
+     * @return TMCumplimentationsType
+     */
+    public function addCvAction(\Nononsense\HomeBundle\Entity\CVActions $cvActions)
+    {
+        $this->cvActions[] = $cvActions;
+
+        return $this;
+    }
+
+    /**
+     * Remove cvActions
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVActions $cvActions
+     */
+    public function removeCvAction(\Nononsense\HomeBundle\Entity\CVActions $cvActions)
+    {
+        $this->cvActions->removeElement($cvActions);
+    }
+
+    /**
+     * Get cvActions
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getCvActions()
+    {
+        return $this->cvActions;
+    }
 }

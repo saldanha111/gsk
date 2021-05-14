@@ -274,6 +274,11 @@ class Users implements AdvancedUserInterface, \Serializable
     protected $cvSignatures;
 
     /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\CVRecords", mappedBy="user")
+     */
+    protected $cvRecords;
+
+    /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\ActivityUser", mappedBy="userEntiy")
      */
     protected $Activity;
@@ -2416,5 +2421,38 @@ class Users implements AdvancedUserInterface, \Serializable
     public function getCvSignatures()
     {
         return $this->cvSignatures;
+    }
+
+    /**
+     * Add cvRecords
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVRecords $cvRecords
+     * @return Users
+     */
+    public function addCvRecord(\Nononsense\HomeBundle\Entity\CVRecords $cvRecords)
+    {
+        $this->cvRecords[] = $cvRecords;
+
+        return $this;
+    }
+
+    /**
+     * Remove cvRecords
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVRecords $cvRecords
+     */
+    public function removeCvRecord(\Nononsense\HomeBundle\Entity\CVRecords $cvRecords)
+    {
+        $this->cvRecords->removeElement($cvRecords);
+    }
+
+    /**
+     * Get cvRecords
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getCvRecords()
+    {
+        return $this->cvRecords;
     }
 }

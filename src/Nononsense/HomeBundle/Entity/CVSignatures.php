@@ -22,10 +22,10 @@ class CVSignatures
     protected $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\TMTemplates", inversedBy="tmSignatures")
-     * @ORM\JoinColumn(name="template_id", referencedColumnName="id")
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\CVRecords", inversedBy="cvSignatures")
+     * @ORM\JoinColumn(name="record_id", referencedColumnName="id")
      */
-    protected $template;
+    protected $record;
 
     /**
      * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="cvSignatures")
@@ -38,6 +38,13 @@ class CVSignatures
      * @ORM\JoinColumn(name="action_id", referencedColumnName="id")
      */
     protected $action;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="json", type="text", nullable=true)
+     */
+    protected $json;
 
     /**
      * @var string
@@ -226,29 +233,6 @@ class CVSignatures
     public function getConfiguration()
     {
         return $this->configuration;
-    }
-
-    /**
-     * Set template
-     *
-     * @param \Nononsense\HomeBundle\Entity\TMTemplates $template
-     * @return TMSignatures
-     */
-    public function setTemplate(\Nononsense\HomeBundle\Entity\TMTemplates $template = null)
-    {
-        $this->template = $template;
-
-        return $this;
-    }
-
-    /**
-     * Get template
-     *
-     * @return \Nononsense\HomeBundle\Entity\TMTemplates 
-     */
-    public function getTemplate()
-    {
-        return $this->template;
     }
 
     /**
@@ -545,5 +529,51 @@ class CVSignatures
     public function getUser()
     {
         return $this->user;
+    }
+
+    /**
+     * Set record
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVRecords $record
+     * @return CVSignatures
+     */
+    public function setRecord(\Nononsense\HomeBundle\Entity\CVRecords $record = null)
+    {
+        $this->record = $record;
+
+        return $this;
+    }
+
+    /**
+     * Get record
+     *
+     * @return \Nononsense\HomeBundle\Entity\CVRecords 
+     */
+    public function getRecord()
+    {
+        return $this->record;
+    }
+
+    /**
+     * Set json
+     *
+     * @param string $json
+     * @return CVSignatures
+     */
+    public function setJson($json)
+    {
+        $this->json = $json;
+
+        return $this;
+    }
+
+    /**
+     * Get json
+     *
+     * @return string 
+     */
+    public function getJson()
+    {
+        return $this->json;
     }
 }

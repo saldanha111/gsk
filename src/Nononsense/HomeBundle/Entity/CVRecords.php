@@ -29,14 +29,25 @@ class CVRecords
 
     /**
      * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\TMStates", inversedBy="cvRecords")
-     * @ORM\JoinColumn(name="state_id", referencedColumnName="id")
+     * @ORM\JoinColumn(name="state_id", referencedColumnName="id", nullable=true)
      */
     protected $state;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="cvRecords")
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
+     */
+    protected $user;
 
     /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\CVWorkflow", mappedBy="record")
      */
     protected $cvWorkflows;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\CVSignatures", mappedBy="record")
+     */
+    protected $cvSignatures;
 
     /**
      * @ORM\Column(type="datetime")
@@ -266,5 +277,61 @@ class CVRecords
     public function getState()
     {
         return $this->state;
+    }
+
+    /**
+     * Set user
+     *
+     * @param \Nononsense\UserBundle\Entity\Users $user
+     * @return CVRecords
+     */
+    public function setUser(\Nononsense\UserBundle\Entity\Users $user = null)
+    {
+        $this->user = $user;
+
+        return $this;
+    }
+
+    /**
+     * Get user
+     *
+     * @return \Nononsense\UserBundle\Entity\Users 
+     */
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    /**
+     * Add cvSignatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVSignatures $cvSignatures
+     * @return CVRecords
+     */
+    public function addCvSignature(\Nononsense\HomeBundle\Entity\CVSignatures $cvSignatures)
+    {
+        $this->cvSignatures[] = $cvSignatures;
+
+        return $this;
+    }
+
+    /**
+     * Remove cvSignatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVSignatures $cvSignatures
+     */
+    public function removeCvSignature(\Nononsense\HomeBundle\Entity\CVSignatures $cvSignatures)
+    {
+        $this->cvSignatures->removeElement($cvSignatures);
+    }
+
+    /**
+     * Get cvSignatures
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getCvSignatures()
+    {
+        return $this->cvSignatures;
     }
 }

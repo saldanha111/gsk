@@ -893,10 +893,32 @@ nononsense_retention_categories_delete:
     path: /retention_categories/delete/{id}
     defaults: { _controller: NononsenseHomeBundle:RetentionCategories:delete}
 
+# DOCOARO
+
+nononsense_cv_docoaro_new:
+    path: /docoaro/{id}/new
+    methods:    [GET]
+    defaults: { _controller: NononsenseHomeBundle:CVDocoaro:link,id: 0}
+
+nononsense_cv_docoaro_get_data:
+    path: /docoaro/{id}/getdata
+    methods:    [GET]
+    defaults: { _controller: NononsenseHomeBundle:CVDocoaro:getData,id: 0}
+
+nononsense_cv_docoaro_save_data:
+    path: /docoaro/{id}/save
+    methods:    [POST]
+    defaults: { _controller: NononsenseHomeBundle:CVDocoaro:save,id: 0}
 
 # Cumplimentation and verification
 
 nononsense_cv_new:
-    path: /cv/new/{template}/{id}
+    path: /cv/new/{template}
     methods:    [GET]
-    defaults: { _controller: NononsenseHomeBundle:CVCumplimentation:new, template: 0, id: 0}
+    defaults: { _controller: NononsenseHomeBundle:CVCumplimentation:new, template: 0}
+
+nononsense_cv_save:
+    path: /cv/new/{template}
+    methods:    [POST]
+    defaults: { _controller: NononsenseHomeBundle:CVCumplimentation:newSave, template: 0}
+

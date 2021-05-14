@@ -17,7 +17,7 @@
             {{ flashMessage }}
         </div>
         {% endfor %}
-        <form class="form-horizontal" id="form_item" action="#" method="POST"  enctype="multipart/form-data">
+        <form class="form-horizontal" id="form_item" action="{{path('nononsense_cv_save', {'template': item.id}) }}" method="POST"  enctype="multipart/form-data">
             <div class="row">
                 <div class="col-lg-5 col-lg-offset-1">
 
@@ -71,13 +71,14 @@
                 </div>
                 <div class="col-lg-5" id="box_workflow">
                     {% if secondWf is defined and secondWf is not empty %}
+                        {% set count = 0 %}
                         {% for wf in secondWf %}
                             {% for number in 1..wf.signaturesNumber %}
                                 <div class="row line_workflow">
                                     <div class="form-group">
                                         <label class="col-sm-4 control-label">{{wf.tmCumplimentation.name}}: </label>
                                         <div class="col-sm-4 masterbox_type_workflow">
-                                            <select class="form-control type_workflow" required="required" name="types[]" style="width: 100%;">
+                                            <select class="form-control type_workflow" required="required" name="{{wf.tmCumplimentation.name}}[{{count}}]" style="width: 100%;">
                                                 <option value=""></option>
                                                 <option value="1">Grupo</option>
                                                 <option value="2">Usuario</option>
@@ -85,6 +86,7 @@
                                         </div>
                                     </div>
                                 </div>
+                                {% set count = count + 1 %}
                             {% endfor %}
                         {% endfor %}
                     {% endif %}
@@ -173,8 +175,13 @@
         });
 
         $('#form_item').on('submit', function(e){
-            if(repeat_workflow()){
-                return true; 
+            if(!repeat_workflow()){
+                if(!checkErrors()){
+                    return true; 
+                }
+                else{
+                    toastr.error("No puede iniciarse la cumplimentación",'aviso');
+                }
             }
             else{
                 toastr.error("No puede haber un mismo usuario en el workflow",'aviso');
@@ -192,14 +199,12 @@
         if (isJson(a) && isNaN(a)) {
             json=decodeURIComponent(escape(a));
             $('#value_qr').val(json);
-            checkErrors(json);
         }
         else{
             if(validURL(a)){
                 $.getJSON(a, function( data ) {
                     json=data;
                     $('#value_qr').val(JSON.stringify(json));
-                    checkErrors(json);
                 });
             }
             else{
@@ -212,7 +217,7 @@
         }
     }
 
-    function checkErrors(value) {
+    function checkErrors() {
         var error=0;
         if($("#box_unique_codes input[name]").length){
             $("#box_unique_codes input[name]").each(function() {
@@ -230,20 +235,20 @@
                 }
             });
         }
-        //$("#createform").submit();
     }
 
     function repeat_workflow(){
-        var result = false;
+        var result = true;
         var array = [];
         $('.select_user','#box_workflow').each(function() {
             array.push($(this).val());
         });
         if(checkIfArrayIsUnique(array)){
-            return true;
+            return false;
         }
         return result;
     }
+
 </script>
 {% endblock %}
 
