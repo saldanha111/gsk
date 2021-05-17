@@ -144,7 +144,7 @@ class MaterialCleanUsesController extends Controller
                     </ul>';
 
                     $file = Utils::generatePdf($this->container, 'GSK - Material limpio', 'Utilización del material', $html, 'material', $this->getParameter('crt.root_dir'));
-                    Utils::setCertification($this->container, $file, 'material', $materialCleanClean->getId());
+                    Utils::setCertification($this->container, $file, 'material-utilización', $materialCleanClean->getId());
 
                 $materialCleanClean
                     ->setVerificationDate(new DateTime())

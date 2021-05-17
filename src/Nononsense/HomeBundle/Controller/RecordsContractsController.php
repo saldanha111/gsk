@@ -1226,7 +1226,11 @@ class RecordsContractsController extends Controller
                        throw new \Exception("Error copying the document", 1);
                     }
 
-                    Utils::setCertification($this->container, $file, 'contract', $record->getId());
+                    $versionName = '';
+                    if($version == 2){
+                        $versionName = '-comite';
+                    }
+                    Utils::setCertification($this->container, $file, 'contrato'.$versionName, $record->getId());
                 } catch (\Exception $e) {
                     return false;
                 }

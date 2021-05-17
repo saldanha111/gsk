@@ -134,20 +134,6 @@ class MaterialCleanCleansController extends Controller
                         "Material seleccionado no pertenece al centro"
                     );
                 }else{
-
-                    $html = '
-                        <p>Limpieza de material</p>
-                        <ul>
-                            <li>Material: '.$material->getName().'</li>
-                            <li>Código: '.$request->get('code').'</li>
-                            <li>Centro: '.$center->getName().'</li>
-                            <li>Usuario: '.$this->getUser()->getUsername().'</li>
-                            <li>Fecha: '.$now->format('d-m-Y H:i:s').'</li>
-                        </ul>';
-
-                    $file = Utils::generatePdf($this->container, 'GSK - Material limpio', 'Limpieza de material', $html, 'material', $this->getParameter('crt.root_dir'));
-                    Utils::setCertification($this->container, $file, 'material', $material->getId());
-
                     $materialClean
                         ->setMaterial($material)
                         ->setCenter($center)
@@ -161,6 +147,19 @@ class MaterialCleanCleansController extends Controller
                         ->setStatus(1);
                     $em->persist($materialClean);
                     $em->flush();
+
+                    $html = '
+                        <p>Limpieza de material</p>
+                        <ul>
+                            <li>Material: '.$material->getName().'</li>
+                            <li>Código: '.$request->get('code').'</li>
+                            <li>Centro: '.$center->getName().'</li>
+                            <li>Usuario: '.$this->getUser()->getUsername().'</li>
+                            <li>Fecha: '.$now->format('d-m-Y H:i:s').'</li>
+                        </ul>';
+
+                    $file = Utils::generatePdf($this->container, 'GSK - Material limpio', 'Limpieza de material', $html, 'material', $this->getParameter('crt.root_dir'));
+                    Utils::setCertification($this->container, $file, 'material-limpieza', $materialClean->getId());
 
                     $this->get('session')->getFlashBag()->add(
                         'message',
