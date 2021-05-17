@@ -150,6 +150,9 @@ class ProductsController extends Controller
         if ($request->get("a_excel") == 1) {
             $items = $productInputRepository->listForStock($filters, 0);
             return $this->exportExcelProducts($items);
+        }elseif($request->get("a_pdf") == 1){
+            $items = $productInputRepository->listForStock($filters, 0);
+            return $this->exportPDFProducts($items);
         }
 
         $totalItems = $productInputRepository->countForStock($filters);
@@ -211,7 +214,7 @@ class ProductsController extends Controller
             if ($saved['error'] === 0) {
                 if ($newProduct) {
                     if($actualType->getSlug() === 'material'){
-                        $stockEdited = $this->editStockMaterial(0, $product, 'Alta de producto', true);
+                        $stockEdited = $this->editStockMaterial($request->get('amount'), $product, $request->get('observations'), true);
                         if(!$stockEdited){
                             $em = $this->getDoctrine()->getManager();
                             $em->remove($product);
@@ -333,8 +336,9 @@ class ProductsController extends Controller
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
 
+        $em = $this->getDoctrine()->getManager();
         /** @var ProductsRepository $productsRepository */
-        $productsRepository = $this->getDoctrine()->getRepository(Products::class);
+        $productsRepository = $em->getRepository(Products::class);
         /** @var Products $product */
         $product = $productsRepository->find($id);
 
@@ -412,7 +416,29 @@ class ProductsController extends Controller
                         );
                     }
                 }
-                if($minStockEdited || $stockEdited){
+
+                $oldActive = $product->getActive();
+                $active = (bool) $request->get('active');
+                $product->setActive($active );
+                $em->persist($product);
+                $em->flush();
+
+                $activeEdited = $oldActive != $product->getActive();
+                if($activeEdited){
+                    $now = new DateTime();
+                    $signature = 'Modificación del estado registrado con contraseña de usuario ' . $this->getUser()->getName() . ' el día ' . $now->format('d-m-Y H:i:s');
+                    $this->saveSignature(
+                        $product,
+                        (int) $oldActive,
+                        (int) $product->getActive(),
+                        'Edit Active',
+                        $signature,
+                        $this->getUser(),
+                        $request->get('observations')
+                    );
+                }
+
+                if($minStockEdited || $stockEdited || $activeEdited){
                     $this->get('session')->getFlashBag()->add('message', 'Datos actualizados con éxito');
                 }
             }
@@ -677,7 +703,12 @@ class ProductsController extends Controller
                 ->findBy(['active' => true]);
         if ($actualType->getSlug() === 'material') {
             $array_item['product'] = $productsRepository->findOneBy(['qrCode' => $qrCode]);
-            return $this->render('NononsenseHomeBundle:Products:input_material.html.twig', $array_item);
+            if($array_item['product']){
+                return $this->render('NononsenseHomeBundle:Products:input_material.html.twig', $array_item);
+            }else{
+                $this->get('session')->getFlashBag()->add('error', "No se encuentra el material.");
+                return $this->redirect($this->generateUrl('nononsense_products_input_list', ['type' =>$actualType->getSlug()]));
+            }
         } elseif ($actualType->getSlug() === 'reactivo') {
             if($internalCode){
                 $array_item['product'] = $productsRepository->findOneBy(['internalCode' => urldecode($internalCode)]);
@@ -685,7 +716,7 @@ class ProductsController extends Controller
             return $this->render('NononsenseHomeBundle:Products:input_reactivo.html.twig', $array_item);
         } else {
             $this->get('session')->getFlashBag()->add('error', "No se encuentra el tipo de material del producto");
-            return $this->redirect($this->generateUrl('nononsense_products_inputs'));
+            return $this->redirect($this->generateUrl('nononsense_products'));
         }
     }
 
@@ -768,7 +799,8 @@ class ProductsController extends Controller
                         'presentation' => $product->getPresentation(),
                         'provider' => $product->getProvider(),
                         'minStock' => $product->getStockMinimum(),
-                        'static' => $product->getStatic()
+                        'static' => $product->getStatic(),
+                        'active' => $product->getActive()
                     ];
                     $status = 200;
                 }
@@ -804,7 +836,10 @@ class ProductsController extends Controller
 
         if ($request->get("a_excel") == 1) {
             $items = $productsInputsRepository->list($filters, 0);
-            return self::exportExcelProductsInputs($items);
+            return self::exportExcelProductsInputs($items, $type);
+        }elseif ($request->get("a_pdf") == 1) {
+            $items = $productsInputsRepository->list($filters, 0);
+            return self::exportPDFProductsInputs($items, $type);
         }
 
         $array_item["filters"] = $filters;
@@ -884,7 +919,7 @@ class ProductsController extends Controller
                     if($product->getStock() <= $product->getStockMinimum()){
                         $type = $product->getType()->getName();
                         $name = $product->getName();
-                        $this->get('session')->getFlashBag()->add('error', "El " .$type. " " .$name. " ha llagado al límite de stock.");
+                        $this->get('session')->getFlashBag()->add('error', "El " .$type. " " .$name. " ha llegado al límite de stock.");
                     }
                     $this->get('session')->getFlashBag()->add('message', "La retirada se ha guardado correctamente");
                 }else{
@@ -1034,6 +1069,7 @@ class ProductsController extends Controller
                 $data['status'] = $productInput->getState()->getSlug();
                 $data['observations'] = $productInput->getObservations();
                 $data['isReactivo'] = $isReactivo;
+                $data['minStock'] = $product->getStockMinimum();
 
                 $status = 200;
             }
@@ -1460,40 +1496,149 @@ class ProductsController extends Controller
         return $response;
     }
 
+    private function exportPDFProducts($items)
+    {
+        $html = '<html>
+                    <body style="font-size:8px;width:100%">
+                        <table autosize="1" style="overflow:wrap;width:100%">
+                            <tr style="font-size:8px;width:100%">
+                                <th style="font-size:8px;width:6%">Tipo</th>
+                                <th style="font-size:8px;width:11%">Nombre</th>
+                                <th style="font-size:8px;width:10%">Part. Number</th>
+                                <th style="font-size:8px;width:10%">CAS Number</th>
+                                <th style="font-size:8px;width:10%">Código interno</th>
+                                <th style="font-size:8px;width:10%">Proveedor</th>
+                                <th style="font-size:8px;width:10%">Presentación</th>
+                                <th style="font-size:8px;width:8%">Fecha de destrucción</th>
+                                <th style="font-size:8px;width:5%">Estado</th>
+                                <th style="font-size:8px;width:3%">Stock actual</th>
+                                <th style="font-size:8px;width:3%">Stock Mínimo</th>
+                                <th style="font-size:8px;width:10%">Observaciones</th>
+                                <th style="font-size:8px;width:3%">Activo</th>
+                            </tr>';
+
+        foreach($items as $item) {
+            $destructionFormatted = ($item['destructionDate']) ? (new DateTime($item['destructionDate']))->format('Y-m-d') : '';
+            $productType = $item['productType'];
+            $productName = $item['productName'];
+            $partNumber = $item['partNumber'];
+            $casNumber = $item['casNumber'];
+            $internalCode = $item['internalCode'];
+            $provider = $item['provider'];
+            $presentation = $item['presentation'];
+            $destructionDate = $destructionFormatted;
+            $state = $item['state'];
+            $stock = $item['stock'];
+            $minStock = $item['minStock'];
+            $observations = $item['observations'];
+            $active = ($item['active'] === true) ? 'Si' : 'No';
+            $html .= "
+                            <tr style='font-size:8px'>
+                                <td> $productType </td>
+                                <td> $productName </td>
+                                <td> $partNumber </td>
+                                <td> $casNumber </td>
+                                <td> $internalCode </td>
+                                <td> $provider </td>
+                                <td> $presentation </td>
+                                <td> $destructionDate </td>
+                                <td> $state </td>
+                                <td> $stock </td>
+                                <td> $minStock </td>
+                                <td> $observations </td>
+                                <td> $active </td>
+                            </tr>";
+        }
+
+        $html .= '
+                        </table>
+                    </body>
+                </html>';
+
+        return $this->returnPDFResponseFromHTML($html);
+    }
+
+    private function returnPDFResponseFromHTML($html){
+        //set_time_limit(30); uncomment this line according to your needs
+        // If you are not in a controller, retrieve of some way the service container and then retrieve it
+        //$pdf = $this->container->get("white_october.tcpdf")->create('vertical', PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+        //if you are in a controlller use :
+        $pdf = $this->get("white_october.tcpdf")->create('horizontal', PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+        $pdf->SetAuthor('GSK');
+        $pdf->SetTitle(('Registros GSK'));
+        $pdf->SetSubject('Registros GSK');
+        $pdf->setFontSubsetting(true);
+        $pdf->SetFont('helvetica', '', 9, '', true);
+        //$pdf->SetMargins(20,20,40, true);
+        $pdf->AddPage('L', 'A4');
+
+
+        $filename = 'list_records';
+
+        $pdf->writeHTMLCell($w = 0, $h = 0, $x = '', $y = '', $html, $border = 0, $ln = 1, $fill = 0, $reseth = true, $align = '', $autopadding = true);
+        return $pdf->Output($filename.".pdf",'I'); // This will output the PDF as a response directly
+    }
+
     /** ProductInpus[] $items
      * @param ProductsInputs[] $items
      * @return
      */
-    private function exportExcelProductsInputs($items)
+    private function exportExcelProductsInputs($items, $type)
     {
         $phpExcelObject = $this->get('phpexcel')->createPHPExcelObject();
 
         $phpExcelObject->getProperties();
-        $phpExcelObject->setActiveSheetIndex(0)
-            ->setCellValue('A1', 'Id')
-            ->setCellValue('B1', 'CAS Number')
-            ->setCellValue('C1', 'Part. Number')
-            ->setCellValue('D1', 'Nombre')
-            ->setCellValue('E1', 'Proveedor')
-            ->setCellValue('F1', 'Presentación')
-            ->setCellValue('G1', 'Unidades entrantes')
-            ->setCellValue('H1', 'Fecha de recepción')
-            ->setCellValue('I1', 'Comentarios')
-            ->setCellValue('J1', 'Usuario');
+        if($type=== 'reactivo'){
+            $phpExcelObject->setActiveSheetIndex(0)
+                ->setCellValue('A1', 'Id')
+                ->setCellValue('B1', 'CAS Number')
+                ->setCellValue('C1', 'Part. Number')
+                ->setCellValue('D1', 'Nombre')
+                ->setCellValue('E1', 'Proveedor')
+                ->setCellValue('F1', 'Presentación')
+                ->setCellValue('G1', 'Cantidad')
+                ->setCellValue('H1', 'Fecha de recepción')
+                ->setCellValue('I1', 'Comentarios')
+                ->setCellValue('J1', 'Usuario');
+        }else{
+            $phpExcelObject->setActiveSheetIndex(0)
+                ->setCellValue('A1', 'Id')
+                ->setCellValue('B1', 'Part. Number')
+                ->setCellValue('C1', 'Nombre')
+                ->setCellValue('D1', 'Proveedor')
+                ->setCellValue('E1', 'Presentación')
+                ->setCellValue('F1', 'Cantidad')
+                ->setCellValue('G1', 'Fecha de recepción')
+                ->setCellValue('H1', 'Comentarios')
+                ->setCellValue('I1', 'Usuario');
+        }
 
         $i = 2;
         foreach ($items as $item) {
-            $phpExcelObject->getActiveSheet()
-                ->setCellValue('A' . $i, $item->getId())
-                ->setCellValue('B' . $i, $item->getProduct()->getCasNumber())
-                ->setCellValue('C' . $i, $item->getProduct()->getPartNumber())
-                ->setCellValue('D' . $i, $item->getProduct()->getName())
-                ->setCellValue('E' . $i, $item->getProduct()->getProvider())
-                ->setCellValue('F' . $i, $item->getProduct()->getPresentation())
-                ->setCellValue('G' . $i, $item->getAmount())
-                ->setCellValue('H' . $i, $item->getReceptionDate()->format('Y-m-d H:i:s'))
-                ->setCellValue('I' . $i, $item->getObservations())
-                ->setCellValue('J' . $i, $item->getUser()->getName());
+            if($type === 'reactivo'){
+                $phpExcelObject->getActiveSheet()
+                    ->setCellValue('A' . $i, $item->getId())
+                    ->setCellValue('B' . $i, $item->getProduct()->getCasNumber())
+                    ->setCellValue('C' . $i, $item->getProduct()->getPartNumber())
+                    ->setCellValue('D' . $i, $item->getProduct()->getName())
+                    ->setCellValue('E' . $i, $item->getProduct()->getProvider())
+                    ->setCellValue('F' . $i, $item->getProduct()->getPresentation())
+                    ->setCellValue('G' . $i, $item->getAmount())
+                    ->setCellValue('H' . $i, $item->getReceptionDate()->format('Y-m-d H:i:s'))
+                    ->setCellValue('I' . $i, $item->getObservations())
+                    ->setCellValue('J' . $i, $item->getUser()->getName());
+            }else{
+                $phpExcelObject->getActiveSheet()
+                    ->setCellValue('A' . $i, $item->getId())
+                    ->setCellValue('B' . $i, $item->getProduct()->getPartNumber())
+                    ->setCellValue('C' . $i, $item->getProduct()->getName())
+                    ->setCellValue('D' . $i, $item->getProduct()->getProvider())
+                    ->setCellValue('E' . $i, $item->getProduct()->getPresentation())
+                    ->setCellValue('F' . $i, $item->getAmount())
+                    ->setCellValue('G' . $i, $item->getReceptionDate()->format('Y-m-d H:i:s'))
+                    ->setCellValue('H' . $i, $item->getObservations())
+                    ->setCellValue('I' . $i, $item->getUser()->getName());
+            }
             $i++;
         }
 
@@ -1513,6 +1658,68 @@ class ProductsController extends Controller
         return $response;
     }
 
+    /** ProductInpus[] $items
+     * @param ProductsInputs[] $items
+     * @param string $type
+     * @return
+     */
+    private function exportPDFProductsInputs($items, $type)
+    {
+        $html = '<html>
+                    <body style="font-size:8px;width:100%">
+                        <table autosize="1" style="overflow:wrap;width:100%">
+                            <tr style="font-size:8px;width:100%">
+                                <th style="font-size:8px;width:3%">Id</th>';
+        if($type === 'reactivo'){
+            $html.= '<th style="font-size:8px;width:11%">CAS Number</th>';
+        }
+            $html .='<th style="font-size:8px;width:11%">Part. Number</th>
+            <th style="font-size:8px;width:14%">Nombre</th>
+            <th style="font-size:8px;width:14%">Proveedor</th>
+            <th style="font-size:8px;width:14%">Presentación</th>
+            <th style="font-size:8px;width:3%">Cantidad</th>
+            <th style="font-size:8px;width:12%">Fecha de recepción</th>
+            <th style="font-size:8px;width:12%">Comentarios</th>
+            <th style="font-size:8px;width:6%">Usuario</th>
+        </tr>';
+
+        foreach($items as $item) {
+            $id = $item->getId();
+            $casNumber = $item->getProduct()->getCasNumber();
+            $partNumber = $item->getProduct()->getPartNumber();
+            $name = $item->getProduct()->getName();
+            $provider = $item->getProduct()->getProvider();
+            $presentation = $item->getProduct()->getPresentation();
+            $amount = $item->getAmount();
+            $receptionDate = $item->getReceptionDate()->format('Y-m-d H:i:s');
+            $observations = $item->getObservations();
+            $user = $item->getUser()->getName();
+            $html .= "
+                            <tr style='font-size:8px'>
+                                <td> $id </td>";
+            if($type === 'reactivo'){
+                $html.= "<td> $casNumber </td>";
+            }
+
+                $html.="<td> $partNumber </td>
+                <td> $name </td>
+                <td> $provider </td>
+                <td> $presentation </td>
+                <td> $amount </td>
+                <td> $receptionDate </td>
+                <td> $observations </td>
+                <td> $user </td>
+            </tr>";
+        }
+
+        $html .= '
+                        </table>
+                    </body>
+                </html>';
+
+        return $this->returnPDFResponseFromHTML($html);
+    }
+
     /**
      * @param ProductsOutputs[] $items
      * @return
@@ -1522,8 +1729,8 @@ class ProductsController extends Controller
         $phpExcelObject = $this->get('phpexcel')->createPHPExcelObject();
         $phpExcelObject->getProperties();
         $phpExcelObject->setActiveSheetIndex(0)
-            ->setCellValue('A1', 'Id salida')
-            ->setCellValue('B1', 'Id entrada')
+            ->setCellValue('A1', 'Id')
+            ->setCellValue('B1', 'Entrada Id')
             ->setCellValue('C1', 'Part Number')
             ->setCellValue('D1', 'Nombre')
             ->setCellValue('E1', 'Cantidad')

@@ -61,22 +61,24 @@ class sendEmailsProductsAlertsCommand extends ContainerAwareCommand
         $productsExpired = $this->getProductsExpired($em, $expiredState, $endState);
         $emails = [];
 
-        if($productsExpired && count($adminUsers) > 0){
-            foreach($adminUsers as $user){
-                array_push($emails, $user->getEmail());
+        if($productsExpired){
+            if(count($adminUsers) > 0){
+                foreach($adminUsers as $user){
+                    array_push($emails, $user->getEmail());
+                }
+                $message = \Swift_Message::newInstance()
+                    ->setSubject('Alerta productos caducados o con fecha de destrucción')
+                    ->setFrom($container->getParameter('mailer_username'))
+                    ->setTo($emails)
+                    ->setBody(
+                        $container->get('templating')->render(
+                            'NononsenseHomeBundle:Email:notificationProductsDateExpired.html.twig',
+                            ['productsExpired' => $productsExpired]
+                        )
+                    );
+                $message->setContentType("text/html");
+                $container->get('mailer')->send($message);
             }
-            $message = \Swift_Message::newInstance()
-                ->setSubject('Alerta productos caducados o con fecha de destrucción')
-                ->setFrom($container->getParameter('mailer_username'))
-                ->setTo($emails)
-                ->setBody(
-                    $container->get('templating')->render(
-                        'NononsenseHomeBundle:Email:notificationProductsDateExpired.html.twig',
-                        ['productsExpired' => $productsExpired]
-                    )
-                );
-            $message->setContentType("text/html");
-            $container->get('mailer')->send($message);
             /** @var ProductsInputs $product */
             foreach($productsExpired as $product){
                 $product->setState($expiredState);

@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Response;
+use Nononsense\UtilsBundle\Classes\Utils;
 
 class MaterialCleanUsesController extends Controller
 {
@@ -132,6 +133,19 @@ class MaterialCleanUsesController extends Controller
             if (!$error) {
                 $now = new DateTime();
                 $firma = 'Utilización de material registrada con contraseña de usuario el día ' . $now->format('d-m-Y H:i:s');
+
+                $html = '
+                    <p>Utilización del material</p>
+                    <ul>
+                        <li>Material:'.$materialCleanClean->getMaterial()->getName().'</li>
+                        <li>Código:'.$materialCleanClean->getCode().'</li>
+                        <li>Centro:'.$materialCleanClean->getCenter()->getName().'</li>
+                        <li>Usuario:'.$this->getUser()->getUsername().'</li>
+                    </ul>';
+
+                    $file = Utils::generatePdf($this->container, 'GSK - Material limpio', 'Utilización del material', $html, 'material', $this->getParameter('crt.root_dir'));
+                    Utils::setCertification($this->container, $file, 'material', $materialCleanClean->getId());
+
                 $materialCleanClean
                     ->setVerificationDate(new DateTime())
                     ->setVerificationUser($this->getUser())

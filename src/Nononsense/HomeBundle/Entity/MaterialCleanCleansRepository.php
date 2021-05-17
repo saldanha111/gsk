@@ -19,7 +19,7 @@ class MaterialCleanCleansRepository extends EntityRepository
     public const status = [
         1 => 'Material limpio',
         2 => 'Verificado limpieza',
-        3 => 'Matierial sucio',
+        3 => 'Limpieza vencida',
         4 => 'Revisado'
     ];
 

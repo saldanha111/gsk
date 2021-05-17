@@ -47,6 +47,7 @@ class RecordsController extends Controller
         $filters2["user"]=$user;
 
         $array_item["suser"]["id"]=$user->getId();
+        $groups=array();
         foreach($Egroups as $group){
             $groups[]=$group->getGroup()->getId();
         }
@@ -211,6 +212,10 @@ class RecordsController extends Controller
         switch($request->get("mode")){
             case "pdf": $url_edit_documento=$response["pdfUrl"];break;
             default: $url_edit_documento=$response["fillInUrl"];break;
+        }
+
+        if ($request->get("no-redirect") !== null && $request->get("no-redirect")) {
+            return $url_edit_documento;
         }
      
         return $this->redirect($url_edit_documento);
@@ -612,7 +617,22 @@ class RecordsController extends Controller
                         }
                         else{
                             $anexo=0;
-                            $record->setStatus(3);
+                            
+                            try {
+                                $record->setStatus(3);
+
+                                $request->attributes->set("mode", 'pdf');
+                                $request->attributes->set("no-redirect", true);
+
+                                $file = Utils::api3($this->linkAction($request, $record->getId()));
+                                $file = Utils::saveFile($file, 'plain_document', $this->getParameter('crt.root_dir'));
+                                Utils::setCertification($this->container, $file, 'plain_document', $record->getId());                
+                            } catch (\Exception $e) {
+                                $this->get('session')->getFlashBag()->add( 'error', "No se pudo certificar el doccumento: ".$e->getMessage());
+                            }
+
+                            //CERTIFICADO AQUÍ ALEX
+                            //RUTA DEL PDF -> $ruta_pdf=$this->container->get('router')->generate('nononsense_records_link', array("id" => $record->getId()),TRUE)."?mode=pdf";
                         }
                         $can_sign=0;
 
@@ -738,7 +758,16 @@ class RecordsController extends Controller
                 }
             }
 
-            $signature->setFirma($request->get('firma'));
+            $password = $request->get('password');
+            if(!$this->get('utilities')->checkUser($password)){
+                $this->get('session')->getFlashBag()->add(
+                    'error',
+                    "No se pudo firmar el doccumento, la contraseña es incorrecta"
+                );
+                return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
+            }
+
+            $signature->setFirma(1);
             $signature->setNext(0);
             $signature->setUserEntiy($user);
             $signature->setModified(new \DateTime());
@@ -804,7 +833,23 @@ class RecordsController extends Controller
             if($signature){
                 $record->setLastSign($signature->getId());
             }
-            $record->setStatus(3);
+            // $record->setStatus(3);
+
+            try {
+                $record->setStatus(3);
+
+                $request->attributes->set("mode", 'pdf');
+                $request->attributes->set("no-redirect", true);
+                
+                $file = Utils::api3($this->linkAction($request, $record->getId()));
+                $file = Utils::saveFile($file, 'plain_document', $this->getParameter('crt.root_dir'));
+                Utils::setCertification($this->container, $file, 'plain_document', $record->getId());                   
+            } catch (\Exception $e) {
+                $this->get('session')->getFlashBag()->add( 'error', "No se pudo certificar el doccumento: ".$e->getMessage());
+            }
+
+            //CERTIFICADO AQUÍ ALEX
+            //RUTA DEL PDF -> $ruta_pdf=$this->container->get('router')->generate('nononsense_records_link', array("id" => $record->getId()),TRUE)."?mode=pdf";
         }
         
         
@@ -888,8 +933,17 @@ class RecordsController extends Controller
             return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
         }
 
+        $password = $request->get('password');
+        if(!$this->get('utilities')->checkUser($password)){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                "No se pudo firmar el doccumento, la contraseña es incorrecta"
+            );
+            return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
+        }
 
-        $signature->setFirma($request->get('firma'));
+
+        $signature->setFirma(1);
         $signature->setComments($request->get('comment'));
         $signature->setNext(0);
         $signature->setUserEntiy($user);
@@ -1019,7 +1073,7 @@ class RecordsController extends Controller
                     $responsable_almacen=1;
                     break;
                 case "ZCOM Impreso":
-                    if(urldecode($dataJson->data->u_check2->{$key})=="Si"){
+                    if((isset($dataJson->data->u_check2->{$key}) && urldecode($dataJson->data->u_check2->{$key})=="Si") || urldecode($dataJson->data->u_check2)=="Si"){
                         $step4=1;
                     }
                     else{
@@ -1092,7 +1146,7 @@ class RecordsController extends Controller
         //$firmas => array entidad firmas
         $fullText="";
         foreach ($firmas as $firma) {
-            if($firma->getFirma() && $firma->getUserEntiy()){
+            if($firma->getUserEntiy() && $firma->getFirma()){
                 
                 $user = $this->getDoctrine()
                 ->getRepository('NononsenseUserBundle:Users')
@@ -1110,7 +1164,7 @@ class RecordsController extends Controller
                 $fecha = $firma->getModified()->format('d-m-Y H:i:s');
                 $firma = $firma->getFirma();
 
-                $fullText .= "<i>Documento securizado mediante registro en Blockchain</i><br>" . $nombre . " " . $fecha . "<br><img src='" . $firma . "' /><br><br><br>";
+                $fullText .= "<i>Documento securizado mediante registro en Blockchain</i>. <br>Firmado por " . $nombre . " " . $fecha . "<br><br>";
             }
         }
         

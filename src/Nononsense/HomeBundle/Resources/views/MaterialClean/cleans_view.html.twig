@@ -56,10 +56,9 @@
                         </select>
                     </div>
                 </div>
-
                 <div class="form-group">
                     <label class="col-md-2 col-sm-4 control-label">Material</label>
-                    <div class="col-sm-7">
+                    <div class="col-sm-7" id="cont-material">
                         <select class="form-control select-material" name="material"
                                 {{ materialCleanCode.idMaterial.id ? 'readonly="readonly"' : '' }}>
                             {% if materialCleanCode.idMaterial.id is defined and materialCleanCode.idMaterial.id is not null %}
@@ -69,13 +68,7 @@
                                     {% endif %}
                                 {% endfor %}
                             {% else %}
-                                <option value=""></option>
-                                {% for material in materials %}
-                                    <option value="{{ material.id }}"
-                                            {{ materialCleanCode.idMaterial.id is defined and materialCleanCode.idMaterial.id==material.id ? 'selected="selected"' : '' }}>
-                                        {{ material.name }}
-                                    </option>
-                                {% endfor %}
+                                <option value="">Selecciona un centro de trabajo</option>
                             {% endif %}
                         </select>
                     </div>
@@ -86,7 +79,11 @@
                         <input type="text" name="materialOther" class="form-control">
                     </div>
                 </div>
-                <div class="form-group additional-info-input" style="display:none;">
+                <div class="form-group additional-info-input"
+                    {% if materialCleanCode.idMaterial.additionalInfo is defined and materialCleanCode.idMaterial.additionalInfo != 1 %}
+                        style="display:none;"
+                    {% endif %}
+                >
                     <label class="col-md-2 col-sm-4 control-label">Información Adicional</label>
                     <div class="col-sm-7">
                         <input type="text" name="additionalInfo" class="form-control">
@@ -126,6 +123,7 @@
             <input type="hidden" name="password">
             <input type="hidden" name="passCheck" value="{{ path('nononsense_mclean_get_sign_valid') }}">
         </form>
+        <input type="hidden" id="url_get_materials_json" value="{{ materialsUrl }}"/>
     </div>
 
 {% endblock %}
@@ -212,6 +210,28 @@
                 }else{
                     $('input[name="expirationDate"]').val('');
                 }
+            });
+
+            $(document).on('change','.select-center',function(e){
+                const url_get_products_json = $('#url_get_materials_json').val();
+                const selectedCenter = $('.select-center').val();
+                show_loader();
+                $.ajax({
+                    url: url_get_products_json.replace('xxx', selectedCenter),
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(response) {
+                        hide_loader();
+                        const res = JSON.parse(response);
+                        if(res.status === 200){
+                            $('#cont-material').html(res.data);
+                        }
+                    },
+                    error: function() {
+                        hide_loader();
+                        console.log("No se ha podido obtener la información");
+                    }
+                });
             });
 
             $(document).on('click','#borrar-firma', function (e) {

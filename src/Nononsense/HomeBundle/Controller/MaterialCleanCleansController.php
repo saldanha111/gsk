@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Response;
+use Nononsense\UtilsBundle\Classes\Utils;
 
 class MaterialCleanCleansController extends Controller
 {
@@ -44,8 +45,6 @@ class MaterialCleanCleansController extends Controller
         }
 
         $em = $this->getDoctrine()->getManager();
-        $materialCleanCode = null;
-
         $materialCleanCode = $em->getRepository(MaterialCleanCodes::class)->findOneBy(['code' => $barcode]);
 
         if (!$materialCleanCode || !$materialCleanCode->getIdMaterial()->getActive()) {
@@ -68,6 +67,7 @@ class MaterialCleanCleansController extends Controller
         $array_item['materialCleanCode'] = $materialCleanCode;
         $array_item['cleanDate'] = $cleanDate->format('d-m-Y');
         $array_item['expirationDate'] = ($expirationDate instanceof DateTime) ? $expirationDate->format('d-m-Y') : '';
+        $array_item['materialsUrl'] = $this->generateUrl('nononsense_mclean_get_material_by_center_json', ['id' => 'xxx']);
 
         return $this->render('NononsenseHomeBundle:MaterialClean:cleans_view.html.twig', $array_item);
     }
@@ -128,25 +128,46 @@ class MaterialCleanCleansController extends Controller
                 $materialClean = new MaterialCleanCleans();
                 $cleanDate = new DateTime();
                 $expirationDate = $this->getCleanDate($material->getExpirationDays());
-                $materialClean
-                    ->setMaterial($material)
-                    ->setCenter($center)
-                    ->setCleanDate($cleanDate)
-                    ->setCleanExpiredDate($expirationDate)
-                    ->setCode($request->get('code'))
-                    ->setCleanUser($this->getUser())
-                    ->setSignature($firma)
-                    ->setMaterialOther($request->get('materialOther'))
-                    ->setAdditionalInfo($request->get('additionalInfo'))
-                    ->setStatus(1);
-                $em->persist($materialClean);
-                $em->flush();
+                if($material->getCenter()->getId() !== $center->getId()){
+                    $this->get('session')->getFlashBag()->add(
+                        'error',
+                        "Material seleccionado no pertenece al centro"
+                    );
+                }else{
 
-                $this->get('session')->getFlashBag()->add(
-                    'message',
-                    "La limpieza de material se ha guardado correctamente"
-                );
-                return $this->redirect($this->generateUrl('nononsense_mclean_cleans_scan'));
+                    $html = '
+                        <p>Limpieza de material</p>
+                        <ul>
+                            <li>Material: '.$material->getName().'</li>
+                            <li>Código: '.$request->get('code').'</li>
+                            <li>Centro: '.$center->getName().'</li>
+                            <li>Usuario: '.$this->getUser()->getUsername().'</li>
+                            <li>Fecha: '.$now->format('d-m-Y H:i:s').'</li>
+                        </ul>';
+
+                    $file = Utils::generatePdf($this->container, 'GSK - Material limpio', 'Limpieza de material', $html, 'material', $this->getParameter('crt.root_dir'));
+                    Utils::setCertification($this->container, $file, 'material', $material->getId());
+
+                    $materialClean
+                        ->setMaterial($material)
+                        ->setCenter($center)
+                        ->setCleanDate($cleanDate)
+                        ->setCleanExpiredDate($expirationDate)
+                        ->setCode($request->get('code'))
+                        ->setCleanUser($this->getUser())
+                        ->setSignature($firma)
+                        ->setMaterialOther($request->get('materialOther'))
+                        ->setAdditionalInfo($request->get('additionalInfo'))
+                        ->setStatus(1);
+                    $em->persist($materialClean);
+                    $em->flush();
+
+                    $this->get('session')->getFlashBag()->add(
+                        'message',
+                        "La limpieza de material se ha guardado correctamente"
+                    );
+                    return $this->redirect($this->generateUrl('nononsense_mclean_cleans_scan'));
+                }
             }
         } catch (Exception $e) {
             $this->get('session')->getFlashBag()->add(

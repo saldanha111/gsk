@@ -3,6 +3,9 @@
 namespace Nononsense\UtilsBundle\Classes;
 
 use Symfony\Component\HttpFoundation\Request;
+use Doctrine\ORM\EntityManagerInterface;
+use Nononsense\HomeBundle\Entity\Certifications;
+use Nononsense\HomeBundle\Entity\CertificationsType;
 
 /**
  * Static methods to be used by any class
@@ -735,6 +738,121 @@ class Utils
         }
 
         return $filters;
+    }
+
+    /**
+    * Certifications API 
+    *
+    * @param string $path, string $method, array $data
+    * @return json
+    */
+    public static function api3(string $url, $header = [], string $method = 'GET', $data = [])
+    {
+        // $url = $container->getParameter('api3.url');
+        // $key = $container->getParameter('api3.key');
+
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_URL, $url);
+        if ($header) {
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+        }
+        curl_setopt($ch, CURLOPT_HEADER, false);
+
+        if ($method != 'GET') {
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
+        }
+
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        //curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        $output = curl_exec($ch);
+        if (!$output) {
+            $output = curl_error($ch);
+        }
+        $info = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($info != 200 && $info != 201) {
+            throw new \Exception($output.'/'.json_encode($data), 1);
+        }
+
+        return $output;
+    }
+
+    public static function setCertification($container, string $file, string $type, int $recordId)
+    {
+        $em = $container->get('doctrine.orm.entity_manager');
+
+        $certificationsType = $em->getRepository(CertificationsType::class)->findOneBy(['name' => $type]);
+
+        if (!$certificationsType) {
+            $certificationsType = new CertificationsType();
+            $certificationsType->setName($type);
+        }
+
+        $certification = new Certifications();
+        $certification->setHash(hash_file('sha256', $file));
+        $certification->setType($certificationsType);
+        $certification->setRecordId($recordId);
+        $certification->setPath($file);
+
+        $certificationsType->addCertification($certification);
+
+        $em->persist($certificationsType);
+        $em->flush();
+
+        return $certification;
+    }
+
+    public static function saveFile(string $file, string $type, string $path){
+        
+        $fileName = md5(uniqid()).'.pdf';
+
+        $path = self::makeFolder($path, $type);
+
+        file_put_contents($path.'/'.$fileName, $file);
+
+        return $path.'/'.$fileName;
+    }
+
+    /*
+    *
+    */
+    public static function generatePdf($container, string $title = 'GSK', string $subject = 'GSK', string $html = '', string $type, string $path){
+
+        $pdf = $container->get("white_october.tcpdf")->create('vertical', PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+
+        $pdf->SetAuthor('GSK');
+        $pdf->SetTitle($title);
+        $pdf->SetSubject($subject);
+
+        $pdf->SetHeaderData(false, false, $title);
+
+        $pdf->AddPage();
+        
+        $pdf->writeHTMLCell(0, 0, '', '', $html, 0, 1, 0, true, '', true);
+
+        $fileName = md5(uniqid()).'.pdf';
+
+        $path = self::makeFolder($path, $type);
+
+        $pdf->Output($path.'/'.$fileName, 'F');
+
+        return $path.'/'.$fileName;
+    }
+
+    public static function makeFolder(string $path, string $type){
+
+        $path = $path.'/'.$type.'/'.date('Y').'/'.date('m');
+
+        if (!is_dir($path)) {
+            mkdir($path, 0777, true);
+        }
+
+        return $path;
     }
 
 }

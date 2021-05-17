@@ -1,0 +1,7 @@
+<select class="form-control select-material" name="material">
+    <option value="0">Selecciona un material</option>
+{% for material in materials %}
+    <option value="{{ material.id }}">{{ material.name }}</option>
+{% endfor %}
+</select>
+
