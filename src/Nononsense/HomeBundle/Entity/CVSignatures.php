@@ -236,29 +236,6 @@ class CVSignatures
     }
 
     /**
-     * Set action
-     *
-     * @param \Nononsense\HomeBundle\Entity\TMActions $action
-     * @return TMSignatures
-     */
-    public function setAction(\Nononsense\HomeBundle\Entity\TMActions $action = null)
-    {
-        $this->action = $action;
-
-        return $this;
-    }
-
-    /**
-     * Get action
-     *
-     * @return \Nononsense\HomeBundle\Entity\TMActions 
-     */
-    public function getAction()
-    {
-        return $this->action;
-    }
-
-    /**
      * Set userEntiy
      *
      * @param \Nononsense\UserBundle\Entity\Users $userEntiy
@@ -575,5 +552,28 @@ class CVSignatures
     public function getJson()
     {
         return $this->json;
+    }
+
+    /**
+     * Set action
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVActions $action
+     * @return CVSignatures
+     */
+    public function setAction(\Nononsense\HomeBundle\Entity\CVActions $action = null)
+    {
+        $this->action = $action;
+
+        return $this;
+    }
+
+    /**
+     * Get action
+     *
+     * @return \Nononsense\HomeBundle\Entity\CVActions 
+     */
+    public function getAction()
+    {
+        return $this->action;
     }
 }

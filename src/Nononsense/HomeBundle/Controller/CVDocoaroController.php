@@ -94,7 +94,7 @@ class CVDocoaroController extends Controller
     public function getDataAction(Request $request, int $id)
     {
         $json=file_get_contents($this->getParameter("cm_installation_aux")."../bundles/nononsensehome/json-data-test.json");
-        die();
+        
         $json_content=json_decode($json,TRUE);
 
         if($request->get("test")){

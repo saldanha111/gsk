@@ -11,7 +11,7 @@ use Nononsense\GroupBundle\Entity\Groups;
 use Nononsense\HomeBundle\Entity\Areas;
 use Nononsense\HomeBundle\Entity\TMTemplates;
 use Nononsense\HomeBundle\Entity\CVRecords;
-use Nononsense\HomeBundle\Entity\TMActions;
+use Nononsense\HomeBundle\Entity\CVActions;
 use Nononsense\HomeBundle\Entity\TMSecondWorkflow;
 use Nononsense\HomeBundle\Entity\CVSignatures;
 use Nononsense\HomeBundle\Entity\CVWorkflow;
@@ -79,7 +79,7 @@ class CVCumplimentationController extends Controller
         }
 
         $item = $em->getRepository(TMTemplates::class)->findOneBy(array("id" => $items[0]["id"]));
-        $action=$em->getRepository(TMActions::class)->findOneBy(array("id" => 15));
+        $action=$em->getRepository(CVActions::class)->findOneBy(array("id" => 15));
         $user = $this->container->get('security.context')->getToken()->getUser();
 
         $wfs=$em->getRepository(TMSecondWorkflow::class)->findBy(array("template" => $item),array("id" => "ASC"));

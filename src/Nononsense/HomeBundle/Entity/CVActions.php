@@ -37,7 +37,7 @@ class CVActions
     protected $nextState;
 
     /**
-     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\TMCumplimentationsType", inversedBy="cvSignatures")
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\TMCumplimentationsType", inversedBy="cvActions")
      * @ORM\JoinColumn(name="type_id", referencedColumnName="id")
      */
     protected $type;
