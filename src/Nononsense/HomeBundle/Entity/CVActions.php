@@ -47,6 +47,13 @@ class CVActions
      */
     protected $cvSignatures;
 
+    /**
+     * @var boolean 
+     *
+     * @ORM\Column(name="justification", type="boolean",  options={"default" = false}, nullable=true)
+     */
+    protected $justification;
+
     
 
     public function __construct()
@@ -168,5 +175,28 @@ class CVActions
     public function getType()
     {
         return $this->type;
+    }
+
+    /**
+     * Set justification
+     *
+     * @param boolean $justification
+     * @return CVActions
+     */
+    public function setJustification($justification)
+    {
+        $this->justification = $justification;
+
+        return $this;
+    }
+
+    /**
+     * Get justification
+     *
+     * @return boolean 
+     */
+    public function getJustification()
+    {
+        return $this->justification;
     }
 }

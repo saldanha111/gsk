@@ -31,6 +31,12 @@ class CVStates
     protected $name;
 
     /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\TMCumplimentationsType", inversedBy="cvStates")
+     * @ORM\JoinColumn(name="type_id", referencedColumnName="id", nullable=true)
+     */
+    protected $type;
+
+    /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\CVRecords", mappedBy="state")
      */
     protected $cvRecords;
@@ -40,7 +46,19 @@ class CVStates
      */
     protected $cvActions;
 
-    
+    /**
+     * @var boolean 
+     *
+     * @ORM\Column(name="final", type="boolean",  options={"default" = false}, nullable=true)
+     */
+    protected $final;
+
+    /**
+     * @var boolean 
+     *
+     * @ORM\Column(name="can_be_opened", type="boolean",  options={"default" = false}, nullable=true)
+     */
+    protected $canBeOpened;
 
     public function __construct()
     {
@@ -181,5 +199,74 @@ class CVStates
     public function getCvActions()
     {
         return $this->cvActions;
+    }
+
+    /**
+     * Set final
+     *
+     * @param boolean $final
+     * @return CVStates
+     */
+    public function setFinal($final)
+    {
+        $this->final = $final;
+
+        return $this;
+    }
+
+    /**
+     * Get final
+     *
+     * @return boolean 
+     */
+    public function getFinal()
+    {
+        return $this->final;
+    }
+
+    /**
+     * Set canBeOpened
+     *
+     * @param boolean $canBeOpened
+     * @return CVStates
+     */
+    public function setCanBeOpened($canBeOpened)
+    {
+        $this->canBeOpened = $canBeOpened;
+
+        return $this;
+    }
+
+    /**
+     * Get canBeOpened
+     *
+     * @return boolean 
+     */
+    public function getCanBeOpened()
+    {
+        return $this->canBeOpened;
+    }
+
+    /**
+     * Set type
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMCumplimentationsType $type
+     * @return CVStates
+     */
+    public function setType(\Nononsense\HomeBundle\Entity\TMCumplimentationsType $type = null)
+    {
+        $this->type = $type;
+
+        return $this;
+    }
+
+    /**
+     * Get type
+     *
+     * @return \Nononsense\HomeBundle\Entity\TMCumplimentationsType 
+     */
+    public function getType()
+    {
+        return $this->type;
     }
 }

@@ -80,6 +80,7 @@ class CVCumplimentationController extends Controller
 
         $item = $em->getRepository(TMTemplates::class)->findOneBy(array("id" => $items[0]["id"]));
         $action=$em->getRepository(CVActions::class)->findOneBy(array("id" => 15));
+        $state=$em->getRepository(CVStates::class)->findOneBy(array("id" => 11));
         $user = $this->container->get('security.context')->getToken()->getUser();
 
         $wfs=$em->getRepository(TMSecondWorkflow::class)->findBy(array("template" => $item),array("id" => "ASC"));
@@ -91,7 +92,7 @@ class CVCumplimentationController extends Controller
         $record->setModified(new \DateTime());
         $record->setInEdition(FALSE);
         $record->setEnabled(TRUE);
-        $record->setState(NULL);
+        $record->setState($state);
         $record->setUser($user);
         $em->persist($record);
 
@@ -104,6 +105,7 @@ class CVCumplimentationController extends Controller
         $sign->setCreated(new \DateTime());
         $sign->setModified(new \DateTime());
         $sign->setSigned(FALSE);
+        $sign->setNumber(1);
 
         $json_value=json_encode(array("data" => $params["data"]), JSON_FORCE_OBJECT);
         $sign->setJson($json_value);
@@ -154,7 +156,26 @@ class CVCumplimentationController extends Controller
             );
             $route = $this->container->get('router')->generate('nononsense_tm_templates')."?state=6";
         }
-
+        
         return $this->redirect($route);
+    }
+
+    public function recordAction(Request $request, int $id)
+    {   
+        $em = $this->getDoctrine()->getManager();
+        $serializer = $this->get('serializer');
+        $array=array();
+
+        $array["item"] = $this->getDoctrine()->getRepository(CVRecords::class)->findOneBy(array("id" => $id));
+        if(!$array["item"]){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                    'El registro no existe'
+            );
+            $route = $this->container->get('router')->generate('nononsense_tm_templates')."?state=6";
+            return $this->redirect($route);
+        }
+        
+        return $this->render('NononsenseHomeBundle:CV:sign.html.twig',$array);
     }
 }

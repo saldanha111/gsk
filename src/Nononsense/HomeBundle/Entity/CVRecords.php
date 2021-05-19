@@ -28,7 +28,7 @@ class CVRecords
     protected $template;
 
     /**
-     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\TMStates", inversedBy="cvRecords")
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\CVStates", inversedBy="cvRecords")
      * @ORM\JoinColumn(name="state_id", referencedColumnName="id", nullable=true)
      */
     protected $state;
@@ -257,29 +257,6 @@ class CVRecords
     }
 
     /**
-     * Set state
-     *
-     * @param \Nononsense\HomeBundle\Entity\TMStates $state
-     * @return CVRecords
-     */
-    public function setState(\Nononsense\HomeBundle\Entity\TMStates $state = null)
-    {
-        $this->state = $state;
-
-        return $this;
-    }
-
-    /**
-     * Get state
-     *
-     * @return \Nononsense\HomeBundle\Entity\TMStates 
-     */
-    public function getState()
-    {
-        return $this->state;
-    }
-
-    /**
      * Set user
      *
      * @param \Nononsense\UserBundle\Entity\Users $user
@@ -333,5 +310,28 @@ class CVRecords
     public function getCvSignatures()
     {
         return $this->cvSignatures;
+    }
+
+    /**
+     * Set state
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVStates $state
+     * @return CVRecords
+     */
+    public function setState(\Nononsense\HomeBundle\Entity\CVStates $state = null)
+    {
+        $this->state = $state;
+
+        return $this;
+    }
+
+    /**
+     * Get state
+     *
+     * @return \Nononsense\HomeBundle\Entity\CVStates 
+     */
+    public function getState()
+    {
+        return $this->state;
     }
 }

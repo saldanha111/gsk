@@ -84,6 +84,13 @@ class CVSignatures
      */
     protected $modified;
 
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="number", type="integer", nullable=true)
+     */
+    protected $number;
+
     
     public function __construct()
     {
@@ -575,5 +582,28 @@ class CVSignatures
     public function getAction()
     {
         return $this->action;
+    }
+
+    /**
+     * Set number
+     *
+     * @param integer $number
+     * @return CVSignatures
+     */
+    public function setNumber($number)
+    {
+        $this->number = $number;
+
+        return $this;
+    }
+
+    /**
+     * Get number
+     *
+     * @return integer 
+     */
+    public function getNumber()
+    {
+        return $this->number;
     }
 }

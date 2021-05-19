@@ -922,3 +922,12 @@ nononsense_cv_save:
     methods:    [POST]
     defaults: { _controller: NononsenseHomeBundle:CVCumplimentation:newSave, template: 0}
 
+nononsense_cv_record:
+    path: /cv/record/{id}
+    methods:    [GET]
+    defaults: { _controller: NononsenseHomeBundle:CVCumplimentation:record, id: 0}
+
+nononsense_cv_record_sign:
+    path: /cv/record/{id}/sign
+    methods:    [POST]
+    defaults: { _controller: NononsenseHomeBundle:CVCumplimentation:sign, id: 0}

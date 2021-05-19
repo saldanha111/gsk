@@ -1,0 +1,94 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}Docoaro - GSK | Documentos {% endblock %}
+{% block head %}
+    {{ parent() }}
+    <link rel="stylesheet" href="/css/plugins/datapicker/datepicker3.css">
+    <link rel="stylesheet" href="/plugins/select2/dist/css/select2.min.css">
+    <link rel="stylesheet" href="/plugins/dual_listbox/dist/multi.min.css">
+{% endblock %}
+{% block main_title %} Inicio cumplimentación {% endblock %}
+
+{% block content %}
+
+    <div class="wrapper wrapper-content animated fadeInUp">
+        {% for flashMessage in app.session.flashbag.get('error') %}
+        <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+            <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+            {{ flashMessage }}
+        </div>
+        {% endfor %}
+        <form class="form-horizontal" id="form_item" action="{{path('nononsense_cv_save', {'template': item.id}) }}" method="POST"  enctype="multipart/form-data">
+            <div class="row">
+                <div class="col-lg-5 col-lg-offset-1">
+
+                    
+       
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-10 col-lg-offset-1">
+                    <button type="submit" class="btn btn-primary pull-right"><i class="fa fa-pencil" aria-hidden="true"></i> Firmar</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+    {{ parent() }}
+    
+    <script  charset="utf-8">
+    var dataworkflow;
+    $( document ).ready(function() {
+        
+        
+        ActivateMenu('en_vigor_gestion_plantillas');
+        $('#side-menu').metisMenu();
+
+       
+
+        $('#form_item').on('submit', function(e){
+            if(!repeat_workflow()){
+                if(!checkErrors()){
+                    return true; 
+                }
+                else{
+                    toastr.error("No puede iniciarse la cumplimentación",'aviso');
+                }
+            }
+            else{
+                toastr.error("No puede haber un mismo usuario en el workflow",'aviso');
+            }
+            return false;
+        });
+
+        qrcode.callback = putQrValue;
+
+    });
+
+
+    function checkErrors() {
+        var error=0;
+        if($("#box_unique_codes input[name]").length){
+            $("#box_unique_codes input[name]").each(function() {
+                if($(this).val() && $("#value_qr").val()){
+                    conflict=getObjects(JSON.parse($("#value_qr").val()), $(this).attr("name"), $(this).val());
+                    if(conflict.length>0){
+                        toastr.error("No puede introduccir valores distintos para los mismos campos en el código único y en el QR", 'error');
+                        error=1;
+                        return false;
+                    }
+                }
+                else{
+                    error=1;
+                    return false;
+                }
+            });
+        }
+    }
+
+</script>
+{% endblock %}
+
+

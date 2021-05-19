@@ -89,6 +89,8 @@ security:
         - { path: ^/mt/elaborate/[0-9]+/restore , roles: IS_AUTHENTICATED_ANONYMOUSLY}
         - { path: ^/mt/test/[0-9]+/getdata , roles: IS_AUTHENTICATED_ANONYMOUSLY}
         - { path: ^/mt/test/[0-9]+/save , roles: IS_AUTHENTICATED_ANONYMOUSLY}
+        - { path: ^/docoaro/[0-9]+/getdata , roles: IS_AUTHENTICATED_ANONYMOUSLY}
+        - { path: ^/docoaro/[0-9]+/save , roles: IS_AUTHENTICATED_ANONYMOUSLY}
         - { path: ^/view-contract/ , roles: IS_AUTHENTICATED_ANONYMOUSLY}
         - { path: ^/info_Bizlayer , roles: IS_AUTHENTICATED_ANONYMOUSLY}
         - { path: ^/json_integration_index/ , roles: IS_AUTHENTICATED_ANONYMOUSLY}

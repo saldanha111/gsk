@@ -40,6 +40,11 @@ class TMCumplimentationsType
      */
     protected $cvActions;
 
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\CVStates", mappedBy="type")
+     */
+    protected $cvStates;
+
     public function __construct()
     {
 
@@ -142,5 +147,38 @@ class TMCumplimentationsType
     public function getCvActions()
     {
         return $this->cvActions;
+    }
+
+    /**
+     * Add cvStates
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVStates $cvStates
+     * @return TMCumplimentationsType
+     */
+    public function addCvState(\Nononsense\HomeBundle\Entity\CVStates $cvStates)
+    {
+        $this->cvStates[] = $cvStates;
+
+        return $this;
+    }
+
+    /**
+     * Remove cvStates
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVStates $cvStates
+     */
+    public function removeCvState(\Nononsense\HomeBundle\Entity\CVStates $cvStates)
+    {
+        $this->cvStates->removeElement($cvStates);
+    }
+
+    /**
+     * Get cvStates
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getCvStates()
+    {
+        return $this->cvStates;
     }
 }
