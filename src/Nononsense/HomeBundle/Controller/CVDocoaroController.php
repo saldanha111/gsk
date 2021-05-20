@@ -45,12 +45,21 @@ class CVDocoaroController extends Controller
         $baseUrl = $this->getParameter("cm_installation");
         $baseUrlAux = $this->getParameter("cm_installation_aux");
 
-        if(!$record->getState()->getCanBeOpened()){
+        if($record->getState() && !$record->getState()->getCanBeOpened()){
            $this->get('session')->getFlashBag()->add(
                 'error',
                     'La plantilla indicada no se puede abrir por su estado actual'
             );
-            $route = $this->container->get('router')->generate('nononsense_tm_templates')."?state=6";
+            $route = $this->container->get('router')->generate('nononsense_home_homepage');
+            return $this->redirect($route);
+        }
+
+        if($record->getInEdition()){
+           $this->get('session')->getFlashBag()->add(
+                'error',
+                    'La plantilla se encuentra en edición'
+            );
+            $route = $this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
 
@@ -65,8 +74,8 @@ class CVDocoaroController extends Controller
         }
 
 
-        if(!$record->getState()->getFinal() && !$request->get("pdf")){ // Si no es un estado final y no queremos sacar un pdf
-            $mode="v";
+        if(!$record->getState() || (!$record->getState()->getFinal() && !$request->get("pdf"))){ // Si no es un estado final y no queremos sacar un pdf
+            $mode="c";
             if($record->getState()){
                 switch($record->getState()->getType()->getName()){
                     case "Cumplimentador": $mode="c";break;
@@ -201,7 +210,7 @@ class CVDocoaroController extends Controller
             $array_item=array();
 
             
-            if(!$record->getState()->getFinal()){
+            if(!$record->getState() || !$record->getState()->getFinal()){
                 $all_signatures = $this->getDoctrine()->getRepository(CVSignatures::class)->findBy(array("record" => $record)); 
                 $last_signature = $this->getDoctrine()->getRepository(CVSignatures::class)->findOneBy(array("record" => $record),array("id" => "DESC"));
 
@@ -210,6 +219,7 @@ class CVDocoaroController extends Controller
                     $signature->setUser($user);
                     $signature->setRecord($record);
                     $signature->setNumber((count($all_signatures)+1));
+                    $signature->setJustification(FALSE); 
                 }
                 else{
 
@@ -220,8 +230,13 @@ class CVDocoaroController extends Controller
                         return false;
                     }
                 }
-               
-                switch($record->getState()->getId()){
+
+                $state_id="1";
+                if($record->getState()){
+                    $state_id=$record->getState()->getId();
+                }
+                
+                switch($state_id){
                     case "1":
                         switch($params["action"]){
                             case "save_partial": 
@@ -296,6 +311,7 @@ class CVDocoaroController extends Controller
                         }
                         break;
                 }
+                
 
                 $action = $this->getDoctrine()->getRepository(CVActions::class)->findOneBy(array("id" => $action_id));
 
@@ -318,7 +334,12 @@ class CVDocoaroController extends Controller
                 $signature->setJson($json_value);
                 $signature->setVersion($response["version"]["id"]);
                 $signature->setConfiguration($response["version"]["configuration"]["id"]);
+                if(array_key_exists("gsk_comment",$params["data"]) && $params["data"]["gsk_comment"]){
+                   $signature->setJustification(TRUE); 
+                }
                 $em->persist($signature);
+                $record->setInEdition(FALSE);
+                $em->persist($record);
                 $em->flush();
             }
 

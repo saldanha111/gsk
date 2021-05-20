@@ -15,6 +15,7 @@ use Nononsense\HomeBundle\Entity\CVActions;
 use Nononsense\HomeBundle\Entity\TMSecondWorkflow;
 use Nononsense\HomeBundle\Entity\CVSignatures;
 use Nononsense\HomeBundle\Entity\CVWorkflow;
+use Nononsense\HomeBundle\Entity\CVStates;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
@@ -105,7 +106,21 @@ class CVCumplimentationController extends Controller
         $sign->setCreated(new \DateTime());
         $sign->setModified(new \DateTime());
         $sign->setSigned(FALSE);
+        $sign->setJustification(FALSE);
         $sign->setNumber(1);
+
+        if($request->get("unique")){
+            foreach($request->get("unique") as $unique){
+                if($request->get($unique)){
+                    $params["data"][$unique]=$request->get($unique);
+                }
+            }
+        }
+
+        if($request->get("value_qr")){
+            $value_qr=json_decode($request->get("value_qr"), true);
+            $params["data"]=array_merge($params["data"],$value_qr);
+        }
 
         $json_value=json_encode(array("data" => $params["data"]), JSON_FORCE_OBJECT);
         $sign->setJson($json_value);
@@ -167,6 +182,7 @@ class CVCumplimentationController extends Controller
         $array=array();
 
         $array["item"] = $this->getDoctrine()->getRepository(CVRecords::class)->findOneBy(array("id" => $id));
+
         if(!$array["item"]){
             $this->get('session')->getFlashBag()->add(
                 'error',
@@ -175,7 +191,49 @@ class CVCumplimentationController extends Controller
             $route = $this->container->get('router')->generate('nononsense_tm_templates')."?state=6";
             return $this->redirect($route);
         }
+
+        $array["signature"] = $this->getDoctrine()->getRepository(CVSignatures::class)->findOneBy(array("record" => $array["item"]),array("id" => "DESC"));
+
+        if(!$array["signature"] || $array["signature"]->getSigned()){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                    'El registro no se puede firmar'
+            );
+            $route = $this->container->get('router')->generate('nononsense_tm_templates')."?state=6";
+            return $this->redirect($route);
+        }
         
         return $this->render('NononsenseHomeBundle:CV:sign.html.twig',$array);
+    }
+
+    public function signAction(Request $request, int $id)
+    {   
+        $em = $this->getDoctrine()->getManager();
+        $serializer = $this->get('serializer');
+        $array=array();
+
+        /*$array["item"] = $this->getDoctrine()->getRepository(CVRecords::class)->findOneBy(array("id" => $id));
+
+        if(!$array["item"]){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                    'El registro no existe'
+            );
+            $route = $this->container->get('router')->generate('nononsense_tm_templates')."?state=6";
+            return $this->redirect($route);
+        }
+
+        $array["signature"] = $this->getDoctrine()->getRepository(CVSignatures::class)->findOneBy(array("record" => $array["item"]),array("id" => "DESC"));
+
+        if(!$array["signature"] || $array["signature"]->getSigned()){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                    'El registro no se puede firmar'
+            );
+            $route = $this->container->get('router')->generate('nononsense_tm_templates')."?state=6";
+            return $this->redirect($route);
+        }
+        
+        return $this->render('NononsenseHomeBundle:CV:sign.html.twig',$array);*/
     }
 }

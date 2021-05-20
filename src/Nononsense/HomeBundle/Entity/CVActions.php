@@ -31,6 +31,14 @@ class CVActions
     protected $name;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="name_alternative", type="string", length=255,  nullable=true)
+     */
+    protected $nameAlternative;
+
+
+    /**
      * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\CVStates", inversedBy="cvActions")
      * @ORM\JoinColumn(name="next_state", referencedColumnName="id")
      */
@@ -198,5 +206,28 @@ class CVActions
     public function getJustification()
     {
         return $this->justification;
+    }
+
+    /**
+     * Set nameAlternative
+     *
+     * @param string $nameAlternative
+     * @return CVActions
+     */
+    public function setNameAlternative($nameAlternative)
+    {
+        $this->nameAlternative = $nameAlternative;
+
+        return $this;
+    }
+
+    /**
+     * Get nameAlternative
+     *
+     * @return string 
+     */
+    public function getNameAlternative()
+    {
+        return $this->nameAlternative;
     }
 }

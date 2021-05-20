@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="/plugins/select2/dist/css/select2.min.css">
     <link rel="stylesheet" href="/plugins/dual_listbox/dist/multi.min.css">
 {% endblock %}
-{% block main_title %} Inicio cumplimentación {% endblock %}
+{% block main_title %} Firmar {{signature.action.nameAlternative}} - <b>{{item.template.name}} #{{item.id}}</b>{% endblock %}
 
 {% block content %}
 
@@ -17,17 +17,32 @@
             {{ flashMessage }}
         </div>
         {% endfor %}
-        <form class="form-horizontal" id="form_item" action="{{path('nononsense_cv_save', {'template': item.id}) }}" method="POST"  enctype="multipart/form-data">
+        <form class="form-horizontal" id="form_item" action="{{path('nononsense_cv_record_sign', {'template': item.id}) }}" method="POST"  enctype="multipart/form-data">
+
+            {% if signature.justification or signature.action.justification %}
+                <div class="row">
+                    <div class="col-lg-5 col-lg-offset-1">
+                        {% if signature.justification %}
+                            <p>Ha modificado valores previamente imputados. Explique por qué</p>
+                        {% elseif  signature.action.justification %} 
+                            <p>Esta acción requiere de una justificación obligatoria</p>
+                        {% endif %} 
+                        <textarea id="comment" name="justification" required="required" class="form-control" rows="10" cols="91"></textarea>
+                    </div>
+                </div>
+                <br>
+            {% endif %} 
             <div class="row">
                 <div class="col-lg-5 col-lg-offset-1">
-
-                    
-       
+                    <div id="signature-pad">
+                        <p>Introduzca su firma</p>
+                        <input type="password" name="password" id="box_password" class="form-control" required="required"><br>
+                    </div>
                 </div>
             </div>
             <div class="row">
-                <div class="col-lg-10 col-lg-offset-1">
-                    <button type="submit" class="btn btn-primary pull-right"><i class="fa fa-pencil" aria-hidden="true"></i> Firmar</button>
+                <div class="col-lg-5 col-lg-offset-1">
+                    <a  class="btn btn-primary pull-right" name="btnsend" id="btnsend"><i class="fa fa-pencil" aria-hidden="true"></i> Firmar</a>
                 </div>
             </div>
         </form>
@@ -38,7 +53,7 @@
 {% block scripts %}
     {{ parent() }}
     
-    <script  charset="utf-8">
+<script  charset="utf-8">
     var dataworkflow;
     $( document ).ready(function() {
         
@@ -46,48 +61,53 @@
         ActivateMenu('en_vigor_gestion_plantillas');
         $('#side-menu').metisMenu();
 
+
        
 
-        $('#form_item').on('submit', function(e){
-            if(!repeat_workflow()){
-                if(!checkErrors()){
-                    return true; 
-                }
-                else{
-                    toastr.error("No puede iniciarse la cumplimentación",'aviso');
-                }
+        $('#btnsend').on('click', function () {
+            if($("#box_password").length){
+                $(this).hide(function() {
+                    valid_password=password_valid($("#box_password").val());
+                    console.log(valid_password);
+                    if (!valid_password) {
+                        $(this).show();
+                        toastr.error("La contraseña es incorecta", 'aviso');
+                    } else {
+                        $("#form_item").submit();
+                    }
+                });
+
             }
-            else{
-                toastr.error("No puede haber un mismo usuario en el workflow",'aviso');
-            }
-            return false;
         });
 
-        qrcode.callback = putQrValue;
-
+        $('#form_item input').on('keypress', function(e) {
+            return e.which !== 13;
+        });
     });
 
+    function password_valid(password){
+        var result;
+        $.ajax({
+            url: "{{ path('nononsense_mclean_get_sign_valid') }}",
+            type: 'POST',
+            dataType: 'json',
+            async: false,
+            data: {password: password},
+            success: function(response) {
+                console.log(response);
+                if(response.valid){
+                    result=true;
+                }else{
+                    result=false;
+                }
+            },
+            error: function() {
+                result=false;
+            }
+        });
 
-    function checkErrors() {
-        var error=0;
-        if($("#box_unique_codes input[name]").length){
-            $("#box_unique_codes input[name]").each(function() {
-                if($(this).val() && $("#value_qr").val()){
-                    conflict=getObjects(JSON.parse($("#value_qr").val()), $(this).attr("name"), $(this).val());
-                    if(conflict.length>0){
-                        toastr.error("No puede introduccir valores distintos para los mismos campos en el código único y en el QR", 'error');
-                        error=1;
-                        return false;
-                    }
-                }
-                else{
-                    error=1;
-                    return false;
-                }
-            });
-        }
+        return result;
     }
-
 </script>
 {% endblock %}
 
