@@ -36,33 +36,33 @@ nononsense_user_profile_slash:
     requirements:
         id: ".+"
     
-# nononsense_user_create:
-#     path:     /create
-#     defaults: { _controller: NononsenseUserBundle:Users:create }
+nononsense_user_create:
+    path:     /create
+    defaults: { _controller: NononsenseUserBundle:Users:create }
     
-# nononsense_user_edit:
-#     path:     /edit/{id}
-#     defaults: { _controller: NononsenseUserBundle:Users:edit}
-#     requirements:
-#         id: ".+"
+nononsense_user_edit:
+    path:     /edit/{id}
+    defaults: { _controller: NononsenseUserBundle:Users:edit}
+    requirements:
+        id: ".+"
     
-# nononsense_user_edit_image:
-#     path:     /editImage/{id}
-#     defaults: { _controller: NononsenseUserBundle:Users:editImage}
-#     requirements:
-#         id: ".+"
+nononsense_user_edit_image:
+    path:     /editImage/{id}
+    defaults: { _controller: NononsenseUserBundle:Users:editImage}
+    requirements:
+        id: ".+"
         
-# nononsense_user_modify_password:
-#     path:     /modifyPassword/{id}
-#     defaults: { _controller: NononsenseUserBundle:Users:resetPassword}
-#     requirements:
-#         id: ".+"
+nononsense_user_modify_password:
+    path:     /modifyPassword/{id}
+    defaults: { _controller: NononsenseUserBundle:Users:resetPassword}
+    requirements:
+        id: ".+"
         
-# nononsense_user_delete:
-#     path:     /delete/{id}
-#     defaults: { _controller: NononsenseUserBundle:Users:delete, id: 1}
-#     requirements:
-#         id: ".+"
+nononsense_user_delete:
+    path:     /delete/{id}
+    defaults: { _controller: NononsenseUserBundle:Users:delete, id: 1}
+    requirements:
+        id: ".+"
         
 nononsense_users_access_token:
     path:     /accessByToken
