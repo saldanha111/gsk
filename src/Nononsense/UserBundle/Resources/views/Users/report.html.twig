@@ -11,7 +11,7 @@
     <div class="row">
         <div class="col-sm-12">
             <div>
-                <a href="{{ path('nononsense_user_create') }}" class="btn btn-primary pull-right"><i class="fa fa-plus"></i> Nuevo usuario</a>
+                <!--<a href="{{ path('nononsense_user_create') }}" class="btn btn-primary pull-right"><i class="fa fa-plus"></i> Nuevo usuario</a>-->
             </div>
             <div>
                 <div class="row">
@@ -85,7 +85,7 @@
                                 <td>{{user.modified | date("d/m/Y")}}</td>
                                 <td>{{ user.locked ? user.locked|date("d/m/Y") : ''}}</td>
                                 <td>
-                                    <a href="{{path('nononsense_user_profile', {'id': user.id}) }}" class="btn btn-primary btn-sm"  style="color: white"><i class="fa fa-edit"> </i> Editar</a>
+                                    <!--<a href="{{path('nononsense_user_profile', {'id': user.id}) }}" class="btn btn-primary btn-sm"  style="color: white"><i class="fa fa-edit"> </i> Editar</a>-->
 
                                     <a href="{{ path('nononsense_home_homepage', {'_switch_user': user.email}) }}" class="btn btn-danger btn-sm"  style="color: white"><i class="fa fa-users"> </i> Log In</a>
                                 </td>
