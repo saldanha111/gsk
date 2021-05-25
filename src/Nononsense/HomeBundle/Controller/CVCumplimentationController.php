@@ -30,6 +30,7 @@ use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 class CVCumplimentationController extends Controller
 {
+    //Creamos nuevo registro
     public function newAction(Request $request, int $template)
     {   
         $em = $this->getDoctrine()->getManager();
@@ -55,6 +56,7 @@ class CVCumplimentationController extends Controller
         return $this->render('NononsenseHomeBundle:CV:new_cumpli.html.twig',$array);
     }
 
+    //Guardamos el nuevo registro (PRE CUMPLIMENTADO)
     public function newSaveAction(Request $request, int $template)
     {
         $em = $this->getDoctrine()->getManager();
@@ -175,6 +177,7 @@ class CVCumplimentationController extends Controller
         return $this->redirect($route);
     }
 
+    //Pedimos al usuario que firme la cumplimentación/verificación
     public function recordAction(Request $request, int $id)
     {   
         $em = $this->getDoctrine()->getManager();
@@ -188,7 +191,7 @@ class CVCumplimentationController extends Controller
                 'error',
                     'El registro no existe'
             );
-            $route = $this->container->get('router')->generate('nononsense_tm_templates')."?state=6";
+            $route = $this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
 
@@ -199,41 +202,263 @@ class CVCumplimentationController extends Controller
                 'error',
                     'El registro no se puede firmar'
             );
-            $route = $this->container->get('router')->generate('nononsense_tm_templates')."?state=6";
+            $route = $this->container->get('router')->generate('nononsense_home_homepage');
+            return $this->redirect($route);
+        }
+
+        $user = $this->container->get('security.context')->getToken()->getUser();
+
+        if($array["signature"]->getUser()!=$user){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                    'Usted no puede firmar esta evidencia'
+            );
+            $route = $this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
         
         return $this->render('NononsenseHomeBundle:CV:sign.html.twig',$array);
     }
 
+    //Firmamos la cumplimentación/verificación
     public function signAction(Request $request, int $id)
     {   
         $em = $this->getDoctrine()->getManager();
         $serializer = $this->get('serializer');
         $array=array();
 
-        /*$array["item"] = $this->getDoctrine()->getRepository(CVRecords::class)->findOneBy(array("id" => $id));
+        $record = $this->getDoctrine()->getRepository(CVRecords::class)->findOneBy(array("id" => $id));
 
-        if(!$array["item"]){
+        if(!$record){
             $this->get('session')->getFlashBag()->add(
                 'error',
                     'El registro no existe'
             );
-            $route = $this->container->get('router')->generate('nononsense_tm_templates')."?state=6";
+            $route = $this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
 
-        $array["signature"] = $this->getDoctrine()->getRepository(CVSignatures::class)->findOneBy(array("record" => $array["item"]),array("id" => "DESC"));
+        $signature = $this->getDoctrine()->getRepository(CVSignatures::class)->findOneBy(array("record" => $record),array("id" => "DESC"));
 
-        if(!$array["signature"] || $array["signature"]->getSigned()){
+        if(!$signature || $signature->getSigned()){
             $this->get('session')->getFlashBag()->add(
                 'error',
                     'El registro no se puede firmar'
             );
-            $route = $this->container->get('router')->generate('nononsense_tm_templates')."?state=6";
+            $route = $this->container->get('router')->generate('nononsense_home_homepage');
+            return $this->redirect($route);
+        }
+
+        $user = $this->container->get('security.context')->getToken()->getUser();
+
+        if($signature->getUser()!=$user){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                    'Usted no puede firmar esta evidencia'
+            );
+            $route = $this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
         
-        return $this->render('NononsenseHomeBundle:CV:sign.html.twig',$array);*/
+        if(!$request->get('password') || !$this->get('utilities')->checkUser($request->get('password'))){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                "No se pudo firmar el registro, la contraseña es incorrecta"
+            );
+            return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
+        }
+
+        if(!$request->get('justification') && ($signature->getJustification() || $signature->getAction()->getJustification())){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                "El registro no se pudo firmar porque era necesaria una justificación"
+            );
+            return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
+        }
+
+        if($request->get('justification')){
+            $signature->setDescription($request->get('justification'));
+        }
+        $signature->setJson(str_replace("gsk_id_firm", $signature->getNumber(), $signature->getJson()));
+        $signature->setSigned(TRUE);
+        $signature->setModified(new \DateTime());
+        $em->persist($signature);
+
+        $record->setModified(new \DateTime());
+        $em->persist($record);
+
+        $em->flush();
+
+        $this->get('session')->getFlashBag()->add(
+            'success',
+            "El documento se ha firmado correctamente"
+        );
+        return $this->redirect($this->container->get('router')->generate('nononsense_search'));
     }
+
+    //Listado de cumplimentaciones
+    public function listAction(Request $request){
+
+        $user = $this->container->get('security.context')->getToken()->getUser();
+        $fll=false;
+        foreach ($user->getGroups() as $groupMe) {
+            $type = $groupMe->getGroup()->getTipo();
+            if ($type == 'FLL') {
+                $fll = true;
+            }
+        }
+
+        $array_item["fll"]=$fll;
+
+        $filters=Array();
+        $filters2=Array();
+        $types=array();
+
+        $filters=array_filter($request->query->all());
+        $filters2=array_filter($request->query->all());
+
+        $filters["user"]=$user;
+        $filters2["user"]=$user;
+
+        $filters["fll"]=$fll;
+        $filters2["fll"]=$fll;
+
+        $array_item["suser"]["id"]=$user->getId();
+
+        if(!$request->get("export_excel") && !$request->get("export_pdf")){
+            if($request->get("page")){
+                $filters["limit_from"]=$request->get("page")-1;
+            }
+            else{
+                $filters["limit_from"]=0;
+            }
+            $filters["limit_many"]=15;
+        }
+        else{
+            $filters["limit_from"]=0;
+            $filters["limit_many"]=99999999999;
+        }
+
+
+        $array_item["suser"]["id"]=$user->getId();
+        $array_item["filters"]=$filters;
+        $array_item["items"] = $this->getDoctrine()->getRepository(CVRecords::class)->search("list",$filters);
+        foreach($array_item["items"] as $key => $record){
+            if(($record["validate1"] || $record["validate2"]) && $record["validate3"]){
+                $array_item["items"][$key]["validate"]=FALSE;
+            }
+            else{
+                $array_item["items"][$key]["validate"]=TRUE;
+            }
+        }
+        $array_item["count"] = $this->getDoctrine()->getRepository(CVRecords::class)->search("count",$filters2);
+        $url=$this->container->get('router')->generate('nononsense_cv_search');
+        $params=$request->query->all();
+        unset($params["page"]);
+        if(!empty($params)){
+            $parameters=TRUE;
+        }
+        else{
+            $parameters=FALSE;
+        }
+        $array_item["pagination"]=\Nononsense\UtilsBundle\Classes\Utils::paginador($filters["limit_many"],$request,$url,$array_item["count"],"/", $parameters);
+
+        if(!$request->get("export_excel") && !$request->get("export_pdf")){
+            return $this->render('NononsenseHomeBundle:CV:search.html.twig',$array_item);
+        }
+        else{
+            //Exportamos a Excel
+
+            if($request->get("export_excel")){
+                $phpExcelObject = $this->get('phpexcel')->createPHPExcelObject();
+
+                $phpExcelObject->getProperties();
+                $phpExcelObject->setActiveSheetIndex(0)
+                 ->setCellValue('A1', 'Nº')
+                 ->setCellValue('B1', 'Nombre')
+                 ->setCellValue('C1', 'Iniciado por')
+                 ->setCellValue('D1', 'Fecha inicio')
+                 ->setCellValue('E1', 'Ultima modificación')
+                 ->setCellValue('F1', 'Estado');
+            }
+
+            if($request->get("export_pdf")){
+                $html='<html><body style="font-size:8px;width:100%"><table autosize="1" style="overflow:wrap;width:100%"><tr style="font-size:8px;width:100%"><th style="font-size:8px;width:6%">Nº</th><th style="font-size:8px;width:49%">Nombre</th><th style="font-size:8px;width:10%">Iniciado por</th><th style="font-size:8px;width:10%">F. inicio</th><th style="font-size:8px;width:10%">F. modific.</th><th style="font-size:8px;width:10%">Estado</th></tr>';
+            }
+
+            $i=2;
+            foreach($array_item["items"] as $item){
+                switch($item["status"]){
+                    case 0: $status="Iniciado";break;
+                    case 1: $status="Esperando firma guardado parcial";break;
+                    case 2: $status="Esperando firma envío";break;
+                    case 3: $status="Esperando firma cancelación";break;
+                    case 4: $status="En verificación";break;
+                    case 5: $status="Pendiente cancelación en edición";break;
+                    case 6: $status="Cancelado en edición";break;
+                    case 7: $status="Esperando firma verificación total";break;
+                    case 8: $status="Cancelado";break;
+                    case 9: $status="Archivado";break;
+                    case 10: $status="Reconciliado";break;
+                    case 11: $status="Bloqueado";break;
+                    case 12: $status="Esperando firma cancelación en verificación";break;
+                    case 13: $status="Esperando firma devolución a edición";break;
+                    case 14: $status="Pendiente de cancelación en verificación";break;
+                    case 15: $status="Esperando firma verificación parcial";break;
+                    default: $status="Desconocido";
+                }
+                if($item["id_grid"]==0){
+                    $name=$item["name"];
+                }
+                else{
+                    $name=$item["name2"];
+                }
+
+                if($request->get("export_excel")){
+                    $phpExcelObject->getActiveSheet()
+                    ->setCellValue('A'.$i, $item["id_grid"])
+                    ->setCellValue('B'.$i, $name)
+                    ->setCellValue('C'.$i, $item["creator"])
+                    ->setCellValue('D'.$i, ($item["created"]) ? $item["created"] : '')
+                    ->setCellValue('E'.$i, ($item["modified"]) ? $item["modified"] : '')
+                    ->setCellValue('F'.$i, $status);
+                }
+
+                if($request->get("export_pdf")){
+                    $html.='<tr style="font-size:8px"><td>'.$item["id"].'</td><td>'.$name.'</td><td>'.$item["creator"].'</td><td>'.(($item["created"]) ? $item["created"]->format('Y-m-d H:i:s') : '').'</td><td>'.(($item["modified"]) ? $item["modified"]->format('Y-m-d H:i:s') : '').'</td><td>'.$status.'</td></tr>';
+                }
+
+                $i++;
+            }
+
+            if($request->get("export_excel")){
+                $phpExcelObject->getActiveSheet()->setTitle('Listado de registros');
+                // Set active sheet index to the first sheet, so Excel opens this as the first sheet
+                $phpExcelObject->setActiveSheetIndex(0);
+
+                // create the writer
+                $writer = $this->get('phpexcel')->createWriter($phpExcelObject, 'Excel2007');
+                // create the response
+                $response = $this->get('phpexcel')->createStreamedResponse($writer);
+                // adding headers
+                $dispositionHeader = $response->headers->makeDisposition(
+                  ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+                  'list_records.xlsx'
+                );
+                $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
+                $response->headers->set('Pragma', 'public');
+                $response->headers->set('Cache-Control', 'maxage=1');
+                $response->headers->set('Content-Disposition', $dispositionHeader);
+
+                return $response; 
+            }
+
+            if($request->get("export_pdf")){
+                $html.='</table></body></html>';
+                $this->get('utilities')->returnPDFResponseFromHTML($html);
+            }
+        }
+    }
+
+
 }

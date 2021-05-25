@@ -37,6 +37,13 @@ class CVActions
      */
     protected $nameAlternative;
 
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="description", type="text", nullable=true)
+     */
+    protected $description;
+
 
     /**
      * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\CVStates", inversedBy="cvActions")
@@ -229,5 +236,28 @@ class CVActions
     public function getNameAlternative()
     {
         return $this->nameAlternative;
+    }
+
+    /**
+     * Set description
+     *
+     * @param string $description
+     * @return CVActions
+     */
+    public function setDescription($description)
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    /**
+     * Get description
+     *
+     * @return string 
+     */
+    public function getDescription()
+    {
+        return $this->description;
     }
 }

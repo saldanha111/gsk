@@ -12,5 +12,151 @@ use Doctrine\ORM\EntityRepository;
  */
 class CVRecordsRepository extends EntityRepository
 {
-	
+	public function search($type,$filters)
+    {
+        $em = $this->getEntityManager();
+
+        if(!empty($filters)){
+            if (isset($filters["user"])) {
+                $user = $filters["user"];
+            }
+        }
+
+        switch($type){
+            case "list":
+                $list = $this->createQueryBuilder('i')
+                    ->select('i.id', 't.name','u.name as creator','i.created','i.modified','t.logbook','s.name state','i.inEdition','t.logbook');
+                //$list->addSelect("CASE  WHEN ((SELECT COUNT(ela.step_id) FROM Nononsense\HomeBundle\Entity\FirmasStep ela WHERE ela.userEntiy=:el_user AND ela.step_id=s.id AND ela.elaboracion=1)>0 OR i.usercreatedid=:el_user_id) THEN 0 ELSE 1 AS validate");
+                //$list->setParameter('el_user', $user);
+                //$list->setParameter('el_user_id', $user->getId());
+
+                break;
+            case "count":
+                $list = $this->createQueryBuilder('i')
+                    ->select('COUNT(i.id) as conta');
+                break;
+        }
+
+        $list->leftJoin("i.template", "t")
+            ->leftJoin("i.user", "u")
+            ->leftJoin("i.state", "s")
+            ->leftJoin("i.cvSignatures", "f")
+            ->andWhere('f.id IS NULL OR f.id = (SELECT MAX(aux.id) FROM Nononsense\HomeBundle\Entity\CVSignatures aux WHERE aux.record=i.id)')
+            ->orderBy('i.id', 'DESC');
+
+
+
+        if(!empty($filters)){
+
+            if(isset($filters["id"])){
+                $list->andWhere('i.id=:id');
+                $list->setParameter('id', $filters["id"]);
+            }
+
+            if(isset($filters["plantilla_id"])){
+                $list->andWhere('mw.id IN (SELECT ms.workflow_id FROM Nononsense\HomeBundle\Entity\MasterSteps ms WHERE  ms.plantilla_id=:plantilla_id)');
+                $list->setParameter('plantilla_id', $filters["plantilla_id"]);
+            }
+
+            if(isset($filters["name"])){
+                $terms = explode(" ", $filters["name"]);
+                foreach($terms as $key => $term){
+                    $list->andWhere('mw.name LIKE :name'.$key);
+                    $list->setParameter('name'.$key, '%' . $term. '%');
+                }
+            }
+
+            if(isset($filters["creator"])){
+                $terms = explode(" ", $filters["creator"]);
+                foreach($terms as $key => $term){
+                    $list->andWhere('u.name LIKE :creator'.$key);
+                    $list->setParameter('creator'.$key, '%' . $term. '%');
+                }
+            }
+
+            if(isset($filters["content"])){
+                $terms = explode(" ", $filters["content"]);
+                foreach($terms as $key => $term){
+                    $list->andWhere('s.stepDataValue LIKE :content'.$key);
+                    $list->setParameter('content'.$key, '%' . $term. '%');
+                }
+            }
+
+            if(isset($filters["fll"]) && $filters["fll"]=="1"){
+                $fll=1;
+            }
+            else{
+                $fll=0;
+            }
+
+            if(isset($filters["status"])){
+                switch($filters["status"]){
+                    case 1:
+                        $list->andWhere('i.status=0 OR i.status=1 OR i.status=2 OR i.status=3');
+                        break;
+                    case 2:
+                        $list->andWhere('i.status=5');
+                        break;
+                    case 3:
+                        $list->andWhere('i.status=6');
+                        break;
+                    case 4:
+                        $list->andWhere('i.status=4 OR i.status=15 OR i.status=12 OR i.status=7 or i.status=13');
+                        break;
+                    case 5:
+                        $list->andWhere('i.status=14');
+                        break;
+                    case 6:
+                        $list->andWhere('i.status=8');
+                        break;
+                    case 7:
+                        $list->andWhere('i.status=9');
+                        break;
+                    case 8:
+                        $list->andWhere('i.status=10');
+                        break;
+                    case 9:
+                        $list->andWhere('i.status=11');
+                        break;
+                }
+
+            }
+
+            if (isset($filters["pending_for_me"])) {
+                $list->andWhere('(i.status IN (1,2,3,7,12,13,15) AND us.id=:user_id) OR ((i.status IN (4,5) OR (i.status=14 AND :fll=1)) AND s.id NOT IN (SELECT el.step_id FROM Nononsense\HomeBundle\Entity\FirmasStep el WHERE el.userEntiy=:el_user_aux AND el.step_id=s.id AND el.elaboracion=1) AND i.usercreatedid!=:user_id2) OR i.status=0');
+                $list->setParameter('user_id', $user->getId());
+                $list->setParameter('user_id2', $user->getId());
+                $list->setParameter('el_user_aux', $user);
+                $list->setParameter('fll', $fll);
+            }
+
+
+            if(isset($filters["from"])){
+                $list->andWhere('i.created>=:from');
+                $list->setParameter('from', $filters["from"]);
+            }
+
+            if(isset($filters["until"])){
+                $list->andWhere('i.created<=:until');
+                $list->setParameter('until', $filters["until"]." 23:59:00");
+            }
+        }
+
+
+        if(isset($filters["limit_from"])){
+            $list->setFirstResult($filters["limit_from"]*$filters["limit_many"])->setMaxResults($filters["limit_many"]);
+        }
+
+        $query = $list->getQuery();
+
+
+        switch($type){
+            case "list":
+                return $query->getResult();
+                break;
+            case "count":
+                return $query->getSingleResult()["conta"];
+                break;
+        }
+    }
 }

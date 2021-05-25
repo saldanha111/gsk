@@ -159,7 +159,7 @@ class CVDocoaroController extends Controller
         $json_content2=json_decode($json2,TRUE);
 
         if (array_key_exists("data",$json_content2)){
-            $json_content["data"]=array_merge($json_content["data"],$json_content2["data"]);
+            $json_content["data"]=array_merge($json_content2["data"],$json_content["data"]);
         }
 
         if($request->get("mode")){
@@ -219,7 +219,8 @@ class CVDocoaroController extends Controller
                     $signature->setUser($user);
                     $signature->setRecord($record);
                     $signature->setNumber((count($all_signatures)+1));
-                    $signature->setJustification(FALSE); 
+                    $signature->setJustification(FALSE);
+                    $signature->setCreated(new \DateTime());
                 }
                 else{
 
@@ -231,6 +232,7 @@ class CVDocoaroController extends Controller
                     }
                 }
 
+                $finish_workflow=1;
                 $state_id="1";
                 if($record->getState()){
                     $state_id=$record->getState()->getId();
@@ -329,7 +331,6 @@ class CVDocoaroController extends Controller
 
                 $signature->setAction($action);
                 $signature->setSigned(FALSE);
-                $signature->setCreated(new \DateTime());
                 $signature->setModified(new \DateTime());
                 $signature->setJson($json_value);
                 $signature->setVersion($response["version"]["id"]);
@@ -339,6 +340,7 @@ class CVDocoaroController extends Controller
                 }
                 $em->persist($signature);
                 $record->setInEdition(FALSE);
+                $record->setModified(new \DateTime());
                 $em->persist($record);
                 $em->flush();
             }
@@ -354,20 +356,24 @@ class CVDocoaroController extends Controller
     private function get_signatures($record,$audittrail)
     {
         $fullText = "";
-        $signatures = $this->getDoctrine()->getRepository(CVSignatures::class)->findBy(array("record" => $record, "signed" => TRUE),array("id" => "DESC"));
+        $signatures = $this->getDoctrine()->getRepository(CVSignatures::class)->findBy(array("record" => $record, "signed" => TRUE),array("id" => "ASC"));
         if($signatures){
-            $fullText = "<table id='tablefirmas' class='table table-striped'>";
+            $fullText = "<table id='tablefirmas' class='table' style='max-width:none!important'><tr><td colspan='3' width='100%'><b>Firmas</b></td></tr>";
             foreach ($signatures as $key => $signature) {
                 $id = $signature->getNumber();
                 $name = $signature->getUser()->getName();
                 $date = $signature->getModified()->format('d-m-Y H:i:s');
-                $comment = $signature->getAction()->getName();
+                $comment="";
+                if($signature->getDescription()){
+                    $comment = "Comentarios: ".$signature->getDescription()."<br>";
+                }
+                $action = $signature->getAction()->getName();
+                $comment .= '"'.$signature->getAction()->getDescription().'"';
 
-                $fullText .= "<tr><td colspan='4'>Firma</td></tr><tr><td width='5%'>" . $id . "</td><td width='20%'>" . $name . " " . $date . "</td><td>Comentarios: " . $comment . "</td></tr>";
+                $fullText .= "<tr><td colspan='3'>".$action."</td></tr><tr><td width='5%'>" . $id . "</td><td width='15%'>" . $name . "<br>" . $date . "</td><td width='80%'>".$comment ."</td></tr><tr><td colspan='3' width='100%'></td></tr>";
             }
             $fullText .= "</table>";
         }
-
         return $fullText;
     }
 }

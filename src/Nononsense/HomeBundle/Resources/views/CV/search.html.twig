@@ -1,0 +1,440 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}Docoaro - GSK | Listado de registros {% endblock %}
+{% block head %}
+{{ parent() }}
+<link rel="stylesheet" href="/css/plugins/datapicker/datepicker3.css">
+{% endblock %}
+{% block main_title %} Listado de registros{% endblock %}
+{% block content %}
+
+<div class="wrapper wrapper-content">
+    {% for flashMessage in app.session.flashbag.get('error') %}
+    <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+        <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+        {{ flashMessage }}
+    </div><br>
+    {% endfor %}
+    {% for flashMessage in app.session.flashbag.get('success') %}
+    <div class="alert alert-success alert-dismissable" style="margin: 10px 16px 0 16px">
+        <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+        {{ flashMessage }}
+    </div><br>
+    {% endfor %}
+    <div class="row">
+        <div class="col-sm-12">
+            <div>
+                <div class="row">
+                    <form class="form-horizontal" id="form_item" action="{{ path('nononsense_cv_search')}}" method="GET">
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">Contenido</label>
+                            <div class="col-sm-9 item_filter">
+                                <input type="text" name="content" class="form-control" value="{{filters.content is defined ? filters.content : ''}}">
+                            </div>
+
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">ID</label>
+                            <div class="col-sm-1 item_filter">
+                                <input type="number" name="id" class="form-control" value="{{filters.id is defined ? filters.id : ''}}">
+                            </div>
+
+                            <label class="col-sm-1 control-label">ID.Plant.</label>
+                            <div class="col-sm-1 item_filter">
+                                <input type="number" name="plantilla_id" class="form-control" value="{{filters.plantilla_id is defined ? filters.plantilla_id : ''}}">
+                            </div>
+
+                            <label class="col-sm-1 control-label">Nombre</label>
+                            <div class="col-sm-2 item_filter">
+                                <input type="text" name="name" class="form-control" value="{{filters.name is defined ? filters.name : ''}}">
+                            </div>
+
+                            <label class="col-sm-1 control-label">Usuario</label>
+                            <div class="col-sm-2 item_filter">
+                                <input type="text" name="creator" class="form-control" value="{{filters.creator is defined ? filters.creator : ''}}">
+                            </div>
+                        </div>
+                        <div class="form-group">
+
+                            <label class="col-sm-1 control-label">Fecha</label>
+                            <div class="col-sm-1 item_filter">
+                                <input type="text" class="form-control pull-right" autocomplete="off" name="from" id="from" value="{{filters.from is defined ? filters.from|date("Y-m-d") : ''}}">
+                            </div>
+
+                            <div class="col-sm-1">
+                                <input type="text" class="form-control pull-right" autocomplete="off" name="until" id="until" value="{{filters.until is defined ? filters.until|date("Y-m-d") : ''}}">
+                            </div>
+
+                            <label class="col-sm-1 control-label">Estado</label>
+                            <div class="col-sm-2 item_filter">
+                                <select class="form-control" style="width: 100%;" name="status">
+                                    <option value=""></option>
+                                    <option value="1" {{filters.status is defined and filters.status == 1 ? 'selected="selected"' : ''}}>Iniciado</option>
+                                    <option value="2" {{filters.status is defined and filters.status == 2 ? 'selected="selected"' : ''}}>Pendiente cancelación en edición</option>
+                                    <option value="3" {{filters.status is defined and filters.status == 3 ? 'selected="selected"' : ''}}>Cancelado en edición</option>
+                                    <option value="4" {{filters.status is defined and filters.status == 4 ? 'selected="selected"' : ''}}>Verificación</option>
+                                    <option value="5" {{filters.status is defined and filters.status == 5 ? 'selected="selected"' : ''}}>Pendiente cancelación en verificación</option>
+                                    <option value="6" {{filters.status is defined and filters.status == 6 ? 'selected="selected"' : ''}}>Cancelado en verificación</option>
+                                    <option value="7" {{filters.status is defined and filters.status == 7 ? 'selected="selected"' : ''}}>Completado</option>
+                                    <option value="8" {{filters.status is defined and filters.status == 8 ? 'selected="selected"' : ''}}>Reconciliado</option>
+                                    <option value="9" {{filters.status is defined and filters.status == 9 ? 'selected="selected"' : ''}}>Bloqueado</option>
+                                  </select>
+                            </div>
+
+                            <div class="col-sm-1">
+                              <div class="checkbox">
+                                <label>
+                                  <input name="pending_for_me" value="1" type="checkbox" {% if filters.pending_for_me is defined and  filters.pending_for_me == true %} checked="checked" {% endif %}> Mis Reg. Pend.
+                                </label>
+                              </div>
+                            </div>
+                            
+                            
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">Variable</label>
+                            <div class="col-sm-1 item_filter">
+                                <input type="text" name="var" class="form-control" value="{{filters.var is defined ? filters.var : ''}}">
+                            </div>
+
+                            <label class="col-sm-1 control-label">Valor</label>
+                            <div class="col-sm-1 item_filter">
+                                <input type="text" name="value" class="form-control" value="{{filters.value is defined ? filters.value : ''}}">
+                            </div>
+
+                            <div class="col-sm-offset-1 col-sm-1">
+                                <button type="submit" class="btn btn-primary pull-right">Filtrar</button>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            
+                        </div>
+                      </form>
+                </div>
+                <div class="row">
+                    <table id="inProcessParcial" class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>Nº</th>
+                            <th>Plantilla</th>
+                            <th>Iniciado por</th>
+                            <th>Fecha inicio</th>
+                            <th>Ultima modificación</th>
+                            <th>Estado</th>
+                            <th>Acción</th>
+                            <th>Reconc.</th>
+                            <th>Audit Trail</th>
+                        </tr>
+                        </thead>
+                        {% if items is defined %}
+                            {% for item in items %}
+                                {% if item.dependsOn == 0 %}
+                                    {% set padre = item %}
+                                {% endif %}
+                            <tr {{ item.dependsOn>0 and padre is defined and item.dependsOn == padre.id_grid ? 'style="background-color:#FFFFDD"' : '' }}>
+                                <td>
+                                    {{item.id_grid}}{% if item.tiene_checklist == 1 and item.es_checklist == 0 and (item.status == 4 or item.status == 7 or  item.status == 12 or item.status == 13 or item.status == 15 or item.status == 9 or item.status == 10) %}
+                                        <i class="fa fa-angle-double-down" aria-hidden="true"></i>
+                                    {% endif %}
+                                </td>
+                                <td>{{ item.dependsOn==0 ? item.name : item.name2 }}</td>
+                                <td>{{item.creator}}</td>
+                                <td>{{ item.created is defined ? item.created|date("d/m/Y H:i:s") : '' }}</td>
+                                <td>{{ item.modified is defined ? item.modified|date("d/m/Y H:i:s") : '' }}</td>
+                                <td>
+                                    {% if item.status == 0 %}
+                                    Iniciado
+                                    {% elseif item.status == 1 %}
+                                    Esperando firma guardado parcial
+                                    {% elseif item.status == 2 %}
+                                    Esperando firma envío
+                                    {% elseif item.status == 3 %}
+                                    Esperando firma cancelación
+                                    {% elseif item.status == 4 %}
+                                    En verificación
+                                    {% elseif item.status == 5 %}
+                                    Pendiente cancelación en edición
+                                    {% elseif item.status == 6 %}
+                                    Cancelado en edición
+                                    {% elseif item.status == 7 %}
+                                    Esperando firma verificación total
+                                    {% elseif item.status == 8 %}
+                                    Cancelado
+                                    {% elseif item.status == 9 %}
+                                    Archivado
+                                    {% elseif item.status == 10 %}
+                                    Archivado
+                                    {% elseif item.status == 11 %}
+                                    Bloqueado
+                                    {% elseif item.status == 12 %}
+                                    Esperando firma cancelación en verificación
+                                    {% elseif item.status == 13 %}
+                                    Esperando firma devolución a edición
+                                    {% elseif item.status == 14 %}
+                                    Pendiente de cancelación en verificación
+                                    {% elseif item.status == 15 %}
+                                    Esperando firma verificación parcial
+                                    {% elseif item.status == 16 %}
+                                    Esperando autorización para reconciliación
+                                    {% else %}
+                                    {{item.status}}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if not item.es_checklist %}
+                                        <!-- Si NO ES un checklist -->
+                                        {% if item.status == 4 or item.status == 5 or item.status == 14 %}
+                                            {% if item.validate == 1 %}
+                                                {% if item.in_edition == 0 %}
+                                                    <a class="btn btn-xs btn-danger" name="verregistro" href="{{path('nononsense_ver_registro', {'revisionid': item.id})}}" target="_self"><i class="fa fa-check" aria-hidden="true"></i> Verificar</a>
+                                                {% else %}
+                                                    <a class="btn btn-xs btn-secondary not-allowed"><i class="fa fa-lock"> </i> {{'En edicion'|trans}}</a>
+                                                {% endif %}
+                                            {% else %}
+                                                <a href="#" class="btn btn-xs btn-warning disabled"><i class="fa fa-check" aria-hidden="true"></i> En verificación</a>
+                                            {% endif %}
+                                        {% endif %}
+
+
+                                        {% if item.status == 0 %}
+                                            {% if item.in_edition == 0 %}
+                                                {% if not item.cumpliment %}
+                                                    <a class="btn btn-xs btn-danger"  name="completarregistro" data-template="{{item.id}}" data-loogbook="{{item.logbook}}"><i class="fa fa-file-o" aria-hidden="true"></i> Completar</a>
+                                                {% else %}
+                                                    <a href="#" class="btn btn-xs btn-warning disabled"><i class="fa fa-check" aria-hidden="true"></i> En cumplimentación</a>
+                                                {% endif %}
+                                            {% else %}
+                                                <a class="btn btn-xs btn-secondary not-allowed"><i class="fa fa-lock"> </i> {{'En edicion'|trans}}</a>
+                                            {% endif %}
+                                        {% endif %}
+
+                                        {% if item.status == 1 or item.status == 2 or item.status == 3 or item.status == 7 or item.status == 12 or item.status == 13 or item.status == 15 %}
+                                            {% if item.idNextSigner is defined  and suser.id==item.idNextSigner %}
+                                                {% if item.status == 1 %}
+                                                    <a class="btn btn-xs btn-danger" href="{{path('nononsense_contrato_registro_completado', {'stepid': item.id_grid, 'comment' : '1'})}}" target="_self"><i class="fa fa-pencil" aria-hidden="true"></i> {{'Firmar'|trans}}</a>
+                                                {% endif %}
+
+                                               {% if item.status == 2 %}
+                                                    <a class="btn btn-xs btn-danger" href="{{path('nononsense_contrato_registro_completado', {'stepid': item.id_grid, 'comment' : '1'})}}" target="_self"><i class="fa fa-pencil" aria-hidden="true"></i> {{'Firmar'|trans}}</a>
+                                                {% endif %}
+
+                                                {% if item.status == 3 %}
+                                                    <a class="btn btn-xs btn-danger" href="{{path('nononsense_registro_cancelar', {'stepid': item.id_grid})}}" target="_self"><i class="fa fa-pencil" aria-hidden="true"></i> {{'Firmar'|trans}}</a>
+                                                {% endif %}
+
+                                                {% if item.status == 7 %}
+                                                    <a class="btn btn-xs btn-danger" href="{{path('nononsense_registro_verificar', {'stepid': item.id_grid, 'comment' : '1'})}}" target="_self"><i class="fa fa-pencil" aria-hidden="true"></i> {{'Firmar'|trans}}</a>
+                                                {% endif %}
+
+                                                {% if item.status == 12 %}
+                                                    <a class="btn btn-xs btn-danger" href="{{path('nononsense_registro_cancelar_verficiacion', {'stepid': item.id_grid})}}" target="_self"><i class="fa fa-pencil" aria-hidden="true"></i> {{'Firmar'|trans}}</a>
+                                                {% endif %}
+
+                                                {% if item.status == 13 %}
+                                                    <a class="btn btn-xs btn-danger" href="{{path('nononsense_registro_devolver_edicion', {'stepid': item.id_grid})}}" target="_self"><i class="fa fa-pencil" aria-hidden="true"></i> {{'Firmar'|trans}}</a>
+                                                {% endif %}
+
+                                                {% if item.status == 15 %}
+                                                    <a class="btn btn-xs btn-danger" href="{{path('nononsense_registro_verificar_parcial', {'stepid': item.id_grid})}}" target="_self"><i class="fa fa-pencil" aria-hidden="true"></i> {{'Firmar'|trans}}</a>
+                                                {% endif %}
+                                            {% else %}
+                                                <a href="#" class="btn btn-xs btn-warning disabled"><i class="fa fa-pencil" aria-hidden="true"></i> Pendiente de firma</a>
+                                            {% endif %}
+                                        {% endif %}
+
+                                        {% if item.status == 6 %}
+                                            <a  name="verRegistro" href="{{path('nononsense_archivo_ver', {'registroid': item.id})}}" class="btn btn-xs btn-default"><i class="fa fa-times" aria-hidden="true"></i> Cancelado</a>
+                                        {% endif %}
+
+                                        {% if item.status == 8 %}
+                                            <a  name="verRegistro" href="{{path('nononsense_archivo_ver', {'registroid': item.id})}}" class="btn btn-xs btn-default"><i class="fa fa-times" aria-hidden="true"></i> Cancelado</a>
+                                        {% endif %}
+
+                                        {% if item.status == 9 or item.status == 10 %}
+                                            <a class="btn btn-xs btn-info" name="verRegistro" href="{{path('nononsense_archivo_ver', {'registroid': item.id})}}" target="_self"><i class="fa fa-eye" aria-hidden="true"></i> {{'Ver registro'|trans}}</a>
+                                        {% endif %}
+                                    {% else %}
+                                        <!-- Si ES un checklist -->
+                                        {% if item.status == 4 %}
+                                            {% if item.validate == 1 %}
+                                                <a class="btn btn-xs btn-danger" name="verregistro" href="{{path('nononsense_ver_checklist', {'revisionid': item.id})}}" target="_self"><i class="fa fa-check" aria-hidden="true"></i> {{'Ver checklist'|trans}}</a>
+                                            {% else %}
+                                                <a href="#" class="btn btn-xs btn-warning disabled"><i class="fa fa-check" aria-hidden="true"></i> En verificación</a>
+                                            {% endif %}
+                                        {% endif %}
+                                        {% if item.status == 7 or item.status == 12 or item.status == 13 or item.status == 15 %}
+                                            {% if item.idNextSigner is defined  and suser.id==item.idNextSigner %}
+                                                {% if item.status == 7 %}
+                                                    <a class="btn btn-xs btn-danger" href="{{path('nononsense_registro_verificar', {'stepid': item.id_grid, 'comment' : '1'})}}" target="_self"><i class="fa fa-pencil" aria-hidden="true"></i> {{'Firmar'|trans}}</a>
+                                                {% endif %}
+
+                                                {% if item.status == 12 %}
+                                                    <a class="btn btn-xs btn-danger" href="{{path('nononsense_registro_cancelar_verficiacion', {'stepid': item.id_grid})}}" target="_self"><i class="fa fa-pencil" aria-hidden="true"></i> {{'Firmar'|trans}}</a>
+                                                {% endif %}
+
+                                                {% if item.status == 13 %}
+                                                    <a class="btn btn-xs btn-danger" href="{{path('nononsense_registro_devolver_edicion', {'stepid': item.id_grid})}}" target="_self"><i class="fa fa-pencil" aria-hidden="true"></i> {{'Firmar'|trans}}</a>
+                                                {% endif %}
+
+                                                {% if item.status == 15 %}
+                                                    <a class="btn btn-xs btn-danger" href="{{path('nononsense_registro_verificar_parcial', {'stepid': item.id_grid})}}" target="_self"><i class="fa fa-pencil" aria-hidden="true"></i> {{'Firmar'|trans}}</a>
+                                                {% endif %}
+                                            {% else %}
+                                                <a href="#" class="btn btn-xs btn-warning disabled"><i class="fa fa-pencil" aria-hidden="true"></i> Pendiente de firma</a>
+                                            {% endif %}
+                                        {% endif %}
+
+                                        {% if item.status == 6 %}
+                                            <a  name="verRegistro" href="{{path('nononsense_ver_checklist', {'revisionid': item.id})}}" class="btn btn-xs btn-default"><i class="fa fa-times" aria-hidden="true"></i> Cancelado</a>
+                                        {% endif %}
+
+                                        {% if item.status == 9 or item.status == 10 %}
+                                            <a class="btn btn-xs btn-info" name="verRegistro" href="{{path('nononsense_ver_checklist', {'revisionid': item.id})}}" target="_self"><i class="fa fa-eye" aria-hidden="true"></i> {{'Ver registro'|trans}}</a>
+                                        {% endif %}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if not item.es_checklist %}
+                                        {% if item.id_reconciliado is defined and item.id_reconciliado is not empty %}
+                                            <a class="btn btn-xs btn-primary" name="verregistro" href="{{path('nononsense_reconciliacion_history', {'id': item.id})}}" target="_self">{{'Ver reconciliado'|trans}}</a>
+                                        {% else %}
+                                            {% if item.id_reconciliado_sig is defined and item.id_reconciliado_sig is not empty %}
+                                                <a class="btn btn-xs btn-primary" name="verregistro" href="{{path('nononsense_reconciliacion_history', {'id': item.id})}}" target="_self">Inicio reconciliación</a>
+                                            {% endif %}
+                                        {% endif %}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if item.status == 9 or item.status == 6 or item.status == 8 or item.status == 10 %}
+                                        {% if not item.es_checklist %}
+                                            <a class="btn btn-xs btn-info" name="verRegistro" href="{{path('nononsense_archivo_ver_historico', {'registroid': item.id})}}" target="_self"><i class="fa fa-book" aria-hidden="true"></i> Audit Trail</a>
+                                        {% else %}
+                                            <a class="btn btn-xs btn-info" name="verRegistro" href="{{path('nononsense_archivo_ver_checklist_historico', {'registroid': item.id})}}" target="_self"><i class="fa fa-book" aria-hidden="true"></i> Audit Trail</a>
+                                        {% endif %}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% endif %}
+                    </table>
+
+                    
+                    {% if pagination is defined and pagination.needed %}
+                        {% include '::pagination2.html.twig' %}
+                        <a href="{{pagination.url}}{{pagination.character}}export_excel=1" target="_blank" class="btn btn-primary pull-right"><i class="fa fa-file-excel-o" aria-hidden="true"></i> Excel</a> 
+                        <a href="{{pagination.url}}{{pagination.character}}export_pdf=1" target="_blank" class="btn btn-primary pull-right" style="margin-right:1px"><i class="fa fa-file-pdf-o" aria-hidden="true"></i> PDF</a> 
+                    {% endif %}
+                    
+                    {% if count==0 %}
+                        <br><b>No se han encontrado datos disponibles</b>
+                    {% endif %}
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div style="display: none">
+    <form id="createRegistro" action="{{path('nononsense_registro_completar', {'registroid': 0})}}">
+        <input type="hidden" name="registroidForm" id="registroidForm">
+        <input type="hidden" name="logbook" id="logbookForm">
+    </form>
+</div>
+<div class="modal" id="editModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <h4>Número de registros del logbook </h4>
+                <p>Introduzca el número de registros anteriores que quiere ver en el logbook</p>
+                <p>
+                    Nombre: <input id="logbook" name="logbook" type="number"
+                                   min="0"
+                                   max="10"
+                                   step="1"
+                                   value=""
+                                   class="form-control"></br>
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" id="editBtnNo"
+                        data-dismiss="modal">
+                    <i class="fa fa-ban" aria-hidden="true"></i> Cancelar
+                </button>
+                <a
+                        class="btn btn-success" id="editBtnYes"
+                        data-dismiss="modal">
+                    <i class="fa fa-paper-plane" aria-hidden="true"></i>
+                    Aceptar
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+{{ parent() }}
+<script src="/js/plugins/datapicker/bootstrap-datepicker.js"></script>
+<script src="/js/plugins/datapicker/locales/bootstrap-datepicker.es.js" charset="UTF-8"></script>
+<script>
+  $(function () {
+    $('#from').datepicker({
+      autoclose: true,
+      orientation: 'bottom auto',
+      format: 'yyyy-mm-dd',
+      language: 'es'
+    });
+    $('#until').datepicker({
+      autoclose: true,
+      orientation: 'bottom auto',
+      format: 'yyyy-mm-dd',
+      language: 'es'
+    });
+
+    $('#factBtnNo').click(function () {
+        $("#factModal").hide();
+
+    });
+
+    $('[name="completarregistro"]').click(function () {
+        console.log("click yeah!")
+
+        var templateid = $(this).attr('data-template');
+        $('#registroidForm').val(templateid);
+        //envío de email
+        var logbookTemplate = $(this).attr('data-loogbook');
+
+        console.log(logbookTemplate);
+        if (logbookTemplate == 1) {
+            console.log('showModal!');
+            $("#editModal").show();
+        } else {
+            console.log('submit!');
+            $('#logbookForm').val(0);
+            $('#createRegistro').submit();
+        }
+
+    });
+
+    $('#editBtnNo').click(function () {
+        $("#editModal").hide();
+
+    });
+
+    $('#editBtnYes').click(function () {
+        var logbook;
+        if($('#logbook').val()){
+            logbook = $('#logbook').val();
+        }
+        else{
+            logbook = 0;
+        }
+        
+        $('#logbookForm').val(logbook);
+        $('#createRegistro').submit();
+
+
+    });
+  });
+</script>
+{% endblock %}
