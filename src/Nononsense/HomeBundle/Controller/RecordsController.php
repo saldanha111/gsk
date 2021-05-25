@@ -626,7 +626,7 @@ class RecordsController extends Controller
 
                                 $file = Utils::api3($this->linkAction($request, $record->getId()));
                                 $file = Utils::saveFile($file, 'plain_document', $this->getParameter('crt.root_dir'));
-                                Utils::setCertification($this->container, $file, 'plain_document', $record->getId());                
+                                Utils::setCertification($this->container, $file, 'documento/albaran', $record->getId());
                             } catch (\Exception $e) {
                                 $this->get('session')->getFlashBag()->add( 'error', "No se pudo certificar el doccumento: ".$e->getMessage());
                             }
@@ -843,7 +843,7 @@ class RecordsController extends Controller
                 
                 $file = Utils::api3($this->linkAction($request, $record->getId()));
                 $file = Utils::saveFile($file, 'plain_document', $this->getParameter('crt.root_dir'));
-                Utils::setCertification($this->container, $file, 'plain_document', $record->getId());                   
+                Utils::setCertification($this->container, $file, 'documento/albaran', $record->getId());
             } catch (\Exception $e) {
                 $this->get('session')->getFlashBag()->add( 'error', "No se pudo certificar el doccumento: ".$e->getMessage());
             }

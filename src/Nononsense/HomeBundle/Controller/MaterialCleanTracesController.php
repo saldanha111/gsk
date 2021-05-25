@@ -235,12 +235,12 @@ class MaterialCleanTracesController extends Controller
 
         if(!$error){
             $now = new DateTime();
-            $firma = 'Material sucio registrado con contraseña de usuario el día ' . $now->format('d-m-Y H:i:s');
+            $firma = 'Material limpieza caducada registrado con contraseña de usuario el día ' . $now->format('d-m-Y H:i:s');
             try{
                 /** @var MaterialCleanCleans $trace */
                 foreach($traces as $trace){
                     $html = '
-                        <p>Material sucio</p>
+                        <p>Material limpieza caducada</p>
                         <ul>
                             <li>Material:'.$trace->getMaterial()->getName().'</li>
                             <li>Código:'.$trace->getCode().'</li>
@@ -249,8 +249,8 @@ class MaterialCleanTracesController extends Controller
                             <li>Fecha: '.$now->format('d-m-Y H:i:s').'</li>
                         </ul>';
 
-                    $file = Utils::generatePdf($this->container, 'GSK - Material limpio', 'Material sucio', $html, 'material', $this->getParameter('crt.root_dir'));
-                    Utils::setCertification($this->container, $file, 'material', $trace->getId());
+                    $file = Utils::generatePdf($this->container, 'GSK - Material limpio', 'Material limpieza caducada', $html, 'material', $this->getParameter('crt.root_dir'));
+                    Utils::setCertification($this->container, $file, 'material-limpieza caducada', $trace->getId());
 
                     $trace->setStatus(3)
                         ->setDirtyMaterialUser($this->getUser())
@@ -312,7 +312,7 @@ class MaterialCleanTracesController extends Controller
                         </ul>';
 
                     $file = Utils::generatePdf($this->container, 'GSK - Material limpio', 'Revisión de material', $html, 'material', $this->getParameter('crt.root_dir'));
-                    Utils::setCertification($this->container, $file, 'material', $trace->getId());
+                    Utils::setCertification($this->container, $file, 'material revision', $trace->getId());
 
                     $trace->setStatus(4)
                         ->setReviewUser($this->getUser())
