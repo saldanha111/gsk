@@ -133,6 +133,15 @@ class RecordsController extends Controller
 
     public function createAction($id)
     {
+        $is_valid = $this->get('app.security')->permissionSeccion('albaran_gestion');
+        if(!$is_valid){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                'No tiene permisos suficientes'
+            );
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
+            return $this->redirect($route);
+        }
 
         $document = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:Documents')
