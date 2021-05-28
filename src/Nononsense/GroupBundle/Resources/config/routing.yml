@@ -1,6 +1,6 @@
-# nononsense_group_create:
-#     path:     /create
-#     defaults: { _controller: NononsenseGroupBundle:Group:create }
+nononsense_group_create:
+    path:     /create
+    defaults: { _controller: NononsenseGroupBundle:Group:create }
     
 nononsense_group_edit:
     path:     /edit/{id}
