@@ -40,8 +40,8 @@ class CVRecordsRepository extends EntityRepository
         $list->leftJoin("i.template", "t")
             ->leftJoin("i.user", "u")
             ->leftJoin("i.state", "s")
-            ->leftJoin("i.cvSignatures", "f")
-            ->andWhere('f.id IS NULL OR f.id = (SELECT MAX(aux.id) FROM Nononsense\HomeBundle\Entity\CVSignatures aux WHERE aux.record=i.id)')
+            ->leftJoin("i.cvWorkflows", "w")
+            ->andWhere('w.id IS NULL OR w.id = (SELECT aux.id FROM Nononsense\HomeBundle\Entity\CVWorkflow aux WHERE aux.record=i.id AND aux.signed=FALSE ORDER BY aux.number ASC)')
             ->orderBy('i.id', 'DESC');
 
 
@@ -54,14 +54,14 @@ class CVRecordsRepository extends EntityRepository
             }
 
             if(isset($filters["plantilla_id"])){
-                $list->andWhere('mw.id IN (SELECT ms.workflow_id FROM Nononsense\HomeBundle\Entity\MasterSteps ms WHERE  ms.plantilla_id=:plantilla_id)');
+                $list->andWhere('t.id=:plantilla_id');
                 $list->setParameter('plantilla_id', $filters["plantilla_id"]);
             }
 
             if(isset($filters["name"])){
                 $terms = explode(" ", $filters["name"]);
                 foreach($terms as $key => $term){
-                    $list->andWhere('mw.name LIKE :name'.$key);
+                    $list->andWhere('t.name LIKE :name'.$key);
                     $list->setParameter('name'.$key, '%' . $term. '%');
                 }
             }
@@ -77,7 +77,7 @@ class CVRecordsRepository extends EntityRepository
             if(isset($filters["content"])){
                 $terms = explode(" ", $filters["content"]);
                 foreach($terms as $key => $term){
-                    $list->andWhere('s.stepDataValue LIKE :content'.$key);
+                    $list->andWhere('s.json LIKE :content'.$key);
                     $list->setParameter('content'.$key, '%' . $term. '%');
                 }
             }
