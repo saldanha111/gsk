@@ -1,6 +1,6 @@
-# nononsense_group:
-#     resource: "@NononsenseGroupBundle/Resources/config/routing.yml"
-#     prefix:   /groups
+nononsense_group:
+    resource: "@NononsenseGroupBundle/Resources/config/routing.yml"
+    prefix:   /groups
 
 nononsense_user:
     resource: "@NononsenseUserBundle/Resources/config/routing.yml"
