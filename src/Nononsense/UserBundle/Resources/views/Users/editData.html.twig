@@ -30,12 +30,13 @@
         
         {% include 'NononsenseUserBundle:Users:dataModule.html.twig' %}
                         
-        
+        {% if user.activeDirectory == false %}
         <div class="row">
             <div class="col-lg-12">
                 {{ form_widget(createUser.save, {'attr' : {'class': 'btn btn-primary'}}) }} 
             </div>
         </div>
+        {% endif %}
     </div>
     
     {{ form_end(createUser) }}

@@ -183,13 +183,19 @@ class AccountRequestController extends Controller
             $user->setDescription(''); //Required parameter. TO DO FIXE IT.
             $user->setIsActive(1);
 
+            $width 	= $this->container->getParameter('avatar_width');
+        	$height = $this->container->getParameter('avatar_height');
+        	$image = \Nononsense\UtilsBundle\Classes\Utils::generateColoredPNG(['width' => $width, 'height' => $height]);
+        	$user->setPhoto($image);
+        	$user->setActiveDirectory(1);
+
             //Start Block Password DEV ONLY. TO DO GET AZURE ACTIVE DIRECTORY TOKEN
 	            $generator = new SecureRandom();
 	            $user->setSalt(base64_encode($generator->nextBytes(10)));
 
 	            $factory 	= $this->get('security.encoder_factory');
 	            $encoder 	= $factory->getEncoder($user);
-	            $password 	= $encoder->encodePassword(1, $user->getSalt());
+	            $password 	= $encoder->encodePassword(uniqid(), $user->getSalt());
 	            $user->setPassword($password);
             //End Block Password
 

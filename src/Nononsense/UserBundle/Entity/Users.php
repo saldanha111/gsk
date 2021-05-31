@@ -340,6 +340,13 @@ class Users implements AdvancedUserInterface, \Serializable
     protected $rcSignatures;
 
     /**
+     * @var boolean
+     *
+     * @ORM\Column(name="activeDirectory", type="boolean", nullable=true, options={"default": false})
+     */
+    private $activeDirectory = false;
+
+    /**
      * Users constructor.
      */
     
@@ -2340,5 +2347,28 @@ class Users implements AdvancedUserInterface, \Serializable
     public function getLocked()
     {
         return $this->locked;
+    }
+
+    /**
+     * Set activeDirectory
+     *
+     * @param boolean $activeDirectory
+     * @return AccountRequests
+     */
+    public function setActiveDirectory($activeDirectory)
+    {
+        $this->activeDirectory = $activeDirectory;
+
+        return $this;
+    }
+
+    /**
+     * Get activeDirectory
+     *
+     * @return boolean 
+     */
+    public function getActiveDirectory()
+    {
+        return $this->activeDirectory;
     }
 }

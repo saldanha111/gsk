@@ -235,7 +235,8 @@ class UsersController extends Controller
             'createUser' => $form->createView(),
             'rol' => $rol,
             'admin' => $admin,
-            'create' => false
+            'create' => false,
+            'user' => $user
         ));
     }
     

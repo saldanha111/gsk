@@ -33,7 +33,9 @@
                         <div style="border-bottom: 1px solid #e7eaec">
                             <div class="limitSize320" style="position: relative">
                                 {% if user.isActive == false %}<button class="btn btn-warning btn-xs " type="button" style="position: absolute; z-index: 10"><i class="fa fa-lock"></i></button>{% endif %}
-                                <img alt="image" class="img-responsive" src="{{webPath}}user_{{user.id}}.jpg?nocache={{random()}}">
+                                {% if user.photo %}
+                                <img alt="image" class="img-responsive" src="{{user.photo}}">
+                                {% endif %}
                                 {% if editable %}
                                     <div class="editImage">
                                         <a href="{{ path('nononsense_user_edit_image', {"id" : user.id})}}" class="btn btn-primary btn-xs"><i class="fa fa-image"></i> {{'Change image'|trans}}</a>
@@ -52,14 +54,18 @@
                         <h4>{{'About me'|trans}}</h4>
                         {{user.description|raw}}
                         {% if editable %}
+                        {% if user.activeDirectory == false %}
                         <div class="row m-t">
                             <div class="col-xs-6">
-                                <a href="{{ path('nononsense_user_edit', {"id" : user.id})}}" class="btn btn-primary btn-xs btn-block disabled"><i class="fa fa-edit"></i> {{'Edit data'|trans}}</a>
+                                <a href="{{ path('nononsense_user_edit', {"id" : user.id})}}" class="btn btn-primary btn-xs btn-block "><i class="fa fa-edit"></i> {{'Edit data'|trans}}</a>
                             </div>
                             <div class="col-xs-6">
                                 <a href="{{path('nononsense_user_modify_password', {'id': user.id}) }}" class="btn btn-danger btn-xs btn-block"><i class="fa fa-lock"></i> {{'New pass.'|trans}}</a>
                             </div>
                         </div>
+                        {% else %}
+                            <p>El usuario {{user.username}} pertenece a Active Directory</p>
+                        {% endif %}
                         {% endif %}
                     </div>
                 </div>
