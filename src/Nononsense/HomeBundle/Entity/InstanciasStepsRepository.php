@@ -326,6 +326,11 @@ class InstanciasStepsRepository extends EntityRepository
                 $list->setParameter('sap', $filters["sap"]);
             }
 
+            if(isset($filters["index"]) && isset($filters["value"])){
+                $list->andWhere("ISJSON(s.stepDataValue) > 0");
+                $list->andWhere("JSON_VALUE(s.stepDataValue, '$.data.".$filters["index"]."') LIKE '%".$filters["value"]."%'");
+            }
+
             if(isset($filters["fll"]) && $filters["fll"]=="1"){
                 $fll=1;
             }

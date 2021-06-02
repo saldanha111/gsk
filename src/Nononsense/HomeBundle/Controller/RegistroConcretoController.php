@@ -21,6 +21,7 @@ use Nononsense\HomeBundle\Entity\InstanciasWorkflows;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Nononsense\HomeBundle\Entity\InstanciasSteps;
 use Nononsense\HomeBundle\Entity\ActivityUser;
+use Nononsense\HomeBundle\Entity\InstanciasStepsHistory;
 
 use Nononsense\UtilsBundle\Classes;
 
@@ -696,6 +697,29 @@ class RegistroConcretoController extends Controller
             $evidencia->setToken($step->getToken());
             $evidencia->setStepDataValue($step->getStepDataValue());
 
+            $lastEvidence = $em->getRepository(EvidenciasStep::class)->findOneBy(['stepEntity' => $step], ['id' => 'DESC']);
+            $obj1 = json_decode($step->getStepDataValue())->data;
+
+            if ($lastEvidence) {
+                
+                $obj2 = json_decode($lastEvidence->getStepDataValue())->data;
+
+                //Compares new step with old step and instert differences
+                $this->multi_obj_diff_counter = 0;
+                $this->multi_obj_diff($obj1, $obj2, '$obj2->$key', '/^(in_|gsk_|dxo_|delete_)|(name|extension\b)/', false, $evidencia, false, null, 'new');
+
+
+                //Compares old step with new step and check removed fields
+                $this->multi_obj_diff_counter = 0;
+                $this->multi_obj_diff($obj2, $obj1, '$obj2->$key', '/^(in_|gsk_|dxo_|delete_)|(name|extension\b)/', false, $evidencia, false, null, 'old');
+
+            }else{
+
+                $obj2 = json_decode($step->getStepDataValue())->configuration;
+                //Compares with default values
+                $this->multi_obj_diff($obj1, $obj2, '$obj2->variables->$field->value', '/^(in_|gsk_|dxo_|delete_)|(name|extension\b)/', false, $evidencia, false, null, 'new');
+            }
+
             $firmas = $this->getDoctrine()
                 ->getRepository('NononsenseHomeBundle:FirmasStep')
                 ->findBy(array("step_id" => $step->getId()));
@@ -887,6 +911,29 @@ class RegistroConcretoController extends Controller
             $evidencia->setToken($step->getToken());
             $evidencia->setStepDataValue($step->getStepDataValue());
 
+            $lastEvidence = $em->getRepository(EvidenciasStep::class)->findOneBy(['stepEntity' => $step], ['id' => 'DESC']);
+            $obj1 = json_decode($step->getStepDataValue())->data;
+
+            if ($lastEvidence) {
+                
+                $obj2 = json_decode($lastEvidence->getStepDataValue())->data;
+
+                //Compares new step with old step and instert differences
+                $this->multi_obj_diff_counter = 0;
+                $this->multi_obj_diff($obj1, $obj2, '$obj2->$key', '/^(in_|gsk_|dxo_|delete_)|(name|extension\b)/', false, $evidencia, false, null, 'new');
+
+
+                //Compares old step with new step and check removed fields
+                $this->multi_obj_diff_counter = 0;
+                $this->multi_obj_diff($obj2, $obj1, '$obj2->$key', '/^(in_|gsk_|dxo_|delete_)|(name|extension\b)/', false, $evidencia, false, null, 'old');
+
+            }else{
+
+                $obj2 = json_decode($step->getStepDataValue())->configuration;
+                //Compares with default values
+                $this->multi_obj_diff($obj1, $obj2, '$obj2->variables->$field->value', '/^(in_|gsk_|dxo_|delete_)|(name|extension\b)/', false, $evidencia, false, null, 'new');
+            }
+
             $firmas = $this->getDoctrine()
                 ->getRepository('NononsenseHomeBundle:FirmasStep')
                 ->findBy(array("step_id" => $step->getId()));
@@ -995,6 +1042,29 @@ class RegistroConcretoController extends Controller
             $evidencia->setToken($step->getToken());
             $evidencia->setStepDataValue($step->getStepDataValue());
 
+            $lastEvidence = $em->getRepository(EvidenciasStep::class)->findOneBy(['stepEntity' => $step], ['id' => 'DESC']);
+            $obj1 = json_decode($step->getStepDataValue())->data;
+
+            if ($lastEvidence) {
+                
+                $obj2 = json_decode($lastEvidence->getStepDataValue())->data;
+
+                //Compares new step with old step and instert differences
+                $this->multi_obj_diff_counter = 0;
+                $this->multi_obj_diff($obj1, $obj2, '$obj2->$key', '/^(in_|gsk_|dxo_|delete_)|(name|extension\b)/', false, $evidencia, false, null, 'new');
+
+
+                //Compares old step with new step and check removed fields
+                $this->multi_obj_diff_counter = 0;
+                $this->multi_obj_diff($obj2, $obj1, '$obj2->$key', '/^(in_|gsk_|dxo_|delete_)|(name|extension\b)/', false, $evidencia, false, null, 'old');
+
+            }else{
+
+                $obj2 = json_decode($step->getStepDataValue())->configuration;
+                //Compares with default values
+                $this->multi_obj_diff($obj1, $obj2, '$obj2->variables->$field->value', '/^(in_|gsk_|dxo_|delete_)|(name|extension\b)/', false, $evidencia, false, null, 'new');
+            }
+
             $firmas = $this->getDoctrine()
                 ->getRepository('NononsenseHomeBundle:FirmasStep')
                 ->findBy(array("step_id" => $step->getId()));
@@ -1077,6 +1147,29 @@ class RegistroConcretoController extends Controller
             $evidencia->setUserEntiy($registro->getUserCreatedEntiy());
             $evidencia->setToken($step->getToken());
             $evidencia->setStepDataValue($step->getStepDataValue());
+
+            $lastEvidence = $em->getRepository(EvidenciasStep::class)->findOneBy(['stepEntity' => $step], ['id' => 'DESC']);
+            $obj1 = json_decode($step->getStepDataValue())->data;
+
+            if ($lastEvidence) {
+                
+                $obj2 = json_decode($lastEvidence->getStepDataValue())->data;
+
+                //Compares new step with old step and instert differences
+                $this->multi_obj_diff_counter = 0;
+                $this->multi_obj_diff($obj1, $obj2, '$obj2->$key', '/^(in_|gsk_|dxo_|delete_)|(name|extension\b)/', false, $evidencia, false, null, 'new');
+
+
+                //Compares old step with new step and check removed fields
+                $this->multi_obj_diff_counter = 0;
+                $this->multi_obj_diff($obj2, $obj1, '$obj2->$key', '/^(in_|gsk_|dxo_|delete_)|(name|extension\b)/', false, $evidencia, false, null, 'old');
+
+            }else{
+
+                $obj2 = json_decode($step->getStepDataValue())->configuration;
+                //Compares with default values
+                $this->multi_obj_diff($obj1, $obj2, '$obj2->variables->$field->value', '/^(in_|gsk_|dxo_|delete_)|(name|extension\b)/', false, $evidencia, false, null, 'new');
+            }
 
             $firmas = $this->getDoctrine()
                 ->getRepository('NononsenseHomeBundle:FirmasStep')
@@ -1642,4 +1735,210 @@ class RegistroConcretoController extends Controller
         return true;
     }
 
+    public $multi_obj_diff_counter = 0;
+
+    public function multi_obj_diff($obj1, $obj2, $compare, $regex, $field, $evidencia, $clonedObj, $removedOrAdded = null, $compareWith, $aux = ''){
+
+        if ($this->multi_obj_diff_counter == 0) {
+            $clonedObj = clone $obj1; //Clone $obj1 once time to get keys of the first dimension
+        }
+
+        $diff = [];
+        //$removedOrAdded = null;
+        //$lineOptions = null;
+
+        foreach ($obj1 as $key => $value) {
+            if (!preg_match($regex, $key)) {
+                
+                if (array_key_exists($key, $clonedObj)) {
+                    $field = $key;
+                }
+
+                if (!isset($obj2->$key)) {
+          
+                    $obj2->$key = $this->format_object($value); //Checks if object exsist, if not, create the empty object
+                    $removedOrAdded = $field; //Save $field in $removedOrAdded (temp) if input line is removed or added, if is added or removed depends on $compareWith
+                }
+            
+
+                $deph = ($compare == '$obj2->variables->$field->value') ? $obj2 : $obj2->$key; //Check if first insert or not
+
+                if (is_object($value)) {
+                    $multi = $this->multi_obj_diff($value, $deph, $compare, $regex, $field, $evidencia, $clonedObj, $removedOrAdded, $compareWith, $key);
+                    if ($multi) {
+                        $diff[$key] =  $multi;
+                        //$diff[$key] = (key($multi) == 'value') ? $multi['value'] : $multi; //(key($multi) == 'value') ? $multi['value'] : $multi;
+                    }
+
+                }else{
+
+                    //echo $field.':'.$removedOrAdded.'<br>';
+
+                    if ($value != eval("return $compare;")) {
+
+                        $lineOptions = null;
+                        $index = ($aux != $field) ? $aux : $key;
+
+                        if ($index == 'value' || $index == '') {
+                            $index = null;
+                        }
+
+                        if ($compareWith == 'old') {
+                            if ($field == $removedOrAdded) {
+                                $lineOptions = 0;
+                                // $diff[$key]['field'] = $field;
+                                // $diff[$key]['line_options'] = $lineOptions;
+                                // $diff[$key]['field_index'] = $index;
+                                // $diff[$key]['field_value'] = $value;
+                                // $diff[$key]['prevVal'] = eval("return $compare;");
+                                $this->insertDiff($field, $index, $value, eval("return $compare;"), $lineOptions, $evidencia);
+                            }
+                        }else{
+                            if ($field == $removedOrAdded) {
+                                $lineOptions = 1;
+                            }
+
+                            $diff[$key]['field'] = $field;
+                            $diff[$key]['line_options'] = $lineOptions;
+                            $diff[$key]['field_index'] = $index;
+                            $diff[$key]['field_value'] = $value;
+                            $diff[$key]['prevVal'] = eval("return $compare;");
+
+                            $this->insertDiff($field, $index, $value, eval("return $compare;"), $lineOptions, $evidencia);
+                        }
+                        // if ($field == $removedOrAdded) { //Check removed or added field
+                        //     $lineOptions = ($compareWith == 'old') ? 0 : 1; //if we compare the old object, we know that it is removed (1), otherwise, added (0)
+                        // }
+                        // //echo $field.'<br>';
+                        
+                        // $this->insertDiff($field, $index, $value, eval("return $compare;"), $lineOptions, $evidencia);
+
+                        
+      
+                        // $diff[$key]['field'] = $field;
+                        // $diff[$key]['line_options'] = $lineOptions;
+                        // $diff[$key]['field_index'] = $index;
+                        // $diff[$key]['field_value'] = $value;
+                        // $diff[$key]['prevVal'] = eval("return $compare;");
+                    }
+                }
+            }
+            $this->multi_obj_diff_counter++;
+        }
+
+      
+        //print_r($obj1);
+
+        return $diff;
+    }
+
+
+    public function format_object($value){
+
+        $arr = new \stdClass();
+
+        $arr->removedOrAdded = 'removed';
+
+        if (is_object($value)) {
+            foreach ($value as $key => $v) {
+                $arr->$key = $this->format_object($v);
+            }
+        }else{
+            $arr = '';
+        }
+        
+        return $arr;
+    }
+
+
+    // public function test_multi_obj_diff($obj1, $obj2, $firstRecord, $evidencia){
+
+    //     foreach ($obj1 as $key1 => $value1) {
+    //         if (!preg_match('/^(in_|gsk_|dxo_|delete_)/', $key1)) {
+    //             if (is_object($value1)) {
+    //                 foreach ($value1 as $key2 => $value2) {
+    //                     if ($key2 == 'value' || is_numeric($key2)) {
+    //                         if (is_object($value2)) {
+    //                             foreach ($value2 as $key3 => $value3) {
+    //                                 if ($key3 == 'value' || is_numeric($key3)) {
+    //                                     if ($firstRecord) {
+    //                                         if ($value3 != $obj2->variables->$key1->value) {
+    //                                             $this->insertDiff($key1, $key2, $value3, null, $evidencia);
+    //                                             //echo $key1.'->'.$key2.'->'.$value3.'<br>';
+    //                                         }
+    //                                     }else{
+    //                                         if (isset($obj2->$key1->$key2->$key3)) {
+    //                                             if ($value3 != $obj2->$key1->$key2->$key3) {
+    //                                                 //echo $key1.'->'.$key2.'->'.$value3.'<br>';
+    //                                                 $this->insertDiff($key1, $key2, $value3, $obj2->$key1->$key2->$key3, $evidencia);
+    //                                             }
+    //                                         }
+    //                                     }
+                                        
+    //                                 }
+    //                             }
+    //                         }else{
+    //                             if ($firstRecord) {
+    //                                 if ($value2 != $obj2->variables->$key1->value) {
+    //                                     //echo $key1.'->'.$key2.'->'.$value3.'<br>';
+    //                                     $this->insertDiff($key1, $key2, $value2, null, $evidencia);
+    //                                 }
+    //                             }else{
+    //                                 if (isset($obj2->$key1->$key2)) {
+    //                                     if ($value2 != $obj2->$key1->$key2) {
+    //                                         //echo $key1.'->'.$key2.'->'.$value2.'<br>';
+    //                                         $this->insertDiff($key1, $key2, $value2, $obj2->$key1->$key2, $evidencia);
+    //                                     }
+    //                                 }
+    //                             } 
+    //                         }
+    //                     }  
+    //                 }
+    //             }else{
+    //                 if ($firstRecord) {
+    //                     if ($value1 != $obj2->variables->$key1->value) {
+    //                         //echo $key1.'->'.$key2.'->'.$value3.'<br>';
+    //                         $this->insertDiff($key1, null, $value1, null, $evidencia);
+    //                     }
+    //                 }else{
+    //                     if (isset($obj2->$key1)) {
+    //                         if ($value1 != $obj2->$key1) {
+    //                             $this->insertDiff($key1, null, $value1, $obj2->$key1, $evidencia);
+    //                             //echo $key1.'->'.$value1.'<br>';
+    //                         }
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
+
+    public function insertDiff($field, $index = null, $value, $prevValue = null, $lineOptions = null, $evidencia){
+
+            $stepHistory = new InstanciasStepsHistory();
+            $stepHistory->setField($field);
+            $stepHistory->setIndex($index);
+            $stepHistory->setValue($value);
+            $stepHistory->setPrevValue($prevValue);
+            $stepHistory->setLineOptions($lineOptions);
+            $stepHistory->setEvidencia($evidencia);
+
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($stepHistory);
+            //$em->flush();
+
+            return $stepHistory;
+    }
+
+    // public function multi_format($obj, $aux = ''){
+    //     foreach ($obj as $key => $value) {
+            
+    //         if (is_array($value) || is_object($value)) {
+    //             //echo 'ket: '.$key.'<br>';
+    //             $this->multi_format($value, $key);
+    //         }
+
+    //         echo $value.'<br>';
+    //     }
+    // }
 }

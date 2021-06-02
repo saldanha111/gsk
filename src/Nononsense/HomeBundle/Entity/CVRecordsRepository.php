@@ -110,6 +110,7 @@ class CVRecordsRepository extends EntityRepository
                 }
             }
 
+
             if(isset($filters["content"])){
                 $terms = explode(" ", $filters["content"]);
                 foreach($terms as $key => $term){
@@ -152,6 +153,14 @@ class CVRecordsRepository extends EntityRepository
             if(isset($filters["until"])){
                 $list->andWhere('i.created<=:until');
                 $list->setParameter('until', $filters["until"]." 23:59:00");
+            }
+
+            if(isset($filters["var"]) && isset($filters["value"])){
+                $list->andWhere("ISJSON(last.json) > 0");
+                $list->andWhere("JSON_VALUE(last.json, :var) LIKE :value");
+                $list->setParameter('var', '$.data.'.$filters["var"]);
+                $list->setParameter('value', '%'.$filters["value"].'%');
+
             }
         }
 

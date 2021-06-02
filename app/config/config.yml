@@ -101,6 +101,8 @@ doctrine:
             string_functions:
                 GROUP_CONCAT: Nononsense\UtilsBundle\DQL\GroupConcat
                 FIRST: Nononsense\UtilsBundle\DQL\FirstFunction
+                json_value: Nononsense\UtilsBundle\DQL\JsonValue
+                isjson: Nononsense\UtilsBundle\DQL\IsJson
 
 # Swiftmailer Configuration
 swiftmailer:

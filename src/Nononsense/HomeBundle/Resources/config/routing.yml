@@ -306,6 +306,14 @@ nononsense_search:
     path: /searcher
     defaults: { _controller: NononsenseHomeBundle:Search:list}
 
+nononsense_content_search:
+    path: /searcher/content
+    defaults: { _controller: NononsenseHomeBundle:Search:listContent}
+
+nononsense_content_search_file_download:
+    path: /searcher/{id}
+    defaults: { _controller: NononsenseHomeBundle:Search:downloadBase64}
+
 nononsense_activity:
     path: /activity
     defaults: { _controller: NononsenseHomeBundle:Activity:list}
