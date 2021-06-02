@@ -37,9 +37,9 @@ class CVWorkflow
     /**
      * @var integer
      *
-     * @ORM\Column(name="number", type="integer")
+     * @ORM\Column(name="number_signature", type="integer")
      */
-    protected $number;
+    protected $numberSignature;
 
     /**
      * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="cvWorkflows")
@@ -76,30 +76,6 @@ class CVWorkflow
     {
         return $this->id;
     }
-
-    /**
-     * Set number
-     *
-     * @param integer $number
-     * @return TMWorkflow
-     */
-    public function setNumber($number)
-    {
-        $this->number = $number;
-
-        return $this;
-    }
-
-    /**
-     * Get number
-     *
-     * @return integer 
-     */
-    public function getNumber()
-    {
-        return $this->number;
-    }
-
 
     /**
      * Set signed
@@ -214,5 +190,28 @@ class CVWorkflow
     public function getGroup()
     {
         return $this->group;
+    }
+
+    /**
+     * Set numberSignature
+     *
+     * @param integer $numberSignature
+     * @return CVWorkflow
+     */
+    public function setNumberSignature($numberSignature)
+    {
+        $this->numberSignature = $numberSignature;
+
+        return $this;
+    }
+
+    /**
+     * Get numberSignature
+     *
+     * @return integer 
+     */
+    public function getNumberSignature()
+    {
+        return $this->numberSignature;
     }
 }

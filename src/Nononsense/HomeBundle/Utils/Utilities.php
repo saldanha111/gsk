@@ -165,7 +165,7 @@ class Utilities{
         $pdf->SetFont('helvetica', '', 9, '', true);
         $pdf->AddPage('L', 'A4');
         $filename = 'list_records';
-        $pdf->writeHTMLCell($w = 0, $h = 0, $x = '', $y = '', $html, $border = 0, $ln = 1, $fill = 0, $reseth = true, $align = '', $autopadding = true;
+        $pdf->writeHTMLCell($w = 0, $h = 0, $x = '', $y = '', $html, $border = 0, $ln = 1, $fill = 0, $reseth = true, $align = '', $autopadding = true);
         $pdf->Output($filename.".pdf",'I'); // This will output the PDF as a response directly
     }
 }

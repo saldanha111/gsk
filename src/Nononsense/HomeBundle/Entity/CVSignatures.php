@@ -87,9 +87,9 @@ class CVSignatures
     /**
      * @var integer
      *
-     * @ORM\Column(name="number", type="integer", nullable=true)
+     * @ORM\Column(name="number_signature", type="integer", nullable=true)
      */
-    protected $number;
+    protected $numberSignature;
 
     /**
      * @var boolean 
@@ -592,29 +592,6 @@ class CVSignatures
     }
 
     /**
-     * Set number
-     *
-     * @param integer $number
-     * @return CVSignatures
-     */
-    public function setNumber($number)
-    {
-        $this->number = $number;
-
-        return $this;
-    }
-
-    /**
-     * Get number
-     *
-     * @return integer 
-     */
-    public function getNumber()
-    {
-        return $this->number;
-    }
-
-    /**
      * Set justification
      *
      * @param boolean $justification
@@ -635,5 +612,28 @@ class CVSignatures
     public function getJustification()
     {
         return $this->justification;
+    }
+
+    /**
+     * Set numberSignature
+     *
+     * @param integer $numberSignature
+     * @return CVSignatures
+     */
+    public function setNumberSignature($numberSignature)
+    {
+        $this->numberSignature = $numberSignature;
+
+        return $this;
+    }
+
+    /**
+     * Get numberSignature
+     *
+     * @return integer 
+     */
+    public function getNumberSignature()
+    {
+        return $this->numberSignature;
     }
 }

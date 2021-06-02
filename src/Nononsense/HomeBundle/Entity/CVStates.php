@@ -60,6 +60,27 @@ class CVStates
      */
     protected $canBeOpened;
 
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="icon", type="string", length=45,  nullable=true)
+     */
+    protected $icon;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="color", type="string", length=45,  nullable=true)
+     */
+    protected $color;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="name_alternative", type="string", length=255,  nullable=true)
+     */
+    protected $nameAlternative;
+
     public function __construct()
     {
         
@@ -268,5 +289,74 @@ class CVStates
     public function getType()
     {
         return $this->type;
+    }
+
+    /**
+     * Set icon
+     *
+     * @param string $icon
+     * @return CVStates
+     */
+    public function setIcon($icon)
+    {
+        $this->icon = $icon;
+
+        return $this;
+    }
+
+    /**
+     * Get icon
+     *
+     * @return string 
+     */
+    public function getIcon()
+    {
+        return $this->icon;
+    }
+
+    /**
+     * Set color
+     *
+     * @param string $color
+     * @return CVStates
+     */
+    public function setColor($color)
+    {
+        $this->color = $color;
+
+        return $this;
+    }
+
+    /**
+     * Get color
+     *
+     * @return string 
+     */
+    public function getColor()
+    {
+        return $this->color;
+    }
+
+    /**
+     * Set nameAlternative
+     *
+     * @param string $nameAlternative
+     * @return CVStates
+     */
+    public function setNameAlternative($nameAlternative)
+    {
+        $this->nameAlternative = $nameAlternative;
+
+        return $this;
+    }
+
+    /**
+     * Get nameAlternative
+     *
+     * @return string 
+     */
+    public function getNameAlternative()
+    {
+        return $this->nameAlternative;
     }
 }

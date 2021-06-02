@@ -121,6 +121,14 @@ class TMTemplates
     protected $logbook;
 
     /**
+     * @var boolean $correlative
+     *
+     * @ORM\Column(name="correlative", type="boolean",  options={"default" = false})
+     * @Groups({"detail_document"})
+     */
+    protected $correlative;
+
+    /**
      * @var boolean $uniqid
      *
      * @ORM\Column(name="uniqid", type="boolean",  options={"default" = false})
@@ -1376,5 +1384,28 @@ class TMTemplates
     public function getCvRecords()
     {
         return $this->cvRecords;
+    }
+
+    /**
+     * Set correlative
+     *
+     * @param boolean $correlative
+     * @return TMTemplates
+     */
+    public function setCorrelative($correlative)
+    {
+        $this->correlative = $correlative;
+
+        return $this;
+    }
+
+    /**
+     * Get correlative
+     *
+     * @return boolean 
+     */
+    public function getCorrelative()
+    {
+        return $this->correlative;
     }
 }

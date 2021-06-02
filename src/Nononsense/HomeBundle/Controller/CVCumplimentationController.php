@@ -83,7 +83,7 @@ class CVCumplimentationController extends Controller
 
         $item = $em->getRepository(TMTemplates::class)->findOneBy(array("id" => $items[0]["id"]));
         $action=$em->getRepository(CVActions::class)->findOneBy(array("id" => 15));
-        $state=$em->getRepository(CVStates::class)->findOneBy(array("id" => 11));
+        $state=$em->getRepository(CVStates::class)->findOneBy(array("id" => 1));
         $user = $this->container->get('security.context')->getToken()->getUser();
 
         $wfs=$em->getRepository(TMSecondWorkflow::class)->findBy(array("template" => $item),array("id" => "ASC"));
@@ -109,7 +109,7 @@ class CVCumplimentationController extends Controller
         $sign->setModified(new \DateTime());
         $sign->setSigned(FALSE);
         $sign->setJustification(FALSE);
-        $sign->setNumber(1);
+        $sign->setNumberSignature(1);
 
         if($request->get("unique")){
             foreach($request->get("unique") as $unique){
@@ -146,7 +146,7 @@ class CVCumplimentationController extends Controller
                         $cvwf->setUser($user_aux);
                     }
 
-                    $cvwf->setNumber($key);
+                    $cvwf->setNumberSignature($key);
                     $cvwf->setSigned(FALSE);
                     $em->persist($cvwf);
                 }
@@ -279,7 +279,7 @@ class CVCumplimentationController extends Controller
         if($request->get('justification')){
             $signature->setDescription($request->get('justification'));
         }
-        $signature->setJson(str_replace("gsk_id_firm", $signature->getNumber(), $signature->getJson()));
+        $signature->setJson(str_replace("gsk_id_firm", $signature->getNumberSignature(), $signature->getJson()));
         $signature->setSigned(TRUE);
         $signature->setModified(new \DateTime());
         $em->persist($signature);
@@ -343,14 +343,15 @@ class CVCumplimentationController extends Controller
         $array_item["suser"]["id"]=$user->getId();
         $array_item["filters"]=$filters;
         $array_item["items"] = $this->getDoctrine()->getRepository(CVRecords::class)->search("list",$filters);
-        foreach($array_item["items"] as $key => $record){
+        $array_item["states"]=$this->getDoctrine()->getRepository(CVStates::class)->findAll();
+        /*foreach($array_item["items"] as $key => $record){
             if(($record["validate1"] || $record["validate2"]) && $record["validate3"]){
                 $array_item["items"][$key]["validate"]=FALSE;
             }
             else{
                 $array_item["items"][$key]["validate"]=TRUE;
             }
-        }
+        }*/
         $array_item["count"] = $this->getDoctrine()->getRepository(CVRecords::class)->search("count",$filters2);
         $url=$this->container->get('router')->generate('nononsense_cv_search');
         $params=$request->query->all();

@@ -121,6 +121,14 @@ class TMTemplates
     protected $logbook;
 
     /**
+     * @var boolean $correlative
+     *
+     * @ORM\Column(name="correlative", type="boolean",  options={"default" = false})
+     * @Groups({"detail_document"})
+     */
+    protected $correlative;
+
+    /**
      * @var boolean $uniqid
      *
      * @ORM\Column(name="uniqid", type="boolean",  options={"default" = false})

@@ -379,6 +379,7 @@ class TemplateManagementRequestController extends Controller
 
         $template->setLogbook(0);
         $template->setUniqid(0);
+        $template->setCorrelative(0);
         $template->setCreated(new \DateTime());
         $template->setModified(new \DateTime());
         $template->setTemplateId($itemplate);

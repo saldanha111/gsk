@@ -19,16 +19,37 @@ class CVRecordsRepository extends EntityRepository
         if(!empty($filters)){
             if (isset($filters["user"])) {
                 $user = $filters["user"];
+                $groups=array();
+                foreach($user->getGroups() as $uniq_group){
+                    $groups[]=$uniq_group->getGroup();
+                }
             }
         }
+
+        $require_action="CASE  WHEN 
+            (sig.user=:eluser1 
+                OR
+                (
+                    t.correlative=TRUE AND sig.user IS NULL AND  (w.user=:eluser1 OR (w.group IN (:groups) AND :eluser2 NOT IN (SELECT IDENTITY(vvv1.user) FROM Nononsense\HomeBundle\Entity\CVWorkflow vvv1 WHERE vvv1.record=i.id)  AND :eluser2 NOT IN (SELECT IDENTITY(vvv2.user) FROM Nononsense\HomeBundle\Entity\CVSignatures vvv2 LEFT JOIN  Nononsense\HomeBundle\Entity\CVActions vvv3 WITH vvv2.action=vvv3.id WHERE vvv2.record=i.id AND vvv3.type!=a.type) ))
+                )
+                OR
+                (
+                    t.correlative=FALSE AND sig.user IS NULL AND (
+                         :eluser2 IN (SELECT IDENTITY(vvv5.user) FROM Nononsense\HomeBundle\Entity\CVWorkflow vvv5 WHERE vvv5.record=i.id AND vvv5.signed=FALSE) AND :eluser2 NOT IN (SELECT IDENTITY(vvv6.user) FROM Nononsense\HomeBundle\Entity\CVSignatures vvv6 LEFT JOIN  Nononsense\HomeBundle\Entity\CVActions vvv7 WITH vvv6.action=vvv7.id WHERE vvv6.record=i.id AND vvv7.type!=a.type)
+                    )
+                )
+                OR
+                (
+                    t.correlative=FALSE AND sig.user IS NULL AND (SELECT COUNT(vvv8.id) FROM Nononsense\HomeBundle\Entity\CVWorkflow vvv8 WHERE vvv8.record=i.id AND vvv8.signed=FALSE AND vvv8.group IN (:groups))>0  AND :eluser2 NOT IN (SELECT IDENTITY(vvv9.user) FROM Nononsense\HomeBundle\Entity\CVSignatures vvv9 LEFT JOIN  Nononsense\HomeBundle\Entity\CVActions vvv10 WITH vvv9.action=vvv10.id WHERE vvv9.record=i.id AND vvv10.type!=a.type)
+                )
+            ) THEN 1 ELSE 0 END";
 
         switch($type){
             case "list":
                 $list = $this->createQueryBuilder('i')
-                    ->select('i.id', 't.name','u.name as creator','i.created','i.modified','t.logbook','s.name state','i.inEdition','t.logbook');
-                //$list->addSelect("CASE  WHEN ((SELECT COUNT(ela.step_id) FROM Nononsense\HomeBundle\Entity\FirmasStep ela WHERE ela.userEntiy=:el_user AND ela.step_id=s.id AND ela.elaboracion=1)>0 OR i.usercreatedid=:el_user_id) THEN 0 ELSE 1 AS validate");
-                //$list->setParameter('el_user', $user);
-                //$list->setParameter('el_user_id', $user->getId());
+                    ->select('i.id', 't.name','u.name creator','i.created','i.modified','t.logbook','s.name state','i.inEdition','t.logbook','a.nameAlternative pendingAction','sigu.id idNextSigner','ty.name type','s.final finalState','s.color colorState','s.icon iconState','s.canBeOpened canBeOpenedState','s.nameAlternative alternativeState');
+
+                $list->addSelect($require_action." AS requireAction");
 
                 break;
             case "count":
@@ -37,12 +58,27 @@ class CVRecordsRepository extends EntityRepository
                 break;
         }
 
+        if($type=="list" || isset($filters["pending_for_me"])){
+            $list->setParameter('eluser1', $user);
+            $list->setParameter('eluser2', $user->getId());
+            $list->setParameter('groups', $groups);
+        }
+        
+
         $list->leftJoin("i.template", "t")
             ->leftJoin("i.user", "u")
             ->leftJoin("i.state", "s")
-            ->leftJoin("i.cvWorkflows", "w")
-            ->andWhere('w.id IS NULL OR w.id = (SELECT aux.id FROM Nononsense\HomeBundle\Entity\CVWorkflow aux WHERE aux.record=i.id AND aux.signed=FALSE ORDER BY aux.number ASC)')
-            ->orderBy('i.id', 'DESC');
+            ->leftJoin("i.cvWorkflows", "w", "WITH", "(w.id = (SELECT MIN(aux.id) FROM Nononsense\HomeBundle\Entity\CVWorkflow aux WHERE aux.record=i.id AND aux.signed=FALSE))")
+            ->leftJoin("i.cvSignatures", "sig", "WITH", "(sig IS NULL OR sig.id = (SELECT MAX(aux2.id) FROM Nononsense\HomeBundle\Entity\CVSignatures aux2 WHERE aux2.record=i.id AND aux2.signed=FALSE))")
+            ->leftJoin("i.cvSignatures", "last", "WITH", "(sig IS NULL OR sig.id = (SELECT MAX(aux3.id) FROM Nononsense\HomeBundle\Entity\CVSignatures aux3 WHERE aux3.record=i.id))")
+            ->leftJoin("sig.action", "a")
+            ->leftJoin("s.type", "ty")
+            ->leftJoin("sig.user", "sigu");
+            
+
+        if($type=="list"){
+            $list->orderBy('i.id', 'DESC');
+        }
 
 
 
@@ -77,7 +113,7 @@ class CVRecordsRepository extends EntityRepository
             if(isset($filters["content"])){
                 $terms = explode(" ", $filters["content"]);
                 foreach($terms as $key => $term){
-                    $list->andWhere('s.json LIKE :content'.$key);
+                    $list->andWhere('last.json LIKE :content'.$key);
                     $list->setParameter('content'.$key, '%' . $term. '%');
                 }
             }
@@ -91,43 +127,20 @@ class CVRecordsRepository extends EntityRepository
 
             if(isset($filters["status"])){
                 switch($filters["status"]){
-                    case 1:
-                        $list->andWhere('i.status=0 OR i.status=1 OR i.status=2 OR i.status=3');
-                        break;
-                    case 2:
-                        $list->andWhere('i.status=5');
-                        break;
-                    case 3:
-                        $list->andWhere('i.status=6');
-                        break;
-                    case 4:
-                        $list->andWhere('i.status=4 OR i.status=15 OR i.status=12 OR i.status=7 or i.status=13');
-                        break;
-                    case 5:
-                        $list->andWhere('i.status=14');
-                        break;
-                    case 6:
-                        $list->andWhere('i.status=8');
-                        break;
                     case 7:
-                        $list->andWhere('i.status=9');
+                        $list->andWhere('i.state=7 OR i.state=8');
                         break;
-                    case 8:
-                        $list->andWhere('i.status=10');
-                        break;
-                    case 9:
-                        $list->andWhere('i.status=11');
+                    default:
+                        $list->andWhere('i.state=:state');
+                        $list->setParameter('state', $filters["status"]);
                         break;
                 }
 
             }
 
             if (isset($filters["pending_for_me"])) {
-                $list->andWhere('(i.status IN (1,2,3,7,12,13,15) AND us.id=:user_id) OR ((i.status IN (4,5) OR (i.status=14 AND :fll=1)) AND s.id NOT IN (SELECT el.step_id FROM Nononsense\HomeBundle\Entity\FirmasStep el WHERE el.userEntiy=:el_user_aux AND el.step_id=s.id AND el.elaboracion=1) AND i.usercreatedid!=:user_id2) OR i.status=0');
-                $list->setParameter('user_id', $user->getId());
-                $list->setParameter('user_id2', $user->getId());
-                $list->setParameter('el_user_aux', $user);
-                $list->setParameter('fll', $fll);
+                $require_action=str_replace("vvv", "zzz", $require_action);
+                $list->andWhere($require_action.'=1');
             }
 
 

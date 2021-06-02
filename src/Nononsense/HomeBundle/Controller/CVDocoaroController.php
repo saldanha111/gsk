@@ -55,9 +55,18 @@ class CVDocoaroController extends Controller
         }
 
         if($record->getInEdition()){
-           $this->get('session')->getFlashBag()->add(
+            $this->get('session')->getFlashBag()->add(
                 'error',
                     'La plantilla se encuentra en edición'
+            );
+            $route = $this->container->get('router')->generate('nononsense_home_homepage');
+            return $this->redirect($route);
+        }
+
+        if(!$this->canSign($record,$user)){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                    'No puede abrir esta plantilla debido al workflow definido'
             );
             $route = $this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
@@ -73,7 +82,7 @@ class CVDocoaroController extends Controller
             $custom_view.="&logbook=".$request->get("logbook");
         }
 
-
+        $token_get_data = $this->get('utilities')->generateToken();
         if(!$record->getState() || (!$record->getState()->getFinal() && !$request->get("pdf"))){ // Si no es un estado final y no queremos sacar un pdf
             $mode="c";
             if($record->getState()){
@@ -83,9 +92,6 @@ class CVDocoaroController extends Controller
                 }
             }
 
-            $token_get_data = $this->get('utilities')->generateToken();
-
-            
             $callback_url=urlencode($baseUrlAux."docoaro/".$id."/save?token=".$token_get_data);
             $get_data_url=urlencode($baseUrlAux."docoaro/".$id."/getdata?token=".$token_get_data."&mode=".$mode.$custom_view);
 

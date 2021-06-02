@@ -100,6 +100,7 @@ doctrine:
                 datediff: Nononsense\UtilsBundle\DQL\DateDiff
             string_functions:
                 GROUP_CONCAT: Nononsense\UtilsBundle\DQL\GroupConcat
+                FIRST: Nononsense\UtilsBundle\DQL\FirstFunction
 
 # Swiftmailer Configuration
 swiftmailer:
