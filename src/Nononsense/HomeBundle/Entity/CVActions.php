@@ -69,6 +69,20 @@ class CVActions
      */
     protected $justification;
 
+    /**
+     * @var boolean 
+     *
+     * @ORM\Column(name="finish_user", type="boolean",  options={"default" = false}, nullable=true)
+     */
+    protected $finishUser;
+
+    /**
+     * @var boolean 
+     *
+     * @ORM\Column(name="finish_workflow", type="boolean",  options={"default" = false}, nullable=true)
+     */
+    protected $finishWorkflow;
+
     
 
     public function __construct()
@@ -259,5 +273,51 @@ class CVActions
     public function getDescription()
     {
         return $this->description;
+    }
+
+    /**
+     * Set finishUser
+     *
+     * @param boolean $finishUser
+     * @return CVActions
+     */
+    public function setFinishUser($finishUser)
+    {
+        $this->finishUser = $finishUser;
+
+        return $this;
+    }
+
+    /**
+     * Get finishUser
+     *
+     * @return boolean 
+     */
+    public function getFinishUser()
+    {
+        return $this->finishUser;
+    }
+
+    /**
+     * Set finishWorkflow
+     *
+     * @param boolean $finishWorkflow
+     * @return CVActions
+     */
+    public function setFinishWorkflow($finishWorkflow)
+    {
+        $this->finishWorkflow = $finishWorkflow;
+
+        return $this;
+    }
+
+    /**
+     * Get finishWorkflow
+     *
+     * @return boolean 
+     */
+    public function getFinishWorkflow()
+    {
+        return $this->finishWorkflow;
     }
 }

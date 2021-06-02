@@ -70,7 +70,7 @@ class CVRecordsRepository extends EntityRepository
             ->leftJoin("i.state", "s")
             ->leftJoin("i.cvWorkflows", "w", "WITH", "(w.id = (SELECT MIN(aux.id) FROM Nononsense\HomeBundle\Entity\CVWorkflow aux WHERE aux.record=i.id AND aux.signed=FALSE))")
             ->leftJoin("i.cvSignatures", "sig", "WITH", "(sig IS NULL OR sig.id = (SELECT MAX(aux2.id) FROM Nononsense\HomeBundle\Entity\CVSignatures aux2 WHERE aux2.record=i.id AND aux2.signed=FALSE))")
-            ->leftJoin("i.cvSignatures", "last", "WITH", "(sig IS NULL OR sig.id = (SELECT MAX(aux3.id) FROM Nononsense\HomeBundle\Entity\CVSignatures aux3 WHERE aux3.record=i.id))")
+            ->leftJoin("i.cvSignatures", "last", "WITH", "(last.id = (SELECT MAX(aux3.id) FROM Nononsense\HomeBundle\Entity\CVSignatures aux3 WHERE aux3.record=i.id AND aux3.signed=TRUE))")
             ->leftJoin("sig.action", "a")
             ->leftJoin("s.type", "ty")
             ->leftJoin("sig.user", "sigu");

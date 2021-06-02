@@ -63,10 +63,23 @@ class CVDocoaroController extends Controller
             return $this->redirect($route);
         }
 
-        if(!$this->canSign($record,$user)){
+        $can_sign = $this->getDoctrine()->getRepository(CVRecords::class)->search("count",array("id" => $record->getId(),"pending_for_me" => 1,"user" => $user));
+
+        if($can_sign==0){
             $this->get('session')->getFlashBag()->add(
                 'error',
                     'No puede abrir esta plantilla debido al workflow definido'
+            );
+            $route = $this->container->get('router')->generate('nononsense_home_homepage');
+            return $this->redirect($route);
+        }
+
+        $signature = $this->getDoctrine()->getRepository(CVSignatures::class)->findOneBy(array("record" => $record),array("id" => "DESC"));
+
+        if($signature && !$signature->getSigned()){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                    'El registro se encuentra pendiente de firma'
             );
             $route = $this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
