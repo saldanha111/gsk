@@ -15,6 +15,7 @@ use Nononsense\HomeBundle\Entity\TMActions;
 use Nononsense\HomeBundle\Entity\CVActions;
 use Nononsense\HomeBundle\Entity\TMSecondWorkflow;
 use Nononsense\HomeBundle\Entity\CVSignatures;
+use Nononsense\HomeBundle\Entity\CVWorkflow;
 
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -224,6 +225,28 @@ class CVDocoaroController extends Controller
 
             $user = $this->getDoctrine()->getRepository(Users::class)->findOneBy(array("id" => $id_usuario));
 
+            $can_sign = $this->getDoctrine()->getRepository(CVRecords::class)->search("count",array("id" => $record->getId(),"pending_for_me" => 1,"user" => $user));
+
+            if($can_sign==0){
+                return false;
+            }
+
+            //Miramos wf que le toca
+
+            $wf=$this->get('utilities')->wich_wf($record,$user);
+            if(!$wf){
+                return false;
+            }
+
+            //Miramos si es el último firmante del workflow dentro de una misma fase
+            $last_wf = $this->getDoctrine()->getRepository(CVWorkflow::class)->search("count",array("record" => $record,"not_this" => $wf->getId(),"signed" => FALSE,"type"=>$wf->getType()->getTmType()));
+            if($last_wf==0){
+                $finish_workflow=1;
+            }
+            else{
+                $finish_workflow=0;
+            }
+
             $token=$_REQUEST["token"];
             $em = $this->getDoctrine()->getManager();
             $array_item=array();
@@ -237,7 +260,7 @@ class CVDocoaroController extends Controller
                     $signature = new CVSignatures();
                     $signature->setUser($user);
                     $signature->setRecord($record);
-                    $signature->setNumber((count($all_signatures)+1));
+                    $signature->setNumberSignature((count($all_signatures)+1));
                     $signature->setJustification(FALSE);
                     $signature->setCreated(new \DateTime());
                 }
@@ -261,11 +284,9 @@ class CVDocoaroController extends Controller
                     case "1":
                         switch($params["action"]){
                             case "save_partial": 
-                                $finish_user=0;
                                 $action_id=5;
                                 break;
                             case "save": 
-                                $finish_user=1;
                                 if($finish_workflow){
                                     $action_id=4;
                                 }
@@ -274,33 +295,26 @@ class CVDocoaroController extends Controller
                                 }
                                 break;
                             case "cancel":
-                                $finish_user=1;
                                 $action_id=1;
                                 break;
-
                         }
                         break;
                     case "2":
                         switch($params["action"]){
                             case "save_partial": 
-                                $finish_user=1;
                                 $action_id=3;
                                 break;
                             case "cancel":
-                                $finish_user=1;
                                 $action_id=2;
                                 break;
-
                         }
                         break;
                     case "4":
                         switch($params["action"]){
                             case "save_partial": 
-                                $finish_user=0;
                                 $action_id=7;
                                 break;
                             case "save": 
-                                $finish_user=1;
                                 if($finish_workflow){
                                     $action_id=8;
                                 }
@@ -309,31 +323,25 @@ class CVDocoaroController extends Controller
                                 }
                                 break;
                             case "cancel":
-                                $finish_user=1;
                                 $action_id=9;
                                 break;
                             case "return":
-                                $finish_user=1;
                                 $action_id=6;
                                 break;
                         }
                         break;
-
                     case "5":
                         switch($params["action"]){
                             case "save_partial": 
-                                $finish_user=1;
                                 $action_id=11;
                                 break;
                             case "cancel":
-                                $finish_user=1;
                                 $action_id=10;
                                 break;
                         }
                         break;
                 }
                 
-
                 $action = $this->getDoctrine()->getRepository(CVActions::class)->findOneBy(array("id" => $action_id));
 
                 $base_url=$this->getParameter('api_docoaro')."/documents/".$record->getTemplate()->getPlantillaId();
@@ -379,7 +387,7 @@ class CVDocoaroController extends Controller
         if($signatures){
             $fullText = "<table id='tablefirmas' class='table' style='max-width:none!important'><tr><td colspan='3' width='100%'><b>Firmas</b></td></tr>";
             foreach ($signatures as $key => $signature) {
-                $id = $signature->getNumber();
+                $id = $signature->getNumberSignature();
                 $name = $signature->getUser()->getName();
                 $date = $signature->getModified()->format('d-m-Y H:i:s');
                 $comment="";

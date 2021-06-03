@@ -168,4 +168,54 @@ class Utilities{
         $pdf->writeHTMLCell($w = 0, $h = 0, $x = '', $y = '', $html, $border = 0, $ln = 1, $fill = 0, $reseth = true, $align = '', $autopadding = true);
         $pdf->Output($filename.".pdf",'I'); // This will output the PDF as a response directly
     }
+
+    public function wich_wf($record,$user){
+        $return=NULL;
+        $groups=array();
+        foreach($user->getGroups() as $uniq_group){
+            $groups[]=$uniq_group->getGroup();
+        }
+
+        $wfs=$this->em->getRepository('NononsenseHomeBundle:CVWorkflow')->findBy(array('record' => $record,"signed" => FALSE,"type" => $record->getState()->getType()));
+        if(count($wfs)==0){
+            return NULL;
+        }
+
+        $find=0;
+        foreach($wfs as $item){
+            if($item->getUser() && $item->getUser()==$user){
+                $find=1;
+                $item_find=$item;
+            }
+        }
+        if($find==0){
+            foreach($wfs as $item){
+                if($item->getGroup()){
+                    $in_group=0;
+                    foreach($user->getGroups() as $uniq_group){
+                        if($uniq_group->getGroup()==$item->getGroup()){
+                            $in_group=1;
+                            $item_find=$item;
+                            break;
+                        }
+                    }
+                    if($in_group==1){
+                        $find=1;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if($record->getTemplate()->getCorrelative()){
+            if($item_find==$wfs[0]){
+                $return=$item_find;
+            }
+        }
+        else{
+            $return=$item_find;
+        }
+
+        return $return;
+    }
 }

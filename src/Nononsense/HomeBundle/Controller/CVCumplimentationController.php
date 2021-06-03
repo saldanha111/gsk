@@ -109,7 +109,7 @@ class CVCumplimentationController extends Controller
         $sign->setModified(new \DateTime());
         $sign->setSigned(FALSE);
         $sign->setJustification(FALSE);
-        $sign->setNumberSignature(1);
+        $sign->setSignatureNumber(1);
 
         if($request->get("unique")){
             foreach($request->get("unique") as $unique){
@@ -146,7 +146,7 @@ class CVCumplimentationController extends Controller
                         $cvwf->setUser($user_aux);
                     }
 
-                    $cvwf->setNumberSignature($key);
+                    $cvwf->setSignatureNumber($key);
                     $cvwf->setSigned(FALSE);
                     $em->persist($cvwf);
                 }
@@ -216,7 +216,18 @@ class CVCumplimentationController extends Controller
             $route = $this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
-        
+
+        $can_sign = $this->getDoctrine()->getRepository(CVRecords::class)->search("count",array("id" => $array["item"]->getId(),"pending_for_me" => 1,"user" => $user));
+
+        if($can_sign==0){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                    'No puede abrir esta plantilla debido al workflow definido'
+            );
+            $route = $this->container->get('router')->generate('nononsense_home_homepage');
+            return $this->redirect($route);
+        }
+
         return $this->render('NononsenseHomeBundle:CV:sign.html.twig',$array);
     }
 
@@ -276,6 +287,28 @@ class CVCumplimentationController extends Controller
             return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
         }
 
+        $can_sign = $this->getDoctrine()->getRepository(CVRecords::class)->search("count",array("id" => $record->getId(),"pending_for_me" => 1,"user" => $user));
+
+        if($can_sign==0){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                    'No puede abrir esta plantilla debido al workflow definido1'
+            );
+            $route = $this->container->get('router')->generate('nononsense_home_homepage');
+            return $this->redirect($route);
+        }
+
+        $wf=$this->get('utilities')->wich_wf($record,$user);
+
+        if(!$wf){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                    'No puede abrir esta plantilla debido al workflow definido2'
+            );
+            $route = $this->container->get('router')->generate('nononsense_home_homepage');
+            return $this->redirect($route);
+        }
+
         if($request->get('justification')){
             $signature->setDescription($request->get('justification'));
         }
@@ -285,8 +318,25 @@ class CVCumplimentationController extends Controller
         $em->persist($signature);
 
         $record->setModified(new \DateTime());
-        $em->persist($record);
+        
 
+        if($signature->getAction()->getFinishUser()){
+            $wf->setSigned(TRUE);
+            $em->persist($wf);
+        }
+
+        if($signature->getAction()->getFinishWorkflow()){
+            if($record->getState()!=$signature->getAction()->getNextState()){
+                $clean_wfs=$this->getDoctrine()->getRepository(CVWorkflow::class)->findBy(array('record' => $record,"signed" => FALSE));
+                foreach($clean_wfs as $clean_wf){
+                    $clean_wf->setSigned(FALSE);
+                    $em->persist($clean_wf);
+                }
+                $record->setState($signature->getAction()->getNextState());
+            }
+        }
+
+        $em->persist($record);
         $em->flush();
 
         $this->get('session')->getFlashBag()->add(

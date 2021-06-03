@@ -12,5 +12,72 @@ use Doctrine\ORM\EntityRepository;
  */
 class CVWorkflowRepository extends EntityRepository
 {
-	
+	public function search($type,$filters)
+    {
+        $em = $this->getEntityManager();
+
+        switch($type){
+            case "list":
+                $list = $this->createQueryBuilder('w')
+                    ->select('w');
+
+                break;
+            case "count":
+                $list = $this->createQueryBuilder('w')
+                    ->select('COUNT(w.id) as conta');
+                break;
+        }
+
+        $list->leftJoin("w.type", "t");
+            
+
+        if($type=="list"){
+            $list->orderBy('w.numberSignature', 'ASC');
+        }
+
+        if(!empty($filters)){
+
+            if(isset($filters["id"])){
+                $list->andWhere('w.id=:id');
+                $list->setParameter('id', $filters["id"]);
+            }
+
+            if(isset($filters["signed"])){
+                $list->andWhere('w.signed=:signed');
+                $list->setParameter('signed', $filters["signed"]);
+            }
+
+            if(isset($filters["not_this"])){
+                $list->andWhere('w.id!=:not_this');
+                $list->setParameter('not_this', $filters["not_this"]);
+            }
+
+            if(isset($filters["type"])){
+                $list->andWhere('t.tmType=:type');
+                $list->setParameter('type', $filters["type"]);
+            }
+
+            if(isset($filters["record"])){
+                $list->andWhere('w.record=:record');
+                $list->setParameter('record', $filters["record"]);
+            }
+        }
+
+
+        if(isset($filters["limit_from"])){
+            $list->setFirstResult($filters["limit_from"]*$filters["limit_many"])->setMaxResults($filters["limit_many"]);
+        }
+
+        $query = $list->getQuery();
+
+
+        switch($type){
+            case "list":
+                return $query->getResult();
+                break;
+            case "count":
+                return $query->getSingleResult()["conta"];
+                break;
+        }
+    }
 }
