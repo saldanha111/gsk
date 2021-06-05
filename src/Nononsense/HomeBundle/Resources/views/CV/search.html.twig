@@ -123,7 +123,7 @@
                         {% if items is defined %}
                             {% for item in items %}
                             <tr>
-                                <td>#{{ item.id }} validate:{{item.requireAction}}</td>
+                                <td>#{{ item.id }}</td>
                                 <td>{{item.name}}</td>
                                 <td>{{item.creator}}</td>
                                 <td>{{ item.created is defined ? item.created|date("d/m/Y H:i:s") : '' }}</td>
@@ -151,14 +151,16 @@
                                                     <a  name="verRegistro" href="#" class="btn btn-xs {{item.colorState}}"><i class="{{item.iconState}}" aria-hidden="true"></i> {{item.state}}</a>
                                                 {% endif %}
                                             {% else %}
-                                                <a  name="verRegistro" href="{{path('nononsense_cv_docoaro_new', {'id': item.id})}}?mode=pdf" target="_blank" class="btn btn-xs {{item.colorState}}"><i class="{{item.iconState}}" aria-hidden="true"></i> {{item.state}}</a>
+                                                <a  href="{{path('nononsense_cv_docoaro_new', {'id': item.id})}}" target="_blank" class="btn btn-xs {{item.colorState}}"><i class="{{item.iconState}}" aria-hidden="true"></i> {{item.state}}</a>
+                                                <a  href="{{path('nononsense_cv_docoaro_new', {'id': item.id})}}?pdf=1" target="_blank" class="btn btn-xs btn-danger"><i class="fa fa-file-pdf-o" aria-hidden="true"></i> PDF</a>
                                             {% endif %}
                                         {% endif %}
                                     {% endif %}
                                 </td>
                                 <td>
                                     {% if item.finalState %}
-                                        <a class="btn btn-xs btn-info" name="verRegistro" href="{{path('nononsense_cv_docoaro_new', {'id': item.id})}}?mode=pdf&audittrail=1" target="_self"><i class="fa fa-book" aria-hidden="true"></i> Audit Trail</a>
+                                        <a class="btn btn-xs btn-info" href="{{path('nononsense_cv_docoaro_new', {'id': item.id})}}?&audittrail=1" target="_self"><i class="fa fa-book" aria-hidden="true"></i> Audit Trail</a>
+                                        <a class="btn btn-xs btn-danger" href="{{path('nononsense_cv_docoaro_new', {'id': item.id})}}?pdf=1&audittrail=1" target="_self"><i class="fa fa-file-pdf-o" aria-hidden="true"></i> PDF</a>
                                     {% endif %} 
                                 </td>
                             </tr>
@@ -282,6 +284,9 @@
 
 
     });
+
+    ActivateMenu('docxpresso_search');
+    $('#side-menu').metisMenu();
   });
 </script>
 {% endblock %}

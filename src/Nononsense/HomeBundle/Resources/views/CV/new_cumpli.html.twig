@@ -80,12 +80,24 @@
                                     <div class="form-group">
                                         <label class="col-sm-4 control-label">{{wf.tmCumplimentation.name}}: </label>
                                         <div class="col-sm-4 masterbox_type_workflow">
-                                            <select class="form-control type_workflow" required="required" name="{{wf.tmCumplimentation.name}}[{{count}}]" style="width: 100%;">
+                                            <select class="form-control type_workflow" required="required" name="{{wf.tmCumplimentation.name}}[{{count}}]" style="width: 100%;"  {{count==0 ? 'readonly="readonly"'}}>
                                                 <option value=""></option>
                                                 <option value="1">Grupo</option>
-                                                <option value="2">Usuario</option>
+                                                <option value="2" {{count==0 ? 'selected="selected"'}}>Usuario</option>
                                             </select>
                                         </div>
+                                        {% if count == 0 %}
+                                            <div class="master_box_user">
+                                                <div class="col-sm-4">
+                                                    <select class="form-control select_user" name="relationals[0]" readonly="readonly" style="width: 100%;" required="required">
+                                                        <option value=""></option>
+                                                        {% for user in users %}
+                                                            <option value="{{user.id}}" {{app.user.id==user.id ? 'selected="selected"'}}>{{user.name}}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        {% endif %}
                                     </div>
                                 </div>
                                 {% set count = count + 1 %}

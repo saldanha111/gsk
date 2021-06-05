@@ -64,20 +64,9 @@ class CVDocoaroController extends Controller
             return $this->redirect($route);
         }
 
-        $can_sign = $this->getDoctrine()->getRepository(CVRecords::class)->search("count",array("id" => $record->getId(),"pending_for_me" => 1,"user" => $user));
-
-        if($can_sign==0){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                    'No puede abrir esta plantilla debido al workflow definido'
-            );
-            $route = $this->container->get('router')->generate('nononsense_home_homepage');
-            return $this->redirect($route);
-        }
-
         $signature = $this->getDoctrine()->getRepository(CVSignatures::class)->findOneBy(array("record" => $record),array("id" => "DESC"));
 
-        if($signature && !$signature->getSigned()){
+        if($signature && !$signature->getSigned() && $signature->getVersion()!=NULL && $signature->getConfiguration()!=NULL){
             $this->get('session')->getFlashBag()->add(
                 'error',
                     'El registro se encuentra pendiente de firma'
@@ -101,19 +90,26 @@ class CVDocoaroController extends Controller
             $mode="c";
             if($record->getState()){
                 switch($record->getState()->getType()->getName()){
-                    case "Cumplimentador": $mode="c";break;
-                    case "Verificador": $mode="v";break;
+                    case "Cumplimentador": $mode="c";$scriptUrl = urlencode($baseUrl . "../js/js_oarodoc/activity.js?v=".uniqid());break;
+                    case "Verificador": $mode="v";$scriptUrl = urlencode($baseUrl . "../js/js_oarodoc/validation.js?v=".uniqid());break;
                 }
             }
+
+            if($record->getState()->getId()==2 || $record->getState()->getId()==5){
+                $scriptUrl = urlencode($baseUrl . "../js/js_oarodoc/validation_cancel.js?v=".uniqid());
+            }
+
 
             $callback_url=urlencode($baseUrlAux."docoaro/".$id."/save?token=".$token_get_data);
             $get_data_url=urlencode($baseUrlAux."docoaro/".$id."/getdata?token=".$token_get_data."&mode=".$mode.$custom_view);
 
             $redirectUrl = urlencode($this->container->get('router')->generate('nononsense_cv_record', array("id" => $id),TRUE));
-            $scriptUrl = urlencode($baseUrl . "../js/js_oarodoc/activity.js?v=".uniqid());
+            
             $styleUrl = urlencode($baseUrl . "../css/css_oarodoc/standard.css?v=".uniqid());
 
             $base_url=$this->getParameter('api_docoaro')."/documents/".$record->getTemplate()->getPlantillaId()."?scriptUrl=".$scriptUrl."&styleUrl=".$styleUrl."&callbackUrl=".$callback_url."&redirectUrl=".$redirectUrl."&getDataUrl=".$get_data_url;
+
+            $record->setInEdition(TRUE);
         }
         else{
             $get_data_url=urlencode($baseUrlAux."docoaro/".$id."/getdata?token=".$token_get_data."&mode=pdf".$custom_view);
@@ -132,8 +128,7 @@ class CVDocoaroController extends Controller
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         $raw_response = curl_exec($ch);
         $response = json_decode($raw_response, true);
-
-        $record->setInEdition(TRUE);
+        
         $em->persist($record);
         $em->flush();
 
@@ -184,10 +179,32 @@ class CVDocoaroController extends Controller
 
         if($request->get("mode")){
             switch($request->get("mode")){
-                case "c": $json_content["configuration"]["prefix_view"]="u_;in_;dxo_";break;
-                case "v": $json_content["configuration"]["prefix_view"]="";$json_content["configuration"]["prefix_edit"]="verchk_;";break;
-                case "pdf": $json_content["configuration"]["prefix_view"]="";$json_content["configuration"]["form_readonly"]=1;break;
+                case "c":   $json_content["configuration"]["prefix_view"]="u_;in_;dxo_";
+                            $json_content["configuration"]["apply_required"]=1;
+                    break;
+                case "v":   $json_content["configuration"]["prefix_view"]="";
+                            $json_content["configuration"]["prefix_edit"]="verchk_;";
+                            $json_content["configuration"]["apply_required"]=1;
+                            $json_content["configuration"]["partial_save_button"]=1;
+                            $json_content["configuration"]["cancel_button"]=1;
+                            $json_content["configuration"]["close_button"]=1;
+                    break;
+                case "pdf": $json_content["configuration"]["prefix_view"]="";
+                            $json_content["configuration"]["form_readonly"]=1;
+                            $json_content["configuration"]["apply_required"]=0;
+                            $json_content["configuration"]["partial_save_button"]=0;
+                            $json_content["configuration"]["cancel_button"]=0;
+                            $json_content["configuration"]["close_button"]=1;
+                    break;
             }
+        }
+
+        if($record->getState()->getId()==2 || $record->getState()->getId()==5){
+            $json_content["configuration"]["form_readonly"]=1;
+            $json_content["configuration"]["prefix_view"]="";
+            $json_content["configuration"]["partial_save_button"]=1;
+            $json_content["configuration"]["cancel_button"]=1;
+            $json_content["configuration"]["close_button"]=1;
         }
 
         $response = new Response();
@@ -274,7 +291,6 @@ class CVDocoaroController extends Controller
                     }
                 }
 
-                $finish_workflow=1;
                 $state_id="1";
                 if($record->getState()){
                     $state_id=$record->getState()->getId();

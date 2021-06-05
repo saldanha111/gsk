@@ -109,7 +109,7 @@ class CVCumplimentationController extends Controller
         $sign->setModified(new \DateTime());
         $sign->setSigned(FALSE);
         $sign->setJustification(FALSE);
-        $sign->setSignatureNumber(1);
+        $sign->setNumberSignature(1);
 
         if($request->get("unique")){
             foreach($request->get("unique") as $unique){
@@ -146,7 +146,7 @@ class CVCumplimentationController extends Controller
                         $cvwf->setUser($user_aux);
                     }
 
-                    $cvwf->setSignatureNumber($key);
+                    $cvwf->setNumberSignature($key);
                     $cvwf->setSigned(FALSE);
                     $em->persist($cvwf);
                 }
@@ -315,24 +315,58 @@ class CVCumplimentationController extends Controller
         $signature->setJson(str_replace("gsk_id_firm", $signature->getNumberSignature(), $signature->getJson()));
         $signature->setSigned(TRUE);
         $signature->setModified(new \DateTime());
-        $em->persist($signature);
+        
 
         $record->setModified(new \DateTime());
         
 
         if($signature->getAction()->getFinishUser()){
             $wf->setSigned(TRUE);
+            $signature->setFinish(TRUE);
             $em->persist($wf);
         }
 
-        if($signature->getAction()->getFinishWorkflow()){
+        $em->persist($signature);
+
+        //Miramos si termina el workflow por que no quedan wf de su mismo tipo de acción pendientes
+        $finish_workflow=1;
+        $exist_wfs=$this->getDoctrine()->getRepository(CVWorkflow::class)->findBy(array('record' => $record,"signed" => FALSE));
+        foreach($exist_wfs as $exist_wf){
+            if($exist_wf->getType()==$wf->getType() && $exist_wf!=$wf){
+                $finish_workflow=0;
+            }
+        }
+
+        if($signature->getAction()->getFinishWorkflow() || $finish_workflow){
             if($record->getState()!=$signature->getAction()->getNextState()){
-                $clean_wfs=$this->getDoctrine()->getRepository(CVWorkflow::class)->findBy(array('record' => $record,"signed" => FALSE));
-                foreach($clean_wfs as $clean_wf){
-                    $clean_wf->setSigned(FALSE);
-                    $em->persist($clean_wf);
+                //Capturamos el estado correspondiente a la última acción que se firma
+                $next_state=$signature->getAction()->getNextState();
+
+                //Si hay una firma de devolución en un workflow activo, tiene prioridad esta a la hora de setear el próximo estado
+                $action=$this->getDoctrine()->getRepository(CVActions::class)->findOneBy(array('id' => 6));
+                $exist_return=$this->getDoctrine()->getRepository(CVSignatures::class)->findBy(array('record' => $record,"signed" => TRUE,"finish" => TRUE,'action' => $action),array("id" => "DESC"));
+                if(count($exist_return)>0 && $record->getState()->getType()==$exist_return[0]->getAction()->getType()){
+                    $next_state=$exist_return[0]->getAction()->getNextState();
                 }
-                $record->setState($signature->getAction()->getNextState());
+
+                //Vaciamos próximo workflow activo
+                $clean_wfs=$this->getDoctrine()->getRepository(CVWorkflow::class)->findBy(array('record' => $record,"signed" => TRUE));
+                foreach($clean_wfs as $clean_wf){
+                    if($clean_wf->getType()->getTmType()==$next_state->getType()){
+                        $clean_wf->setSigned(FALSE);
+                        $em->persist($clean_wf);
+                    }
+                }
+
+                //Vaciamos próximo bloque de firmas activo
+                $other_signatures=$this->getDoctrine()->getRepository(CVSignatures::class)->findBy(array('record' => $record,"signed" => TRUE,"finish" => TRUE));
+                foreach($other_signatures as $other_signature){
+                    if($other_signature->getAction()->getType()==$next_state->getType()){
+                        $other_signature->setFinish(FALSE);
+                        $em->persist($other_signature);
+                    }
+                }
+                $record->setState($next_state);
             }
         }
 
@@ -343,7 +377,7 @@ class CVCumplimentationController extends Controller
             'success',
             "El documento se ha firmado correctamente"
         );
-        return $this->redirect($this->container->get('router')->generate('nononsense_search'));
+        return $this->redirect($this->container->get('router')->generate('nononsense_cv_search'));
     }
 
     //Listado de cumplimentaciones

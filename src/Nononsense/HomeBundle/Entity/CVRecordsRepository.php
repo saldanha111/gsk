@@ -30,17 +30,17 @@ class CVRecordsRepository extends EntityRepository
             (sig.user=:eluser1 
                 OR
                 (
-                    t.correlative=TRUE AND sig.user IS NULL AND  (w.user=:eluser1 OR (w.group IN (:groups) AND :eluser2 NOT IN (SELECT IDENTITY(vvv1.user) FROM Nononsense\HomeBundle\Entity\CVWorkflow vvv1 WHERE vvv1.record=i.id)  AND :eluser2 NOT IN (SELECT IDENTITY(vvv2.user) FROM Nononsense\HomeBundle\Entity\CVSignatures vvv2 LEFT JOIN  Nononsense\HomeBundle\Entity\CVActions vvv3 WITH vvv2.action=vvv3.id WHERE vvv2.record=i.id AND vvv3.type!=a.type) ))
+                    t.correlative=TRUE AND sig.user IS NULL AND  (w.user=:eluser1 OR (w.group IN (:groups) AND :eluser2 NOT IN (SELECT IDENTITY(vvv1.user) FROM Nononsense\HomeBundle\Entity\CVWorkflow vvv1 WHERE vvv1.record=i.id)  AND :eluser2 NOT IN (SELECT IDENTITY(vvv2.user) FROM Nononsense\HomeBundle\Entity\CVSignatures vvv2 LEFT JOIN  Nononsense\HomeBundle\Entity\CVActions vvv3 WITH vvv2.action=vvv3.id WHERE vvv2.record=i.id AND (vvv3.type!=a.type OR vvv2.finish=TRUE)) ))
                 )
                 OR
                 (
                     t.correlative=FALSE AND sig.user IS NULL AND (
-                         :eluser2 IN (SELECT IDENTITY(vvv5.user) FROM Nononsense\HomeBundle\Entity\CVWorkflow vvv5 WHERE vvv5.record=i.id AND vvv5.signed=FALSE) AND :eluser2 NOT IN (SELECT IDENTITY(vvv6.user) FROM Nononsense\HomeBundle\Entity\CVSignatures vvv6 LEFT JOIN  Nononsense\HomeBundle\Entity\CVActions vvv7 WITH vvv6.action=vvv7.id WHERE vvv6.record=i.id AND vvv7.type!=a.type)
+                         :eluser2 IN (SELECT IDENTITY(vvv5.user) FROM Nononsense\HomeBundle\Entity\CVWorkflow vvv5 LEFT JOIN  Nononsense\HomeBundle\Entity\TMCumplimentations vvv11 WITH vvv5.type=vvv11.id WHERE vvv5.record=i.id AND vvv5.signed=FALSE AND vvv11.tmType=s.type) AND :eluser2 NOT IN (SELECT IDENTITY(vvv6.user) FROM Nononsense\HomeBundle\Entity\CVSignatures vvv6 LEFT JOIN  Nononsense\HomeBundle\Entity\CVActions vvv7 WITH vvv6.action=vvv7.id WHERE vvv6.record=i.id AND (vvv7.type!=a.type OR vvv6.finish=TRUE))
                     )
                 )
                 OR
                 (
-                    t.correlative=FALSE AND sig.user IS NULL AND (SELECT COUNT(vvv8.id) FROM Nononsense\HomeBundle\Entity\CVWorkflow vvv8 WHERE vvv8.record=i.id AND vvv8.signed=FALSE AND vvv8.group IN (:groups))>0  AND :eluser2 NOT IN (SELECT IDENTITY(vvv9.user) FROM Nononsense\HomeBundle\Entity\CVSignatures vvv9 LEFT JOIN  Nononsense\HomeBundle\Entity\CVActions vvv10 WITH vvv9.action=vvv10.id WHERE vvv9.record=i.id AND vvv10.type!=a.type)
+                    t.correlative=FALSE AND sig.user IS NULL AND (SELECT COUNT(vvv8.id) FROM Nononsense\HomeBundle\Entity\CVWorkflow vvv8  LEFT JOIN  Nononsense\HomeBundle\Entity\TMCumplimentations vvv12 WITH vvv8.type=vvv12.id WHERE vvv8.record=i.id AND vvv12.tmType=s.type AND vvv8.signed=FALSE AND vvv8.group IN (:groups))>0  AND :eluser2 NOT IN (SELECT IDENTITY(vvv9.user) FROM Nononsense\HomeBundle\Entity\CVSignatures vvv9 LEFT JOIN  Nononsense\HomeBundle\Entity\CVActions vvv10 WITH vvv9.action=vvv10.id WHERE vvv9.record=i.id AND (vvv10.type!=a.type OR vvv9.finish=TRUE))
                 )
             ) THEN 1 ELSE 0 END";
 

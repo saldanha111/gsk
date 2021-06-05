@@ -98,6 +98,13 @@ class CVSignatures
      */
     protected $justification;
 
+    /**
+     * @var boolean 
+     *
+     * @ORM\Column(name="finish", type="boolean",  options={"default" = false}, nullable=true)
+     */
+    protected $finish;
+
     
     public function __construct()
     {
@@ -177,30 +184,6 @@ class CVSignatures
     public function getModified()
     {
         return $this->modified;
-    }
-
-
-    /**
-     * Set signature
-     *
-     * @param string $signature
-     * @return TMSignatures
-     */
-    public function setSignature($signature)
-    {
-        $this->signature = $signature;
-
-        return $this;
-    }
-
-    /**
-     * Get signature
-     *
-     * @return string 
-     */
-    public function getSignature()
-    {
-        return $this->signature;
     }
 
     /**
@@ -635,5 +618,28 @@ class CVSignatures
     public function getNumberSignature()
     {
         return $this->numberSignature;
+    }
+
+    /**
+     * Set finish
+     *
+     * @param boolean $finish
+     * @return CVSignatures
+     */
+    public function setFinish($finish)
+    {
+        $this->finish = $finish;
+
+        return $this;
+    }
+
+    /**
+     * Get finish
+     *
+     * @return boolean 
+     */
+    public function getFinish()
+    {
+        return $this->finish;
     }
 }
