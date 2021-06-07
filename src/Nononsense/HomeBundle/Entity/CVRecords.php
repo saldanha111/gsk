@@ -73,6 +73,13 @@ class CVRecords
      */
     protected $enabled;
 
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="json", type="text", nullable=true)
+     */
+    protected $json;
+
     
     public function __construct()
     {
@@ -333,5 +340,28 @@ class CVRecords
     public function getState()
     {
         return $this->state;
+    }
+
+    /**
+     * Set json
+     *
+     * @param string $json
+     * @return CVRecords
+     */
+    public function setJson($json)
+    {
+        $this->json = $json;
+
+        return $this;
+    }
+
+    /**
+     * Get json
+     *
+     * @return string 
+     */
+    public function getJson()
+    {
+        return $this->json;
     }
 }

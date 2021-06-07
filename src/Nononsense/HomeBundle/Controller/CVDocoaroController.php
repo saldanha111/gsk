@@ -239,6 +239,7 @@ class CVDocoaroController extends Controller
             }
 
             $json_value=json_encode(array("data" => $params["data"], "action" => $params["action"]), JSON_FORCE_OBJECT);
+            $json_record=json_encode(array("configuration" => $params["configuration"]), JSON_FORCE_OBJECT);
 
             $user = $this->getDoctrine()->getRepository(Users::class)->findOneBy(array("id" => $id_usuario));
 
@@ -384,6 +385,7 @@ class CVDocoaroController extends Controller
                 $em->persist($signature);
                 $record->setInEdition(FALSE);
                 $record->setModified(new \DateTime());
+                $record->setJson($json_record);
                 $em->persist($record);
                 $em->flush();
             }

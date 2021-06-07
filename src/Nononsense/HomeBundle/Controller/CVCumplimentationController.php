@@ -16,6 +16,7 @@ use Nononsense\HomeBundle\Entity\TMSecondWorkflow;
 use Nononsense\HomeBundle\Entity\CVSignatures;
 use Nononsense\HomeBundle\Entity\CVWorkflow;
 use Nononsense\HomeBundle\Entity\CVStates;
+use Nononsense\HomeBundle\Entity\CVRecordsHistory;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
@@ -251,6 +252,8 @@ class CVCumplimentationController extends Controller
 
         $signature = $this->getDoctrine()->getRepository(CVSignatures::class)->findOneBy(array("record" => $record),array("id" => "DESC"));
 
+        $all_signatures = $this->getDoctrine()->getRepository(CVSignatures::class)->search("list",array("record" => $record, "have_json" => 1,"not_this" => $signature->getId()));
+
         if(!$signature || $signature->getSigned()){
             $this->get('session')->getFlashBag()->add(
                 'error',
@@ -368,6 +371,25 @@ class CVCumplimentationController extends Controller
                 }
                 $record->setState($next_state);
             }
+        }
+
+        $obj1 = json_decode($signature->getJson())->data;
+
+        if(count($all_signatures)>0){
+            $obj2 = json_decode($all_signatures[0]->getJson())->data;
+
+            //Compares new signature with old step and instert differences
+            $this->multi_obj_diff_counter = 0;
+            $this->multi_obj_diff($obj1, $obj2, '$obj2->$key', '/^(in_|gsk_|dxo_|delete_)|(name|extension\b)/', false, $signature, false, null, 'new');
+
+            //Compares old signature with new step and check removed fields
+            $this->multi_obj_diff_counter = 0;
+            $this->multi_obj_diff($obj2, $obj1, '$obj2->$key', '/^(in_|gsk_|dxo_|delete_)|(name|extension\b)/', false, $signature, false, null, 'old');
+        }
+        else{
+            $obj2 = json_decode($signature->getRecord()->getJson())->configuration;
+            //Compares with default values
+            $this->multi_obj_diff($obj1, $obj2, '$obj2->variables->$field->value', '/^(in_|gsk_|dxo_|delete_)|(name|extension\b)/', false, $signature, false, null, 'new');
         }
 
         $em->persist($record);
@@ -545,5 +567,170 @@ class CVCumplimentationController extends Controller
         }
     }
 
+    public function listContentAction(Request $request){
+        $filters = array_filter($request->query->all());
 
+        $histories = $this->getDoctrine()->getRepository(CVRecordsHistory::class)->list($filters);
+
+        return $this->render('NononsenseHomeBundle:CV:search_contain.html.twig', ['histories' => $histories, 'filters' => $filters]);
+    }
+
+    public function downloadBase64Action(Request $request, $id){
+
+        $hisotry = $this->getDoctrine()->getRepository(CVRecordsHistory::class)->findOneBy(['id' => $id]);
+
+        $value = $hisotry->getValue();
+
+        if ($request->get('type') !== null && $request->get('type') == 'prev') {
+            $value = $hisotry->getPrevValue();
+        }
+
+        $file = file_get_contents($value);
+        $mime = mime_content_type($value);
+
+        $extension = preg_split('#(/|;)#', $hisotry->getValue())[1];
+        $filename = $hisotry->getField().'.'.$extension;
+
+        header('Content-Description: File Transfer');
+        header('Content-Type: '.$mime);
+        header('Content-Disposition: attachment; filename="'.$filename.'"');
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate');
+        header('Pragma: public');
+        header('Content-Length: ' . strlen($file));
+        echo $file;
+        exit;
+    }
+
+    public $multi_obj_diff_counter = 0;
+
+    public function multi_obj_diff($obj1, $obj2, $compare, $regex, $field, $evidencia, $clonedObj, $removedOrAdded = null, $compareWith, $aux = ''){
+
+        if ($this->multi_obj_diff_counter == 0) {
+            $clonedObj = clone $obj1; //Clone $obj1 once time to get keys of the first dimension
+        }
+
+        $diff = [];
+        //$removedOrAdded = null;
+        //$lineOptions = null;
+
+        foreach ($obj1 as $key => $value) {
+            if (!preg_match($regex, $key)) {
+                
+                if (array_key_exists($key, $clonedObj)) {
+                    $field = $key;
+                }
+
+                if (!isset($obj2->$key)) {
+          
+                    $obj2->$key = $this->format_object($value); //Checks if object exsist, if not, create the empty object
+                    $removedOrAdded = $field; //Save $field in $removedOrAdded (temp) if input line is removed or added, if is added or removed depends on $compareWith
+                }
+            
+
+                $deph = ($compare == '$obj2->variables->$field->value') ? $obj2 : $obj2->$key; //Check if first insert or not
+
+                if (is_object($value)) {
+                    $multi = $this->multi_obj_diff($value, $deph, $compare, $regex, $field, $evidencia, $clonedObj, $removedOrAdded, $compareWith, $key);
+                    if ($multi) {
+                        $diff[$key] =  $multi;
+                        //$diff[$key] = (key($multi) == 'value') ? $multi['value'] : $multi; //(key($multi) == 'value') ? $multi['value'] : $multi;
+                    }
+
+                }else{
+
+                    //echo $field.':'.$removedOrAdded.'<br>';
+
+                    if ($value != eval("return $compare;")) {
+
+                        $lineOptions = null;
+                        $index = ($aux != $field) ? $aux : $key;
+
+                        if ($index == 'value' || $index == '') {
+                            $index = null;
+                        }
+
+                        if ($compareWith == 'old') {
+                            if ($field == $removedOrAdded) {
+                                $lineOptions = 0;
+                                // $diff[$key]['field'] = $field;
+                                // $diff[$key]['line_options'] = $lineOptions;
+                                // $diff[$key]['field_index'] = $index;
+                                // $diff[$key]['field_value'] = $value;
+                                // $diff[$key]['prevVal'] = eval("return $compare;");
+                                $this->insertDiff($field, $index, $value, eval("return $compare;"), $lineOptions, $evidencia);
+                            }
+                        }else{
+                            if ($field == $removedOrAdded) {
+                                $lineOptions = 1;
+                            }
+
+                            $diff[$key]['field'] = $field;
+                            $diff[$key]['line_options'] = $lineOptions;
+                            $diff[$key]['field_index'] = $index;
+                            $diff[$key]['field_value'] = $value;
+                            $diff[$key]['prevVal'] = eval("return $compare;");
+
+                            $this->insertDiff($field, $index, $value, eval("return $compare;"), $lineOptions, $evidencia);
+                        }
+                        // if ($field == $removedOrAdded) { //Check removed or added field
+                        //     $lineOptions = ($compareWith == 'old') ? 0 : 1; //if we compare the old object, we know that it is removed (1), otherwise, added (0)
+                        // }
+                        // //echo $field.'<br>';
+                        
+                        // $this->insertDiff($field, $index, $value, eval("return $compare;"), $lineOptions, $evidencia);
+
+                        
+      
+                        // $diff[$key]['field'] = $field;
+                        // $diff[$key]['line_options'] = $lineOptions;
+                        // $diff[$key]['field_index'] = $index;
+                        // $diff[$key]['field_value'] = $value;
+                        // $diff[$key]['prevVal'] = eval("return $compare;");
+                    }
+                }
+            }
+            $this->multi_obj_diff_counter++;
+        }
+
+      
+        //print_r($obj1);
+
+        return $diff;
+    }
+
+
+    public function format_object($value){
+
+        $arr = new \stdClass();
+
+        $arr->removedOrAdded = 'removed';
+
+        if (is_object($value)) {
+            foreach ($value as $key => $v) {
+                $arr->$key = $this->format_object($v);
+            }
+        }else{
+            $arr = '';
+        }
+        
+        return $arr;
+    }
+
+    public function insertDiff($field, $index = null, $value, $prevValue = null, $lineOptions = null, $evidencia){
+
+            $stepHistory = new CVRecordsHistory();
+            $stepHistory->setField($field);
+            $stepHistory->setIndex($index);
+            $stepHistory->setValue($value);
+            $stepHistory->setPrevValue($prevValue);
+            $stepHistory->setLineOptions($lineOptions);
+            $stepHistory->setSignature($evidencia);
+
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($stepHistory);
+            //$em->flush();
+
+            return $stepHistory;
+    }
 }

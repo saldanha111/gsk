@@ -5,12 +5,13 @@ namespace Nononsense\HomeBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * InstanciasStepsHistory
+ * CVRecordsHistory
  *
  * @ORM\Table()
- * @ORM\Entity(repositoryClass="Nononsense\HomeBundle\Entity\InstanciasStepsHistoryRepository")
+ * @ORM\Table(name="cv_records_history")
+ * @ORM\Entity(repositoryClass="Nononsense\HomeBundle\Entity\CVRecordsHistoryRepository")
  */
-class InstanciasStepsHistory
+class CVRecordsHistory
 {
     /**
      * @var integer
@@ -57,10 +58,10 @@ class InstanciasStepsHistory
     private $lineOptions;
 
     /**
-     * @ORM\ManyToOne(targetEntity="EvidenciasStep")
-     * @ORM\JoinColumn(name="evidencia_id", referencedColumnName="id")
+     * @ORM\ManyToOne(targetEntity="CVSignatures")
+     * @ORM\JoinColumn(name="signature_id", referencedColumnName="id")
      */
-    private $evidencia;
+    private $signature;
 
 
     /**
@@ -166,29 +167,6 @@ class InstanciasStepsHistory
     }
 
     /**
-     * Set evidencia
-     *
-     * @param \Nononsense\HomeBundle\Entity\EvidenciasStep $evidencia
-     * @return InstanciasStepsHistory
-     */
-    public function setEvidencia(\Nononsense\HomeBundle\Entity\EvidenciasStep $evidencia = null)
-    {
-        $this->evidencia = $evidencia;
-
-        return $this;
-    }
-
-    /**
-     * Get evidencia
-     *
-     * @return \Nononsense\HomeBundle\Entity\EvidenciasStep 
-     */
-    public function getEvidencia()
-    {
-        return $this->evidencia;
-    }
-
-    /**
      * Set lineOptions
      *
      * @param boolean $lineOptions
@@ -209,5 +187,28 @@ class InstanciasStepsHistory
     public function getLineOptions()
     {
         return $this->lineOptions;
+    }
+
+    /**
+     * Set signature
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVSignatures $signature
+     * @return CVRecordsHistory
+     */
+    public function setSignature(\Nononsense\HomeBundle\Entity\CVSignatures $signature = null)
+    {
+        $this->signature = $signature;
+
+        return $this;
+    }
+
+    /**
+     * Get signature
+     *
+     * @return \Nononsense\HomeBundle\Entity\CVSignatures 
+     */
+    public function getSignature()
+    {
+        return $this->signature;
     }
 }

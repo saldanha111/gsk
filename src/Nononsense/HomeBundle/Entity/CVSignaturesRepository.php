@@ -12,5 +12,69 @@ use Doctrine\ORM\EntityRepository;
  */
 class CVSignaturesRepository extends EntityRepository
 {
+    public function search($type,$filters)
+    {
+        $em = $this->getEntityManager();
+
+        switch($type){
+            case "list":
+                $list = $this->createQueryBuilder('s')
+                    ->select('s');
+
+                break;
+            case "count":
+                $list = $this->createQueryBuilder('s')
+                    ->select('COUNT(s.id) as conta');
+                break;
+        }
+            
+        if($type=="list"){
+            $list->orderBy('s.id', 'DESC');
+        }
+
+        if(!empty($filters)){
+
+            if(isset($filters["id"])){
+                $list->andWhere('s.id=:id');
+                $list->setParameter('id', $filters["id"]);
+            }
+
+            if(isset($filters["signed"])){
+                $list->andWhere('s.signed=:signed');
+                $list->setParameter('signed', $filters["signed"]);
+            }
+
+            if(isset($filters["not_this"])){
+                $list->andWhere('s.id!=:not_this');
+                $list->setParameter('not_this', $filters["not_this"]);
+            }
+
+            if(isset($filters["record"])){
+                $list->andWhere('s.record=:record');
+                $list->setParameter('record', $filters["record"]);
+            }
+
+            if(isset($filters["have_json"])){
+                $list->andWhere('s.json IS NOT NULL');
+            }
+        }
+
+
+        if(isset($filters["limit_from"])){
+            $list->setFirstResult($filters["limit_from"]*$filters["limit_many"])->setMaxResults($filters["limit_many"]);
+        }
+
+        $query = $list->getQuery();
+
+
+        switch($type){
+            case "list":
+                return $query->getResult();
+                break;
+            case "count":
+                return $query->getSingleResult()["conta"];
+                break;
+        }
+    }
 	
 }

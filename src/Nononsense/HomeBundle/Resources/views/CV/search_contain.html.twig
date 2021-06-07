@@ -24,7 +24,7 @@
         <div class="col-sm-12">
             <div>
                 <div class="row">
-                    <form class="form-horizontal" id="form_item" action="{{ path('nononsense_content_search')}}" method="GET">
+                    <form class="form-horizontal" id="form_item" action="{{ path('nononsense_cv_content_search')}}" method="GET">
                         <div class="form-group">
                             <label class="col-sm-1 control-label">Contenido</label>
                             <div class="col-sm-9 item_filter">
@@ -84,6 +84,9 @@
                     <table id="inProcessParcial" class="table table-striped">
                         <thead>
                             <tr>
+                                <th>ID Registro</th>
+                                <th>Nombre plantilla</th>
+                                <th>Nº.evidencia</th>
                                 <th>Campo</th>
                                 <th>Nº Duplicado</th>
                                 <th>Valor</th>
@@ -91,18 +94,19 @@
                                 <th>Usuario</th>
                                 <th>Fecha de modificación</th>
                                 <th>Opciones</th>
-                                {#<th>Evidencia ID</th>#}
-                                <th>ID Registro</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for history in histories %}
                             <tr>
+                                <td><a class="btn btn-xs btn-primary" href="{{ path('nononsense_cv_search')}}?id={{history.signature.record.id}}"><i class="fa fa-file-text-o" aria-hidden="true"></i> {{history.signature.record.id}}</a></td>
+                                <td>{{history.signature.record.template.name}}</td>
+                                <td>{{history.signature.numberSignature}}</td>
                                 <td>{{history.field}}</td>
                                 <td>{{history.index is defined and history.index != '' ? history.index : 'No duplicado'}}</td>
                                 <td>
                                     {% if 'base64' in history.value %}
-                                        <a href="{{path('nononsense_content_search_file_download', {id: history.id})}}">Descargar archivo</a>
+                                        <a href="{{path('nononsense_cv_content_search_file_download', {id: history.id})}}">Descargar archivo</a>
                                     {% else %}
                                         {{history.value}}
                                     {% endif %}
@@ -110,24 +114,25 @@
                                 
                                 <td>
                                     {% if 'base64' in history.prevValue %}
-                                        <a href="{{path('nononsense_content_search_file_download', {id: history.id})}}?type=prev">Descargar archivo</a>
+                                        <a href="{{path('nononsense_cv_content_search_file_download', {id: history.id})}}?type=prev">Descargar archivo</a>
                                     {% else %}
                                         {{history.prevValue}}
                                     {% endif %}
                                 </td>
-                                <td>{{history.evidencia.userEntiy.username}}</td>
-                                <td>{{history.evidencia.modified|date('Y-m-d H:i:s')}}</td>
+                                <td>{{history.signature.user.username}}</td>
+                                <td>{{history.signature.modified|date('Y-m-d H:i:s')}}</td>
                                 <td>
                                     {% if history.lineOptions is defined and history.lineOptions is not null %}
                                         {% if history.lineOptions == 1 %}
-                                            Campo añadido
+                                            <span  class="btn btn-xs btn-primary disabled"><i class="fa fa-plus" aria-hidden="true"></i> Nuevo</span>
                                         {% elseif history.lineOptions == 0 %}
-                                            Campo eliminado
+                                            <span  class="btn btn-xs btn-danger disabled"><i class="fa fa-times" aria-hidden="true"></i> Eliminado</span>
                                         {% endif %}
+                                    {% else %}
+                                         <span  class="btn btn-xs btn-warning disabled"><i class="fa fa-pencil" aria-hidden="true"></i> Modificado</span>
                                     {% endif %}
+                                    
                                 </td>
-                                {#<td>{{history.evidencia.id}}</td>#}
-                                <td>{{history.evidencia.stepEntity.id}}</td>
                             </tr>
                             {% endfor %}
                         </tbody>
