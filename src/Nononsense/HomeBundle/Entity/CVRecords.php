@@ -69,6 +69,13 @@ class CVRecords
     /**
      * @var boolean 
      *
+     * @ORM\Column(name="redirect_search", type="boolean", nullable=true)
+     */
+    protected $redirectSearch;
+
+    /**
+     * @var boolean 
+     *
      * @ORM\Column(name="enabled", type="boolean",  options={"default" = false})
      */
     protected $enabled;
@@ -363,5 +370,28 @@ class CVRecords
     public function getJson()
     {
         return $this->json;
+    }
+
+    /**
+     * Set redirectSearch
+     *
+     * @param boolean $redirectSearch
+     * @return CVRecords
+     */
+    public function setRedirectSearch($redirectSearch)
+    {
+        $this->redirectSearch = $redirectSearch;
+
+        return $this;
+    }
+
+    /**
+     * Get redirectSearch
+     *
+     * @return boolean 
+     */
+    public function getRedirectSearch()
+    {
+        return $this->redirectSearch;
     }
 }

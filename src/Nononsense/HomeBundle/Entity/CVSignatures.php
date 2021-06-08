@@ -40,6 +40,11 @@ class CVSignatures
     protected $action;
 
     /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\CVRecordsHistory", mappedBy="signature")
+     */
+    protected $changes;
+
+    /**
      * @var string
      *
      * @ORM\Column(name="json", type="text", nullable=true)
@@ -641,5 +646,38 @@ class CVSignatures
     public function getFinish()
     {
         return $this->finish;
+    }
+
+    /**
+     * Add changes
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVRecordsHistory $changes
+     * @return CVSignatures
+     */
+    public function addChange(\Nononsense\HomeBundle\Entity\CVRecordsHistory $changes)
+    {
+        $this->changes[] = $changes;
+
+        return $this;
+    }
+
+    /**
+     * Remove changes
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVRecordsHistory $changes
+     */
+    public function removeChange(\Nononsense\HomeBundle\Entity\CVRecordsHistory $changes)
+    {
+        $this->changes->removeElement($changes);
+    }
+
+    /**
+     * Get changes
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getChanges()
+    {
+        return $this->changes;
     }
 }

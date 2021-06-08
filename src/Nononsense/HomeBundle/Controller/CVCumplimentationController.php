@@ -196,6 +196,14 @@ class CVCumplimentationController extends Controller
             return $this->redirect($route);
         }
 
+        if($array["item"]->getRedirectSearch()){
+            $array["item"]->setRedirectSearch(FALSE);
+            $em->persist($array["item"]);
+            $em->flush();
+            $route = $this->container->get('router')->generate('nononsense_cv_search');
+            return $this->redirect($route);
+        }
+
         $array["signature"] = $this->getDoctrine()->getRepository(CVSignatures::class)->findOneBy(array("record" => $array["item"]),array("id" => "DESC"));
 
         if(!$array["signature"] || $array["signature"]->getSigned()){

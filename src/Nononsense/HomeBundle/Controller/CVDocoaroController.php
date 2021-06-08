@@ -102,9 +102,7 @@ class CVDocoaroController extends Controller
 
             $callback_url=urlencode($baseUrlAux."docoaro/".$id."/save?token=".$token_get_data);
             $get_data_url=urlencode($baseUrlAux."docoaro/".$id."/getdata?token=".$token_get_data."&mode=".$mode.$custom_view);
-
             $redirectUrl = urlencode($this->container->get('router')->generate('nononsense_cv_record', array("id" => $id),TRUE));
-            
             $styleUrl = urlencode($baseUrl . "../css/css_oarodoc/standard.css?v=".uniqid());
 
             $base_url=$this->getParameter('api_docoaro')."/documents/".$record->getTemplate()->getPlantillaId()."?scriptUrl=".$scriptUrl."&styleUrl=".$styleUrl."&callbackUrl=".$callback_url."&redirectUrl=".$redirectUrl."&getDataUrl=".$get_data_url;
@@ -114,8 +112,9 @@ class CVDocoaroController extends Controller
         else{
             $get_data_url=urlencode($baseUrlAux."docoaro/".$id."/getdata?token=".$token_get_data."&mode=pdf".$custom_view);
             $scriptUrl = urlencode($baseUrl . "../js/js_oarodoc/show.js?v=".uniqid());
+            $styleUrl = urlencode($baseUrl . "../css/css_oarodoc/standard.css?v=".uniqid());
 
-            $base_url=$this->getParameter('api_docoaro')."/documents/".$record->getTemplate()->getPlantillaId()."?getDataUrl=".$get_data_url."&scriptUrl=".$scriptUrl;
+            $base_url=$this->getParameter('api_docoaro')."/documents/".$record->getTemplate()->getPlantillaId()."?getDataUrl=".$get_data_url."&scriptUrl=".$scriptUrl."&styleUrl=".$styleUrl;
         }
 
         $ch = curl_init();
@@ -216,6 +215,7 @@ class CVDocoaroController extends Controller
 
     public function saveAction(int $id)
     {
+        $em = $this->getDoctrine()->getManager();
         $expired_token = $this->get('utilities')->tokenExpired($_REQUEST["token"]);
 
         if(!$expired_token){
@@ -236,6 +236,14 @@ class CVDocoaroController extends Controller
             if (!empty($content))
             {
                 $params = json_decode($content, true); // 2nd param to get as array
+            }
+
+            if($params["action"]=="close"){
+                $record->setInEdition(FALSE);
+                $record->setRedirectSearch(TRUE);
+                $em->persist($record);
+                $em->flush();
+                return false;
             }
 
             $json_value=json_encode(array("data" => $params["data"], "action" => $params["action"]), JSON_FORCE_OBJECT);
@@ -266,7 +274,7 @@ class CVDocoaroController extends Controller
             }
 
             $token=$_REQUEST["token"];
-            $em = $this->getDoctrine()->getManager();
+            
             $array_item=array();
 
             
@@ -403,7 +411,7 @@ class CVDocoaroController extends Controller
         $fullText = "";
         $signatures = $this->getDoctrine()->getRepository(CVSignatures::class)->findBy(array("record" => $record, "signed" => TRUE),array("id" => "ASC"));
         if($signatures){
-            $fullText = "<table id='tablefirmas' class='table' style='max-width:none!important'><tr><td colspan='3' width='100%'><b>Firmas</b></td></tr>";
+            $fullText = "<table id='tablefirmas' class='table' style='max-width:none!important'><tr><td colspan='7' width='100%'><b>Firmas</b></td></tr>";
             foreach ($signatures as $key => $signature) {
                 $id = $signature->getNumberSignature();
                 $name = $signature->getUser()->getName();
@@ -415,7 +423,27 @@ class CVDocoaroController extends Controller
                 $action = $signature->getAction()->getName();
                 $comment .= '"'.$signature->getAction()->getDescription().'"';
 
-                $fullText .= "<tr><td colspan='3'>".$action."</td></tr><tr><td width='5%'>" . $id . "</td><td width='15%'>" . $name . "<br>" . $date . "</td><td width='80%'>".$comment ."</td></tr><tr><td colspan='3' width='100%'></td></tr>";
+                $fullText .= "<tr><td width='5%'>" . $id . "</td><td colspan='6'>".$action."</td></tr><tr><td width='5%'></td><td width='15%'>" . $name . "<br>" . $date . "</td><td width='80%' colspan='4'>".$comment ."</td></tr>";
+                if($audittrail){
+                    $first=1;
+                    foreach($signature->getChanges() as $change){
+                        if($change->getLineOptions()!=1){
+                            if($first){
+                                $fullText .= "<tr><td></td><td>Linea</td><td>Campo</td><td>Valor actual</td><td>Valor anterior</td><td>Acción</td></tr>";
+                                $first=0;
+                            }
+                            $fullText .= "<tr><td></td><td>Linea ".($change->getIndex()+1)."</td><td>".$change->getField()."</td>";
+                            if(!is_null($change->getLineOptions())){
+                                $fullText .= "<td></td><td>".$change->getValue()."</td><td>Eliminado</td>";
+                            }
+                            else{
+                                $fullText .= "<td>".$change->getValue()."</td><td>".$change->getPrevValue()."</td><td>Modificado</td>";
+                            }
+                            $fullText .= "</tr>";
+                        }
+                    }
+                }
+                $fullText .= "<tr><td colspan='7' width='100%'></td></tr>";
             }
             $fullText .= "</table>";
         }
