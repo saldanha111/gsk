@@ -35,7 +35,7 @@
                         <div class="form-group">
                             <label class="col-sm-4 control-label" for="select_product">Centro</label>
                             <div class="col-sm-7">
-                                <select class="form-control" name="center" id="select_center" {{ material.center is defined and material.center is not null ? 'disabled="disabled"' : ''}}>
+                                <select class="form-control" name="center" id="select_center" {{ material.id is not null ? 'disabled="disabled"' : ''}}>
                                     {% for center in centers %}
                                         <option value="{{center.id}}" {{ material.center is defined and material.center is not null and material.center.getId==center.id ? 'selected="selected"' : ''}}>{{center.name}}</option>
                                     {% endfor %}
@@ -45,7 +45,7 @@
                         <div class="form-group">
                             <label class="col-sm-4 control-label" for="select_product">Producto asociado</label>
                             <div class="col-sm-7">
-                                <select class="form-control" name="product" id="select_product" {{ material.product is defined and material.product is not null ? 'disabled="disabled"' : ''}}>
+                                <select class="form-control" name="product" id="select_product" {{ material.id is not null ? 'disabled="disabled"' : ''}}>
                                     <option value="">No aplica</option>
                                     {% for product in products %}
                                         <option value="{{product.id}}" {{ material.product is defined and material.product is not null and material.product.getId==product.id ? 'selected="selected"' : ''}}>{{product.name}}</option>
