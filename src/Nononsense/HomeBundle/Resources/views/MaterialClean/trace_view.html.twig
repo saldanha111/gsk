@@ -275,8 +275,8 @@
     <td>{{status[item.status]}}</td>
     <td>{{item.code}}</td>
     <td>{{item.cleanUser.name}}</td>
-    <td>{{item.cleanDate | date("d-m-Y h:i:s")}}</td>
-    <td>{{item.cleanExpiredDate | date("d-m-Y h:i:s")}}</td>
+    <td>{{item.cleanDate | date("d-m-Y H:i:s")}}</td>
+    <td>{{item.cleanExpiredDate | date("d-m-Y H:i:s")}}</td>
     <td>
         {% if item.verificationUser.name is defined %}
             {{ item.verificationUser.name }}
