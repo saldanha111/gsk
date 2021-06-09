@@ -547,6 +547,7 @@ class RegistroConcretoController extends Controller
 
             if($typo === 'reactivo' && $pos !== false){
                 $registro->setStatus(9);
+                $firma->setAccion("Guardado y finalizado (no requiere verificación). " . $comentario);
                 $em->persist($registro);
                 $resultR = $this->forward('NononsenseHomeBundle:ProductsDissolution:saveReactivoUse', ['step'  => $step]);
             }
