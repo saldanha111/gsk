@@ -133,7 +133,7 @@
                                     {% if item.inEdition is defined and item.inEdition == true %}
                                         <a class="btn btn-xs btn-secondary not-allowed"><i class="fa fa-lock"> </i> {{'En edicion'|trans}}</a>
                                     {% else %}
-                                        {% if item.pendingAction is defined and item.pendingAction is not empty %}
+                                        {% if item.pendingAction is defined and item.pendingAction is not empty  and item.version is not empty %}
                                             {% if item.idNextSigner is defined  and suser.id==item.idNextSigner and item.requireAction %}
                                                 <a class="btn btn-xs btn-danger" href="{{path('nononsense_cv_record', {'id': item.id})}}" target="_self"><i class="fa fa-pencil" aria-hidden="true"></i> {{'Firmar'|trans}} {{item.pendingAction}}</a>
                                             {% else %}

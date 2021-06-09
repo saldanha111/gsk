@@ -206,7 +206,7 @@ class CVCumplimentationController extends Controller
 
         $array["signature"] = $this->getDoctrine()->getRepository(CVSignatures::class)->findOneBy(array("record" => $array["item"]),array("id" => "DESC"));
 
-        if(!$array["signature"] || $array["signature"]->getSigned()){
+        if(!$array["signature"] || $array["signature"]->getSigned() || !$array["signature"]->getVersion()){
             $this->get('session')->getFlashBag()->add(
                 'error',
                     'El registro no se puede firmar'
@@ -262,7 +262,7 @@ class CVCumplimentationController extends Controller
 
         $all_signatures = $this->getDoctrine()->getRepository(CVSignatures::class)->search("list",array("record" => $record, "have_json" => 1,"not_this" => $signature->getId()));
 
-        if(!$signature || $signature->getSigned()){
+        if(!$signature || $signature->getSigned() || !$signature->getVersion()){
             $this->get('session')->getFlashBag()->add(
                 'error',
                     'El registro no se puede firmar'

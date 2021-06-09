@@ -102,6 +102,7 @@ class CVDocoaroController extends Controller
 
             $callback_url=urlencode($baseUrlAux."docoaro/".$id."/save?token=".$token_get_data);
             $get_data_url=urlencode($baseUrlAux."docoaro/".$id."/getdata?token=".$token_get_data."&mode=".$mode.$custom_view);
+            //echo $baseUrlAux."docoaro/".$id."/getdata?token=".$token_get_data."&mode=".$mode.$custom_view;die();
             $redirectUrl = urlencode($this->container->get('router')->generate('nononsense_cv_record', array("id" => $id),TRUE));
             $styleUrl = urlencode($baseUrl . "../css/css_oarodoc/standard.css?v=".uniqid());
 
@@ -111,6 +112,7 @@ class CVDocoaroController extends Controller
         }
         else{
             $get_data_url=urlencode($baseUrlAux."docoaro/".$id."/getdata?token=".$token_get_data."&mode=pdf".$custom_view);
+            //echo $baseUrlAux."docoaro/".$id."/getdata?token=".$token_get_data."&mode=pdf".$custom_view;die();
             $scriptUrl = urlencode($baseUrl . "../js/js_oarodoc/show.js?v=".uniqid());
             $styleUrl = urlencode($baseUrl . "../css/css_oarodoc/standard.css?v=".uniqid());
 
@@ -465,24 +467,63 @@ class CVDocoaroController extends Controller
     private function get_logbook($current,$num)
     {
         $fullText = "";
-        $records = $this->getDoctrine()->getRepository(CVRecords::class)->search("list",array("user" => $current->getUser(),"not_this"=>$current->getId(),"plantilla_id"=>$current->getTemplate()->getId(),"limit_from" => 0, "limit_many" => $num));
+        $records = $this->getDoctrine()->getRepository(CVRecords::class)->search("list",array("user" => $current->getUser(),"not_this"=>$current->getId(),"plantilla_id"=>$current->getTemplate()->getId(),"limit_from" => 0, "limit_many" => $num,"have_json" => 1));
         $array_records=array();
+        $array_fields=array();
         if($records){
-            $fullText = "<table id='tablefirmas' class='table' style='max-width:none!important'><tr><td>Id</td><td>Estado</td></tr>";
+            $fullText = "<table id='tablefirmas' class='table' style='max-width:none!important'><tr><td>Id</td><td>Estado</td>";
             foreach($records as $key => $row_record){
-                $signature = $this->getDoctrine()->getRepository(CVSignatures::class)->findOneBy(array("record" => $row_record["id"]),array("id" => "DESC"));
-                foreach($signature->getJson()->data as $data){
-                     echo $mydata->name . "\n";
-                     foreach($mydata->values as $values)
-                     {
-                          echo $values->value . "\n";
-                     }
-                }  
+                $array_records=array();
+                $signature = $this->getDoctrine()->getRepository(CVSignatures::class)->search("list",array("record" => $row_record["id"],"signed" => TRUE,"have_json" => 1),array("id" => "DESC"));
+
+                $data = json_decode($signature[0]->getJson(),TRUE);
+                foreach($data["data"] as $field => $obj){
+                    if (!preg_match("/^(in_|gsk_|dxo_|delete_)|(name|extension\b)/", $field)){
+                        $array_fields[$field]=$row_record["id"];
+                        if(is_array($obj)){
+                            foreach($obj as $key => $value){
+                                $array_records[$row_record["id"]]["values"][$field][$key]=$value;
+                            }
+                        }
+                        else{
+                            $array_records[$row_record["id"]]["values"][$field][0]=$obj;
+                        }
+                    }
+                    $array_records[$row_record["id"]]["state"]=$row_record["state"];
+
+                }
+            }
+
+
+            foreach(array_keys($array_fields) as $field){
+                $fullText .= "<td>".$field."</td>";
+            }
+
+            $fullText .= "</tr>";
+
+            foreach($array_records as $id => $row){
+                $fullText .= "<tr><td>".$id."</td><td>".$row["state"]."</td>";
+                foreach(array_keys($array_fields) as $field){
+                   $fullText .= "<td>";
+                   if (array_key_exists($field, $row["values"])) {
+                        if(is_array($row["values"][$field])){
+                            foreach($row["values"][$field] as $key => $value){
+                               $fullText .= $value."<br>";
+                            }
+                        }
+                        else{
+                            $fullText .= $row["values"][$field]."<br>";
+                        }
+                    }
+                    $fullText .= "</td>";
+                }
+                $fullText .= "</tr>";
             }
 
             /*$record = $this->getDoctrine()->getRepository(CVRecords::class)->findOneBy(array("id" => $row_record["id"]));
                 $fullText .= "<tr><td>".$row_record["id"]."</td><td>".$row_record["state"]."</td></tr>";*/
             $fullText .= "</table>";
+            echo $fullText;die();
         }
         return $fullText;
     }

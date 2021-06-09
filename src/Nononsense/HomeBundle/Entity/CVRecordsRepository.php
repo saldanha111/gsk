@@ -47,7 +47,7 @@ class CVRecordsRepository extends EntityRepository
         switch($type){
             case "list":
                 $list = $this->createQueryBuilder('i')
-                    ->select('i.id', 't.name','u.name creator','i.created','i.modified','t.logbook','s.name state','i.inEdition','t.logbook','a.nameAlternative pendingAction','sigu.id idNextSigner','ty.name type','s.final finalState','s.color colorState','s.icon iconState','s.canBeOpened canBeOpenedState','s.nameAlternative alternativeState','ty.id type_id');
+                    ->select('i.id', 't.name','u.name creator','i.created','i.modified','t.logbook','s.name state','i.inEdition','t.logbook','a.nameAlternative pendingAction','sigu.id idNextSigner','ty.name type','s.final finalState','s.color colorState','s.icon iconState','s.canBeOpened canBeOpenedState','s.nameAlternative alternativeState','ty.id type_id','sig.version');
 
                 $list->addSelect($require_action." AS requireAction");
 
@@ -87,6 +87,10 @@ class CVRecordsRepository extends EntityRepository
             if(isset($filters["id"])){
                 $list->andWhere('i.id=:id');
                 $list->setParameter('id', $filters["id"]);
+            }
+
+            if(isset($filters["have_json"])){
+                $list->andWhere('i.json IS NOT NULL');
             }
 
             if(isset($filters["not_this"])){
