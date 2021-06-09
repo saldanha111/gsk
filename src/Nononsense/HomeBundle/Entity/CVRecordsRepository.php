@@ -89,6 +89,11 @@ class CVRecordsRepository extends EntityRepository
                 $list->setParameter('id', $filters["id"]);
             }
 
+            if(isset($filters["not_this"])){
+                $list->andWhere('i.id!=:not_this');
+                $list->setParameter('not_this', $filters["not_this"]);
+            }
+
             if(isset($filters["plantilla_id"])){
                 $list->andWhere('t.id=:plantilla_id');
                 $list->setParameter('plantilla_id', $filters["plantilla_id"]);

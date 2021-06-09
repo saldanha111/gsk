@@ -167,6 +167,18 @@ class CVDocoaroController extends Controller
         $json_content["data"]["dxo_gsk_audit_trail_bloque"] = $audittrail;
         $json_content["data"]["dxo_gsk_firmas_bloque"] = $only_signatures;
 
+        if($request->get("logbook") && $request->get("logbook")>0){
+            $json_content["data"]["dxo_gsk_logbook"] = 1;
+            $json_content["data"]["dxo_gsk_logbook_bloque"] = $this->get_logbook($record,$request->get("logbook"));
+        }
+        else{
+            $json_content["data"]["dxo_gsk_logbook"] = 0;
+            $json_content["data"]["dxo_gsk_logbook_bloque"] = "";
+        }
+
+
+        
+
         $signature = $this->getDoctrine()->getRepository(CVSignatures::class)->findOneBy(array("record" => $record),array("id" => "DESC"));
         $json2=$signature->getJson();
 
@@ -445,6 +457,31 @@ class CVDocoaroController extends Controller
                 }
                 $fullText .= "<tr><td colspan='7' width='100%'></td></tr>";
             }
+            $fullText .= "</table>";
+        }
+        return $fullText;
+    }
+
+    private function get_logbook($current,$num)
+    {
+        $fullText = "";
+        $records = $this->getDoctrine()->getRepository(CVRecords::class)->search("list",array("user" => $current->getUser(),"not_this"=>$current->getId(),"plantilla_id"=>$current->getTemplate()->getId(),"limit_from" => 0, "limit_many" => $num));
+        $array_records=array();
+        if($records){
+            $fullText = "<table id='tablefirmas' class='table' style='max-width:none!important'><tr><td>Id</td><td>Estado</td></tr>";
+            foreach($records as $key => $row_record){
+                $signature = $this->getDoctrine()->getRepository(CVSignatures::class)->findOneBy(array("record" => $row_record["id"]),array("id" => "DESC"));
+                foreach($signature->getJson()->data as $data){
+                     echo $mydata->name . "\n";
+                     foreach($mydata->values as $values)
+                     {
+                          echo $values->value . "\n";
+                     }
+                }  
+            }
+
+            /*$record = $this->getDoctrine()->getRepository(CVRecords::class)->findOneBy(array("id" => $row_record["id"]));
+                $fullText .= "<tr><td>".$row_record["id"]."</td><td>".$row_record["state"]."</td></tr>";*/
             $fullText .= "</table>";
         }
         return $fullText;

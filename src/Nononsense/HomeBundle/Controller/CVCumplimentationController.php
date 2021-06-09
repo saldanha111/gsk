@@ -458,14 +458,7 @@ class CVCumplimentationController extends Controller
         $array_item["filters"]=$filters;
         $array_item["items"] = $this->getDoctrine()->getRepository(CVRecords::class)->search("list",$filters);
         $array_item["states"]=$this->getDoctrine()->getRepository(CVStates::class)->findAll();
-        /*foreach($array_item["items"] as $key => $record){
-            if(($record["validate1"] || $record["validate2"]) && $record["validate3"]){
-                $array_item["items"][$key]["validate"]=FALSE;
-            }
-            else{
-                $array_item["items"][$key]["validate"]=TRUE;
-            }
-        }*/
+
         $array_item["count"] = $this->getDoctrine()->getRepository(CVRecords::class)->search("count",$filters2);
         $url=$this->container->get('router')->generate('nononsense_cv_search');
         $params=$request->query->all();
