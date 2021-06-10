@@ -478,7 +478,7 @@ class CVDocoaroController extends Controller
         $array_records=array();
         $array_fields=array();
         if($records){
-            $fullText = "<table id='tablelogbook' class='table' style='max-width:none!important'><tr><td>Id</td><td>Estado</td>";
+            $fullText = "<table id='tablelogbook' class='table' style='max-width:none!important'><tr><td><b>Id</b></td><td><b>Estado</b></td>";
             $array_records=array();
             foreach($records as $key => $row_record){
                 $config_json = json_decode($row_record["json"],TRUE);
@@ -506,12 +506,13 @@ class CVDocoaroController extends Controller
 
                     }
                     $array_records[$row_record["id"]]["state"]=$row_record["state"];
+                    $array_records[$row_record["id"]]["finalState"]=$row_record["finalState"];
 
                 }
             }
 
             foreach($array_fields as $show_field){
-                $fullText .= "<td>".$show_field."</td>";
+                $fullText .= "<td><b>".$show_field."</b></td>";
             }
 
             $fullText .= "</tr>";
@@ -523,6 +524,9 @@ class CVDocoaroController extends Controller
                    if (array_key_exists($field, $row["values"])) {
                         if(is_array($row["values"][$field])){
                             foreach($row["values"][$field] as $key => $value){
+                                if($value=="" && $row["finalState"]){
+                                    $value="N/A";
+                                }
                                $fullText .= $value."<br>";
                             }
                         }
