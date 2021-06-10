@@ -2,9 +2,7 @@
 {% block page_title %}Docoaro - GSK | Documentos {% endblock %}
 {% block head %}
     {{ parent() }}
-    <link rel="stylesheet" href="/css/plugins/datapicker/datepicker3.css">
-    <link rel="stylesheet" href="/plugins/select2/dist/css/select2.min.css">
-    <link rel="stylesheet" href="/plugins/dual_listbox/dist/multi.min.css">
+    <link rel="stylesheet" href="/js/plugins/sweetalert/sweetalert.min.css">
 {% endblock %}
 {% block main_title %} Inicio cumplimentación {% endblock %}
 
@@ -41,14 +39,14 @@
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Código Material</label>
                                 <div class="col-sm-8">
-                                    <input type="text" required="required" name="u_material" id="material" class="form-control">
+                                    <input type="text" required="required" name="u_material" id="material" class="form-control uniqid">
                                     <input type="hidden" name="unique[]" value="u_material">
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Lote</label>
                                 <div class="col-sm-8">
-                                    <input type="text" required="required" name="u_lote" id="lote" class="form-control">
+                                    <input type="text" required="required" name="u_lote" id="lote" class="form-control uniqid">
                                     <input type="hidden" name="unique[]" value="u_lote">
                                 </div>
                             </div>
@@ -163,8 +161,10 @@
     <script type="text/javascript" src="/js/plugins/jsqrcode-master/src/findpat.js"></script>
     <script type="text/javascript" src="/js/plugins/jsqrcode-master/src/alignpat.js"></script>
     <script type="text/javascript" src="/js/plugins/jsqrcode-master/src/databr.js"></script>
+    <script type="text/javascript" src="/js/plugins/sweetalert/sweetalert.min.js"></script>
     <script  charset="utf-8">
     var dataworkflow;
+    var array_elements = {};
     $( document ).ready(function() {
         
         
@@ -191,7 +191,47 @@
         $('#form_item').on('submit', function(e){
             if(!repeat_workflow()){
                 if(!checkErrors()){
-                    return true; 
+                    {% if item.uniqid %}
+                        $('#box_unique_codes').find('.uniqid').each(function () {
+                            array_elements[$(this).attr('name')] = $(this).val();
+                        });
+                        console.log(JSON.stringify(array_elements));
+                        $.ajax({
+                            url: "{{ path('nononsense_check_code_unique') }}",
+                            type: 'POST',
+                            dataType: 'json',
+                            async: false,
+                            data: {code_unique: JSON.stringify(array_elements) },
+                            success: function(data) {
+                                console.log(data);
+                                if(data.ok){
+                                    swal({
+                                      title: "Código único detectado",
+                                      text: "¿Está seguro de que desea iniciar un proceso de reconciliación?",
+                                      icon: 'warning',
+                                      showCancelButton: true,
+                                      confirmButtonColor: '#ac2925',
+                                      confirmButtonText: "Si",
+                                      cancelButtonText: "No",
+                                      closeOnConfirm: false
+                                    },function(){
+                                        return true;
+                                    });
+                                }
+                                else{
+                                    return true;
+                                }
+                            },
+                            error: function (request, status, error) {
+                                  console.log(request.responseText);
+                                  console.log(status);
+                                  console.log(error);
+                                  toastr.error("No puede iniciarse la cumplimentación",'aviso');
+                              }
+                        });
+                    {% else %}
+                        return true;
+                    {% endif %}
                 }
                 else{
                     toastr.error("No puede iniciarse la cumplimentación",'aviso');

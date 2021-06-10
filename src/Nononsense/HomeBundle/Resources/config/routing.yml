@@ -944,3 +944,11 @@ nononsense_cv_content_search:
 nononsense_cv_content_search_file_download:
     path: /cv/searcher/{id}
     defaults: { _controller: NononsenseHomeBundle:CVCumplimentation:downloadBase64}
+
+
+# Reconciliation
+
+nononsense_check_code_unique:
+    path: /cv/check/code-unique
+    methods:    [POST]
+    defaults: { _controller: NononsenseHomeBundle:CVReconciliation:checkCodeUnique}

@@ -156,8 +156,8 @@ class Utilities{
         return false;   
     }
 
-    private function returnPDFResponseFromHTML($html){
-        $pdf = $this->get("white_october.tcpdf")->create('horizontal', PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+    public function returnPDFResponseFromHTML($html){
+        $pdf = $this->container->get("white_october.tcpdf")->create('horizontal', PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
         $pdf->SetAuthor('GSK');
         $pdf->SetTitle(('Registros GSK'));
         $pdf->SetSubject('Registros GSK');

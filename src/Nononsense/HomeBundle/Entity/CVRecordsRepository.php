@@ -173,7 +173,20 @@ class CVRecordsRepository extends EntityRepository
                 $list->andWhere("JSON_VALUE(last.json, :var) LIKE :value");
                 $list->setParameter('var', '$.data.'.$filters["var"]);
                 $list->setParameter('value', '%'.$filters["value"].'%');
+            }
 
+            if(isset($filters["code_unique"])){
+                $strlen=strlen(json_encode($filters["code_unique"]));
+                $list->andWhere("LENGTH(i.codeUnique)=:strlen");
+                $list->andWhere("ISJSON(i.codeUnique) > 0");
+                $list->setParameter('strlen', $strlen);
+                $cu=0;
+                foreach($filters["code_unique"] as $key_unique => $value_unique){
+                    $list->andWhere("JSON_VALUE(i.codeUnique, :var".$cu.") LIKE :value".$cu);
+                    $list->setParameter('var'.$cu, '$.'.$key_unique);
+                    $list->setParameter('value'.$cu, $value_unique);
+                    $cu++;
+                }
             }
         }
 

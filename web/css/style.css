@@ -54,6 +54,13 @@ h5 {
   color: #fff;
 }
 
+
+#box_clock{
+  float:left;
+  margin-left:20px;
+  margin-top: 10px;
+}
+
 .navbar-default .nav-second-level > li > a:hover,
 .navbar-default .nav-second-level > li > a:focus { background:#ddd; color:#646464;}
 

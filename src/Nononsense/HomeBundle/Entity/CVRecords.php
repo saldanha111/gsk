@@ -87,6 +87,13 @@ class CVRecords
      */
     protected $json;
 
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="code_unique", type="text", nullable=true)
+     */
+    protected $codeUnique;
+
     
     public function __construct()
     {
@@ -393,5 +400,28 @@ class CVRecords
     public function getRedirectSearch()
     {
         return $this->redirectSearch;
+    }
+
+    /**
+     * Set codeUnique
+     *
+     * @param string $codeUnique
+     * @return CVRecords
+     */
+    public function setCodeUnique($codeUnique)
+    {
+        $this->codeUnique = $codeUnique;
+
+        return $this;
+    }
+
+    /**
+     * Get codeUnique
+     *
+     * @return string 
+     */
+    public function getCodeUnique()
+    {
+        return $this->codeUnique;
     }
 }

@@ -98,7 +98,6 @@ class CVCumplimentationController extends Controller
         $record->setEnabled(TRUE);
         $record->setState($state);
         $record->setUser($user);
-        $em->persist($record);
 
         $params["data"]=array();
 
@@ -112,13 +111,19 @@ class CVCumplimentationController extends Controller
         $sign->setJustification(FALSE);
         $sign->setNumberSignature(1);
 
+        $array_unique=array();
         if($request->get("unique")){
             foreach($request->get("unique") as $unique){
                 if($request->get($unique)){
                     $params["data"][$unique]=$request->get($unique);
+                    $array_unique[$unique]=$request->get($unique);
                 }
             }
         }
+
+        $json_unique=json_encode($array_unique, JSON_FORCE_OBJECT);
+        $record->setCodeUnique($json_unique);
+        $em->persist($record);
 
         if($request->get("value_qr")){
             $value_qr=json_decode($request->get("value_qr"), true);
@@ -496,44 +501,19 @@ class CVCumplimentationController extends Controller
 
             $i=2;
             foreach($array_item["items"] as $item){
-                switch($item["status"]){
-                    case 0: $status="Iniciado";break;
-                    case 1: $status="Esperando firma guardado parcial";break;
-                    case 2: $status="Esperando firma envío";break;
-                    case 3: $status="Esperando firma cancelación";break;
-                    case 4: $status="En verificación";break;
-                    case 5: $status="Pendiente cancelación en edición";break;
-                    case 6: $status="Cancelado en edición";break;
-                    case 7: $status="Esperando firma verificación total";break;
-                    case 8: $status="Cancelado";break;
-                    case 9: $status="Archivado";break;
-                    case 10: $status="Reconciliado";break;
-                    case 11: $status="Bloqueado";break;
-                    case 12: $status="Esperando firma cancelación en verificación";break;
-                    case 13: $status="Esperando firma devolución a edición";break;
-                    case 14: $status="Pendiente de cancelación en verificación";break;
-                    case 15: $status="Esperando firma verificación parcial";break;
-                    default: $status="Desconocido";
-                }
-                if($item["id_grid"]==0){
-                    $name=$item["name"];
-                }
-                else{
-                    $name=$item["name2"];
-                }
 
                 if($request->get("export_excel")){
                     $phpExcelObject->getActiveSheet()
-                    ->setCellValue('A'.$i, $item["id_grid"])
-                    ->setCellValue('B'.$i, $name)
+                    ->setCellValue('A'.$i, $item["id"])
+                    ->setCellValue('B'.$i, $item["name"])
                     ->setCellValue('C'.$i, $item["creator"])
                     ->setCellValue('D'.$i, ($item["created"]) ? $item["created"] : '')
                     ->setCellValue('E'.$i, ($item["modified"]) ? $item["modified"] : '')
-                    ->setCellValue('F'.$i, $status);
+                    ->setCellValue('F'.$i, $item["state"]);
                 }
 
                 if($request->get("export_pdf")){
-                    $html.='<tr style="font-size:8px"><td>'.$item["id"].'</td><td>'.$name.'</td><td>'.$item["creator"].'</td><td>'.(($item["created"]) ? $item["created"]->format('Y-m-d H:i:s') : '').'</td><td>'.(($item["modified"]) ? $item["modified"]->format('Y-m-d H:i:s') : '').'</td><td>'.$status.'</td></tr>';
+                    $html.='<tr style="font-size:8px"><td>'.$item["id"].'</td><td>'.$item["name"].'</td><td>'.$item["creator"].'</td><td>'.(($item["created"]) ? $item["created"]->format('Y-m-d H:i:s') : '').'</td><td>'.(($item["modified"]) ? $item["modified"]->format('Y-m-d H:i:s') : '').'</td><td>'.$item["state"].'</td></tr>';
                 }
 
                 $i++;
