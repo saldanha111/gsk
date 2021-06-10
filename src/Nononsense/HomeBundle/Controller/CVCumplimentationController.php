@@ -719,19 +719,31 @@ class CVCumplimentationController extends Controller
     }
 
     public function insertDiff($field, $index = null, $value, $prevValue = null, $lineOptions = null, $evidencia){
+        $info="";
+        if($evidencia->getRecord()->getJson()){
+            $config_json = json_decode($evidencia->getRecord()->getJson(),TRUE);
+            if($config_json["configuration"]["variables"][$field]["info"]!=""){
+                $info=$config_json["configuration"]["variables"][$field]["info"];
+            }
+        }
 
-            $stepHistory = new CVRecordsHistory();
-            $stepHistory->setField($field);
-            $stepHistory->setIndex($index);
-            $stepHistory->setValue($value);
-            $stepHistory->setPrevValue($prevValue);
-            $stepHistory->setLineOptions($lineOptions);
-            $stepHistory->setSignature($evidencia);
+        if($info==""){
+            $info=$field;
+        }
+        
+        $stepHistory = new CVRecordsHistory();
+        $stepHistory->setField($field);
+        $stepHistory->setInfo($info);
+        $stepHistory->setIndex($index);
+        $stepHistory->setValue($value);
+        $stepHistory->setPrevValue($prevValue);
+        $stepHistory->setLineOptions($lineOptions);
+        $stepHistory->setSignature($evidencia);
 
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($stepHistory);
-            //$em->flush();
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($stepHistory);
+        //$em->flush();
 
-            return $stepHistory;
+        return $stepHistory;
     }
 }

@@ -51,6 +51,10 @@ class CVRecordsRepository extends EntityRepository
 
                 $list->addSelect($require_action." AS requireAction");
 
+                if(!empty($filters) && isset($filters["have_json"])){
+                    $list->addSelect('i.json');
+                }
+
                 break;
             case "count":
                 $list = $this->createQueryBuilder('i')

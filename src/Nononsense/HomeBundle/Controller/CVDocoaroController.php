@@ -446,7 +446,13 @@ class CVDocoaroController extends Controller
                                 $fullText .= "<tr><td></td><td>Linea</td><td>Campo</td><td>Valor actual</td><td>Valor anterior</td><td>Acción</td></tr>";
                                 $first=0;
                             }
-                            $fullText .= "<tr><td></td><td>Linea ".($change->getIndex()+1)."</td><td>".$change->getField()."</td>";
+                            if($change->getInfo()){
+                                $field=$change->getInfo();
+                            }
+                            else{
+                                $field=$change->getField();
+                            }
+                            $fullText .= "<tr><td></td><td>Linea ".($change->getIndex()+1)."</td><td>".$field."</td>";
                             if(!is_null($change->getLineOptions())){
                                 $fullText .= "<td></td><td>".$change->getValue()."</td><td>Eliminado</td>";
                             }
@@ -468,18 +474,27 @@ class CVDocoaroController extends Controller
     {
         $fullText = "";
         $records = $this->getDoctrine()->getRepository(CVRecords::class)->search("list",array("user" => $current->getUser(),"not_this"=>$current->getId(),"plantilla_id"=>$current->getTemplate()->getId(),"limit_from" => 0, "limit_many" => $num,"have_json" => 1));
+        
         $array_records=array();
         $array_fields=array();
         if($records){
-            $fullText = "<table id='tablefirmas' class='table' style='max-width:none!important'><tr><td>Id</td><td>Estado</td>";
+            $fullText = "<table id='tablelogbook' class='table' style='max-width:none!important'><tr><td>Id</td><td>Estado</td>";
+            $array_records=array();
             foreach($records as $key => $row_record){
-                $array_records=array();
+                $config_json = json_decode($row_record["json"],TRUE);
                 $signature = $this->getDoctrine()->getRepository(CVSignatures::class)->search("list",array("record" => $row_record["id"],"signed" => TRUE,"have_json" => 1),array("id" => "DESC"));
 
                 $data = json_decode($signature[0]->getJson(),TRUE);
                 foreach($data["data"] as $field => $obj){
-                    if (!preg_match("/^(in_|gsk_|dxo_|delete_)|(name|extension\b)/", $field)){
-                        $array_fields[$field]=$row_record["id"];
+
+                    if (!preg_match("/^(in_|gsk_|dxo_|delete_|verchk_)|(name|extension\b)/", $field)){
+                        if($config_json["configuration"]["variables"][$field]["info"]!=""){
+                            $array_fields[$field]=$config_json["configuration"]["variables"][$field]["info"];
+                        }
+                        else{
+                            $array_fields[$field]=$array_fields[$field];
+                        }
+
                         if(is_array($obj)){
                             foreach($obj as $key => $value){
                                 $array_records[$row_record["id"]]["values"][$field][$key]=$value;
@@ -488,15 +503,15 @@ class CVDocoaroController extends Controller
                         else{
                             $array_records[$row_record["id"]]["values"][$field][0]=$obj;
                         }
+
                     }
                     $array_records[$row_record["id"]]["state"]=$row_record["state"];
 
                 }
             }
 
-
-            foreach(array_keys($array_fields) as $field){
-                $fullText .= "<td>".$field."</td>";
+            foreach($array_fields as $show_field){
+                $fullText .= "<td>".$show_field."</td>";
             }
 
             $fullText .= "</tr>";
@@ -519,11 +534,7 @@ class CVDocoaroController extends Controller
                 }
                 $fullText .= "</tr>";
             }
-
-            /*$record = $this->getDoctrine()->getRepository(CVRecords::class)->findOneBy(array("id" => $row_record["id"]));
-                $fullText .= "<tr><td>".$row_record["id"]."</td><td>".$row_record["state"]."</td></tr>";*/
             $fullText .= "</table>";
-            echo $fullText;die();
         }
         return $fullText;
     }

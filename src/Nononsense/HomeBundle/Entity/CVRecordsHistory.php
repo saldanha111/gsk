@@ -25,9 +25,16 @@ class CVRecordsHistory
     /**
      * @var string
      *
-     * @ORM\Column(name="field", type="string", length=30)
+     * @ORM\Column(name="field", type="string", length=60)
      */
     private $field;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="info", type="string", length=90, nullable=true)
+     */
+    private $info;
 
     /**
      * @var string
@@ -210,5 +217,28 @@ class CVRecordsHistory
     public function getSignature()
     {
         return $this->signature;
+    }
+
+    /**
+     * Set info
+     *
+     * @param string $info
+     * @return CVRecordsHistory
+     */
+    public function setInfo($info)
+    {
+        $this->info = $info;
+
+        return $this;
+    }
+
+    /**
+     * Get info
+     *
+     * @return string 
+     */
+    public function getInfo()
+    {
+        return $this->info;
     }
 }
