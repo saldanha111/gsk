@@ -226,7 +226,7 @@ class CVReconciliationController extends Controller
         }
     }
 
-    public function checkCodeUniqueAction(Request $request)
+    public function checkCodeUniqueAction(Request $request, $id)
     {
         if(!$request->get("code_unique")){
             $response = new Response(json_encode([
@@ -235,18 +235,17 @@ class CVReconciliationController extends Controller
             return $response;
         }
 
-        $exist = $this->getDoctrine()->getRepository(CVRecords::class)->search("count",array("code_unique" => json_decode($request->get("code_unique"),TRUE)));
+        $exist = $this->getDoctrine()->getRepository(CVRecords::class)->search("count",array("plantilla_id" => $id,"code_unique" => json_decode($request->get("code_unique"),TRUE)));
 
         if($exist==0){
-            $response = new Response(json_encode([
-                'errors' => 'Not Found',
-            ]), 404);
-            return $response;
+            $json_content["ok"]=0;
+        }
+        else{
+            $json_content["ok"]=1;
         }
 
         $response = new Response();
         $response->setStatusCode(200);
-        $json_content["ok"]=1;
         $response->setContent(json_encode($json_content));
 
         return $response;

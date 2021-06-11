@@ -85,8 +85,9 @@ class CVDocoaroController extends Controller
             $custom_view.="&logbook=".$request->get("logbook");
         }
 
+
         $token_get_data = $this->get('utilities')->generateToken();
-        if(!$record->getState() || (!$record->getState()->getFinal() && !$request->get("pdf"))){ // Si no es un estado final y no queremos sacar un pdf
+        if(!$record->getState() || (!$record->getState()->getFinal() && !$request->get("pdf") && !$request->get("readonly"))){ // Si no es un estado final y no queremos sacar un pdf
             $mode="c";
             if($record->getState()){
                 switch($record->getState()->getType()->getName()){

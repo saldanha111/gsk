@@ -949,6 +949,6 @@ nononsense_cv_content_search_file_download:
 # Reconciliation
 
 nononsense_check_code_unique:
-    path: /cv/check/code-unique
+    path: /cv/check/code-unique/{id}
     methods:    [POST]
-    defaults: { _controller: NononsenseHomeBundle:CVReconciliation:checkCodeUnique}
+    defaults: { _controller: NononsenseHomeBundle:CVReconciliation:checkCodeUnique, id: 0}

@@ -166,11 +166,38 @@ class CVCumplimentationController extends Controller
             }
         }
 
+        //Miramos si es una plantilla reconciliable
+        $reconc=0;
+        if($item->getUniqid()){
+            //Miramos si se tiene que reconciliar
+            $reconciliation = $this->getDoctrine()->getRepository(CVRecords::class)->search("list",array("user"=> $user, "plantilla_id" => $item->getId(),"code_unique" => $array_unique, "limit_from" => 0,"limit_many" => 1));
+            if($reconciliation[0]){
+                $recon=$em->getRepository(CVRecords::class)->findOneBy(array("id" => $reconciliation[0]["id"]));
+                $record->setReconciliation($recon);
+                $record->setJson($recon->getJson());
+                if($recon->getFirstReconciliation()){
+                    $record->setFirstReconciliation($recon->getFirstReconciliation());
+                }
+                else{
+                    $record->setFirstReconciliation($recon);
+                }
+                $reconc=1;
+                $action=$em->getRepository(CVActions::class)->findOneBy(array("id" => 12));
+                $sign->setAction($action);
+                $em->persist($sign);
+                $em->persist($record);
+            }
+        }
+
         
         if($error==0){
             $em->flush();
-
-             $route = $this->container->get('router')->generate('nononsense_cv_docoaro_new', array("id" => $record->getId())).$concat;
+            if(!$reconc){
+                $route = $this->container->get('router')->generate('nononsense_cv_docoaro_new', array("id" => $record->getId())).$concat;
+            }
+            else{
+                $route = $this->container->get('router')->generate('nononsense_cv_record', array("id" => $record->getId()));
+            }
         }
         else{
             $this->get('session')->getFlashBag()->add(
@@ -211,7 +238,7 @@ class CVCumplimentationController extends Controller
 
         $array["signature"] = $this->getDoctrine()->getRepository(CVSignatures::class)->findOneBy(array("record" => $array["item"]),array("id" => "DESC"));
 
-        if(!$array["signature"] || $array["signature"]->getSigned() || !$array["signature"]->getVersion()){
+        if(!$array["signature"] || $array["signature"]->getSigned() || (!$array["signature"]->getVersion() && $array["signature"]->getAction()->getId()!=12)){
             $this->get('session')->getFlashBag()->add(
                 'error',
                     'El registro no se puede firmar'
@@ -267,7 +294,7 @@ class CVCumplimentationController extends Controller
 
         $all_signatures = $this->getDoctrine()->getRepository(CVSignatures::class)->search("list",array("record" => $record, "have_json" => 1,"not_this" => $signature->getId()));
 
-        if(!$signature || $signature->getSigned() || !$signature->getVersion()){
+        if(!$signature || $signature->getSigned() || (!$signature->getVersion() && $signature->getAction()->getId()!=12)){
             $this->get('session')->getFlashBag()->add(
                 'error',
                     'El registro no se puede firmar'
@@ -621,8 +648,12 @@ class CVCumplimentationController extends Controller
                 }else{
 
                     //echo $field.':'.$removedOrAdded.'<br>';
-
-                    if ($value != eval("return $compare;")) {
+                    try {
+                        $other_value=eval("return $compare;");
+                    } catch (\Exception $e) {
+                        $other_value="";
+                    }
+                    if ($value != $other_value) {
 
                         $lineOptions = null;
                         $index = ($aux != $field) ? $aux : $key;
@@ -639,7 +670,7 @@ class CVCumplimentationController extends Controller
                                 // $diff[$key]['field_index'] = $index;
                                 // $diff[$key]['field_value'] = $value;
                                 // $diff[$key]['prevVal'] = eval("return $compare;");
-                                $this->insertDiff($field, $index, $value, eval("return $compare;"), $lineOptions, $evidencia);
+                                $this->insertDiff($field, $index, $value, $other_value, $lineOptions, $evidencia);
                             }
                         }else{
                             if ($field == $removedOrAdded) {
@@ -650,9 +681,9 @@ class CVCumplimentationController extends Controller
                             $diff[$key]['line_options'] = $lineOptions;
                             $diff[$key]['field_index'] = $index;
                             $diff[$key]['field_value'] = $value;
-                            $diff[$key]['prevVal'] = eval("return $compare;");
+                            $diff[$key]['prevVal'] = $other_value;
 
-                            $this->insertDiff($field, $index, $value, eval("return $compare;"), $lineOptions, $evidencia);
+                            $this->insertDiff($field, $index, $value, $other_value, $lineOptions, $evidencia);
                         }
                         // if ($field == $removedOrAdded) { //Check removed or added field
                         //     $lineOptions = ($compareWith == 'old') ? 0 : 1; //if we compare the old object, we know that it is removed (1), otherwise, added (0)
@@ -702,7 +733,7 @@ class CVCumplimentationController extends Controller
         $info="";
         if($evidencia->getRecord()->getJson()){
             $config_json = json_decode($evidencia->getRecord()->getJson(),TRUE);
-            if($config_json["configuration"]["variables"][$field]["info"]!=""){
+            if(array_key_exists($field, $config_json["configuration"]["variables"]) && $config_json["configuration"]["variables"][$field]["info"]!=""){
                 $info=$config_json["configuration"]["variables"][$field]["info"];
             }
         }

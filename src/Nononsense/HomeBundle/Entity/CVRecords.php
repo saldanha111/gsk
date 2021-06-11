@@ -50,6 +50,30 @@ class CVRecords
     protected $cvSignatures;
 
     /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\CVRecords")
+     * @ORM\JoinColumn(name="reconciliation_id", referencedColumnName="id", nullable=true)
+     */
+    protected $reconciliation;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\CVRecords")
+     * @ORM\JoinColumn(name="first_reconciliation_id", referencedColumnName="id", nullable=true)
+     */
+    protected $firstReconciliation;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\CVRecords")
+     * @ORM\JoinColumn(name="nested_id", referencedColumnName="id", nullable=true)
+     */
+    protected $nested;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\CVRecords")
+     * @ORM\JoinColumn(name="first_nested_id", referencedColumnName="id", nullable=true)
+     */
+    protected $firstNested;
+
+    /**
      * @ORM\Column(type="datetime")
      */
     protected $created;
@@ -423,5 +447,97 @@ class CVRecords
     public function getCodeUnique()
     {
         return $this->codeUnique;
+    }
+
+    /**
+     * Set reconciliation
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVRecords $reconciliation
+     * @return CVRecords
+     */
+    public function setReconciliation(\Nononsense\HomeBundle\Entity\CVRecords $reconciliation = null)
+    {
+        $this->reconciliation = $reconciliation;
+
+        return $this;
+    }
+
+    /**
+     * Get reconciliation
+     *
+     * @return \Nononsense\HomeBundle\Entity\CVRecords 
+     */
+    public function getReconciliation()
+    {
+        return $this->reconciliation;
+    }
+
+    /**
+     * Set firstReconciliation
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVRecords $firstReconciliation
+     * @return CVRecords
+     */
+    public function setFirstReconciliation(\Nononsense\HomeBundle\Entity\CVRecords $firstReconciliation = null)
+    {
+        $this->firstReconciliation = $firstReconciliation;
+
+        return $this;
+    }
+
+    /**
+     * Get firstReconciliation
+     *
+     * @return \Nononsense\HomeBundle\Entity\CVRecords 
+     */
+    public function getFirstReconciliation()
+    {
+        return $this->firstReconciliation;
+    }
+
+    /**
+     * Set nested
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVRecords $nested
+     * @return CVRecords
+     */
+    public function setNested(\Nononsense\HomeBundle\Entity\CVRecords $nested = null)
+    {
+        $this->nested = $nested;
+
+        return $this;
+    }
+
+    /**
+     * Get nested
+     *
+     * @return \Nononsense\HomeBundle\Entity\CVRecords 
+     */
+    public function getNested()
+    {
+        return $this->nested;
+    }
+
+    /**
+     * Set firstNested
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVRecords $firstNested
+     * @return CVRecords
+     */
+    public function setFirstNested(\Nononsense\HomeBundle\Entity\CVRecords $firstNested = null)
+    {
+        $this->firstNested = $firstNested;
+
+        return $this;
+    }
+
+    /**
+     * Get firstNested
+     *
+     * @return \Nononsense\HomeBundle\Entity\CVRecords 
+     */
+    public function getFirstNested()
+    {
+        return $this->firstNested;
     }
 }

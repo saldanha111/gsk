@@ -195,46 +195,12 @@
                         $('#box_unique_codes').find('.uniqid').each(function () {
                             array_elements[$(this).attr('name')] = $(this).val();
                         });
-                        console.log(JSON.stringify(array_elements));
-                        $.ajax({
-                            url: "{{ path('nononsense_check_code_unique') }}",
-                            type: 'POST',
-                            dataType: 'json',
-                            async: false,
-                            data: {code_unique: JSON.stringify(array_elements) },
-                            success: function(data) {
-                                console.log(data);
-                                if(data.ok){
-                                    swal({
-                                      title: "Código único detectado",
-                                      text: "¿Está seguro de que desea iniciar un proceso de reconciliación?",
-                                      icon: 'warning',
-                                      showCancelButton: true,
-                                      confirmButtonColor: '#ac2925',
-                                      confirmButtonText: "Si",
-                                      cancelButtonText: "No",
-                                      closeOnConfirm: false
-                                    },function(){
-                                        return true;
-                                    });
-                                }
-                                else{
-                                    return true;
-                                }
-                            },
-                            error: function (request, status, error) {
-                                  console.log(request.responseText);
-                                  console.log(status);
-                                  console.log(error);
-                                  toastr.error("No puede iniciarse la cumplimentación",'aviso');
-                              }
-                        });
+                        if(start_cumplimentation()){
+                            return true;
+                        }
                     {% else %}
                         return true;
                     {% endif %}
-                }
-                else{
-                    toastr.error("No puede iniciarse la cumplimentación",'aviso');
                 }
             }
             else{
@@ -247,6 +213,47 @@
 
     });
 
+    function start_cumplimentation (){
+        var start_c=0;
+        $.ajax({
+            url: "{{ path('nononsense_check_code_unique', {'id': item.id}) }}",
+            type: 'POST',
+            dataType: 'json',
+            async: false,
+            data: {code_unique: JSON.stringify(array_elements) },
+            success: function(data) {
+                if(data.ok){
+                    start_c=1;
+                }
+                else{
+                    start_c=2;
+                }
+            },
+            error: function (request, status, error) {
+                  console.log(request.responseText);
+                  console.log(status);
+                  console.log(error);
+                  toastr.error("No puede iniciarse la cumplimentación",'aviso');
+            }
+        });
+
+        if(start_c>0){
+            if(start_c==1){
+                if (confirm('Ya existe un registro para “Identificador único, ¿desea continuar?')) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+            else{
+                return true;
+            }
+        }
+        
+        return false;
+        
+    }
+    
     function putQrValue(a) {
         var read=true;
         var json;
@@ -280,14 +287,21 @@
                     if(conflict.length>0){
                         toastr.error("No puede introduccir valores distintos para los mismos campos en el código único y en el QR", 'error');
                         error=1;
-                        return false;
+                        return true;
                     }
                 }
                 else{
+                    toastr.error("No puede iniciarse la cumplimentación",'aviso');
                     error=1;
-                    return false;
+                    return true;
                 }
             });
+        }
+        if(error==1){
+            return true;
+        }
+        else{
+            return false;
         }
     }
 

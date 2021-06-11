@@ -17,6 +17,32 @@
             {{ flashMessage }}
         </div>
         {% endfor %}
+
+        {% if signature.action.id==12 and signature.record.reconciliation is not empty %}
+        <table id="inProcess" class="table table-striped">
+            <thead>
+            <tr>
+                <th>Id Registro afectado</th>
+                <th>Area</th>
+                <th>Nombre</th>
+                <th>Fecha Solicitado</th>
+                <th>Solicitado por</th>
+                <th>Acción</th>
+            </tr>
+            </thead>
+            <tr>
+                <td>{{signature.record.reconciliation.id}}</td>
+                <td>{{signature.record.reconciliation.template.area.name}}</td>
+                <td>{{signature.record.reconciliation.template.name}}</td>
+                <td>{{signature.created | date('d-m-Y H:i:s') }}</td>
+                <td>{{signature.user.name}}</td>
+                <td>
+                    <a class="btn btn-xs btn-primary" href="{{path('nononsense_cv_docoaro_new', {'id': signature.record.reconciliation.id})}}?readonly=1" target="_blank">{{'Ver reconciliado'|trans}}</a>
+                </td>
+            </tr>
+        </table>
+        {% endif %}
+
         <form class="form-horizontal" id="form_item" action="{{path('nononsense_cv_record_sign', {'id': item.id}) }}" method="POST"  enctype="multipart/form-data">
 
             {% if signature.justification or signature.action.justification %}
