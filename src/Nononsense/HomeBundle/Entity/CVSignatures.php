@@ -110,6 +110,18 @@ class CVSignatures
      */
     protected $finish;
 
+    /**
+     * @ORM\Column(name="sign_date", type="datetime", nullable=true)
+     */
+    protected $signDate;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="json_aux", type="text", nullable=true)
+     */
+    protected $jsonAux;
+
     
     public function __construct()
     {
@@ -679,5 +691,29 @@ class CVSignatures
     public function getChanges()
     {
         return $this->changes;
+    }
+
+
+    /**
+     * Set signDate
+     *
+     * @param \DateTime $signDate
+     * @return CVSignatures
+     */
+    public function setSignDate($signDate)
+    {
+        $this->signDate = $signDate;
+
+        return $this;
+    }
+
+    /**
+     * Get signDate
+     *
+     * @return \DateTime 
+     */
+    public function getSignDate()
+    {
+        return $this->signDate;
     }
 }

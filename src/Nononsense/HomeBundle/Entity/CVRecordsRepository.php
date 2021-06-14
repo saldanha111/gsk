@@ -188,6 +188,11 @@ class CVRecordsRepository extends EntityRepository
                     $cu++;
                 }
             }
+
+            if(isset($filters["have_signature"])){
+                $list->andWhere('last.signed=TRUE');
+            }
+
         }
 
 

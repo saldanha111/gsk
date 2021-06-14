@@ -44,10 +44,9 @@ class CVActions
      */
     protected $description;
 
-
     /**
      * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\CVStates", inversedBy="cvActions")
-     * @ORM\JoinColumn(name="next_state", referencedColumnName="id")
+     * @ORM\JoinColumn(name="next_state", referencedColumnName="id", nullable=true)
      */
     protected $nextState;
 
@@ -158,29 +157,6 @@ class CVActions
     public function getCvSignatures()
     {
         return $this->cvSignatures;
-    }
-
-    /**
-     * Set nextState
-     *
-     * @param \Nononsense\HomeBundle\Entity\CVStates $nextState
-     * @return CVActions
-     */
-    public function setNextState(\Nononsense\HomeBundle\Entity\CVStates $nextState = null)
-    {
-        $this->nextState = $nextState;
-
-        return $this;
-    }
-
-    /**
-     * Get nextState
-     *
-     * @return \Nononsense\HomeBundle\Entity\CVStates 
-     */
-    public function getNextState()
-    {
-        return $this->nextState;
     }
 
     /**
@@ -319,5 +295,28 @@ class CVActions
     public function getFinishWorkflow()
     {
         return $this->finishWorkflow;
+    }
+
+    /**
+     * Set nextState
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVStates $nextState
+     * @return CVActions
+     */
+    public function setNextState(\Nononsense\HomeBundle\Entity\CVStates $nextState = null)
+    {
+        $this->nextState = $nextState;
+
+        return $this;
+    }
+
+    /**
+     * Get nextState
+     *
+     * @return \Nononsense\HomeBundle\Entity\CVStates 
+     */
+    public function getNextState()
+    {
+        return $this->nextState;
     }
 }

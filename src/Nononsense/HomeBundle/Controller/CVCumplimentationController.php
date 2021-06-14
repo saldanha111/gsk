@@ -17,6 +17,7 @@ use Nononsense\HomeBundle\Entity\CVSignatures;
 use Nononsense\HomeBundle\Entity\CVWorkflow;
 use Nononsense\HomeBundle\Entity\CVStates;
 use Nononsense\HomeBundle\Entity\CVRecordsHistory;
+use Nononsense\HomeBundle\Entity\CVRequestTypes;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
@@ -192,12 +193,12 @@ class CVCumplimentationController extends Controller
         
         if($error==0){
             $em->flush();
-            if(!$reconc){
+            //if(!$reconc){
                 $route = $this->container->get('router')->generate('nononsense_cv_docoaro_new', array("id" => $record->getId())).$concat;
-            }
+            /*}
             else{
                 $route = $this->container->get('router')->generate('nononsense_cv_record', array("id" => $record->getId()));
-            }
+            }*/
         }
         else{
             $this->get('session')->getFlashBag()->add(
@@ -355,13 +356,18 @@ class CVCumplimentationController extends Controller
         if($request->get('justification')){
             $signature->setDescription($request->get('justification'));
         }
-        $signature->setJson(str_replace("gsk_id_firm", $signature->getNumberSignature(), $signature->getJson()));
-        $signature->setSigned(TRUE);
-        $signature->setModified(new \DateTime());
-        
 
-        $record->setModified(new \DateTime());
+        //Si estamos modificando una plantilla archivada guardamos en un json auxiliar porque se trata de una solicitud
+        if($signature->getAction()->getId()==18){
+            $signature->setJsonAux(str_replace("gsk_id_firm", $signature->getNumberSignature(), $signature->getJson()));
+        }
+        else{
+            $signature->setJson(str_replace("gsk_id_firm", $signature->getNumberSignature(), $signature->getJson()));
+        }
+        $signature->setSigned(TRUE);
+        $signature->setSignDate(new \DateTime());
         
+        $record->setModified(new \DateTime());
 
         if($signature->getAction()->getFinishUser()){
             $wf->setSigned(TRUE);
@@ -430,6 +436,18 @@ class CVCumplimentationController extends Controller
             $obj2 = json_decode($signature->getRecord()->getJson())->configuration;
             //Compares with default values
             $this->multi_obj_diff($obj1, $obj2, '$obj2->variables->$field->value', '/^(in_|gsk_|dxo_|delete_)|(name|extension\b)/', false, $signature, false, null, 'new');
+        }
+
+
+        switch($signature->getAction()->getId()){
+            //Solicitud de reconciliación
+            case 12:    $requestType=$this->getDoctrine()->getRepository(CVRequestTypes::class)->findOneBy(array('id' => 2));
+                        $record->setRequestType($requestType);
+                break;
+            //Modificación de una plantilla archivada
+            case 18:    $requestType=$this->getDoctrine()->getRepository(CVRequestTypes::class)->findOneBy(array('id' => 3));
+                        $record->setRequestType($requestType);
+                break;
         }
 
         $em->persist($record);

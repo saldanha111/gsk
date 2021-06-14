@@ -34,6 +34,12 @@ class CVRecords
     protected $state;
 
     /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\CVRequestTypes", inversedBy="cvRecords")
+     * @ORM\JoinColumn(name="request_type_id", referencedColumnName="id", nullable=true)
+     */
+    protected $requestType;
+
+    /**
      * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="cvRecords")
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
      */
@@ -82,6 +88,11 @@ class CVRecords
      * @ORM\Column(type="datetime")
      */
     protected $modified;
+
+    /**
+     * @ORM\Column(name="open_date", type="datetime", nullable=true)
+     */
+    protected $openDate;
 
     /**
      * @var boolean 
@@ -539,5 +550,51 @@ class CVRecords
     public function getFirstNested()
     {
         return $this->firstNested;
+    }
+
+    /**
+     * Set openDate
+     *
+     * @param \DateTime $openDate
+     * @return CVRecords
+     */
+    public function setOpenDate($openDate)
+    {
+        $this->openDate = $openDate;
+
+        return $this;
+    }
+
+    /**
+     * Get openDate
+     *
+     * @return \DateTime 
+     */
+    public function getOpenDate()
+    {
+        return $this->openDate;
+    }
+
+    /**
+     * Set requestType
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVRequestTypes $requestType
+     * @return CVRecords
+     */
+    public function setRequestType(\Nononsense\HomeBundle\Entity\CVRequestTypes $requestType = null)
+    {
+        $this->requestType = $requestType;
+
+        return $this;
+    }
+
+    /**
+     * Get requestType
+     *
+     * @return \Nononsense\HomeBundle\Entity\CVRequestTypes 
+     */
+    public function getRequestType()
+    {
+        return $this->requestType;
     }
 }

@@ -110,6 +110,7 @@ class CVDocoaroController extends Controller
             $base_url=$this->getParameter('api_docoaro')."/documents/".$record->getTemplate()->getPlantillaId()."?scriptUrl=".$scriptUrl."&styleUrl=".$styleUrl."&callbackUrl=".$callback_url."&redirectUrl=".$redirectUrl."&getDataUrl=".$get_data_url;
 
             $record->setInEdition(TRUE);
+            $record->setOpenDate(new \DateTime());
         }
         else{
             $get_data_url=urlencode($baseUrlAux."docoaro/".$id."/getdata?token=".$token_get_data."&mode=pdf".$custom_view);
@@ -221,6 +222,14 @@ class CVDocoaroController extends Controller
             $json_content["configuration"]["close_button"]=1;
         }
 
+        if($signature->getAction()->getId()==12 && !$signature->getSigned()){
+            $json_content["configuration"]["prefix_view"]="u_;in_;dxo_";
+            $json_content["configuration"]["apply_required"]=1;
+            $json_content["configuration"]["partial_save_button"]=0;
+            $json_content["configuration"]["cancel_button"]=0;
+            $json_content["configuration"]["close_button"]=1;
+        }
+
         $response = new Response();
         $response->setStatusCode(200);
         $response->setContent(json_encode($json_content));
@@ -303,7 +312,7 @@ class CVDocoaroController extends Controller
                     $signature->setRecord($record);
                     $signature->setNumberSignature((count($all_signatures)+1));
                     $signature->setJustification(FALSE);
-                    $signature->setCreated(new \DateTime());
+                    $signature->setCreated($record->getOpenDate());
                 }
                 else{
 
@@ -382,7 +391,12 @@ class CVDocoaroController extends Controller
                         break;
                 }
                 
-                $action = $this->getDoctrine()->getRepository(CVActions::class)->findOneBy(array("id" => $action_id));
+                if($signature->getAction()->getId()!=12 && $signature->getAction()->getId()!=18){ //Solo modificamos la acción de la firma si esta es distinta a una solicitud de reconciliación o modificación
+                    $action = $this->getDoctrine()->getRepository(CVActions::class)->findOneBy(array("id" => $action_id));
+                }
+                else{
+                   $action=$signature->getAction();
+                }
 
                 $base_url=$this->getParameter('api_docoaro')."/documents/".$record->getTemplate()->getPlantillaId();
                 $ch = curl_init();
@@ -408,6 +422,7 @@ class CVDocoaroController extends Controller
                 $em->persist($signature);
                 $record->setInEdition(FALSE);
                 $record->setModified(new \DateTime());
+                $record->setOpenDate(NULL);
                 $record->setJson($json_record);
                 $em->persist($record);
                 $em->flush();
@@ -474,7 +489,7 @@ class CVDocoaroController extends Controller
     private function get_logbook($current,$num)
     {
         $fullText = "";
-        $records = $this->getDoctrine()->getRepository(CVRecords::class)->search("list",array("user" => $current->getUser(),"not_this"=>$current->getId(),"plantilla_id"=>$current->getTemplate()->getId(),"limit_from" => 0, "limit_many" => $num,"have_json" => 1));
+        $records = $this->getDoctrine()->getRepository(CVRecords::class)->search("list",array("user" => $current->getUser(),"not_this"=>$current->getId(),"plantilla_id"=>$current->getTemplate()->getId(),"limit_from" => 0, "limit_many" => $num,"have_json" => 1,"have_signature" => 1));
         
         $array_records=array();
         $array_fields=array();
@@ -489,11 +504,16 @@ class CVDocoaroController extends Controller
                 foreach($data["data"] as $field => $obj){
 
                     if (!preg_match("/^(in_|gsk_|dxo_|delete_|verchk_)|(name|extension\b)/", $field)){
-                        if($config_json["configuration"]["variables"][$field]["info"]!=""){
+                        if(array_key_exists($field, $config_json["configuration"]["variables"]) && $config_json["configuration"]["variables"][$field]["info"]!=""){
                             $array_fields[$field]=$config_json["configuration"]["variables"][$field]["info"];
                         }
                         else{
-                            $array_fields[$field]=$array_fields[$field];
+                            if(array_key_exists($field, $array_fields)){
+                                $array_fields[$field]=$array_fields[$field];
+                            }
+                            else{
+                                $array_fields[$field]=$field;
+                            }
                         }
 
                         if(is_array($obj)){
