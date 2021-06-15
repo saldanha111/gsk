@@ -109,6 +109,10 @@ class CVDocoaroController extends Controller
                 $scriptUrl = urlencode($baseUrl . "../js/js_oarodoc/validation_cancel.js?v=".uniqid());
             }
 
+            if($record->getState()->getId()==12){
+                $scriptUrl = urlencode($baseUrl . "../js/js_oarodoc/validation_reconciliation.js?v=".uniqid());
+            }
+
 
             $callback_url=urlencode($baseUrlAux."docoaro/".$id."/save?token=".$token_get_data);
             $get_data_url=urlencode($baseUrlAux."docoaro/".$id."/getdata?token=".$token_get_data."&mode=".$mode.$custom_view);
@@ -123,7 +127,7 @@ class CVDocoaroController extends Controller
         }
         else{
             $get_data_url=urlencode($baseUrlAux."docoaro/".$id."/getdata?token=".$token_get_data."&mode=pdf".$custom_view);
-            //echo $baseUrlAux."docoaro/".$id."/getdata?token=".$token_get_data."&mode=pdf".$custom_view;die();
+            echo $baseUrlAux."docoaro/".$id."/getdata?token=".$token_get_data."&mode=pdf".$custom_view;die();
             $scriptUrl = urlencode($baseUrl . "../js/js_oarodoc/show.js?v=".uniqid());
             $styleUrl = urlencode($baseUrl . "../css/css_oarodoc/standard.css?v=".uniqid());
 
@@ -212,14 +216,8 @@ class CVDocoaroController extends Controller
                 case "v":   $json_content["configuration"]["prefix_view"]="";
                             $json_content["configuration"]["prefix_edit"]="verchk_;";
                             $json_content["configuration"]["apply_required"]=1;
-                            if($record->getState()->getId()!=12){
-                                $json_content["configuration"]["partial_save_button"]=1;
-                                $json_content["configuration"]["cancel_button"]=1;
-                            }
-                            else{
-                                $json_content["configuration"]["partial_save_button"]=0;
-                                $json_content["configuration"]["cancel_button"]=0;
-                            }
+                            $json_content["configuration"]["partial_save_button"]=1;
+                            $json_content["configuration"]["cancel_button"]=1;
                             $json_content["configuration"]["close_button"]=1;
                     break;
                 case "pdf": $json_content["configuration"]["prefix_view"]="";
@@ -411,25 +409,48 @@ class CVDocoaroController extends Controller
                         }
                         break;
                     case "10":
-                        switch($params["action"]){
-                            case "save_partial": 
-                                $action_id=22;
-                                break;
-                            case "save": 
-                                if($finish_workflow){
-                                    $action_id=21;
-                                }
-                                else{
-                                    $action_id=19;
-                                }
-                                break;
-                            case "cancel":
-                                $action_id=10;
-                                break;
+                        if(!$last_signature->getSigned() && $signature==$last_signature){
+                            switch($params["action"]){
+                                case "save_partial": 
+                                    $action_id=12;
+                                    break;
+                                case "save": 
+                                    if($finish_workflow){
+                                        $action_id=25;
+                                    }
+                                    else{
+                                        $action_id=23;
+                                    }
+                                    break;
+                                case "cancel":
+                                    $action_id=10;
+                                    break;
+                            }
+                        }
+                        else{
+                            switch($params["action"]){
+                                case "save_partial": 
+                                    $action_id=22;
+                                    break;
+                                case "save": 
+                                    if($finish_workflow){
+                                        $action_id=21;
+                                    }
+                                    else{
+                                        $action_id=19;
+                                    }
+                                    break;
+                                case "cancel":
+                                    $action_id=10;
+                                    break;
+                            }
                         }
                         break;
                     case "12":
                         switch($params["action"]){
+                            case "save_partial": 
+                                $action_id=24;
+                                break;
                             case "save": 
                                 if($finish_workflow){
                                     $action_id=13;
@@ -445,7 +466,7 @@ class CVDocoaroController extends Controller
                         break;
                 }
                 
-                if($signature->getAction()->getId()!=12 && $signature->getAction()->getId()!=18){ //Solo modificamos la acción de la firma si esta es distinta a una modificación
+                if(!$signature->getAction() || $signature->getAction()->getId()!=18){ //Solo modificamos la acción de la firma si esta es distinta a una modificación
                     $action = $this->getDoctrine()->getRepository(CVActions::class)->findOneBy(array("id" => $action_id));
                 }
                 else{
