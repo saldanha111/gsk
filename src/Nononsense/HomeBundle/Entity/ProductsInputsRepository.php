@@ -105,6 +105,12 @@ class ProductsInputsRepository extends EntityRepository
                 $list->andWhere("p.internalCode =:internalCode");
                 $list->setParameter('internalCode', $filters['internalCode']);
             }
+            if (isset($filters['underMinimumStock'])) {
+                switch($filters['underMinimumStock']){
+                    case 1: $list->andWhere("p.stock<p.stockMinimum");break;
+                    case 2: $list->andWhere("p.stock>=p.stockMinimum");break;
+                }
+            }
             if (isset($filters['expired']) && $filters['expired'] === true) {
                 $now = new Datetime();
                 $list->andWhere("pi.destructionDate<=:destructionDateTo");

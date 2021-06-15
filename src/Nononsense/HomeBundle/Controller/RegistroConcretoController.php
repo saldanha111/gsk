@@ -542,6 +542,16 @@ class RegistroConcretoController extends Controller
             $firma->setAccion("Guardado y enviado a verificación. " . $comentario);
             $firma->setStatus(1); // Firmado
 
+            $typo = $step->getMasterStep()->getMasterWorkflow()->getPrecreation();
+            $pos = strpos($step->getMasterStep()->getMasterWorkflow()->getName(), "SIN VERIFICACIÓN");
+
+            if($typo === 'reactivo' && $pos !== false){
+                $registro->setStatus(9);
+                $firma->setAccion("Guardado y finalizado (no requiere verificación). " . $comentario);
+                $em->persist($registro);
+                $resultR = $this->forward('NononsenseHomeBundle:ProductsDissolution:saveReactivoUse', ['step'  => $step]);
+            }
+
         } else {
             // No debería estar aquí
             $this->get('session')->getFlashBag()->add(
