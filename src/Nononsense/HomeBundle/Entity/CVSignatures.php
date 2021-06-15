@@ -716,4 +716,27 @@ class CVSignatures
     {
         return $this->signDate;
     }
+
+    /**
+     * Set jsonAux
+     *
+     * @param string $jsonAux
+     * @return CVSignatures
+     */
+    public function setJsonAux($jsonAux)
+    {
+        $this->jsonAux = $jsonAux;
+
+        return $this;
+    }
+
+    /**
+     * Get jsonAux
+     *
+     * @return string 
+     */
+    public function getJsonAux()
+    {
+        return $this->jsonAux;
+    }
 }

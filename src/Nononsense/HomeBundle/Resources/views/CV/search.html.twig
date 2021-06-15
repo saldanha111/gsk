@@ -118,6 +118,7 @@
                             <th>Estado</th>
                             <th>Acción</th>
                             <th>Audit Trail</th>
+                            <th></th>
                         </tr>
                         </thead>
                         {% if items is defined %}
@@ -162,6 +163,11 @@
                                         <a class="btn btn-xs btn-info" href="{{path('nononsense_cv_docoaro_new', {'id': item.id})}}?&audittrail=1" target="_self"><i class="fa fa-book" aria-hidden="true"></i> Audit Trail</a>
                                         <a class="btn btn-xs btn-danger" href="{{path('nononsense_cv_docoaro_new', {'id': item.id})}}?pdf=1&audittrail=1" target="_self"><i class="fa fa-file-pdf-o" aria-hidden="true"></i> PDF</a>
                                     {% endif %} 
+                                </td>
+                                <td>
+                                {% if item.finalState and (item.state_id==7 or item.state_id==8) %}
+                                    <a class="btn btn-xs btn-default" href="{{path('nononsense_cv_docoaro_new', {'id': item.id})}}?reupdate=1" target="_self"><i class="fa fa-pencil-square" aria-hidden="true"></i> {{ 'Solicitar modificación'|trans }}</a>
+                                {% endif %}
                                 </td>
                             </tr>
                             {% endfor %}

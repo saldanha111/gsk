@@ -185,6 +185,8 @@ class CVCumplimentationController extends Controller
                 $reconc=1;
                 $action=$em->getRepository(CVActions::class)->findOneBy(array("id" => 12));
                 $sign->setAction($action);
+                $state=$em->getRepository(CVStates::class)->findOneBy(array("id" => 10));
+                $record->setState($state);
                 $em->persist($sign);
                 $em->persist($record);
             }
@@ -193,12 +195,7 @@ class CVCumplimentationController extends Controller
         
         if($error==0){
             $em->flush();
-            //if(!$reconc){
-                $route = $this->container->get('router')->generate('nononsense_cv_docoaro_new', array("id" => $record->getId())).$concat;
-            /*}
-            else{
-                $route = $this->container->get('router')->generate('nononsense_cv_record', array("id" => $record->getId()));
-            }*/
+            $route = $this->container->get('router')->generate('nononsense_cv_docoaro_new', array("id" => $record->getId())).$concat;
         }
         else{
             $this->get('session')->getFlashBag()->add(
@@ -440,10 +437,6 @@ class CVCumplimentationController extends Controller
 
 
         switch($signature->getAction()->getId()){
-            //Solicitud de reconciliación
-            case 12:    $requestType=$this->getDoctrine()->getRepository(CVRequestTypes::class)->findOneBy(array('id' => 2));
-                        $record->setRequestType($requestType);
-                break;
             //Modificación de una plantilla archivada
             case 18:    $requestType=$this->getDoctrine()->getRepository(CVRequestTypes::class)->findOneBy(array('id' => 3));
                         $record->setRequestType($requestType);

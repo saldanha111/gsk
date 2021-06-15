@@ -87,14 +87,23 @@ class CVDocoaroController extends Controller
 
 
         $token_get_data = $this->get('utilities')->generateToken();
-        if(!$record->getState() || (!$record->getState()->getFinal() && !$request->get("pdf") && !$request->get("readonly"))){ // Si no es un estado final y no queremos sacar un pdf
+        if(!$record->getState() || (!$record->getState()->getFinal() && !$request->get("pdf") && !$request->get("readonly")) || $request->get("reupdate")){ // Si no es un estado final y no queremos sacar un pdf
             $mode="c";
             if($record->getState()){
-                switch($record->getState()->getType()->getName()){
-                    case "Cumplimentador": $mode="c";$scriptUrl = urlencode($baseUrl . "../js/js_oarodoc/activity.js?v=".uniqid());break;
-                    case "Verificador": $mode="v";$scriptUrl = urlencode($baseUrl . "../js/js_oarodoc/validation.js?v=".uniqid());break;
+                if($record->getState()->getType()){
+                    switch($record->getState()->getType()->getName()){
+                        case "Cumplimentador": $mode="c";$scriptUrl = urlencode($baseUrl . "../js/js_oarodoc/activity.js?v=".uniqid());break;
+                        case "Verificador": $mode="v";$scriptUrl = urlencode($baseUrl . "../js/js_oarodoc/validation.js?v=".uniqid());break;
+
+                    }
+                }
+                else{
+                    if($record->getState()->getFinal() && $request->get("reupdate")){
+                        $mode="c";$scriptUrl = urlencode($baseUrl . "../js/js_oarodoc/activity.js?v=".uniqid());
+                    }
                 }
             }
+            
 
             if($record->getState()->getId()==2 || $record->getState()->getId()==5){
                 $scriptUrl = urlencode($baseUrl . "../js/js_oarodoc/validation_cancel.js?v=".uniqid());
@@ -196,12 +205,21 @@ class CVDocoaroController extends Controller
             switch($request->get("mode")){
                 case "c":   $json_content["configuration"]["prefix_view"]="u_;in_;dxo_";
                             $json_content["configuration"]["apply_required"]=1;
+                            if($record->getState()->getId()==10){
+                                $json_content["configuration"]["cancel_button"]=0;
+                            }
                     break;
                 case "v":   $json_content["configuration"]["prefix_view"]="";
                             $json_content["configuration"]["prefix_edit"]="verchk_;";
                             $json_content["configuration"]["apply_required"]=1;
-                            $json_content["configuration"]["partial_save_button"]=1;
-                            $json_content["configuration"]["cancel_button"]=1;
+                            if($record->getState()->getId()!=12){
+                                $json_content["configuration"]["partial_save_button"]=1;
+                                $json_content["configuration"]["cancel_button"]=1;
+                            }
+                            else{
+                                $json_content["configuration"]["partial_save_button"]=0;
+                                $json_content["configuration"]["cancel_button"]=0;
+                            }
                             $json_content["configuration"]["close_button"]=1;
                     break;
                 case "pdf": $json_content["configuration"]["prefix_view"]="";
@@ -214,6 +232,7 @@ class CVDocoaroController extends Controller
             }
         }
 
+        //Opciones activas para el estado "Solicitada cancelación en..."
         if($record->getState()->getId()==2 || $record->getState()->getId()==5){
             $json_content["configuration"]["form_readonly"]=1;
             $json_content["configuration"]["prefix_view"]="";
@@ -222,7 +241,9 @@ class CVDocoaroController extends Controller
             $json_content["configuration"]["close_button"]=1;
         }
 
-        if($signature->getAction()->getId()==12 && !$signature->getSigned()){
+        //Si es una modificación de la plantilla quitamos algunos botones para que tenga que cumplimentar entera la plantilla
+        if($signature->getAction()->getId()==18 && $signature->getSigned()){
+            //Voy por aqui, no entra aquí
             $json_content["configuration"]["prefix_view"]="u_;in_;dxo_";
             $json_content["configuration"]["apply_required"]=1;
             $json_content["configuration"]["partial_save_button"]=0;
@@ -389,9 +410,42 @@ class CVDocoaroController extends Controller
                                 break;
                         }
                         break;
+                    case "10":
+                        switch($params["action"]){
+                            case "save_partial": 
+                                $action_id=22;
+                                break;
+                            case "save": 
+                                if($finish_workflow){
+                                    $action_id=21;
+                                }
+                                else{
+                                    $action_id=19;
+                                }
+                                break;
+                            case "cancel":
+                                $action_id=10;
+                                break;
+                        }
+                        break;
+                    case "12":
+                        switch($params["action"]){
+                            case "save": 
+                                if($finish_workflow){
+                                    $action_id=13;
+                                }
+                                else{
+                                    $action_id=20;
+                                }
+                                break;
+                            case "cancel":
+                                $action_id=14;
+                                break;
+                        }
+                        break;
                 }
                 
-                if($signature->getAction()->getId()!=12 && $signature->getAction()->getId()!=18){ //Solo modificamos la acción de la firma si esta es distinta a una solicitud de reconciliación o modificación
+                if($signature->getAction()->getId()!=12 && $signature->getAction()->getId()!=18){ //Solo modificamos la acción de la firma si esta es distinta a una modificación
                     $action = $this->getDoctrine()->getRepository(CVActions::class)->findOneBy(array("id" => $action_id));
                 }
                 else{
