@@ -45,6 +45,27 @@ class CVActions
     protected $description;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="name_reconc", type="string", length=255,  nullable=true)
+     */
+    protected $nameReconc;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="name_alternative_reconc", type="string", length=255,  nullable=true)
+     */
+    protected $nameAlternativeReconc;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="description_reconc", type="text", nullable=true)
+     */
+    protected $descriptionReconc;
+
+    /**
      * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\CVStates", inversedBy="cvActions")
      * @ORM\JoinColumn(name="next_state", referencedColumnName="id", nullable=true)
      */
@@ -318,5 +339,74 @@ class CVActions
     public function getNextState()
     {
         return $this->nextState;
+    }
+
+    /**
+     * Set nameReconc
+     *
+     * @param string $nameReconc
+     * @return CVActions
+     */
+    public function setNameReconc($nameReconc)
+    {
+        $this->nameReconc = $nameReconc;
+
+        return $this;
+    }
+
+    /**
+     * Get nameReconc
+     *
+     * @return string 
+     */
+    public function getNameReconc()
+    {
+        return $this->nameReconc;
+    }
+
+    /**
+     * Set nameAlternativeReconc
+     *
+     * @param string $nameAlternativeReconc
+     * @return CVActions
+     */
+    public function setNameAlternativeReconc($nameAlternativeReconc)
+    {
+        $this->nameAlternativeReconc = $nameAlternativeReconc;
+
+        return $this;
+    }
+
+    /**
+     * Get nameAlternativeReconc
+     *
+     * @return string 
+     */
+    public function getNameAlternativeReconc()
+    {
+        return $this->nameAlternativeReconc;
+    }
+
+    /**
+     * Set descriptionReconc
+     *
+     * @param string $descriptionReconc
+     * @return CVActions
+     */
+    public function setDescriptionReconc($descriptionReconc)
+    {
+        $this->descriptionReconc = $descriptionReconc;
+
+        return $this;
+    }
+
+    /**
+     * Get descriptionReconc
+     *
+     * @return string 
+     */
+    public function getDescriptionReconc()
+    {
+        return $this->descriptionReconc;
     }
 }

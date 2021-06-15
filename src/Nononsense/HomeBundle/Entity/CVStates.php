@@ -81,6 +81,20 @@ class CVStates
      */
     protected $nameAlternative;
 
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="name_reconc", type="string", length=255,  nullable=true)
+     */
+    protected $nameReconc;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="name_alternative_reconc", type="string", length=255,  nullable=true)
+     */
+    protected $nameAlternativeReconc;
+
     public function __construct()
     {
         
@@ -358,5 +372,51 @@ class CVStates
     public function getNameAlternative()
     {
         return $this->nameAlternative;
+    }
+
+    /**
+     * Set nameReconc
+     *
+     * @param string $nameReconc
+     * @return CVStates
+     */
+    public function setNameReconc($nameReconc)
+    {
+        $this->nameReconc = $nameReconc;
+
+        return $this;
+    }
+
+    /**
+     * Get nameReconc
+     *
+     * @return string 
+     */
+    public function getNameReconc()
+    {
+        return $this->nameReconc;
+    }
+
+    /**
+     * Set nameAlternativeReconc
+     *
+     * @param string $nameAlternativeReconc
+     * @return CVStates
+     */
+    public function setNameAlternativeReconc($nameAlternativeReconc)
+    {
+        $this->nameAlternativeReconc = $nameAlternativeReconc;
+
+        return $this;
+    }
+
+    /**
+     * Get nameAlternativeReconc
+     *
+     * @return string 
+     */
+    public function getNameAlternativeReconc()
+    {
+        return $this->nameAlternativeReconc;
     }
 }

@@ -183,10 +183,6 @@ class CVCumplimentationController extends Controller
                     $record->setFirstReconciliation($recon);
                 }
                 $reconc=1;
-                $action=$em->getRepository(CVActions::class)->findOneBy(array("id" => 12));
-                $sign->setAction($action);
-                $state=$em->getRepository(CVStates::class)->findOneBy(array("id" => 10));
-                $record->setState($state);
                 $em->persist($sign);
                 $em->persist($record);
             }
@@ -320,7 +316,7 @@ class CVCumplimentationController extends Controller
             return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
         }
 
-        if(!$request->get('justification') && ($signature->getJustification() || $signature->getAction()->getJustification())){
+        if(!$request->get('justification') && ($signature->getJustification() || $signature->getAction()->getJustification() || ($record->getReconciliation() && count($record->getCvSignatures())==1))){
             $this->get('session')->getFlashBag()->add(
                 'error',
                 "El registro no se pudo firmar porque era necesaria una justificación"

@@ -109,9 +109,9 @@ class CVDocoaroController extends Controller
                 $scriptUrl = urlencode($baseUrl . "../js/js_oarodoc/validation_cancel.js?v=".uniqid());
             }
 
-            if($record->getState()->getId()==12){
+            /*if($record->getState()->getId()==12){
                 $scriptUrl = urlencode($baseUrl . "../js/js_oarodoc/validation_reconciliation.js?v=".uniqid());
-            }
+            }*/
 
 
             $callback_url=urlencode($baseUrlAux."docoaro/".$id."/save?token=".$token_get_data);
@@ -127,7 +127,7 @@ class CVDocoaroController extends Controller
         }
         else{
             $get_data_url=urlencode($baseUrlAux."docoaro/".$id."/getdata?token=".$token_get_data."&mode=pdf".$custom_view);
-            echo $baseUrlAux."docoaro/".$id."/getdata?token=".$token_get_data."&mode=pdf".$custom_view;die();
+            //echo $baseUrlAux."docoaro/".$id."/getdata?token=".$token_get_data."&mode=pdf".$custom_view;die();
             $scriptUrl = urlencode($baseUrl . "../js/js_oarodoc/show.js?v=".uniqid());
             $styleUrl = urlencode($baseUrl . "../css/css_oarodoc/standard.css?v=".uniqid());
 
@@ -209,9 +209,6 @@ class CVDocoaroController extends Controller
             switch($request->get("mode")){
                 case "c":   $json_content["configuration"]["prefix_view"]="u_;in_;dxo_";
                             $json_content["configuration"]["apply_required"]=1;
-                            if($record->getState()->getId()==10){
-                                $json_content["configuration"]["cancel_button"]=0;
-                            }
                     break;
                 case "v":   $json_content["configuration"]["prefix_view"]="";
                             $json_content["configuration"]["prefix_edit"]="verchk_;";
@@ -408,62 +405,6 @@ class CVDocoaroController extends Controller
                                 break;
                         }
                         break;
-                    case "10":
-                        if(!$last_signature->getSigned() && $signature==$last_signature){
-                            switch($params["action"]){
-                                case "save_partial": 
-                                    $action_id=12;
-                                    break;
-                                case "save": 
-                                    if($finish_workflow){
-                                        $action_id=25;
-                                    }
-                                    else{
-                                        $action_id=23;
-                                    }
-                                    break;
-                                case "cancel":
-                                    $action_id=10;
-                                    break;
-                            }
-                        }
-                        else{
-                            switch($params["action"]){
-                                case "save_partial": 
-                                    $action_id=22;
-                                    break;
-                                case "save": 
-                                    if($finish_workflow){
-                                        $action_id=21;
-                                    }
-                                    else{
-                                        $action_id=19;
-                                    }
-                                    break;
-                                case "cancel":
-                                    $action_id=10;
-                                    break;
-                            }
-                        }
-                        break;
-                    case "12":
-                        switch($params["action"]){
-                            case "save_partial": 
-                                $action_id=24;
-                                break;
-                            case "save": 
-                                if($finish_workflow){
-                                    $action_id=13;
-                                }
-                                else{
-                                    $action_id=20;
-                                }
-                                break;
-                            case "cancel":
-                                $action_id=14;
-                                break;
-                        }
-                        break;
                 }
                 
                 if(!$signature->getAction() || $signature->getAction()->getId()!=18){ //Solo modificamos la acción de la firma si esta es distinta a una modificación
@@ -525,8 +466,15 @@ class CVDocoaroController extends Controller
                 if($signature->getDescription()){
                     $comment = "Comentarios: ".$signature->getDescription()."<br>";
                 }
-                $action = $signature->getAction()->getName();
-                $comment .= '"'.$signature->getAction()->getDescription().'"';
+
+                if($signature->getRecord()->getReconciliation()){
+                    $action = $signature->getAction()->getNameReconc();
+                    $comment .= '"'.$signature->getAction()->getDescriptionReconc().'"';
+                }
+                else{
+                    $action = $signature->getAction()->getName();
+                    $comment .= '"'.$signature->getAction()->getDescription().'"';
+                }
 
                 $fullText .= "<tr><td width='5%'>" . $id . "</td><td colspan='6'>".$action."</td></tr><tr><td width='5%'></td><td width='15%'>" . $name . "<br>" . $date . "</td><td width='80%' colspan='4'>".$comment ."</td></tr>";
                 if($audittrail){

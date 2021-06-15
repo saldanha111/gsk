@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="/plugins/select2/dist/css/select2.min.css">
     <link rel="stylesheet" href="/plugins/dual_listbox/dist/multi.min.css">
 {% endblock %}
-{% block main_title %} Firmar {{signature.action.nameAlternative}} - <b>{{item.template.name}} #{{item.id}}</b>{% endblock %}
+{% block main_title %} Firmar {{ signature.record.reconciliation is not empty ? signature.action.nameAlternativeReconc : signature.action.nameAlternative }} - <b>{{item.template.name}} #{{item.id}}</b>{% endblock %}
 
 {% block content %}
 
@@ -18,7 +18,7 @@
         </div>
         {% endfor %}
 
-        {% if signature.action.id==12 and signature.record.reconciliation is not empty %}
+        {% if signature.record.reconciliation is not empty %}
         <table id="inProcess" class="table table-striped">
             <thead>
             <tr>
@@ -45,7 +45,7 @@
 
         <form class="form-horizontal" id="form_item" action="{{path('nononsense_cv_record_sign', {'id': item.id}) }}" method="POST"  enctype="multipart/form-data">
 
-            {% if signature.justification or signature.action.justification %}
+            {% if signature.justification or signature.action.justification or (signature.record.reconciliation is not empty and signature.record.cvSignatures|length==1) %}
                 <div class="row">
                     <div class="col-lg-5 col-lg-offset-1">
                         {% if signature.justification %}
