@@ -41,15 +41,7 @@ class CVCumplimentationController extends Controller
         $em = $this->getDoctrine()->getManager();
     	$serializer = $this->get('serializer');
         $array=array();
-
-        //$request->attributes->set("pdf", '1');
-        $request->attributes->set("no-redirect", true);
-        $slug="record";
-        return $this->forward('NononsenseHomeBundle:CVDocoaro:link', ['request' => $request, 'id'  => 72]);
-        $file = Utils::api3($this->forward('NononsenseHomeBundle:CVDocoaro:link', ['request' => $request, 'id'  => 72]));
-        $file = Utils::saveFile($file, $slug, $this->getParameter('crt.root_dir'));
-        Utils::setCertification($this->container, $file, $slug, 72);  
-        die();
+       
         $items=$this->getDoctrine()->getRepository(TMTemplates::class)->list("list",array("id" => $template,"init_cumplimentation" => 1));
 
         if(!$items){
@@ -467,7 +459,7 @@ class CVCumplimentationController extends Controller
                     break;
             }
 
-            $file = Utils::api3($this->forward('NononsenseHomeBundle:CVDocoaro:link', ['request' => $request, 'id'  => $record->getId()]));
+            $file = Utils::api3($this->forward('NononsenseHomeBundle:CVDocoaro:link', ['request' => $request, 'id'  => $record->getId()])->getContent());
             $file = Utils::saveFile($file, $slug, $this->getParameter('crt.root_dir'));
             Utils::setCertification($this->container, $file, $slug, $record->getId());                
         }

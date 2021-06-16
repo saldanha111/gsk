@@ -752,7 +752,7 @@ class Utils
         // $key = $container->getParameter('api3.key');
 
         $ch = curl_init();
-
+        
         curl_setopt($ch, CURLOPT_URL, $url);
         if ($header) {
             curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
@@ -770,10 +770,6 @@ class Utils
         //curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         $output = curl_exec($ch);
         
-        echo "<pre>";
-var_dump( curl_getinfo($ch) ) . '<br/>';
-echo curl_errno($ch) . '<br/>';
-echo curl_error($ch) . '<br/>';die();
         if (!$output) {
             $output = curl_error($ch);
         }

@@ -29,6 +29,7 @@ use Symfony\Component\Serializer\Encoder\XmlEncoder;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
+
 class CVDocoaroController extends Controller
 {
     public function linkAction(Request $request, int $id)
@@ -149,10 +150,18 @@ class CVDocoaroController extends Controller
         $em->flush();
 
         if(!$request->get("pdf")){
-            return $this->redirect($response["fillInUrl"]);
+            $url_edit_documento=$response["fillInUrl"];
         }
         else{
-            return $this->redirect($response["pdfUrl"]);
+           $url_edit_documento=$response["pdfUrl"];
+        }
+
+        if ($request->get("no-redirect") !== null && $request->get("no-redirect")) {
+            return new Response($url_edit_documento);
+
+        }
+        else{
+            return $this->redirect($url_edit_documento);
         }
     }
 
