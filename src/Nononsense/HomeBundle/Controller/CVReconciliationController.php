@@ -31,84 +31,10 @@ use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 class CVReconciliationController extends Controller
 {
-    //Detalle de la reconciliación donde se aprueba o se rechaza
-    public function detailAction(Request $request, int $id)
-    {   
-        $em = $this->getDoctrine()->getManager();
-        $serializer = $this->get('serializer');
-        $array=array();
-
-        $array["item"] = $this->getDoctrine()->getRepository(CVRecords::class)->findOneBy(array("id" => $id));
-
-        if(!$array["item"]){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                    'El registro no existe'
-            );
-            $route = $this->container->get('router')->generate('nononsense_home_homepage');
-            return $this->redirect($route);
-        }
-
-        if($array["item"]->getRedirectSearch()){
-            $array["item"]->setRedirectSearch(FALSE);
-            $em->persist($array["item"]);
-            $em->flush();
-            $route = $this->container->get('router')->generate('nononsense_cv_search');
-            return $this->redirect($route);
-        }
-
-        $array["signature"] = $this->getDoctrine()->getRepository(CVSignatures::class)->findOneBy(array("record" => $array["item"]),array("id" => "DESC"));
-
-        if(!$array["signature"] || $array["signature"]->getSigned() || !$array["signature"]->getVersion()){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                    'El registro no se puede firmar'
-            );
-            $route = $this->container->get('router')->generate('nononsense_home_homepage');
-            return $this->redirect($route);
-        }
+    public function reconciliacionDetailAction(Request $request, $id){
 
         $user = $this->container->get('security.context')->getToken()->getUser();
-
-        if($array["signature"]->getUser()!=$user){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                    'Usted no puede firmar esta evidencia'
-            );
-            $route = $this->container->get('router')->generate('nononsense_home_homepage');
-            return $this->redirect($route);
-        }
-
-        $can_sign = $this->getDoctrine()->getRepository(CVRecords::class)->search("count",array("id" => $array["item"]->getId(),"pending_for_me" => 1,"user" => $user));
-
-        if($can_sign==0){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                    'No puede abrir esta plantilla debido al workflow definido'
-            );
-            $route = $this->container->get('router')->generate('nononsense_home_homepage');
-            return $this->redirect($route);
-        }
-
-        return $this->render('NononsenseHomeBundle:CV:sign.html.twig',$array);
-    }
-
-    //Listado de cumplimentaciones
-    public function listAction(Request $request){
-
-        $user = $this->container->get('security.context')->getToken()->getUser();
-        $fll=false;
-        foreach ($user->getGroups() as $groupMe) {
-            $type = $groupMe->getGroup()->getTipo();
-            if ($type == 'FLL') {
-                $fll = true;
-            }
-        }
-
-        $array_item["fll"]=$fll;
-
         $filters=Array();
-        $filters2=Array();
         $types=array();
 
         $filters=array_filter($request->query->all());
@@ -117,31 +43,22 @@ class CVReconciliationController extends Controller
         $filters["user"]=$user;
         $filters2["user"]=$user;
 
-        $filters["fll"]=$fll;
-        $filters2["fll"]=$fll;
-
         $array_item["suser"]["id"]=$user->getId();
 
-        if(!$request->get("export_excel") && !$request->get("export_pdf")){
-            if($request->get("page")){
-                $filters["limit_from"]=$request->get("page")-1;
-            }
-            else{
-                $filters["limit_from"]=0;
-            }
-            $filters["limit_many"]=15;
-        }
-        else{
-            $filters["limit_from"]=0;
-            $filters["limit_many"]=99999999999;
-        }
+        $filters["limit_from"]=0;
+        $filters["limit_many"]=99999999999;
+
+        $filters["recon_history"]=$id;
+        $filters2["recon_history"]=$id;
+        $filters["order_recon"]=1;
+        $filters2["order_recon"]=1;
+
 
 
         $array_item["suser"]["id"]=$user->getId();
+        $array_item["record"]=$this->getDoctrine()->getRepository(CVRecords::class)->findOneBy(array("id" => $id));
         $array_item["filters"]=$filters;
         $array_item["items"] = $this->getDoctrine()->getRepository(CVRecords::class)->search("list",$filters);
-        $array_item["states"]=$this->getDoctrine()->getRepository(CVStates::class)->findAll();
-
         $array_item["count"] = $this->getDoctrine()->getRepository(CVRecords::class)->search("count",$filters2);
         $url=$this->container->get('router')->generate('nononsense_cv_search');
         $params=$request->query->all();
@@ -155,7 +72,7 @@ class CVReconciliationController extends Controller
         $array_item["pagination"]=\Nononsense\UtilsBundle\Classes\Utils::paginador($filters["limit_many"],$request,$url,$array_item["count"],"/", $parameters);
 
         if(!$request->get("export_excel") && !$request->get("export_pdf")){
-            return $this->render('NononsenseHomeBundle:CV:search.html.twig',$array_item);
+            return $this->render('NononsenseHomeBundle:CV:reconciliacion_history.html.twig', $array_item);
         }
         else{
             //Exportamos a Excel
@@ -165,16 +82,17 @@ class CVReconciliationController extends Controller
 
                 $phpExcelObject->getProperties();
                 $phpExcelObject->setActiveSheetIndex(0)
-                 ->setCellValue('A1', 'Nº')
-                 ->setCellValue('B1', 'Nombre')
-                 ->setCellValue('C1', 'Iniciado por')
-                 ->setCellValue('D1', 'Fecha inicio')
-                 ->setCellValue('E1', 'Ultima modificación')
-                 ->setCellValue('F1', 'Estado');
+                 ->setCellValue('A1', 'Id')
+                 ->setCellValue('B1', 'Area')
+                 ->setCellValue('C1', 'Nombre')
+                 ->setCellValue('D1', 'Solicitante')
+                 ->setCellValue('E1', 'Fecha solicitud')
+                 ->setCellValue('F1', 'Estado')
+                 ->setCellValue('G1', 'Ultima modificación');
             }
 
             if($request->get("export_pdf")){
-                $html='<html><body style="font-size:8px;width:100%"><table autosize="1" style="overflow:wrap;width:100%"><tr style="font-size:8px;width:100%"><th style="font-size:8px;width:6%">Nº</th><th style="font-size:8px;width:49%">Nombre</th><th style="font-size:8px;width:10%">Iniciado por</th><th style="font-size:8px;width:10%">F. inicio</th><th style="font-size:8px;width:10%">F. modific.</th><th style="font-size:8px;width:10%">Estado</th></tr>';
+                $html='<html><body style="font-size:8px;width:100%"><table autosize="1" style="overflow:wrap;width:100%"><tr style="font-size:8px;width:100%"><th style="font-size:8px;width:5%">Id</th><th style="font-size:8px;width:15%">Area</th><th style="font-size:8px;width:30%">Nombre</th><th style="font-size:8px;width:15%">Solicitante</th><th style="font-size:8px;width:10%">F. solicitud</th><th style="font-size:8px;width:15%">Estado</th><th style="font-size:8px;width:10%">Ult. modificación</th></tr>';
             }
 
             $i=2;
@@ -183,22 +101,23 @@ class CVReconciliationController extends Controller
                 if($request->get("export_excel")){
                     $phpExcelObject->getActiveSheet()
                     ->setCellValue('A'.$i, $item["id"])
-                    ->setCellValue('B'.$i, $item["name"])
-                    ->setCellValue('C'.$i, $item["creator"])
-                    ->setCellValue('D'.$i, ($item["created"]) ? $item["created"] : '')
-                    ->setCellValue('E'.$i, ($item["modified"]) ? $item["modified"] : '')
-                    ->setCellValue('F'.$i, $item["state"]);
+                    ->setCellValue('B'.$i, $item["area"])
+                    ->setCellValue('C'.$i, $item["name"])
+                    ->setCellValue('D'.$i, $item["creator"])
+                    ->setCellValue('E'.$i, ($item["created"]) ? $item["created"] : '')
+                    ->setCellValue('F'.$i, $item["state"])
+                    ->setCellValue('G'.$i, ($item["modified"]) ? $item["modified"] : '');
                 }
 
                 if($request->get("export_pdf")){
-                    $html.='<tr style="font-size:8px"><td>'.$item["id"].'</td><td>'.$item["name"].'</td><td>'.$item["creator"].'</td><td>'.(($item["created"]) ? $item["created"]->format('Y-m-d H:i:s') : '').'</td><td>'.(($item["modified"]) ? $item["modified"]->format('Y-m-d H:i:s') : '').'</td><td>'.$item["state"].'</td></tr>';
+                    $html.='<tr style="font-size:8px"><td>'.$item["id"].'</td><td>'.$item["area"].'</td><td>'.$item["name"].'</td><td>'.$item["creator"].'</td><td>'.(($item["created"]) ? $item["created"]->format('Y-m-d H:i:s') : '').'</td><td>'.$item["state"].'</td><td>'.(($item["modified"]) ? $item["modified"]->format('Y-m-d H:i:s') : '').'</td></tr>';
                 }
 
                 $i++;
             }
 
             if($request->get("export_excel")){
-                $phpExcelObject->getActiveSheet()->setTitle('Listado de registros');
+                $phpExcelObject->getActiveSheet()->setTitle('Registros reconciliados');
                 // Set active sheet index to the first sheet, so Excel opens this as the first sheet
                 $phpExcelObject->setActiveSheetIndex(0);
 
@@ -209,7 +128,7 @@ class CVReconciliationController extends Controller
                 // adding headers
                 $dispositionHeader = $response->headers->makeDisposition(
                   ResponseHeaderBag::DISPOSITION_ATTACHMENT,
-                  'list_records.xlsx'
+                  'list_records_reconciliations.xlsx'
                 );
                 $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
                 $response->headers->set('Pragma', 'public');
@@ -224,6 +143,8 @@ class CVReconciliationController extends Controller
                 $this->get('utilities')->returnPDFResponseFromHTML($html);
             }
         }
+        
+        
     }
 
     public function checkCodeUniqueAction(Request $request, $id)

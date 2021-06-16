@@ -153,6 +153,9 @@
                                                 {% endif %}
                                             {% else %}
                                                 <a  href="{{path('nononsense_cv_docoaro_new', {'id': item.id})}}" target="_blank" class="btn btn-xs {{item.colorState}}"><i class="{{item.iconState}}" aria-hidden="true"></i> {{ item.reconId is defined and item.reconId is not empty ? item.alternativeStateReconc : item.alternativeState }}</a>
+                                                {% if item.reconId is not empty and item.reconId is defined %}
+                                                    <a class="btn btn-xs btn-primary" href="{{path('nononsense_reconciliation_detail', {'id': item.id})}}" target="_self"><i class="fa fa-link" aria-hidden="true"></i> Ver reconciliado</a>
+                                                {% endif %}
                                                 <a  href="{{path('nononsense_cv_docoaro_new', {'id': item.id})}}?pdf=1" target="_blank" class="btn btn-xs btn-danger"><i class="fa fa-file-pdf-o" aria-hidden="true"></i> PDF</a>
                                             {% endif %}
                                         {% endif %}

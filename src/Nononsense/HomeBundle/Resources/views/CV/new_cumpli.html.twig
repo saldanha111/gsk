@@ -195,6 +195,8 @@
                         $('#box_unique_codes').find('.uniqid').each(function () {
                             array_elements[$(this).attr('name')] = $(this).val();
                         });
+                        array_elements["gsk_template_id"] = {{item.id}};
+                        console.log(array_elements);
                         if(start_cumplimentation()){
                             return true;
                         }

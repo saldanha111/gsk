@@ -120,6 +120,8 @@ class CVCumplimentationController extends Controller
                     $array_unique[$unique]=$request->get($unique);
                 }
             }
+
+            $array_unique["gsk_template_id"]=$item->getId();
         }
 
         $json_unique=json_encode($array_unique, JSON_FORCE_OBJECT);

@@ -47,7 +47,7 @@ class CVRecordsRepository extends EntityRepository
         switch($type){
             case "list":
                 $list = $this->createQueryBuilder('i')
-                    ->select('i.id', 't.name','u.name creator','i.created','i.modified','t.logbook','s.name state','s.nameReconc stateReconc','i.inEdition','t.logbook','a.nameAlternative pendingAction','sigu.id idNextSigner','ty.name type','s.final finalState','s.color colorState','s.icon iconState','s.canBeOpened canBeOpenedState','s.nameAlternative alternativeState','s.nameAlternativeReconc  alternativeStateReconc','ty.id type_id','sig.version','a.id action','s.id state_id','IDENTITY(i.reconciliation) reconId','IDENTITY(i.firstReconciliation) reconFirstId');
+                    ->select('i.id', 't.name','u.name creator','i.created','i.modified','t.logbook','s.name state','s.nameReconc stateReconc','i.inEdition','t.logbook','a.nameAlternative pendingAction','sigu.id idNextSigner','ty.name type','s.final finalState','s.color colorState','s.icon iconState','s.canBeOpened canBeOpenedState','s.nameAlternative alternativeState','s.nameAlternativeReconc  alternativeStateReconc','ty.id type_id','sig.version','a.id action','s.id state_id','IDENTITY(i.reconciliation) reconId','IDENTITY(i.firstReconciliation) reconFirstId','ar.name area');
 
                 $list->addSelect($require_action." AS requireAction");
 
@@ -72,6 +72,7 @@ class CVRecordsRepository extends EntityRepository
         $list->leftJoin("i.template", "t")
             ->leftJoin("i.user", "u")
             ->leftJoin("i.state", "s")
+            ->leftJoin("t.area", "ar")
             ->leftJoin("i.cvWorkflows", "w", "WITH", "(w.id = (SELECT MIN(aux.id) FROM Nononsense\HomeBundle\Entity\CVWorkflow aux WHERE aux.record=i.id AND aux.signed=FALSE))")
             ->leftJoin("i.cvSignatures", "sig", "WITH", "(sig IS NULL OR sig.id = (SELECT MAX(aux2.id) FROM Nononsense\HomeBundle\Entity\CVSignatures aux2 WHERE aux2.record=i.id AND aux2.signed=FALSE))")
             ->leftJoin("i.cvSignatures", "last", "WITH", "(last.id = (SELECT MAX(aux3.id) FROM Nononsense\HomeBundle\Entity\CVSignatures aux3 WHERE aux3.record=i.id AND aux3.signed=TRUE))")
@@ -81,7 +82,12 @@ class CVRecordsRepository extends EntityRepository
             
 
         if($type=="list"){
-            $list->orderBy('i.id', 'DESC');
+            if(!empty($filters) && isset($filters["order_recon"])){
+               $list->orderBy('i.id', 'ASC'); 
+            }
+            else{
+                $list->orderBy('i.id', 'DESC');
+            }
         }
 
 
@@ -176,6 +182,11 @@ class CVRecordsRepository extends EntityRepository
             }
 
             if(isset($filters["code_unique"])){
+                if (array_key_exists('gsk_template_id', $filters["code_unique"])) {
+                    $list->andWhere("t.id=:gsk_template_id OR t.id IN (SELECT cu_aux.firstEdition FROM Nononsense\HomeBundle\Entity\TMTemplates cu_aux WHERE cu_aux.id=:gsk_template_id) OR t.firstEdition IN (SELECT cu_aux2.firstEdition FROM Nononsense\HomeBundle\Entity\TMTemplates cu_aux2 WHERE cu_aux2.id=:gsk_template_id)");
+                    $list->setParameter('gsk_template_id', $filters["code_unique"]["gsk_template_id"]);
+                    unset($filters["code_unique"]["gsk_template_id"]);
+                }
                 $strlen=strlen(json_encode($filters["code_unique"]));
                 $list->andWhere("LENGTH(i.codeUnique)=:strlen");
                 $list->andWhere("ISJSON(i.codeUnique) > 0");
@@ -192,6 +203,12 @@ class CVRecordsRepository extends EntityRepository
             if(isset($filters["have_signature"])){
                 $list->andWhere('last.signed=TRUE');
             }
+
+            if(isset($filters["recon_history"])){
+                $list->andWhere('i.id=:recon_history OR i.id IN (SELECT recon_aux2.id FROM Nononsense\HomeBundle\Entity\CVRecords recon_aux2 WHERE (IDENTITY(recon_aux2.firstReconciliation) = (SELECT IDENTITY(recon_aux1.firstReconciliation) FROM Nononsense\HomeBundle\Entity\CVRecords recon_aux1 WHERE recon_aux1.reconciliation=:recon_history) OR recon_aux2.id = (SELECT IDENTITY(recon_aux3.firstReconciliation) FROM Nononsense\HomeBundle\Entity\CVRecords recon_aux3 WHERE recon_aux3.reconciliation=:recon_history)))');
+                $list->setParameter('recon_history', $filters["recon_history"]);
+            }
+
 
         }
 

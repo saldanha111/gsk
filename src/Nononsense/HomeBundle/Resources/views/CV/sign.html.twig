@@ -37,7 +37,7 @@
                 <td>{{signature.created | date('d-m-Y H:i:s') }}</td>
                 <td>{{signature.user.name}}</td>
                 <td>
-                    <a class="btn btn-xs btn-primary" href="{{path('nononsense_cv_docoaro_new', {'id': signature.record.reconciliation.id})}}?readonly=1" target="_blank">{{'Ver reconciliado'|trans}}</a>
+                    <a class="btn btn-xs btn-primary" href="{{path('nononsense_cv_docoaro_new', {'id': item.id})}}?readonly=1" target="_blank" target="_blank">{{'Ver reconciliado'|trans}}</a>
                 </td>
             </tr>
         </table>

@@ -952,3 +952,8 @@ nononsense_check_code_unique:
     path: /cv/check/code-unique/{id}
     methods:    [POST]
     defaults: { _controller: NononsenseHomeBundle:CVReconciliation:checkCodeUnique, id: 0}
+
+nononsense_reconciliation_detail:
+    path: /cv/reconciliation/{id}
+    methods:    [GET]
+    defaults: { _controller: NononsenseHomeBundle:CVReconciliation:reconciliacionDetail, id: 0}
