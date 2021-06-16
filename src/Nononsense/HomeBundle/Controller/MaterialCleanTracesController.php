@@ -41,10 +41,7 @@ class MaterialCleanTracesController extends Controller
                 $status = 0;
             }
 
-            if($status == 2 && $this->get('app.security')->permissionSeccion('mc_traces_dirty')){
-                $array_item["formAction"] = $this->container->get('router')->generate('nononsense_mclean_traces_dirty', ['lot' => $lotNumber]);
-                $array_item["buttonName"] = 'Marcar lote como Material Sucio';
-            }elseif($status == 3 && $this->get('app.security')->permissionSeccion('mc_traces_review')){
+            if(($status == 3 || $status == 2) && $this->get('app.security')->permissionSeccion('mc_traces_review')){
                 $array_item["formAction"] = $this->container->get('router')->generate('nononsense_mclean_traces_review', ['lot' => $lotNumber]);
                 $array_item["buttonName"] = 'Revisar Lote';
                 $array_item['showCommentBox'] = true;
@@ -242,9 +239,22 @@ class MaterialCleanTracesController extends Controller
             try{
                 /** @var MaterialCleanCleans $trace */
                 foreach($traces as $trace){
+                    $html = '
+                        <p>Material sucio</p>
+                        <ul>
+                            <li>Material:'.$trace->getMaterial()->getName().'</li>
+                            <li>Código:'.$trace->getCode().'</li>
+                            <li>Centro:'.$trace->getCenter()->getName().'</li>
+                            <li>Usuario:'.$this->getUser()->getUsername().'</li>
+                            <li>Fecha: '.$now->format('d-m-Y H:i:s').'</li>
+                        </ul>';
+
+                    $file = Utils::generatePdf($this->container, 'GSK - Material limpio', 'Material sucio', $html, 'material', $this->getParameter('crt.root_dir'));
+                    Utils::setCertification($this->container, $file, 'material', $trace->getId());
+
                     $trace->setStatus(3)
                         ->setDirtyMaterialUser($this->getUser())
-                        ->setDirtyMaterialDate(new DateTime())
+                        ->setDirtyMaterialDate($now)
                         ->setDirtyMaterialSignature($firma);
 
                     $em->persist($trace);
@@ -272,7 +282,7 @@ class MaterialCleanTracesController extends Controller
         $em = $this->getDoctrine()->getManager();
         /** @var MaterialCleanCleansRepository $traces */
         $cleansRepository = $em->getRepository('NononsenseHomeBundle:MaterialCleanCleans');
-        $traces = $cleansRepository->findBy(['lotNumber' => $lot, 'status' => 3]);
+        $traces = $cleansRepository->findBy(['lotNumber' => $lot]);
 
         if (!$traces) {
             $this->get('session')->getFlashBag()->add('error', "No se ha encontrado material sucio con ese número de lote.");
@@ -287,10 +297,23 @@ class MaterialCleanTracesController extends Controller
 
         if(!$error){
             $now = new DateTime();
-            $firma = 'Utilización de material registrada con contraseña de usuario el día ' . $now->format('d-m-Y H:i:s');
+            $firma = 'Revisión de material registrada con contraseña de usuario el día ' . $now->format('d-m-Y H:i:s');
             try{
                 /** @var MaterialCleanCleans $trace */
                 foreach($traces as $trace){
+                    $html = '
+                        <p>Revisión de material</p>
+                        <ul>
+                            <li>Material:'.$trace->getMaterial()->getName().'</li>
+                            <li>Código:'.$trace->getCode().'</li>
+                            <li>Centro:'.$trace->getCenter()->getName().'</li>
+                            <li>Usuario:'.$this->getUser()->getUsername().'</li>
+                            <li>Fecha: '.$now->format('d-m-Y H:i:s').'</li>
+                        </ul>';
+
+                    $file = Utils::generatePdf($this->container, 'GSK - Material limpio', 'Revisión de material', $html, 'material', $this->getParameter('crt.root_dir'));
+                    Utils::setCertification($this->container, $file, 'material', $trace->getId());
+
                     $trace->setStatus(4)
                         ->setReviewUser($this->getUser())
                         ->setReviewDate(new DateTime())

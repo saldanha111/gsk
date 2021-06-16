@@ -266,8 +266,42 @@ class MaterialCleanCodesController extends Controller
                 "Se ha producido un error al intentar obtener el código de barras: " . $e->getMessage()
             );
         }
+        $barcodeImg = self::addBarcodeInfoData($result, 540, 140, $mcCode->getCode());
 
-        return $result;
+        return $barcodeImg;
     }
+    /**
+     * @param $qrPath
+     * @param $qrWidth
+     * @param $text
+     */
+    private function addBarcodeInfoData($barCodeBase, $barCodeWidth, $barCodeHeight, $text)
+    {
+        $spacedText = implode(' ',str_split($text));
+        $squareHeight = 40;
+        $rectangle = imagecreatetruecolor($barCodeWidth, $squareHeight);
+        $white = imagecolorallocate($rectangle, 255, 255, 255);
+        imagefilledrectangle($rectangle, 0, 0, $barCodeWidth, $squareHeight, $white);
 
+        $barCodeImage = imagecreatefromstring($barCodeBase);
+        $black = imagecolorallocate($rectangle, 0, 0, 0);
+        $rootdir = $this->get('kernel')->getRootDir();
+        $font_path = $rootdir . '/Resources/font/opensans.ttf';
+
+        imagettftext($rectangle, 22, 0, 120, 22, $black, $font_path, $spacedText);
+
+        ob_start();
+        $new = imagecreate($barCodeWidth, $barCodeHeight+$squareHeight);
+        imagecopy($new, $barCodeImage, 0, 0, 0, 0, $barCodeWidth, $barCodeHeight);
+        imagecopy($new, $rectangle, 0, $barCodeHeight-4, 0, 0, $barCodeWidth, $squareHeight);
+        imagepng($new);
+        $content = ob_get_clean();
+
+        // Clear Memory
+        imagedestroy($barCodeImage);
+        imagedestroy($rectangle);
+        imagedestroy($new);
+
+        return $content;
+    }
 }

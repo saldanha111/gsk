@@ -893,8 +893,6 @@ nononsense_retention_categories_delete:
     path: /retention_categories/delete/{id}
     defaults: { _controller: NononsenseHomeBundle:RetentionCategories:delete}
 
-# DOCOARO
-
 nononsense_cv_docoaro_new:
     path: /docoaro/{id}/new
     methods:    [GET]
@@ -957,3 +955,14 @@ nononsense_reconciliation_detail:
     path: /cv/reconciliation/{id}
     methods:    [GET]
     defaults: { _controller: NononsenseHomeBundle:CVReconciliation:reconciliacionDetail, id: 0}
+
+
+# Certifications
+
+nononsense_certifications_list:
+    path: /certificaciones
+    defaults: { _controller: NononsenseHomeBundle:Certification:list}
+
+nononsense_certifications_download:
+    path: /certificaciones/descargar/{id}
+    defaults: { _controller: NononsenseHomeBundle:Certification:download}

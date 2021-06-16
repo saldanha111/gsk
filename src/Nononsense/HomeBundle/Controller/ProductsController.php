@@ -214,7 +214,7 @@ class ProductsController extends Controller
             if ($saved['error'] === 0) {
                 if ($newProduct) {
                     if($actualType->getSlug() === 'material'){
-                        $stockEdited = $this->editStockMaterial(0, $product, 'Alta de producto', true);
+                        $stockEdited = $this->editStockMaterial($request->get('amount'), $product, $request->get('observations'), true);
                         if(!$stockEdited){
                             $em = $this->getDoctrine()->getManager();
                             $em->remove($product);
@@ -1502,12 +1502,13 @@ class ProductsController extends Controller
                     <body style="font-size:8px;width:100%">
                         <table autosize="1" style="overflow:wrap;width:100%">
                             <tr style="font-size:8px;width:100%">
-                                <th style="font-size:8px;width:6%">Tipo</th>
-                                <th style="font-size:8px;width:11%">Nombre</th>
-                                <th style="font-size:8px;width:10%">Part. Number</th>
-                                <th style="font-size:8px;width:10%">CAS Number</th>
-                                <th style="font-size:8px;width:10%">Código interno</th>
-                                <th style="font-size:8px;width:10%">Proveedor</th>
+                                <th style="font-size:8px;width:5%">Tipo</th>
+                                <th style="font-size:8px;width:10%">Nombre</th>
+                                <th style="font-size:8px;width:7%">QR</th>
+                                <th style="font-size:8px;width:9%">Part. Number</th>
+                                <th style="font-size:8px;width:9%">CAS Number</th>
+                                <th style="font-size:8px;width:9%">Código interno</th>
+                                <th style="font-size:8px;width:9%">Proveedor</th>
                                 <th style="font-size:8px;width:10%">Presentación</th>
                                 <th style="font-size:8px;width:8%">Fecha de destrucción</th>
                                 <th style="font-size:8px;width:5%">Estado</th>
@@ -1521,6 +1522,7 @@ class ProductsController extends Controller
             $destructionFormatted = ($item['destructionDate']) ? (new DateTime($item['destructionDate']))->format('Y-m-d') : '';
             $productType = $item['productType'];
             $productName = $item['productName'];
+            $qrCode = $item['qrCode'];
             $partNumber = $item['partNumber'];
             $casNumber = $item['casNumber'];
             $internalCode = $item['internalCode'];
@@ -1534,19 +1536,20 @@ class ProductsController extends Controller
             $active = ($item['active'] === true) ? 'Si' : 'No';
             $html .= "
                             <tr style='font-size:8px'>
-                                <td> $productType </td>
-                                <td> $productName </td>
-                                <td> $partNumber </td>
-                                <td> $casNumber </td>
-                                <td> $internalCode </td>
-                                <td> $provider </td>
-                                <td> $presentation </td>
-                                <td> $destructionDate </td>
-                                <td> $state </td>
-                                <td> $stock </td>
-                                <td> $minStock </td>
-                                <td> $observations </td>
-                                <td> $active </td>
+                                <td>$productType</td>
+                                <td>$productName</td>
+                                <td>$qrCode</td>
+                                <td>$partNumber</td>
+                                <td>$casNumber</td>
+                                <td>$internalCode</td>
+                                <td>$provider</td>
+                                <td>$presentation</td>
+                                <td>$destructionDate</td>
+                                <td>$state</td>
+                                <td>$stock</td>
+                                <td>$minStock</td>
+                                <td>$observations</td>
+                                <td>$active</td>
                             </tr>";
         }
 
@@ -1729,8 +1732,8 @@ class ProductsController extends Controller
         $phpExcelObject = $this->get('phpexcel')->createPHPExcelObject();
         $phpExcelObject->getProperties();
         $phpExcelObject->setActiveSheetIndex(0)
-            ->setCellValue('A1', 'Id salida')
-            ->setCellValue('B1', 'Id entrada')
+            ->setCellValue('A1', 'Id')
+            ->setCellValue('B1', 'Entrada Id')
             ->setCellValue('C1', 'Part Number')
             ->setCellValue('D1', 'Nombre')
             ->setCellValue('E1', 'Cantidad')

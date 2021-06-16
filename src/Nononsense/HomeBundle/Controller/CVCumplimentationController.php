@@ -30,6 +30,9 @@ use Symfony\Component\Serializer\Encoder\XmlEncoder;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
+use Nononsense\UtilsBundle\Classes\Auxiliar;
+use Nononsense\UtilsBundle\Classes\Utils;
+
 class CVCumplimentationController extends Controller
 {
     //Creamos nuevo registro
@@ -39,6 +42,14 @@ class CVCumplimentationController extends Controller
     	$serializer = $this->get('serializer');
         $array=array();
 
+        //$request->attributes->set("pdf", '1');
+        $request->attributes->set("no-redirect", true);
+        $slug="record";
+        return $this->forward('NononsenseHomeBundle:CVDocoaro:link', ['request' => $request, 'id'  => 72]);
+        $file = Utils::api3($this->forward('NononsenseHomeBundle:CVDocoaro:link', ['request' => $request, 'id'  => 72]));
+        $file = Utils::saveFile($file, $slug, $this->getParameter('crt.root_dir'));
+        Utils::setCertification($this->container, $file, $slug, 72);  
+        die();
         $items=$this->getDoctrine()->getRepository(TMTemplates::class)->list("list",array("id" => $template,"init_cumplimentation" => 1));
 
         if(!$items){
@@ -440,6 +451,27 @@ class CVCumplimentationController extends Controller
                         $record->setRequestType($requestType);
                 break;
         }
+
+        if($record->getState()->getFinal()){
+
+            $request->attributes->set("pdf", '1');
+            $request->attributes->set("no-redirect", true);
+            $slug="record";
+            switch($record->getState()->getId()){
+                case 3: $slug.="-cancel-edition";break;
+                case 6: $slug.="-cancel-verification";break;
+                case 7: $slug.="-archive";
+                        if($record->getReconciliation()){
+                            $slug.="-reconciliation";
+                        }
+                    break;
+            }
+
+            $file = Utils::api3($this->forward('NononsenseHomeBundle:CVDocoaro:link', ['request' => $request, 'id'  => $record->getId()]));
+            $file = Utils::saveFile($file, $slug, $this->getParameter('crt.root_dir'));
+            Utils::setCertification($this->container, $file, $slug, $record->getId());                
+        }
+
 
         $em->persist($record);
         $em->flush();

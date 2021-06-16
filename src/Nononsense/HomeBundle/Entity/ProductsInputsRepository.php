@@ -105,6 +105,12 @@ class ProductsInputsRepository extends EntityRepository
                 $list->andWhere("p.internalCode =:internalCode");
                 $list->setParameter('internalCode', $filters['internalCode']);
             }
+            if (isset($filters['underMinimumStock'])) {
+                switch($filters['underMinimumStock']){
+                    case 1: $list->andWhere("p.stock<p.stockMinimum");break;
+                    case 2: $list->andWhere("p.stock>=p.stockMinimum");break;
+                }
+            }
             if (isset($filters['expired']) && $filters['expired'] === true) {
                 $now = new Datetime();
                 $list->andWhere("pi.destructionDate<=:destructionDateTo");
@@ -115,6 +121,25 @@ class ProductsInputsRepository extends EntityRepository
                 $list->setParameter('expiredState', $filters['expiredState']);
                 $list->setParameter('endState', $filters['endState']);
             }
+            if (isset($filters['stockFrom'])) {
+                $list->andWhere("p.stock >=:stockFrom");
+                $list->setParameter('stockFrom', $filters['stockFrom']);
+            }
+            if (isset($filters['stockTo'])) {
+                $list->andWhere("p.stock <=:stockTo");
+                $list->setParameter('stockTo', $filters['stockTo']);
+            }
+            if (isset($filters['casNumber'])) {
+                $list->andWhere("p.casNumber =:casNumber");
+                $list->setParameter('casNumber', $filters['casNumber']);
+            }
+            if (isset($filters['active'])) {
+                switch($filters['active']){
+                    case 1: $list->andWhere("p.active=1");break;
+                    case 2: $list->andWhere("p.active=0");break;
+                }
+            }
+
         }
 
         return $list;

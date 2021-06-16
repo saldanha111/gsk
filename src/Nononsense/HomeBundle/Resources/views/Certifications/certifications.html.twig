@@ -1,0 +1,79 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}Docoaro - GSK | {{ 'Homepage'|trans }} {% endblock %}
+{% block head %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('/css/plugins/datapicker/datepicker3.css') }}">
+{% endblock %}
+{% block main_title %} Certificaciones{% endblock %}
+{% block content %}
+
+    <div class="wrapper wrapper-content">
+        <div class="row">
+            <div class="col-sm-12">
+                <div>
+                    <div class="row">
+                        {% for flashMessage in app.session.flashbag.get('error') %}
+                            <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+                                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                                {{ flashMessage }}
+                            </div>
+                            <br>
+                        {% endfor %}
+                        {% for flashMessage in app.session.flashbag.get('message') %}
+                            <div class="alert alert-success alert-dismissable" style="margin: 10px 16px 0 16px">
+                                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                                {{ flashMessage }}
+                            </div>
+                            <br>
+                        {% endfor %}
+                        <form class="form-horizontal" id="form_item" method="GET">
+                            
+                        </form>
+                    </div>
+                    <div class="row">
+                        <br>
+                        <table class="table table-striped">
+                            <thead>
+                            <tr>
+                                <th>Hash</th>
+                                <th>TX Hash</th>
+                                <th>Tipo</th>
+                                <th>Registro</th>
+                                <th>Opciones</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                {% for certification in certifications %}
+                                   <tr>
+                                       <td>{{certification.hash}}</td>
+                                       <td>{{certification.txHash is not null ? certification.txHash : 'Sin certificar'}}</td>
+                                       <td>{{certification.type.name}}</td>
+                                       <td>{{certification.recordId}}</td>
+                                       <td><a href="{{path('nononsense_certifications_download', {id:certification.id})}}">Descargar</a></td>
+                                   </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+
+                        {# {% if count==0 %}
+                            <br><b>No se han encontrado datos disponibles</b>
+                        {% endif %}
+                        {% if pagination is defined and pagination.needed %}
+                            {% include '::pagination2.html.twig' %}
+                        {% endif %} #}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block scripts %}
+    {{ parent() }}
+    <script>
+        $(function () {
+            ActivateMenu('certifications');
+            $('#side-menu').metisMenu();
+        });
+    </script>
+{% endblock %}
+                        
