@@ -1,0 +1,220 @@
+{% extends "NononsenseUserBundle:Default:base.html.twig" %}
+{% block title %}Solicitud de acceso{% endblock %}
+{% block head %}
+    <link href="/css/plugins/toastr/toastr.min.css" rel="stylesheet"/>
+    {{ parent() }}
+    <link rel="stylesheet" type="text/css" href="/plugins/dual_listbox/dist/multi.min.css">
+
+    <style type="text/css">
+       .box-middle{
+            margin: 0 auto;
+            left: 0;
+            right: 0;
+            position: absolute;
+            max-width: 700px;
+        }
+        .btn-gsk{
+            background-color: #f36b20;
+            border-color: #f04523;
+            color: #FFFFFF;
+            margin-bottom: 1px;
+        }
+        .btn-gsk:focus{
+            color: #fff;
+        }
+        .btn-gsk:hover{
+            background-color: #ff8a49;
+            border-color: #f96d52;
+            color: #fff;
+        }
+        #request_account_request{
+            display: block !important;
+            height: 0;
+            width: 0;
+            border-color: #f3f3f4;
+        }
+        .error-message{
+            color: red;
+            display: block;
+            font-weight: bold;
+        }
+        input:valid, textarea:valid {
+          border-color: green;
+        }
+        .backdrop{
+            display: none;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #f3f3f496;
+            z-index: 999;
+        }
+        .loader{
+            padding: 20px;
+            box-shadow: 1px 1px 15px 5px rgb(121 121 121 / 20%);
+            text-align: center;
+            font-weight: bold;
+            position: absolute;
+            left: 50%;
+            top: 40%;
+            transform: translate(-50%,-50%);
+            background: #f3f3f3;
+        }
+        .sk-spinner-rotating-plane.sk-spinner:before {
+            content: '';
+            width: 30px;
+            height: 30px;
+            background-color: #fff;
+            margin: 0 auto;
+            -webkit-animation: sk-rotatePlane 1.2s infinite ease-in-out;
+            animation: sk-rotatePlane 1.2s infinite ease-in-out;
+        }
+        @-webkit-keyframes sk-rotatePlane {
+          0% {
+            -webkit-transform: perspective(120px) rotateX(0deg) rotateY(0deg);
+            transform: perspective(120px) rotateX(0deg) rotateY(0deg);
+          }
+          50% {
+            -webkit-transform: perspective(120px) rotateX(-180.1deg) rotateY(0deg);
+            transform: perspective(120px) rotateX(-180.1deg) rotateY(0deg);
+          }
+          100% {
+            -webkit-transform: perspective(120px) rotateX(-180deg) rotateY(-179.9deg);
+            transform: perspective(120px) rotateX(-180deg) rotateY(-179.9deg);
+          }
+        }
+        @keyframes sk-rotatePlane {
+          0% {
+            -webkit-transform: perspective(120px) rotateX(0deg) rotateY(0deg);
+            transform: perspective(120px) rotateX(0deg) rotateY(0deg);
+          }
+          50% {
+            -webkit-transform: perspective(120px) rotateX(-180.1deg) rotateY(0deg);
+            transform: perspective(120px) rotateX(-180.1deg) rotateY(0deg);
+          }
+          100% {
+            -webkit-transform: perspective(120px) rotateX(-180deg) rotateY(-179.9deg);
+            transform: perspective(120px) rotateX(-180deg) rotateY(-179.9deg);
+          }
+        }
+        .toast-fix-center{
+            top: 40%;
+        }
+        .nav-tabs li{
+            width: 25%;
+        }
+        .nav-tabs .list-icon{
+            width: 60px;
+            height: 60px;
+            font-size: 30px;
+            position: relative;
+            background-color: #ff8a49;
+            color: #ffffff;
+            border-radius: 50%;
+            margin: 0 auto;
+            transition: .5s all;
+        }
+        .nav-tabs .disabled .list-icon{
+            background-color: #d0d0d0;
+        }
+        .list-icon i{
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%,-50%);
+        }
+        .disabled {
+          pointer-events: none;
+          cursor: default;
+        }
+        .nav-tabs .active .list-icon{
+            background: #f15822;
+            transform: scale(1.2);
+        }
+        .nav-tabs{
+            border: none;
+        }
+        .nav-tabs > li.active > a, .nav-tabs > li.active > a:hover, .nav-tabs > li.active > a:focus{
+            border:none;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <h1 class="logo-name text-center"><img src="/img/logo-gsk.png" style="height: 65px"></h1>
+    <div class="box-middle animated fadeInDown">
+        
+        {% for flashMessage in app.session.flashbag.get('errors') %}
+            <div class="alert alert-danger alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                {{ flashMessage }}
+            </div>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('success') %}
+            <div class="alert alert-success alert-dismissable">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                {{ flashMessage }}
+            </div>
+        {% endfor %}
+
+        <h2 class="font-bold text-center">Solicitud de baja</h2>
+
+        {{ form_start(form, {'attr': {'class': 'm-t', 'novalidate': 'novalidate'} }) }}
+            <div class="form-group">
+                {{ form_row(form.groups, {'attr': {'class': 'rol'}}) }}
+            </div>
+            <div class="form-group">
+            	{{ form_row(form._password, {'attr': {'class': 'form-control'}}) }}
+            </div>
+            <div class="text-right">
+            	<a href="{{path('nononsense_user_profile', {id:app.user.id})}}" class="btn btn-gsk prev-step btn-sm">Volver</a>
+            	<button class="btn btn-gsk next-step btn-sm" type="submit">Siguiente</button>
+        	</div>
+        {{ form_end(form) }}
+
+
+    </div>
+    <div class="backdrop"></div>
+
+{% endblock %}
+{% block footer %}
+    {{ parent() }}
+    <script src="/plugins/dual_listbox/dist/multi.min.js"></script>
+    <script src="/js/plugins/toastr/toastr.min.js"></script>
+
+    <script type="text/javascript">
+        $(function () {
+        	$('option').prop('selected', false);
+	        $('.rol').multi({
+	            "search_placeholder": "Buscar...",
+	        });
+
+	        $('form').submit(function(e){
+	        	if(validate($(this).find('input, textarea, select')).length > 0){
+                    return false;
+                }
+	        })
+
+		    function validate(input){
+
+	            var errors = [];
+	            $('span.error-message').remove();
+
+	            if (input) {
+	                for (var i = 0; i < input.length; i++){
+
+	                    if (!input[i].validity.valid) {
+	                        //$(input[i]).addClass('error');
+	                        $(input[i]).before('<span class="error-message">'+input[i].validationMessage+'</span>');
+	                        errors.push(input[i]);
+	                    }
+	                }
+	            }
+
+	            return errors;
+	        }
+        })
+    </script>
+{% endblock %}
+

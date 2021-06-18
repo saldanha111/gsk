@@ -13,6 +13,7 @@ use Nononsense\GroupBundle\Entity\GroupUsers;
 use Nononsense\GroupBundle\Entity\Groups;
 use Nononsense\UserBundle\Entity\AccountRequests;
 use Nononsense\UserBundle\Entity\AccountRequestsGroups;
+use Nononsense\UserBundle\Entity\Roles;
 use Nononsense\UserBundle\Form\Type as Form;
 use Nononsense\UtilsBundle\Classes\Utils;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -67,8 +68,34 @@ class AccountRequestController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
 
+        		$em = $this->getDoctrine()->getManager();
+
             	$groups = $form->get('request')->getData(); //Get groups NOT MAPPED in AccountRequests entity.
             	$password = $form->get('_password')->getData();
+
+            	$bulkMudIds = $form->get('bulk')->getData();
+
+            	if ($bulkMudIds) {
+
+            		$bulkMudIds = explode(',', preg_replace('(\s+)', '', $bulkMudIds));
+
+            		foreach ($bulkMudIds as $key => $bulkMudId) {
+	            		$bulkRequest = new AccountRequests();
+	            		$bulkRequest->setMudId($bulkMudId);
+	            		$bulkRequest->setEmail($form->get('email')->getData());
+	            		$bulkRequest->setUsername($form->get('username')->getData());
+	            		$bulkRequest->setDescription($form->get('description')->getData());
+
+	            		foreach ($groups as $key => $group) {
+			            	$bulkGroupRequest = new AccountRequestsGroups();
+			            	$bulkGroupRequest->setRequestId($bulkRequest);
+			            	$bulkGroupRequest->setGroupId($group);
+
+			            	$bulkRequest->addRequest($bulkGroupRequest);
+			            }
+			            $em->persist($bulkRequest);
+	            	}
+            	}
 
 	            foreach ($groups as $key => $group) {
 	            	$groupRequest = new AccountRequestsGroups();
@@ -81,7 +108,6 @@ class AccountRequestController extends Controller
 	            try {
 		           	$this->signForm($accountRequest->getMudId(), $password); //Sign form with AD sAMAccountName and password.
 
-	            	$em = $this->getDoctrine()->getManager();
 		            $em->persist($accountRequest);
 		            $em->flush();
 
@@ -156,6 +182,8 @@ class AccountRequestController extends Controller
 					$user = $this->checkMudId($accountRequest->getRequestId()->getMudId()); //Get user if exists
 					if (!$user) {
 						$user = $this->addUserAction($accountRequest->getRequestId()); //Create new user if not exists
+						$header = ['apiKey:'.$this->getParameter('api3.key')];
+            			Utils::api3($this->container->getParameter('api3.url').'/record-counter', $header ,'POST', ['type' => 'user']);
 					}
 					$this->addUserGroupAction($accountRequest->getGroupId(), $user);
 					$message = ['type' => 'success', 'message' => 'Solicitud aceptada con éxito'];
@@ -200,7 +228,7 @@ class AccountRequestController extends Controller
             //End Block Password
 
             //$user->setMudId($accountRequest->getMudId()); 
-            $user->setEmail($accountRequest->getEmail()); // TO DO GET AZURE ACTIVE DIRECTORY EMAIL.
+            //$user->setEmail($accountRequest->getEmail()); // TO DO GET AZURE ACTIVE DIRECTORY EMAIL.
 
 		    $validator 	= $this->get('validator');
 		    $errors 	= $validator->validate($user);
@@ -221,8 +249,6 @@ class AccountRequestController extends Controller
             $em->persist($user);
             $em->flush();
 
-            Utils::api3($this->container->getParameter('api3.url').'/record-counter', 'POST', ['type' => 'user']);
-            
             //$this->get('session')->getFlashBag()->add('success', 'Usuario creado con exito.');
             //$message = ['type' => 'error', 'message' => 'Usuario creado con exito.'];
             //$this->addUserGroupAction($accountRequest->getRequestId()->getGroups(), $user);
@@ -390,6 +416,50 @@ class AccountRequestController extends Controller
 		$response = new JsonResponse($message);
 
 		return $response;
+	}
+
+	public function removeAction(Request $request)
+	{
+		if (!$this->getUser()) return $this->redirect($this->generateUrl('nononsense_user_login'));
+
+		$em = $this->getDoctrine()->getManager();
+		$user = $em->getRepository(Users::class)->findOneBy(['id' => $this->getUser()]);
+
+		$form = $this->createForm(new Form\RemoveRequestAccountType(), $user);
+        $form->handleRequest($request);
+
+		if ($form->isSubmitted() && $form->isValid()) {
+
+			try {
+
+				$factory = $this->container->get('security.encoder_factory');
+            	$encoder = $factory->getEncoder($user);
+
+				if (!$encoder->isPasswordValid($user->getPassword(), $form->get('_password')->getData(), $user->getSalt())) {
+					throw new \Exception("La firma no es válida.", 0);
+				}
+				
+				$groups = $form->get('groups')->getData(); 
+
+				if ($groups) {
+
+					foreach ($groups as $key => $group) {
+						$groupUser = $em->getRepository(GroupUsers::class)->findOneBy(['id' => $group]);
+						$em->remove($groupUser);
+					}
+
+				}
+
+				$this->get('session')->getFlashBag()->add('success', 'Solicitud enviada con éxito');
+				$em->flush();
+			} catch (\Exception $e) {
+				$this->get('session')->getFlashBag()->add('errors', $e->getMessage());
+			}
+
+		}
+
+		return $this->render('NononsenseUserBundle:Default:requestAccountRemove.html.twig', array('form' => $form->createView()));
+		
 	}
 
 }

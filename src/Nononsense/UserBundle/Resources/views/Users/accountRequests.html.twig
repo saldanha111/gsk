@@ -87,7 +87,7 @@
                                 <td>{{row.mudId}}</td>
                                 <td>{{row.username}}</td>
                                 <td>{{row.created|date("d-m-Y")}}</td>
-                                <td>{{row.revised}}/{{row.request|length}}</td>
+                                <td><span class="revised">{{row.revised}}</span>/{{row.request|length}}</td>
                                 {# <td>
                                      <a href="{{ path('nononsense_user_update_requests', {id: row.id})}}" class="btn btn-danger btn-sm" style="color: white"><i class="fa fa-edit"> </i> </a> 
                                 </td> #}
@@ -181,7 +181,7 @@
 
     $('.btn-submit').click(function(){
 
-
+        var that = this;
 
         var id = $(this).data('id');
         var observation = $('#'+id).find('.form-control').val();
@@ -216,8 +216,13 @@
                     var status;
                     if (e.type == 'success') {
                         status = '<span class="label label-primary">Aceptada</span>';
+                        $(that).prop('disabled', true);
+                        $(that).next().prop('disabled', true);
+                        $('[data-target="#g_'+$(that).data('request')+'"]').find('.revised').text(parseInt($('[data-target="#g_'+$(that).data('request')+'"]').find('.revised').text())+1)
                     }else if(e.type == 'warning'){
                         status = '<span class="label label-danger">Cancelada</span>';
+                        $(that).prop('disabled', true);
+                        $('[data-target="#g_'+$(that).data('request')+'"]').find('.revised').text(parseInt($('[data-target="#g_'+$(that).data('request')+'"]').find('.revised').text())+1)
                     }
                     //var status = (e.type == 'success') ? '<span class="label label-primary">Aceptada</span>' : '<span class="label label-danger">Cancelada</span>';
                     $('#'+id).find('.status').html(status)

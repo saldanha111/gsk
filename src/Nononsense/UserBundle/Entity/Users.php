@@ -64,18 +64,13 @@ class Users implements AdvancedUserInterface, \Serializable
     /**
      * @var string
      *
-     * @ORM\Column(name="email", type="string", length=90, unique=true)
-     * @Assert\NotBlank()
+     * @ORM\Column(name="email", type="string", length=90, unique=true, nullable=true)
      * @Assert\Email()
      */
     protected $email;
     
     /**
      * @ORM\Column(name="phone", type="text", nullable=true)
-     * @Assert\Regex(
-     *     pattern     = "/^([0-9]){9}$/",
-     *     message     = "El número de teléfono debe tener 9 dígitos."
-     * )
      */
     protected $phone;
     

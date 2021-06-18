@@ -49,7 +49,9 @@
                         <address style="line-height: 18px">
                             <i class="fa fa-calendar"> </i> <strong>{{'User since'|trans}}:</strong> {{ user.created|localizeddate('medium', 'none', app.request.locale)}}<br />
                             <i class="fa fa-envelope"> </i> &nbsp;<a href="mailto:{{user.email}}" style="text-decoration: underline">{{user.email}}</a><br>
-                            <i class="fa fa-phone"> </i> &nbsp;{{ user.phone }}
+                            {% if user.phone %}
+                                <i class="fa fa-phone"> </i> &nbsp;{{ user.phone }}
+                            {% endif %}
                         </address>
                         <h4>{{'About me'|trans}}</h4>
                         {{user.description|raw}}
@@ -66,6 +68,16 @@
                         {% else %}
                             <p>El usuario {{user.username}} pertenece a Active Directory</p>
                         {% endif %}
+                        {% endif %}
+                        {% if user.id == app.user.id %}
+                            <hr>
+                            <h4>Mis grupos</h4>
+                            <ul>
+                                {% for group in user.groups %}
+                                    <li>{{group.group.name}}</li>
+                                {% endfor %}
+                            </ul>
+                            <p>Si deseas salir de algún grupo puedes <a href="{{path('nononsense_user_remove_requests')}}">realizar solicitud de baja</a></p>
                         {% endif %}
                     </div>
                 </div>
