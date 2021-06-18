@@ -20,11 +20,12 @@ class UsersController extends Controller
 {
     public function indexAction($page, $query = 'q')
     {
-        if (false === $this->get('security.authorization_checker')->isGranted('ROLE_ADMIN')) {
-            $admin = false;
-        } else {
-            $admin = true;
+        if (!$this->get('app.security')->permissionSeccion('usuarios_gestion')) {
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
+
+        $admin = false;
+
 
         $maxResults = $this->container->getParameter('results_per_page');
 
@@ -49,22 +50,18 @@ class UsersController extends Controller
     
     public function showAction($id)
     {
+        if (!$this->get('app.security')->permissionSeccion('usuarios_gestion')) {
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+        }
+
         $user = $this->getDoctrine()
                      ->getRepository('NononsenseUserBundle:Users')
                      ->find($id);
         
         $templates =array();
-        /*
-        $templates = $this->getDoctrine()
-                     ->getRepository('NononsenseDocumentBundle:Templates')
-                     ->templatesByUser($user->getId());
-*/
-        if ($this->get('security.authorization_checker')->isGranted('ROLE_ADMIN')
-            || $id == $this->getUser()->getId()) {
-            $editable = true;
-        } else {
-            $editable = false;
-        }
+
+        $editable = true;
+
         $path = '/' . $this->container->getParameter('user_img_dir');
         return $this->render('NononsenseUserBundle:Users:profile.html.twig', array(
             'user' => $user,
@@ -76,10 +73,8 @@ class UsersController extends Controller
     
     public function createAction(Request $request)
     {       
-        // if does not enjoy the required permission send the user to the
-        //users list
-        if (false === $this->get('security.authorization_checker')->isGranted('ROLE_ADMIN')) {
-            return $this->redirect($this->generateUrl('nononsense_users_homepage'));
+        if (!$this->get('app.security')->permissionSeccion('usuarios_gestion')) {
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
         
         // create a user entity
@@ -142,11 +137,10 @@ class UsersController extends Controller
     
     public function deleteAction($id, Request $request)
     {
-        // if does not enjoy the required permission send the user to the
-        //users list
-        if (false === $this->get('security.authorization_checker')->isGranted('ROLE_ADMIN')) {
-            return $this->redirect($this->generateUrl('nononsense_users_homepage'));
+        if (!$this->get('app.security')->permissionSeccion('usuarios_gestion')) {
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
+
         //TODO: we can not remove users just like that!!!
         // create a user entity
         // get the user entity
@@ -178,17 +172,12 @@ class UsersController extends Controller
     
     public function editAction($id, Request $request)
     {
-        // if does not enjoy the required permission send the user to the
-        //user list
-        if (false === $this->get('security.authorization_checker')->isGranted('ROLE_ADMIN')
-            && $id != $this->getUser()->getId()) {
-            return $this->redirect($this->generateUrl('nononsense_users_homepage'));
+        if (!$this->get('app.security')->permissionSeccion('usuarios_gestion')) {
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
-        if ($this->get('security.authorization_checker')->isGranted('ROLE_ADMIN')) {
-            $admin = true;
-        } else {
-            $admin = false;
-        }
+
+        $admin = true;
+
         //recall the user entity        
         $user = $this->getDoctrine()
                      ->getRepository('NononsenseUserBundle:Users')
@@ -242,12 +231,10 @@ class UsersController extends Controller
     
     public function editImageAction($id, Request $request)
     {
-        // if does not enjoy the required permission send the user to the
-        //user list
-        if (false === $this->get('security.authorization_checker')->isGranted('ROLE_ADMIN')
-            && $id != $this->getUser()->getId()) {
-            return $this->redirect($this->generateUrl('nononsense_users_homepage'));
+        if (!$this->get('app.security')->permissionSeccion('usuarios_gestion')) {
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
+
         //recall the user entity
         $width = $this->container->getParameter('avatar_width');
         $height = $this->container->getParameter('avatar_height');
@@ -287,17 +274,13 @@ class UsersController extends Controller
     
     public function resetPasswordAction($id, Request $request)
     {
-        // if does not enjoy the required permission send the user to the
-        //user list
-        if (false === $this->get('security.authorization_checker')->isGranted('ROLE_ADMIN')) {
+        if (!$this->get('app.security')->permissionSeccion('usuarios_gestion')) {
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
-        if ($this->get('security.authorization_checker')->isGranted('ROLE_ADMIN')
-            || $this->getUser()->getRecoverPass() == 'pending' ) {
-            $admin = true;
-        } else {
-            $admin = false;
-        }
+
+
+        $admin = true;
+
         //recall the user entity        
         $user = $this->getDoctrine()
                      ->getRepository('NononsenseUserBundle:Users')
@@ -362,9 +345,8 @@ class UsersController extends Controller
     public function loadUsersAction(Request $request)
     {       
         // if does not enjoy the required permission kick him out
-        if (false === $this->get('security.authorization_checker')->isGranted('ROLE_ADMIN')) {
-            echo 'No tiene permisos estar aquí';
-            exit;
+        if (!$this->get('app.security')->permissionSeccion('usuarios_gestion')) {
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
         echo 'No debería estar aquí';
         exit;
@@ -372,6 +354,10 @@ class UsersController extends Controller
     }
 
     public function reportAction(Request $request){
+
+        if (!$this->get('app.security')->permissionSeccion('usuarios_gestion')) {
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+        }
 
         $filters['page']         = (!$request->get('page')) ? 1 : $request->get('page');
         $filters['is_active']    = $request->get('is_active');
@@ -398,6 +384,10 @@ class UsersController extends Controller
     }
 
     public function reportCsvAction($data, $filters){
+
+        if (!$this->get('app.security')->permissionSeccion('usuarios_gestion')) {
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+        }
 
         $phpExcelObject = $this->get('phpexcel')->createPHPExcelObject();
         $phpExcelObject->getProperties();
