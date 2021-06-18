@@ -202,6 +202,10 @@
                     {{ form_row(form.description, {'attr': {'class': 'form-control', 'rows': 6}}) }}
                 </div>
 
+                <div class="form-group">
+                    {{ form_row(form.bulk, {'attr': {'class': 'form-control', 'rows': 2}}) }}
+                    <small>Puede realizar una solicitud masiva añadiendo los mud id separados por comas.</small>
+                </div>
             </div>
             <div role="tabpanel" class="tab-pane animated fadeInRight" id="messages">
                 <div class="form-group">
