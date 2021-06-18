@@ -15,11 +15,12 @@ class GroupController extends Controller
 {
     public function indexAction($page, $query = 'q')
     {
-        if (false === $this->get('security.authorization_checker')->isGranted('ROLE_ADMIN')) {
-            $admin = false;
-        } else {
-            $admin = true;
+        if (!$this->get('app.security')->permissionSeccion('grupos_gestion')) {
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
+
+        $admin = true;
+        
         $maxResults = $this->container->getParameter('results_per_page');
 
          $groups = $this->getDoctrine()
@@ -45,8 +46,8 @@ class GroupController extends Controller
     {
         // if does not enjoy the required permission send the user to the
         //groups list
-        if (false === $this->get('security.authorization_checker')->isGranted('ROLE_ADMIN')) {
-            return $this->redirect($this->generateUrl('nononsense_groups_homepage'));
+        if (!$this->get('app.security')->permissionSeccion('grupos_gestion')) {
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
         // create a group entity
         $group = new Groups();
@@ -83,9 +84,8 @@ class GroupController extends Controller
         $groupAdmin = $this->isGroupAdmin($id);
         // if does not enjoy the required permission send the user to the
         //groups list
-        if (false === $this->get('security.authorization_checker')->isGranted('ROLE_ADMIN')
-            && !$groupAdmin) {
-            return $this->redirect($this->generateUrl('nononsense_groups_homepage'));
+        if (!$this->get('app.security')->permissionSeccion('grupos_gestion')) {
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
         // get the group entity
         $em = $this->getDoctrine()->getManager();
@@ -139,8 +139,8 @@ class GroupController extends Controller
     {
         // if does not enjoy the required permission send the user to the
         //groups list
-        if (false === $this->get('security.authorization_checker')->isGranted('ROLE_ADMIN')) {
-            return $this->redirect($this->generateUrl('nononsense_groups_homepage'));
+        if (!$this->get('app.security')->permissionSeccion('grupos_gestion')) {
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
         // get the original group to be cloned
         $em = $this->getDoctrine();
@@ -190,24 +190,20 @@ class GroupController extends Controller
     
     public function showAction($id)
     {
+        if (!$this->get('app.security')->permissionSeccion('grupos_gestion')) {
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+        }
+
         $groupAdmin = $this->isGroupAdmin($id);
 
         $group = $this->getDoctrine()
                       ->getRepository('NononsenseGroupBundle:Groups')
                       ->find($id);
         
-        if ($this->get('security.authorization_checker')->isGranted('ROLE_ADMIN')
-            || $groupAdmin) {
-            $editable = true;
-        } else {
-            $editable = false;
-        }
+
+        $editable = true;
+        $clonable = false;
         
-        if ($this->get('security.authorization_checker')->isGranted('ROLE_ADMIN')) {
-            $clonable = true;
-        } else {
-            $clonable = false;
-        }
  
         return $this->render('NononsenseGroupBundle:Group:show.html.twig', array(
             'group' => $group,
@@ -219,15 +215,14 @@ class GroupController extends Controller
     public function usersAction($id, $type = 'member')
     {
         $groupAdmin = $this->isGroupAdmin($id);
-        
-        if (false === $this->get('security.authorization_checker')->isGranted('ROLE_ADMIN')
-            && !$groupAdmin) {
-            $admin = false;
-        } else {
-            $admin = true;
-        }
 
-         $users= $this->getDoctrine()
+        if (!$this->get('app.security')->permissionSeccion('grupos_gestion')) {
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+        }
+        
+        $admin = true;
+
+        $users= $this->getDoctrine()
                       ->getRepository('NononsenseGroupBundle:GroupUsers')
                       ->findUsersByGroup(1, 100000, $id, 'q', $type);
 
@@ -244,6 +239,9 @@ class GroupController extends Controller
     
     public function addusersAction($id, $type = 'member')
     {
+        if (!$this->get('app.security')->permissionSeccion('grupos_gestion')) {
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+        }
         
         $em = $this->getDoctrine()->getManager();
         $users = $em->getRepository('NononsenseUserBundle:Users')
@@ -268,6 +266,10 @@ class GroupController extends Controller
     
     public function addsingleuserAction(Request $request)
     {
+        if (!$this->get('app.security')->permissionSeccion('grupos_gestion')) {
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+        }
+
         $id = $request->query->get('id');
         $em = $this->getDoctrine()->getManager();
         $user = $em->getRepository('NononsenseUserBundle:Users')
@@ -281,6 +283,10 @@ class GroupController extends Controller
 
     public function addsinglegroupAction(Request $request)
     {
+        if (!$this->get('app.security')->permissionSeccion('grupos_gestion')) {
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+        }
+
         $id = $request->query->get('id');
         $em = $this->getDoctrine()->getManager();
         $group = $em->getRepository('NononsenseGroupBundle:Groups')
@@ -292,6 +298,10 @@ class GroupController extends Controller
     
     public function addbulkAction(Request $request)
     {
+        if (!$this->get('app.security')->permissionSeccion('grupos_gestion')) {
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+        }
+
         $data = $request->query->get('users');
         $groupId = $request->query->get('id');
         $type = $request->query->get('type');
@@ -300,10 +310,9 @@ class GroupController extends Controller
         
         $groupAdmin = $this->isGroupAdmin($groupId);
         
-        if (false === $this->get('security.authorization_checker')->isGranted('ROLE_ADMIN')
-            && !$groupAdmin) {
-            return $this->redirect($this->generateUrl('nononsense_groups_homepage'));
-        } 
+        if (!$this->get('app.security')->permissionSeccion('grupos_gestion')) {
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+        }
         
         $em = $this->getDoctrine()->getManager();
         $em->getRepository('NononsenseGroupBundle:GroupUsers');
@@ -341,10 +350,10 @@ class GroupController extends Controller
         $groupAdmin = $this->isGroupAdmin($id);
         // if does not enjoy the required permission send the user to the
         //groups list
-        if (false === $this->get('security.authorization_checker')->isGranted('ROLE_ADMIN')
-            && !$groupAdmin) {
-            return $this->redirect($this->generateUrl('nononsense_groups_homepage'));
+        if (!$this->get('app.security')->permissionSeccion('grupos_gestion')) {
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
+        
         $em = $this->getDoctrine()->getManager();
         $row = $em->getRepository('NononsenseGroupBundle:GroupUsers')
                   ->findOneBy(array('user' => $userid, 
@@ -368,19 +377,8 @@ class GroupController extends Controller
         $group = $em->getRepository('NononsenseGroupBundle:Groups')
                     ->find($id);
         
-        if ($this->get('security.authorization_checker')->isGranted('ROLE_ADMIN')
-            || $groupAdmin) {
-            //TODO: check if the user is an administrator
-            $editable = true;
-        } else {
-            $editable = false;
-        }
-        
-        if ($this->get('security.authorization_checker')->isGranted('ROLE_ADMIN')) {
-            $clonable = true;
-        } else {
-            $clonable = false;
-        }
+        $editable = true;
+        $clonable = false;
  
         return $this->redirect($this->generateUrl('nononsense_group_show', array('id' => $id)));
     }
