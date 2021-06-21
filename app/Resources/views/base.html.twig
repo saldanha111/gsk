@@ -14,7 +14,7 @@
     <body class="boxed-layout">
         <div class="header-page">
             {% block nav_top %}
-                    {% include "::nav_top.html.twig" %}
+                    {{ render(controller('Nononsense\HomeBundle:Default:topSide')) }}
             {% endblock %} 
         </div>
         <div id="wrapper" class="border-xs-top border-sm-top">

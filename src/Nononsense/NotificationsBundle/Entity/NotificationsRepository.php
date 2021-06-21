@@ -183,4 +183,36 @@ class NotificationsRepository extends EntityRepository
         return $query->getResult();
         
     }
+
+    public function listBy($filters, $limit = 20){
+
+        $list  = $this->createQueryBuilder('n')
+                        ->join("n.author", "u", "WITH", 'u = :user')
+                        ->setParameter('user', $filters['user'])
+                        ->addOrderBy('n.created','ASC');
+
+        $list->setFirstResult($limit*($filters["page"]-1))->setMaxResults($limit);
+
+        $paginator = new Paginator($list);
+        $paginator->getQuery()->setFirstResult($limit*($filters['page']-1))->setMaxResults($limit);
+        $paginator->setUseOutputWalkers(false);
+
+        return $paginator;
+    }
+
+    public function countBy($filters){
+
+        $list  = $this->createQueryBuilder('n')
+                  ->select('COUNT(n.id)')
+                  ->join("n.author", "u", "WITH", 'u = :user')
+                  ->setParameter('user', $filters['user']);
+
+        if (isset($filters['unread']) && $filters['unread']) {
+           $list->andWhere('n.created = n.modified');
+        }
+
+        $query = $list->getQuery()->getSingleScalarResult();
+
+        return $query;
+    }
 }
