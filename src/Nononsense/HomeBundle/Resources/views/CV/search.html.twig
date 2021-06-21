@@ -111,6 +111,7 @@
                         <thead>
                         <tr>
                             <th>Nº</th>
+                            <th></th>
                             <th>Plantilla</th>
                             <th>Iniciado por</th>
                             <th>Fecha inicio</th>
@@ -124,7 +125,17 @@
                         {% if items is defined %}
                             {% for item in items %}
                             <tr>
-                                <td>#{{ item.id }}</td>
+
+                                <td>
+                                    {% if item.firstNestedId is not defined or item.firstNestedId is empty %}
+                                        <a class="btn btn-xs btn-primary" href="{{ path('nononsense_cv_search')}}?nested_history={{item.id }}">#{{ item.id }}</a>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if item.firstNestedId is defined and item.firstNestedId is not empty %}
+                                        <a class="btn btn-xs btn-primary" href="{{ path('nononsense_cv_search')}}?nested_history={{ item.firstNestedId }}"><i class="fa fa-chevron-right" aria-hidden="true"></i> #{{ item.id }}</a>
+                                    {% endif %}
+                                </td>
                                 <td>{{item.name}}</td>
                                 <td>{{item.creator}}</td>
                                 <td>{{ item.created is defined ? item.created|date("d/m/Y H:i:s") : '' }}</td>
@@ -144,7 +155,7 @@
                                             {% if not item.finalState %}
                                                 {% if item.canBeOpenedState %}
                                                     {% if item.requireAction %}
-                                                        <a class="btn btn-xs {{item.colorState}}" {{ item.type_id is defined and item.type_id==1 and item.logbook  ? 'name=completarregistro data-template='~item.id~' data-loogbook=1' : 'href='~path('nononsense_cv_docoaro_new', {'id': item.id})~' target=_self' }}><i class="{{item.iconState}}" aria-hidden="true"></i> {{ item.reconId is defined and item.reconId is not empty ? item.alternativeStateReconc : item.alternativeState }}</a>  
+                                                        <a class="btn btn-xs {{item.colorState}}" {{ item.type_id is defined and item.type_id==1 and item.logbook and item.creator is not empty  ? 'name=completarregistro data-template='~item.id~' data-loogbook=1' : 'href='~path('nononsense_cv_docoaro_new', {'id': item.id})~' target=_self' }}><i class="{{item.iconState}}" aria-hidden="true"></i> {{ item.reconId is defined and item.reconId is not empty ? item.alternativeStateReconc : item.alternativeState }}</a>  
                                                     {% else %}
                                                         <a href="#" class="btn btn-xs btn-warning disabled"><i class="fa fa-pencil" aria-hidden="true"></i> Pendiente </a>
                                                     {% endif %}

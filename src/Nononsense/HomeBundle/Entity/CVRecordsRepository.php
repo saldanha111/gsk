@@ -27,7 +27,7 @@ class CVRecordsRepository extends EntityRepository
         }
 
         $require_action="CASE  WHEN 
-            (sig.user=:eluser1 
+            (sig.user=:eluser1 OR (sig.user IS NULL AND last.user is NULL) 
                 OR
                 (
                     t.correlative=TRUE AND sig.user IS NULL AND  (w.user=:eluser1 OR (w.group IN (:groups) AND :eluser2 NOT IN (SELECT IDENTITY(vvv1.user) FROM Nononsense\HomeBundle\Entity\CVWorkflow vvv1 WHERE vvv1.record=i.id)  AND :eluser2 NOT IN (SELECT IDENTITY(vvv2.user) FROM Nononsense\HomeBundle\Entity\CVSignatures vvv2 LEFT JOIN  Nononsense\HomeBundle\Entity\CVActions vvv3 WITH vvv2.action=vvv3.id WHERE vvv2.record=i.id AND (vvv3.type!=a.type OR vvv2.finish=TRUE)) ))
@@ -47,7 +47,7 @@ class CVRecordsRepository extends EntityRepository
         switch($type){
             case "list":
                 $list = $this->createQueryBuilder('i')
-                    ->select('i.id', 't.name','u.name creator','i.created','i.modified','t.logbook','s.name state','s.nameReconc stateReconc','i.inEdition','t.logbook','a.nameAlternative pendingAction','sigu.id idNextSigner','ty.name type','s.final finalState','s.color colorState','s.icon iconState','s.canBeOpened canBeOpenedState','s.nameAlternative alternativeState','s.nameAlternativeReconc  alternativeStateReconc','ty.id type_id','sig.version','a.id action','s.id state_id','IDENTITY(i.reconciliation) reconId','IDENTITY(i.firstReconciliation) reconFirstId','ar.name area');
+                    ->select('i.id', 't.name','u.name creator','i.created','i.modified','t.logbook','s.name state','s.nameReconc stateReconc','i.inEdition','t.logbook','a.nameAlternative pendingAction','sigu.id idNextSigner','ty.name type','s.final finalState','s.color colorState','s.icon iconState','s.canBeOpened canBeOpenedState','s.nameAlternative alternativeState','s.nameAlternativeReconc  alternativeStateReconc','ty.id type_id','sig.version','a.id action','s.id state_id','IDENTITY(i.reconciliation) reconId','IDENTITY(i.firstReconciliation) reconFirstId','ar.name area','IDENTITY(i.firstNested) firstNestedId');
 
                 $list->addSelect($require_action." AS requireAction");
 
@@ -207,6 +207,11 @@ class CVRecordsRepository extends EntityRepository
             if(isset($filters["recon_history"])){
                 $list->andWhere('i.id=:recon_history OR i.id IN (SELECT recon_aux2.id FROM Nononsense\HomeBundle\Entity\CVRecords recon_aux2 WHERE (IDENTITY(recon_aux2.firstReconciliation) = (SELECT IDENTITY(recon_aux1.firstReconciliation) FROM Nononsense\HomeBundle\Entity\CVRecords recon_aux1 WHERE recon_aux1.reconciliation=:recon_history) OR recon_aux2.id = (SELECT IDENTITY(recon_aux3.firstReconciliation) FROM Nononsense\HomeBundle\Entity\CVRecords recon_aux3 WHERE recon_aux3.reconciliation=:recon_history)))');
                 $list->setParameter('recon_history', $filters["recon_history"]);
+            }
+
+            if(isset($filters["nested_history"])){
+                $list->andWhere('i.id=:nested_history OR IDENTITY(i.firstNested)=:nested_history');
+                $list->setParameter('nested_history', $filters["nested_history"]);
             }
 
 

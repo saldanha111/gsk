@@ -41,8 +41,15 @@ class CVCumplimentationController extends Controller
         $em = $this->getDoctrine()->getManager();
     	$serializer = $this->get('serializer');
         $array=array();
+
+        if(!$request->get("record")){
+            $filter="init_cumplimentation";
+        }
+        else{
+            $filter="nest_init_cumplimentation";
+        }
        
-        $items=$this->getDoctrine()->getRepository(TMTemplates::class)->list("list",array("id" => $template,"init_cumplimentation" => 1));
+        $items=$this->getDoctrine()->getRepository(TMTemplates::class)->list("list",array("id" => $template,$filter => 1));
 
         if(!$items){
             $this->get('session')->getFlashBag()->add(
@@ -54,6 +61,21 @@ class CVCumplimentationController extends Controller
         }
 
         $array["item"]=$items[0];
+
+        if($request->get("record")){
+            $record = $this->getDoctrine()->getRepository(CVRecords::class)->findOneBy(array("id" => $request->get("record")));
+            if(!$record || $record->getTemplate()->getId()!=$array["item"]["id"]){
+                $this->get('session')->getFlashBag()->add(
+                    'error',
+                        'El registro indicado no puede cumplimentarse'
+                );
+                $route = $this->container->get('router')->generate('nononsense_cv_search');
+                return $this->redirect($route);
+            }
+            $array["nest"]=$request->get("record");
+        }
+
+        
         $array["secondWf"]=$em->getRepository(TMSecondWorkflow::class)->findBy(array("template" => $template));
         $array["users"] = $em->getRepository(Users::class)->findAll();
         $array["groups"] = $em->getRepository(Groups::class)->findAll();
@@ -93,15 +115,37 @@ class CVCumplimentationController extends Controller
 
         $wfs=$em->getRepository(TMSecondWorkflow::class)->findBy(array("template" => $item),array("id" => "ASC"));
         
+        if(!$request->get("nest")){
+            $record= new CVRecords();
+            $record->setTemplate($item);
+            $record->setCreated(new \DateTime());
+            $record->setModified(new \DateTime());
+            $record->setInEdition(FALSE);
+            $record->setEnabled(TRUE);
+            $record->setState($state);
+        }
+        else{
+            $record = $em->getRepository(CVRecords::class)->findOneBy(array("id" => $request->get("nest")));
+        }
 
-        $record= new CVRecords();
-        $record->setTemplate($item);
-        $record->setCreated(new \DateTime());
-        $record->setModified(new \DateTime());
-        $record->setInEdition(FALSE);
-        $record->setEnabled(TRUE);
-        $record->setState($state);
         $record->setUser($user);
+
+        if(!$record->getNested()){
+            $before_nested=$record;
+            foreach($item->getTmNestMasterTemplates() as $subtemplate){
+                $aux_record= new CVRecords();
+                $aux_record->setTemplate($subtemplate->getNestTemplate());
+                $aux_record->setCreated(new \DateTime());
+                $aux_record->setModified(new \DateTime());
+                $aux_record->setInEdition(FALSE);
+                $aux_record->setEnabled(TRUE);
+                $aux_record->setState($state);
+                $aux_record->setNested($before_nested);
+                $aux_record->setFirstNested($record);
+                $em->persist($aux_record);
+                $before_nested=$aux_record;
+            }
+        }
 
         $params["data"]=array();
 

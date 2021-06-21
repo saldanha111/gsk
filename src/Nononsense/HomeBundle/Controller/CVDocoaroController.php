@@ -44,6 +44,11 @@ class CVDocoaroController extends Controller
             return false;
         }
 
+        if(count($record->getCvSignatures())==0){
+            $route = $this->container->get('router')->generate('nononsense_cv_new',array("template" => $record->getTemplate()->getId()))."?record=".$record->getId();
+            return $this->redirect($route);
+        }
+
         $baseUrl = $this->getParameter("cm_installation");
         $baseUrlAux = $this->getParameter("cm_installation_aux");
 

@@ -202,6 +202,13 @@ class TemplateConfigTemplatesController extends Controller
                 $template->setUniqid(0); 
             }
 
+            if($request->get("correlative")){
+               $template->setCorrelative(1); 
+            }
+            else{
+                $template->setCorrelative(0); 
+            }
+
             if($request->get("not_fillable_it_self")){
                $template->setNotFillableItSelf(1); 
             }

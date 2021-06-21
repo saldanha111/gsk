@@ -188,6 +188,11 @@ class TMTemplatesRepository extends EntityRepository
                 $logical=" AND ";
             }
 
+            if(isset($filters["nest_init_cumplimentation"])){
+                $sintax.=$logical." s.id=6 AND (t.inactive!=1 OR t.inactive IS NULL)";
+                $logical=" AND ";
+            }
+
         }
 
 

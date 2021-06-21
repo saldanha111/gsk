@@ -115,6 +115,16 @@
                         <div class="col-sm-7 col-sm-offset-2">
                             <div class="checkbox">
                                 <label>
+                                    <input name="correlative" value="1" type="checkbox"  {{template.tmState.id == 6 ? 'disabled="disabled"' : ''}} {{template.correlative is defined and template.correlative==1 ? "checked='checked'" : ''}}> Cumplimentación/verificación se realiza según la correlatividad de las firmas
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-sm-7 col-sm-offset-2">
+                            <div class="checkbox">
+                                <label>
                                     <input name="not_fillable_it_self" value="1" type="checkbox"  {{template.tmState.id == 6 ? 'disabled="disabled"' : ''}} {{template.notFillableItSelf is defined and template.notFillableItSelf==1 ? "checked='checked'" : ''}}> Es una plantilla maestra o dependiente (no se podrá cumplimentar por si sola)
                                 </label>
                             </div>
