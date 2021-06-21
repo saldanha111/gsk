@@ -9,6 +9,7 @@ use Nononsense\HomeBundle\Entity\LogsTypes;
 use Nononsense\HomeBundle\Entity\LogsTypesRepository;
 use Nononsense\HomeBundle\Entity\Tokens;
 use Nononsense\UserBundle\Entity\Users;
+use Nononsense\NotificationsBundle\Entity\Notifications;
 
 class Utilities{
     
@@ -93,6 +94,7 @@ class Utilities{
         if ($this->container->get('mailer')->send($email)) {
             //echo '[SWIFTMAILER] sent email to ' . $mailTo;
             //echo 'LOG: ' . $mailLogger->dump();
+            $this->insertNotification($email);
             return true;
         } else {
             //echo '[SWIFTMAILER] not sending email: ' . $mailLogger->dump();
@@ -156,6 +158,7 @@ class Utilities{
         return false;   
     }
 
+
     public function returnPDFResponseFromHTML($html){
         $pdf = $this->container->get("white_october.tcpdf")->create('horizontal', PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
         $pdf->SetAuthor('GSK');
@@ -217,5 +220,22 @@ class Utilities{
         }
 
         return $return;
+    }
+
+    public function insertNotification($email){
+
+       $user = $this->em->getRepository(Users::class)->findOneBy(array('email' => $email));
+
+       $notification = new Notifications();
+
+       $notification->setSubject('Hello subject');
+       $notification->setBody('Hello body');
+       $notification->setIsActive(1);
+       $notification->setAuthor($user);
+
+       $this->em->persist($notification);
+       $this->em->flush();
+
+       return $notification;
     }
 }

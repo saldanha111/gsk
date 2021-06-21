@@ -25,6 +25,27 @@ nononsense_notifications_show:
 nononsense_notifications_trash:
     path:     /trash/{messageId}
     defaults: { _controller: NononsenseNotificationsBundle:Mailbox:trash, messageId: 0 }
+
+nononsense_notifications_mails:
+    path:   /mails
+    defaults: { _controller: NononsenseNotificationsBundle:Messages:index}
+    methods: [GET]
+
+nononsense_notifications_mails_read:
+    path:   /mails/read
+    defaults: { _controller: NononsenseNotificationsBundle:Messages:read}
+    methods: [PUT]
+
+nononsense_notifications_mails_edit:
+    path:   /mails/{id}
+    defaults: { _controller: NononsenseNotificationsBundle:Messages:edit}
+    methods: [GET, PUT]
+
+# nononsense_notifications_mails_view:
+#     path:   /mails/{id}
+#     defaults: { _controller: NononsenseNotificationsBundle:Mailbox:mailsView}
+#     requirements:
+#         id: '\d+'
     
 nononsense_notifications_homepage:
     path:     /{page}/{query}/{group}/{filter}
