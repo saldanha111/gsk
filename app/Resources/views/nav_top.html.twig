@@ -29,14 +29,16 @@
                     </li>
                     <li class="dropdown phoneHidden">
                         <a class="dropdown-toggle count-info" data-toggle="dropdown" href="#">
-                            <i class="fa fa-bell"></i>  <span class="label label-warning" {#id="unreadTop"#}>{{messages}}</span>
+                            {% if messages>0 %}
+                                <i class="fa fa-bell"></i>  <span class="label label-danger">{{messages}}</span>
+                            {% endif %}
                         </a>
                         <ul class="dropdown-menu dropdown-messages">
                             {{ render(controller('NononsenseNotificationsBundle:Mailbox:widget')) }}					
                             <li>
                                 <div class="text-center link-block">
                                     <a href="{{ path('nononsense_notifications_mails') }}">
-                                        <i class="fa fa-envelope"></i> <strong>{{'Read All Mesages'|trans}}</strong>
+                                        <i class="fa fa-envelope"></i> <strong>{{'Ir a notificaciones'|trans}}</strong>
                                     </a>
                                 </div>
                             </li>

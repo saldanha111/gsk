@@ -24,9 +24,9 @@ class NotificationsRepository extends EntityRepository
                        ->select('n', 'g', 'mu', 'u', 'n.id as HIDDEN notificationId')
                        ->join('n.groups', 'g')//join notifications with groups
                        ->join('g.users', 'gu')//join groups with the users
-                       ->join('n.author', 'u')//join with the users table
+                       ->join('n.user', 'u')//join with the users table
                        ->leftJoin('n.messages', 'mu', 'WITH', 'mu.user = :id')//join with the table of messages read/deleted by that user
-                       ->where('gu.user = :id AND n.author <> :id AND (mu.trash = 0 OR mu.trash is NULL)')//select the user
+                       ->where('gu.user = :id AND n.user <> :id AND (mu.trash = 0 OR mu.trash is NULL)')//select the user
                        ->setParameter('id', $userid);
         if ($group) {
             $messag->andWhere('g.id = :gid')
@@ -55,8 +55,8 @@ class NotificationsRepository extends EntityRepository
     {
         $messag = $this->createQueryBuilder('n')
                       ->select('n','n.id as HIDDEN notificationId')
-                       ->join('n.author', 'u')//join with the users table
-                       ->where('n.author = :id' )
+                       ->join('n.user', 'u')//join with the users table
+                       ->where('n.user = :id' )
                        ->setParameter('id', $userid);
         if (!empty($query) && $query != 'q') {
             $messag->andWhere('n.subject LIKE :query OR u.name LIKE :query')
@@ -81,9 +81,9 @@ class NotificationsRepository extends EntityRepository
                        ->select('n', 'g', 'mu','n.id as HIDDEN notificationId')
                        ->join('n.groups', 'g')
                        ->join('g.users', 'gu')
-                       ->join('n.author', 'u')//join with the users table
+                       ->join('n.user', 'u')//join with the users table
                        ->join('n.messages', 'mu', 'WITH', 'mu.user = :id')
-                       ->where('gu.user = :id AND n.author <> :id AND mu.trash = 1' )
+                       ->where('gu.user = :id AND n.user <> :id AND mu.trash = 1' )
                        ->setParameter('id', $userid);
         if (!empty($query) && $query != 'q') {
             $messag->andWhere('n.subject LIKE :qu OR u.name LIKE :qu')
@@ -135,7 +135,7 @@ class NotificationsRepository extends EntityRepository
                      ->join('n.groups', 'g')//join notifications with groups
                      ->join('g.users', 'gu')//join groups with the users
                      ->join('n.messages', 'mu', 'WITH', 'mu.user = :userid')//join with the table of messages read/deleted by that user
-                     ->where('gu.user = :id AND n.author <> :id')//select the user
+                     ->where('gu.user = :id AND n.user <> :id')//select the user
                      ->setParameter('userid', $userid)
                      ->setParameter('id', $userid)
                      ->groupBy('n.id');       
@@ -147,7 +147,7 @@ class NotificationsRepository extends EntityRepository
                      ->select('n.id')
                      ->join('n.groups', 'g')//join notifications with groups
                      ->join('g.users', 'gu')//join groups with the users
-                     ->where('gu.user = :id AND n.author <> :id')//select the user
+                     ->where('gu.user = :id AND n.user <> :id')//select the user
                      ->setParameter('id', $userid)
                      ->groupBy('n.id');
         
@@ -170,9 +170,9 @@ class NotificationsRepository extends EntityRepository
                        ->select('n.id, n.subject, n.created, (u.id) AS authorid')
                        ->join('n.groups', 'g')//join notifications with groups
                        ->join('g.users', 'gu')//join groups with the users
-                       ->join('n.author', 'u')//join with the users table
+                       ->join('n.user', 'u')//join with the users table
                        ->leftJoin('n.messages', 'mu', 'WITH', 'mu.user = :id')//join with the table of messages read/deleted by that user
-                       ->where('gu.user = :id AND n.author <> :id AND (mu.trash = 0 OR mu.trash is NULL)')//select the user
+                       ->where('gu.user = :id AND n.user <> :id AND (mu.trash = 0 OR mu.trash is NULL)')//select the user
                        ->setParameter('id', $userid);
        
         $messag->setMaxResults(3);     
@@ -187,7 +187,7 @@ class NotificationsRepository extends EntityRepository
     public function listBy($filters, $limit = 20){
 
         $list  = $this->createQueryBuilder('n')
-                        ->join("n.author", "u", "WITH", 'u = :user')
+                        ->join("n.user", "u", "WITH", 'u = :user')
                         ->setParameter('user', $filters['user'])
                         ->addOrderBy('n.created','ASC');
 
@@ -204,7 +204,7 @@ class NotificationsRepository extends EntityRepository
 
         $list  = $this->createQueryBuilder('n')
                   ->select('COUNT(n.id)')
-                  ->join("n.author", "u", "WITH", 'u = :user')
+                  ->join("n.user", "u", "WITH", 'u = :user')
                   ->setParameter('user', $filters['user']);
 
         if (isset($filters['unread']) && $filters['unread']) {

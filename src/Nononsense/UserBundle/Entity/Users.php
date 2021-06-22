@@ -159,7 +159,7 @@ class Users implements AdvancedUserInterface, \Serializable
     protected $mudId;
     
     /**
-     * @ORM\OneToMany(targetEntity="\Nononsense\NotificationsBundle\Entity\Notifications", mappedBy="author")
+     * @ORM\OneToMany(targetEntity="\Nononsense\NotificationsBundle\Entity\Notifications", mappedBy="user")
      */
     protected $notifications;
     

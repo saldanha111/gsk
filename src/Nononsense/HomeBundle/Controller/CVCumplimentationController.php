@@ -18,6 +18,7 @@ use Nononsense\HomeBundle\Entity\CVWorkflow;
 use Nononsense\HomeBundle\Entity\CVStates;
 use Nononsense\HomeBundle\Entity\CVRecordsHistory;
 use Nononsense\HomeBundle\Entity\CVRequestTypes;
+use Nononsense\GroupBundle\Entity\GroupUsers;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
@@ -321,6 +322,7 @@ class CVCumplimentationController extends Controller
         $em = $this->getDoctrine()->getManager();
         $serializer = $this->get('serializer');
         $array=array();
+        $send_email=0;
 
         $record = $this->getDoctrine()->getRepository(CVRecords::class)->findOneBy(array("id" => $id));
 
@@ -449,6 +451,25 @@ class CVCumplimentationController extends Controller
                     }
                 }
 
+                //Sacamos los emails de los usuarios a los que tenemos que notificar de que tienen una verificación pendiente
+                if($next_state->getType()->getId()==2){
+                    $emails_wfs=$this->getDoctrine()->getRepository(CVWorkflow::class)->findBy(array('record' => $record));
+                    foreach($emails_wfs as $email_wfs){
+                        if($email_wfs->getType()->getTmType()==$next_state->getType()){
+                            $send_email=1;
+                            if($email_wfs->getUser()){
+                                $emails[]=$email_wfs->getUser()->getEmail();
+                            }
+                            else{
+                                $aux_users = $em->getRepository(GroupUsers::class)->findBy(["group" => $email_wfs->getGroup()]);
+                                foreach ($aux_users as $aux_user) {
+                                    $emails[]=$aux_user->getUser()->getEmail();
+                                }
+                            }
+                        }
+                    }
+                }
+
                 //Vaciamos próximo bloque de firmas activo
                 $other_signatures=$this->getDoctrine()->getRepository(CVSignatures::class)->findBy(array('record' => $record,"signed" => TRUE,"finish" => TRUE));
                 foreach($other_signatures as $other_signature){
@@ -461,8 +482,8 @@ class CVCumplimentationController extends Controller
             }
         }
 
+        //Guardamos las modificaciones de un usuario sobre algo previamente cumplimentado
         $obj1 = json_decode($signature->getJson())->data;
-
         if(count($all_signatures)>0){
             $obj2 = json_decode($all_signatures[0]->getJson())->data;
 
@@ -488,8 +509,8 @@ class CVCumplimentationController extends Controller
                 break;
         }
 
+        //Certificamos la cumplimentación e una plantilla por pasar por un estado final
         if($record->getState()->getFinal()){
-
             $request->attributes->set("pdf", '1');
             $request->attributes->set("no-redirect", true);
             $slug="record";
@@ -506,6 +527,15 @@ class CVCumplimentationController extends Controller
             $file = Utils::api3($this->forward('NononsenseHomeBundle:CVDocoaro:link', ['request' => $request, 'id'  => $record->getId()])->getContent());
             $file = Utils::saveFile($file, $slug, $this->getParameter('crt.root_dir'));
             Utils::setCertification($this->container, $file, $slug, $record->getId());                
+        }
+
+        if($send_email==1){
+            foreach($emails as $email){
+                $subject="Cumplimentación pendiente de verificación";
+                $mensaje='El registro con ID '.$record->getId().' está pendiente de verificación por su parte. Para poder verificarlo puede acceder a la sección "Buscador" o "En proceso", buscar el documento y pulsar en Verificar';
+                $baseURL=$this->container->get('router')->generate('nononsense_cv_search')."?id=".$record->getId();
+                $this->get('utilities')->sendNotification($email, $baseURL, "", "", $subject, $mensaje);
+            }
         }
 
 

@@ -12,9 +12,3 @@
 </li>
 <li class="divider"></li>
 {% endfor %}
-<script>
-    document.getElementById('unreadTop').innerHTML = '{{unread}}';
-    {% if unread == 0 %}
-        document.getElementById('unreadTop').style.display = 'none';   
-    {% endif %}
-</script>

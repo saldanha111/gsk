@@ -54,19 +54,14 @@
     <div class="row"> 
         <div class="col-lg-12 animated fadeInRight">
             <div class="mail-box-header">
-                <h2><a href="{{ path('nononsense_notifications_mails')}}">Bandeja de entrada</a> ({{emails|length }})</h2>
-                <div class="mail-tools tooltip-demo m-t-md">
-                    <input class="btn btn-white btn-sm" data-toggle="tooltip" data-placement="top" title="Seleccionar todos" type="checkbox" id="select-all">
-                    <button class="btn btn-white btn-sm" data-toggle="tooltip" data-placement="top" data-event="read" title="Marcar como leído"><i class="fa fa-eye"></i></button>
-                </div>
+                <h2><a href="{{ path('nononsense_notifications_mails')}}">Bandeja de entrada</a></h2>
             </div>
             <div class="mail-box">
                 <table class="table table-hover table-mail">
                     <tbody>
                         {% for email in emails %}
                             <tr data-id="{{email.id}}" class="{{email.created < email.modified ? 'read' : 'unread'}}">
-                                <td class="check-mail"><input type="checkbox" class="i-checks"></td>
-                                <td class="mail-ontact"><span class="label label-warning float-right">System</span></td>
+                                <td class="mail-ontact"><span class="label label-warning float-right">Sistema</span></td>
                                 <td class="mail-subject">{{email.subject}}</td>
                                 <td class="mail-body">{{email.body|striptags|slice(0,80)}}...</td>
                                 <td class="text-right mail-date">{{email.created|time_diff}}</td>
@@ -97,65 +92,6 @@
             var url = "{{ path('nononsense_notifications_mails_edit', {id:0})}}";
             url = url.replace('0', $(this).parent().data('id'))
             window.location.href = url;
-        })
-
-        $('#select-all').click(function(){
-            $('input[type="checkbox"]').prop('checked', $(this)[0].checked);
-        })
-
-        $('.mail-tools button').click(function(){
-            var emails = [];
-
-            $('.mail-box input[type="checkbox"]:checked').each(function(){
-                emails.push($(this).closest('tr').data('id'));
-            })
-
-            toastr.options = {
-              "progressBar": true,
-              "positionClass": "toast-top-right",
-              "preventDuplicates": true,
-              "onclick": null,
-              "showDuration": "300",
-              "hideDuration": "1000",
-              "timeOut": "5000",
-              "extendedTimeOut": "1000",
-              "showEasing": "swing",
-              "hideEasing": "linear",
-              "showMethod": "fadeIn",
-              "hideMethod": "fadeOut"
-            }
-
-            if (emails.length > 0) {
-
-                $('.backdrop').addClass('on');
-
-                $.ajax({
-                    url: 'http://gsk.localhost/app_dev.php/messages/mails/read',
-                    data: {emails: JSON.stringify(emails), event: $(this).data('event')},
-                    method: 'PUT',
-                    dataType: 'json',
-                    success: function(response){
-                        if (response.success) {
-
-                            $('.backdrop').removeClass('on');
-
-                            $(emails).each(function(index, value){
-                                $('tr[data-id='+value+']').removeClass('unread').addClass('read');
-                            });
-                            
-                            var message = (emails.length <= 1) ? 'Se ha marcado la conversación como leída.' : 'Se han marcado '+emails.length+' conversaciones como leídas.';
-                            
-                            toastr.success(message)
-
-                            $('input[type="checkbox"]').prop('checked', false);
-                        }
-                    }
-                })
-               
-            }else{
-
-                toastr.error('Seleccione al menos 1 mensaje.');
-            }
         })
     </script>
 {% endblock %}

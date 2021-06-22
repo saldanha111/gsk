@@ -61,7 +61,7 @@ class Notifications
      * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="notifications")
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
      */
-    protected $author;
+    protected $user;
     
     /**
      * @ORM\OneToMany(targetEntity="\Nononsense\NotificationsBundle\Entity\MessagesUsers", mappedBy="notification")
@@ -308,29 +308,6 @@ class Notifications
     }
 
     /**
-     * Set author
-     *
-     * @param \Nononsense\UserBundle\Entity\Users $author
-     * @return Notifications
-     */
-    public function setAuthor(\Nononsense\UserBundle\Entity\Users $author = null)
-    {
-        $this->author = $author;
-
-        return $this;
-    }
-
-    /**
-     * Get author
-     *
-     * @return \Nononsense\UserBundle\Entity\Users 
-     */
-    public function getAuthor()
-    {
-        return $this->author;
-    }
-
-    /**
      * Add messages
      *
      * @param \Nononsense\NotificationsBundle\Entity\MessagesUsers $messages
@@ -361,5 +338,28 @@ class Notifications
     public function getMessages()
     {
         return $this->messages;
+    }
+
+    /**
+     * Set important
+     *
+     * @param boolean $important
+     * @return Notifications
+     */
+    public function setImportant($important)
+    {
+        $this->important = $important;
+
+        return $this;
+    }
+
+    /**
+     * Get important
+     *
+     * @return boolean 
+     */
+    public function getImportant()
+    {
+        return $this->important;
     }
 }

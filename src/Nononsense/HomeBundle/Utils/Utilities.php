@@ -10,6 +10,7 @@ use Nononsense\HomeBundle\Entity\LogsTypesRepository;
 use Nononsense\HomeBundle\Entity\Tokens;
 use Nononsense\UserBundle\Entity\Users;
 use Nononsense\NotificationsBundle\Entity\Notifications;
+use Nononsense\GroupBundle\Entity\GroupUsers;
 
 class Utilities{
     
@@ -86,15 +87,14 @@ class Utilities{
         }else{
             $renderedBody = $message;
         }
+
         $email = \Swift_Message::newInstance()
             ->setSubject($subject)
             ->setFrom($this->container->getParameter('mailer_username'))
             ->setTo($mailTo)
             ->setBody($renderedBody,'text/html');
         if ($this->container->get('mailer')->send($email)) {
-            //echo '[SWIFTMAILER] sent email to ' . $mailTo;
-            //echo 'LOG: ' . $mailLogger->dump();
-            $this->insertNotification($email);
+            $this->insertNotification($mailTo,$subject,$message."<br><br>".$link);
             return true;
         } else {
             //echo '[SWIFTMAILER] not sending email: ' . $mailLogger->dump();
@@ -222,16 +222,16 @@ class Utilities{
         return $return;
     }
 
-    public function insertNotification($email){
+    public function insertNotification($email,$subject,$message){
 
        $user = $this->em->getRepository(Users::class)->findOneBy(array('email' => $email));
 
        $notification = new Notifications();
 
-       $notification->setSubject('Hello subject');
-       $notification->setBody('Hello body');
+       $notification->setSubject($subject);
+       $notification->setBody($message);
        $notification->setIsActive(1);
-       $notification->setAuthor($user);
+       $notification->setUser($user);
 
        $this->em->persist($notification);
        $this->em->flush();
