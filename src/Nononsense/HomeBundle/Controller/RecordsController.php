@@ -191,7 +191,12 @@ class RecordsController extends Controller
         if ($record->getStatus() == 2 || $record->getStatus() == 3) {
             // Abrir para validar
              $redirectUrl = $baseUrl . "records/redirectFromData/" . $id;
-             $scriptUrl = $baseUrl . "../js/js_oarodoc/documents_validations.js?v=".uniqid();
+             if($record->getStatus() == 2){
+                 $scriptUrl = $baseUrl . "../js/js_oarodoc/documents_validations.js?v=".uniqid();
+             }
+             else{
+                 $scriptUrl = $baseUrl . "../js/js_oarodoc/show.js?v=".uniqid();
+             }
 
         } else if ($record->getStatus() == -1 || $record->getStatus() == 0  || $record->getStatus() == 1   || $record->getStatus() == 5) {
 

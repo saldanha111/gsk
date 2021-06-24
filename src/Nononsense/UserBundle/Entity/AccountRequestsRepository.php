@@ -15,14 +15,11 @@ class AccountRequestsRepository extends EntityRepository
 {
 	 public function listBy($filter, $limit = 20){
         $list  = $this->createQueryBuilder('u')
-                // ->addSelect('(SELECT COUNT(arg1.requestId) FROM NononsenseUserBundle:AccountRequestsGroups AS arg1 WHERE arg1.requestId = u.id AND arg1.status IS NOT NULL) as revised')
-                // ->join('u.request','x')
-                // ->addSelect('x')
                 ->addOrderBy('u.status','ASC')
                 ->addOrderBy('u.created','ASC');
 
         if (isset($filter['status']) && is_numeric($filter['status'])) {
-            $list->andWhere('x.status = :status');
+            $list->andWhere('u.status = :status');
             $list->setParameter('status', $filter["status"]);
         }
 
