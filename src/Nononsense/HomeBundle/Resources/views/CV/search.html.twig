@@ -188,7 +188,7 @@
                                 </td>
                                 <td>
                                 {% if item.finalState and (item.state_id==7 or item.state_id==8) %}
-                                    {% if item.lastAction!=18 %}
+                                    {% if item.usergxp is empty %}
                                         <a class="btn btn-xs btn-default" href="{{path('nononsense_request_modification_gxp', {'id': item.id})}}" target="_self"><i class="fa fa-pencil-square" aria-hidden="true"></i> {{ 'Solicitar modificación'|trans }}</a>
                                     {% else %}
                                         <a class="btn btn-xs btn-warning disabled"><i class="fa fa-paper-plane" aria-hidden="true"></i> {{ 'Modificación solicitada'|trans }}</a>

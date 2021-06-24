@@ -456,6 +456,7 @@ class CVDocoaroController extends Controller
 
                 if(!isset($action_id) && $record->getState()->getFinal()){
                     $action_id=18;
+                    $record->setUserGxP($user);
                 }
                 
                 if(!$signature->getAction()){ 

@@ -33,7 +33,7 @@ class ReviewRecordsCommand extends ContainerAwareCommand
 
 	    	$subject = 'Registros bloqueados';
 	        $message = 'Los siguientes registros han sido bloqueados y necesitan ser gestionados por su parte o algún otro FLL. Acceda al siguiente  Link para gestionar los bloqueos.<br><br>'.implode('<br>', $steps);
-	        $baseUrl = trim($this->getContainer()->getParameter('cm_installation'), '/').$this->getContainer()->get('router')->generate('nononsense_backoffice_standby_documents_list');
+	        $baseUrl = trim($this->getContainer()->getParameter('cm_installation'), '/').$this->getContainer()->get('router')->generate('nononsense_cv_search')."?blocked=1";
 
 		    foreach ($users as $key => $user) {
 	            if ($this->getContainer()->get('utilities')->sendNotification($user['email'], $baseUrl, "", "", $subject, $message)) {
@@ -64,28 +64,19 @@ class ReviewRecordsCommand extends ContainerAwareCommand
 		$em = $this->getContainer()->get('doctrine')->getManager();
 
 	    $qb 		= $em->createQueryBuilder();
-	    $instancias = $qb->select('iw, st')
-	    				->from('NononsenseHomeBundle:InstanciasWorkflows', 'iw')
-	    				//->join('iw.Steps','st')
-	    				->join("iw.Steps", "st", "WITH", 'st.dependsOn = 0')
-	    				->where('iw.modified <= :modified')
+	    $instancias = $qb->select('i')
+	    				->from('NononsenseHomeBundle:CVRecords', 'i')
+	    				->where('i.modified <= :modified')
 	    				->setParameter('modified', new \DateTime('-8 hour'))
-	    				->andWhere('iw.in_edition = 1')
-	    				//->andWhere('st.dependsOn = 0')
+	    				->andWhere('i.inEdition = 1')
 	    				->getQuery()
 	    				->getResult();
 
-	    if ($instancias) {
-	    							
+	    if ($instancias) {				
 		    foreach ($instancias as $key => $instancia) {
-	    		$instancia->setInEdition(0);
-	    		$instancia->setStatus(11);
-
+	    		$instancia->setBlocked(1);
 	    		$em->persist($instancia);
-
-	    		foreach ($instancia->getSteps() as $key => $step) {
-	    			$steps[] = $step->getId();
-	    		}
+	    		$steps[] = $instancia->getId();
 		    }
 
 		    $em->flush();
