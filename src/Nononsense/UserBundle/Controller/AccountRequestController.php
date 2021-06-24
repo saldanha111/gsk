@@ -13,7 +13,6 @@ use Nononsense\GroupBundle\Entity\GroupUsers;
 use Nononsense\GroupBundle\Entity\Groups;
 use Nononsense\UserBundle\Entity\AccountRequests;
 use Nononsense\UserBundle\Entity\AccountRequestsGroups;
-use Nononsense\UserBundle\Entity\Roles;
 use Nononsense\UserBundle\Form\Type as Form;
 use Nononsense\UtilsBundle\Classes\Utils;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -122,50 +121,6 @@ class AccountRequestController extends Controller
 
         return $this->render('NononsenseUserBundle:Default:requestAccount.html.twig', array('form' => $form->createView()));
 	}
-
-	// public function updateAction(Request $request, $id){
-
-	// 	if (!$this->isAllowed('usuarios_gestion')) return $this->redirect($this->generateUrl('nononsense_home_homepage'));
-
-	// 	$accountRequest      = $this->getDoctrine()->getRepository(AccountRequests::class)->find($id);
-
-	// 	// foreach ($accountRequest->getRequest() as $key => $value) {
-	// 	// 	var_dump($value->getGroupId()->getName());
-	// 	// }
-
-	// 	$form = $this->createForm(new Form\AccountRequestUpdateType(), $accountRequest);
-	// 	$form->handleRequest($request);
-
-	// 	$data = $form->getData();
-
-	// 	if ($form->isSubmitted() && $form->isValid()) {
-
-	// 		try {
-	// 			if ($data->getStatus() == true) {
-	// 				$this->addUserAction($accountRequest);
-	// 			}
-	// 			$em = $this->getDoctrine()->getManager();
-	// 			$em->persist($accountRequest);
-	// 			$em->flush();
-	// 		} catch (\Exception $e) {
-	// 			$this->get('session')->getFlashBag()->add('errors', $e->getMessage());
-	// 		}
-
-	// 		// $accountRequest = ($data->getStatus()) ? $this->acceptAction($accountRequest) : $this->removeAction($accountRequest);
-
-	// 		return $this->redirect($this->generateUrl('nononsense_user_update_requests', ['id' => $id]));
- //        }
-
- //        return $this->render('NononsenseUserBundle:Users:accountRequestsUpdate.html.twig', ['account' => $accountRequest, 'form' => $form->createView()]);
-	// }
-
-	// public function getStatus($status){
-	// 	$stauts[0] = 'Rechazada';
-	// 	$status[1] = 'Aceptada';
-	// 	$status[2] = 'Revision';
-
-	// 	return $status[$status];
-	// }
 
 	public function ajaxUpdateAction(Request $request){
 
@@ -283,62 +238,7 @@ class AccountRequestController extends Controller
             $em->flush();
 
             return $usergroup;
-			// foreach ($groups as $key => $group) {
-				
-
-			// 	$usergroup = new GroupUsers();
-	  //           $usergroup->setUser($user);
-	  //           $usergroup->setGroup($groupid);
-	  //           $usergroup->setType('member');
-
-	  //           $errors = $validator->validate($usergroup);
-
-	  //           if(count($errors) > 0){
-
-	  //           	throw new \Exception($error->getMessage());
-	  //           	// $this->get('session')->getFlashBag()->add('errors', $error->getMessage());
-
-	  //           	// return false;
-	  //           }
-
-	  //           $em->persist($usergroup);
-			// }
-
-			// $em->flush();
-
-			// //$this->get('session')->getFlashBag()->add('success', 'Usuario añadido a: '.implode(',', array_column($groups, 'name')));
-
-			// return true;
 	}
-
-	// public function removeAction($accountRequest){
-
-	// 	$this->get('session')->getFlashBag()->add('success', 'Solicitud cancelada.');
-
-	// 	$accountRequest->setStatus(0);
-
-	// 	$em = $this->getDoctrine()->getManager();
-	// 	$em->persist($accountRequest);
-	// 	$em->flush();
-
-	// 	return $accountRequest;
-	// }
-
-	// public function acceptAction($accountRequest){
-
-	// 	if ($this->addUserAction($accountRequest)){
-
-	// 		$this->get('session')->getFlashBag()->add('success', 'Solicitud aceptada.');
-
-	// 		$accountRequest->setStatus(1);
-
-	// 		$em = $this->getDoctrine()->getManager();
-	// 		$em->persist($accountRequest);
-	// 		$em->flush();
-	// 	}
-
-	// 	return $accountRequest;
-	// }
 
 	public function checkMudId($mudId){
 
