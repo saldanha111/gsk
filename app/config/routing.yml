@@ -17,12 +17,3 @@ nononsense_notifications:
 nononsense_home:
     resource: "@NononsenseHomeBundle/Resources/config/routing.yml"
     prefix:   /
-
-nononsense_datadocument:
-    resource: "@NononsenseDataDocumentBundle/Resources/config/routing.yml"
-    prefix:   /data
-
-
-
-
-
