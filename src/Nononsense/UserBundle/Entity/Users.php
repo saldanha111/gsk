@@ -279,6 +279,11 @@ class Users implements AdvancedUserInterface, \Serializable
     protected $cvRecords;
 
     /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\CVRecords", mappedBy="userGxP")
+     */
+    protected $cvRecordsGxP;
+
+    /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\ActivityUser", mappedBy="userEntiy")
      */
     protected $Activity;
@@ -2454,5 +2459,38 @@ class Users implements AdvancedUserInterface, \Serializable
     public function getCvRecords()
     {
         return $this->cvRecords;
+    }
+
+    /**
+     * Add cvRecordsGxP
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVRecords $cvRecordsGxP
+     * @return Users
+     */
+    public function addCvRecordsGxP(\Nononsense\HomeBundle\Entity\CVRecords $cvRecordsGxP)
+    {
+        $this->cvRecordsGxP[] = $cvRecordsGxP;
+
+        return $this;
+    }
+
+    /**
+     * Remove cvRecordsGxP
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVRecords $cvRecordsGxP
+     */
+    public function removeCvRecordsGxP(\Nononsense\HomeBundle\Entity\CVRecords $cvRecordsGxP)
+    {
+        $this->cvRecordsGxP->removeElement($cvRecordsGxP);
+    }
+
+    /**
+     * Get cvRecordsGxP
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getCvRecordsGxP()
+    {
+        return $this->cvRecordsGxP;
     }
 }

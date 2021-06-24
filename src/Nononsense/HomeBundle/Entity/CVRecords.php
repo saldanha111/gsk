@@ -34,16 +34,16 @@ class CVRecords
     protected $state;
 
     /**
-     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\CVRequestTypes", inversedBy="cvRecords")
-     * @ORM\JoinColumn(name="request_type_id", referencedColumnName="id", nullable=true)
-     */
-    protected $requestType;
-
-    /**
      * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="cvRecords")
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
      */
     protected $user;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="cvRecordsGxP")
+     * @ORM\JoinColumn(name="user_gxp_id", referencedColumnName="id")
+     */
+    protected $userGxP;
 
     /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\CVWorkflow", mappedBy="record")
@@ -128,6 +128,13 @@ class CVRecords
      * @ORM\Column(name="code_unique", type="text", nullable=true)
      */
     protected $codeUnique;
+
+    /**
+     * @var boolean 
+     *
+     * @ORM\Column(name="blocked", type="boolean", nullable=true)
+     */
+    protected $blocked;
 
     
     public function __construct()
@@ -576,25 +583,48 @@ class CVRecords
     }
 
     /**
-     * Set requestType
+     * Set blocked
      *
-     * @param \Nononsense\HomeBundle\Entity\CVRequestTypes $requestType
+     * @param boolean $blocked
      * @return CVRecords
      */
-    public function setRequestType(\Nononsense\HomeBundle\Entity\CVRequestTypes $requestType = null)
+    public function setBlocked($blocked)
     {
-        $this->requestType = $requestType;
+        $this->blocked = $blocked;
 
         return $this;
     }
 
     /**
-     * Get requestType
+     * Get blocked
      *
-     * @return \Nononsense\HomeBundle\Entity\CVRequestTypes 
+     * @return boolean 
      */
-    public function getRequestType()
+    public function getBlocked()
     {
-        return $this->requestType;
+        return $this->blocked;
+    }
+
+    /**
+     * Set userGxP
+     *
+     * @param \Nononsense\UserBundle\Entity\Users $userGxP
+     * @return CVRecords
+     */
+    public function setUserGxP(\Nononsense\UserBundle\Entity\Users $userGxP = null)
+    {
+        $this->userGxP = $userGxP;
+
+        return $this;
+    }
+
+    /**
+     * Get userGxP
+     *
+     * @return \Nononsense\UserBundle\Entity\Users 
+     */
+    public function getUserGxP()
+    {
+        return $this->userGxP;
     }
 }

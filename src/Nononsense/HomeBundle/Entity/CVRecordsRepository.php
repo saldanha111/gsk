@@ -47,7 +47,7 @@ class CVRecordsRepository extends EntityRepository
         switch($type){
             case "list":
                 $list = $this->createQueryBuilder('i')
-                    ->select('i.id', 't.name','u.name creator','i.created','i.modified','t.logbook','s.name state','s.nameReconc stateReconc','i.inEdition','t.logbook','a.nameAlternative pendingAction','sigu.id idNextSigner','ty.name type','s.final finalState','s.color colorState','s.icon iconState','s.canBeOpened canBeOpenedState','s.nameAlternative alternativeState','s.nameAlternativeReconc  alternativeStateReconc','ty.id type_id','sig.version','a.id action','s.id state_id','IDENTITY(i.reconciliation) reconId','IDENTITY(i.firstReconciliation) reconFirstId','ar.name area','IDENTITY(i.firstNested) firstNestedId');
+                    ->select('i.id', 't.name','u.name creator','i.created','i.modified','t.logbook','s.name state','s.nameReconc stateReconc','i.inEdition','t.logbook','a.nameAlternative pendingAction','sigu.id idNextSigner','ty.name type','s.final finalState','s.color colorState','s.icon iconState','s.canBeOpened canBeOpenedState','s.nameAlternative alternativeState','s.nameAlternativeReconc  alternativeStateReconc','ty.id type_id','sig.version','a.id action','s.id state_id','IDENTITY(i.reconciliation) reconId','IDENTITY(i.firstReconciliation) reconFirstId','ar.name area','IDENTITY(i.firstNested) firstNestedId','IDENTITY(last.action) lastAction');
 
                 $list->addSelect($require_action." AS requireAction");
 
@@ -111,6 +111,14 @@ class CVRecordsRepository extends EntityRepository
             if(isset($filters["plantilla_id"])){
                 $list->andWhere('t.id=:plantilla_id');
                 $list->setParameter('plantilla_id', $filters["plantilla_id"]);
+            }
+
+            if(isset($filters["blocked"]) && $filters["blocked"]){
+                $list->andWhere('i.blocked=1');
+            }
+
+            if(isset($filters["gxp"]) && $filters["gxp"]){
+                $list->andWhere('i.userGxP IS NOT NULL');
             }
 
             if(isset($filters["name"])){

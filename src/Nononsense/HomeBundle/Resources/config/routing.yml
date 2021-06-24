@@ -957,6 +957,14 @@ nononsense_reconciliation_detail:
     defaults: { _controller: NononsenseHomeBundle:CVReconciliation:reconciliacionDetail, id: 0}
 
 
+# Modification GxP
+
+nononsense_request_modification_gxp:
+    path: /cv/modification/gxp/{id}
+    methods:    [GET]
+    defaults: { _controller: NononsenseHomeBundle:CVModificationGxP:request, id: 0}
+
+
 # Certifications
 
 nononsense_certifications_list:

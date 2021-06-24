@@ -380,7 +380,7 @@ class CVCumplimentationController extends Controller
         if($can_sign==0){
             $this->get('session')->getFlashBag()->add(
                 'error',
-                    'No puede abrir esta plantilla debido al workflow definido1'
+                    'No puede abrir esta plantilla debido al workflow definido'
             );
             $route = $this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
@@ -388,10 +388,10 @@ class CVCumplimentationController extends Controller
 
         $wf=$this->get('utilities')->wich_wf($record,$user);
 
-        if(!$wf){
+        if(!$wf && $signature->getAction()->getId()!=18){
             $this->get('session')->getFlashBag()->add(
                 'error',
-                    'No puede abrir esta plantilla debido al workflow definido2'
+                    'No puede abrir esta plantilla debido al workflow definido'
             );
             $route = $this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
@@ -401,9 +401,11 @@ class CVCumplimentationController extends Controller
             $signature->setDescription($request->get('justification'));
         }
 
+        
+
         //Si estamos modificando una plantilla archivada guardamos en un json auxiliar porque se trata de una solicitud
         if($signature->getAction()->getId()==18){
-            $signature->setJsonAux(str_replace("gsk_id_firm", $signature->getNumberSignature(), $signature->getJson()));
+            $signature->setJsonAux(str_replace("gsk_id_firm", $signature->getNumberSignature(), $signature->getJsonAux()));
         }
         else{
             $signature->setJson(str_replace("gsk_id_firm", $signature->getNumberSignature(), $signature->getJson()));
@@ -414,128 +416,128 @@ class CVCumplimentationController extends Controller
         $record->setModified(new \DateTime());
 
         if($signature->getAction()->getFinishUser()){
-            $wf->setSigned(TRUE);
+            if($wf){
+                $wf->setSigned(TRUE);
+                $em->persist($wf);
+            }
             $signature->setFinish(TRUE);
-            $em->persist($wf);
         }
-
+        
         $em->persist($signature);
 
-        //Miramos si termina el workflow por que no quedan wf de su mismo tipo de acción pendientes
-        $finish_workflow=1;
-        $exist_wfs=$this->getDoctrine()->getRepository(CVWorkflow::class)->findBy(array('record' => $record,"signed" => FALSE));
-        foreach($exist_wfs as $exist_wf){
-            if($exist_wf->getType()==$wf->getType() && $exist_wf!=$wf){
-                $finish_workflow=0;
+        //Si no se trata de una modificación/reapertura de registro en estado final
+        if($signature->getAction()->getId()!=18){
+            //Miramos si termina el workflow por que no quedan wf de su mismo tipo de acción pendientes
+            $finish_workflow=1;
+            $exist_wfs=$this->getDoctrine()->getRepository(CVWorkflow::class)->findBy(array('record' => $record,"signed" => FALSE));
+            foreach($exist_wfs as $exist_wf){
+                if($exist_wf->getType()==$wf->getType() && $exist_wf!=$wf){
+                    $finish_workflow=0;
+                }
             }
-        }
 
-        if($signature->getAction()->getFinishWorkflow() || $finish_workflow){
-            if($record->getState()!=$signature->getAction()->getNextState()){
-                //Capturamos el estado correspondiente a la última acción que se firma
-                $next_state=$signature->getAction()->getNextState();
+            if($signature->getAction()->getFinishWorkflow() || $finish_workflow){
+                if($record->getState()!=$signature->getAction()->getNextState()){
+                    //Capturamos el estado correspondiente a la última acción que se firma
+                    $next_state=$signature->getAction()->getNextState();
 
-                //Si hay una firma de devolución en un workflow activo, tiene prioridad esta a la hora de setear el próximo estado
-                $action=$this->getDoctrine()->getRepository(CVActions::class)->findOneBy(array('id' => 6));
-                $exist_return=$this->getDoctrine()->getRepository(CVSignatures::class)->findBy(array('record' => $record,"signed" => TRUE,"finish" => TRUE,'action' => $action),array("id" => "DESC"));
-                if(count($exist_return)>0 && $record->getState()->getType()==$exist_return[0]->getAction()->getType()){
-                    $next_state=$exist_return[0]->getAction()->getNextState();
-                }
-
-                //Vaciamos próximo workflow activo
-                $clean_wfs=$this->getDoctrine()->getRepository(CVWorkflow::class)->findBy(array('record' => $record,"signed" => TRUE));
-                foreach($clean_wfs as $clean_wf){
-                    if($clean_wf->getType()->getTmType()==$next_state->getType()){
-                        $clean_wf->setSigned(FALSE);
-                        $em->persist($clean_wf);
+                    //Si hay una firma de devolución en un workflow activo, tiene prioridad esta a la hora de setear el próximo estado
+                    $action=$this->getDoctrine()->getRepository(CVActions::class)->findOneBy(array('id' => 6));
+                    $exist_return=$this->getDoctrine()->getRepository(CVSignatures::class)->findBy(array('record' => $record,"signed" => TRUE,"finish" => TRUE,'action' => $action),array("id" => "DESC"));
+                    if(count($exist_return)>0 && $record->getState()->getType()==$exist_return[0]->getAction()->getType()){
+                        $next_state=$exist_return[0]->getAction()->getNextState();
                     }
-                }
 
-                //Sacamos los emails de los usuarios a los que tenemos que notificar de que tienen una verificación pendiente
-                if($next_state->getType()->getId()==2){
-                    $emails_wfs=$this->getDoctrine()->getRepository(CVWorkflow::class)->findBy(array('record' => $record));
-                    foreach($emails_wfs as $email_wfs){
-                        if($email_wfs->getType()->getTmType()==$next_state->getType()){
-                            $send_email=1;
-                            if($email_wfs->getUser()){
-                                $emails[]=$email_wfs->getUser()->getEmail();
-                            }
-                            else{
-                                $aux_users = $em->getRepository(GroupUsers::class)->findBy(["group" => $email_wfs->getGroup()]);
-                                foreach ($aux_users as $aux_user) {
-                                    $emails[]=$aux_user->getUser()->getEmail();
+                    //Vaciamos próximo workflow activo
+                    $clean_wfs=$this->getDoctrine()->getRepository(CVWorkflow::class)->findBy(array('record' => $record,"signed" => TRUE));
+                    foreach($clean_wfs as $clean_wf){
+                        if($clean_wf->getType()->getTmType()==$next_state->getType()){
+                            $clean_wf->setSigned(FALSE);
+                            $em->persist($clean_wf);
+                        }
+                    }
+
+                    //Sacamos los emails de los usuarios a los que tenemos que notificar de que tienen una verificación pendiente
+                    if($next_state->getType()->getId()==2){
+                        $emails_wfs=$this->getDoctrine()->getRepository(CVWorkflow::class)->findBy(array('record' => $record));
+                        foreach($emails_wfs as $email_wfs){
+                            if($email_wfs->getType()->getTmType()==$next_state->getType()){
+                                $send_email=1;
+                                if($email_wfs->getUser()){
+                                    $emails[]=$email_wfs->getUser()->getEmail();
+                                }
+                                else{
+                                    $aux_users = $em->getRepository(GroupUsers::class)->findBy(["group" => $email_wfs->getGroup()]);
+                                    foreach ($aux_users as $aux_user) {
+                                        $emails[]=$aux_user->getUser()->getEmail();
+                                    }
                                 }
                             }
                         }
                     }
-                }
 
-                //Vaciamos próximo bloque de firmas activo
-                $other_signatures=$this->getDoctrine()->getRepository(CVSignatures::class)->findBy(array('record' => $record,"signed" => TRUE,"finish" => TRUE));
-                foreach($other_signatures as $other_signature){
-                    if($other_signature->getAction()->getType()==$next_state->getType()){
-                        $other_signature->setFinish(FALSE);
-                        $em->persist($other_signature);
-                    }
-                }
-                $record->setState($next_state);
-            }
-        }
-
-        //Guardamos las modificaciones de un usuario sobre algo previamente cumplimentado
-        $obj1 = json_decode($signature->getJson())->data;
-        if(count($all_signatures)>0){
-            $obj2 = json_decode($all_signatures[0]->getJson())->data;
-
-            //Compares new signature with old step and instert differences
-            $this->multi_obj_diff_counter = 0;
-            $this->multi_obj_diff($obj1, $obj2, '$obj2->$key', '/^(in_|gsk_|dxo_|delete_)|(name|extension\b)/', false, $signature, false, null, 'new');
-
-            //Compares old signature with new step and check removed fields
-            $this->multi_obj_diff_counter = 0;
-            $this->multi_obj_diff($obj2, $obj1, '$obj2->$key', '/^(in_|gsk_|dxo_|delete_)|(name|extension\b)/', false, $signature, false, null, 'old');
-        }
-        else{
-            $obj2 = json_decode($signature->getRecord()->getJson())->configuration;
-            //Compares with default values
-            $this->multi_obj_diff($obj1, $obj2, '$obj2->variables->$field->value', '/^(in_|gsk_|dxo_|delete_)|(name|extension\b)/', false, $signature, false, null, 'new');
-        }
-
-
-        switch($signature->getAction()->getId()){
-            //Modificación de una plantilla archivada
-            case 18:    $requestType=$this->getDoctrine()->getRepository(CVRequestTypes::class)->findOneBy(array('id' => 3));
-                        $record->setRequestType($requestType);
-                break;
-        }
-
-        //Certificamos la cumplimentación e una plantilla por pasar por un estado final
-        if($record->getState()->getFinal()){
-            $request->attributes->set("pdf", '1');
-            $request->attributes->set("no-redirect", true);
-            $slug="record";
-            switch($record->getState()->getId()){
-                case 3: $slug.="-cancel-edition";break;
-                case 6: $slug.="-cancel-verification";break;
-                case 7: $slug.="-archive";
-                        if($record->getReconciliation()){
-                            $slug.="-reconciliation";
+                    //Vaciamos próximo bloque de firmas activo
+                    $other_signatures=$this->getDoctrine()->getRepository(CVSignatures::class)->findBy(array('record' => $record,"signed" => TRUE,"finish" => TRUE));
+                    foreach($other_signatures as $other_signature){
+                        if($other_signature->getAction()->getType()==$next_state->getType()){
+                            $other_signature->setFinish(FALSE);
+                            $em->persist($other_signature);
                         }
-                    break;
+                    }
+                    $record->setState($next_state);
+                }
             }
 
-            $file = Utils::api3($this->forward('NononsenseHomeBundle:CVDocoaro:link', ['request' => $request, 'id'  => $record->getId()])->getContent());
-            $file = Utils::saveFile($file, $slug, $this->getParameter('crt.root_dir'));
-            Utils::setCertification($this->container, $file, $slug, $record->getId());                
-        }
+            //Guardamos las modificaciones de un usuario sobre algo previamente cumplimentado
+            $obj1 = json_decode($signature->getJson())->data;
+            if(count($all_signatures)>0){
+                $obj2 = json_decode($all_signatures[0]->getJson())->data;
 
-        if($send_email==1){
-            foreach($emails as $email){
-                $subject="Cumplimentación pendiente de verificación";
-                $mensaje='El registro con ID '.$record->getId().' está pendiente de verificación por su parte. Para poder verificarlo puede acceder a la sección "Buscador" o "En proceso", buscar el documento y pulsar en Verificar';
-                $baseURL=$this->container->get('router')->generate('nononsense_cv_search')."?id=".$record->getId();
-                $this->get('utilities')->sendNotification($email, $baseURL, "", "", $subject, $mensaje);
+                //Compares new signature with old step and instert differences
+                $this->multi_obj_diff_counter = 0;
+                $this->multi_obj_diff($obj1, $obj2, '$obj2->$key', '/^(in_|gsk_|dxo_|delete_)|(name|extension\b)/', false, $signature, false, null, 'new');
+
+                //Compares old signature with new step and check removed fields
+                $this->multi_obj_diff_counter = 0;
+                $this->multi_obj_diff($obj2, $obj1, '$obj2->$key', '/^(in_|gsk_|dxo_|delete_)|(name|extension\b)/', false, $signature, false, null, 'old');
             }
+            else{
+                $obj2 = json_decode($signature->getRecord()->getJson())->configuration;
+                //Compares with default values
+                $this->multi_obj_diff($obj1, $obj2, '$obj2->variables->$field->value', '/^(in_|gsk_|dxo_|delete_)|(name|extension\b)/', false, $signature, false, null, 'new');
+            }
+        
+            //Certificamos la cumplimentación e una plantilla por pasar por un estado final
+            if($record->getState()->getFinal()){
+                $request->attributes->set("pdf", '1');
+                $request->attributes->set("no-redirect", true);
+                $slug="record";
+                switch($record->getState()->getId()){
+                    case 3: $slug.="-cancel-edition";break;
+                    case 6: $slug.="-cancel-verification";break;
+                    case 7: $slug.="-archive";
+                            if($record->getReconciliation()){
+                                $slug.="-reconciliation";
+                            }
+                        break;
+                }
+
+                $file = Utils::api3($this->forward('NononsenseHomeBundle:CVDocoaro:link', ['request' => $request, 'id'  => $record->getId()])->getContent());
+                $file = Utils::saveFile($file, $slug, $this->getParameter('crt.root_dir'));
+                Utils::setCertification($this->container, $file, $slug, $record->getId());                
+            }
+
+
+
+            if($send_email==1){
+                foreach($emails as $email){
+                    $subject="Cumplimentación pendiente de verificación";
+                    $mensaje='El registro con ID '.$record->getId().' está pendiente de verificación por su parte. Para poder verificarlo puede acceder a la sección "Buscador" o "En proceso", buscar el documento y pulsar en Verificar';
+                    $baseURL=$this->container->get('router')->generate('nononsense_cv_search')."?id=".$record->getId();
+                    $this->get('utilities')->sendNotification($email, $baseURL, "", "", $subject, $mensaje);
+                }
+            }
+
         }
 
 

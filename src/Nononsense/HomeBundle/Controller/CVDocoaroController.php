@@ -52,7 +52,7 @@ class CVDocoaroController extends Controller
         $baseUrl = $this->getParameter("cm_installation");
         $baseUrlAux = $this->getParameter("cm_installation_aux");
 
-        if($record->getState() && !$record->getState()->getCanBeOpened()){
+        if($record->getState() && !$record->getState()->getCanBeOpened() && !$request->get("reupdate")){
            $this->get('session')->getFlashBag()->add(
                 'error',
                     'La plantilla indicada no se puede abrir por su estado actual'
@@ -72,6 +72,8 @@ class CVDocoaroController extends Controller
 
         $signature = $this->getDoctrine()->getRepository(CVSignatures::class)->findOneBy(array("record" => $record),array("id" => "DESC"));
 
+
+
         if($signature && !$signature->getSigned() && $signature->getVersion()!=NULL && $signature->getConfiguration()!=NULL){
             $this->get('session')->getFlashBag()->add(
                 'error',
@@ -81,10 +83,36 @@ class CVDocoaroController extends Controller
             return $this->redirect($route);
         }
 
+        if($request->get("reupdate") && !$record->getState()->getFinal()){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                    'El registro no se encuentra en un estado final y por tanto no se puede solicitar una modificación'
+            );
+            $route = $this->container->get('router')->generate('nononsense_home_homepage');
+            return $this->redirect($route);
+        }
+
+        if($request->get("reupdate") && $signature->getAction()->getId()==18){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                    'No se puede puede modificar este registro porque ya hay una solicitud de modificación'
+            );
+            $route = $this->container->get('router')->generate('nononsense_home_homepage');
+            return $this->redirect($route);
+        }
+
         $custom_view="";
 
         if($request->get("audittrail")){
             $custom_view.="&audittrail=1";
+        }
+
+        if($request->get("reupdate")){
+            $custom_view.="&reupdate=1";
+        }
+
+        if($signature->getAction()->getId()==18 && $request->get("view_reupdate")){
+            $custom_view.="&auxjson=1";
         }
 
         if($request->get("logbook")){
@@ -115,12 +143,8 @@ class CVDocoaroController extends Controller
                 $scriptUrl = urlencode($baseUrl . "../js/js_oarodoc/validation_cancel.js?v=".uniqid());
             }
 
-            /*if($record->getState()->getId()==12){
-                $scriptUrl = urlencode($baseUrl . "../js/js_oarodoc/validation_reconciliation.js?v=".uniqid());
-            }*/
 
-
-            $callback_url=urlencode($baseUrlAux."docoaro/".$id."/save?token=".$token_get_data);
+            $callback_url=urlencode($baseUrlAux."docoaro/".$id."/save?token=".$token_get_data.$custom_view);
             $get_data_url=urlencode($baseUrlAux."docoaro/".$id."/getdata?token=".$token_get_data."&mode=".$mode.$custom_view);
             //echo $baseUrlAux."docoaro/".$id."/getdata?token=".$token_get_data."&mode=".$mode.$custom_view;die();
             $redirectUrl = urlencode($this->container->get('router')->generate('nononsense_cv_record', array("id" => $id),TRUE));
@@ -213,6 +237,10 @@ class CVDocoaroController extends Controller
         $signature = $this->getDoctrine()->getRepository(CVSignatures::class)->findOneBy(array("record" => $record),array("id" => "DESC"));
         $json2=$signature->getJson();
 
+        if($request->get("auxjson")){
+            $json2=$signature->getJsonAux();
+        }
+
         $json_content2=json_decode($json2,TRUE);
 
         if (array_key_exists("data",$json_content2)){
@@ -251,7 +279,7 @@ class CVDocoaroController extends Controller
         }
 
         //Si es una modificación de la plantilla quitamos algunos botones para que tenga que cumplimentar entera la plantilla
-        if($signature->getAction()->getId()==18 && $signature->getSigned()){
+        if($request->get("reupdate") && $signature->getSigned()){
             //Voy por aqui, no entra aquí
             $json_content["configuration"]["prefix_view"]="u_;in_;dxo_";
             $json_content["configuration"]["apply_required"]=1;
@@ -307,21 +335,26 @@ class CVDocoaroController extends Controller
 
             $can_sign = $this->getDoctrine()->getRepository(CVRecords::class)->search("count",array("id" => $record->getId(),"pending_for_me" => 1,"user" => $user));
 
-            if($can_sign==0){
+            if($can_sign==0 && !$request->get("reupdate")){
                 return false;
             }
 
             //Miramos wf que le toca
 
             $wf=$this->get('utilities')->wich_wf($record,$user);
-            if(!$wf){
+            if(!$wf && !$request->get("reupdate")){
                 return false;
             }
 
             //Miramos si es el último firmante del workflow dentro de una misma fase
-            $last_wf = $this->getDoctrine()->getRepository(CVWorkflow::class)->search("count",array("record" => $record,"not_this" => $wf->getId(),"signed" => FALSE,"type"=>$wf->getType()->getTmType()));
-            if($last_wf==0){
-                $finish_workflow=1;
+            if($wf){
+                $last_wf = $this->getDoctrine()->getRepository(CVWorkflow::class)->search("count",array("record" => $record,"not_this" => $wf->getId(),"signed" => FALSE,"type"=>$wf->getType()->getTmType()));
+                if($last_wf==0){
+                    $finish_workflow=1;
+                }
+                else{
+                    $finish_workflow=0;
+                }
             }
             else{
                 $finish_workflow=0;
@@ -332,7 +365,7 @@ class CVDocoaroController extends Controller
             $array_item=array();
 
             
-            if(!$record->getState() || !$record->getState()->getFinal()){
+            if(!$record->getState() || !$record->getState()->getFinal() || $request->get("reupdate")){
                 $all_signatures = $this->getDoctrine()->getRepository(CVSignatures::class)->findBy(array("record" => $record)); 
                 $last_signature = $this->getDoctrine()->getRepository(CVSignatures::class)->findOneBy(array("record" => $record),array("id" => "DESC"));
 
@@ -420,12 +453,16 @@ class CVDocoaroController extends Controller
                         }
                         break;
                 }
+
+                if(!isset($action_id) && $record->getState()->getFinal()){
+                    $action_id=18;
+                }
                 
-                if(!$signature->getAction() || $signature->getAction()->getId()!=18){ //Solo modificamos la acción de la firma si esta es distinta a una modificación
+                if(!$signature->getAction()){ 
                     $action = $this->getDoctrine()->getRepository(CVActions::class)->findOneBy(array("id" => $action_id));
                 }
                 else{
-                   $action=$signature->getAction();
+                    $action=$signature->getAction();
                 }
 
                 $base_url=$this->getParameter('api_docoaro')."/documents/".$record->getTemplate()->getPlantillaId();
@@ -443,7 +480,13 @@ class CVDocoaroController extends Controller
                 $signature->setAction($action);
                 $signature->setSigned(FALSE);
                 $signature->setModified(new \DateTime());
-                $signature->setJson($json_value);
+                if($action_id!=18){
+                    $signature->setJson($json_value);
+                }
+                else{
+                    $signature->setJson($last_signature->getJson());
+                    $signature->setJsonAux($json_value);
+                }
                 $signature->setVersion($response["version"]["id"]);
                 $signature->setConfiguration($response["version"]["configuration"]["id"]);
                 if(array_key_exists("gsk_comment",$params["data"]) && $params["data"]["gsk_comment"]){

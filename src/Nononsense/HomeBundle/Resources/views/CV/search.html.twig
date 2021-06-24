@@ -1,10 +1,19 @@
 {% extends '::base.html.twig' %}
-{% block page_title %}Docoaro - GSK | Listado de registros {% endblock %}
+{% if filters.gxp is defined and filters.gxp=="1" %}
+    {% set title_search = 'Listado de modificaciónes de un dato GxP' %}
+{% elseif filters.blocked is defined and filters.blocked=="1" %}
+    {% set title_search = 'Listado de registros bloqueados' %}
+{% else %}
+    {% set title_search = 'Listado de registros' %}
+{% endif %}
+
+
+{% block page_title %}Docoaro - GSK | {{title_search}} {% endblock %}
 {% block head %}
 {{ parent() }}
 <link rel="stylesheet" href="/css/plugins/datapicker/datepicker3.css">
 {% endblock %}
-{% block main_title %} Listado de registros{% endblock %}
+{% block main_title %} {{title_search}}{% endblock %}
 {% block content %}
 
 <div class="wrapper wrapper-content">
@@ -101,9 +110,8 @@
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            
-                        </div>
+                        <input type="hidden" name="gxp" value="{{filters.gxp is defined and filters.gxp == 1 ? '1' : ''}}">
+                        <input type="hidden" name="blocked" value="{{filters.blocked is defined and filters.blocked == 1 ? '1' : ''}}">
                       </form>
                 </div>
                 <div class="row">
@@ -145,7 +153,7 @@
                                     {% if item.inEdition is defined and item.inEdition == true %}
                                         <a class="btn btn-xs btn-secondary not-allowed"><i class="fa fa-lock"> </i> {{'En edicion'|trans}}</a>
                                     {% else %}
-                                        {% if item.pendingAction is defined and item.pendingAction is not empty  and (item.version is not empty  or item.action==12) %}
+                                        {% if item.pendingAction is defined and item.pendingAction is not empty  and item.version is not empty %}
                                             {% if item.idNextSigner is defined  and suser.id==item.idNextSigner and item.requireAction %}
                                                 <a class="btn btn-xs btn-danger" href="{{path('nononsense_cv_record', {'id': item.id})}}" target="_self"><i class="fa fa-pencil" aria-hidden="true"></i> {{'Firmar'|trans}} {{item.pendingAction}}</a>
                                             {% else %}
@@ -180,7 +188,11 @@
                                 </td>
                                 <td>
                                 {% if item.finalState and (item.state_id==7 or item.state_id==8) %}
-                                    <a class="btn btn-xs btn-default" href="{{path('nononsense_cv_docoaro_new', {'id': item.id})}}?reupdate=1" target="_self"><i class="fa fa-pencil-square" aria-hidden="true"></i> {{ 'Solicitar modificación'|trans }}</a>
+                                    {% if item.lastAction!=18 %}
+                                        <a class="btn btn-xs btn-default" href="{{path('nononsense_request_modification_gxp', {'id': item.id})}}" target="_self"><i class="fa fa-pencil-square" aria-hidden="true"></i> {{ 'Solicitar modificación'|trans }}</a>
+                                    {% else %}
+                                        <a class="btn btn-xs btn-warning disabled"><i class="fa fa-paper-plane" aria-hidden="true"></i> {{ 'Modificación solicitada'|trans }}</a>
+                                    {% endif %} 
                                 {% endif %}
                                 </td>
                             </tr>
@@ -282,7 +294,15 @@
         location.href=url;
     });
 
-    ActivateMenu('docxpresso_search');
+    {% if filters.gxp is defined and filters.gxp=="1" %}
+        ActivateMenu('docxpresso_gxp');
+    {% elseif filters.blocked is defined and filters.blocked=="1" %}
+        ActivateMenu('docxpresso_standby');
+    {% else %}
+        ActivateMenu('docxpresso_search');
+    {% endif %}
+
+    
     $('#side-menu').metisMenu();
   });
 </script>
