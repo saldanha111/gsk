@@ -125,6 +125,11 @@ class Groups
     protected $cvWorkflows;
 
     /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\CVSecondWorkflow", mappedBy="group")
+     */
+    protected $cvSecondWorkflows;
+
+    /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\AreasGroups", mappedBy="agroup")
      */
     protected $areas; 

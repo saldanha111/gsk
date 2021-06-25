@@ -41,7 +41,7 @@ class CVRecords
 
     /**
      * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="cvRecordsGxP")
-     * @ORM\JoinColumn(name="user_gxp_id", referencedColumnName="id")
+     * @ORM\JoinColumn(name="user_gxp_id", referencedColumnName="id", nullable=true)
      */
     protected $userGxP;
 
@@ -49,6 +49,11 @@ class CVRecords
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\CVWorkflow", mappedBy="record")
      */
     protected $cvWorkflows;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\CVSecondWorkflow", mappedBy="record")
+     */
+    protected $cvSecondWorkflows;
 
     /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\CVSignatures", mappedBy="record")
@@ -626,5 +631,38 @@ class CVRecords
     public function getUserGxP()
     {
         return $this->userGxP;
+    }
+
+    /**
+     * Add cvSecondWorkflows
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVSecondWorkflow $cvSecondWorkflows
+     * @return CVRecords
+     */
+    public function addCvSecondWorkflow(\Nononsense\HomeBundle\Entity\CVSecondWorkflow $cvSecondWorkflows)
+    {
+        $this->cvSecondWorkflows[] = $cvSecondWorkflows;
+
+        return $this;
+    }
+
+    /**
+     * Remove cvSecondWorkflows
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVSecondWorkflow $cvSecondWorkflows
+     */
+    public function removeCvSecondWorkflow(\Nononsense\HomeBundle\Entity\CVSecondWorkflow $cvSecondWorkflows)
+    {
+        $this->cvSecondWorkflows->removeElement($cvSecondWorkflows);
+    }
+
+    /**
+     * Get cvSecondWorkflows
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getCvSecondWorkflows()
+    {
+        return $this->cvSecondWorkflows;
     }
 }

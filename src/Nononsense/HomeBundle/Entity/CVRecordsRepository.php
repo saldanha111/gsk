@@ -44,15 +44,24 @@ class CVRecordsRepository extends EntityRepository
                 )
             ) THEN 1 ELSE 0 END";
 
+        $gxp="CASE  WHEN 
+            (i.id IN (SELECT IDENTITY(vvv_gxp.record) FROM Nononsense\HomeBundle\Entity\CVSecondWorkflow vvv_gxp WHERE vvv_gxp.signed=FALSE AND (vvv_gxp.user=:eluser1 OR vvv_gxp.group IN (:groups)))
+                
+            ) THEN 1 ELSE 0 END";
+
         switch($type){
             case "list":
                 $list = $this->createQueryBuilder('i')
-                    ->select('i.id', 't.name','u.name creator','i.created','i.modified','t.logbook','s.name state','s.nameReconc stateReconc','i.inEdition','t.logbook','a.nameAlternative pendingAction','sigu.id idNextSigner','ty.name type','s.final finalState','s.color colorState','s.icon iconState','s.canBeOpened canBeOpenedState','s.nameAlternative alternativeState','s.nameAlternativeReconc  alternativeStateReconc','ty.id type_id','sig.version','a.id action','s.id state_id','IDENTITY(i.reconciliation) reconId','IDENTITY(i.firstReconciliation) reconFirstId','ar.name area','IDENTITY(i.firstNested) firstNestedId','IDENTITY(last.action) lastAction','IDENTITY(i.userGxP) usergxp');
+                    ->select('i.id', 't.name','u.name creator','i.created','i.modified','t.logbook','s.name state','s.nameReconc stateReconc','i.inEdition','t.logbook','a.nameAlternative pendingAction','sigu.id idNextSigner','ty.name type','s.final finalState','s.color colorState','s.icon iconState','s.canBeOpened canBeOpenedState','s.nameAlternative alternativeState','s.nameAlternativeReconc  alternativeStateReconc','ty.id type_id','sig.version','a.id action','s.id state_id','IDENTITY(i.reconciliation) reconId','IDENTITY(i.firstReconciliation) reconFirstId','ar.name area','IDENTITY(i.firstNested) firstNestedId','IDENTITY(last.action) lastAction','IDENTITY(sig.action) lastActionUnsigned','IDENTITY(i.userGxP) usergxp');
 
                 $list->addSelect($require_action." AS requireAction");
 
                 if(!empty($filters) && isset($filters["have_json"])){
                     $list->addSelect('i.json');
+                }
+
+                if(isset($filters["gxp"]) && $filters["gxp"]){
+                    $list->addSelect($gxp." AS allow_gxp");
                 }
 
                 break;
@@ -119,6 +128,11 @@ class CVRecordsRepository extends EntityRepository
 
             if(isset($filters["gxp"]) && $filters["gxp"]){
                 $list->andWhere('i.userGxP IS NOT NULL');
+
+                if(isset($filters["action_gxp"]) && $filters["action_gxp"]){
+                    $gxp=str_replace("vvv", "zzz", $gxp);
+                    $list->andWhere($gxp.'=1');
+                }
             }
 
             if(isset($filters["name"])){

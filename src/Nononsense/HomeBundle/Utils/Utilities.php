@@ -94,7 +94,7 @@ class Utilities{
             ->setTo($mailTo)
             ->setBody($renderedBody,'text/html');
         if ($this->container->get('mailer')->send($email)) {
-            $this->insertNotification($mailTo,$subject,$message."<br><br>".$link);
+            $this->insertNotification($mailTo,$subject,$message."<br><br><a href='".$link."'>".$link."</a>");
             return true;
         } else {
             //echo '[SWIFTMAILER] not sending email: ' . $mailLogger->dump();

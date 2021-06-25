@@ -269,6 +269,11 @@ class Users implements AdvancedUserInterface, \Serializable
     protected $cvWorkflows;
 
     /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\CVSecondWorkflow", mappedBy="user")
+     */
+    protected $cvSecondWorkflows;
+
+    /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\CVSignatures", mappedBy="user")
      */
     protected $cvSignatures;
@@ -282,6 +287,11 @@ class Users implements AdvancedUserInterface, \Serializable
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\CVRecords", mappedBy="userGxP")
      */
     protected $cvRecordsGxP;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\Areas", mappedBy="fll")
+     */
+    protected $areas;
 
     /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\ActivityUser", mappedBy="userEntiy")
@@ -2459,5 +2469,71 @@ class Users implements AdvancedUserInterface, \Serializable
     public function getCvRecords()
     {
         return $this->cvRecords;
+    }
+
+    /**
+     * Add cvRecordsGxP
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVRecords $cvRecordsGxP
+     * @return Users
+     */
+    public function addCvRecordsGxP(\Nononsense\HomeBundle\Entity\CVRecords $cvRecordsGxP)
+    {
+        $this->cvRecordsGxP[] = $cvRecordsGxP;
+
+        return $this;
+    }
+
+    /**
+     * Remove cvRecordsGxP
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVRecords $cvRecordsGxP
+     */
+    public function removeCvRecordsGxP(\Nononsense\HomeBundle\Entity\CVRecords $cvRecordsGxP)
+    {
+        $this->cvRecordsGxP->removeElement($cvRecordsGxP);
+    }
+
+    /**
+     * Get cvRecordsGxP
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getCvRecordsGxP()
+    {
+        return $this->cvRecordsGxP;
+    }
+
+    /**
+     * Add areas
+     *
+     * @param \Nononsense\HomeBundle\Entity\Areas $areas
+     * @return Users
+     */
+    public function addArea(\Nononsense\HomeBundle\Entity\Areas $areas)
+    {
+        $this->areas[] = $areas;
+
+        return $this;
+    }
+
+    /**
+     * Remove areas
+     *
+     * @param \Nononsense\HomeBundle\Entity\Areas $areas
+     */
+    public function removeArea(\Nononsense\HomeBundle\Entity\Areas $areas)
+    {
+        $this->areas->removeElement($areas);
+    }
+
+    /**
+     * Get areas
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getAreas()
+    {
+        return $this->areas;
     }
 }

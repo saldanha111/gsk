@@ -37,7 +37,7 @@ class NotificationsRepository extends EntityRepository
                  ->setParameter('query', '%' . $query . '%');
         }
                 
-        $messag->orderBy('notificationId', 'DESC');
+        $messag->orderBy('n.id', 'ASC');
         
         $messag->setFirstResult(($page-1) * $max);
         $messag->setMaxResults($max);
@@ -189,7 +189,7 @@ class NotificationsRepository extends EntityRepository
         $list  = $this->createQueryBuilder('n')
                         ->join("n.user", "u", "WITH", 'u = :user')
                         ->setParameter('user', $filters['user'])
-                        ->addOrderBy('n.created','ASC');
+                        ->addOrderBy('n.created','DESC');
 
         $list->setFirstResult($limit*($filters["page"]-1))->setMaxResults($limit);
 

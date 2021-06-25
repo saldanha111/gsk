@@ -269,6 +269,11 @@ class Users implements AdvancedUserInterface, \Serializable
     protected $cvWorkflows;
 
     /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\CVSecondWorkflow", mappedBy="user")
+     */
+    protected $cvSecondWorkflows;
+
+    /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\CVSignatures", mappedBy="user")
      */
     protected $cvSignatures;
@@ -282,6 +287,11 @@ class Users implements AdvancedUserInterface, \Serializable
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\CVRecords", mappedBy="userGxP")
      */
     protected $cvRecordsGxP;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\Areas", mappedBy="fll")
+     */
+    protected $areas;
 
     /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\ActivityUser", mappedBy="userEntiy")
@@ -2492,5 +2502,71 @@ class Users implements AdvancedUserInterface, \Serializable
     public function getCvRecordsGxP()
     {
         return $this->cvRecordsGxP;
+    }
+
+    /**
+     * Add areas
+     *
+     * @param \Nononsense\HomeBundle\Entity\Areas $areas
+     * @return Users
+     */
+    public function addArea(\Nononsense\HomeBundle\Entity\Areas $areas)
+    {
+        $this->areas[] = $areas;
+
+        return $this;
+    }
+
+    /**
+     * Remove areas
+     *
+     * @param \Nononsense\HomeBundle\Entity\Areas $areas
+     */
+    public function removeArea(\Nononsense\HomeBundle\Entity\Areas $areas)
+    {
+        $this->areas->removeElement($areas);
+    }
+
+    /**
+     * Get areas
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getAreas()
+    {
+        return $this->areas;
+    }
+
+    /**
+     * Add cvSecondWorkflows
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVSecondWorkflow $cvSecondWorkflows
+     * @return Users
+     */
+    public function addCvSecondWorkflow(\Nononsense\HomeBundle\Entity\CVSecondWorkflow $cvSecondWorkflows)
+    {
+        $this->cvSecondWorkflows[] = $cvSecondWorkflows;
+
+        return $this;
+    }
+
+    /**
+     * Remove cvSecondWorkflows
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVSecondWorkflow $cvSecondWorkflows
+     */
+    public function removeCvSecondWorkflow(\Nononsense\HomeBundle\Entity\CVSecondWorkflow $cvSecondWorkflows)
+    {
+        $this->cvSecondWorkflows->removeElement($cvSecondWorkflows);
+    }
+
+    /**
+     * Get cvSecondWorkflows
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getCvSecondWorkflows()
+    {
+        return $this->cvSecondWorkflows;
     }
 }

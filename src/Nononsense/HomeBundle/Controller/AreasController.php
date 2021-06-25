@@ -97,6 +97,8 @@ class AreasController extends Controller
             $array_item["prefixes"] = json_decode($serializer->serialize($prefixes, 'json',array('groups' => array('list_prefix'))),true);
         }
 
+        $array_item["users"] = $this->getDoctrine()->getRepository(Users::class)->findAll();
+        $array_item["fll"] = $item->getFll()->getId();
         
 
         return $this->render('NononsenseHomeBundle:Areas:area.html.twig',$array_item);
@@ -126,6 +128,12 @@ class AreasController extends Controller
                 $template = $this->getDoctrine()->getRepository(TMTemplates::class)->findOneById($request->get("master_template"));
                 $area->setTemplate($template);
             }
+
+            if($request->get("fll")){
+                $fll = $this->getDoctrine()->getRepository(Users::class)->findOneBy(array("id"=>$request->get("fll")));
+                $area->setFll($fll);
+            }
+
 
             if($request->get("is_active")){
                 $area->setIsActive(1);

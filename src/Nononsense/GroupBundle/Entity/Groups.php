@@ -125,6 +125,11 @@ class Groups
     protected $cvWorkflows;
 
     /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\CVSecondWorkflow", mappedBy="group")
+     */
+    protected $cvSecondWorkflows;
+
+    /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\AreasGroups", mappedBy="agroup")
      */
     protected $areas; 
@@ -852,5 +857,38 @@ class Groups
     public function getCvWorkflows()
     {
         return $this->cvWorkflows;
+    }
+
+    /**
+     * Add cvSecondWorkflows
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVSecondWorkflow $cvSecondWorkflows
+     * @return Groups
+     */
+    public function addCvSecondWorkflow(\Nononsense\HomeBundle\Entity\CVSecondWorkflow $cvSecondWorkflows)
+    {
+        $this->cvSecondWorkflows[] = $cvSecondWorkflows;
+
+        return $this;
+    }
+
+    /**
+     * Remove cvSecondWorkflows
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVSecondWorkflow $cvSecondWorkflows
+     */
+    public function removeCvSecondWorkflow(\Nononsense\HomeBundle\Entity\CVSecondWorkflow $cvSecondWorkflows)
+    {
+        $this->cvSecondWorkflows->removeElement($cvSecondWorkflows);
+    }
+
+    /**
+     * Get cvSecondWorkflows
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getCvSecondWorkflows()
+    {
+        return $this->cvSecondWorkflows;
     }
 }

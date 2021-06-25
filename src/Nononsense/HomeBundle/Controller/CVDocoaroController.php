@@ -111,7 +111,7 @@ class CVDocoaroController extends Controller
             $custom_view.="&reupdate=1";
         }
 
-        if($signature->getAction()->getId()==18 && $request->get("view_reupdate")){
+        if(($signature->getAction()->getId()==18 || $record->getUserGxP()) && $request->get("view_reupdate")){
             $custom_view.="&auxjson=1";
         }
 
@@ -456,7 +456,7 @@ class CVDocoaroController extends Controller
 
                 if(!isset($action_id) && $record->getState()->getFinal()){
                     $action_id=18;
-                    $record->setUserGxP($user);
+                    
                 }
                 
                 if(!$signature->getAction()){ 

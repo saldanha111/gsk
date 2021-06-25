@@ -1,0 +1,227 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}Docoaro - GSK | Documentos {% endblock %}
+{% block head %}
+    {{ parent() }}
+    <link rel="stylesheet" href="/js/plugins/sweetalert/sweetalert.min.css">
+{% endblock %}
+{% block main_title %} Solicitud de modificación de un dato GxP {% endblock %}
+
+{% block content %}
+
+    <div class="wrapper wrapper-content animated fadeInUp">
+        {% for flashMessage in app.session.flashbag.get('error') %}
+        <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+            <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+            {{ flashMessage }}
+        </div>
+        {% endfor %}
+
+
+        <table id="inProcess" class="table table-striped">
+            <thead>
+            <tr>
+                <th>Id Registro afectado</th>
+                <th>Area</th>
+                <th>Nombre</th>
+                <th>Última vez modificado</th>
+                <th>Solicitado por</th>
+                <th>Acción</th>
+            </tr>
+            </thead>
+            <tr>
+                <td>{{item.id}}</td>
+                <td>{{item.area}}</td>
+                <td>{{item.name}}</td>
+                <td>{{item.modified | date('d-m-Y H:i:s') }}</td>
+                <td></td>
+                <td>
+                    <a class="btn btn-xs btn-primary" href="{{path('nononsense_cv_docoaro_new', {'id': item.id})}}?view_reupdate=1" target="_blank" target="_blank">{{'Ver GxP modificado'|trans}}</a>
+                </td>
+            </tr>
+        </table>
+
+        <form class="form-horizontal" id="form_item" action="{{path('nononsense_cv_save', {'template': item.id}) }}" method="POST"  enctype="multipart/form-data">
+            <div class="row">
+                <div class="col-lg-5 col-lg-offset-1">
+
+
+                </div>
+                <div class="col-lg-5" id="box_workflow">
+                    {% if secondWf is defined and secondWf is not empty %}
+                        {% set count = 0 %}
+                        {% for wf in secondWf %}
+                            {% for number in 1..wf.signaturesNumber %}
+                                <div class="row line_workflow">
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label">{{wf.tmCumplimentation.name}}: </label>
+                                        <div class="col-sm-4 masterbox_type_workflow">
+                                            <select class="form-control type_workflow" required="required" name="{{wf.tmCumplimentation.name}}[{{count}}]" style="width: 100%;"  {{count==0 ? 'readonly="readonly"'}}>
+                                                <option value=""></option>
+                                                <option value="1">Grupo</option>
+                                                <option value="2" {{count==0 ? 'selected="selected"'}}>Usuario</option>
+                                            </select>
+                                        </div>
+                                        {% if count == 0 %}
+                                            <div class="master_box_user">
+                                                <div class="col-sm-4">
+                                                    <select class="form-control select_user" name="relationals[0]" readonly="readonly" style="width: 100%;" required="required">
+                                                        <option value=""></option>
+                                                        {% for user in users %}
+                                                            <option value="{{user.id}}" {{app.user.id==user.id ? 'selected="selected"'}}>{{user.name}}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% set count = count + 1 %}
+                            {% endfor %}
+                        {% endfor %}
+                    {% endif %}
+       
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-10 col-lg-offset-1">
+                    <button type="submit" class="btn btn-primary pull-right"><i class="fa fa-pencil" aria-hidden="true"></i> Iniciar cumplimentación</button>
+                </div>
+            </div>
+            <input type="hidden" name="nest" value="{{ nest is defined and nest is not empty ? nest }}">
+        </form>
+    </div>
+
+
+    <div style="display:none">
+        <div id="box_groups">
+            <div class="master_box_group">
+                <div class="col-sm-4">
+                    <select class="form-control select_group" name="relationals[]" style="width: 100%;" required="required">
+                        <option value=""></option>
+                        {% for group in groups %}
+                            <option value="{{group.id}}">{{group.name}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div id="box_users">
+            <div class="master_box_user">
+                <div class="col-sm-4">
+                    <select class="form-control select_user" name="relationals[]" style="width: 100%;" required="required">
+                        <option value=""></option>
+                        {% for user in users %}
+                            <option value="{{user.id}}">{{user.name}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ parent() }}
+    <script type="text/javascript" src="/js/plugins/jsqrcode-master/src/grid.js"></script>
+    <script type="text/javascript" src="/js/plugins/jsqrcode-master/src/version.js"></script>
+    <script type="text/javascript" src="/js/plugins/jsqrcode-master/src/detector.js"></script>
+    <script type="text/javascript" src="/js/plugins/jsqrcode-master/src/formatinf.js"></script>
+    <script type="text/javascript" src="/js/plugins/jsqrcode-master/src/errorlevel.js"></script>
+    <script type="text/javascript" src="/js/plugins/jsqrcode-master/src/bitmat.js"></script>
+    <script type="text/javascript" src="/js/plugins/jsqrcode-master/src/datablock.js"></script>
+    <script type="text/javascript" src="/js/plugins/jsqrcode-master/src/bmparser.js"></script>
+    <script type="text/javascript" src="/js/plugins/jsqrcode-master/src/datamask.js"></script>
+    <script type="text/javascript" src="/js/plugins/jsqrcode-master/src/rsdecoder.js"></script>
+    <script type="text/javascript" src="/js/plugins/jsqrcode-master/src/gf256poly.js"></script>
+    <script type="text/javascript" src="/js/plugins/jsqrcode-master/src/gf256.js"></script>
+    <script type="text/javascript" src="/js/plugins/jsqrcode-master/src/decoder.js"></script>
+    <script type="text/javascript" src="/js/plugins/jsqrcode-master/src/qrcode.js"></script>
+    <script type="text/javascript" src="/js/plugins/jsqrcode-master/src/findpat.js"></script>
+    <script type="text/javascript" src="/js/plugins/jsqrcode-master/src/alignpat.js"></script>
+    <script type="text/javascript" src="/js/plugins/jsqrcode-master/src/databr.js"></script>
+    <script type="text/javascript" src="/js/plugins/sweetalert/sweetalert.min.js"></script>
+    <script  charset="utf-8">
+    var dataworkflow;
+    var array_elements = {};
+    $( document ).ready(function() {
+        
+        
+        ActivateMenu('docxpresso_gxp');
+        $('#side-menu').metisMenu();
+
+        $(document).on('change', '.type_workflow', function() {
+            switch($(this).val()){
+                case "1":
+                    $(this).closest(".line_workflow").find(".master_box_user").remove();
+                    $(this).closest(".line_workflow").find(".masterbox_type_workflow").after($("#box_groups").html());
+                    break;
+                case "2":
+                    $(this).closest(".line_workflow").find(".master_box_group").remove();
+                    $(this).closest(".line_workflow").find(".masterbox_type_workflow").after($("#box_users").html());
+                    break;
+                default:
+                    $(this).closest(".line_workflow").find(".master_box_group").remove();
+                    $(this).closest(".line_workflow").find(".master_box_user").remove();
+                    break;
+            }
+        });
+
+        $('#form_item').on('submit', function(e){
+            if(!repeat_workflow()){
+                if(!checkErrors()){
+
+                }
+            }
+            else{
+                toastr.error("No puede haber un mismo usuario en el workflow",'aviso');
+            }
+            return false;
+        });
+
+        qrcode.callback = putQrValue;
+
+    });
+
+    function checkErrors() {
+        var error=0;
+        if($("#box_unique_codes input[name]").length){
+            $("#box_unique_codes input[name]").each(function() {
+                if($(this).val() && $("#value_qr").val()){
+                    conflict=getObjects(JSON.parse($("#value_qr").val()), $(this).attr("name"), $(this).val());
+                    if(conflict.length>0){
+                        toastr.error("No puede introduccir valores distintos para los mismos campos en el código único y en el QR", 'error');
+                        error=1;
+                        return true;
+                    }
+                }
+                else{
+                    toastr.error("No puede iniciarse la cumplimentación",'aviso');
+                    error=1;
+                    return true;
+                }
+            });
+        }
+        if(error==1){
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+
+    function repeat_workflow(){
+        var result = true;
+        var array = [];
+        $('.select_user','#box_workflow').each(function() {
+            array.push($(this).val());
+        });
+        if(checkIfArrayIsUnique(array)){
+            return false;
+        }
+        return result;
+    }
+
+</script>
+{% endblock %}
+
+

@@ -37,6 +37,13 @@ class Areas
     protected $groups;
 
     /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="areas")
+     * @ORM\JoinColumn(name="fll_user_id", referencedColumnName="id", nullable=true)
+     * @Groups({"detail_area","list_area"})
+     */
+    protected $fll;
+
+    /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\AreaPrefixes", mappedBy="area")
      */
     protected $prefixes;
@@ -299,5 +306,28 @@ class Areas
     public function getTemplate()
     {
         return $this->template;
+    }
+
+    /**
+     * Set fll
+     *
+     * @param \Nononsense\UserBundle\Entity\Users $fll
+     * @return Areas
+     */
+    public function setFll(\Nononsense\UserBundle\Entity\Users $fll = null)
+    {
+        $this->fll = $fll;
+
+        return $this;
+    }
+
+    /**
+     * Get fll
+     *
+     * @return \Nononsense\UserBundle\Entity\Users 
+     */
+    public function getFll()
+    {
+        return $this->fll;
     }
 }

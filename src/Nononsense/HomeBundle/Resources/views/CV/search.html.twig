@@ -188,12 +188,19 @@
                                 </td>
                                 <td>
                                 {% if item.finalState and (item.state_id==7 or item.state_id==8) %}
-                                    {% if item.usergxp is empty %}
+                                    {% if item.usergxp is empty and item.lastAction!=18 and item.lastActionUnsigned!=18 %}
                                         <a class="btn btn-xs btn-default" href="{{path('nononsense_request_modification_gxp', {'id': item.id})}}" target="_self"><i class="fa fa-pencil-square" aria-hidden="true"></i> {{ 'Solicitar modificación'|trans }}</a>
                                     {% else %}
-                                        <a class="btn btn-xs btn-warning disabled"><i class="fa fa-paper-plane" aria-hidden="true"></i> {{ 'Modificación solicitada'|trans }}</a>
+                                        {% if filters.gxp is defined and filters.gxp is not empty %}
+                                            {% if item.allow_gxp %} 
+                                                <a class="btn btn-xs btn-danger" href="{{path('nononsense_request_view_gxp', {'id': item.id})}}" target="_self"><i class="fa fa-check" aria-hidden="true"></i> {{'Aprobar'|trans}} modificación GxP</a>
+                                            {% elseif item.usergxp is not empty %}
+                                                <a class="btn btn-xs btn-warning disabled"><i class="fa fa-paper-plane" aria-hidden="true"></i> {{ 'Modificación solicitada'|trans }}</a>
+                                            {% endif %}
+                                        {% endif %}
                                     {% endif %} 
                                 {% endif %}
+                                
                                 </td>
                             </tr>
                             {% endfor %}

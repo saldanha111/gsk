@@ -23,7 +23,7 @@ class MessagesController extends Controller
         $filters['page']        = (!$request->get('page')) ? 1 : $request->get('page');
         $filters['section']     = $request->get('section');
         $limit  = 15;
-
+        
         $emails = $em->getRepository(Notifications::class)->listBy($filters, $limit);
 
         $params    = $request->query->all();

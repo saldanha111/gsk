@@ -25,20 +25,42 @@ class ReviewRecordsCommand extends ContainerAwareCommand
 
 	protected function execute(InputInterface $input, OutputInterface $output){
 
-		$steps = $this->getSteps();
+		$em = $this->getContainer()->get('doctrine')->getManager();
 
-		if ($steps) {
+		$areas = $em->getRepository('NononsenseHomeBundle:Areas')->findAll();
+		foreach($areas as $area){
+			$ids=array();
+			$qb 		= $em->createQueryBuilder();
+		    $records = $qb->select('i')
+		    				->from('NononsenseHomeBundle:CVRecords', 'i')
+		    				->leftJoin("i.template", "t")
+		    				->andWhere('i.modified <= :modified')
+		    				->andWhere('i.inEdition = 1')
+		    				->andWhere('(i.blocked = 0 OR i.blocked IS NULL)')
+		    				->andWhere('IDENTITY(t.area) = :area')
+		    				->setParameter('modified', new \DateTime('-8 hour'))
+		    				->setParameter('area', $area->getId())
+		    				->getQuery()
+		    				->getResult();
+		   
+		    if ($records) {				
+			    foreach ($records as $key => $record) {
+		    		$record->setBlocked(1);
+		    		$em->persist($record);
+		    		$ids[] = $record->getId();
+			    }
+			}
 
-			$users = $this->getUsers();
 
-	    	$subject = 'Registros bloqueados';
-	        $message = 'Los siguientes registros han sido bloqueados y necesitan ser gestionados por su parte o algún otro FLL. Acceda al siguiente  Link para gestionar los bloqueos.<br><br>'.implode('<br>', $steps);
-	        $baseUrl = trim($this->getContainer()->getParameter('cm_installation'), '/').$this->getContainer()->get('router')->generate('nononsense_cv_search')."?blocked=1";
+			if ($ids) {
 
-		    foreach ($users as $key => $user) {
-	            if ($this->getContainer()->get('utilities')->sendNotification($user['email'], $baseUrl, "", "", $subject, $message)) {
+		    	$subject = 'Registros bloqueados';
+		        $message = 'Los siguientes registros han sido bloqueados y necesitan ser gestionados por su parte o algún otro FLL. Acceda al siguiente  Link para gestionar los bloqueos.<br><br>'.implode('<br>', $ids);
+		        $baseUrl = trim($this->getContainer()->getParameter('cm_installation'), '/').$this->getContainer()->get('router')->generate('nononsense_cv_search')."?blocked=1";
+
+	           if ($this->getContainer()->get('utilities')->sendNotification($area->getFll()->getEmail(), $baseUrl, "", "", $subject, $message)) {
 	                
-	                $output->writeln(['Mensaje enviado: '.$user['email']]);
+	                $output->writeln(['Mensaje enviado: '.$area->getFll()->getEmail()]);
 
 	                if ($input->getOption('msg')) {
 	                	$output->writeln(['Asunto: '.$subject]);	
@@ -48,60 +70,15 @@ class ReviewRecordsCommand extends ContainerAwareCommand
 
 	            }else{
 
-	            	$output->writeln(['<error>Error: '.$user['email'].'</error>']);
+	            	$output->writeln(['<error>Error: '.$area->getFll()->getEmail().'</error>']);
 	            }
-		    }
 
-	    }else{
-	    	$output->writeln(['<comment>Ningún registro bloqueado</comment>']);
-	    }
+		    }else{
+		    	$output->writeln(['<comment>Ningún registro bloqueado para el area '.$area->getName().'</comment>']);
+		    }
+		}
+		$em->flush();
 
 	    $output->writeln(['<info>Proceso completado</info>']);	
-	}
-
-	protected function getSteps(){
-
-		$em = $this->getContainer()->get('doctrine')->getManager();
-
-	    $qb 		= $em->createQueryBuilder();
-	    $instancias = $qb->select('i')
-	    				->from('NononsenseHomeBundle:CVRecords', 'i')
-	    				->where('i.modified <= :modified')
-	    				->setParameter('modified', new \DateTime('-8 hour'))
-	    				->andWhere('i.inEdition = 1')
-	    				->getQuery()
-	    				->getResult();
-
-	    if ($instancias) {				
-		    foreach ($instancias as $key => $instancia) {
-	    		$instancia->setBlocked(1);
-	    		$em->persist($instancia);
-	    		$steps[] = $instancia->getId();
-		    }
-
-		    $em->flush();
-
-		    return $steps;
-		}
-
-		return false;
-	}
-
-	protected function getUsers(){
-
-		$em = $this->getContainer()->get('doctrine')->getManager();
-
-		$qb 	= $em->createQueryBuilder();
-		$query 	= $qb->select('u.email')
-		   ->distinct()
-		   ->from('NononsenseGroupBundle:GroupUsers', 'gu')
-		   ->join('gu.group', 'g')
-		   ->join('gu.user', 'u')
-		   ->where("g.tipo = 'FLL'")
-		   ->getQuery();
-
-		$users = $query->getResult();
-
-		return $users;
 	}
 }
