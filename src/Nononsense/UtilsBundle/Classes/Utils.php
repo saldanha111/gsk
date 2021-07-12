@@ -672,7 +672,19 @@ class Utils
         $data["page"]=$page;
         $data["lastpage"]=(ceil($count / $limit) == 0 ? 1 : ceil($count / $limit));
         $data["limit"]=$limit;
-        $protocol = stripos($_SERVER['SERVER_PROTOCOL'],'https') === true ? 'https://' : 'http://';
+        if (
+            ( ! empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+            || ( ! empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https')
+            || ( ! empty($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] == 'on')
+            || (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443)
+            || (isset($_SERVER['HTTP_X_FORWARDED_PORT']) && $_SERVER['HTTP_X_FORWARDED_PORT'] == 443)
+            || (isset($_SERVER['REQUEST_SCHEME']) && $_SERVER['REQUEST_SCHEME'] == 'https')
+        ) {
+          $protocol = 'https://';
+        }
+        else{
+          $protocol = 'http://';
+        }
         $data["url"]=$protocol.$_SERVER["HTTP_HOST"].$url_b;
         $data["size"]=5;
         $data["skip"]=$skip ;
@@ -708,7 +720,19 @@ class Utils
         $data["page"] = $page;
         $data["lastpage"] = (ceil($count / $limit) == 0 ? 1 : ceil($count / $limit));
         $data["limit"] = $limit;
-        $protocol = stripos($_SERVER['SERVER_PROTOCOL'], 'https') === true ? 'https://' : 'http://';
+        if (
+            ( ! empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+            || ( ! empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https')
+            || ( ! empty($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] == 'on')
+            || (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443)
+            || (isset($_SERVER['HTTP_X_FORWARDED_PORT']) && $_SERVER['HTTP_X_FORWARDED_PORT'] == 443)
+            || (isset($_SERVER['REQUEST_SCHEME']) && $_SERVER['REQUEST_SCHEME'] == 'https')
+        ) {
+          $protocol = 'https://';
+        }
+        else{
+          $protocol = 'http://';
+        }
         $data["url"] = $protocol . $_SERVER["HTTP_HOST"] . $url_b;
         $data["size"] = 5;
         $data["skip"] = $skip;
