@@ -131,7 +131,7 @@ class MaterialCleanMaterialsController extends Controller
             } catch (Exception $e) {
                 $this->get('session')->getFlashBag()->add(
                     'error',
-                    "Error al intentar guardar los datos del material: " . $e->getMessage()
+                    "Error al intentar guardar los datos del material "
                 );
             }
         }
@@ -199,7 +199,7 @@ class MaterialCleanMaterialsController extends Controller
         } catch (Exception $e) {
             $this->get('session')->getFlashBag()->add(
                 'error',
-                "Error al intentar inactivar el material: " . $e->getMessage()
+                "Error al intentar inactivar el material"
             );
         }
 

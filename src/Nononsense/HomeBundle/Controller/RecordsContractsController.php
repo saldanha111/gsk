@@ -546,7 +546,7 @@ class RecordsContractsController extends Controller
                         $this->get('session')->getFlashBag()->add(
                             'error',
                             "Error. Se he producido un error al intentar enviar la notificación del contrato. Revisa que ".
-                            "todos los datos sean correctos. Mensaje del error: " . $e->getMessage()
+                            "todos los datos sean correctos. Mensaje del error"
                         );
                         return $this->redirect($this->container->get('router')->generate('nononsense_records_contracts'));
                     }

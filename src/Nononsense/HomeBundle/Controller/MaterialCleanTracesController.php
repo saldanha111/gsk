@@ -264,7 +264,7 @@ class MaterialCleanTracesController extends Controller
 
             }
             catch(\Exception $e){
-                $this->get('session')->getFlashBag()->add('error', "Error al intentar marcar el material como Material sucio: ".$e->getMessage());
+                $this->get('session')->getFlashBag()->add('error', "Error al intentar marcar el material como Material sucio");
             }
         }
         return $this->redirect($this->generateUrl('nononsense_mclean_traces_list'));
@@ -326,7 +326,7 @@ class MaterialCleanTracesController extends Controller
                 $this->get('session')->getFlashBag()->add('message',"El material se ha marcado correctamente");
             }
             catch(\Exception $e){
-                $this->get('session')->getFlashBag()->add('error', "Error al intentar marcar el material como Revisado: ".$e->getMessage());
+                $this->get('session')->getFlashBag()->add('error', "Error al intentar marcar el material como Revisado");
             }
         }
         return $this->redirect($this->generateUrl('nononsense_mclean_traces_list'));

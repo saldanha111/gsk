@@ -46,7 +46,7 @@
     </div>
     <!-- This control is hidden -->
         <div  class="hiddenField">              
-            {{ form_widget(composeMessage.body) }}
+            {{ form_widget(composeMessage.body, {'value': composeMessage.body.vars.value|escape_tags}) }}
         </div>
     <div class="mail-text h-200">
         <div class="summernote">

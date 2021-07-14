@@ -512,7 +512,7 @@ class RecordsController extends Controller
     }
 
     /* Pagina a la que vamos tras volver de docxpresso */
-    public function redirectFromDataAction($id)
+    public function redirectFromDataAction($id, Request $request)
     {
         /*
          * cerrar
@@ -728,7 +728,7 @@ class RecordsController extends Controller
                                 $file = Utils::saveFile($file, 'plain_document', $this->getParameter('crt.root_dir'));
                                 Utils::setCertification($this->container, $file, 'plain_document', $record->getId());                
                             } catch (\Exception $e) {
-                                $this->get('session')->getFlashBag()->add( 'error', "No se pudo certificar el doccumento: ".$e->getMessage());
+                                $this->get('session')->getFlashBag()->add( 'error', "No se pudo certificar el doccumento");
                             }
 
                             //CERTIFICADO AQUÍ ALEX
@@ -945,7 +945,7 @@ class RecordsController extends Controller
                 $file = Utils::saveFile($file, 'plain_document', $this->getParameter('crt.root_dir'));
                 Utils::setCertification($this->container, $file, 'plain_document', $record->getId());                   
             } catch (\Exception $e) {
-                $this->get('session')->getFlashBag()->add( 'error', "No se pudo certificar el doccumento: ".$e->getMessage());
+                $this->get('session')->getFlashBag()->add( 'error', "No se pudo certificar el doccumento");
             }
 
             //CERTIFICADO AQUÍ ALEX
@@ -1155,6 +1155,10 @@ class RecordsController extends Controller
         $step4=0;
         
         foreach($dataJson->data->u_tipo_material as $key => $material_value){
+            if(urldecode($dataJson->data->u_check3)=="3" && urldecode($dataJson->data->u_check4)=="1" && urldecode($dataJson->data->u_tipo_material->{$key})!="ZNBW"){
+                $anexo=1;
+            }
+
             if(urldecode($dataJson->data->u_check3)=="2" && urldecode($dataJson->data->u_check4)!="2"){
                 $anexo=1;
             }

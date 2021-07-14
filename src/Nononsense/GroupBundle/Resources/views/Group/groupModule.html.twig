@@ -69,7 +69,7 @@
                         </div>
                         <!-- This control is hidden -->
                         <div  class="hiddenField">              
-                            {{ form_widget(createGroup.description) }}
+                            {{ form_widget(createGroup.description, {'value': createGroup.description.vars.value|escape_tags}) }}
                         </div>
                         <div class="hr-line-dashed"></div>
                         {% if form_errors(createGroup.description) %}    

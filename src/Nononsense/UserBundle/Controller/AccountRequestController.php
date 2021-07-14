@@ -113,7 +113,7 @@ class AccountRequestController extends Controller
 		            //Application submitted successfully
 		            $this->get('session')->getFlashBag()->add('success', 'Solicitud enviada con éxito');
 	            } catch (\Exception $e) {
-	            	$this->get('session')->getFlashBag()->add('errors', $e->getMessage());
+	            	$this->get('session')->getFlashBag()->add('errors', "Error");
 	            }
         	
             return $this->redirect($this->generateUrl('nononsense_user_crate_requests'));
@@ -194,7 +194,7 @@ class AccountRequestController extends Controller
 
 				
 			} catch (\Exception $e) {
-				$message = ['type' => 'error', 'message' => $e->getMessage()];
+				$message = ['type' => 'error', 'message' => "error"];
 			}
 
 			$response = new JsonResponse($message);
@@ -403,7 +403,7 @@ class AccountRequestController extends Controller
 
 	        $message = ['type' => 'success', 'message' => $query];
 		} catch (\Exception $e) {
-			$message = ['type' => 'error', 'message' => $e->getMessage()];
+			$message = ['type' => 'error', 'message' => "error"];
 		}
 
 		$response = new JsonResponse($message);
@@ -446,7 +446,7 @@ class AccountRequestController extends Controller
 				$this->get('session')->getFlashBag()->add('success', 'Solicitud enviada con éxito');
 				$em->flush();
 			} catch (\Exception $e) {
-				$this->get('session')->getFlashBag()->add('errors', $e->getMessage());
+				$this->get('session')->getFlashBag()->add('errors', "error");
 			}
 
 		}

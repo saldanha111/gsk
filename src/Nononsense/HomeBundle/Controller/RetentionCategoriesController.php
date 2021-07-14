@@ -113,7 +113,7 @@ class RetentionCategoriesController extends Controller
             $em->getConnection()->rollback();
             $this->get('session')->getFlashBag()->add(
                 'error',
-                "Error al intentar eliminar la categoría: " . $e->getMessage()
+                "Error al intentar eliminar la categoría"
             );
             return $this->redirect($this->generateUrl('nononsense_retention_categories_edit', ['id' => $id]));
         }
@@ -180,7 +180,7 @@ class RetentionCategoriesController extends Controller
             $em->getConnection()->rollback();
             $this->get('session')->getFlashBag()->add(
                 'error',
-                "Error al intentar guardar los datos de la categoría: " . $e->getMessage()
+                "Error al intentar guardar los datos de la categoría"
             );
         }
         return $saved;

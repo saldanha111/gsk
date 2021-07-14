@@ -40,7 +40,7 @@
                     {% for wfitem in testers %}
                         {% if not wfitem.signed %}<div class="box box-danger">{% else %}<div class="box box-success">{% endif %}
                             <div class="box-header">
-                                <h3 class="box-title">{{wfitem.userEntiy is defined and wfitem.userEntiy is not null ? ('<i class="fa fa-user"></i> '~wfitem.userEntiy.name)|raw : ('<i class="fa fa-users"></i> '~wfitem.groupEntiy.name)|raw}}</h3>
+                                <h3 class="box-title">{{wfitem.userEntiy is defined and wfitem.userEntiy is not null ? ('<i class="fa fa-user"></i> '~wfitem.userEntiy.name)|escape_tags|raw : ('<i class="fa fa-users"></i> '~wfitem.groupEntiy.name)|escape_tags|raw}}</h3>
 
                                 {% if not wfitem.signed %}<small class="label pull-right bg-red">Pendiente</small>{% else %}<small class="label pull-right bg-green">Elaborado</small>{% endif %}
                             </div>
