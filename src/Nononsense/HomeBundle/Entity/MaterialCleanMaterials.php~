@@ -24,7 +24,7 @@ class MaterialCleanMaterials
     /**
      * @var string
      *
-     * @ORM\Column(name="name", type="string", length=255,  nullable=false, unique=true)
+     * @ORM\Column(name="name", type="string", length=255,  nullable=false)
      */
     protected $name;
 
@@ -77,13 +77,19 @@ class MaterialCleanMaterials
      */
     private $product;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\MaterialCleanCenters", inversedBy="material")
+     * @ORM\JoinColumn(name="id_center", referencedColumnName="id")
+     */
+    private $center;
+
     public function __construct()
     {
         $this->created = new DateTime();
         $this->expirationDays = 30;
         $this->active = 1;
         $this->additionalInfo = 0;
-        $this->otherName = 0;
+        $this->otherName = false;
     }
 
     /**
@@ -321,5 +327,28 @@ class MaterialCleanMaterials
     public function getOtherName()
     {
         return $this->otherName;
+    }
+
+    /**
+     * Set center
+     *
+     * @param \Nononsense\HomeBundle\Entity\MaterialCleanCenters $center
+     * @return MaterialCleanMaterials
+     */
+    public function setCenter(\Nononsense\HomeBundle\Entity\MaterialCleanCenters $center = null)
+    {
+        $this->center = $center;
+
+        return $this;
+    }
+
+    /**
+     * Get center
+     *
+     * @return \Nononsense\HomeBundle\Entity\MaterialCleanCenters 
+     */
+    public function getCenter()
+    {
+        return $this->center;
     }
 }
