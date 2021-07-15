@@ -94,7 +94,7 @@
                             
 
                             <div class="timeline-body">
-                              {{signature.description is defined and signature.description is not null ? (signature.description~"<br>")|raw : ''}}
+                              {{signature.description is defined and signature.description is not null ? (signature.description~"<br>")|escape_tags|raw : ''}}
                               <img src="{{signature.signature}}" style="height:100px">
                               {% if signature.action.id == 3 %}
                                 <br>

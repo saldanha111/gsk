@@ -123,7 +123,7 @@ class QrsController extends Controller
                 return $this->redirect($this->generateUrl('nononsense_qr_list'));
             }
             catch(\Exception $e){
-                $this->get('session')->getFlashBag()->add('error', "Error al intentar guardar los datos del QR: ".$e->getMessage());
+                $this->get('session')->getFlashBag()->add('error', "Error al intentar guardar los datos del QR");
             }
         }
 
@@ -162,7 +162,7 @@ class QrsController extends Controller
             $this->get('session')->getFlashBag()->add('message',"El QR se ha borrado correctamente");
         }
         catch(\Exception $e){
-            $this->get('session')->getFlashBag()->add('error',"Error al borrar el QR: ".$e->getMessage());
+            $this->get('session')->getFlashBag()->add('error',"Error al borrar el QR");
         }
 
         return $this->redirect($this->generateUrl('nononsense_qr_list'));

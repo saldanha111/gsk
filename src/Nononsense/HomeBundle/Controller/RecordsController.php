@@ -127,7 +127,102 @@ class RecordsController extends Controller
         }
         $array_item["pagination"]=\Nononsense\UtilsBundle\Classes\Utils::paginador($filters["limit_many"],$request,$url,$array_item["count"],"/", $parameters);
 
-        return $this->render('NononsenseHomeBundle:Contratos:records.html.twig',$array_item);
+        if(!$request->get("export_excel") && !$request->get("export_pdf")){
+            return $this->render('NononsenseHomeBundle:Contratos:records.html.twig',$array_item);
+        }
+        else{
+            //Exportamos a Excel
+
+            if($request->get("export_excel")){
+                $phpExcelObject = $this->get('phpexcel')->createPHPExcelObject();
+
+                $phpExcelObject->getProperties();
+                $phpExcelObject->setActiveSheetIndex(0)
+                 ->setCellValue('A1', 'Nº')
+                 ->setCellValue('B1', 'Nombre')
+                 ->setCellValue('C1', 'Creador')
+                 ->setCellValue('D1', 'Próximo firmante')
+                 ->setCellValue('E1', 'Tipo')
+                 ->setCellValue('F1', 'Fecha')
+                 ->setCellValue('G1', 'Estado');
+            }
+
+            if($request->get("export_pdf")){
+                $html='<html><body style="font-size:8px;width:100%"><table autosize="1" style="overflow:wrap;width:100%"><tr style="font-size:8px;width:100%">
+                <th style="font-size:8px;width:6%">Nº</th>
+                <th style="font-size:8px;width:44%">Nombre</th>
+                <th style="font-size:8px;width:10%">Creador</th>
+                <th style="font-size:8px;width:10%">Próximo firmante</th>
+                <th style="font-size:8px;width:10%">Tipo</th>
+                <th style="font-size:8px;width:10%">Fecha</th>
+                <th style="font-size:8px;width:10%">Estado</th>
+                </tr>';
+            }
+
+            $i=2;
+            foreach($array_item["items"] as $item){
+                switch($item["status"]){
+                    case 1: $status="En proceso";break;
+                    case 2: $status="Pendiente de firma";break;
+                    case 3: $status="Completado";break;
+                    case 4: $status="Cancelado";break;
+                    case 5: $status="Pendiente anexo";break;
+                    default: $status="Desconocido";
+                }
+
+                if($item["nameNextSigner"]){
+                    $next_signer=$item["nameNextSigner"];
+                }
+                else{
+                    $next_signer=$item["nameNextSignerGroup"];
+                }
+
+
+                if($request->get("export_excel")){
+                    $phpExcelObject->getActiveSheet()
+                    ->setCellValue('A'.$i, $item["id"])
+                    ->setCellValue('B'.$i, $item["name"])
+                    ->setCellValue('C'.$i, $item["usuario"])
+                    ->setCellValue('D'.$i, $next_signer)
+                    ->setCellValue('E'.$i, $item["nameType"])
+                    ->setCellValue('F'.$i, ($item["created"]) ? $item["created"] : '')
+                    ->setCellValue('G'.$i, $status);
+                }
+
+                if($request->get("export_pdf")){
+                    $html.='<tr style="font-size:8px"><td>'.$item["id"].'</td><td>'.$item["name"].'</td><td>'.$item["usuario"].'</td><td>'.$next_signer.'</td><td>'.$item["nameType"].'</td><td>'.(($item["created"]) ? $item["created"]->format('Y-m-d H:i:s') : '').'</td><td>'.$status.'</td></tr>';
+                }
+
+                $i++;
+            }
+
+            if($request->get("export_excel")){
+                $phpExcelObject->getActiveSheet()->setTitle('Listado de documentos');
+                // Set active sheet index to the first sheet, so Excel opens this as the first sheet
+                $phpExcelObject->setActiveSheetIndex(0);
+
+                // create the writer
+                $writer = $this->get('phpexcel')->createWriter($phpExcelObject, 'Excel2007');
+                // create the response
+                $response = $this->get('phpexcel')->createStreamedResponse($writer);
+                // adding headers
+                $dispositionHeader = $response->headers->makeDisposition(
+                  ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+                  'list_documents.xlsx'
+                );
+                $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
+                $response->headers->set('Pragma', 'public');
+                $response->headers->set('Cache-Control', 'maxage=1');
+                $response->headers->set('Content-Disposition', $dispositionHeader);
+
+                return $response; 
+            }
+
+            if($request->get("export_pdf")){
+                $html.='</table></body></html>';
+                $this->returnPDFResponseFromHTML($html);
+            }
+        }
     }
 
 
@@ -417,7 +512,7 @@ class RecordsController extends Controller
     }
 
     /* Pagina a la que vamos tras volver de docxpresso */
-    public function redirectFromDataAction($id)
+    public function redirectFromDataAction($id, Request $request)
     {
         /*
          * cerrar
@@ -633,7 +728,7 @@ class RecordsController extends Controller
                                 $file = Utils::saveFile($file, 'plain_document', $this->getParameter('crt.root_dir'));
                                 Utils::setCertification($this->container, $file, 'plain_document', $record->getId());                
                             } catch (\Exception $e) {
-                                $this->get('session')->getFlashBag()->add( 'error', "No se pudo certificar el doccumento: ".$e->getMessage());
+                                $this->get('session')->getFlashBag()->add( 'error', "No se pudo certificar el doccumento");
                             }
 
                             //CERTIFICADO AQUÍ ALEX
@@ -850,7 +945,7 @@ class RecordsController extends Controller
                 $file = Utils::saveFile($file, 'plain_document', $this->getParameter('crt.root_dir'));
                 Utils::setCertification($this->container, $file, 'plain_document', $record->getId());                   
             } catch (\Exception $e) {
-                $this->get('session')->getFlashBag()->add( 'error', "No se pudo certificar el doccumento: ".$e->getMessage());
+                $this->get('session')->getFlashBag()->add( 'error', "No se pudo certificar el doccumento");
             }
 
             //CERTIFICADO AQUÍ ALEX
@@ -1060,6 +1155,10 @@ class RecordsController extends Controller
         $step4=0;
         
         foreach($dataJson->data->u_tipo_material as $key => $material_value){
+            if(urldecode($dataJson->data->u_check3)=="3" && urldecode($dataJson->data->u_check4)=="1" && urldecode($dataJson->data->u_tipo_material->{$key})!="ZNBW"){
+                $anexo=1;
+            }
+
             if(urldecode($dataJson->data->u_check3)=="2" && urldecode($dataJson->data->u_check4)!="2"){
                 $anexo=1;
             }
@@ -1237,5 +1336,26 @@ class RecordsController extends Controller
             'name' => $ruta.$file_name,
             'size' => $file->getClientSize()
         ];
+    }
+
+    private function returnPDFResponseFromHTML($html){
+        //set_time_limit(30); uncomment this line according to your needs
+        // If you are not in a controller, retrieve of some way the service container and then retrieve it
+        //$pdf = $this->container->get("white_october.tcpdf")->create('vertical', PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+        //if you are in a controlller use :
+        $pdf = $this->get("white_october.tcpdf")->create('horizontal', PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+        $pdf->SetAuthor('GSK');
+        $pdf->SetTitle(('Registros GSK'));
+        $pdf->SetSubject('Registros GSK');
+        $pdf->setFontSubsetting(true);
+        $pdf->SetFont('helvetica', '', 9, '', true);
+        //$pdf->SetMargins(20,20,40, true);
+        $pdf->AddPage('L', 'A4');
+
+
+        $filename = 'list_records';
+
+        $pdf->writeHTMLCell($w = 0, $h = 0, $x = '', $y = '', $html, $border = 0, $ln = 1, $fill = 0, $reseth = true, $align = '', $autopadding = true);
+        $pdf->Output($filename.".pdf",'I'); // This will output the PDF as a response directly
     }
 }

@@ -30,7 +30,7 @@
                     <p><strong>{{'Created by'|trans}}:</strong> {{ user.name }}</p>
                     <p class="text-success">[<i>{{ news.created|localizeddate('medium', 'none', app.request.locale) }}</i>]</p>
                 
-                    {{ news.body|raw }}
+                    {{ news.body|escape_tags|raw }}
                 </div>
             </div>
         </div>

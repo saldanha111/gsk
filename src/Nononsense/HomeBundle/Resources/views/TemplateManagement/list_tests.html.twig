@@ -22,7 +22,7 @@
                     {% endif %}
                     {% if aprobs is defined %}
                         {% for wfitem in aprobs %}
-                            <th>{{wfitem.userEntiy is defined and wfitem.userEntiy is not null ? ('<i class="fa fa-user"></i> '~wfitem.userEntiy.name)|raw : ('<i class="fa fa-users"></i> '~wfitem.groupEntiy.name)|raw}}</th>
+                            <th>{{wfitem.userEntiy is defined and wfitem.userEntiy is not null ? ('<i class="fa fa-user"></i> '~wfitem.userEntiy.name)|escape_tags|raw : ('<i class="fa fa-users"></i> '~wfitem.groupEntiy.name)|raw}}</th>
                         {% endfor %}
                     {% endif %}
                     <th></th>
@@ -31,7 +31,7 @@
                     <th>Nombre tester</th>
                     {% if aprobs is defined %}
                         {% for wfitem in aprobs %}
-                            <th>{{wfitem.userEntiy is defined and wfitem.userEntiy is not null ? ('<i class="fa fa-user"></i> '~wfitem.userEntiy.name)|raw : ('<i class="fa fa-users"></i> '~wfitem.groupEntiy.name)|raw}}</th>
+                            <th>{{wfitem.userEntiy is defined and wfitem.userEntiy is not null ? ('<i class="fa fa-user"></i> '~wfitem.userEntiy.name)|escape_tags|raw : ('<i class="fa fa-users"></i> '~wfitem.groupEntiy.name)|raw}}</th>
                         {% endfor %}
                     {% endif %}
                 </tr>

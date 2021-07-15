@@ -52,7 +52,7 @@
                             {% endif %}
                         </address>
                         <h4>{{'About me'|trans}}</h4>
-                        {{user.description|raw}}
+                        {{user.description|escape_tags|raw}}
                         {% if editable %}
                         <div class="row m-t">
                             <div class="col-xs-6">

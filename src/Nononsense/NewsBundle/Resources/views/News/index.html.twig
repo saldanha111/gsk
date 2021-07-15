@@ -39,7 +39,7 @@
                                 <h3>{% if item.isActive == false %}<button class="btn btn-warning btn-xs " type="button"><i class="fa fa-lock"></i></button>{% endif %}
                                     <a href="{{path('nononsense_news_show', {'id': item.id}) }}">{{ item.title }}</a></h3>
                                 <p>{{ item.created|localizeddate('medium', 'medium', app.request.locale)}}</p>
-                                {{ item.body|striptags|truncate(200)|raw}}
+                                {{ item.body|escape_tags|striptags|truncate(200)|raw}}
                             </div>
                         {% endfor %}
 

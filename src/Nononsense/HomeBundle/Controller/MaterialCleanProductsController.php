@@ -109,7 +109,7 @@ class MaterialCleanProductsController extends Controller
             } catch (Exception $e) {
                 $this->get('session')->getFlashBag()->add(
                     'error',
-                    "Error al intentar guardar los datos del producto: " . $e->getMessage()
+                    "Error al intentar guardar los datos del producto "
                 );
             }
         }
@@ -147,7 +147,7 @@ class MaterialCleanProductsController extends Controller
         } catch (Exception $e) {
             $this->get('session')->getFlashBag()->add(
                 'error',
-                "Error al intentar inactivar el producto: " . $e->getMessage()
+                "Error al intentar inactivar el producto"
             );
         }
 

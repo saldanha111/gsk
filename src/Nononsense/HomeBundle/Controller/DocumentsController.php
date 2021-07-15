@@ -194,7 +194,7 @@ class DocumentsController extends Controller
                     if(!$response["version"]){
                         $this->get('session')->getFlashBag()->add(
                             'error',
-                            'Error al subir la plantilla. '.$response["message"]
+                            'Error al subir la plantilla. '
                         );
                         return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
                     }
@@ -264,7 +264,7 @@ class DocumentsController extends Controller
         }catch (\Exception $e) {
             $this->get('session')->getFlashBag()->add(
                     'error',
-                    "Error desconocido al intentar guardar los datos de la plantilla".$e->getMessage()
+                    "Error desconocido al intentar guardar los datos de la plantilla"
                 );
             $route = $this->container->get('router')->generate('nononsense_documents_edit', array("id" => $id));
         

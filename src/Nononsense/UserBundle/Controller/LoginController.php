@@ -256,7 +256,7 @@ class LoginController extends Controller
             } catch (\Exception $e) {
 
                 $response->setContent(json_encode([
-                    'Error: ' => $e->getMessage()
+                    'Error: ' => "Error en la autentificación"
                 ]));
             }
 

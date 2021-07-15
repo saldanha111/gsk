@@ -83,7 +83,7 @@ class MaterialCleanCentersController extends Controller
             } catch (Exception $e) {
                 $this->get('session')->getFlashBag()->add(
                     'error',
-                    "Error al intentar guardar los datos del material: " . $e->getMessage()
+                    "Error al intentar guardar los datos del material: "
                 );
             }
         }
@@ -121,7 +121,7 @@ class MaterialCleanCentersController extends Controller
         } catch (Exception $e) {
             $this->get('session')->getFlashBag()->add(
                 'error',
-                "Error al intentar inactivar el centro: " . $e->getMessage()
+                "Error al intentar inactivar el centro: "
             );
         }
 

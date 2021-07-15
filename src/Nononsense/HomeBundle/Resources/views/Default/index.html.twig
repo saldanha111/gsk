@@ -53,7 +53,7 @@
                         <div>
                             <h4> <small>[{{ item.created|localizeddate('medium', 'none', app.request.locale)}}]</small> 
                                 <a href="{{path('nononsense_news_show', {'id': item.id}) }}">{{ item.title }}</a></h4>
-                            {{ item.body|striptags|truncate(100)|raw}}
+                            {{ item.body|escape_tags|striptags|truncate(100)|raw}}
                         </div>
                         <div class="hr-line-dashed" style="margin: 10px 0"></div>
                     {% endfor %}   
