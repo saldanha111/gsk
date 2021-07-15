@@ -377,7 +377,7 @@ class AccountRequestController extends Controller
 		
 		//error_reporting(0);
 
-		$mudid = $request->get('mudid');
+		$mudid = preg_replace('/[^a-z0-9]/i', '', $request->get('mudid'));
 
 		// if (isset($mudid) && $mudid) {
 		// 	# code...
@@ -393,6 +393,10 @@ class AccountRequestController extends Controller
 		$userSearch  = str_replace('{uid_key}', $uid_key, $filter);
 
 		try {
+			if (!$mudid) {
+				throw new \Exception("MUD ID introducino no encontrado");
+			}
+			
 			$ldap   = $this->container->get('ldap');
 			$bind   = $ldap->bind($ldapdn, $ldappass);
 	        $query  = $ldap->find($queryDn, $userSearch, ['mail','displayname']);
