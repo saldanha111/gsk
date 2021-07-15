@@ -27,7 +27,7 @@ class CertificationController extends Controller
 
 		if (!$this->isAllowed('crt_gestion')) return $this->redirect($this->generateUrl('nononsense_home_homepage'));
 
-		$certifications = $this->getDoctrine()->getRepository(Certifications::class)->findAll();
+		$certifications = $this->getDoctrine()->getRepository(Certifications::class)->findBy(array(),array("id" => "DESC"));
 
 		return $this->render('NononsenseHomeBundle:Certifications:certifications.html.twig', ['certifications' => $certifications]);
 	}

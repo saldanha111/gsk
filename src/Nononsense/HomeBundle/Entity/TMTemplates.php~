@@ -90,7 +90,7 @@ class TMTemplates
     /**
      * @var string
      *
-     * @ORM\Column(name="plantilla_id", type="string")
+     * @ORM\Column(name="plantilla_id", type="string", nullable=true)
      */
     protected $plantilla_id;
 
@@ -1315,5 +1315,28 @@ class TMTemplates
     public function getNeedNewEdition()
     {
         return $this->needNewEdition;
+    }
+
+    /**
+     * Set notFillableItSelf
+     *
+     * @param boolean $notFillableItSelf
+     * @return TMTemplates
+     */
+    public function setNotFillableItSelf($notFillableItSelf)
+    {
+        $this->notFillableItSelf = $notFillableItSelf;
+
+        return $this;
+    }
+
+    /**
+     * Get notFillableItSelf
+     *
+     * @return boolean 
+     */
+    public function getNotFillableItSelf()
+    {
+        return $this->notFillableItSelf;
     }
 }

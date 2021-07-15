@@ -187,6 +187,13 @@ class RecordsContracts
      */
     protected $pinComite;
 
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="worker_name", type="string", length=50, nullable=true)
+     */
+    protected $workerName;
+
 
     /**
      * InstanciasWorkflows constructor.
@@ -798,5 +805,28 @@ class RecordsContracts
     public function getPinComite()
     {
         return $this->pinComite;
+    }
+
+    /**
+     * Set workerName
+     *
+     * @param string $workerName
+     * @return RecordsContracts
+     */
+    public function setWorkerName($workerName)
+    {
+        $this->workerName = $workerName;
+
+        return $this;
+    }
+
+    /**
+     * Get workerName
+     *
+     * @return string 
+     */
+    public function getWorkerName()
+    {
+        return $this->workerName;
     }
 }

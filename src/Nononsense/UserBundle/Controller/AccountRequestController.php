@@ -113,7 +113,7 @@ class AccountRequestController extends Controller
 		            //Application submitted successfully
 		            $this->get('session')->getFlashBag()->add('success', 'Solicitud enviada con éxito');
 	            } catch (\Exception $e) {
-	            	$this->get('session')->getFlashBag()->add('errors', $e->getMessage());
+	            	$this->get('session')->getFlashBag()->add('errors', "Error");
 	            }
         	
             return $this->redirect($this->generateUrl('nononsense_user_crate_requests'));
@@ -150,7 +150,7 @@ class AccountRequestController extends Controller
 
 				
 			} catch (\Exception $e) {
-				$message = ['type' => 'error', 'message' => $e->getMessage()];
+				$message = ['type' => 'error', 'message' => "error"];
 			}
 
 			$response = new JsonResponse($message);
@@ -284,7 +284,7 @@ class AccountRequestController extends Controller
 		
 		//error_reporting(0);
 
-		$mudid = $request->get('mudid');
+		$mudid = preg_replace('/[^a-z0-9]/i', '', $request->get('mudid'));
 
 		// if (isset($mudid) && $mudid) {
 		// 	# code...
@@ -300,6 +300,10 @@ class AccountRequestController extends Controller
 		$userSearch  = str_replace('{uid_key}', $uid_key, $filter);
 
 		try {
+			if (!$mudid) {
+				throw new \Exception("MUD ID introducino no encontrado");
+			}
+			
 			$ldap   = $this->container->get('ldap');
 			$bind   = $ldap->bind($ldapdn, $ldappass);
 	        $query  = $ldap->find($queryDn, $userSearch, ['mail','displayname']);
@@ -310,7 +314,7 @@ class AccountRequestController extends Controller
 
 	        $message = ['type' => 'success', 'message' => $query];
 		} catch (\Exception $e) {
-			$message = ['type' => 'error', 'message' => $e->getMessage()];
+			$message = ['type' => 'error', 'message' => "error"];
 		}
 
 		$response = new JsonResponse($message);
@@ -353,7 +357,7 @@ class AccountRequestController extends Controller
 				$this->get('session')->getFlashBag()->add('success', 'Solicitud enviada con éxito');
 				$em->flush();
 			} catch (\Exception $e) {
-				$this->get('session')->getFlashBag()->add('errors', $e->getMessage());
+				$this->get('session')->getFlashBag()->add('errors', "error");
 			}
 
 		}

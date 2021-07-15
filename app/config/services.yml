@@ -21,6 +21,11 @@ services:
         public: false
         tags:
             - { name: twig.extension }
+    escapetags.twig_extension:
+        class: Nononsense\HomeBundle\Twig\EscapeTagsExtension
+        public: false
+        tags:
+            - { name: twig.extension }
     urldecode.twig_extension:
         class: Nononsense\HomeBundle\Twig\UrldecodeExtension
         public: false

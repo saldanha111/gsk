@@ -255,7 +255,9 @@ class LoginController extends Controller
 
                 print_r($query);
             } catch (\Exception $e) {
-                print_r($e->getMessage());
+                $response->setContent(json_encode([
+                    'Error: ' => "Error en la autentificación"
+                ]));
             }
 
             die();

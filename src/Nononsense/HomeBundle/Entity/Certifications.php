@@ -57,6 +57,11 @@ class Certifications
      */
     private $path;
 
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    protected $modified;
+
 
     /**
      * Get id
@@ -181,5 +186,28 @@ class Certifications
     public function getPath()
     {
         return $this->path;
+    }
+
+    /**
+     * Set modified
+     *
+     * @param \DateTime $modified
+     * @return Certifications
+     */
+    public function setModified($modified)
+    {
+        $this->modified = $modified;
+
+        return $this;
+    }
+
+    /**
+     * Get modified
+     *
+     * @return \DateTime 
+     */
+    public function getModified()
+    {
+        return $this->modified;
     }
 }

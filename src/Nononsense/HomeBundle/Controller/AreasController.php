@@ -140,7 +140,7 @@ class AreasController extends Controller
         }catch (\Exception $e) {
             $this->get('session')->getFlashBag()->add(
                     'error',
-                    "Error desconocido al intentar guardar los datos del are".$e->getMessage()
+                    "Error desconocido al intentar guardar los datos del area"
                 );
             $route = $this->container->get('router')->generate('nononsense_areas_edit', array("id" => $id));
         

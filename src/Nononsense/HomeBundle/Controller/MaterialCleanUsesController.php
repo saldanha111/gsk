@@ -163,7 +163,7 @@ class MaterialCleanUsesController extends Controller
         } catch (Exception $e) {
             $this->get('session')->getFlashBag()->add(
                 'error',
-                "Error al intentar registrar la verificación: " . $e->getMessage()
+                "Error al intentar registrar la verificación"
             );
             return $this->redirect($this->generateUrl('nononsense_mclean_uses_view',['barcode' => $id]));
         }

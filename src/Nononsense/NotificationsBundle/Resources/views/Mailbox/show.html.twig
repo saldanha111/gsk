@@ -28,7 +28,7 @@
 
 
     <div class="mail-body">
-        {{message.body|raw}}
+        {{message.body|escape_tags|raw}}
     </div>
 
     <div class="mail-body text-right tooltip-demo mail-footer">

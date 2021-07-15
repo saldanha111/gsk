@@ -322,7 +322,7 @@ class ProductsController extends Controller
         } catch (Exception $e) {
             $saved = [
                 'error' => 1,
-                'message' => 'Error al intentar guardar los datos del producto: ' . $e->getMessage(),
+                'message' => 'Error al intentar guardar los datos del producto',
                 'productId' => ''
             ];
         }
@@ -685,7 +685,7 @@ class ProductsController extends Controller
             } catch (Exception $e) {
                 $this->get('session')->getFlashBag()->add(
                     'error',
-                    "Error al intentar guardar los datos de la recepción: " . $e->getMessage()
+                    "Error al intentar guardar los datos de la recepción"
                 );
             }
         }
@@ -742,7 +742,7 @@ class ProductsController extends Controller
         } catch (Exception $e) {
             $this->get('session')->getFlashBag()->add(
                 'error',
-                "Error al intentar inactivar el producto: " . $e->getMessage()
+                "Error al intentar inactivar el producto"
             );
         }
 
@@ -771,7 +771,7 @@ class ProductsController extends Controller
         } catch (Exception $e) {
             $this->get('session')->getFlashBag()->add(
                 'error',
-                "Error al intentar destruir el producto: " . $e->getMessage()
+                "Error al intentar destruir el producto"
             );
         }
 
@@ -929,7 +929,7 @@ class ProductsController extends Controller
             } catch (Exception $e) {
                 $this->get('session')->getFlashBag()->add(
                     'error',
-                    "Error al intentar guardar los datos de la retirada: " . $e->getMessage()
+                    "Error al intentar guardar los datos de la retirada"
                 );
             }
         }

@@ -224,8 +224,9 @@
                 {% endif %}
                 <div class="hr-line-dashed"></div>
                 <!-- This control is hidden -->
-                <div class="hiddenField">                
-                    {{ form_widget(createUser.description) }}
+                <div class="hiddenField"> 
+
+                    {{ form_widget(createUser.description, {'value': createUser.description.vars.value|escape_tags}) }}
                 </div>
                 {% if form_errors(createUser.description) %}    
                     <div class="alert alert-danger alert-dismissable">

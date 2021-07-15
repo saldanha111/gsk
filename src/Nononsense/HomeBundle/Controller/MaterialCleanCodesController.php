@@ -145,7 +145,7 @@ class MaterialCleanCodesController extends Controller
             } catch (\Exception $e) {
                 $this->get('session')->getFlashBag()->add(
                     'error',
-                    "Error al intentar guardar los datos del material: " . $e->getMessage()
+                    "Error al intentar guardar los datos del material "
                 );
             }
         }
@@ -263,7 +263,7 @@ class MaterialCleanCodesController extends Controller
         } catch (BCodeException | BColorException $e) {
             $this->get('session')->getFlashBag()->add(
                 'error',
-                "Se ha producido un error al intentar obtener el código de barras: " . $e->getMessage()
+                "Se ha producido un error al intentar obtener el código de barras "
             );
         }
         $barcodeImg = self::addBarcodeInfoData($result, 540, 140, $mcCode->getCode());

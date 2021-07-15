@@ -21,12 +21,11 @@ class RecordsDocumentsRepository extends EntityRepository
             ->leftJoin("r.type", "t")
             ->leftJoin("r.userCreatedEntiy", "u")
             ->leftJoin("r.document", "d")
-            ->leftJoin("r.signatures", "s")
+            ->leftJoin("r.signatures", "s", "WITH", '(s.next=1 OR s.next IS NULL) OR (r.status=3 AND s.id=r.lastSign) or (r.comments IS NOT NULL and s.number=0)')
             ->leftJoin("s.userEntiy", "u2")
             ->leftJoin("s.groupEntiy", "g2")
             ->andWhere('r.isActive=1')
             ->andWhere('r.status>0')
-            ->andWhere('(s.next=1 OR s.next IS NULL) OR (r.status=3 AND s.id=r.lastSign) or (r.comments IS NOT NULL and s.number=0)')
             ->orderBy('r.id', 'DESC');
 
 
@@ -116,6 +115,14 @@ class RecordsDocumentsRepository extends EntityRepository
 
             if (isset($filters["user"])) {
                 $user = $filters["user"];
+            }
+
+            if(isset($filters["content"])){
+                $terms = explode(" ", $filters["content"]);
+                foreach($terms as $key => $term){
+                    $list->andWhere('r.stepDataValue LIKE :content'.$key);
+                    $list->setParameter('content'.$key, '%' . $term. '%');
+                }
             }
 
             if(isset($filters["name"])){

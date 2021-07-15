@@ -171,7 +171,7 @@ class MaterialCleanCleansController extends Controller
         } catch (Exception $e) {
             $this->get('session')->getFlashBag()->add(
                 'error',
-                "Error al intentar guardar los datos de la limpieza: " . $e->getMessage()
+                "Error al intentar guardar los datos de la limpieza "
             );
         }
         return $this->redirect($this->generateUrl('nononsense_mclean_cleans_view', ['barcode' => $id]));
@@ -186,7 +186,7 @@ class MaterialCleanCleansController extends Controller
             $expirationDate = null;
             $this->get('session')->getFlashBag()->add(
                 'error',
-                "No se ha podido recuperar el tiempo de caducidad de la limpieza: " . $e->getMessage()
+                "No se ha podido recuperar el tiempo de caducidad de la limpieza "
             );
         }
         return $expirationDate;

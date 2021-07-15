@@ -64,7 +64,7 @@
                         <i class="fa fa-calendar"> </i> <strong>{{'Created'|trans}}:</strong> {{ group.created|localizeddate('medium', 'medium', app.request.locale)}}<br />
                     </address>
                     <h4>{{'Description'|trans}}</h4>
-                    {{group.description|raw}}
+                    {{group.description|escape_tags|raw}}
                     
                     <div class="row">
                         {% if editable %}
