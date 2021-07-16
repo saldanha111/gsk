@@ -13,8 +13,32 @@
     .details-row td{
         vertical-align: middle !important;
     }
+    .loader {
+        border: 12px solid #f3f3f3;
+        border-top: 12px solid #1b9cd5;
+        border-radius: 50%;
+        width: 80px;
+        height: 80px;
+        animation: spin 1s linear infinite;
+    }
 
- 
+    .loader-backdrop{
+        position: fixed;
+        background: #ffffffc9;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        z-index: 999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
 </style>
 {% endblock %}
 {% block main_title %} Informe de usuarios{% endblock %}
@@ -38,7 +62,7 @@
                                 <input type="text" name="mudid" class="form-control" value="{{filters.mudid is defined ? filters.mudid : ''}}">
                             </div>
 
-                            <label class="col-sm-2 control-label item_filter">Estado de la solicitud:</label>
+<!--                             <label class="col-sm-2 control-label item_filter">Estado de la solicitud:</label>
                             <div class="col-sm-2 item_filter">
                                 <select class="form-control" name="status">
                                     <option value="">Todos</option>
@@ -48,8 +72,20 @@
                                         </option>
                                     {% endfor %}
                                 </select>
-                            </div>
+                            </div> -->
                              
+                            <label class="col-sm-2 control-label item_filter">Tipo de solicitud:</label>
+                            <div class="col-sm-2 item_filter">
+                                <select class="form-control" name="type">
+                                    <option value="">Todos</option>
+                                    {% for i in 0..1 %}
+                                        <option value="{{i}}" {{ filters.requestType is not empty and filters.requestType == i ? 'selected="selected"' : ''}}>
+                                             {{ i == 1 ? "Alta" : "Baja"}}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
                         </div>
                         <div class="form-group">
                             <label class="col-sm-1 control-label item_filter">Fecha </label>
@@ -75,9 +111,10 @@
                             <tr>
                                 <th>NUMERO DE SOLICITUD</th>
                                 <th>MUD ID</th>
-                                <th>NOMBRE Y APELLIDOS</th>
+                                <th>NOMBRE Y APELLIDOS DEL SOLICITANTE</th>
                                 <th>FECHA DE SOLICITUD</th>
                                 <th>REVISADOS</th>
+                                <th>TIPO DE SOLICITUD</th>
                             </tr>
                         </thead>
                         {% if accountRequests is defined %}
@@ -91,10 +128,12 @@
                                 {# <td>
                                      <a href="{{ path('nononsense_user_update_requests', {id: row.id})}}" class="btn btn-danger btn-sm" style="color: white"><i class="fa fa-edit"> </i> </a> 
                                 </td> #}
+                                <td>{{row.requestType == 1 ? 'Alta' : 'Baja'}}</td>
                             </tr>
                             <tr>
                                 <td colspan="5" class="details-row">
                                     <div id="g_{{row.id}}" class="collapse">
+                                        <p style="margin-top: 1rem; margin-bottom: 1rem;"><b>Motivo de la solicitud:</b> {{row.description}}</p>
                                         <table class="table table-striped">
                                             <thead>
                                                 <tr>
@@ -207,6 +246,8 @@
                   "hideMethod": "fadeOut"
                 };
 
+            loader(true);
+
             $.ajax({
                 url: '{{ path("nononsense_user_ajax_update_requests")}}',
                 data: {id: id, status: status, observation: observation },
@@ -229,12 +270,20 @@
                 },
                 error: function(jqXHR, textStatus, errorThrown){
                     toastr.error('Actualmente no podemos procesar su solicitud: '+jqXHR.statusText);
+                },
+                complete: function(e){
+                    loader(false);
                 }
             });
         }   
     });
 
-
+    function loader(status){
+        $('.loader-backdrop').remove();
+        if (status) {
+            $('<div class="loader-backdrop"><div class="loader"></div></div>').appendTo('body');
+        }
+    }
   });
 </script>
 {% endblock %}

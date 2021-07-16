@@ -81,6 +81,12 @@ class AccountRequests
     */
     private $request;
 
+    /**
+     * @var boolean
+     *
+     * @ORM\Column(name="requestType", type="boolean", nullable=true)
+     */
+    private $requestType = 0;
 
     /**
      * Get id
@@ -301,5 +307,28 @@ class AccountRequests
     public function getRequest()
     {
         return $this->request;
+    }
+
+    /**
+     * Set requestType
+     *
+     * @param boolean $requestType
+     * @return AccountRequests
+     */
+    public function setRequestType($requestType)
+    {
+        $this->requestType = $requestType;
+
+        return $this;
+    }
+
+    /**
+     * Get requestType
+     *
+     * @return boolean 
+     */
+    public function getRequestType()
+    {
+        return $this->requestType;
     }
 }

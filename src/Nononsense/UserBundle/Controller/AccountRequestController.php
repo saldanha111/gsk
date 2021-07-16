@@ -34,6 +34,7 @@ class AccountRequestController extends Controller
         $filters['from']     	= $request->get('from');
         $filters['until']    	= $request->get('until');
         $filters['mudid']    	= $request->get('mudid');
+        $filters['requestType'] = $request->get('type');
         $limit 					= 15;
 
 		$accountRequests     	= $this->getDoctrine()->getRepository(AccountRequests::class)->listBy($filters, $limit);
@@ -84,6 +85,7 @@ class AccountRequestController extends Controller
 	            		$bulkRequest->setEmail($form->get('email')->getData());
 	            		$bulkRequest->setUsername($form->get('username')->getData());
 	            		$bulkRequest->setDescription($form->get('description')->getData());
+	            		$bulkRequest->setRequestType($form->get('requestType')->getData());
 
 	            		foreach ($groups as $key => $group) {
 			            	$bulkGroupRequest = new AccountRequestsGroups();
@@ -113,7 +115,7 @@ class AccountRequestController extends Controller
 		            //Application submitted successfully
 		            $this->get('session')->getFlashBag()->add('success', 'Solicitud enviada con éxito');
 	            } catch (\Exception $e) {
-	            	$this->get('session')->getFlashBag()->add('errors', "Error");
+	            	$this->get('session')->getFlashBag()->add('errors', 'Error al firmar su solicitud, intentelo de nuevo');
 	            }
         	
             return $this->redirect($this->generateUrl('nononsense_user_crate_requests'));
@@ -126,31 +128,61 @@ class AccountRequestController extends Controller
 
 			//$id = 'p_1014';
 			$id = trim($request->get('id'), 'p_');
+			$em = $this->getDoctrine()->getManager();
 
 			try {
-				$accountRequest = $this->getDoctrine()->getRepository(AccountRequestsGroups::class)->find($id);
-				$accountRequest->setStatus($request->get('status'));
-				$accountRequest->setObservation(strip_tags($request->get('observation')));
-				$message = ['type' => 'warning', 'message' => 'Solicitud cancelada con éxito'];
+				$accountRequest = $this->getDoctrine()->getRepository(AccountRequestsGroups::class)->findOneBy(['id' => $id]);
 
-				if ($request->get('status') == 1) {
-					$user = $this->checkMudId($accountRequest->getRequestId()->getMudId()); //Get user if exists
-					if (!$user) {
-						$user = $this->addUserAction($accountRequest->getRequestId()); //Create new user if not exists
-						$header = ['apiKey:'.$this->getParameter('api3.key')];
-            			Utils::api3($this->container->getParameter('api3.url').'/record-counter', $header ,'POST', ['type' => 'user']);
+				if ($accountRequest->getRequestId()->getRequestType() == 1) {
+
+					$message = ['type' => 'warning', 'message' => 'Solicitud de alta cancelada con éxito'];
+
+					if ($request->get('status') == 1) {
+						$user = $this->checkMudId($accountRequest->getRequestId()->getMudId()); //Get user if exists
+						if (!$user) {
+							$user = $this->addUserAction($accountRequest->getRequestId()); //Create new user if not exists
+							$header = ['apiKey:'.$this->getParameter('api3.key')];
+	            			Utils::api3($this->container->getParameter('api3.url').'/record-counter', $header ,'POST', ['type' => 'user']);
+						}
+						
+						$groupUser = $em->getRepository(GroupUsers::class)->findOneBy(['user' => $user, 'group' => $accountRequest->getGroupId()]);
+						if (!$groupUser) {
+							$this->addUserGroupAction($accountRequest->getGroupId(), $user);
+						}
+
+						$message = ['type' => 'success', 'message' => 'Solicitud de alta aceptada con éxito'];
 					}
-					$this->addUserGroupAction($accountRequest->getGroupId(), $user);
-					$message = ['type' => 'success', 'message' => 'Solicitud aceptada con éxito'];
+
+				}else{
+					
+					$message = ['type' => 'warning', 'message' => 'Solicitud de baja cancelada con éxito'];
+
+					if ($request->get('status') == 1) {
+
+						$user = $this->checkMudId($accountRequest->getRequestId()->getMudId());
+						if ($user) {
+						
+							$groupUser = $em->getRepository(GroupUsers::class)->findOneBy(['user' => $user, 'group' => $accountRequest->getGroupId()]);
+
+							if ($groupUser) {
+								$em->remove($groupUser);
+							}
+
+						}
+						
+						$message = ['type' => 'success', 'message' => 'Solicitud de baja aceptada con éxito'];
+					}
 				}
 
-				$em = $this->getDoctrine()->getManager();
+				$accountRequest->setStatus($request->get('status'));
+				$accountRequest->setObservation(strip_tags($request->get('observation')));
+
 				$em->persist($accountRequest);
 				$em->flush();
 
 				
 			} catch (\Exception $e) {
-				$message = ['type' => 'error', 'message' => "error"];
+				$message = ['type' => 'error', 'message' => $e->getMessage()];
 			}
 
 			$response = new JsonResponse($message);
@@ -301,7 +333,7 @@ class AccountRequestController extends Controller
 
 		try {
 			if (!$mudid) {
-				throw new \Exception("MUD ID introducino no encontrado");
+				throw new \Exception("MUD ID introducido no encontrado");
 			}
 			
 			$ldap   = $this->container->get('ldap');
@@ -309,12 +341,16 @@ class AccountRequestController extends Controller
 	        $query  = $ldap->find($queryDn, $userSearch, ['mail','displayname']);
 
 	        if (!$query) {
-	        	throw new \Exception("MUD ID introducino no encontrado");
+	        	throw new \Exception("MUD ID introducido no encontrado");
+	        }
+
+	        if (!isset($query[0]['mail'][0]) || !trim($query[0]['mail'][0])) {
+	        	throw new \Exception("El MUD ID introducido deber tener un email asociado");
 	        }
 
 	        $message = ['type' => 'success', 'message' => $query];
 		} catch (\Exception $e) {
-			$message = ['type' => 'error', 'message' => "error"];
+			$message = ['type' => 'error', 'message' => $e->getMessage()];
 		}
 
 		$response = new JsonResponse($message);
@@ -324,7 +360,7 @@ class AccountRequestController extends Controller
 
 	public function removeAction(Request $request)
 	{
-		if (!$this->getUser()) return $this->redirect($this->generateUrl('nononsense_user_login'));
+		//if (!$this->getUser()) return $this->redirect($this->generateUrl('nononsense_user_login'));
 
 		$em = $this->getDoctrine()->getManager();
 		$user = $em->getRepository(Users::class)->findOneBy(['id' => $this->getUser()]);

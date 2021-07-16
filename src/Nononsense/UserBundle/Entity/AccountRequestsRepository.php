@@ -43,6 +43,11 @@ class AccountRequestsRepository extends EntityRepository
             $list->setParameter('until', $filter["until"]." 23:59:00");
         }
 
+        if(isset($filter["requestType"]) && is_numeric($filter['requestType'])){
+            $list->andWhere('u.requestType = :requestType');
+            $list->setParameter('requestType', $filter["requestType"]);
+        }
+
         $list->setFirstResult($limit*($filter["page"]-1))->setMaxResults($limit);
 
         $accountRequests['rows']  = $list->getQuery()->getResult();
