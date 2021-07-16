@@ -115,7 +115,7 @@ class AccountRequestController extends Controller
 		            //Application submitted successfully
 		            $this->get('session')->getFlashBag()->add('success', 'Solicitud enviada con éxito');
 	            } catch (\Exception $e) {
-	            	$this->get('session')->getFlashBag()->add('errors', $e->getMessage());
+	            	$this->get('session')->getFlashBag()->add('errors', 'Error al firmar su solicitud, intentelo de nuevo');
 	            }
         	
             return $this->redirect($this->generateUrl('nononsense_user_crate_requests'));
