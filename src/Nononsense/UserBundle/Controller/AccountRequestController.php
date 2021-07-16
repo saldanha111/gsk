@@ -179,8 +179,6 @@ class AccountRequestController extends Controller
 
 				if ($accountRequest->getRequestId()->getRequestType() == 1) {
 
-					$accountRequest->setStatus($request->get('status'));
-					$accountRequest->setObservation(strip_tags($request->get('observation')));
 					$message = ['type' => 'warning', 'message' => 'Solicitud de alta cancelada con éxito'];
 
 					if ($request->get('status') == 1) {
@@ -199,10 +197,8 @@ class AccountRequestController extends Controller
 						$message = ['type' => 'success', 'message' => 'Solicitud de alta aceptada con éxito'];
 					}
 
-					$em->persist($accountRequest);
-					$em->flush();
-
 				}else{
+					
 					$message = ['type' => 'warning', 'message' => 'Solicitud de baja cancelada con éxito'];
 
 					if ($request->get('status') == 1) {
@@ -212,21 +208,21 @@ class AccountRequestController extends Controller
 						
 							$groupUser = $em->getRepository(GroupUsers::class)->findOneBy(['user' => $user, 'group' => $accountRequest->getGroupId()]);
 
-							$accountRequest->setStatus($request->get('status'));
-							$accountRequest->setObservation(strip_tags($request->get('observation')));
-
 							if ($groupUser) {
 								$em->remove($groupUser);
 							}
-
-							$em->persist($accountRequest);
-							$em->flush();
 
 						}
 						
 						$message = ['type' => 'success', 'message' => 'Solicitud de baja aceptada con éxito'];
 					}
 				}
+
+				$accountRequest->setStatus($request->get('status'));
+				$accountRequest->setObservation(strip_tags($request->get('observation')));
+
+				$em->persist($accountRequest);
+				$em->flush();
 
 				
 			} catch (\Exception $e) {
@@ -439,6 +435,10 @@ class AccountRequestController extends Controller
 
 	        if (!$query) {
 	        	throw new \Exception("MUD ID introducido no encontrado");
+	        }
+
+	        if (!isset($query[0]['mail'][0]) || !trim($query[0]['mail'][0])) {
+	        	throw new \Exception("El MUD ID introducido deber tener un email asociado");
 	        }
 
 	        $message = ['type' => 'success', 'message' => $query];
