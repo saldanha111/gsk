@@ -85,7 +85,7 @@ class TMSignatures
     /**
      * @var string
      *
-     * @ORM\Column(name="version", type="string")
+     * @ORM\Column(name="version", type="string", nullable=true)
      */
     protected $version;
 
@@ -99,7 +99,7 @@ class TMSignatures
     /**
      * @var string
      *
-     * @ORM\Column(name="configuration", type="string")
+     * @ORM\Column(name="configuration", type="string", nullable=true)
      */
     protected $configuration;
 

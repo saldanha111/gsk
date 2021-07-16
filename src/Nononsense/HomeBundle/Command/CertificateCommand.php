@@ -34,6 +34,7 @@ class CertificateCommand extends ContainerAwareCommand
 					if ($certification->getHash()) {
 						$crt = Utils::api3($url, $header, 'POST', ['hash' => $certification->getHash()]);
 						$certification->setTxHash(json_decode($crt)->tx_hash);
+						$certification->setModified(new \DateTime());
 						$em->persist($certification);
 						$em->flush();
 						$output->writeln([$certification->getHash().'->'.json_decode($crt)->tx_hash]);
