@@ -208,18 +208,22 @@ class AccountRequestController extends Controller
 					if ($request->get('status') == 1) {
 
 						$user = $this->checkMudId($accountRequest->getRequestId()->getMudId());
-						$groupUser = $em->getRepository(GroupUsers::class)->findOneBy(['user' => $user, 'group' => $accountRequest->getGroupId()]);
+						if ($user) {
+						
+							$groupUser = $em->getRepository(GroupUsers::class)->findOneBy(['user' => $user, 'group' => $accountRequest->getGroupId()]);
 
-						$accountRequest->setStatus($request->get('status'));
-						$accountRequest->setObservation(strip_tags($request->get('observation')));
+							$accountRequest->setStatus($request->get('status'));
+							$accountRequest->setObservation(strip_tags($request->get('observation')));
 
-						if ($groupUser) {
-							$em->remove($groupUser);
+							if ($groupUser) {
+								$em->remove($groupUser);
+							}
+
+							$em->persist($accountRequest);
+							$em->flush();
+
 						}
-
-						$em->persist($accountRequest);
-						$em->flush();
-
+						
 						$message = ['type' => 'success', 'message' => 'Solicitud de baja aceptada con éxito'];
 					}
 				}
