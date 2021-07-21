@@ -158,8 +158,10 @@
                     {% if count==0 %}
                         <br><b>Ninguna plantilla coincide con criterios de búsqueda</b>
                     {% endif %}
-                    {% if pagination is defined and pagination.needed %}
-                        {% include '::pagination2.html.twig' %}
+                    {% if pagination is defined %}
+                        {% if pagination.needed %}
+                            {% include '::pagination2.html.twig' %}
+                        {% endif %}
                         <a href="{{pagination.url}}{{pagination.character}}export_excel=1" target="_blank" class="btn btn-primary pull-right"><i class="fa fa-file-excel-o" aria-hidden="true"></i> Excel</a> 
                         <a href="{{pagination.url}}{{pagination.character}}export_pdf=1" target="_blank" class="btn btn-primary pull-right" style="margin-right:1px"><i class="fa fa-file-pdf-o" aria-hidden="true"></i> PDF</a> 
                     {% endif %}
