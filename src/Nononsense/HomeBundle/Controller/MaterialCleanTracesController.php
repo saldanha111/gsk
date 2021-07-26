@@ -124,16 +124,16 @@ class MaterialCleanTracesController extends Controller
                     ->setCellValue('G'.$i, ($item->getCleanExpiredDate() ? $item->getCleanExpiredDate()->format('Y-m-d H:i:s') : ''))
                     ->setCellValue('H'.$i, ($item->getVerificationUser() ? $item->getVerificationUser()->getName() : ''))
                     ->setCellValue('I'.$i, ($item->getVerificationDate() ? $item->getVerificationDate()->format('Y-m-d H:i:s') : ''))
-                    ->setCellValue('J'.$i, $item->getUseInformation())
+                    ->setCellValue('J'.$i, substr($item->getUseInformation(), 0, 45))
                     ->setCellValue('K'.$i, ($item->getDirtyMaterialUser() ? $item->getDirtyMaterialUser()->getName() : ''))
                     ->setCellValue('L'.$i, ($item->getDirtyMaterialDate() ? $item->getDirtyMaterialDate()->format('Y-m-d H:i:s') : ''))
                     ->setCellValue('M'.$i, ($item->getReviewUser() ? $item->getReviewUser()->getName() : ''))
                     ->setCellValue('N'.$i, ($item->getReviewDate() ? $item->getReviewDate()->format('Y-m-d H:i:s') : ''))
-                    ->setCellValue('O'.$i, $item->getReviewInformation());
+                    ->setCellValue('O'.$i, substr($item->getReviewInformation(), 0, 45));
                 }
 
                 if($request->get("export_pdf")){
-                    $html.='<tr style="font-size:8px"><td>'.$item->getLotNumber().'</td><td>'.$item->getMaterial()->getName().$other_material.'</td><td>'.$status.'</td><td>'.$item->getCode().'</td><td>'.$item->getCleanUser()->getName().'</td><td>'.($item->getCleanDate() ? $item->getCleanDate()->format('Y-m-d H:i:s') : '').'</td><td>'.($item->getCleanExpiredDate() ? $item->getCleanExpiredDate()->format('Y-m-d H:i:s') : '').'</td><td>'. ($item->getVerificationUser() ? $item->getVerificationUser()->getName() : '').'</td><td>'.($item->getVerificationDate() ? $item->getVerificationDate()->format('Y-m-d H:i:s') : '').'</td><td>'.$item->getUseInformation().'</td><td>'.($item->getDirtyMaterialUser() ? $item->getDirtyMaterialUser()->getName() : '').'</td><td>'.($item->getDirtyMaterialDate() ? $item->getDirtyMaterialDate()->format('Y-m-d H:i:s') : '').'</td><td>'.($item->getReviewUser() ? $item->getReviewUser()->getName() : '').'</td><td>'.($item->getReviewDate() ? $item->getReviewDate()->format('Y-m-d H:i:s') : '').'</td><td>'.$item->getReviewInformation().'</td></tr>';
+                    $html.='<tr style="font-size:8px"><td>'.$item->getLotNumber().'</td><td>'.$item->getMaterial()->getName().$other_material.'</td><td>'.$status.'</td><td>'.$item->getCode().'</td><td>'.$item->getCleanUser()->getName().'</td><td>'.($item->getCleanDate() ? $item->getCleanDate()->format('Y-m-d H:i:s') : '').'</td><td>'.($item->getCleanExpiredDate() ? $item->getCleanExpiredDate()->format('Y-m-d H:i:s') : '').'</td><td>'. ($item->getVerificationUser() ? $item->getVerificationUser()->getName() : '').'</td><td>'.($item->getVerificationDate() ? $item->getVerificationDate()->format('Y-m-d H:i:s') : '').'</td><td>'.substr($item->getUseInformation(), 0, 45).'</td><td>'.($item->getDirtyMaterialUser() ? $item->getDirtyMaterialUser()->getName() : '').'</td><td>'.($item->getDirtyMaterialDate() ? $item->getDirtyMaterialDate()->format('Y-m-d H:i:s') : '').'</td><td>'.($item->getReviewUser() ? $item->getReviewUser()->getName() : '').'</td><td>'.($item->getReviewDate() ? $item->getReviewDate()->format('Y-m-d H:i:s') : '').'</td><td>'.substr($item->getReviewInformation(), 0, 45).'</td></tr>';
                 }
 
                 $i++;
