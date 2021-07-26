@@ -126,7 +126,7 @@ class MaterialCleanTracesController extends Controller
                     $sintax_head_f="";
                 }
 
-                $html='<br><table autosize="1" style="overflow:wrap;width:100%"><tr style="font-size:8px;width:100%">
+                $html.='<br><table autosize="1" style="overflow:wrap;width:100%"><tr style="font-size:8px;width:100%">
                 <th style="font-size:8px;">P.order</th>
                 <th style="font-size:8px;">Material</th>
                 <th style="font-size:8px;">Estado</th>
