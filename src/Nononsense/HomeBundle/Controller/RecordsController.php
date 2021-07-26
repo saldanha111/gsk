@@ -188,6 +188,11 @@ class RecordsController extends Controller
                     $sintax_head_f="";
                 }
 
+                if($request->get("pending_for_me")){
+                    $html.=$sintax_head_f."Pendientes por mí<br>";
+                    $sintax_head_f="";
+                }
+
                 $html.='<table autosize="1" style="overflow:wrap;width:100%"><tr style="font-size:8px;width:100%">
                 <th style="font-size:8px;width:6%">Nº</th>
                 <th style="font-size:8px;width:44%">Nombre</th>
