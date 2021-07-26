@@ -77,7 +77,56 @@ class MaterialCleanTracesController extends Controller
             }
 
             if($request->get("export_pdf")){
-                $html='<html><body style="font-size:8px;width:100%"><table autosize="1" style="overflow:wrap;width:100%"><tr style="font-size:8px;width:100%">
+                $html='<html><body style="font-size:8px;width:100%">';
+                $sintax_head_f="<b>Filtros:</b><br>";
+
+                if($request->get("material")){
+                    $html.=$sintax_head_f."Material => ".$request->get("material")."<br>";
+                    $sintax_head_f="";
+                }
+
+                if($request->get("lot")){
+                    $html.=$sintax_head_f."Proccess order => ".$request->get("lot")."<br>";
+                    $sintax_head_f="";
+                }
+
+                if($request->get("user")){
+                    $html.=$sintax_head_f."Usuario => ".$request->get("user")."<br>";
+                    $sintax_head_f="";
+                }
+
+                if($request->get("state")){
+                    switch($request->get("state")){
+                        case 1: $hstate="Material limpio";break;
+                        case 2: $hstate="Verificado limpieza";break;
+                        case 3: $hstate="Limpieza vencida";break;
+                        case 4: $hstate="Revisado";break;
+                    }
+                    $html.=$sintax_head_f."Estado => ".$hstate."<br>";
+                    $sintax_head_f="";
+                }
+
+                if($request->get("clean_date_start")){
+                    $html.=$sintax_head_f."Fecha limpieza desde => ".$request->get("clean_date_start")."<br>";
+                    $sintax_head_f="";
+                }
+
+                if($request->get("clean_date_end")){
+                    $html.=$sintax_head_f."Fecha limpieza hasta => ".$request->get("clean_date_end")."<br>";
+                    $sintax_head_f="";
+                }
+
+                if($request->get("verification_date_start")){
+                    $html.=$sintax_head_f."Fecha verificación desde => ".$request->get("verification_date_start")."<br>";
+                    $sintax_head_f="";
+                }
+
+                if($request->get("verification_date_end")){
+                    $html.=$sintax_head_f."Fecha verificación hasta => ".$request->get("verification_date_end")."<br>";
+                    $sintax_head_f="";
+                }
+
+                $html='<br><table autosize="1" style="overflow:wrap;width:100%"><tr style="font-size:8px;width:100%">
                 <th style="font-size:8px;">P.order</th>
                 <th style="font-size:8px;">Material</th>
                 <th style="font-size:8px;">Estado</th>

@@ -193,7 +193,7 @@ class RecordsController extends Controller
                     $sintax_head_f="";
                 }
 
-                $html.='<table autosize="1" style="overflow:wrap;width:100%"><tr style="font-size:8px;width:100%">
+                $html.='<br><table autosize="1" style="overflow:wrap;width:100%"><tr style="font-size:8px;width:100%">
                 <th style="font-size:8px;width:6%">Nº</th>
                 <th style="font-size:8px;width:44%">Nombre</th>
                 <th style="font-size:8px;width:10%">Creador</th>
