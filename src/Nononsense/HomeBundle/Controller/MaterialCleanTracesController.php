@@ -49,7 +49,123 @@ class MaterialCleanTracesController extends Controller
             }
         }
         $array_item["pagination"] = $this->getPagination($filters, $request, $array_item['count']);
-        return $this->render('NononsenseHomeBundle:MaterialClean:traces_index.html.twig',$array_item);
+        if(!$request->get("export_excel") && !$request->get("export_pdf")){
+            return $this->render('NononsenseHomeBundle:MaterialClean:traces_index.html.twig',$array_item);
+        }
+        else{
+            if($request->get("export_excel")){
+                $phpExcelObject = $this->get('phpexcel')->createPHPExcelObject();
+
+                $phpExcelObject->getProperties();
+                $phpExcelObject->setActiveSheetIndex(0)
+                 ->setCellValue('A1', 'P.order')
+                 ->setCellValue('B1', 'Material')
+                 ->setCellValue('C1', 'Estado')
+                 ->setCellValue('D1', 'Identificador')
+                 ->setCellValue('E1', 'Usuario limpieza')
+                 ->setCellValue('F1', 'Fecha limpieza')
+                 ->setCellValue('G1', 'Fecha caducidad')
+                 ->setCellValue('H1', 'Usuario verificación')
+                 ->setCellValue('I1', 'Fecha verificación')
+                 ->setCellValue('J1', 'Comentario verificación')
+                 ->setCellValue('K1', 'Usuario limpieza vencida')
+                 ->setCellValue('L1', 'Fecha limpieza vencida')
+                 ->setCellValue('M1', 'Usuario revisión')
+                 ->setCellValue('N1', 'Fecha revisión')
+                 ->setCellValue('O1', 'Comentario revisión');
+            }
+
+            if($request->get("export_pdf")){
+                $html='<html><body style="font-size:8px;width:100%"><table autosize="1" style="overflow:wrap;width:100%"><tr style="font-size:8px;width:100%">
+                <th style="font-size:8px;">P.order</th>
+                <th style="font-size:8px;">Material</th>
+                <th style="font-size:8px;">Estado</th>
+                <th style="font-size:8px;">Ident.</th>
+                <th style="font-size:8px;">Usu. limpieza</th>
+                <th style="font-size:8px;">F. limp.</th>
+                <th style="font-size:8px;">F. caducidad</th>
+                <th style="font-size:8px;">Usu. verif.</th>
+                <th style="font-size:8px;">F. verificación</th>
+                <th style="font-size:8px;">Coment. verif.</th>
+                <th style="font-size:8px;">Usu. limp. venc.</th>
+                <th style="font-size:8px;">F. limp. venc.</th>
+                <th style="font-size:8px;">Usuario rev.</th>
+                <th style="font-size:8px;">Fecha rev.</th>
+                <th style="font-size:8px;">Coment. rev.</th>
+                </tr>';
+            }
+
+            $i=2;
+            foreach($array_item["items"] as $item){
+                switch($item->getStatus()){
+                    case 1: $status="Material limpio";break;
+                    case 2: $status="Verificado limpieza";break;
+                    case 3: $status="Limpieza vencida";break;
+                    case 4: $status="Revisado";break;
+                    default: $status="Desconocido";
+                }
+
+                if($item->getMaterialOther()){
+                    $other_material=" - ".$item->getMaterialOther();
+                }
+                else{
+                    $other_material="";
+                }
+
+
+                if($request->get("export_excel")){
+                    $phpExcelObject->getActiveSheet()
+                    ->setCellValue('A'.$i, $item->getLotNumber())
+                    ->setCellValue('B'.$i, $item->getMaterial()->getName().$other_material)
+                    ->setCellValue('C'.$i, $status)
+                    ->setCellValue('D'.$i, $item->getCode())
+                    ->setCellValue('E'.$i, $item->getCleanUser()->getName())
+                    ->setCellValue('F'.$i, ($item->getCleanDate()) ? $item->getCleanDate() : '')
+                    ->setCellValue('G'.$i, ($item->getCleanExpiredDate()) ? $item->getCleanExpiredDate() : ''))
+                    ->setCellValue('H'.$i, $item->getVerificationUser()->getName())
+                    ->setCellValue('I'.$i, ($item->getVerificationDate()) ? $item->getVerificationDate() : ''))
+                    ->setCellValue('J'.$i, $item->getUseInformation())
+                    ->setCellValue('K'.$i, $item->getDirtyMaterialUser()->getName())
+                    ->setCellValue('L'.$i, ($item->getDirtyMaterialDate()) ? $item->getDirtyMaterialDate() : ''))
+                    ->setCellValue('M'.$i, $item->getReviewUser()->getName())
+                    ->setCellValue('N'.$i, ($item->getReviewDate()) ? $item->getReviewDate() : ''))
+                    ->setCellValue('O'.$i, $item->getReviewInformation());
+                }
+
+                if($request->get("export_pdf")){
+                    $html.='<tr style="font-size:8px"><td>'.$item->getLotNumber().'</td><td>'.$item->getMaterial()->getName().$other_material.'</td><td>'.$status.'</td><td>'.$item->getCode().'</td><td>'.$item->getCleanUser()->getName().'</td><td>'.($item->getCleanDate()) ? $item->getCleanDate() : '').'</td><td>'.($item->getCleanExpiredDate()) ? $item->getCleanExpiredDate() : '').'</td><td>'.$item->getVerificationUser()->getName().'</td><td>'.($item->getVerificationDate()) ? $item->getVerificationDate() : '').'</td><td>'.$item->getUseInformation().'</td><td>'.$item->getDirtyMaterialUser()->getName().'</td><td>'.($item->getDirtyMaterialDate()) ? $item->getDirtyMaterialDate() : '').'</td><td>'.$item->getReviewUser()->getName().'</td><td>'.($item->getReviewDate()) ? $item->getReviewDate() : '').'</td><td>'.$item->getReviewInformation().'</td></tr>';
+                }
+
+                $i++;
+            }
+
+            if($request->get("export_excel")){
+                $phpExcelObject->getActiveSheet()->setTitle('Trazabilidad material limpio');
+                // Set active sheet index to the first sheet, so Excel opens this as the first sheet
+                $phpExcelObject->setActiveSheetIndex(0);
+
+                // create the writer
+                $writer = $this->get('phpexcel')->createWriter($phpExcelObject, 'Excel2007');
+                // create the response
+                $response = $this->get('phpexcel')->createStreamedResponse($writer);
+                // adding headers
+                $dispositionHeader = $response->headers->makeDisposition(
+                  ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+                  'trace_material_clean.xlsx'
+                );
+                $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
+                $response->headers->set('Pragma', 'public');
+                $response->headers->set('Cache-Control', 'maxage=1');
+                $response->headers->set('Content-Disposition', $dispositionHeader);
+
+                return $response; 
+            }
+
+            if($request->get("export_pdf")){
+                $html.='</table></body></html>';
+                $this->returnPDFResponseFromHTML($html);
+            }
+        }
     }
 
     /**
@@ -60,13 +176,19 @@ class MaterialCleanTracesController extends Controller
     {
         $filters = [];
 
-        if($request->get("page")){
-            $filters["limit_from"]=$request->get("page")-1;
+        if(!$request->get("export_excel") && !$request->get("export_pdf")){
+            if($request->get("page")){
+                $filters["limit_from"]=$request->get("page")-1;
+            }
+            else{
+                $filters["limit_from"]=0;
+            }
+            $filters["limit_many"]=15;
         }
         else{
             $filters["limit_from"]=0;
+            $filters["limit_many"]=99999999999;
         }
-        $filters["limit_many"]=15;
 
         if($request->get("material")){
             $filters["material"]=$request->get("material");

@@ -62,7 +62,7 @@ class RecordsController extends Controller
             $filters2["pending_for_me"]=$request->get("pending_for_me");
         }
 
-        if(!$request->get("export_excel")){
+        if(!$request->get("export_excel") && !$request->get("export_pdf")){
             if($request->get("page")){
                 $filters["limit_from"]=$request->get("page")-1;
             }
