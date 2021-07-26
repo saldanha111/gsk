@@ -120,20 +120,20 @@ class MaterialCleanTracesController extends Controller
                     ->setCellValue('C'.$i, $status)
                     ->setCellValue('D'.$i, $item->getCode())
                     ->setCellValue('E'.$i, $item->getCleanUser()->getName())
-                    ->setCellValue('F'.$i, ($item->getCleanDate() ? $item->getCleanDate() : ''))
-                    ->setCellValue('G'.$i, ($item->getCleanExpiredDate() ? $item->getCleanExpiredDate() : ''))
+                    ->setCellValue('F'.$i, ($item->getCleanDate() ? $item->getCleanDate()->format('Y-m-d H:i:s') : ''))
+                    ->setCellValue('G'.$i, ($item->getCleanExpiredDate() ? $item->getCleanExpiredDate()->format('Y-m-d H:i:s') : ''))
                     ->setCellValue('H'.$i, ($item->getVerificationUser() ? $item->getVerificationUser()->getName() : ''))
-                    ->setCellValue('I'.$i, ($item->getVerificationDate() ? $item->getVerificationDate() : ''))
+                    ->setCellValue('I'.$i, ($item->getVerificationDate() ? $item->getVerificationDate()->format('Y-m-d H:i:s') : ''))
                     ->setCellValue('J'.$i, $item->getUseInformation())
                     ->setCellValue('K'.$i, ($item->getDirtyMaterialUser() ? $item->getDirtyMaterialUser()->getName() : ''))
-                    ->setCellValue('L'.$i, ($item->getDirtyMaterialDate() ? $item->getDirtyMaterialDate() : ''))
+                    ->setCellValue('L'.$i, ($item->getDirtyMaterialDate() ? $item->getDirtyMaterialDate()->format('Y-m-d H:i:s') : ''))
                     ->setCellValue('M'.$i, ($item->getReviewUser() ? $item->getReviewUser()->getName() : ''))
-                    ->setCellValue('N'.$i, ($item->getReviewDate() ? $item->getReviewDate() : ''))
+                    ->setCellValue('N'.$i, ($item->getReviewDate() ? $item->getReviewDate()->format('Y-m-d H:i:s') : ''))
                     ->setCellValue('O'.$i, $item->getReviewInformation());
                 }
 
                 if($request->get("export_pdf")){
-                    $html.='<tr style="font-size:8px"><td>'.$item->getLotNumber().'</td><td>'.$item->getMaterial()->getName().$other_material.'</td><td>'.$status.'</td><td>'.$item->getCode().'</td><td>'.$item->getCleanUser()->getName().'</td><td>'.($item->getCleanDate() ? $item->getCleanDate() : '').'</td><td>'.($item->getCleanExpiredDate() ? $item->getCleanExpiredDate() : '').'</td><td>'. ($item->getVerificationUser() ? $item->getVerificationUser()->getName() : '').'</td><td>'.($item->getVerificationDate() ? $item->getVerificationDate() : '').'</td><td>'.$item->getUseInformation().'</td><td>'.($item->getDirtyMaterialUser() ? $item->getDirtyMaterialUser()->getName() : '').'</td><td>'.($item->getDirtyMaterialDate() ? $item->getDirtyMaterialDate() : '').'</td><td>'.($item->getReviewUser() ? $item->getReviewUser()->getName() : '').'</td><td>'.($item->getReviewDate() ? $item->getReviewDate() : '').'</td><td>'.$item->getReviewInformation().'</td></tr>';
+                    $html.='<tr style="font-size:8px"><td>'.$item->getLotNumber().'</td><td>'.$item->getMaterial()->getName().$other_material.'</td><td>'.$status.'</td><td>'.$item->getCode().'</td><td>'.$item->getCleanUser()->getName().'</td><td>'.($item->getCleanDate() ? $item->getCleanDate()->format('Y-m-d H:i:s') : '').'</td><td>'.($item->getCleanExpiredDate() ? $item->getCleanExpiredDate()->format('Y-m-d H:i:s') : '').'</td><td>'. ($item->getVerificationUser() ? $item->getVerificationUser()->getName() : '').'</td><td>'.($item->getVerificationDate() ? $item->getVerificationDate()->format('Y-m-d H:i:s') : '').'</td><td>'.$item->getUseInformation().'</td><td>'.($item->getDirtyMaterialUser() ? $item->getDirtyMaterialUser()->getName() : '').'</td><td>'.($item->getDirtyMaterialDate() ? $item->getDirtyMaterialDate()->format('Y-m-d H:i:s') : '').'</td><td>'.($item->getReviewUser() ? $item->getReviewUser()->getName() : '').'</td><td>'.($item->getReviewDate() ? $item->getReviewDate()->format('Y-m-d H:i:s') : '').'</td><td>'.$item->getReviewInformation().'</td></tr>';
                 }
 
                 $i++;
