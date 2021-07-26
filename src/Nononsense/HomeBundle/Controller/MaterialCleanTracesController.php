@@ -9,6 +9,7 @@ use Nononsense\HomeBundle\Entity\MaterialCleanCleansRepository;
 use Nononsense\UtilsBundle\Classes\Utils;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
 class MaterialCleanTracesController extends Controller
 {
