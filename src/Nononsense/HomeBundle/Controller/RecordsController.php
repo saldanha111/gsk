@@ -148,7 +148,47 @@ class RecordsController extends Controller
             }
 
             if($request->get("export_pdf")){
-                $html='<html><body style="font-size:8px;width:100%"><table autosize="1" style="overflow:wrap;width:100%"><tr style="font-size:8px;width:100%">
+                $html='<html><body style="font-size:8px;width:100%">';
+                $sintax_head_f="<b>Filtros:</b><br>";
+
+                if($request->get("content")){
+                    $html.=$sintax_head_f."Contenido => ".$request->get("content")."<br>";
+                    $sintax_head_f="";
+                }
+
+                if($request->get("name")){
+                    $html.=$sintax_head_f."Nombre => ".$request->get("name")."<br>";
+                    $sintax_head_f="";
+                }
+
+                if($request->get("type")){
+                    $htype = $this->getDoctrine()->getRepository(Types::class)->findOneBy(array("id"=>$request->get("type")));
+                    $html.=$sintax_head_f."Tipo => ".$htype->getName()."<br>";
+                    $sintax_head_f="";
+                }
+
+                if($request->get("status")){
+                    switch($request->get("status")){
+                        case 1: $hstate="Pendiente de completar";break;
+                        case 2: $hstate="Pendiente de firma";break;
+                        case 3: $hstate="Completado";break;
+                        case 4: $hstate="Cancelado";break;
+                    }
+                    $html.=$sintax_head_f."Estado => ".$hstate."<br>";
+                    $sintax_head_f="";
+                }
+
+                if($request->get("from")){
+                    $html.=$sintax_head_f."Fecha desde => ".$request->get("from")."<br>";
+                    $sintax_head_f="";
+                }
+
+                if($request->get("until")){
+                    $html.=$sintax_head_f."Fecha hasta => ".$request->get("until")."<br>";
+                    $sintax_head_f="";
+                }
+
+                $html.='<table autosize="1" style="overflow:wrap;width:100%"><tr style="font-size:8px;width:100%">
                 <th style="font-size:8px;width:6%">Nº</th>
                 <th style="font-size:8px;width:44%">Nombre</th>
                 <th style="font-size:8px;width:10%">Creador</th>
