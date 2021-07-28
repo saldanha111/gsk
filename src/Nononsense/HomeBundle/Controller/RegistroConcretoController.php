@@ -9,6 +9,7 @@
 namespace Nononsense\HomeBundle\Controller;
 
 
+use Doctrine\ORM\EntityManager;
 use Nononsense\HomeBundle\Entity\BloqueoMasterWorkflow;
 use Nononsense\HomeBundle\Entity\EvidenciasStep;
 use Nononsense\HomeBundle\Entity\FirmasStep;
@@ -549,7 +550,8 @@ class RegistroConcretoController extends Controller
                 $registro->setStatus(9);
                 $firma->setAccion("Guardado y finalizado (no requiere verificación). " . $comentario);
                 $em->persist($registro);
-                $resultR = $this->forward('NononsenseHomeBundle:ProductsDissolution:saveReactivoUse', ['step'  => $step]);
+                $this->makeReactivosActions($step);
+//                $resultR = $this->forward('NononsenseHomeBundle:ProductsDissolution:saveReactivoUse', ['step'  => $step]);
             }
 
         } else {
@@ -1649,6 +1651,21 @@ class RegistroConcretoController extends Controller
         if(in_array($registro->getMasterWorkflow(), $workflowIds)){
             $this->forward('NononsenseHomeBundle:Products:UseProduct', ['data'  => $data]);
         }
+        return true;
+    }
+
+    /**
+     * @param EntityManager $em
+     * @param InstanciasSteps $step
+     * @return bool
+     */
+    private function makeReactivosActions($step)
+    {
+        $typo = $step->getMasterStep()->getMasterWorkflow()->getPrecreation();
+        if($typo === 'reactivo'){
+            $result = $this->forward('NononsenseHomeBundle:ProductsDissolution:saveReactivoUse', ['step'  => $step]);
+        }
+
         return true;
     }
 
