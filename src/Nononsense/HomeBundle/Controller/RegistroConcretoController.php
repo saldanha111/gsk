@@ -550,8 +550,7 @@ class RegistroConcretoController extends Controller
                 $registro->setStatus(9);
                 $firma->setAccion("Guardado y finalizado (no requiere verificación). " . $comentario);
                 $em->persist($registro);
-                $this->makeReactivosActions($step);
-//                $resultR = $this->forward('NononsenseHomeBundle:ProductsDissolution:saveReactivoUse', ['step'  => $step]);
+                $resultR = $this->forward('NononsenseHomeBundle:ProductsDissolution:saveReactivoUse', ['step'  => $step]);
             }
 
         } else {
@@ -1653,20 +1652,4 @@ class RegistroConcretoController extends Controller
         }
         return true;
     }
-
-    /**
-     * @param EntityManager $em
-     * @param InstanciasSteps $step
-     * @return bool
-     */
-    private function makeReactivosActions($step)
-    {
-        $typo = $step->getMasterStep()->getMasterWorkflow()->getPrecreation();
-        if($typo === 'reactivo'){
-            //$result = $this->forward('NononsenseHomeBundle:ProductsDissolution:saveReactivoUse', ['step'  => $step]);
-        }
-
-        return true;
-    }
-
 }
