@@ -1663,7 +1663,7 @@ class RegistroConcretoController extends Controller
     {
         $typo = $step->getMasterStep()->getMasterWorkflow()->getPrecreation();
         if($typo === 'reactivo'){
-            $result = $this->forward('NononsenseHomeBundle:ProductsDissolution:saveReactivoUse', ['step'  => $step]);
+            //$result = $this->forward('NononsenseHomeBundle:ProductsDissolution:saveReactivoUse', ['step'  => $step]);
         }
 
         return true;
