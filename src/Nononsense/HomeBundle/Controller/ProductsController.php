@@ -1370,6 +1370,8 @@ class ProductsController extends Controller
                 }
             }
         }
+        $input->setOpenDate(new DateTime());
+        $em->persist($input);
         $em->flush();
         return new Response(true);
     }
