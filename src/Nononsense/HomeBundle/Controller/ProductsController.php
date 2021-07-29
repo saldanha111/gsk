@@ -1338,6 +1338,7 @@ class ProductsController extends Controller
 
     public function useProductAction($data)
     {
+        // Método en revisión, seguramente se pueda eliminar 2021-07-29
         $em = $this->getDoctrine()->getManager();
         /** @var ProductsInputsRepository $inputsRepository */
         $inputsRepository = $em->getRepository(ProductsInputs::class);
@@ -1370,8 +1371,6 @@ class ProductsController extends Controller
                 }
             }
         }
-        $input->setOpenDate(new DateTime());
-        $em->persist($input);
         $em->flush();
         return new Response(true);
     }
