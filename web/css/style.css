@@ -6267,6 +6267,10 @@ a.navbar-minimalize.btn-primary {
   padding-left:20px;
 }
 
+.media-body {
+    width: auto!important;
+}
+
 @media (min-width: 768px) {
 	.border-sm-top {border-top:1px solid #e7eaec;}
 }
