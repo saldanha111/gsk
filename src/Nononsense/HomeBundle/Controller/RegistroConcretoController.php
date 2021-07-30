@@ -9,6 +9,7 @@
 namespace Nononsense\HomeBundle\Controller;
 
 
+use Doctrine\ORM\EntityManager;
 use Nononsense\HomeBundle\Entity\BloqueoMasterWorkflow;
 use Nononsense\HomeBundle\Entity\EvidenciasStep;
 use Nononsense\HomeBundle\Entity\FirmasStep;
@@ -870,7 +871,6 @@ class RegistroConcretoController extends Controller
             $registro->setStatus(2);
             $descp = 'Guardado y enviado a verificación';
             $route = $this->container->get('router')->generate('nononsense_contrato_registro_completado', array('stepid' => $stepid, 'comment' => $comment));
-            $this->saveProductsUsed($registro, $dataJson);
         } else if ($dataJson->action == 'close') {
             $firmas = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:FirmasStep')
@@ -1637,19 +1637,4 @@ class RegistroConcretoController extends Controller
 
         return $resultado;
     }
-
-    /**
-     * @param InstanciasWorkflows $registro
-     * @param  $data
-     * @return bool
-     */
-    private function saveProductsUsed(InstanciasWorkflows $registro, $data)
-    {
-        $workflowIds = $this->getParameter('use_reactive_masterworkflow');
-        if(in_array($registro->getMasterWorkflow(), $workflowIds)){
-            $this->forward('NononsenseHomeBundle:Products:UseProduct', ['data'  => $data]);
-        }
-        return true;
-    }
-
 }

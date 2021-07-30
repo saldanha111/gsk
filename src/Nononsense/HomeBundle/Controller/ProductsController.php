@@ -1338,6 +1338,7 @@ class ProductsController extends Controller
 
     public function useProductAction($data)
     {
+        // Método en revisión, seguramente se pueda eliminar 2021-07-29
         $em = $this->getDoctrine()->getManager();
         /** @var ProductsInputsRepository $inputsRepository */
         $inputsRepository = $em->getRepository(ProductsInputs::class);
