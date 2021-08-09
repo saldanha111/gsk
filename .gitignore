@@ -1,4 +1,5 @@
 /app/config/clientparams.yml
+/app/config/emailparams.yml
 !/app/cache
 /app/cache/*
 !/app/files
