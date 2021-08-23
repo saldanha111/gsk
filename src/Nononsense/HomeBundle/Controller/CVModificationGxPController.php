@@ -66,7 +66,7 @@ class CVModificationGxPController extends Controller
 
         $signature = $this->getDoctrine()->getRepository(CVSignatures::class)->findOneBy(array("record" => $item),array("id" => "DESC"));
 
-        if($signature->getAction()->getId()==18){
+        if($signature && $signature->getAction()->getId()==18){
             $this->get('session')->getFlashBag()->add(
                 'error',
                     'No se puede puede modificar este registro porque ya hay una solicitud de modificación'
@@ -119,6 +119,16 @@ class CVModificationGxPController extends Controller
         $serializer = $this->get('serializer');
         $array=array();
 
+        $is_valid = $this->get('app.security')->permissionSeccion('aprobacion_gxp');
+        if(!$is_valid){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                'No tiene permisos suficientes'
+            );
+            $route=$this->container->get('router')->generate('nononsense_tm_templates')."?state=6";
+            return $this->redirect($route);
+        }
+
         $user = $this->container->get('security.context')->getToken()->getUser();
 
         $items=$this->getDoctrine()->getRepository(CVRecords::class)->search("list",array("id" => $id,"gxp" => 1,"action_gxp" => 1,"user" => $user));
@@ -147,6 +157,16 @@ class CVModificationGxPController extends Controller
         $serializer = $this->get('serializer');
         $array=array();
         $error=0;
+
+        $is_valid = $this->get('app.security')->permissionSeccion('aprobacion_gxp');
+        if(!$is_valid){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                'No tiene permisos suficientes'
+            );
+            $route=$this->container->get('router')->generate('nononsense_tm_templates')."?state=6";
+            return $this->redirect($route);
+        }
 
         $items=$em->getRepository(TMTemplates::class)->list("list",array("id" => $template,"init_cumplimentation" => 1));
 
