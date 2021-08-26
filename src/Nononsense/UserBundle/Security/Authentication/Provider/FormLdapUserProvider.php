@@ -130,8 +130,8 @@ class FormLdapUserProvider implements UserProviderInterface
             $newUser->setDescription('');
         }
 
-        if (isset($user['telephonenumber'][0]) && $user['telephonenumber'][0]) {
-            $newUser->setPhone($user['telephonenumber'][0]);
+        if (isset($user['mobile'][0]) && $user['mobile'][0]) {
+            $newUser->setPhone($user['mobile'][0]);
         }
         
         if (isset($user['title'][0]) && $user['title'][0]) {

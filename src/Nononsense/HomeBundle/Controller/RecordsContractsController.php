@@ -778,10 +778,19 @@ class RecordsContractsController extends Controller
                         // datos del sms
                         $textMessage = 'El Contrato con ID ' . $record->getId() . ' está pendiente de firma por su parte. ';
                         $textMessage .= 'Use el siguiente pin ' . $pin . ' para firmar el siguiente contrato: ' . $link;
-                        $phonePrefix = '+34';
+
                         $phoneNumber = $user->getPhone();
                         // Enviamos por sms
-                        if($this->sendBySMS($phonePrefix.$phoneNumber, $textMessage)){
+
+                        $pos = strpos($phoneNumber, "+");
+
+                        if ($pos === false) {
+                            $concatphone='+34'.$phoneNumber;
+                        } else {
+                            $concatphone=$phoneNumber;
+                        }
+
+                        if($this->sendBySMS($concatphone, $textMessage)){
                             $sended++;
                             $this->get('Utilities')->saveLog('sms', 'contrato enviado por sms');
                         }else{
