@@ -98,18 +98,17 @@ class AccountRequestController extends Controller
 	            	}
             	}
 
-	            foreach ($groups as $key => $group) {
-	            	$groupRequest = new AccountRequestsGroups();
-	            	$groupRequest->setRequestId($accountRequest);
-	            	$groupRequest->setGroupId($group);
-
-	            	$accountRequest->addRequest($groupRequest);
-	            }
+	            // foreach ($groups as $key => $group) {
+	            // 	$groupRequest = new AccountRequestsGroups();
+	            // 	$groupRequest->setRequestId($accountRequest);
+	            // 	$groupRequest->setGroupId($group);
+	            // 	$accountRequest->addRequest($groupRequest);
+	            // }
 
 	            try {
 		           	$this->signForm($accountRequest->getMudId(), $password); //Sign form with AD sAMAccountName and password.
 
-		            $em->persist($accountRequest);
+		            //$em->persist($accountRequest);
 		            $em->flush();
 
 		            //Application submitted successfully
