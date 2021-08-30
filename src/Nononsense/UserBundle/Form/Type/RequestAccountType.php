@@ -38,7 +38,7 @@ class RequestAccountType extends AbstractType
             //->add('save', SubmitType::class, ['label' => 'Solicitar cuenta'])
             ->add('_password', PasswordType::class, ['label' => 'Firma', 'required' => true, 'mapped' => false])
             ->add('description', TextareaType::class, ['label' => 'Motivo de la solicitud'])
-            ->add('bulk', TextareaType::class, ['label' => 'MUD_IDs', 'mapped' => false, 'required' => false])
+            ->add('bulk', TextareaType::class, ['label' => 'MUD_IDs', 'mapped' => false, 'required' => true])
             ->add('request', EntityType::class, [
                 'class' => Groups::class,
                 'choice_label' => 'group',

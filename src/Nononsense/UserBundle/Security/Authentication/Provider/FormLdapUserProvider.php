@@ -121,7 +121,11 @@ class FormLdapUserProvider implements UserProviderInterface
         
         $newUser->setUsername($user['cn'][0]);
         $newUser->setName($user['displayname'][0]);
-        $newUser->setEmail($user['mail'][0]);
+        
+        if (isset($user['mail'][0]) && $user['mail'][0]) {
+            $newUser->setEmail($user['mail'][0]);
+        }
+        
         $newUser->setIsActive(true);
 
         if (isset($user['description'][0]) && $user['description'][0]) {
