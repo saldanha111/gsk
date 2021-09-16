@@ -193,7 +193,7 @@ class AccountRequestController extends Controller
 
 		    $user = new Users();
             $user->setUsername($accountRequest->getMudId());
-            $user->setName($accountRequest->getUsername());
+            $user->setName($accountRequest->getMudId());
             $user->setDescription(''); //Required parameter. TO DO FIXE IT.
             $user->setIsActive(1);
 
