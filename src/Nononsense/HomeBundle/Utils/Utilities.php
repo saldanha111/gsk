@@ -59,6 +59,7 @@ class Utilities{
         $tokenObj = $this->em->getRepository('NononsenseHomeBundle:Tokens')->findOneByToken($token);
         if($tokenObj){
             $this->em->remove($swf);
+            $this->em->flush();
         }
         return TRUE;
     }
