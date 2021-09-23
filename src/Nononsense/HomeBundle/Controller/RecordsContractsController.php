@@ -359,7 +359,7 @@ class RecordsContractsController extends Controller
         $token_get_data = $this->get('utilities')->generateToken();
 
         $getDataUrl = $baseUrlAux . "dataRecordsContracts/requestData/" . $id . "/" . $token_get_data . "/" . $version;
-        $callbackUrl = $baseUrlAux . "dataRecordsContracts/returnData/" . $id;
+        $callbackUrl = $baseUrlAux . "dataRecordsContracts/returnData/" . $id . "?token=" . $token_get_data;
 
         $id_plantilla = $record->getContract()->getPlantillaId();
 
@@ -387,7 +387,6 @@ class RecordsContractsController extends Controller
         if ($expired_token == 1) {
             $data["expired_token"] = 1;
         } else {
-            $this->get('utilities')->tokenRemove($token);
             // get the InstanciasSteps entity
             /** @var RecordsContracts $record */
             $record = $this->getDoctrine()
@@ -461,35 +460,43 @@ class RecordsContractsController extends Controller
     /* Función a la que se conecta doxpresso para mandar los datos - Webhook*/
     public function returnDataAction($id)
     {
-        // get the InstanciasSteps entity
-        $record = $this->getDoctrine()
-            ->getRepository('NononsenseHomeBundle:RecordsContracts')
-            ->find($id);
+        $token = $_REQUEST['token'];
+        $expired_token = $this->get('utilities')->tokenExpired($token);
+        if ($expired_token == 1) {
+            $data["expired_token"] = 1;
+        } else {
+            $this->get('utilities')->tokenRemove($token);
+            // get the InstanciasSteps entity
+            $record = $this->getDoctrine()
+                ->getRepository('NononsenseHomeBundle:RecordsContracts')
+                ->find($id);
 
-        $request = Request::createFromGlobals();
-        $params = array();
-        $content = $request->getContent();
+            $request = Request::createFromGlobals();
+            $params = array();
+            $content = $request->getContent();
 
-        if (!empty($content)) {
-            $params = json_decode($content, true); // 2nd param to get as array
+            if (!empty($content)) {
+                $params = json_decode($content, true); // 2nd param to get as array
+            }
+
+            $em = $this->getDoctrine()->getManager();
+
+            unset($params["data"]['firma_direccion_rrhh']);
+            unset($params["data"]['firma_comite_rrhh']);
+            unset($params["data"]['firma_trabajador']);
+            $record->setStepDataValue(
+                json_encode(array("data" => $params["data"], "action" => $params["action"]), JSON_FORCE_OBJECT)
+            );
+
+            $em->persist($record);
+            $em->flush();
+
+            $responseAction = new Response();
+            $responseAction->setStatusCode(200);
+            $responseAction->setContent("OK");
+            return $responseAction;
         }
-
-        $em = $this->getDoctrine()->getManager();
-
-        unset($params["data"]['firma_direccion_rrhh']);
-        unset($params["data"]['firma_comite_rrhh']);
-        unset($params["data"]['firma_trabajador']);
-        $record->setStepDataValue(
-            json_encode(array("data" => $params["data"], "action" => $params["action"]), JSON_FORCE_OBJECT)
-        );
-
-        $em->persist($record);
-        $em->flush();
-
-        $responseAction = new Response();
-        $responseAction->setStatusCode(200);
-        $responseAction->setContent("OK");
-        return $responseAction;
+        return false;
     }
 
     /* Pagina a la que vamos tras volver de docxpresso */
