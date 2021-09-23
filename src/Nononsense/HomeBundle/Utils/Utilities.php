@@ -50,6 +50,9 @@ class Utilities{
             $this->em->persist($tokenObj);
             $this->em->flush();
         }
+        else{
+            $expired_token = 1;
+        }
 
         return $expired_token;
     }
