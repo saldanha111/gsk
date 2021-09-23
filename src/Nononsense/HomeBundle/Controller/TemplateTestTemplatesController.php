@@ -311,7 +311,8 @@ class TemplateTestTemplatesController extends Controller
 
         if(!$expired_token){
             $id_usuario = $this->get('utilities')->getUserByToken($_REQUEST["token"]);
-
+            $this->get('utilities')->tokenRemove($_REQUEST["token"]);
+            
             $request = Request::createFromGlobals();
             $params = array();
             $content = $request->getContent();

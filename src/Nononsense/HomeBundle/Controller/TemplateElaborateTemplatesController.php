@@ -475,7 +475,8 @@ class TemplateElaborateTemplatesController extends Controller
 
         if(!$expired_token){
             $id_usuario = $this->get('utilities')->getUserByToken($_REQUEST["token"]);
-
+            $this->get('utilities')->tokenRemove($_REQUEST["token"]);
+            
             $em = $this->getDoctrine()->getManager();
             $array_item=array();
 

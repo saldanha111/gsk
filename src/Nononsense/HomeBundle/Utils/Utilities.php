@@ -54,6 +54,15 @@ class Utilities{
         return $expired_token;
     }
 
+    public function tokenRemove($token){
+        $expired_token = 0;
+        $tokenObj = $this->em->getRepository('NononsenseHomeBundle:Tokens')->findOneByToken($token);
+        if($tokenObj){
+            $this->em->remove($swf);
+        }
+        return TRUE;
+    }
+
     public function getUserByToken($token){
         $expired_token = 0;
         $tokenObj = $this->em->getRepository('NononsenseHomeBundle:Tokens')->findOneByToken($token);

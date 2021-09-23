@@ -387,6 +387,7 @@ class RecordsContractsController extends Controller
         if ($expired_token == 1) {
             $data["expired_token"] = 1;
         } else {
+            $this->get('utilities')->tokenRemove($token);
             // get the InstanciasSteps entity
             /** @var RecordsContracts $record */
             $record = $this->getDoctrine()

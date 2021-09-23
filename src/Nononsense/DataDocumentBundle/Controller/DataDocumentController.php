@@ -33,7 +33,7 @@ class DataDocumentController extends Controller
         $expired_token = $this->get('utilities')->tokenExpired($_REQUEST["token"]);
         if(!$expired_token){
             $id_usuario = $this->get('utilities')->getUserByToken($_REQUEST["token"]);
-
+            $this->get('utilities')->tokenRemove($_REQUEST["token"]);
             // get the InstanciasSteps entity
             $step = $this->getDoctrine()
                 ->getRepository('NononsenseHomeBundle:InstanciasSteps')

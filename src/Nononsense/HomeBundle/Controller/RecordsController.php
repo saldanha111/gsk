@@ -454,7 +454,7 @@ class RecordsController extends Controller
 
         $expired_token = $this->get('utilities')->tokenExpired($_REQUEST["token"]);
         if(!$expired_token){
-
+            $this->get('utilities')->tokenRemove($_REQUEST["token"]);
             // get the InstanciasSteps entity
             $record = $this->getDoctrine()
                 ->getRepository('NononsenseHomeBundle:RecordsDocuments')
