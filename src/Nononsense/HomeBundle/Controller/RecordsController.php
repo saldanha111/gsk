@@ -335,13 +335,6 @@ class RecordsController extends Controller
                 'error',
                 "No puede cumplimentar este documento"
             );
-        }
-
-        if($record->getStatus()!=2 && $record->getStatus()!=5){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                "No puede firmar este documento. Es posible que el documento ya haya sido firmado por otro usuario"
-            );
             return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
         }
 
