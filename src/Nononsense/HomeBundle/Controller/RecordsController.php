@@ -273,7 +273,7 @@ class RecordsController extends Controller
 
     public function createAction($id)
     {
-        $is_valid = $this->get('app.security')->permissionSeccion('albaran_gestion');
+        $is_valid = $this->get('app.security')->permissionSeccion('albaran_use');
         if(!$is_valid){
             $this->get('session')->getFlashBag()->add(
                 'error',

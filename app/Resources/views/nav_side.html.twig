@@ -154,7 +154,7 @@
             </li>
             {% endif %} #}
 
-            {% if 'albaran_gestion' in array_subsecciones %}
+            {% if 'albaran_gestion' in array_subsecciones or 'albaran_use' in array_subsecciones %}
                 <li id="docxpresso_plantdocs">
                     <a href="{{path('nononsense_documents')}}"><i class="fa fa-cogs" aria-hidden="true"></i> <span class="nav-label">Plantillas Doc.</span></a>
                 </li>
