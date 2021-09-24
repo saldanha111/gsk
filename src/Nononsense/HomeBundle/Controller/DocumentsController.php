@@ -37,17 +37,8 @@ class DocumentsController extends Controller
     public function listAction(Request $request)
     {
         $is_valid = $this->get('app.security')->permissionSeccion('albaran_gestion');
-        if(!$is_valid){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                'No tiene permisos suficientes'
-            );
-            $route=$this->container->get('router')->generate('nononsense_home_homepage');
-            return $this->redirect($route);
-        }
-
-        $is_valid = $this->get('app.security')->permissionSeccion('albaran_use');
-        if(!$is_valid){
+        $is_valid2 = $this->get('app.security')->permissionSeccion('albaran_use');
+        if(!$is_valid && !$is_valid2){
             $this->get('session')->getFlashBag()->add(
                 'error',
                 'No tiene permisos suficientes'
