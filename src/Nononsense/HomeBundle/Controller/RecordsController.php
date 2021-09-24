@@ -328,6 +328,60 @@ class RecordsController extends Controller
             ->getRepository('NononsenseHomeBundle:RecordsDocuments')
             ->find($id);
 
+        $user = $this->container->get('security.context')->getToken()->getUser();
+
+        if(($record->getStatus()==0 || $record->getStatus()==1) && $record->getUserCreatedEntiy()!=$user){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                "No puede cumplimentar este documento"
+            );
+        }
+
+        if($record->getStatus()!=2 && $record->getStatus()!=5){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                "No puede firmar este documento. Es posible que el documento ya haya sido firmado por otro usuario"
+            );
+            return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
+        }
+
+        if($record->getStatus()==2){
+            $signature = $this->getDoctrine()
+                ->getRepository('NononsenseHomeBundle:RecordsSignatures')
+                ->findOneBy(array("record"=>$record,"next"=>1));
+
+            if(!$signature){
+                $this->get('session')->getFlashBag()->add(
+                    'error',
+                    "No puede firmar este documento. Es posible que el documento ya haya sido firmado por otro usuario"
+                );
+                return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
+            }
+
+            $can_sign=0;
+            if($signature->getGroupEntiy()){
+                $isGroup = $this->getDoctrine()
+                ->getRepository('NononsenseGroupBundle:GroupUsers')
+                ->findOneBy(array("group"=>$signature->getGroupEntiy(),"user"=>$user));
+                if($isGroup){
+                    $can_sign=1;
+                }
+            }
+            else{
+                if($signature->getUserEntiy()->getId()==$user->getId()){
+                    $can_sign=1;
+                }  
+            }
+
+            if(!$can_sign){
+                $this->get('session')->getFlashBag()->add(
+                    'error',
+                    "No puede firmar este documento. Es posible que el documento ya haya sido firmado por otro usuario"
+                );
+                return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
+            }
+        }
+
         if ($record->getStatus() == 2 || $record->getStatus() == 3) {
             // Abrir para validar
              $redirectUrl = $baseUrl . "records/redirectFromData/" . $id;
