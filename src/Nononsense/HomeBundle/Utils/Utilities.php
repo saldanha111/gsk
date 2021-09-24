@@ -50,8 +50,21 @@ class Utilities{
             $this->em->persist($tokenObj);
             $this->em->flush();
         }
+        else{
+            $expired_token = 1;
+        }
 
         return $expired_token;
+    }
+
+    public function tokenRemove($token){
+        $expired_token = 0;
+        $tokenObj = $this->em->getRepository('NononsenseHomeBundle:Tokens')->findOneByToken($token);
+        if($tokenObj){
+            $this->em->remove($tokenObj);
+            $this->em->flush();
+        }
+        return TRUE;
     }
 
     public function getUserByToken($token){
