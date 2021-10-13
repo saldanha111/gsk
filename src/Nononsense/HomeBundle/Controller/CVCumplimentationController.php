@@ -417,6 +417,14 @@ class CVCumplimentationController extends Controller
             $sworkflow->setFinishWorkflow(TRUE);
             $sworkflow->setSigned(FALSE);
             $em->persist($sworkflow);
+
+            $aux_users = $em->getRepository(GroupUsers::class)->findBy(["group" => $other_group]);
+            foreach ($aux_users as $aux_user) {
+                $subject="Modificaciones GxP";
+                $mensaje='Se ha realizado una modificación GxP sobre el registro '.$record->getId().' y está pendiente de aprobación por su parte. Para poder aprobarlo puede acceder a la sección "Modificaciones GxP", buscar el documento y pulsar en  "Aprobar modificación GxP"';
+                $baseURL=$this->container->get('router')->generate('nononsense_cv_search')."?gxp=1&id=".$record->getId();
+                $this->get('utilities')->sendNotification($aux_user->getUser()->getEmail(), $baseURL, "", "", $subject, $mensaje);
+            }
         }
         else{
             $signature->setJson(str_replace("gsk_id_firm", $signature->getNumberSignature(), $signature->getJson()));
@@ -427,11 +435,17 @@ class CVCumplimentationController extends Controller
         $record->setModified(new \DateTime());
 
         if($signature->getAction()->getFinishUser()){
-            if($wf){
-                $wf->setSigned(TRUE);
-                $em->persist($wf);
-            }
             $signature->setFinish(TRUE);
+        }
+        else{
+            if(!$signature->getFinish()){
+                $signature->setFinish(FALSE);
+            }
+        }
+
+        if($wf){
+            $wf->setSigned($signature->getFinish());
+            $em->persist($wf);
         }
         
         $em->persist($signature);
@@ -467,9 +481,9 @@ class CVCumplimentationController extends Controller
                             $em->persist($clean_wf);
                         }
                     }
-
+                    
                     //Sacamos los emails de los usuarios a los que tenemos que notificar de que tienen una verificación pendiente
-                    if($next_state->getType()->getId()==2){
+                    if($next_state->getType() && $next_state->getType()->getId()==2){
                         $emails_wfs=$this->getDoctrine()->getRepository(CVWorkflow::class)->findBy(array('record' => $record));
                         foreach($emails_wfs as $email_wfs){
                             if($email_wfs->getType()->getTmType()==$next_state->getType()){

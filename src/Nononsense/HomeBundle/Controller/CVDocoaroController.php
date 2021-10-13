@@ -305,6 +305,7 @@ class CVDocoaroController extends Controller
             if(!$id_usuario){
                 return false;
             }
+            //$this->get('utilities')->tokenRemove($_REQUEST["token"]);
             
             $record = $this->getDoctrine()->getRepository(CVRecords::class)->findOneBy(array("id" => $id));
             if(!$record){
@@ -384,6 +385,20 @@ class CVDocoaroController extends Controller
                     }
                     else{
                         return false;
+                    }
+
+                    if($signature->getAction()->getId()==15){
+                        switch($params["action"]){
+                            case "save_partial": 
+                                $signature->setFinish(FALSE);
+                                break;
+                            case "save": 
+                                $signature->setFinish(TRUE);
+                                break;
+                            case "cancel":
+                                $signature->setFinish(TRUE);
+                                break;
+                        }
                     }
                 }
 
