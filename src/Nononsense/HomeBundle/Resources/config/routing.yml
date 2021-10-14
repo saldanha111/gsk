@@ -700,6 +700,11 @@ nononsense_request_view_gxp:
     methods:    [GET]
     defaults: { _controller: NononsenseHomeBundle:CVModificationGxP:view, id: 0}
 
+nononsense_request_save_gxp:
+    path: /cv/gxp/view/{id}
+    methods:    [POST]
+    defaults: { _controller: NononsenseHomeBundle:CVModificationGxP:save, id: 0}
+
 
 # Certifications
 

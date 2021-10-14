@@ -18,7 +18,9 @@ use Nononsense\HomeBundle\Entity\CVWorkflow;
 use Nononsense\HomeBundle\Entity\CVStates;
 use Nononsense\HomeBundle\Entity\CVRecordsHistory;
 use Nononsense\HomeBundle\Entity\CVRequestTypes;
+use Nononsense\HomeBundle\Entity\CVSecondWorkflow;
 use Nononsense\GroupBundle\Entity\GroupUsers;
+
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
@@ -141,11 +143,27 @@ class CVModificationGxPController extends Controller
             $route = $this->container->get('router')->generate('nononsense_tm_templates')."?state=6";
             return $this->redirect($route);
         }
-        
+
+        $record = $this->getDoctrine()->getRepository(CVRecords::class)->findOneBy(array("id" => $items[0]["id"]));
+
+        $wf=$this->get('utilities')->wich_second_wf($record,$user);
+        if(!$wf){
+             $this->get('session')->getFlashBag()->add(
+                'error',
+                    'No tiene permisos suficientes'
+            );
+            $route = $this->container->get('router')->generate('nononsense_tm_templates')."?state=6";
+            return $this->redirect($route);
+        }
+    
         $array["item"]=$items[0];
 
         $array["users"] = $em->getRepository(Users::class)->findAll();
         $array["groups"] = $em->getRepository(Groups::class)->findAll();
+        $array["signature_request"] = $em->getRepository(CVSignatures::class)->findOneBy(array("record" => $items[0]["id"],"action" => 18),array("id" => "DESC"));
+        $array["secondWf"] = $em->getRepository(CVSecondWorkflow::class)->findBy(array("record" => $items[0]["id"]),array("id" => "ASC"));
+        $array["currentWf"] = $wf;
+
         
         return $this->render('NononsenseHomeBundle:CV:view_gxp.html.twig',$array);
     }
@@ -168,22 +186,107 @@ class CVModificationGxPController extends Controller
             return $this->redirect($route);
         }
 
-        $items=$em->getRepository(TMTemplates::class)->list("list",array("id" => $template,"init_cumplimentation" => 1));
+        $user = $this->container->get('security.context')->getToken()->getUser();
 
-        $concat="?";
-
-        if($request->get("logbook")){
-            $concat.="logbook=".$request->get("logbook")."&";
-        }
+        $items=$this->getDoctrine()->getRepository(CVRecords::class)->search("list",array("id" => $id,"gxp" => 1,"action_gxp" => 1,"user" => $user));
 
         if(!$items){
             $this->get('session')->getFlashBag()->add(
                 'error',
-                    'La plantilla indicada no puede cumplimentarse'
+                    'No se puede aprobar la modificación GxP de este registro'
             );
             $route = $this->container->get('router')->generate('nononsense_tm_templates')."?state=6";
             return $this->redirect($route);
         }
+
+        $record = $this->getDoctrine()->getRepository(CVRecords::class)->findOneBy(array("id" => $items[0]["id"]));
+
+        $wf=$this->get('utilities')->wich_second_wf($record,$user);
+        if(!$wf){
+             $this->get('session')->getFlashBag()->add(
+                'error',
+                    'No tiene permisos suficientes'
+            );
+            $route = $this->container->get('router')->generate('nononsense_tm_templates')."?state=6";
+            return $this->redirect($route);
+        }
+
+        if(!$request->get('password') || !$this->get('utilities')->checkUser($request->get('password'))){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                "No se pudo firmar el registro, la contraseña es incorrecta"
+            );
+            return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
+        }
+
+        if($wf->getNumberSignature()==1){
+            if(!$request->get('observations')){
+                $this->get('session')->getFlashBag()->add(
+                    'error',
+                    "El campo observaciones es obligatorio"
+                );
+                return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
+            }
+
+            if($request->get('types')){
+                $count=$wf->getNumberSignature()+1;
+                foreach($request->get('types') as $key => $type){
+                    $aux_wf = new CVSecondWorkflow();
+                    if($type==1){
+                        $aux_group = $group=$em->getRepository(Groups::class)->findOneBy(array("id" => $request->get('relationals')[$key]));
+                        $aux_wf->setGroup($aux_group);
+                    }
+                    else{
+                        $aux_user = $group=$em->getRepository(Users::class)->findOneBy(array("id" => $request->get('relationals')[$key]));
+                        $aux_wf->setUser($aux_user);
+                    }
+
+                    $aux_wf->setRecord($record);
+                    $aux_wf->setNumberSignature($count);
+                    $aux_wf->setSigned(FALSE);
+                    $em->persist($aux_wf);
+                    $count++;
+                }
+            }
+            
+        }
+
+        $wf->setSigned(TRUE);
+        $wf->setUser($user);
+        $em->persist($aux_wf);
+
+        $all_signatures = $this->getDoctrine()->getRepository(CVSignatures::class)->findBy(array("record" => $record)); 
+        $last_signature = $this->getDoctrine()->getRepository(CVSignatures::class)->findOneBy(array("record" => $record),array("id" => "DESC"));
+
+        $signature = new CVSignatures();
+        $signature->setUser($user);
+        $signature->setRecord($record);
+        $signature->setNumberSignature((count($all_signatures)+1));
+        $signature->setJustification(FALSE);
+        $signature->setCreated($record->getOpenDate());
+        $signature->setAction($action);
+        $signature->setSigned(TRUE);
+        $signature->setCreated(new \DateTime());
+        $signature->setModified(new \DateTime());
+        $signature->setJson($last_signature->getJson());
+        $signature->setJsonAux($last_signature->getJsonAux());
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+
+
 
         $item = $em->getRepository(TMTemplates::class)->findOneBy(array("id" => $items[0]["id"]));
         $action=$em->getRepository(CVActions::class)->findOneBy(array("id" => 15));

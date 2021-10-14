@@ -48,13 +48,6 @@ class CVSecondWorkflow
     protected $numberSignature;
 
     /**
-     * @var boolean 
-     *
-     * @ORM\Column(name="finish_workflow", type="boolean",  options={"default" = false}, nullable=true)
-     */
-    protected $finishWorkflow;
-
-    /**
      * @var boolean $signed
      *
      * @ORM\Column(name="signed", type="boolean",  options={"default" = 0})
@@ -214,28 +207,5 @@ class CVSecondWorkflow
     public function getNumberSignature()
     {
         return $this->numberSignature;
-    }
-
-    /**
-     * Set finishWorkflow
-     *
-     * @param boolean $finishWorkflow
-     * @return CVSecondWorkflow
-     */
-    public function setFinishWorkflow($finishWorkflow)
-    {
-        $this->finishWorkflow = $finishWorkflow;
-
-        return $this;
-    }
-
-    /**
-     * Get finishWorkflow
-     *
-     * @return boolean 
-     */
-    public function getFinishWorkflow()
-    {
-        return $this->finishWorkflow;
     }
 }

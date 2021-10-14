@@ -414,7 +414,6 @@ class CVCumplimentationController extends Controller
             $sworkflow->setRecord($record);
             $sworkflow->setGroup($other_group);
             $sworkflow->setNumberSignature(1);
-            $sworkflow->setFinishWorkflow(TRUE);
             $sworkflow->setSigned(FALSE);
             $em->persist($sworkflow);
 

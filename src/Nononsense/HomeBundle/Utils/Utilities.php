@@ -222,6 +222,47 @@ class Utilities{
         return $return;
     }
 
+    public function wich_second_wf($record,$user){
+        $return=NULL;
+        $groups=array();
+        foreach($user->getGroups() as $uniq_group){
+            $groups[]=$uniq_group->getGroup();
+        }
+
+        $wfs=$this->em->getRepository('NononsenseHomeBundle:CVSecondWorkflow')->findBy(array('record' => $record,"signed" => FALSE));
+        if(count($wfs)==0){
+            return NULL;
+        }
+
+        $find=0;
+        foreach($wfs as $item){
+            if($item->getUser() && $item->getUser()==$user){
+                $find=1;
+                $item_find=$item;
+            }
+        }
+        if($find==0){
+            foreach($wfs as $item){
+                if($item->getGroup()){
+                    $in_group=0;
+                    foreach($user->getGroups() as $uniq_group){
+                        if($uniq_group->getGroup()==$item->getGroup()){
+                            $in_group=1;
+                            $item_find=$item;
+                            break;
+                        }
+                    }
+                    if($in_group==1){
+                        $find=1;
+                        break;
+                    }
+                }
+            }
+        }
+
+        return $item_find;
+    }
+
     public function insertNotification($email,$subject,$message){
 
        $user = $this->em->getRepository(Users::class)->findOneBy(array('email' => $email));
