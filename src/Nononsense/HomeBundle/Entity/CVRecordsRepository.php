@@ -45,7 +45,7 @@ class CVRecordsRepository extends EntityRepository
             ) THEN 1 ELSE 0 END";
 
         $gxp="CASE  WHEN 
-            (i.id IN (SELECT IDENTITY(vvv_gxp.record) FROM Nononsense\HomeBundle\Entity\CVSecondWorkflow vvv_gxp WHERE vvv_gxp.signed=FALSE AND (vvv_gxp.user=:eluser1 OR vvv_gxp.group IN (:groups)))
+            (i.id IN (SELECT IDENTITY(vvv_gxp.record) FROM Nononsense\HomeBundle\Entity\CVSecondWorkflow vvv_gxp WHERE vvv_gxp.signed=FALSE AND vvv_gxp.type=1 AND (vvv_gxp.user=:eluser1 OR vvv_gxp.group IN (:groups)))
                 
             ) THEN 1 ELSE 0 END";
 

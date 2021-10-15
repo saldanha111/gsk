@@ -29,6 +29,12 @@ class CVSecondWorkflow
     protected $record;
 
     /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\CVSecondWorkflowStates", inversedBy="cvSecondWorkflows")
+     * @ORM\JoinColumn(name="type_id", referencedColumnName="id")
+     */
+    protected $type;
+
+    /**
      * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="cvSecondWorkflows")
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
      */
@@ -118,29 +124,6 @@ class CVSecondWorkflow
     }
 
     /**
-     * Set type
-     *
-     * @param \Nononsense\HomeBundle\Entity\TMCumplimentations $type
-     * @return CVWorkflow
-     */
-    public function setType(\Nononsense\HomeBundle\Entity\TMCumplimentations $type = null)
-    {
-        $this->type = $type;
-
-        return $this;
-    }
-
-    /**
-     * Get type
-     *
-     * @return \Nononsense\HomeBundle\Entity\TMCumplimentations 
-     */
-    public function getType()
-    {
-        return $this->type;
-    }
-
-    /**
      * Set user
      *
      * @param \Nononsense\UserBundle\Entity\Users $user
@@ -207,5 +190,28 @@ class CVSecondWorkflow
     public function getNumberSignature()
     {
         return $this->numberSignature;
+    }
+
+    /**
+     * Set type
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVSecondWorkflowStates $type
+     * @return CVSecondWorkflow
+     */
+    public function setType(\Nononsense\HomeBundle\Entity\CVSecondWorkflowStates $type = null)
+    {
+        $this->type = $type;
+
+        return $this;
+    }
+
+    /**
+     * Get type
+     *
+     * @return \Nononsense\HomeBundle\Entity\CVSecondWorkflowStates 
+     */
+    public function getType()
+    {
+        return $this->type;
     }
 }

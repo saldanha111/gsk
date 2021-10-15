@@ -19,6 +19,7 @@ use Nononsense\HomeBundle\Entity\CVStates;
 use Nononsense\HomeBundle\Entity\CVRecordsHistory;
 use Nononsense\HomeBundle\Entity\CVRequestTypes;
 use Nononsense\HomeBundle\Entity\CVSecondWorkflow;
+use Nononsense\HomeBundle\Entity\CVSecondWorkflowStates;
 use Nononsense\GroupBundle\Entity\GroupUsers;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -407,13 +408,15 @@ class CVCumplimentationController extends Controller
         //Si estamos modificando una plantilla archivada guardamos en un json auxiliar porque se trata de una solicitud
         if($signature->getAction()->getId()==18){
             $signature->setJsonAux(str_replace("gsk_id_firm", $signature->getNumberSignature(), $signature->getJsonAux()));
-            $other_group = $this->getDoctrine()->getRepository(Groups::class)->findOneBy(array("name" => "ECO"));
+            $other_group = $em->getRepository(Groups::class)->findOneBy(array("name" => "ECO"));
             $record->setUserGxP($user);
+            $typesw = $em->getRepository(CVSecondWorkflowStates::class)->findOneBy(array("id" => "1"));
 
             $sworkflow = new CVSecondWorkflow();
             $sworkflow->setRecord($record);
             $sworkflow->setGroup($other_group);
             $sworkflow->setNumberSignature(1);
+            $sworkflow->setType($typesw);
             $sworkflow->setSigned(FALSE);
             $em->persist($sworkflow);
 

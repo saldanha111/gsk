@@ -93,13 +93,10 @@
                                 <div>
                                     <button type="button" class="btn btn-default pull-right add_line" data-type="test"><i class="fa fa-plus"></i> Añadir</button>
                                 </div><br>
-
-                                {% if currentWf.numberSignature == 1 %}
-                                    <div>
-                                        <p>Observaciones</p>
-                                        <textarea id="comment" name="observations" required="required" class="form-control" rows="10" cols="91"></textarea>
-                                    </div><br>
-                                {% endif %}
+                                <div>
+                                    <p>Justificación</p>
+                                    <textarea id="comment" name="observations" class="form-control" rows="10" cols="91"></textarea>
+                                </div><br>
                             {% endfor %}
                         {% endif %}
                     </div>
@@ -216,8 +213,13 @@
         $('#form_item').on('submit', function(e){
             if(!repeat_workflow()){
                 if(password_valid($("#box_password").val())){
-                    $("[name='action']").val($(document.activeElement).data("action"));
-                    return true;
+                    if($(document.activeElement).data("action")=="1" || $("[name='description']").val()){
+                        $("[name='action']").val($(document.activeElement).data("action"));
+                        return true;
+                    }
+                    else{
+                        toastr.error("La justificación es obligatoria si rechaza la aprobación",'aviso');
+                    }
                 }
                 else{
                     toastr.error("La contraseña es incorecta", 'aviso');
