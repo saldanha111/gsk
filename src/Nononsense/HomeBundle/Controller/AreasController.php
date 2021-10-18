@@ -95,11 +95,13 @@ class AreasController extends Controller
 
             $prefixes = $this->getDoctrine()->getRepository(AreaPrefixes::class)->findBy(array("area" => $item));
             $array_item["prefixes"] = json_decode($serializer->serialize($prefixes, 'json',array('groups' => array('list_prefix'))),true);
+            if($item->getFll()){
+                $array_item["fll"] = $item->getFll()->getId();
+            }
         }
 
         $array_item["users"] = $this->getDoctrine()->getRepository(Users::class)->findAll();
-        $array_item["fll"] = $item->getFll()->getId();
-        
+                
 
         return $this->render('NononsenseHomeBundle:Areas:area.html.twig',$array_item);
     }

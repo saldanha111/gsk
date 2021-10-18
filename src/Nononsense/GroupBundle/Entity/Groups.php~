@@ -132,7 +132,12 @@ class Groups
     /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\AreasGroups", mappedBy="agroup")
      */
-    protected $areas; 
+    protected $areas;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\SpecificGroups", mappedBy="group")
+     */
+    protected $specificGroups;  
 
     /**
      * Get id

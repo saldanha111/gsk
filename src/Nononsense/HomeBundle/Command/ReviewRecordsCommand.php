@@ -6,6 +6,9 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 //use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
+use Nononsense\HomeBundle\Entity\CVSecondWorkflowStates;
+use Nononsense\HomeBundle\Entity\SpecificGroups;
+use Nononsense\HomeBundle\Entity\CVSecondWorkflow;
 
 /**
 * 
@@ -58,20 +61,42 @@ class ReviewRecordsCommand extends ContainerAwareCommand
 		        $message = 'Los siguientes registros han sido bloqueados y necesitan ser gestionados por su parte o algún otro FLL. Acceda al siguiente  Link para gestionar los bloqueos.<br><br>'.implode('<br>', $ids);
 		        $baseUrl = trim($this->getContainer()->getParameter('cm_installation'), '/').$this->getContainer()->get('router')->generate('nononsense_cv_search')."?blocked=1";
 
-	           if ($this->getContainer()->get('utilities')->sendNotification($area->getFll()->getEmail(), $baseUrl, "", "", $subject, $message)) {
-	                
-	                $output->writeln(['Mensaje enviado: '.$area->getFll()->getEmail()]);
+		        $typesw = $em->getRepository(CVSecondWorkflowStates::class)->findOneBy(array("id" => "2"));
+		        $specific = $em->getRepository(SpecificGroups::class)->findOneBy(array("name" => "ECO"));
+            	$other_group = $specific->getGroup();
 
-	                if ($input->getOption('msg')) {
-	                	$output->writeln(['Asunto: '.$subject]);	
-	                	$output->writeln(['Cuerpo del mensaje: '.$message]);
-	                	$output->writeln(['']);	
-	                }
+            	$sworkflow = new CVSecondWorkflow();
+	            $sworkflow->setRecord($record);
+	            $sworkflow->setGroup($other_group);
+	            $sworkflow->setNumberSignature(1);
+	            $sworkflow->setType($typesw);
+	            $sworkflow->setSigned(FALSE);
+	            $em->persist($sworkflow);
 
-	            }else{
+	            if($area->getFll()){
+		            if ($this->getContainer()->get('utilities')->sendNotification($area->getFll()->getEmail(), $baseUrl, "", "", $subject, $message)) {
 
-	            	$output->writeln(['<error>Error: '.$area->getFll()->getEmail().'</error>']);
-	            }
+		            	$sworkflow = new CVSecondWorkflow();
+			            $sworkflow->setRecord($record);
+			            $sworkflow->setUser($area->getFll());
+			            $sworkflow->setNumberSignature(2);
+			            $sworkflow->setType($typesw);
+			            $sworkflow->setSigned(FALSE);
+			            $em->persist($sworkflow);
+		                
+		                $output->writeln(['Mensaje enviado: '.$area->getFll()->getEmail()]);
+
+		                if ($input->getOption('msg')) {
+		                	$output->writeln(['Asunto: '.$subject]);	
+		                	$output->writeln(['Cuerpo del mensaje: '.$message]);
+		                	$output->writeln(['']);	
+		                }
+
+		            }else{
+
+		            	$output->writeln(['<error>Error: '.$area->getFll()->getEmail().'</error>']);
+		            }
+		        }
 
 		    }else{
 		    	$output->writeln(['<comment>Ningún registro bloqueado para el area '.$area->getName().'</comment>']);

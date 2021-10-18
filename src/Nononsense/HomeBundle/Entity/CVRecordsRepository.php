@@ -44,8 +44,13 @@ class CVRecordsRepository extends EntityRepository
                 )
             ) THEN 1 ELSE 0 END";
 
-        $gxp="CASE  WHEN 
-            (i.id IN (SELECT IDENTITY(vvv_gxp.record) FROM Nononsense\HomeBundle\Entity\CVSecondWorkflow vvv_gxp WHERE vvv_gxp.signed=FALSE AND vvv_gxp.type=1 AND (vvv_gxp.user=:eluser1 OR vvv_gxp.group IN (:groups)))
+        $require_gxp="CASE  WHEN 
+            (i.id IN (SELECT IDENTITY(ccc_gxp.record) FROM Nononsense\HomeBundle\Entity\CVSecondWorkflow ccc_gxp WHERE ccc_gxp.signed=FALSE AND ccc_gxp.type=1 AND (ccc_gxp.user=:eluser1 OR ccc_gxp.group IN (:groups)))
+                
+            ) THEN 1 ELSE 0 END";
+
+        $require_blocked="CASE  WHEN 
+            (i.id IN (SELECT IDENTITY(bbb_sby.record) FROM Nononsense\HomeBundle\Entity\CVSecondWorkflow bbb_sby WHERE bbb_sby.signed=FALSE AND bbb_sby.type=2 AND (bbb_sby.user=:eluser1 OR bbb_sby.group IN (:groups)))
                 
             ) THEN 1 ELSE 0 END";
 
@@ -61,7 +66,11 @@ class CVRecordsRepository extends EntityRepository
                 }
 
                 if(isset($filters["gxp"]) && $filters["gxp"]){
-                    $list->addSelect($gxp." AS allow_gxp");
+                    $list->addSelect($require_gxp." AS allow_gxp");
+                }
+
+                if(isset($filters["blocked"]) && $filters["blocked"]){
+                    $list->addSelect($require_blocked." AS allow_blocked");
                 }
 
                 break;
@@ -124,14 +133,19 @@ class CVRecordsRepository extends EntityRepository
 
             if(isset($filters["blocked"]) && $filters["blocked"]){
                 $list->andWhere('i.blocked=1');
+
+                if(isset($filters["pending_for_me"]) && $filters["pending_for_me"]){
+                    $require_blocked=str_replace("bbb", "bbb2", $require_blocked);
+                    $list->andWhere($require_blocked.'=1');
+                }
             }
 
             if(isset($filters["gxp"]) && $filters["gxp"]){
                 $list->andWhere('i.userGxP IS NOT NULL');
 
-                if(isset($filters["action_gxp"]) && $filters["action_gxp"]){
-                    $gxp=str_replace("vvv", "zzz", $gxp);
-                    $list->andWhere($gxp.'=1');
+                if(isset($filters["salda"]) && $filters["salda"]){
+                    $require_gxp=str_replace("ccc", "ccc2", $require_gxp);
+                    $list->andWhere($require_gxp.'=1');
                 }
             }
 

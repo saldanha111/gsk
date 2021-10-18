@@ -37,88 +37,18 @@ use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Nononsense\UtilsBundle\Classes\Auxiliar;
 use Nononsense\UtilsBundle\Classes\Utils;
 
-class CVModificationGxPController extends Controller
+class CVStandByController extends Controller
 {
-    //Preparamos la reapertura de una cumplimentación en estado final
-    public function requestAction(Request $request, int $id)
-    {
-        $em = $this->getDoctrine()->getManager();
-        $serializer = $this->get('serializer');
-        $array=array();
-        $error=0;
-
-        $item = $this->getDoctrine()->getRepository(CVRecords::class)->findOneBy(array("id" => $id));
-
-        if(!$item){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                    'El registro no existe'
-            );
-            $route = $this->container->get('router')->generate('nononsense_home_homepage');
-            return $this->redirect($route);
-        }
-
-        if(!$item->getState()->getFinal()){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                    'El registro no se encuentra en un estado final y por tanto no se puede solicitar una modificación'
-            );
-            $route = $this->container->get('router')->generate('nononsense_home_homepage');
-            return $this->redirect($route);
-        }
-
-        $signature = $this->getDoctrine()->getRepository(CVSignatures::class)->findOneBy(array("record" => $item),array("id" => "DESC"));
-
-        if($signature && $signature->getAction()->getId()==18){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                    'No se puede puede modificar este registro porque ya hay una solicitud de modificación'
-            );
-            $route = $this->container->get('router')->generate('nononsense_home_homepage');
-            return $this->redirect($route);
-        }
-
-        $concat="?reupdate=1&";
-
-        if($request->get("logbook")){
-            $concat.="logbook=".$request->get("logbook")."&";
-        }
-
-        if($error==0){
-            $em->flush();
-            $route = $this->container->get('router')->generate('nononsense_cv_docoaro_new', array("id" => $item->getId())).$concat;
-        }
-        else{
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                    'Hubo un error al intentar iniciar la cumplimentación de la plantilla'
-            );
-            $route = $this->container->get('router')->generate('nononsense_tm_templates')."?state=6";
-        }
-        
-        return $this->redirect($route);
-    }
-
-    //Visualizamos el GxP a modificar
+    //Visualizamos el registro bloqueado
     public function viewAction(Request $request, int $id)
     {   
         $em = $this->getDoctrine()->getManager();
         $serializer = $this->get('serializer');
         $array=array();
 
-        /*$is_valid = $this->get('app.security')->permissionSeccion('aprobacion_gxp');
-        if(!$is_valid){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                'No tiene permisos suficientes'
-            );
-            $route=$this->container->get('router')->generate('nononsense_home_homepage');
-            return $this->redirect($route);
-        }*/
-
         $user = $this->container->get('security.context')->getToken()->getUser();
 
-        $items=$this->getDoctrine()->getRepository(CVRecords::class)->search("list",array("id" => $id,"gxp" => 1,"pending_for_me" => 1,"user" => $user));
+        $items=$this->getDoctrine()->getRepository(CVRecords::class)->search("list",array("id" => $id,"blocked" => 1,"pending_for_me" => 1,"user" => $user));
 
         if(!$items){
             $this->get('session')->getFlashBag()->add(
@@ -173,7 +103,7 @@ class CVModificationGxPController extends Controller
 
         $user = $this->container->get('security.context')->getToken()->getUser();
 
-        $items=$this->getDoctrine()->getRepository(CVRecords::class)->search("list",array("id" => $id,"gxp" => 1,"pending_for_me" => 1,"user" => $user));
+        $items=$this->getDoctrine()->getRepository(CVRecords::class)->search("list",array("id" => $id,"blocked" => 1,"pending_for_me" => 1,"user" => $user));
 
         if(!$items){
             $this->get('session')->getFlashBag()->add(

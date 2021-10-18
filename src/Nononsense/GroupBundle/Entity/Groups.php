@@ -132,7 +132,12 @@ class Groups
     /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\AreasGroups", mappedBy="agroup")
      */
-    protected $areas; 
+    protected $areas;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\SpecificGroups", mappedBy="group")
+     */
+    protected $specificGroups;  
 
     /**
      * Get id
@@ -890,5 +895,38 @@ class Groups
     public function getCvSecondWorkflows()
     {
         return $this->cvSecondWorkflows;
+    }
+
+    /**
+     * Add specificGroups
+     *
+     * @param \Nononsense\HomeBundle\Entity\SpecificGroups $specificGroups
+     * @return Groups
+     */
+    public function addSpecificGroup(\Nononsense\HomeBundle\Entity\SpecificGroups $specificGroups)
+    {
+        $this->specificGroups[] = $specificGroups;
+
+        return $this;
+    }
+
+    /**
+     * Remove specificGroups
+     *
+     * @param \Nononsense\HomeBundle\Entity\SpecificGroups $specificGroups
+     */
+    public function removeSpecificGroup(\Nononsense\HomeBundle\Entity\SpecificGroups $specificGroups)
+    {
+        $this->specificGroups->removeElement($specificGroups);
+    }
+
+    /**
+     * Get specificGroups
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getSpecificGroups()
+    {
+        return $this->specificGroups;
     }
 }

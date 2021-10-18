@@ -200,6 +200,14 @@
                                         {% endif %}
                                     {% endif %} 
                                 {% endif %}
+
+                                {% if filters.blocked is defined and filters.blocked is not empty %}
+                                    {% if item.allow_blocked %} 
+                                        <a class="btn btn-xs btn-danger" href="{{path('nononsense_request_view_gxp', {'id': item.id})}}" target="_self"><i class="fa fa-unlock" aria-hidden="true"></i> {{'Desbloquear'|trans}}</a>
+                                    {% else %}
+                                        <a class="btn btn-xs btn-warning disabled"><i class="fa fa-lock" aria-hidden="true"></i> {{ 'Pendiente de desbloqueo'|trans }}</a>
+                                    {% endif %}
+                                {% endif %}
                                 
                                 </td>
                             </tr>
