@@ -37,11 +37,11 @@ class ReviewRecordsCommand extends ContainerAwareCommand
 		    $records = $qb->select('i')
 		    				->from('NononsenseHomeBundle:CVRecords', 'i')
 		    				->leftJoin("i.template", "t")
-		    				->andWhere('i.modified <= :modified')
+		    				->andWhere('i.openDate <= :modified')
 		    				->andWhere('i.inEdition = 1')
 		    				->andWhere('(i.blocked = 0 OR i.blocked IS NULL)')
 		    				->andWhere('IDENTITY(t.area) = :area')
-		    				->setParameter('modified', new \DateTime('-8 hour'))
+		    				->setParameter('modified', new \DateTime('-2 hour'))
 		    				->setParameter('area', $area->getId())
 		    				->getQuery()
 		    				->getResult();

@@ -601,6 +601,16 @@ class CVCumplimentationController extends Controller
         $filters=array_filter($request->query->all());
         $filters2=array_filter($request->query->all());
 
+        if(isset($filters["pending_for_me"]) && isset($filters["gxp"])){
+            unset($filters["pending_for_me"]);
+            $filters["pending_gxp"]=1;
+        }
+
+        if(isset($filters["pending_for_me"]) && isset($filters["blocked"])){
+            unset($filters["pending_for_me"]);
+            $filters["pending_blocked"]=1;
+        }
+
         $filters["user"]=$user;
         $filters2["user"]=$user;
 
@@ -640,6 +650,10 @@ class CVCumplimentationController extends Controller
             $parameters=FALSE;
         }
         $array_item["pagination"]=\Nononsense\UtilsBundle\Classes\Utils::paginador($filters["limit_many"],$request,$url,$array_item["count"],"/", $parameters);
+
+        if(isset($filters["pending_blocked"]) || isset($filters["pending_gxp"])){
+             $array_item["filters"]["pending_for_me"]=1;
+        }
 
         if(!$request->get("export_excel") && !$request->get("export_pdf")){
             return $this->render('NononsenseHomeBundle:CV:search.html.twig',$array_item);

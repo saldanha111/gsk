@@ -20,6 +20,7 @@ use Nononsense\HomeBundle\Entity\CVRecordsHistory;
 use Nononsense\HomeBundle\Entity\CVRequestTypes;
 use Nononsense\HomeBundle\Entity\CVSecondWorkflow;
 use Nononsense\HomeBundle\Entity\CVSecondWorkflowStates;
+use Nononsense\HomeBundle\Entity\SpecificGroups;
 use Nononsense\GroupBundle\Entity\GroupUsers;
 
 
@@ -48,12 +49,12 @@ class CVStandByController extends Controller
 
         $user = $this->container->get('security.context')->getToken()->getUser();
 
-        $items=$this->getDoctrine()->getRepository(CVRecords::class)->search("list",array("id" => $id,"blocked" => 1,"pending_for_me" => 1,"user" => $user));
+        $items=$this->getDoctrine()->getRepository(CVRecords::class)->search("list",array("id" => $id,"blocked" => 1,"pending_blocked" => 1,"user" => $user));
 
         if(!$items){
             $this->get('session')->getFlashBag()->add(
                 'error',
-                    'No se puede aprobar la modificación GxP de este registro'
+                    'No se puede desbloquear este registro'
             );
             $route = $this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
@@ -61,7 +62,7 @@ class CVStandByController extends Controller
 
         $record = $this->getDoctrine()->getRepository(CVRecords::class)->findOneBy(array("id" => $items[0]["id"]));
 
-        $wf=$this->get('utilities')->wich_second_wf($record,$user);
+        $wf=$this->get('utilities')->wich_second_wf($record,$user,2);
         if(!$wf){
              $this->get('session')->getFlashBag()->add(
                 'error',
@@ -78,9 +79,10 @@ class CVStandByController extends Controller
         $array["signature_request"] = $em->getRepository(CVSignatures::class)->findOneBy(array("record" => $items[0]["id"],"action" => 18),array("id" => "DESC"));
         $array["secondWf"] = $em->getRepository(CVSecondWorkflow::class)->findBy(array("record" => $items[0]["id"]),array("id" => "ASC"));
         $array["currentWf"] = $wf;
-
+        $specific = $em->getRepository(SpecificGroups::class)->findOneBy(array("name" => "ECO"));
+        $array["eco"]=$specific->getGroup();
         
-        return $this->render('NononsenseHomeBundle:CV:view_gxp.html.twig',$array);
+        return $this->render('NononsenseHomeBundle:CV:view_standby.html.twig',$array);
     }
 
     //Aprobamos o rechazamos la modificación GxP
@@ -91,24 +93,14 @@ class CVStandByController extends Controller
         $array=array();
         $error=0;
 
-        /*$is_valid = $this->get('app.security')->permissionSeccion('aprobacion_gxp');
-        if(!$is_valid){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                'No tiene permisos suficientes'
-            );
-            $route=$this->container->get('router')->generate('nononsense_home_homepage');
-            return $this->redirect($route);
-        }*/
-
         $user = $this->container->get('security.context')->getToken()->getUser();
 
-        $items=$this->getDoctrine()->getRepository(CVRecords::class)->search("list",array("id" => $id,"blocked" => 1,"pending_for_me" => 1,"user" => $user));
+        $items=$this->getDoctrine()->getRepository(CVRecords::class)->search("list",array("id" => $id,"blocked" => 1,"pending_blocked" => 1,"user" => $user));
 
         if(!$items){
             $this->get('session')->getFlashBag()->add(
                 'error',
-                    'No se puede aprobar la modificación GxP de este registro'
+                    'No se puede desbloquear este registro'
             );
             $route = $this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
@@ -116,7 +108,7 @@ class CVStandByController extends Controller
 
         $record = $this->getDoctrine()->getRepository(CVRecords::class)->findOneBy(array("id" => $items[0]["id"]));
 
-        $wf=$this->get('utilities')->wich_second_wf($record,$user);
+        $wf=$this->get('utilities')->wich_second_wf($record,$user,2);
         if(!$wf){
              $this->get('session')->getFlashBag()->add(
                 'error',
@@ -138,56 +130,48 @@ class CVStandByController extends Controller
         if(!$request->get('action')){
             $this->get('session')->getFlashBag()->add(
                 'error',
-                "No se ha detectado ninguna acción sobre la modificación GxP"
+                "No se ha detectado ninguna acción sobre el desbloqueo del registro en Stand By"
             );
             return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
         }
 
-        //Observaciones obligatorias si se trata de un rechazo
-        if($request->get('action')!=1){
-            if(!$request->get('observations')){
-                $this->get('session')->getFlashBag()->add(
-                    'error',
-                    "El campo observaciones es obligatorio"
-                );
-                return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
+
+        if(!$request->get('observations')){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                "El campo observaciones es obligatorio"
+            );
+            return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
+        }
+
+        $specific = $em->getRepository(SpecificGroups::class)->findOneBy(array("name" => "ECO"));
+        $eco=$specific->getGroup();
+        
+        if($wf->getGroup() && $wf->getGroup()==$eco){
+            switch($request->get('action')){
+                case 1: $id_action=28;break;
+                case 2: $id_action=30;break;
             }
         }
-        
-        switch($request->get('action')){
-            case 1: $id_action=26;break;
-            default:$id_action=27;break;
+        else{
+            switch($request->get('action')){
+                case 1: $id_action=28;break;
+                case 2: $id_action=30;break;
+                case 3: $id_action=29;break;
+            }
+        }
+
+        if(!$id_action){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                "No se ha detectado ninguna acción sobre el desbloqueo del registro en Stand By"
+            );
+            return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
         }
 
         $action=$em->getRepository(CVActions::class)->findOneBy(array("id" => $id_action));
-        $typesw = $em->getRepository(CVSecondWorkflowStates::class)->findOneBy(array("id" => "1"));
+        $typesw = $em->getRepository(CVSecondWorkflowStates::class)->findOneBy(array("id" => "2"));
 
-        //Si es el ECO puede añadir firmas adicionales
-        if($wf->getNumberSignature()==1){
-            if($request->get('types')){
-                $count=$wf->getNumberSignature()+1;
-                foreach($request->get('types') as $key => $type){
-                    $aux_wf = new CVSecondWorkflow();
-                    if($type==1){
-                        $aux_group = $group=$em->getRepository(Groups::class)->findOneBy(array("id" => $request->get('relationals')[$key]));
-                        $aux_wf->setGroup($aux_group);
-                    }
-                    else{
-                        $aux_user = $group=$em->getRepository(Users::class)->findOneBy(array("id" => $request->get('relationals')[$key]));
-                        $aux_wf->setUser($aux_user);
-                    }
-
-                    $aux_wf->setType($typesw);
-                    $aux_wf->setRecord($record);
-                    $aux_wf->setNumberSignature($count);
-                    $aux_wf->setSigned(FALSE);
-                    $em->persist($aux_wf);
-
-                    $record->addCvSecondWorkflow($aux_wf);
-                    $count++;
-                }
-            } 
-        }
 
         $wf->setSigned(TRUE);
         $wf->setUser($user);
@@ -200,73 +184,73 @@ class CVStandByController extends Controller
         $signature->setUser($user);
         $signature->setRecord($record);
         $signature->setNumberSignature((count($all_signatures)+1));
-        $signature->setJustification(FALSE);
-        $signature->setCreated($record->getOpenDate());
+        $signature->setJustification(TRUE);
         $signature->setAction($action);
         $signature->setSigned(TRUE);
         $signature->setCreated(new \DateTime());
         $signature->setModified(new \DateTime());
         $signature->setSignDate(new \DateTime());
         $signature->setJson($last_signature->getJson());
-        $signature->setJsonAux($last_signature->getJsonAux());
         $signature->setVersion($last_signature->getVersion());
         $signature->setConfiguration($last_signature->getConfiguration());
         $signature->setFinish(TRUE);
-
-        if($request->get('observations')){
-            $signature->setJustification(TRUE);
-            $signature->setDescription($request->get('observations'));
-        }
+        $signature->setDescription($request->get('observations'));
 
         $em->persist($signature);
         
-        $pending_wf=0;
-        foreach($record->getCvSecondWorkflows() as $pending){
-            if(!$pending->getSigned()){
-                $pending_wf++;
-            }
-        }
-        
 
-        //Si ya no hay registros pendientes en el workflow o es un rechazo
-        if($pending_wf==0 || $request->get('action')!=1){
+        if($id_action==28 || $id_action==30){
+            $record->setBlocked(FALSE);
+            $record->setInEdition(FALSE);
+
             foreach($record->getCvSecondWorkflows() as $item_wf){
                 $em->remove($item_wf);
             }
-            $record->setUserGxP(NULL);
+
             $em->persist($record);
+        }
 
-            // Es la última aprobación
-            if($request->get('action')==1){
-                $signature->setJson($signature->getJsonAux());
-                $em->persist($signature);
-            }
+        if($id_action==28){
+            $subject="Registro desbloqueado";
+            $mensaje='Se ha aprobado el desbloqueo del registro '.$record->getId().'. Para poder continuar con su trabajo, acceda a la sección "Buscador" o "En proceso" y busca el documento o bien puede pinchar en el siguiente link"';
+            $baseURL=$this->container->get('router')->generate('nononsense_cv_search')."?id=".$record->getId();
+            $this->get('utilities')->sendNotification($record->getOpenedBy()->getEmail(), $baseURL, "", "", $subject, $mensaje);
+        }
+        
 
-            //Certificamos solo tras la última acción sobre el flujo de modificación gxp
+        if($id_action==30){
+            //Certificamos tras rechazar la reapertura del registro
             $request->attributes->set("pdf", '1');
             $request->attributes->set("no-redirect", true);
-            $slug="record-modificacion-gxp";
+            $slug="record-cancel-standby";
+
+            $record->setState($action->getNextState());
+            $em->persist($record);
+
+            $em->flush();
 
             $file = Utils::api3($this->forward('NononsenseHomeBundle:CVDocoaro:link', ['request' => $request, 'id'  => $record->getId()])->getContent());
             $file = Utils::saveFile($file, $slug, $this->getParameter('crt.root_dir'));
-            Utils::setCertification($this->container, $file, $slug, $record->getId());                
+            Utils::setCertification($this->container, $file, $slug, $record->getId()); 
         }
 
-        if($request->get('action')==1){
+        
+        
+        if($request->get('action')==1 ||  $request->get('action')==3){
             $this->get('session')->getFlashBag()->add(
                 'success',
-                "Se ha aprobado la modificación de la plantilla correctamente"
+                "Se ha aprobado el desbloqueo de la plantilla correctamente"
             );
         }
         else{
             $this->get('session')->getFlashBag()->add(
                 'success',
-                "Se ha rechazado la modificación de la plantilla correctamente"
+                "Se ha rechazado el desbloqueo de la plantilla"
             );
         }
 
         $em->flush();
-        $route = $this->container->get('router')->generate('nononsense_cv_search')."?gxp=1";
+        $route = $this->container->get('router')->generate('nononsense_cv_search')."?blocked=1";
         
         return $this->redirect($route);
     }

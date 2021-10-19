@@ -85,6 +85,12 @@ class CVRecords
     protected $firstNested;
 
     /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="cvRecordsOpen")
+     * @ORM\JoinColumn(name="user_open_id", referencedColumnName="id", nullable=true)
+     */
+    protected $openedBy;
+
+    /**
      * @ORM\Column(type="datetime")
      */
     protected $created;
@@ -664,5 +670,28 @@ class CVRecords
     public function getCvSecondWorkflows()
     {
         return $this->cvSecondWorkflows;
+    }
+
+    /**
+     * Set openedBy
+     *
+     * @param \Nononsense\UserBundle\Entity\Users $openedBy
+     * @return CVRecords
+     */
+    public function setOpenedBy(\Nononsense\UserBundle\Entity\Users $openedBy = null)
+    {
+        $this->openedBy = $openedBy;
+
+        return $this;
+    }
+
+    /**
+     * Get openedBy
+     *
+     * @return \Nononsense\UserBundle\Entity\Users 
+     */
+    public function getOpenedBy()
+    {
+        return $this->openedBy;
     }
 }

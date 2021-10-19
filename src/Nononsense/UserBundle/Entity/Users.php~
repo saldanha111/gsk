@@ -289,6 +289,11 @@ class Users implements AdvancedUserInterface, \Serializable
     protected $cvRecordsGxP;
 
     /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\CVRecords", mappedBy="openedBy")
+     */
+    protected $cvRecordsOpen;
+
+    /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\Areas", mappedBy="fll")
      */
     protected $areas;
@@ -2568,5 +2573,38 @@ class Users implements AdvancedUserInterface, \Serializable
     public function getCvSecondWorkflows()
     {
         return $this->cvSecondWorkflows;
+    }
+
+    /**
+     * Add cvRecordsOpen
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVRecords $cvRecordsOpen
+     * @return Users
+     */
+    public function addCvRecordsOpen(\Nononsense\HomeBundle\Entity\CVRecords $cvRecordsOpen)
+    {
+        $this->cvRecordsOpen[] = $cvRecordsOpen;
+
+        return $this;
+    }
+
+    /**
+     * Remove cvRecordsOpen
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVRecords $cvRecordsOpen
+     */
+    public function removeCvRecordsOpen(\Nononsense\HomeBundle\Entity\CVRecords $cvRecordsOpen)
+    {
+        $this->cvRecordsOpen->removeElement($cvRecordsOpen);
+    }
+
+    /**
+     * Get cvRecordsOpen
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getCvRecordsOpen()
+    {
+        return $this->cvRecordsOpen;
     }
 }

@@ -118,7 +118,7 @@ class CVModificationGxPController extends Controller
 
         $user = $this->container->get('security.context')->getToken()->getUser();
 
-        $items=$this->getDoctrine()->getRepository(CVRecords::class)->search("list",array("id" => $id,"gxp" => 1,"pending_for_me" => 1,"user" => $user));
+        $items=$this->getDoctrine()->getRepository(CVRecords::class)->search("list",array("id" => $id,"gxp" => 1,"pending_gxp" => 1,"user" => $user));
 
         if(!$items){
             $this->get('session')->getFlashBag()->add(
@@ -131,7 +131,7 @@ class CVModificationGxPController extends Controller
 
         $record = $this->getDoctrine()->getRepository(CVRecords::class)->findOneBy(array("id" => $items[0]["id"]));
 
-        $wf=$this->get('utilities')->wich_second_wf($record,$user);
+        $wf=$this->get('utilities')->wich_second_wf($record,$user,1);
         if(!$wf){
              $this->get('session')->getFlashBag()->add(
                 'error',
@@ -173,7 +173,7 @@ class CVModificationGxPController extends Controller
 
         $user = $this->container->get('security.context')->getToken()->getUser();
 
-        $items=$this->getDoctrine()->getRepository(CVRecords::class)->search("list",array("id" => $id,"gxp" => 1,"pending_for_me" => 1,"user" => $user));
+        $items=$this->getDoctrine()->getRepository(CVRecords::class)->search("list",array("id" => $id,"gxp" => 1,"pending_gxp" => 1,"user" => $user));
 
         if(!$items){
             $this->get('session')->getFlashBag()->add(
@@ -186,7 +186,7 @@ class CVModificationGxPController extends Controller
 
         $record = $this->getDoctrine()->getRepository(CVRecords::class)->findOneBy(array("id" => $items[0]["id"]));
 
-        $wf=$this->get('utilities')->wich_second_wf($record,$user);
+        $wf=$this->get('utilities')->wich_second_wf($record,$user,1);
         if(!$wf){
              $this->get('session')->getFlashBag()->add(
                 'error',
@@ -271,7 +271,6 @@ class CVModificationGxPController extends Controller
         $signature->setRecord($record);
         $signature->setNumberSignature((count($all_signatures)+1));
         $signature->setJustification(FALSE);
-        $signature->setCreated($record->getOpenDate());
         $signature->setAction($action);
         $signature->setSigned(TRUE);
         $signature->setCreated(new \DateTime());
@@ -311,6 +310,8 @@ class CVModificationGxPController extends Controller
                 $signature->setJson($signature->getJsonAux());
                 $em->persist($signature);
             }
+
+            $em->flush();
 
             //Certificamos solo tras la última acción sobre el flujo de modificación gxp
             $request->attributes->set("pdf", '1');

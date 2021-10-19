@@ -134,7 +134,7 @@ class CVRecordsRepository extends EntityRepository
             if(isset($filters["blocked"]) && $filters["blocked"]){
                 $list->andWhere('i.blocked=1');
 
-                if(isset($filters["pending_for_me"]) && $filters["pending_for_me"]){
+                if(isset($filters["pending_blocked"]) && $filters["pending_blocked"]){
                     $require_blocked=str_replace("bbb", "bbb2", $require_blocked);
                     $list->andWhere($require_blocked.'=1');
                 }
@@ -143,7 +143,7 @@ class CVRecordsRepository extends EntityRepository
             if(isset($filters["gxp"]) && $filters["gxp"]){
                 $list->andWhere('i.userGxP IS NOT NULL');
 
-                if(isset($filters["salda"]) && $filters["salda"]){
+                if(isset($filters["pending_gxp"]) && $filters["pending_gxp"]){
                     $require_gxp=str_replace("ccc", "ccc2", $require_gxp);
                     $list->andWhere($require_gxp.'=1');
                 }

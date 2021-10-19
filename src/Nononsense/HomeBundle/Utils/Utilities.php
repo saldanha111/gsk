@@ -222,14 +222,14 @@ class Utilities{
         return $return;
     }
 
-    public function wich_second_wf($record,$user){
+    public function wich_second_wf($record,$user,$type){
         $return=NULL;
         $groups=array();
         foreach($user->getGroups() as $uniq_group){
             $groups[]=$uniq_group->getGroup();
         }
 
-        $wfs=$this->em->getRepository('NononsenseHomeBundle:CVSecondWorkflow')->findBy(array('record' => $record,"signed" => FALSE));
+        $wfs=$this->em->getRepository('NononsenseHomeBundle:CVSecondWorkflow')->findBy(array('record' => $record,"signed" => FALSE,"type" => $type));
         if(count($wfs)==0){
             return NULL;
         }

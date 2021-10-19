@@ -61,7 +61,7 @@ class CVDocoaroController extends Controller
             return $this->redirect($route);
         }
 
-        if($record->getInEdition()){
+        if($record->getInEdition() && !$request->get("in_edition")){
             $this->get('session')->getFlashBag()->add(
                 'error',
                     'La plantilla se encuentra en edición'
@@ -73,32 +73,33 @@ class CVDocoaroController extends Controller
         $signature = $this->getDoctrine()->getRepository(CVSignatures::class)->findOneBy(array("record" => $record),array("id" => "DESC"));
 
 
+        if(!$request->get("in_edition")){
+            if($signature && !$signature->getSigned() && $signature->getVersion()!=NULL && $signature->getConfiguration()!=NULL){
+                $this->get('session')->getFlashBag()->add(
+                    'error',
+                        'El registro se encuentra pendiente de firma'
+                );
+                $route = $this->container->get('router')->generate('nononsense_home_homepage');
+                return $this->redirect($route);
+            }
 
-        if($signature && !$signature->getSigned() && $signature->getVersion()!=NULL && $signature->getConfiguration()!=NULL){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                    'El registro se encuentra pendiente de firma'
-            );
-            $route = $this->container->get('router')->generate('nononsense_home_homepage');
-            return $this->redirect($route);
-        }
+            if($request->get("reupdate") && !$record->getState()->getFinal()){
+                $this->get('session')->getFlashBag()->add(
+                    'error',
+                        'El registro no se encuentra en un estado final y por tanto no se puede solicitar una modificación'
+                );
+                $route = $this->container->get('router')->generate('nononsense_home_homepage');
+                return $this->redirect($route);
+            }
 
-        if($request->get("reupdate") && !$record->getState()->getFinal()){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                    'El registro no se encuentra en un estado final y por tanto no se puede solicitar una modificación'
-            );
-            $route = $this->container->get('router')->generate('nononsense_home_homepage');
-            return $this->redirect($route);
-        }
-
-        if($request->get("reupdate") && $signature->getAction()->getId()==18){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                    'No se puede puede modificar este registro porque ya hay una solicitud de modificación'
-            );
-            $route = $this->container->get('router')->generate('nononsense_home_homepage');
-            return $this->redirect($route);
+            if($request->get("reupdate") && $signature->getAction()->getId()==18){
+                $this->get('session')->getFlashBag()->add(
+                    'error',
+                        'No se puede puede modificar este registro porque ya hay una solicitud de modificación'
+                );
+                $route = $this->container->get('router')->generate('nononsense_home_homepage');
+                return $this->redirect($route);
+            }
         }
 
         $custom_view="";
@@ -121,7 +122,7 @@ class CVDocoaroController extends Controller
 
 
         $token_get_data = $this->get('utilities')->generateToken();
-        if(!$record->getState() || (!$record->getState()->getFinal() && !$request->get("pdf") && !$request->get("readonly")) || $request->get("reupdate")){ // Si no es un estado final y no queremos sacar un pdf
+        if(!$record->getState() || (!$record->getState()->getFinal() && !$request->get("pdf") && !$request->get("readonly") && !$request->get("in_edition")) || $request->get("reupdate")){ // Si no es un estado final y no queremos sacar un pdf
             $mode="c";
             if($record->getState()){
                 if($record->getState()->getType()){
@@ -154,6 +155,7 @@ class CVDocoaroController extends Controller
 
             $record->setInEdition(TRUE);
             $record->setOpenDate(new \DateTime());
+            $record->setOpenedBy($user);
         }
         else{
             $get_data_url=urlencode($baseUrlAux."docoaro/".$id."/getdata?token=".$token_get_data."&mode=pdf".$custom_view);
@@ -323,6 +325,7 @@ class CVDocoaroController extends Controller
 
             if($params["action"]=="close"){
                 $record->setInEdition(FALSE);
+                $record->setOpenedBy(NULL);
                 $record->setRedirectSearch(TRUE);
                 $em->persist($record);
                 $em->flush();
@@ -510,6 +513,7 @@ class CVDocoaroController extends Controller
                 }
                 $em->persist($signature);
                 $record->setInEdition(FALSE);
+                $record->setOpenedBy(NULL);
                 $record->setModified(new \DateTime());
                 $record->setOpenDate(NULL);
                 $record->setJson($json_record);

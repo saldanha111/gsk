@@ -706,6 +706,19 @@ nononsense_request_save_gxp:
     defaults: { _controller: NononsenseHomeBundle:CVModificationGxP:save, id: 0}
 
 
+# Desbloqueo registro bloqueados
+
+nononsense_request_view_standby:
+    path: /cv/standby/view/{id}
+    methods:    [GET]
+    defaults: { _controller: NononsenseHomeBundle:CVStandBy:view, id: 0}
+
+nononsense_request_save_standby:
+    path: /cv/standby/view/{id}
+    methods:    [POST]
+    defaults: { _controller: NononsenseHomeBundle:CVStandBy:save, id: 0}
+
+
 # Certifications
 
 nononsense_certifications_list:
