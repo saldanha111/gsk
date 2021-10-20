@@ -18,7 +18,8 @@ class CVRecordsHistoryRepository extends EntityRepository
             	->join("ish.signature", "e")
             	->join("e.user", "u")
             	->join("e.record", "r")
-                ->join("r.template", "t");
+                ->join("r.template", "t")
+                ->orderBy('ish.id', 'DESC');
 
 
         if(isset($filters["content"])){

@@ -584,7 +584,8 @@ class CVCumplimentationController extends Controller
                             }
                         break;
                 }
-
+                $em->persist($record);
+                $em->flush();
                 $file = Utils::api3($this->forward('NononsenseHomeBundle:CVDocoaro:link', ['request' => $request, 'id'  => $record->getId()])->getContent());
                 $file = Utils::saveFile($file, $slug, $this->getParameter('crt.root_dir'));
                 Utils::setCertification($this->container, $file, $slug, $record->getId());                
@@ -787,7 +788,11 @@ class CVCumplimentationController extends Controller
 
         header('Content-Description: File Transfer');
         header('Content-Type: '.$mime);
-        header('Content-Disposition: attachment; filename="'.$filename.'"');
+        $type="attachments";
+        if($request->get("serve")){
+            $type=$request->get("serve");
+        }
+        header('Content-Disposition: '.$type.'; filename="'.$filename.'"');
         header('Expires: 0');
         header('Cache-Control: must-revalidate');
         header('Pragma: public');
@@ -933,6 +938,22 @@ class CVCumplimentationController extends Controller
         $stepHistory->setInfo($info);
         $stepHistory->setIndex($index);
         $stepHistory->setValue($value);
+
+
+        $content_file = preg_replace('#data:.*/[^;]+;base64,#', '', $stepHistory->getValue());
+        if($this->is_base64($content_file)){
+            $extension = explode("/", mime_content_type($stepHistory->getValue()))[1];
+            $path=$this->getParameter('crt.root_dir')."/file-record/".date('Y')."/".date('m');
+            if (!is_dir($path)) {
+                mkdir($path, 0777, true);
+            }
+            $file = file_get_contents($stepHistory->getValue());
+            $fileName = md5(uniqid()).'.'.$extension;
+            file_put_contents($path."/".$fileName, $file);
+            $url_file=$path."/".$fileName;
+            Utils::setCertification($this->container, $url_file, "file-record", $evidencia->getRecord()->getId());   
+        } 
+
         $stepHistory->setPrevValue($prevValue);
         $stepHistory->setLineOptions($lineOptions);
         $stepHistory->setSignature($evidencia);
@@ -942,5 +963,10 @@ class CVCumplimentationController extends Controller
         //$em->flush();
 
         return $stepHistory;
+    }
+
+    private function is_base64($s)
+    {
+          return (bool) preg_match('/^[a-zA-Z0-9\/\r\n+]*={0,2}$/', $s);
     }
 }
