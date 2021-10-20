@@ -21,6 +21,7 @@ use Nononsense\HomeBundle\Entity\CVRequestTypes;
 use Nononsense\HomeBundle\Entity\CVSecondWorkflow;
 use Nononsense\HomeBundle\Entity\CVSecondWorkflowStates;
 use Nononsense\HomeBundle\Entity\SpecificGroups;
+use Nononsense\HomeBundle\Entity\TMCumplimentations;
 use Nononsense\GroupBundle\Entity\GroupUsers;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -79,7 +80,7 @@ class CVCumplimentationController extends Controller
             $array["nest"]=$request->get("record");
         }
 
-        
+        $array["type_cumplimentations"] = $this->getDoctrine()->getRepository(TMCumplimentations::class)->findBy(array(),array("id" => "ASC"));
         $array["secondWf"]=$em->getRepository(TMSecondWorkflow::class)->findBy(array("template" => $template));
         $array["users"] = $em->getRepository(Users::class)->findAll();
         $array["groups"] = $em->getRepository(Groups::class)->findAll();
@@ -189,35 +190,68 @@ class CVCumplimentationController extends Controller
         $em->persist($sign);
 
         $key=0;
+
+        $expected=array();
+        $loaded=array();
+
         foreach($wfs as $wf){
-            for ($i = 1; $i <= $wf->getSignaturesNumber(); $i++) {
-                if($request->get($wf->getTmCumplimentation()->getName()) && array_key_exists($key, $request->get($wf->getTmCumplimentation()->getName())) && $request->get("relationals") && array_key_exists($key, $request->get("relationals"))){
-
-                    $cvwf= new CVWorkflow();
-                    $cvwf->setRecord($record);
-                    $cvwf->setType($wf->getTmCumplimentation());
-
-                    if($request->get($wf->getTmCumplimentation()->getName())[$key]=="1"){
-                        $group=$em->getRepository(Groups::class)->findOneBy(array("id" => $request->get("relationals")[$key]));
-                        $cvwf->setGroup($group);
-                    }
-                    else{
-                        $user_aux=$em->getRepository(Users::class)->findOneBy(array("id" => $request->get("relationals")[$key]));
-                        $cvwf->setUser($user_aux);
-                    }
-
-                    $cvwf->setNumberSignature($key);
-                    $cvwf->setSigned(FALSE);
-                    $em->persist($cvwf);
-                }
-                else{
-                    $error=1;
-                }
-                if($error){
-                   break 2; 
-                }
-                $key++;
+            if (!array_key_exists($wf->getTmCumplimentation()->getId(), $expected)) {
+                $expected[$wf->getTmCumplimentation()->getId()]=0;
             }
+            $expected[$wf->getTmCumplimentation()->getId()]+=$wf->getSignaturesNumber();
+        }
+
+        foreach($request->get("types") as $item_type){
+            if (!array_key_exists($item_type, $loaded)) {
+                $loaded[$item_type]=0;
+            }
+            $loaded[$item_type]++;
+        }
+
+
+        foreach($expected as $key => $item_expected){
+            if($item_expected>$loaded[$key]){
+                $this->get('session')->getFlashBag()->add(
+                    'error',
+                        'Se esperaban más firmas en el workflow de las especificadas'
+                );
+                $route = $this->container->get('router')->generate('nononsense_tm_templates')."?state=6";
+                
+                return $this->redirect($route);
+            }
+        }
+
+        
+
+        $last_mode=0;
+        foreach($request->get("types") as $key => $item_type){
+            $cvtype=$em->getRepository(TMCumplimentations::class)->findOneBy(array("id" => $item_type));
+            if($cvtype->getTmType()->getId()<$last_mode){
+                $this->get('session')->getFlashBag()->add(
+                    'error',
+                        'Error en el orden en el que se han introducido el workflow de firmantes'
+                );
+                $route = $this->container->get('router')->generate('nononsense_tm_templates')."?state=6";
+                return $this->redirect($route);
+            }
+            $cvwf= new CVWorkflow();
+            $cvwf->setRecord($record);
+            $cvwf->setType($cvtype);
+
+            if($request->get("entities")[$key]=="1"){
+                $group=$em->getRepository(Groups::class)->findOneBy(array("id" => $request->get("relationals")[$key]));
+                $cvwf->setGroup($group);
+            }
+            else{
+                $user_aux=$em->getRepository(Users::class)->findOneBy(array("id" => $request->get("relationals")[$key]));
+                $cvwf->setUser($user_aux);
+            }
+
+            $cvwf->setNumberSignature($key);
+            $cvwf->setSigned(FALSE);
+            $em->persist($cvwf);
+            
+            $last_mode=$cvtype->getTmType()->getId();
         }
 
         //Miramos si es una plantilla reconciliable

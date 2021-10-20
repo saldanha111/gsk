@@ -74,25 +74,35 @@
                         {% set count = 0 %}
                         {% for wf in secondWf %}
                             {% for number in 1..wf.signaturesNumber %}
+                                {% if last_type is defined and wf.tmCumplimentation.tmType != last_type %}
+                                    <div>
+                                        <button type="button" class="btn btn-default pull-right add_line1" data-type="test"><i class="fa fa-plus"></i> Añadir</button>
+                                    </div><br><br>
+                                    {% set last_type = wf.tmCumplimentation.tmType  %}
+                                {% endif %}
                                 <div class="row line_workflow">
                                     <div class="form-group">
-                                        <label class="col-sm-4 control-label">{{wf.tmCumplimentation.name}}: </label>
-                                        <div class="col-sm-4 masterbox_type_workflow">
-                                            <select class="form-control type_workflow" required="required" name="{{wf.tmCumplimentation.name}}[{{count}}]" style="width: 100%;"  {{count==0 ? 'readonly="readonly"'}}>
-                                                <option value=""></option>
-                                                <option value="1">Grupo</option>
-                                                <option value="2" {{count==0 ? 'selected="selected"'}}>Usuario</option>
-                                            </select>
+                                        <div class="col-sm-4">
+                                            <input class="form-control" type="text" value="{{wf.tmCumplimentation.name}}" readonly="readonly">
+                                            <input type="hidden" name="types[]" value="{{wf.tmCumplimentation.tmType.id}}" required="required"> 
+                                        </div>
+                                        <div class="col-sm-3 masterbox_type_workflow">
+                                            {% if count!=0 %}
+                                                <select class="form-control type_workflow" required="required" name="entities[]" style="width: 100%;">
+                                                    <option value=""></option>
+                                                    <option value="1">Grupo</option>
+                                                    <option value="2">Usuario</option>
+                                                </select>
+                                            {% else %}
+                                                <input class="form-control" type="text" value="Usuario" readonly="readonly">
+                                                <input type="hidden" name="entities[]" value="2" required="required"> 
+                                            {% endif %}
                                         </div>
                                         {% if count == 0 %}
                                             <div class="master_box_user">
                                                 <div class="col-sm-4">
-                                                    <select class="form-control select_user" name="relationals[0]" readonly="readonly" style="width: 100%;" required="required">
-                                                        <option value=""></option>
-                                                        {% for user in users %}
-                                                            <option value="{{user.id}}" {{app.user.id==user.id ? 'selected="selected"'}}>{{user.name}}</option>
-                                                        {% endfor %}
-                                                    </select>
+                                                    <input class="form-control" type="text" value="{{app.user.name}}" readonly="readonly">
+                                                    <input type="hidden" name="relationals[]" value="{{app.user.id}}" required="required"> 
                                                 </div>
                                             </div>
                                         {% endif %}
@@ -100,11 +110,15 @@
                                 </div>
                                 {% set count = count + 1 %}
                             {% endfor %}
+                            {% set last_type = wf.tmCumplimentation.tmType  %}
                         {% endfor %}
                     {% endif %}
-       
+                    <div>
+                        <button type="button" class="btn btn-default pull-right add_line2" data-type="test"><i class="fa fa-plus"></i> Añadir</button>
+                    </div><br>
                 </div>
             </div>
+            <br>
             <div class="row">
                 <div class="col-lg-10 col-lg-offset-1">
                     <button type="submit" class="btn btn-primary pull-right"><i class="fa fa-pencil" aria-hidden="true"></i> Iniciar cumplimentación</button>
@@ -140,7 +154,60 @@
                 </div>
             </div>
         </div>
+        <div id="box_remove">
+            <div class="master_box_remove">
+                <div class="col-sm-1">
+                    <a href="javascript:void(0)" class="btn btn-xs btn-danger remove_line"><i class="fa fa-times" aria-hidden="true"></i></a>
+                </div>
+            </div>
+        </div>
     </div>
+
+    <did style="display:none" id="new_line1">
+        <div class="row line_workflow">
+            <div class="form-group">
+                <div class="col-sm-4">
+                    <select class="form-control select_user" name="types[]" style="width: 100%;" required="required">
+                        {% for type in type_cumplimentations %}
+                            {% if type.tmType.id == 1 %}
+                                <option value="{{type.id}}" class="{{type.tmType.name}}">{{type.name}}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-sm-3 masterbox_type_workflow">
+                    <select class="form-control type_workflow" name="entities[]" style="width: 100%;" required="required">
+                        <option value=""></option>
+                        <option value="1">Grupo</option>
+                        <option value="2">Usuario</option>
+                    </select>
+                </div>
+            </div>
+        </div> 
+    </did>
+
+    <did style="display:none" id="new_line2">
+        <div class="row line_workflow">
+            <div class="form-group">
+                <div class="col-sm-4">
+                    <select class="form-control select_user" name="types[]" style="width: 100%;" required="required">
+                        {% for type in type_cumplimentations %}
+                            {% if type.tmType.id == 2 %}
+                                <option value="{{type.id}}" class="{{type.tmType.name}}">{{type.name}}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-sm-3 masterbox_type_workflow">
+                    <select class="form-control type_workflow" name="entities[]" style="width: 100%;" required="required">
+                        <option value=""></option>
+                        <option value="1">Grupo</option>
+                        <option value="2">Usuario</option>
+                    </select>
+                </div>
+            </div>
+        </div> 
+    </did>
 {% endblock %}
 
 {% block scripts %}
@@ -171,6 +238,20 @@
         
         ActivateMenu('en_vigor_gestion_plantillas');
         $('#side-menu').metisMenu();
+
+        /* Eliminamos linea en ese paso del workflow */
+        $(document).on('click', '.remove_line', function() {
+            $(this).closest(".line_workflow").remove();
+        });
+
+        /* Añadimos linea en ese paso del workflow */
+        $(document).on('click', '.add_line1', function() {
+            add_line($(this),1);
+        });
+
+        $(document).on('click', '.add_line2', function() {
+            add_line($(this),2);
+        });
 
         $(document).on('change', '.type_workflow', function() {
             switch($(this).val()){
@@ -318,6 +399,12 @@
             return false;
         }
         return result;
+    }
+
+    function add_line(element,type){
+        element.parent().before($("#new_line"+type).html());
+        element.parent().prev().find(".masterbox_type_workflow").after($("#box_remove").html());
+        //element.closest("#box_workflow").find(".line_workflow:last").find(".masterbox_type_workflow").after($("#box_remove").html());
     }
 
 </script>

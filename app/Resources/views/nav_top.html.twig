@@ -28,21 +28,11 @@
                         <span class="m-r-sm text-muted welcome-message">Bienvenido a <span class="corpColor">GSK</span></span>
                     </li>
                     <li class="dropdown phoneHidden">
-                        <a class="dropdown-toggle count-info" data-toggle="dropdown" href="#">
+                        <a class="count-info" href="{{ path('nononsense_notifications_mails') }}">
                             {% if messages>0 %}
                                 <i class="fa fa-bell"></i>  <span class="label label-danger">{{messages}}</span>
                             {% endif %}
                         </a>
-                        <ul class="dropdown-menu dropdown-messages">
-                            {{ render(controller('NononsenseNotificationsBundle:Mailbox:widget')) }}					
-                            <li>
-                                <div class="text-center link-block">
-                                    <a href="{{ path('nononsense_notifications_mails') }}">
-                                        <i class="fa fa-envelope"></i> <strong>{{'Ir a notificaciones'|trans}}</strong>
-                                    </a>
-                                </div>
-                            </li>
-                        </ul>
                     </li>
                     <li class="dropdown">
                         <a class="dropdown-toggle count-info" data-toggle="dropdown" href="#">
