@@ -216,6 +216,13 @@ class TemplateConfigTemplatesController extends Controller
                 $template->setNotFillableItSelf(NULL); 
             }
 
+            if($request->get("minutes_verification")){
+               $template->setMinutesVerification($request->get("minutes_verification")); 
+            }
+            else{
+                $template->setMinutesVerification(NULL); 
+            }
+
             if($request->get("qr")){
                $qr = $this->getDoctrine()->getRepository(QrsTypes::class)->findOneBy(array("id" => $request->get("qr")));
                $template->setQRType($qr);

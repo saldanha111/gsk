@@ -147,6 +147,13 @@ class CVRecords
      */
     protected $blocked;
 
+    /**
+     * @var boolean 
+     *
+     * @ORM\Column(name="pending", type="boolean", nullable=true)
+     */
+    protected $pending;
+
     
     public function __construct()
     {
@@ -693,5 +700,28 @@ class CVRecords
     public function getOpenedBy()
     {
         return $this->openedBy;
+    }
+
+    /**
+     * Set pending
+     *
+     * @param boolean $pending
+     * @return CVRecords
+     */
+    public function setPending($pending)
+    {
+        $this->pending = $pending;
+
+        return $this;
+    }
+
+    /**
+     * Get pending
+     *
+     * @return boolean 
+     */
+    public function getPending()
+    {
+        return $this->pending;
     }
 }

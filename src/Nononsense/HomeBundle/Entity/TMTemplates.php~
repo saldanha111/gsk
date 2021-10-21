@@ -302,6 +302,13 @@ class TMTemplates
      */
     protected $notFillableItSelf;
 
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="minutes_verification", type="integer", nullable=true)
+     */
+    protected $minutesVerification;
+
 
 
 

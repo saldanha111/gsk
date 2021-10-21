@@ -302,6 +302,13 @@ class TMTemplates
      */
     protected $notFillableItSelf;
 
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="minutes_verification", type="integer", nullable=true)
+     */
+    protected $minutesVerification;
+
 
 
 
@@ -1407,5 +1414,28 @@ class TMTemplates
     public function getCorrelative()
     {
         return $this->correlative;
+    }
+
+    /**
+     * Set minutesVerification
+     *
+     * @param integer $minutesVerification
+     * @return TMTemplates
+     */
+    public function setMinutesVerification($minutesVerification)
+    {
+        $this->minutesVerification = $minutesVerification;
+
+        return $this;
+    }
+
+    /**
+     * Get minutesVerification
+     *
+     * @return integer 
+     */
+    public function getMinutesVerification()
+    {
+        return $this->minutesVerification;
     }
 }

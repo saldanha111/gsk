@@ -5,8 +5,8 @@ parameters:
     #mailer_password: 6102saasnononsense
     #SendGrid
     mailer_transport: smtp
-    mailer_host: smtp.strato.com
-    mailer_user: soporte@nodalblock.com
-    mailer_password: '4a@exE@7=+jc?5qWVz2C'
-    mailer_encryption: ssl
+    mailer_host: smtp.mailtrap.io
+    mailer_user: c34e544bbed128
+    mailer_password: 'f5968a343f4fda'
+    mailer_encryption: null
     mailer_username: soporte@nodalblock.com

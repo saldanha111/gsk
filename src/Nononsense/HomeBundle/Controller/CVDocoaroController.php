@@ -515,6 +515,7 @@ class CVDocoaroController extends Controller
                 $record->setInEdition(FALSE);
                 $record->setOpenedBy(NULL);
                 $record->setModified(new \DateTime());
+                $record->setPending(FALSE);
                 $record->setOpenDate(NULL);
                 $record->setJson($json_record);
                 $em->persist($record);

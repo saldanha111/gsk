@@ -125,6 +125,7 @@ class CVCumplimentationController extends Controller
             $record->setTemplate($item);
             $record->setCreated(new \DateTime());
             $record->setModified(new \DateTime());
+            $record->setPending(FALSE);
             $record->setInEdition(FALSE);
             $record->setEnabled(TRUE);
             $record->setState($state);
@@ -142,6 +143,7 @@ class CVCumplimentationController extends Controller
                 $aux_record->setTemplate($subtemplate->getNestTemplate());
                 $aux_record->setCreated(new \DateTime());
                 $aux_record->setModified(new \DateTime());
+                $aux_record->setPending(FALSE);
                 $aux_record->setInEdition(FALSE);
                 $aux_record->setEnabled(TRUE);
                 $aux_record->setState($state);
@@ -471,6 +473,7 @@ class CVCumplimentationController extends Controller
         $signature->setSignDate(new \DateTime());
         
         $record->setModified(new \DateTime());
+        $record->setPending(FALSE);
 
         if($signature->getAction()->getFinishUser()){
             $signature->setFinish(TRUE);
