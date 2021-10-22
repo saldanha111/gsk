@@ -122,7 +122,7 @@ class CVDocoaroController extends Controller
 
 
         $token_get_data = $this->get('utilities')->generateToken();
-        if(!$record->getState() || (!$record->getState()->getFinal() && !$request->get("pdf") && !$request->get("readonly") && !$request->get("in_edition")) || $request->get("reupdate")){ // Si no es un estado final y no queremos sacar un pdf
+        if(!$record->getState() || (!$record->getState()->getFinal() && !$request->get("pdf") && !$request->get("readonly") && !$request->get("in_edition")) || $request->get("reupdate")){ // Si no es un estado final,no queremos sacar un pdf, no es solo lectura, no está en edición y no es una modificación gxp
             $mode="c";
             if($record->getState()){
                 if($record->getState()->getType()){
@@ -282,8 +282,8 @@ class CVDocoaroController extends Controller
 
         //Si es una modificación de la plantilla quitamos algunos botones para que tenga que cumplimentar entera la plantilla
         if($request->get("reupdate") && $signature->getSigned()){
-            //Voy por aqui, no entra aquí
-            $json_content["configuration"]["prefix_view"]="u_;in_;dxo_";
+            $json_content["configuration"]["prefix_view"]="u_;in_;dxo_;verchk_";
+            $json_content["configuration"]["prefix_edit"]="u_;in_;dxo_";
             $json_content["configuration"]["apply_required"]=1;
             $json_content["configuration"]["partial_save_button"]=0;
             $json_content["configuration"]["cancel_button"]=0;
@@ -649,7 +649,13 @@ class CVDocoaroController extends Controller
                                 if($value=="" && $row["finalState"]){
                                     $value="N/A";
                                 }
-                               $fullText .= $value."<br>";
+                                if(is_array($value)){
+                                    $fullText .= "<img src='".$value["value"]."' style='width:100px'><br>";
+                                }
+                                else{
+                                    $fullText .= $value."<br>";
+                                }
+                                
                             }
                         }
                         else{

@@ -307,6 +307,19 @@ class CVModificationGxPController extends Controller
 
             // Es la última aprobación
             if($request->get('action')==1){
+                $signature_request = $em->getRepository(CVSignatures::class)->findOneBy(array("record" => $record->getId(),"action" => 18),array("id" => "DESC"));
+
+                $obj1 = json_decode($signature->getJsonAux())->data;
+                $obj2 = json_decode($signature->getJson())->data;
+
+                //Compares new signature with old step and instert differences
+                $this->get('utilities')->multi_obj_diff_counter = 0;
+                $this->get('utilities')->multi_obj_diff($obj1, $obj2, '$obj2->$key', '/^(in_|gsk_|dxo_|delete_)|(name|extension\b)/', false, $signature_request, false, null, 'new');
+
+                //Compares old signature with new step and check removed fields
+                $this->get('utilities')->multi_obj_diff_counter = 0;
+                $this->get('utilities')->multi_obj_diff($obj2, $obj1, '$obj2->$key', '/^(in_|gsk_|dxo_|delete_)|(name|extension\b)/', false, $signature_request, false, null, 'old');
+
                 $signature->setJson($signature->getJsonAux());
                 $em->persist($signature);
             }
