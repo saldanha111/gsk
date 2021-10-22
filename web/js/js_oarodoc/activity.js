@@ -36,6 +36,27 @@ $( document ).ready(function() {
 			send_form("close");
 		}
 	});
+
+	$('#form_fill').find('input[readonly="readonly"][required="required"]:visible, select[readonly="readonly"][required="required"]:visible, textarea[readonly="readonly"][required="required"]:visible').each(function() {
+		manual_fill=0;
+		if(!$(this).val()){
+			$(this).attr("readonly", false); 
+			manual_fill=1;
+			gsk_comment=1;
+			//Añadir todos los names a una variable y mandarsela a traves de manual_fill
+		}
+	});
+
+	if(manual_fill){
+		swal({
+	        title: "Error en la carga de datos",
+	        text: "Uno de los campos diseñado para ser cumplimentado automáticamente requiere de su imputación manual y por tanto de justificación",
+	        type: "warning"
+	     });
+		$("#form_fill").append('<input type="hidden" name="manual_fill" value="" />');
+	}
+
+	//Recorremos lo que haya en manual_fill y quitamos el modo solo lectura para que se puedan modificar al haber sido cumplimentados de forma manual
 });
 
 // Alertamos al usuario que se ha cambiado un campo previamente cargado por otro usuario y por tanto se va a pedir justificación
