@@ -768,9 +768,36 @@ class CVCumplimentationController extends Controller
     public function listContentAction(Request $request){
         $filters = array_filter($request->query->all());
 
-        $histories = $this->getDoctrine()->getRepository(CVRecordsHistory::class)->list($filters);
+        if(!$request->get("export_excel") && !$request->get("export_pdf")){
+            if($request->get("page")){
+                $filters["limit_from"]=$request->get("page")-1;
+            }
+            else{
+                $filters["limit_from"]=0;
+            }
+            $filters["limit_many"]=15;
+        }
+        else{
+            $filters["limit_from"]=0;
+            $filters["limit_many"]=99999999999;
+        }
 
-        return $this->render('NononsenseHomeBundle:CV:search_contain.html.twig', ['histories' => $histories, 'filters' => $filters]);
+        $url=$this->container->get('router')->generate('nononsense_cv_search');
+        $params=$request->query->all();
+        unset($params["page"]);
+        if(!empty($params)){
+            $parameters=TRUE;
+        }
+        else{
+            $parameters=FALSE;
+        }
+
+        
+        $histories = $this->getDoctrine()->getRepository(CVRecordsHistory::class)->list("list",$filters);
+        $count = $this->getDoctrine()->getRepository(CVRecordsHistory::class)->list("count",$filters);
+        $pagination=\Nononsense\UtilsBundle\Classes\Utils::paginador($filters["limit_many"],$request,$url,$count,"/", $parameters);
+
+        return $this->render('NononsenseHomeBundle:CV:search_contain.html.twig', ['histories' => $histories, 'filters' => $filters, 'pagination' => $pagination, "count" => $count]);
     }
 
     public function downloadBase64Action(Request $request, $id){

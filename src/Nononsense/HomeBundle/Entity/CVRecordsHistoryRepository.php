@@ -3,6 +3,7 @@
 namespace Nononsense\HomeBundle\Entity;
 
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 
 /**
  * CVRecordsHistoryRepository
@@ -12,7 +13,7 @@ use Doctrine\ORM\EntityRepository;
  */
 class CVRecordsHistoryRepository extends EntityRepository
 {
-	public function list($filters)
+	public function list($type,$filters)
 	{
 		$list = $this->createQueryBuilder('ish')
             	->join("ish.signature", "e")
@@ -61,8 +62,13 @@ class CVRecordsHistoryRepository extends EntityRepository
         	$list->setParameter('id', $filters['id']);
         }
 
+        $list->setFirstResult($filters["limit_from"]*$filters["limit_many"])->setMaxResults($filters["limit_many"]);
+
         $query = $list->getQuery();
 
-        return $query->getResult();
+        switch($type){
+            case "list": return $query->getResult();break;
+            case "count": return count(new Paginator($list));break;
+        }
 	}
 }

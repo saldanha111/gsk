@@ -137,6 +137,10 @@
                             {% endfor %}
                         </tbody>
                     </table>
+
+                    {% if pagination is defined and pagination.needed %}
+                        {% include '::pagination2.html.twig' %}
+                    {% endif %}
                
                 </div>
             </div>
