@@ -4,7 +4,7 @@ $( document ).ready(function() {
 	$("#btn_save_partial").html('<i class="fa fa-send-o"></i> Aprobar cancelación');
 	$("#btn_cancel").html('<i class="fa fa-close"></i> Rechazar cancelación');
 	
-	$("#form_fill").append('<input type="hidden" name="gsk_percent" value="'+$(".progress_document").html()+'" />');
+	//$("#form_fill").append('<input type="hidden" name="gsk_percent" value="'+$(".progress_document").html()+'" />');
 
 	/* Ocultamos los input pertenecientes a los ids de las firmas de la imputaciones */
 	$("input[class*='var_in_']").each(function( index ) {

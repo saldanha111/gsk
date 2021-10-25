@@ -2,7 +2,7 @@ var gsk_comment=0;
 $( document ).ready(function() {
 	$("#btn_save").html('<i class="fa fa-send-o"></i> Verificación total');
 	$("#btn_save_partial").html('<i class="fa fa-save"></i> Verificación parcial');
-	
+	$('input[name ="gsk_comment"]').remove();
 
 	$('#form_fill').on('keyup change paste', 'input:not(:disabled):not([readonly]), select:not(:disabled):not([readonly]), textarea:not(:disabled):not([readonly])', function(){
 		console.log($(this));
@@ -20,7 +20,7 @@ $( document ).ready(function() {
 		$("input[name='gsk_percent']").val($(".progress_document").html());
 	});
 
-	$("#form_fill").append('<input type="hidden" name="gsk_percent" value="'+$(".progress_document").html()+'" />');
+	//$("#form_fill").append('<input type="hidden" name="gsk_percent" value="'+$(".progress_document").html()+'" />');
 
 	/* Ocultamos los input pertenecientes a los ids de las firmas de la imputaciones */
 	$("input[class*='var_in_']").each(function( index ) {
@@ -46,6 +46,19 @@ $( document ).ready(function() {
 	});
 
 	$(".btn_option_table").hide();
+
+	input_manual="";
+	$('#form_fill').find('input[name^="gsk_manual_fill"]').each(function() {
+		input_manual+=$(this).val()+",";
+	});
+
+	if(input_manual!=""){
+		swal({
+	        title: "Valores automáticos inputados de forma manual",
+	        text: "Los siguientes valores fueron inputados de manera manual y requiere de observación por su parte: "+input_manual,
+	        type: "warning"
+	     });
+	}
 });
 
 // Alertamos al usuario que se ha cambiado un campo previamente cargado por otro usuario y por tanto se va a pedir justificación

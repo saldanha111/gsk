@@ -3,7 +3,7 @@ $( document ).ready(function() {
 	$("#btn_save").html('<i class="fa fa-send-o"></i> Enviar y firmar');
 	$("#btn_save_partial").html('<i class="fa fa-save"></i> Guardar y firmar');
 	
-
+	$('input[name ="gsk_comment"]').remove();
 	$('#form_fill').on('keyup change paste', 'input:not(:disabled):not([readonly]), select:not(:disabled):not([readonly]), textarea:not(:disabled):not([readonly])', function(){
 		$("#btn_custom_close").addClass("disabled");
 		if(checkCommentCompulsory($(this))){
@@ -19,7 +19,7 @@ $( document ).ready(function() {
 		$("input[name='gsk_percent']").val($(".progress_document").html());
 	});
 
-	$("#form_fill").append('<input type="hidden" name="gsk_percent" value="'+$(".progress_document").html()+'" />');
+	//$("#form_fill").append('<input type="hidden" name="gsk_percent" value="'+$(".progress_document").html()+'" />');
 
 	/* Ocultamos los input pertenecientes a los ids de las firmas de la imputaciones */
 	$("input[class*='var_in_']").each(function( index ) {
@@ -42,21 +42,19 @@ $( document ).ready(function() {
 		if(!$(this).val()){
 			$(this).attr("readonly", false); 
 			manual_fill=1;
-			gsk_comment=1;
-			//Añadir todos los names a una variable y mandarsela a traves de manual_fill
+			$("#form_fill").append('<input type="hidden" name="gsk_manual_fill[]" value="'+$(this).attr('name')+'" />');
 		}
 	});
 
-	if(manual_fill){
-		swal({
-	        title: "Error en la carga de datos",
-	        text: "Uno de los campos diseñado para ser cumplimentado automáticamente requiere de su imputación manual y por tanto de justificación",
-	        type: "warning"
-	     });
-		$("#form_fill").append('<input type="hidden" name="manual_fill" value="" />');
-	}
+	
 
-	//Recorremos lo que haya en manual_fill y quitamos el modo solo lectura para que se puedan modificar al haber sido cumplimentados de forma manual
+	$('#form_fill').find('input[name^="gsk_manual_fill"]').each(function() {
+		$('[name="'+$(this).val()+'"]').attr("readonly", false);
+	});
+
+	if(manual_fill){
+		is_manual_fill();
+	}
 });
 
 // Alertamos al usuario que se ha cambiado un campo previamente cargado por otro usuario y por tanto se va a pedir justificación
@@ -71,4 +69,13 @@ function checkCommentCompulsory(element){
         return true;
     }
     return false;
+}
+
+function is_manual_fill(){
+	gsk_comment=1;
+	swal({
+        title: "Error en la carga de datos",
+        text: "Uno de los campos diseñado para ser cumplimentado automáticamente requiere de su imputación manual y por tanto de justificación",
+        type: "warning"
+    });
 }

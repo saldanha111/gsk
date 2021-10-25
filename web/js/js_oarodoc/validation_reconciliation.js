@@ -3,7 +3,7 @@ $( document ).ready(function() {
 	$("#btn_save").html('<i class="fa fa-send-o"></i> Aprobación total');
 	$("#btn_save_partial").html('<i class="fa fa-save"></i> Aprobación parcial');
 	$("#btn_cancel").html('<i class="fa fa-close"></i> Rechazar');
-	
+	$('input[name ="gsk_comment"]').remove();
 
 	$('#form_fill').on('keyup change paste', 'input:not(:disabled):not([readonly]), select:not(:disabled):not([readonly]), textarea:not(:disabled):not([readonly])', function(){
 		console.log($(this));
@@ -21,7 +21,7 @@ $( document ).ready(function() {
 		$("input[name='gsk_percent']").val($(".progress_document").html());
 	});
 
-	$("#form_fill").append('<input type="hidden" name="gsk_percent" value="'+$(".progress_document").html()+'" />');
+	//$("#form_fill").append('<input type="hidden" name="gsk_percent" value="'+$(".progress_document").html()+'" />');
 
 	/* Ocultamos los input pertenecientes a los ids de las firmas de la imputaciones */
 	$("input[class*='var_in_']").each(function( index ) {
