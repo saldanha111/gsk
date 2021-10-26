@@ -3,7 +3,6 @@
 namespace Nononsense\HomeBundle\Entity;
 
 use Doctrine\ORM\EntityRepository;
-use Doctrine\ORM\Tools\Pagination\Paginator;
 
 /**
  * CVRecordsHistoryRepository
@@ -15,13 +14,17 @@ class CVRecordsHistoryRepository extends EntityRepository
 {
 	public function list($type,$filters)
 	{
-		$list = $this->createQueryBuilder('ish')
-            	->join("ish.signature", "e")
-            	->join("e.user", "u")
-            	->join("e.record", "r")
-                ->join("r.template", "t")
-                ->orderBy('ish.id', 'DESC');
+		$list = $this->createQueryBuilder('ish');
 
+        switch($type){
+            case "list": $list->select("ish.id,r.id recordId,t.name templateName,e.numberSignature,ish.field,ish.index,ish.value,ish.prevValue,u.name userName,e.modified,ish.lineOptions");break;
+            case "count": $list->select("COUNT(ish.id) conta");break;
+        }
+
+        $list->join("ish.signature", "e")
+    	->join("e.user", "u")
+    	->join("e.record", "r")
+        ->join("r.template", "t");
 
         if(isset($filters["content"])){
             $terms = explode(" ", $filters["content"]);
@@ -62,13 +65,16 @@ class CVRecordsHistoryRepository extends EntityRepository
         	$list->setParameter('id', $filters['id']);
         }
 
-        $list->setFirstResult($filters["limit_from"]*$filters["limit_many"])->setMaxResults($filters["limit_many"]);
+        if($type!="count"){
+            $list->orderBy('ish.id', 'DESC');
+            $list->setFirstResult($filters["limit_from"]*$filters["limit_many"])->setMaxResults($filters["limit_many"]);
+        }
 
         $query = $list->getQuery();
 
         switch($type){
             case "list": return $query->getResult();break;
-            case "count": return count(new Paginator($list));break;
+            case "count": return $query->getSingleResult()["conta"];break;
         }
 	}
 }

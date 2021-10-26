@@ -260,7 +260,8 @@ class CVCumplimentationController extends Controller
         $reconc=0;
         if($item->getUniqid()){
             //Miramos si se tiene que reconciliar
-            $reconciliation = $this->getDoctrine()->getRepository(CVRecords::class)->search("list",array("user"=> $user, "plantilla_id" => $item->getId(),"code_unique" => $array_unique, "limit_from" => 0,"limit_many" => 1));
+            //He quitado el parametro user, si hay que ponerlo hay que poner el de users
+            $reconciliation = $this->getDoctrine()->getRepository(CVRecords::class)->search("list",array("plantilla_id" => $item->getId(),"code_unique" => $array_unique, "limit_from" => 0,"limit_many" => 1));
             if($reconciliation[0]){
                 $recon=$em->getRepository(CVRecords::class)->findOneBy(array("id" => $reconciliation[0]["id"]));
                 $record->setReconciliation($recon);
@@ -341,7 +342,9 @@ class CVCumplimentationController extends Controller
             return $this->redirect($route);
         }
 
-        $can_sign = $this->getDoctrine()->getRepository(CVRecords::class)->search("count",array("id" => $array["item"]->getId(),"pending_for_me" => 1,"user" => $user));
+        $users_actions=$this->get('utilities')->get_users_actions($user,1);
+
+        $can_sign = $this->getDoctrine()->getRepository(CVRecords::class)->search("count",array("id" => $array["item"]->getId(),"pending_for_me" => 1,"users" => $users_actions));
 
         if($can_sign==0){
             $this->get('session')->getFlashBag()->add(
@@ -414,7 +417,9 @@ class CVCumplimentationController extends Controller
             return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
         }
 
-        $can_sign = $this->getDoctrine()->getRepository(CVRecords::class)->search("count",array("id" => $record->getId(),"pending_for_me" => 1,"user" => $user));
+        $users_actions=$this->get('utilities')->get_users_actions($user,1);
+
+        $can_sign = $this->getDoctrine()->getRepository(CVRecords::class)->search("count",array("id" => $record->getId(),"pending_for_me" => 1,"users" => $users_actions));
 
         if($can_sign==0){
             $this->get('session')->getFlashBag()->add(
@@ -641,16 +646,21 @@ class CVCumplimentationController extends Controller
 
         if(isset($filters["pending_for_me"]) && isset($filters["gxp"])){
             unset($filters["pending_for_me"]);
+            unset($filters2["pending_for_me"]);
             $filters["pending_gxp"]=1;
+            $filters2["pending_gxp"]=1;
         }
 
         if(isset($filters["pending_for_me"]) && isset($filters["blocked"])){
             unset($filters["pending_for_me"]);
+            unset($filters2["pending_for_me"]);
             $filters["pending_blocked"]=1;
+            $filters2["pending_blocked"]=1;
         }
 
-        $filters["user"]=$user;
-        $filters2["user"]=$user;
+        $users_actions=$this->get('utilities')->get_users_actions($user,1);
+        $filters["users"]=$users_actions;
+        $filters2["users"]=$users_actions;
 
         $filters["fll"]=$fll;
         $filters2["fll"]=$fll;
@@ -676,8 +686,9 @@ class CVCumplimentationController extends Controller
         $array_item["filters"]=$filters;
         $array_item["items"] = $this->getDoctrine()->getRepository(CVRecords::class)->search("list",$filters);
         $array_item["states"]=$this->getDoctrine()->getRepository(CVStates::class)->findAll();
-
+        
         $array_item["count"] = $this->getDoctrine()->getRepository(CVRecords::class)->search("count",$filters2);
+
         $url=$this->container->get('router')->generate('nononsense_cv_search');
         $params=$request->query->all();
         unset($params["page"]);

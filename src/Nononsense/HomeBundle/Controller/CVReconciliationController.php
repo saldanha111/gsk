@@ -40,8 +40,10 @@ class CVReconciliationController extends Controller
         $filters=array_filter($request->query->all());
         $filters2=array_filter($request->query->all());
 
-        $filters["user"]=$user;
-        $filters2["user"]=$user;
+        $users_actions=$this->get('utilities')->get_users_actions($user,1);
+        $filters["users"]=$users_actions;
+        $filters2["users"]=$users_actions;
+
 
         $array_item["suser"]["id"]=$user->getId();
 

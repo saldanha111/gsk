@@ -337,7 +337,10 @@ class CVDocoaroController extends Controller
 
             $user = $this->getDoctrine()->getRepository(Users::class)->findOneBy(array("id" => $id_usuario));
 
-            $can_sign = $this->getDoctrine()->getRepository(CVRecords::class)->search("count",array("id" => $record->getId(),"pending_for_me" => 1,"user" => $user));
+            $users_actions=$this->get('utilities')->get_users_actions($user,1);
+            
+
+            $can_sign = $this->getDoctrine()->getRepository(CVRecords::class)->search("count",array("id" => $record->getId(),"pending_for_me" => 1,"users" => $users_actions));
 
             if($can_sign==0 && !$request->get("reupdate")){
                 return false;
@@ -590,7 +593,10 @@ class CVDocoaroController extends Controller
     private function get_logbook($current,$num)
     {
         $fullText = "";
-        $records = $this->getDoctrine()->getRepository(CVRecords::class)->search("list",array("user" => $current->getUser(),"not_this"=>$current->getId(),"plantilla_id"=>$current->getTemplate()->getId(),"limit_from" => 0, "limit_many" => $num,"have_json" => 1,"have_signature" => 1));
+
+        $users_actions=$this->get('utilities')->get_users_actions($current->getUser(),1);
+
+        $records = $this->getDoctrine()->getRepository(CVRecords::class)->search("list",array("users" => $users_actions,"not_this"=>$current->getId(),"plantilla_id"=>$current->getTemplate()->getId(),"limit_from" => 0, "limit_many" => $num,"have_json" => 1,"have_signature" => 1));
         
         $array_records=array();
         $array_fields=array();

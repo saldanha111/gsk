@@ -48,8 +48,9 @@ class CVStandByController extends Controller
         $array=array();
 
         $user = $this->container->get('security.context')->getToken()->getUser();
+        $users_actions=$this->get('utilities')->get_users_actions($user,3);
 
-        $items=$this->getDoctrine()->getRepository(CVRecords::class)->search("list",array("id" => $id,"blocked" => 1,"pending_blocked" => 1,"user" => $user));
+        $items=$this->getDoctrine()->getRepository(CVRecords::class)->search("list",array("id" => $id,"blocked" => 1,"pending_blocked" => 1,"users" => $users_actions));
 
         if(!$items){
             $this->get('session')->getFlashBag()->add(
@@ -94,8 +95,9 @@ class CVStandByController extends Controller
         $error=0;
 
         $user = $this->container->get('security.context')->getToken()->getUser();
+        $users_actions=$this->get('utilities')->get_users_actions($user,3);
 
-        $items=$this->getDoctrine()->getRepository(CVRecords::class)->search("list",array("id" => $id,"blocked" => 1,"pending_blocked" => 1,"user" => $user));
+        $items=$this->getDoctrine()->getRepository(CVRecords::class)->search("list",array("id" => $id,"blocked" => 1,"pending_blocked" => 1,"users" => $users_actions));
 
         if(!$items){
             $this->get('session')->getFlashBag()->add(

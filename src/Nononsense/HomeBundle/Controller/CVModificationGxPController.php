@@ -117,8 +117,9 @@ class CVModificationGxPController extends Controller
         }*/
 
         $user = $this->container->get('security.context')->getToken()->getUser();
+        $users_actions=$this->get('utilities')->get_users_actions($user,2);
 
-        $items=$this->getDoctrine()->getRepository(CVRecords::class)->search("list",array("id" => $id,"gxp" => 1,"pending_gxp" => 1,"user" => $user));
+        $items=$this->getDoctrine()->getRepository(CVRecords::class)->search("list",array("id" => $id,"gxp" => 1,"pending_gxp" => 1,"users" => $users_actions));
 
         if(!$items){
             $this->get('session')->getFlashBag()->add(
@@ -172,8 +173,9 @@ class CVModificationGxPController extends Controller
         }*/
 
         $user = $this->container->get('security.context')->getToken()->getUser();
+        $users_actions=$this->get('utilities')->get_users_actions($user,2);
 
-        $items=$this->getDoctrine()->getRepository(CVRecords::class)->search("list",array("id" => $id,"gxp" => 1,"pending_gxp" => 1,"user" => $user));
+        $items=$this->getDoctrine()->getRepository(CVRecords::class)->search("list",array("id" => $id,"gxp" => 1,"pending_gxp" => 1,"users" => $users_actions));
 
         if(!$items){
             $this->get('session')->getFlashBag()->add(

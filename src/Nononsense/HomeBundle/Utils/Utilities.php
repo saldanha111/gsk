@@ -334,7 +334,7 @@ class Utilities{
                         }
 
                         if ($compareWith == 'old') {
-                            if ($field == $removedOrAdded) {
+                            if ($field == $removedOrAdded && $field!="removedOrAdded") {
                                 $lineOptions = 0;
                                 // $diff[$key]['field'] = $field;
                                 // $diff[$key]['line_options'] = $lineOptions;
@@ -441,5 +441,15 @@ class Utilities{
         //$this->em->flush();
 
         return $stepHistory;
+    }
+
+    public function get_users_actions($user,$type){
+        $users[]=$user;
+        $delegations=$this->em->getRepository('NononsenseHomeBundle:Delegations')->findBy(array('sustitute' => $user,"type" => $type,"deleted" => NULL));
+        foreach($delegations as $delegation){
+            $users[]=$delegation->getUser();
+        }
+
+        return $users;
     }
 }

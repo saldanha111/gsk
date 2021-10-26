@@ -88,7 +88,7 @@
                                 <th>Nombre plantilla</th>
                                 <th>Nº.evidencia</th>
                                 <th>Campo</th>
-                                <th>Nº Duplicado</th>
+                                <th>Nº.Linea</th>
                                 <th>Valor</th>
                                 <th>Valor anterior</th>
                                 <th>Usuario</th>
@@ -99,11 +99,11 @@
                         <tbody>
                             {% for history in histories %}
                             <tr>
-                                <td><a class="btn btn-xs btn-primary" href="{{ path('nononsense_cv_search')}}?id={{history.signature.record.id}}"><i class="fa fa-file-text-o" aria-hidden="true"></i> {{history.signature.record.id}}</a></td>
-                                <td>{{history.signature.record.template.name}}</td>
-                                <td>{{history.signature.numberSignature}}</td>
+                                <td><a class="btn btn-xs btn-primary" href="{{ path('nononsense_cv_search')}}?id={{history.recordId}}"><i class="fa fa-file-text-o" aria-hidden="true"></i> {{history.recordId}}</a></td>
+                                <td>{{history.templateName}}</td>
+                                <td>{{history.numberSignature}}</td>
                                 <td>{{history.field}}</td>
-                                <td>{{history.index is defined and history.index != '' ? history.index : 'No duplicado'}}</td>
+                                <td>{{history.index is defined and history.index != '' ? history.index : ''}}</td>
                                 <td>
                                     {% if 'base64' in history.value %}
                                         <a href="{{path('nononsense_cv_content_search_file_download', {id: history.id})}}">Descargar archivo</a>
@@ -119,8 +119,8 @@
                                         {{history.prevValue}}
                                     {% endif %}
                                 </td>
-                                <td>{{history.signature.user.username}}</td>
-                                <td>{{history.signature.modified|date('Y-m-d H:i:s')}}</td>
+                                <td>{{history.userName}}</td>
+                                <td>{{history.modified|date('Y-m-d H:i:s')}}</td>
                                 <td>
                                     {% if history.lineOptions is defined and history.lineOptions is not null %}
                                         {% if history.lineOptions == 1 %}
