@@ -122,6 +122,13 @@ class CVSignatures
      */
     protected $jsonAux;
 
+    /**
+     * @var boolean
+     *
+     * @ORM\Column(name="delegation", type="boolean",  nullable=true)
+     */
+    protected $delegation;
+
     
     public function __construct()
     {
@@ -738,5 +745,28 @@ class CVSignatures
     public function getJsonAux()
     {
         return $this->jsonAux;
+    }
+
+    /**
+     * Set delegation
+     *
+     * @param boolean $delegation
+     * @return CVSignatures
+     */
+    public function setDelegation($delegation)
+    {
+        $this->delegation = $delegation;
+
+        return $this;
+    }
+
+    /**
+     * Get delegation
+     *
+     * @return boolean 
+     */
+    public function getDelegation()
+    {
+        return $this->delegation;
     }
 }

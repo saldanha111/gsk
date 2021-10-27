@@ -348,7 +348,7 @@ class CVDocoaroController extends Controller
 
             //Miramos wf que le toca
 
-            $wf=$this->get('utilities')->wich_wf($record,$user);
+            $wf=$this->get('utilities')->wich_wf($record,$user,1);
             if(!$wf && !$request->get("reupdate")){
                 return false;
             }
@@ -383,6 +383,20 @@ class CVDocoaroController extends Controller
                     $signature->setNumberSignature((count($all_signatures)+1));
                     $signature->setJustification(FALSE);
                     $signature->setCreated($record->getOpenDate());
+
+                    //Miramos si es una firma delegada o no
+                    $delegation=FALSE;
+
+                    if($wf && $wf->getUser()!=$user){
+                        $delegation=TRUE;
+                        foreach($user->getGroups() as $uniq_group){
+                            if($uniq_group->getGroup()==$wf->getGroup()){
+                                $delegation=FALSE;
+                                break;
+                            }
+                        }
+                    }
+                    $signature->setDelegation($delegation);
                 }
                 else{
 
@@ -546,6 +560,10 @@ class CVDocoaroController extends Controller
                 $comment="";
                 if($signature->getDescription()){
                     $comment = "Comentarios: ".$signature->getDescription()."<br>";
+                }
+
+                if($signature->getDelegation()){
+                    $comment .= "Delegación de firma por ausencia<br>";
                 }
 
                 if($signature->getRecord()->getReconciliation()){

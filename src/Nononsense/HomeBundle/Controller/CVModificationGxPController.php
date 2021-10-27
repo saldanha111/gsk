@@ -132,7 +132,7 @@ class CVModificationGxPController extends Controller
 
         $record = $this->getDoctrine()->getRepository(CVRecords::class)->findOneBy(array("id" => $items[0]["id"]));
 
-        $wf=$this->get('utilities')->wich_second_wf($record,$user,1);
+        $wf=$this->get('utilities')->wich_second_wf($record,$user,1,2);
         if(!$wf){
              $this->get('session')->getFlashBag()->add(
                 'error',
@@ -188,7 +188,8 @@ class CVModificationGxPController extends Controller
 
         $record = $this->getDoctrine()->getRepository(CVRecords::class)->findOneBy(array("id" => $items[0]["id"]));
 
-        $wf=$this->get('utilities')->wich_second_wf($record,$user,1);
+        $wf=$this->get('utilities')->wich_second_wf($record,$user,1,2);
+
         if(!$wf){
              $this->get('session')->getFlashBag()->add(
                 'error',
@@ -262,7 +263,9 @@ class CVModificationGxPController extends Controller
         }
 
         $wf->setSigned(TRUE);
-        $wf->setUser($user);
+        /*if(!$wf->getUser()){
+            $wf->setUser($user);
+        }*/
         $em->persist($wf);
 
         $all_signatures = $this->getDoctrine()->getRepository(CVSignatures::class)->findBy(array("record" => $record)); 
@@ -283,6 +286,20 @@ class CVModificationGxPController extends Controller
         $signature->setVersion($last_signature->getVersion());
         $signature->setConfiguration($last_signature->getConfiguration());
         $signature->setFinish(TRUE);
+
+
+        //Miramos si es una firma delegada o no
+        $delegation=FALSE;
+        if($wf && $wf->getUser()!=$user){
+            $delegation=TRUE;
+            foreach($user->getGroups() as $uniq_group){
+                if($uniq_group->getGroup()==$wf->getGroup()){
+                    $delegation=FALSE;
+                    break;
+                }
+            }
+        }
+        $signature->setDelegation($delegation);
 
         if($request->get('observations')){
             $signature->setJustification(TRUE);

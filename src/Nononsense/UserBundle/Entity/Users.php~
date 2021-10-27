@@ -375,6 +375,16 @@ class Users implements AdvancedUserInterface, \Serializable
     protected $rcSignatures;
 
     /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\Delegations", mappedBy="user")
+     */
+    protected $delegationsusers;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\Delegations", mappedBy="sustitute")
+     */
+    protected $delegationssustitutes;
+
+    /**
      * Users constructor.
      */
     

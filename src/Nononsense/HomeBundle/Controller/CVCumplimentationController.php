@@ -260,8 +260,8 @@ class CVCumplimentationController extends Controller
         $reconc=0;
         if($item->getUniqid()){
             //Miramos si se tiene que reconciliar
-            //He quitado el parametro user, si hay que ponerlo hay que poner el de users
-            $reconciliation = $this->getDoctrine()->getRepository(CVRecords::class)->search("list",array("plantilla_id" => $item->getId(),"code_unique" => $array_unique, "limit_from" => 0,"limit_many" => 1));
+            $users_actions=$this->get('utilities')->get_users_actions($user,1);
+            $reconciliation = $this->getDoctrine()->getRepository(CVRecords::class)->search("list",array("plantilla_id" => $item->getId(),"code_unique" => $array_unique, "limit_from" => 0,"limit_many" => 1,"users" => $users_actions));
             if($reconciliation[0]){
                 $recon=$em->getRepository(CVRecords::class)->findOneBy(array("id" => $reconciliation[0]["id"]));
                 $record->setReconciliation($recon);
@@ -430,7 +430,7 @@ class CVCumplimentationController extends Controller
             return $this->redirect($route);
         }
 
-        $wf=$this->get('utilities')->wich_wf($record,$user);
+        $wf=$this->get('utilities')->wich_wf($record,$user,1);
 
         if(!$wf && $signature->getAction()->getId()!=18){
             $this->get('session')->getFlashBag()->add(
@@ -644,6 +644,15 @@ class CVCumplimentationController extends Controller
         $filters=array_filter($request->query->all());
         $filters2=array_filter($request->query->all());
 
+        $type_delegation=1;
+        if(isset($filters["gxp"])){
+            $type_delegation=2;
+        }
+        if(isset($filters["blocked"])){
+            //$type_delegation=3;
+        }
+
+
         if(isset($filters["pending_for_me"]) && isset($filters["gxp"])){
             unset($filters["pending_for_me"]);
             unset($filters2["pending_for_me"]);
@@ -658,7 +667,7 @@ class CVCumplimentationController extends Controller
             $filters2["pending_blocked"]=1;
         }
 
-        $users_actions=$this->get('utilities')->get_users_actions($user,1);
+        $users_actions=$this->get('utilities')->get_users_actions($user,$type_delegation);
         $filters["users"]=$users_actions;
         $filters2["users"]=$users_actions;
 

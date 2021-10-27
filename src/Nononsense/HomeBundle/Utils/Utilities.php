@@ -173,7 +173,7 @@ class Utilities{
         $pdf->Output($filename.".pdf",'I'); // This will output the PDF as a response directly
     }
 
-    public function wich_wf($record,$user){
+    public function wich_wf($record,$user,$type){
         $return=NULL;
         $groups=array();
         foreach($user->getGroups() as $uniq_group){
@@ -211,6 +211,51 @@ class Utilities{
             }
         }
 
+        if($find==0){
+            $users_actions=$this->get_users_actions($user,$type);
+            foreach($users_actions as $user_action){
+                foreach($wfs as $item){
+                    if($item->getUser() && $item->getUser()==$user_action){
+                        $find=1;
+                        $item_find=$item;
+                    }
+                    if($find==1){
+                        break;
+                    }
+                }
+                if($find==1){
+                    break;
+                }
+            }
+        }
+
+        if($find==0){
+            foreach($users_actions as $user_action){
+                foreach($wfs as $item){
+                    if($item->getGroup()){
+                        $in_group=0;
+                        foreach($user_action->getGroups() as $uniq_group){
+                            if($uniq_group->getGroup()==$item->getGroup()){
+                                $in_group=1;
+                                $item_find=$item;
+                                break;
+                            }
+                        }
+                        if($in_group==1){
+                            $find=1;
+                            break;
+                        }
+                    }
+                    if($find==1){
+                        break;
+                    }
+                }
+                if($find==1){
+                    break;
+                }
+            }
+        }
+
         if($record->getTemplate()->getCorrelative()){
             if($item_find==$wfs[0]){
                 $return=$item_find;
@@ -223,7 +268,7 @@ class Utilities{
         return $return;
     }
 
-    public function wich_second_wf($record,$user,$type){
+    public function wich_second_wf($record,$user,$type,$subtype){
         $return=NULL;
         $groups=array();
         foreach($user->getGroups() as $uniq_group){
@@ -255,6 +300,53 @@ class Utilities{
                     }
                     if($in_group==1){
                         $find=1;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if($subtype){
+            if($find==0){
+                $users_actions=$this->get_users_actions($user,$subtype);
+                foreach($users_actions as $user_action){
+                    foreach($wfs as $item){
+                        if($item->getUser() && $item->getUser()==$user_action){
+                            $find=1;
+                            $item_find=$item;
+                        }
+                        if($find==1){
+                            break;
+                        }
+                    }
+                    if($find==1){
+                        break;
+                    }
+                }
+            }
+
+            if($find==0){
+                foreach($users_actions as $user_action){
+                    foreach($wfs as $item){
+                        if($item->getGroup()){
+                            $in_group=0;
+                            foreach($user_action->getGroups() as $uniq_group){
+                                if($uniq_group->getGroup()==$item->getGroup()){
+                                    $in_group=1;
+                                    $item_find=$item;
+                                    break;
+                                }
+                            }
+                            if($in_group==1){
+                                $find=1;
+                                break;
+                            }
+                        }
+                        if($find==1){
+                            break;
+                        }
+                    }
+                    if($find==1){
                         break;
                     }
                 }
@@ -445,9 +537,11 @@ class Utilities{
 
     public function get_users_actions($user,$type){
         $users[]=$user;
-        $delegations=$this->em->getRepository('NononsenseHomeBundle:Delegations')->findBy(array('sustitute' => $user,"type" => $type,"deleted" => NULL));
-        foreach($delegations as $delegation){
-            $users[]=$delegation->getUser();
+        if($type){
+            $delegations=$this->em->getRepository('NononsenseHomeBundle:Delegations')->findBy(array('sustitute' => $user,"type" => $type,"deleted" => NULL));
+            foreach($delegations as $delegation){
+                $users[]=$delegation->getUser();
+            }
         }
 
         return $users;
