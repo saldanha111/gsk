@@ -720,7 +720,6 @@ nononsense_request_save_standby:
 
 
 # Certifications
-
 nononsense_certifications_list:
     path: /certificaciones
     defaults: { _controller: NononsenseHomeBundle:Certification:list}
@@ -728,3 +727,13 @@ nononsense_certifications_list:
 nononsense_certifications_download:
     path: /certificaciones/descargar/{id}
     defaults: { _controller: NononsenseHomeBundle:Certification:download}
+
+
+# Delegations
+nononsense_delegations_list:
+    path: /delegations
+    defaults: { _controller: NononsenseHomeBundle:Delegations:list}
+
+nononsense_delegations_edit:
+    path: /delegations/{id}
+    defaults: { _controller: NononsenseHomeBundle:Delegations:edit}

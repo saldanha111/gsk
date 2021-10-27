@@ -260,7 +260,7 @@
             </li>
             {% endif %}
 
-            {% if 'qrs_gestion' in array_subsecciones or 'areas_gestion' in array_subsecciones or 'usuarios_gestion' in array_subsecciones  or 'grupos_gestion' in array_subsecciones %}
+            {% if 'qrs_gestion' in array_subsecciones or 'areas_gestion' in array_subsecciones or 'usuarios_gestion' in array_subsecciones  or 'grupos_gestion' in array_subsecciones or 'delegations_gestion' in array_subsecciones %}
                 <li>
                     <a href="#"><i class="fa fa-fw fa-gear"></i> <span class="nav-label">{{'Configuración'|trans}}</span><span
                             class="fa arrow"></span></a>
@@ -273,6 +273,11 @@
                         {% if 'areas_gestion' in array_subsecciones %}
                             <li id="areas_list">
                                 <a href="{{path('nononsense_areas')}}"><span class="nav-label">Areas</span></a>
+                            </li>
+                        {% endif %}
+                        {% if 'delegations_gestion' in array_subsecciones %}
+                            <li id="delegations_list">
+                                <a href="{{path('nononsense_delegations_list')}}"><span class="nav-label">Delegación de firmas</span></a>
                             </li>
                         {% endif %}
                         {% if 'grupos_gestion' in array_subsecciones %}

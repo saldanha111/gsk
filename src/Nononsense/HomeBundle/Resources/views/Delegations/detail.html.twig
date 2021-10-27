@@ -1,0 +1,100 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}Docoaro - GSK |  Productos / {{qr.id is not null ? 'Editar' : 'Crear'}} QR {% endblock %}
+{% block head %}
+    {{ parent() }}
+{% endblock %}
+{% block main_title %} Productos / {{qr.id is not null ? 'Editar' : 'Crear'}} QR{% endblock %}
+
+{% block content %}
+
+    <div class="wrapper wrapper-content animated fadeInUp">
+        {% for flashMessage in app.session.flashbag.get('error') %}
+        <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+            <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+            {{ flashMessage }}
+        </div>
+        <br>
+        {% endfor %}
+        <form class="form-horizontal" id="form_item" action="{{ path('nononsense_qrs_edit',{'id': qr.id is not null ? qr.id : 0}) }}" method="POST">
+            
+            <input type="hidden" id='fieldsJson' name='fieldsJson' value="{{ fieldsJson }}" />
+
+            <div class="row">
+                <div class="col-lg-10 col-lg-offset-1">
+                    <div class="row">
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">Nombre</label>
+                            <div class="col-sm-4">
+                                <input type="text" name="name" class="form-control" value="{{qr.name is not null ? qr.name : ''}}" required="required">
+                            </div>
+                        </div>
+                        {% if types is defined %}
+                            <div class="form-group">
+                                <label class="col-sm-1 control-label">Tipo</label>
+                                <div class="col-sm-4">
+                                  <select class="form-control" name="type" style="width: 100%;" required="required">
+                                    <option value=""></option>
+                                    {% for type in types %}
+                                      <option value="{{type.id}}" {{ qr.type.id is defined and qr.type.id==type.id ? 'selected="selected"' : ''}}>{{type.name}}</option>
+                                    {% endfor %}
+                                  </select>
+                                </div>
+                            </div> 
+                        {% endif %}
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">Campos</label>
+                            <div class="col-sm-7">
+                                <table id="inProcessParcial" class="table table-striped">
+                                    <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Valor</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody data-bind="foreach: my_fields">
+                                      <tr>
+                                        <td><input class="form-control" style='width:100%;' type='text' data-bind="value: name, attr: { name: 'field_name_' + contador() }" /></td>
+                                        <td><input class="form-control" style='width:100%;' type='text' data-bind="value: value, attr: { name: 'field_value_' + contador() }" /></td>
+                                        <td style="text-align: center;">
+                                          <a data-bind="click: deleteField" class="btn btn-warning btn-xs">{{ 'borrar'|trans }}</a>
+                                        </td>
+                                      </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="col-sm-4">
+                                <a data-bind="click: addField" class="btn btn-danger btn-xs"><i class="fa fa-plus" aria-hidden="true"></i></a>
+                            </div>
+                        </div>  
+                    </div>          
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-11">
+                    <button type="button" data-bind="click: sendForm" class="btn btn-primary  pull-right"><i class="fa fa-floppy-o" aria-hidden="true"></i> Guardar QR</button>
+                </div>
+            </div>
+
+        </form>
+    </div>
+    
+{% endblock %}
+
+{% block scripts %}
+    {{ parent() }}
+
+    <script src="{{ asset('bundles/nononsensehome/js/knockout-3.3.0.js?time=' ~ time) }}"></script>
+    <script src="{{ asset('bundles/nononsensehome/js/models/Model.js?time=' ~ time) }}"></script>
+    <script src="{{ asset('bundles/nononsensehome/js/models/CreateQrVM.js?time=' ~ time) }}"></script>
+
+    <script>
+
+    $( document ).ready(function() {
+        ActivateMenu('qr_list');
+        $('#side-menu').metisMenu();
+    });
+    </script>
+{% endblock %}
+
+
