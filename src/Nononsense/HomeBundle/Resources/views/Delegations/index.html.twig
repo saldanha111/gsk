@@ -4,7 +4,7 @@
 {{ parent() }}
 <link rel="stylesheet" href="/css/plugins/datapicker/datepicker3.css">
 {% endblock %}
-{% block main_title %} Listado de QRs{% endblock %}
+{% block main_title %} Delegaciones de firmas{% endblock %}
 {% block content %}
 
 <div class="wrapper wrapper-content">
@@ -26,32 +26,43 @@
                         </div>
                         <br>
                     {% endfor %}
-                    <form class="form-horizontal" id="form_item" action="{{ path('nononsense_qr_list')}}" method="GET">
-                        <input type="hidden" id='url_product_list' value="{{ path('nononsense_qr_list')}}" />
-                        <input type="hidden" id='url_qr_delete' value="{{ path('nononsense_qrs_delete',{'id': 'xxx'}) }}" />
+                    <form class="form-horizontal" id="form_item" action="{{ path('nononsense_delegations_list')}}" method="GET">
+                        <input type="hidden" id='url_delegation_delete' value="{{ path('nononsense_delegations_delete',{'id': 'xxx'}) }}" />
                         <div class="form-group">
-                            <label class="col-sm-1 control-label item_filter">Nombre</label>
+                            <label class="col-sm-1 control-label item_filter">Usuario</label>
                             <div class="col-sm-2 item_filter">
                                 <input type="text" name="name" class="form-control" value="{{filters.name is defined ? filters.name : ''}}">
                             </div>
+                            <label class="col-sm-1 control-label item_filter">Sustituto</label>
+                            <div class="col-sm-2 item_filter">
+                                <input type="text" name="name2" class="form-control" value="{{filters.name2 is defined ? filters.name2 : ''}}">
+                            </div>
+                            <div class="col-sm-1">
+                              <div class="checkbox">
+                                <label>
+                                  <input name="active" value="1" type="checkbox" {% if filters.active is defined and  filters.active == true %} checked="checked" {% endif %}> Activo
+                                </label>
+                              </div>
+                            </div>
+                            <div class="col-sm-1 item_filter">
+                                <button type="submit" class="btn btn-primary pull-right">Filtrar</button>
+                            </div>
                         </div>
-
                     </form>
                 </div>
                 <div class="row">
                     <div>
-                      <a href="{{ path('nononsense_qrs_edit',{'id': '0'}) }}" target="_self" class="btn btn-primary pull-right"><i class="fa fa-plus"></i> Nuevo QR</a>
+                      <a href="{{ path('nononsense_delegations_edit',{'id': '0'}) }}" target="_self" class="btn btn-primary pull-right"><i class="fa fa-plus"></i> Nueva delegación</a>
                     </div><br>
                     <table id="inProcessParcial" class="table table-striped">
                         <thead>
                         <tr>
                             <th>Id.</th>
-                            <th>Nombre</th>
                             <th>Tipo</th>
-                            <th>Qr</th>
-                            <th>Qr dinámico</th>
-                            <th>Link dinámico</th>
-                            <th></th>
+                            <th>Nombre</th>
+                            <th>Sustituto</th>
+                            <th>Fecha inicio</th>
+                            <th>Fecha fin</th>
                             <th></th>
                         </tr>
                         </thead>
@@ -59,22 +70,15 @@
                             {% for item in items %}
                             <tr>
                                 <td>{{item.id}}</td>
+                                <td>{{item.typeName}}</td>
                                 <td>{{item.name}}</td>
-                                <td>{{item.typeqr}}</td>
+                                <td>{{item.sustituteName}}</td>
+                                <td>{{ item.created is defined and item.created is not empty ? item.created|date("d/m/Y H:i:s") : '' }}</td>
+                                <td>{{ item.deleted is defined and item.deleted is not empty ? item.deleted|date("d/m/Y H:i:s") : '' }}</td>
                                 <td>
-                                    <a href="{{path('nononsense_qrs_view_qr', {'id': item.id}) }}" target="_blank" class="btn btn-xs"><i class="fa fa-qrcode" aria-hidden="true"></i> Ver QR</a>
-                                </td>
-                                <td>
-                                    <a href="{{path('nononsense_qrs_view_qr', {'id': item.id}) }}?dynamic=1" target="_blank" class="btn btn-xs"><i class="fa fa-qrcode" aria-hidden="true"></i> Ver QR dinámico</a>
-                                </td>
-                                <td>
-                                    <a href="{{path('nononsense_qrs_json_qr', {'id': item.id}) }}" target="_blank" class="btn btn-xs"><i class="fa fa-link" aria-hidden="true"></i> Link</a>
-                                </td>
-                                <td>
-                                    <a href="{{path('nononsense_qrs_edit', {'id': item.id}) }}" class="btn btn-xs" target="_self"><i class="fa fa-pencil" aria-hidden="true"></i> Editar</a>
-                                </td>
-                                <td>
-                                    <a href="javascript:delete_qr({{ item.id }})" class="btn btn-xs" target="_self"><i class="fa fa-trash" aria-hidden="true"></i> Borrar</a>
+                                    {% if item.deleted is not defined or item.deleted is empty %}
+                                        <a href="javascript:delegation_delete({{ item.id }})" class="btn btn-xs" target="_self"><i class="fa fa-trash" aria-hidden="true"></i> Cancelar</a>
+                                    {% endif %}  
                                 </td>
                             </tr>
                             {% endfor %}
@@ -99,25 +103,18 @@
 <script>
   $(function () {
 
-    ActivateMenu('qr_list');
+    ActivateMenu('delegations_list');
     $('#side-menu').metisMenu();
   });
 
-  function delete_qr(id){
-    var url_qr_delete = $('#url_qr_delete').val();     
-    url_qr_delete = url_qr_delete.replace("xxx", id);
+  function delegation_delete(id){
+    var url_delegation_delete = $('#url_delegation_delete').val();     
+    url_delegation_delete = url_delegation_delete.replace("xxx", id);
 
-    if(confirm('¿Seguro que quieres borrar el QR?')){
-        window.location.href = url_qr_delete;
+    if(confirm('¿Seguro que quieres cancelar esta delegación de firma?')){
+        window.location.href = url_delegation_delete;
     }
 
-  }
-
-  function filtering(){
-    var url_product_list = $('#url_product_list').val(); 
-    $('#form_item').attr("action", url_product_list);
-    $('#form_item').attr("target","_self");
-    $('#form_item').submit();
   }
 
 </script>

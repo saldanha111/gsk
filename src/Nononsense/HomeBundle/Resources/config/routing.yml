@@ -732,8 +732,14 @@ nononsense_certifications_download:
 # Delegations
 nononsense_delegations_list:
     path: /delegations
+    methods:    [GET]
     defaults: { _controller: NononsenseHomeBundle:Delegations:list}
+
+nononsense_delegations_delete:
+    path: /delegations/delete/{id}
+    defaults: { _controller: NononsenseHomeBundle:Delegations:delete}
 
 nononsense_delegations_edit:
     path: /delegations/{id}
     defaults: { _controller: NononsenseHomeBundle:Delegations:edit}
+

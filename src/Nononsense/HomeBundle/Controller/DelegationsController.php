@@ -3,9 +3,9 @@
 namespace Nononsense\HomeBundle\Controller;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Nononsense\HomeBundle\Entity\Qrs;
-use Nononsense\HomeBundle\Entity\QrsFields;
-use Nononsense\HomeBundle\Entity\QrsTypes;
+use Nononsense\HomeBundle\Entity\Delegations;
+use Nononsense\HomeBundle\Entity\DelegationsTypes;
+use Nononsense\UserBundle\Entity\Users;
 use Nononsense\GroupBundle\Entity\GroupUsers;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,8 +21,6 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Nononsense\UtilsBundle\Classes\Auxiliar;
 use Nononsense\UtilsBundle\Classes\Utils;
 
-use Endroid\QrCode\QrCode;
-
 class DelegationsController extends Controller
 {
     public function listAction(Request $request)
@@ -34,6 +32,9 @@ class DelegationsController extends Controller
 
         $filters=array();
         $filters2=array();
+
+        $filters=array_filter($request->query->all());
+        $filters2=array_filter($request->query->all());
 
         if($request->get("page")){
             $filters["limit_from"]=$request->get("page")-1;
@@ -54,7 +55,7 @@ class DelegationsController extends Controller
         $array_item["count"] = $this->getDoctrine()->getRepository(Delegations::class)->count($filters2);
 
 
-        $url=$this->container->get('router')->generate('nononsense_qr_list');
+        $url=$this->container->get('router')->generate('nononsense_delegations_list');
         $params=$request->query->all();
         unset($params["page"]);
         if(!empty($params)){
@@ -65,7 +66,7 @@ class DelegationsController extends Controller
         }
         $array_item["pagination"]=\Nononsense\UtilsBundle\Classes\Utils::paginador($filters["limit_many"],$request,$url,$array_item["count"],"/", $parameters);
 
-        return $this->render('NononsenseHomeBundle:Qrs:index.html.twig',$array_item);
+        return $this->render('NononsenseHomeBundle:Delegations:index.html.twig',$array_item);
     }
 
     public function editAction(Request $request, $id)
@@ -76,95 +77,65 @@ class DelegationsController extends Controller
         }
 
         $em = $this->getDoctrine()->getManager();
-        $qr = $em->getRepository('NononsenseHomeBundle:Qrs')->find($id);
-        if(!$qr){
-            $qr = new Qrs();
+        $delegation = $em->getRepository('NononsenseHomeBundle:Delegations')->find($id);
+        if(!$delegation){
+            $delegation = new Delegations();
         }
 
         if($request->getMethod()=='POST'){
             try{
-                $qr->setName($request->get("name"));
-                $type = $this->getDoctrine()->getRepository(QrsTypes::class)->find($request->get("type"));
-                $qr->setType($type);
-                $array_ids_fields_before = array();
-                $fieldsJson = $request->get('fieldsJson');
-                $array_fields = json_decode($fieldsJson, true);
+                $user = $this->getDoctrine()->getRepository(Users::class)->find($request->get("user"));
+                $sustitute = $this->getDoctrine()->getRepository(Users::class)->find($request->get("sustitute"));
+                $type = $this->getDoctrine()->getRepository(DelegationsTypes::class)->find($request->get("type"));
 
-                $array_ids_fields_before = array();
-                $fieldsBefore = $qr->getFields();
-                foreach ($fieldsBefore as $fieldBefore) {
-                    $array_ids_fields_before[$fieldBefore->getId()] = $fieldBefore;
-                }
-
-                foreach ($array_fields as $field) {
-                    $qrsFields = $em->getRepository('NononsenseHomeBundle:QrsFields')->find($field['id']);
-                    if(!$qrsFields){
-                        $qrsFields = new QrsFields();
-                        $qrsFields->setQr($qr);
-                    }
-                    $qrsFields->setName($field['name']);
-                    $qrsFields->setValue($field['value']);
-                    $em->persist($qrsFields);
-                    $array_ids_fields_before[$field['id']] = null;
-                }
-
-                //borro los fields sobrantes
-                foreach ($array_ids_fields_before as $fieldBefore) {
-                    if($fieldBefore){
-                        $em->remove($fieldBefore);
-                    }
-                }
+                $delegation->setUser($user);
+                $delegation->setSustitute($sustitute);
+                $delegation->setType($type);
+                $delegation->setCreated(new \DateTime());
 
 
-
-                $em->persist($qr);
+                $em->persist($delegation);
                 $em->flush();
-                $this->get('session')->getFlashBag()->add('message',"El QR se ha guardado correctamente");
-                return $this->redirect($this->generateUrl('nononsense_qr_list'));
+                $this->get('session')->getFlashBag()->add('message',"La delegación de firma se ha guardado correctamente");
+                return $this->redirect($this->generateUrl('nononsense_delegations_list'));
             }
             catch(\Exception $e){
-                $this->get('session')->getFlashBag()->add('error', "Error al intentar guardar los datos del QR: ".$e->getMessage());
+                $this->get('session')->getFlashBag()->add('error', "Error al intentar guardar la delegación de firma: ".$e->getMessage());
             }
         }
 
-        $array_item = array();
-        $array_item['qr'] = $qr;
-
-        $serializer = $this->get('serializer');
-        $fieldsJson = $serializer->serialize(
-            $qr->getFields(),
-            'json', array('groups' => array('group1'))
-        );
-
-        $array_item['fieldsJson'] = $fieldsJson;
-        $array_item["types"] = $this->getDoctrine()->getRepository(QrsTypes::class)->findAll();
+        $array_item['delegation'] = $delegation;
+        $array_item["users"] = $em->getRepository(Users::class)->findAll();
+        $array_item["types"] = $this->getDoctrine()->getRepository(DelegationsTypes::class)->findAll();
         $array_item['time'] = time();
 
-        return $this->render('NononsenseHomeBundle:Qrs:qr.html.twig',$array_item);
+        return $this->render('NononsenseHomeBundle:Delegations:detail.html.twig',$array_item);
     }
 
     public function deleteAction(Request $request, $id)
     {
-        $is_valid = $this->get('app.security')->permissionSeccion('qrs_gestion');
+        $is_valid = $this->get('app.security')->permissionSeccion('delegations_gestion');
         if(!$is_valid){
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
 
         try{
             $em = $this->getDoctrine()->getManager();
-            $qr = $em->getRepository('NononsenseHomeBundle:Qrs')->find($id);
+            $delegation = $em->getRepository('NononsenseHomeBundle:Delegations')->find($id);
 
-            if($qr){
-                $em->remove($qr);
+            if($delegation){
+                $delegation->setDeleted(new \DateTime());
+
+                $em->persist($delegation);
                 $em->flush();
             }
 
-            $this->get('session')->getFlashBag()->add('message',"El QR se ha borrado correctamente");
+            $this->get('session')->getFlashBag()->add('message',"La delegación de firma se ha cancelado correctamente");
         }
         catch(\Exception $e){
-            $this->get('session')->getFlashBag()->add('error',"Error al borrar el QR: ".$e->getMessage());
+            $this->get('session')->getFlashBag()->add('error',"Error al cancelar la delegación de firmma: ".$e->getMessage());
         }
 
-        return $this->redirect($this->generateUrl('nononsense_qr_list'));
+        return $this->redirect($this->generateUrl('nononsense_delegations_list'));
     }
 }
