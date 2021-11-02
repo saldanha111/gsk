@@ -76,5 +76,192 @@ class CVSignaturesRepository extends EntityRepository
                 break;
         }
     }
+
+    public function activity($type,$filters)
+    {
+        $em = $this->getEntityManager();
+
+        switch($type){
+            case "list":
+                if(isset($filters["group"])){
+                    switch($filters["group"]){
+                        case 1: 
+                            $list = $this->createQueryBuilder('s')
+                                ->select('a2.name as accion','COUNT(s.id) as conta');
+                            $list->addSelect("SUM(DATEDIFF(s.modified,s.created)) as duration");
+                            break;
+                        case 2:
+                            $list = $this->createQueryBuilder('s')
+                                ->select('u.id as usercreatedid','u.name as creator','COUNT(s.id) as conta');
+                            $list->addSelect("SUM(DATEDIFF(s.modified,s.created)) as duration");
+                            break;
+                        case 3:
+                            $list = $this->createQueryBuilder('s')
+                                ->select('t.id','t.name','COUNT(s.id) as conta');
+                            $list->addSelect("SUM(DATEDIFF(s.modified,s.created)) as duration");
+                            break;
+                        case 4:
+                            $list = $this->createQueryBuilder('s')
+                                ->select('a2.name accion','u.id as usercreatedid','u.name as creator','COUNT(s.id) as conta');
+                            $list->addSelect("SUM(DATEDIFF(s.modified,s.created)) as duration");
+                            break;
+                        case 5:
+                            $list = $this->createQueryBuilder('s')
+                                ->select('a2.name as accion','t.id','t.name','COUNT(s.id) as conta');
+                            $list->addSelect("SUM(DATEDIFF(s.modified,s.created)) as duration");
+                            break;
+                        case 6:
+                            $list = $this->createQueryBuilder('s')
+                                ->select('t.id','t.name','u.id as usercreatedid','u.name as creator','COUNT(s.id) as conta');
+                            $list->addSelect("SUM(DATEDIFF(s.modified,s.created)) as duration");
+                            break;
+                        case 7:
+                            $list = $this->createQueryBuilder('s')
+                                ->select('a2.name as accion','t.id','t.name','u.id as usercreatedid','u.name as creator','COUNT(s.id) as conta');
+                            $list->addSelect("SUM(DATEDIFF(s.modified,s.created)) as duration");
+                            break;
+                    }
+                }
+                else{
+
+                    $list = $this->createQueryBuilder('s')
+                        ->select('s.id','r.id as id_reg', 'u.id as usercreatedid','t.name','u.name as creator','s.created','s.modified','r.state as status','r.inEdition','a2.name as accion');
+                    $list->addSelect("(DATEDIFF(s.modified,s.created)) as duration");
+                }
+
+                break;
+            case "count":
+                $list = $this->createQueryBuilder('s')
+                    ->select('COUNT(s.id) as conta');
+                break;
+        }
+
+        $list->leftJoin("s.record", "r")
+            ->leftJoin("r.template", "t")
+            ->leftJoin("s.user", "u")
+            ->leftJoin("s.action", "a")
+            ->leftJoin("a.type", "a2");
+            
+        if($type=="list" && !isset($filters["group"])){
+            $list->orderBy('s.id', 'DESC');
+        }
+
+        if(!empty($filters)){
+
+            if(isset($filters["id"])){
+                $list->andWhere('s.id=:id');
+                $list->setParameter('id', $filters["id"]);
+            }
+
+            if(isset($filters["plantilla_id"])){
+                $list->andWhere('t.id=:plantilla_id');
+                $list->setParameter('plantilla_id', $filters["plantilla_id"]);
+            }
+
+            if(isset($filters["name"])){
+                $terms = explode(" ", $filters["name"]);
+                foreach($terms as $key => $term){
+                    $list->andWhere('t.name LIKE :name'.$key);
+                    $list->setParameter('name'.$key, '%' . $term. '%');
+                }
+            }
+
+            if(isset($filters["creator"])){
+                $terms = explode(" ", $filters["creator"]);
+                foreach($terms as $key => $term){
+                    $list->andWhere('u.name LIKE :creator'.$key);
+                    $list->setParameter('creator'.$key, '%' . $term. '%');
+                }
+            }
+
+            if(isset($filters["content"])){
+                $terms = explode(" ", $filters["content"]);
+                foreach($terms as $key => $term){
+                    $list->andWhere('s.json LIKE :content'.$key);
+                    $list->setParameter('content'.$key, '%' . $term. '%');
+                }
+            }
+
+            if(isset($filters["action"])){
+                $list->andWhere('a2.id=:action');
+                $list->setParameter('action', $filters["action"]);
+            }
+
+            if(isset($filters["from"])){
+                $list->andWhere('a.created>=:from');
+                $list->setParameter('from', $filters["from"]);
+            }
+
+            if(isset($filters["until"])){
+                $list->andWhere('a.modified<=:until');
+                $list->setParameter('until', $filters["until"]." 23:59:00");
+            }
+        }
+
+        if(isset($filters["group"])){
+            switch($filters["group"]){
+                case 1: 
+                    $list->groupBy('a2.id')
+                    ->addGroupBy('a2.name');
+                    break;
+                case 2:
+                    $list->groupBy('u.id')
+                    ->addGroupBy('u.name');
+                    break;
+                case 3:
+                    $list->groupBy('t.id')
+                    ->addGroupBy('t.name');
+                    break;
+                case 4:
+                    $list->groupBy('a2.id')
+                        ->addGroupBy('u.id')
+                        ->addGroupBy('a2.name')
+                        ->addGroupBy('u.name');
+                    break;
+                case 5:
+                    $list->groupBy('a2.id')
+                        ->addGroupBy('t.id')
+                        ->addGroupBy('a2.name')
+                        ->addGroupBy('t.name');
+                    break;
+                case 6:
+                    $list->groupBy('u.id')
+                        ->addGroupBy('t.id')
+                        ->addGroupBy('u.name')
+                        ->addGroupBy('t.name');
+                    break;
+                case 7:
+                    $list->groupBy('u.id')
+                        ->addGroupBy('t.id')
+                        ->addGroupBy('a2.id')
+                        ->addGroupBy('u.name')
+                        ->addGroupBy('t.name')
+                        ->addGroupBy('a2.name');
+                    break;
+            }
+        }
+
+
+        if(isset($filters["limit_from"])){
+            $list->setFirstResult($filters["limit_from"]*$filters["limit_many"])->setMaxResults($filters["limit_many"]);
+        }
+
+        $query = $list->getQuery();
+
+
+        switch($type){
+            case "list":
+                return $query->getResult();
+                break;
+            case "count":
+                if(!isset($filters["group"])){
+                    return $query->getSingleResult()["conta"];
+                }
+                else{
+                    return count($query->getResult());
+                }
+                break;
+        }
+    }
 	
 }

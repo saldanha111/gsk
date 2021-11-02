@@ -12,6 +12,8 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Nononsense\HomeBundle\Entity\InstanciasWorkflows;
 use Nononsense\HomeBundle\Entity\InstanciasSteps;
 use Nononsense\HomeBundle\Entity\Activityuser;
+use Nononsense\HomeBundle\Entity\CVSignatures;
+use Nononsense\HomeBundle\Entity\TMCumplimentationsType;
 use Nononsense\UtilsBundle\Classes;
 
 
@@ -31,6 +33,7 @@ class ActivityController extends Controller
 {
     public function listAction(Request $request){
 
+        $em = $this->getDoctrine()->getManager();
         $user = $this->container->get('security.context')->getToken()->getUser();
         $can_be = false;
 
@@ -99,14 +102,14 @@ class ActivityController extends Controller
 
         $array_item["suser"]["id"]=$user->getId();
         $array_item["filters"]=$filters;
-        $array_item["items"] = $this->getDoctrine()->getRepository(ActivityUser::class)->search("list",$filters);
+        $array_item["items"] = $em->getRepository(CVSignatures::class)->activity("list",$filters);
         foreach($array_item["items"] as $key => $item){
             $array_item["items"][$key]["formatDuration"]=$this->convert_seconds($item["duration"]);
         }
         
-        $array_item["count"] = $this->getDoctrine()->getRepository(ActivityUser::class)->search("count",$filters2);
+        $array_item["count"] = $em->getRepository(CVSignatures::class)->activity("count",$filters2);
 
-        $url=$this->container->get('router')->generate('nononsense_search');
+        $url=$this->container->get('router')->generate('nononsense_activity');
         $params=$request->query->all();
         unset($params["page"]);
         if(!empty($params)){
@@ -117,9 +120,11 @@ class ActivityController extends Controller
         }
         $array_item["pagination"]=\Nononsense\UtilsBundle\Classes\Utils::paginador($filters["limit_many"],$request,$url,$array_item["count"],"/", $parameters);
 
+        $array_item["actions"] = $em->getRepository(TMCumplimentationsType::class)->search("list",array());
+
         if(!$request->get("export_excel") && !$request->get("export_pdf")){
             switch($request->get("group")){
-                default: return $this->render('NononsenseHomeBundle:Contratos:activity_general.html.twig',$array_item);
+                default: return $this->render('NononsenseHomeBundle:Activity:activity_general.html.twig',$array_item);
             }
             
         }

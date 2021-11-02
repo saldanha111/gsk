@@ -66,39 +66,13 @@
 
                             <label class="col-sm-1 control-label">Acción</label>
                             <div class="col-sm-2 item_filter">
-                                <select class="form-control" style="width: 100%;" name="action">
+                                <select class="form-control" name="action" style="width: 100%;">
                                     <option value=""></option>
-                                    <option value="1" {{filters.action is defined and filters.action == 1 ? 'selected="selected"' : ''}}>Elaborar</option>
-                                    <option value="2" {{filters.action is defined and filters.action == 2 ? 'selected="selected"' : ''}}>Validar</option>
-                                    <option value="3" {{filters.action is defined and filters.action == 3 ? 'selected="selected"' : ''}}>Ver</option>
-                                    <option value="4" {{filters.action is defined and filters.action == 4 ? 'selected="selected"' : ''}}>Completar checklist</option>
-                                    <option value="5" {{filters.action is defined and filters.action == 5 ? 'selected="selected"' : ''}}>Verificar cancelación</option>
-                                    <option value="6" {{filters.action is defined and filters.action == 6 ? 'selected="selected"' : ''}}>Proceso de firma completo</option>
-                                  </select>
+                                    {% for action in actions %}
+                                        <option value="{{action.id}}" {{filters.action is defined and filters.action==action.id ? 'selected="selected"'}}>{{action.name}}</option>
+                                    {% endfor %}
+                                </select>
                             </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="col-sm-1 control-label">Lote</label>
-                            <div class="col-sm-1 item_filter">
-                                <input type="text" name="lot" class="form-control" value="{{filters.lot is defined ? filters.lot : ''}}">
-                            </div>
-
-                            <label class="col-sm-1 control-label">Material</label>
-                            <div class="col-sm-1 item_filter">
-                                <input type="text" name="material" class="form-control" value="{{filters.material is defined ? filters.material : ''}}">
-                            </div>
-
-                            <label class="col-sm-1 control-label">Work Order SAP</label>
-                            <div class="col-sm-1 item_filter">
-                                <input type="text" name="sap" class="form-control" value="{{filters.sap is defined ? filters.sap : ''}}">
-                            </div>
-
-                            <label class="col-sm-1 control-label">Núm. Equipo</label>
-                            <div class="col-sm-1 item_filter">
-                                <input type="text" name="equipment_number" class="form-control" value="{{filters.equipment_number is defined ? filters.equipment_number : ''}}">
-                            </div>
-
                             <label class="col-sm-1 control-label">Reg.Página</label>
                             <div class="col-sm-1 item_filter">
                                 <select class="form-control" style="width: 100%;" name="limit_many">
@@ -140,28 +114,28 @@
                 <div class="row">
                     <div class="col-sm-12">
                         {% if filters.group is not defined %}
-                            {% include 'NononsenseHomeBundle:Contratos:table_activity_general.html.twig' %}
+                            {% include 'NononsenseHomeBundle:Activity:table_activity_general.html.twig' %}
                         {% else %}
                             {% if filters.group == 1 %}
-                                {% include 'NononsenseHomeBundle:Contratos:table_activity_group_action.html.twig' %}
+                                {% include 'NononsenseHomeBundle:Activity:table_activity_group_action.html.twig' %}
                             {% endif %}
                             {% if filters.group == 2 %}
-                                {% include 'NononsenseHomeBundle:Contratos:table_activity_group_user.html.twig' %}
+                                {% include 'NononsenseHomeBundle:Activity:table_activity_group_user.html.twig' %}
                             {% endif %}
                             {% if filters.group == 3 %}
-                                {% include 'NononsenseHomeBundle:Contratos:table_activity_group_template.html.twig' %}
+                                {% include 'NononsenseHomeBundle:Activity:table_activity_group_template.html.twig' %}
                             {% endif %}
                             {% if filters.group == 4 %}
-                                {% include 'NononsenseHomeBundle:Contratos:table_activity_group_action_user.html.twig' %}
+                                {% include 'NononsenseHomeBundle:Activity:table_activity_group_action_user.html.twig' %}
                             {% endif %}
                             {% if filters.group == 5 %}
-                                {% include 'NononsenseHomeBundle:Contratos:table_activity_group_action_template.html.twig' %}
+                                {% include 'NononsenseHomeBundle:Activity:table_activity_group_action_template.html.twig' %}
                             {% endif %}
                             {% if filters.group == 6 %}
-                                {% include 'NononsenseHomeBundle:Contratos:table_activity_group_user_template.html.twig' %}
+                                {% include 'NononsenseHomeBundle:Activity:table_activity_group_user_template.html.twig' %}
                             {% endif %}
                             {% if filters.group == 7 %}
-                                {% include 'NononsenseHomeBundle:Contratos:table_activity_group_action_user_template.html.twig' %}
+                                {% include 'NononsenseHomeBundle:Activity:table_activity_group_action_user_template.html.twig' %}
                             {% endif %}
                         {% endif %}
                         
