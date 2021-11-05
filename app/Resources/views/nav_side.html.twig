@@ -105,11 +105,6 @@
                 <a href="{{path('nononsense_cv_search')}}?blocked=1"><i class="fa fa-exclamation-triangle"></i> <span class="nav-label">{{'Documentos Stand By'|trans}}</span></a>
             </li>
 
-            {% if FLL == 1 %}
-                <li id="docxpresso_proceso">
-                    <a href="{{path('nononsense_activity')}}?limit_many=15"><i class="fa fa-pie-chart" aria-hidden="true"></i> <span class="nav-label">Actividad de área</span></a>
-                </li>
-            {% endif %}
             {% if 'retention_admin' in array_subsecciones or 'retention_agent' in array_subsecciones or 'retention_review' in array_subsecciones %}
                 <li>
                     <a href="#">
@@ -156,6 +151,29 @@
             <li id="docxpresso_mydocs">
                 <a href="{{path('nononsense_records')}}?pending_for_me=1"><i class="fa fa-file" aria-hidden="true"></i> <span class="nav-label">Mis Doc. Pend.</span></a>
             </li>
+
+            {% if 'graphics_cv' in array_subsecciones or 'graphics_templates' in array_subsecciones %}
+                <li>
+                    <a href="#">
+                        <i class="fa fa-pie-chart" aria-hidden="true"></i>
+                        <span class="nav-label">Gráficos</span>
+                        <span class="fa arrow"></span>
+                    </a>
+                    <ul class="nav nav-second-level">
+                        {% if 'graphics_cv' in array_subsecciones %}
+                            <li id="graphics_cv">
+                                <a href="{{path('nononsense_activity')}}?limit_many=15"> <span class="nav-label">Cumpl./Verif.</span></a>
+                            </li>
+                        {% endif %}
+
+                        {% if 'graphics_templates' in array_subsecciones %}
+                            <li id="graphics_templates">
+                                <a href="{{path('nononsense_activity_templates')}}?limit_many=15&group=1"> <span class="nav-label">Plantillas</span></a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </li>
+            {% endif %}
 
             {% if 'plantillas_contratos_gestion' in array_subsecciones or 'contratos_gestion' in array_subsecciones %}
                 <li>

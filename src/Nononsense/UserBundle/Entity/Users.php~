@@ -2617,4 +2617,70 @@ class Users implements AdvancedUserInterface, \Serializable
     {
         return $this->cvRecordsOpen;
     }
+
+    /**
+     * Add delegationsusers
+     *
+     * @param \Nononsense\HomeBundle\Entity\Delegations $delegationsusers
+     * @return Users
+     */
+    public function addDelegationsuser(\Nononsense\HomeBundle\Entity\Delegations $delegationsusers)
+    {
+        $this->delegationsusers[] = $delegationsusers;
+
+        return $this;
+    }
+
+    /**
+     * Remove delegationsusers
+     *
+     * @param \Nononsense\HomeBundle\Entity\Delegations $delegationsusers
+     */
+    public function removeDelegationsuser(\Nononsense\HomeBundle\Entity\Delegations $delegationsusers)
+    {
+        $this->delegationsusers->removeElement($delegationsusers);
+    }
+
+    /**
+     * Get delegationsusers
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getDelegationsusers()
+    {
+        return $this->delegationsusers;
+    }
+
+    /**
+     * Add delegationssustitutes
+     *
+     * @param \Nononsense\HomeBundle\Entity\Delegations $delegationssustitutes
+     * @return Users
+     */
+    public function addDelegationssustitute(\Nononsense\HomeBundle\Entity\Delegations $delegationssustitutes)
+    {
+        $this->delegationssustitutes[] = $delegationssustitutes;
+
+        return $this;
+    }
+
+    /**
+     * Remove delegationssustitutes
+     *
+     * @param \Nononsense\HomeBundle\Entity\Delegations $delegationssustitutes
+     */
+    public function removeDelegationssustitute(\Nononsense\HomeBundle\Entity\Delegations $delegationssustitutes)
+    {
+        $this->delegationssustitutes->removeElement($delegationssustitutes);
+    }
+
+    /**
+     * Get delegationssustitutes
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getDelegationssustitutes()
+    {
+        return $this->delegationssustitutes;
+    }
 }

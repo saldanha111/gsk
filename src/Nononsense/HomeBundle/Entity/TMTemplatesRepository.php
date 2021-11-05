@@ -3,6 +3,7 @@
 namespace Nononsense\HomeBundle\Entity;
 
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\Query\ResultSetMapping;
 
 /**
  * AreasRepository
@@ -246,5 +247,203 @@ class TMTemplatesRepository extends EntityRepository
         $sintax_pending=" (t.tmState=1 AND (t.backup=:user OR t.owner=:user)) OR (t.id IN (SELECT IDENTITY(".$table_alias.".template) FROM Nononsense\HomeBundle\Entity\TMWorkflow ".$table_alias." WHERE ".$table_alias.".template=t.id AND ".$table_alias.".action=".$elaborators." AND ".$table_alias.".userEntiy=:user))";
 
         return $sintax_pending;
+    }
+
+    public function activity($type,$filters)
+    {
+        $em = $this->getEntityManager();
+
+        switch($type){
+            case "list":
+
+                if(isset($filters["group"])){
+                    switch($filters["group"]){
+                        case 1: 
+                            $list = $this->createQueryBuilder('t')
+                                ->select('t.id','t.name','s.name state','t.numEdition');
+                            break;
+                        /*case 2:
+                            $list = $this->createQueryBuilder('s')
+                                ->select('u.id as usercreatedid','u.name as creator','COUNT(s.id) as conta');
+                            $list->addSelect("SUM(DATEDIFF(s.modified,s.created)) as duration");
+                            break;*/
+                        case 3:
+                            $list = $this->createQueryBuilder('t')
+                                ->select('t.name','COUNT(t.id) as conta');
+                            break;
+                        /*case 4:
+                            $list = $this->createQueryBuilder('s')
+                                ->select('a2.name accion','u.id as usercreatedid','u.name as creator','COUNT(s.id) as conta');
+                            $list->addSelect("SUM(DATEDIFF(s.modified,s.created)) as duration");
+                            break;*/
+                    }
+                }
+                else{
+                    $list = $this->createQueryBuilder('t')
+                        ->select('t.id','t.name','s.name state','t.numEdition');
+                }
+                
+
+
+                break;
+            case "count":
+                $list = $this->createQueryBuilder('t')
+                    ->select('COUNT(t.id) as conta');
+                break;
+        }
+
+        $list->leftJoin("t.area", "a3")
+            ->leftJoin("t.tmState", "s");
+
+        if(!empty($filters)){
+
+            if(isset($filters["plantilla_id"])){
+                $list->andWhere('t.id=:plantilla_id');
+                $list->setParameter('plantilla_id', $filters["plantilla_id"]);
+            }
+
+            if(isset($filters["name"])){
+                $terms = explode(" ", $filters["name"]);
+                foreach($terms as $key => $term){
+                    $list->andWhere('t.name LIKE :name'.$key);
+                    $list->setParameter('name'.$key, '%' . $term. '%');
+                }
+            }
+
+            if(isset($filters["area"])){
+                $list->andWhere('a3.id=:area');
+                $list->setParameter('area', $filters["area"]);
+            }
+        }
+
+        if(isset($filters["group"])){
+            switch($filters["group"]){
+                case 1: 
+                    $list->andWhere('s.id=7 or s.id=8'); // Cargamos las obsoletas y las dadas de baja
+                    if($type=="list"){
+                        $list->orderBy('t.id', 'DESC');
+                    }
+                    break;
+                case 3: 
+                    $list->andWhere('t.firstEdition IS NOT NULL');
+                    $list->groupBy('t.firstEdition')
+                    ->addGroupBy('t.name');
+                    
+                    if($type=="list"){
+                        $list->orderBy('COUNT(t.id)', 'DESC');
+                    }
+                    break;
+            }
+        }
+
+
+        if(isset($filters["limit_from"])){
+            $list->setFirstResult($filters["limit_from"]*$filters["limit_many"])->setMaxResults($filters["limit_many"]);
+        }
+
+        $query = $list->getQuery();
+
+
+        switch($type){
+            case "list":
+                return $query->getResult();
+                break;
+            case "count":
+                /*if(isset($filters["group"]) && $filters["group"]=="3"){
+                    return count($query->getResult());
+                }
+                else{*/
+                    return $query->getSingleResult()["conta"];
+                //}
+                break;
+        }
+    }
+
+    public function activityAux($type,$filters)
+    {
+        $em = $this->getEntityManager();
+        $rsm = new ResultSetMapping();
+
+        $sintax=" ";
+        $logical=" WHERE ";
+        $orderby=" ";
+        $groupby=" ";
+        $limit="";
+
+        $tables_extra="";
+        $fields_extra="";
+
+        if(!empty($filters)){
+
+            if(isset($filters["name"])){
+                $terms = explode(" ", $filters["name"]);
+                foreach($terms as $key => $term){
+                    $sintax.=$logical." t.name LIKE :name".$key;
+                    $parameters["name".$key]="%".$term."%";
+                    $logical=" AND ";
+                }
+            }
+
+            if(isset($filters["plantilla_id"])){
+                $sintax.=$logical." t.id=:plantilla_id";
+                $parameters["plantilla_id"]=$filters["plantilla_id"];
+                $logical=" AND ";
+            }
+
+            if(isset($filters["area"])){
+                $sintax.=$logical." a3.id=:area";
+                $parameters["area"]=$filters["area"];
+                $logical=" AND ";
+            }
+
+            if(isset($filters["group"])){
+                switch($filters["group"]){
+                    case 3: 
+                        $sintax.=$logical." t.first_edition IS NOT NULL";
+                        $groupby=" GROUP BY t.first_edition,t.name";
+                        $orderby=" ORDER BY conta DESC";
+                        break;
+                }
+            }
+        }
+
+
+        $sintax = " FROM tm_templates t LEFT JOIN areas a3 ON t.area_id=a3.id ".$tables_extra.$sintax;
+
+        switch($type){
+            case "list": 
+                
+                if(isset($filters["limit_from"])){
+                    $limit=" OFFSET :from ROWS FETCH NEXT :many ROWS ONLY";
+                    $parameters["from"]=$filters["limit_from"]*$filters["limit_many"];
+                    $parameters["many"]=$filters["limit_many"];
+                }
+
+
+                $query = $em->createNativeQuery("SELECT t.name,COUNT(t.id) as conta".$fields_extra.$sintax." ".$groupby." ".$orderby." ".$limit,$rsm);
+                $rsm->addScalarResult('name', 'name');
+                $rsm->addScalarResult('conta', 'conta');                
+                if(!empty($parameters)){
+                    $query->setParameters($parameters);
+                }
+
+                $items=$query->getResult();
+
+
+                break;
+
+            case "count":
+
+                $query = $em->createNativeQuery("SELECT COUNT(DISTINCT t.first_edition) conta ".$sintax,$rsm);
+                $rsm->addScalarResult('conta', 'conta');
+                if(!empty($parameters)){
+                    $query->setParameters($parameters);
+                }
+
+                $items=$query->getSingleResult()["conta"];
+                break;
+        }
+        
+        return $items;
     }
 }

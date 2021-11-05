@@ -30,7 +30,6 @@
                             <div class="col-sm-9 item_filter">
                                 <input type="text" name="content" class="form-control" value="{{filters.content is defined ? filters.content : ''}}">
                             </div>
-
                         </div>
                         <div class="form-group">
                             <label class="col-sm-1 control-label">ID</label>
@@ -50,8 +49,15 @@
 
                             <label class="col-sm-1 control-label">Usuario</label>
                             <div class="col-sm-2 item_filter">
-                                <input type="text" name="creator" class="form-control" value="{{filters.creator is defined ? filters.creator : ''}}">
+                                <select class="form-control select_user" name="creator" style="width: 100%;">
+                                    <option value=""></option>
+                                    {% for itemuser in users %}
+                                        <option value="{{itemuser.id}}" {{filters.creator is defined and filters.creator==itemuser.id ? 'selected="selected"'}}>{{itemuser.name}}</option>
+                                    {% endfor %}
+                                </select>
                             </div>
+
+                            
                         </div>
                         <div class="form-group">
 
@@ -65,7 +71,7 @@
                             </div>
 
                             <label class="col-sm-1 control-label">Acción</label>
-                            <div class="col-sm-2 item_filter">
+                            <div class="col-sm-1 item_filter">
                                 <select class="form-control" name="action" style="width: 100%;">
                                     <option value=""></option>
                                     {% for action in actions %}
@@ -73,19 +79,6 @@
                                     {% endfor %}
                                 </select>
                             </div>
-                            <label class="col-sm-1 control-label">Reg.Página</label>
-                            <div class="col-sm-1 item_filter">
-                                <select class="form-control" style="width: 100%;" name="limit_many">
-                                    <option value=""></option>
-                                    <option value="15" {{filters.limit_many is defined and filters.limit_many == 15 ? 'selected="selected"' : ''}}>15</option>
-                                    <option value="50" {{filters.limit_many is defined and filters.limit_many == 50 ? 'selected="selected"' : ''}}>50</option>
-                                    <option value="100" {{filters.limit_many is defined and filters.limit_many == 100 ? 'selected="selected"' : ''}}>100</option>
-                                    <option value="500" {{filters.limit_many is defined and filters.limit_many == 500 ? 'selected="selected"' : ''}}>500</option>
-                                  </select>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
                             <label class="col-sm-1 control-label">Agrupar por</label>
                             <div class="col-sm-2 item_filter">
                                 <select class="form-control" style="width: 100%;" name="group">
@@ -105,6 +98,45 @@
                                     {% endif %}
                                   </select>
                             </div>
+
+                            <label class="col-sm-1 control-label">Área</label>
+                            <div class="col-sm-1 item_filter">
+                                <select class="form-control" name="area" style="width: 100%;">
+                                    <option value=""></option>
+                                    {% for area in areas %}
+                                        <option value="{{area.id}}" {{filters.area is defined and filters.area==area.id ? 'selected="selected"'}}>{{area.name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">Variable</label>
+                            <div class="col-sm-2 item_filter">
+                                <input type="text" name="var" class="form-control" value="{{filters.var is defined ? filters.var : ''}}">
+                            </div>
+
+                            <label class="col-sm-1 control-label">Valor</label>
+                            <div class="col-sm-2 item_filter">
+                                <input type="text" name="value" class="form-control" value="{{filters.value is defined ? filters.value : ''}}">
+                            </div>
+
+                            
+
+                            
+
+                            <label class="col-sm-1 control-label">Reg.Página</label>
+                            <div class="col-sm-1 item_filter">
+                                <select class="form-control" style="width: 100%;" name="limit_many">
+                                    <option value=""></option>
+                                    <option value="15" {{filters.limit_many is defined and filters.limit_many == 15 ? 'selected="selected"' : ''}}>15</option>
+                                    <option value="50" {{filters.limit_many is defined and filters.limit_many == 50 ? 'selected="selected"' : ''}}>50</option>
+                                    <option value="100" {{filters.limit_many is defined and filters.limit_many == 100 ? 'selected="selected"' : ''}}>100</option>
+                                    <option value="500" {{filters.limit_many is defined and filters.limit_many == 500 ? 'selected="selected"' : ''}}>500</option>
+                                  </select>
+                            </div>
+
                             <div class="col-sm-1">
                                 <button type="submit" class="btn btn-primary pull-right">Filtrar</button>
                             </div>
@@ -181,6 +213,9 @@ $(function () {
       format: 'yyyy-mm-dd',
       language: 'es'
     });
+
+    ActivateMenu('graphics_cv');
+    $('#side-menu').metisMenu();
 
     {% if items is defined and filters.group is defined %}
       //-------------

@@ -125,9 +125,16 @@ class CVSignaturesRepository extends EntityRepository
                 else{
 
                     $list = $this->createQueryBuilder('s')
-                        ->select('s.id','r.id as id_reg', 'u.id as usercreatedid','t.name','u.name as creator','s.created','s.modified','r.state as status','r.inEdition','a2.name as accion');
+                        ->select('s.id','r.id as id_reg', 'u.id as usercreatedid','t.name','u.name as creator','s.created','s.modified','s2.name as status','r.inEdition','a2.name as accion');
                     $list->addSelect("(DATEDIFF(s.modified,s.created)) as duration");
                 }
+
+                if(isset($filters["from"]) && isset($filters["until"]) && $filters["from"]==$filters["until"]){
+                    if(isset($filters["group"]) && in_array($filters["group"], array(2,4,6,7))) {
+                        $list->addSelect("(SUM(DATEDIFF(s.modified,s.created)))*100/27000.0 as percent");
+                    }
+                }
+
 
                 break;
             case "count":
@@ -140,16 +147,20 @@ class CVSignaturesRepository extends EntityRepository
             ->leftJoin("r.template", "t")
             ->leftJoin("s.user", "u")
             ->leftJoin("s.action", "a")
-            ->leftJoin("a.type", "a2");
+            ->leftJoin("a.type", "a2")
+            ->leftJoin("r.state", "s2")
+            ->leftJoin("t.area", "a3");
             
         if($type=="list" && !isset($filters["group"])){
             $list->orderBy('s.id', 'DESC');
         }
 
+        $list->andWhere('a.graphic=TRUE');
+
         if(!empty($filters)){
 
             if(isset($filters["id"])){
-                $list->andWhere('s.id=:id');
+                $list->andWhere('r.id=:id');
                 $list->setParameter('id', $filters["id"]);
             }
 
@@ -167,11 +178,8 @@ class CVSignaturesRepository extends EntityRepository
             }
 
             if(isset($filters["creator"])){
-                $terms = explode(" ", $filters["creator"]);
-                foreach($terms as $key => $term){
-                    $list->andWhere('u.name LIKE :creator'.$key);
-                    $list->setParameter('creator'.$key, '%' . $term. '%');
-                }
+                $list->andWhere('u.id=:creator');
+                $list->setParameter('creator', $filters["creator"]);
             }
 
             if(isset($filters["content"])){
@@ -187,14 +195,27 @@ class CVSignaturesRepository extends EntityRepository
                 $list->setParameter('action', $filters["action"]);
             }
 
+            if(isset($filters["area"])){
+                $list->andWhere('a3.id=:area');
+                $list->setParameter('area', $filters["area"]);
+            }
+
             if(isset($filters["from"])){
-                $list->andWhere('a.created>=:from');
+                $list->andWhere('s.created>=:from');
                 $list->setParameter('from', $filters["from"]);
             }
 
             if(isset($filters["until"])){
-                $list->andWhere('a.modified<=:until');
+                $list->andWhere('s.modified<=:until');
                 $list->setParameter('until', $filters["until"]." 23:59:00");
+            }
+
+            
+            if(isset($filters["var"]) && isset($filters["value"])){
+                $list->andWhere("ISJSON(s.json) > 0");
+                $list->andWhere("JSON_VALUE(s.json, :var) LIKE :value");
+                $list->setParameter('var', '$.data.'.$filters["var"]);
+                $list->setParameter('value', '%'.$filters["value"].'%');
             }
         }
 

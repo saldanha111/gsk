@@ -54,10 +54,6 @@ nononsense_add_logistica:
     path:     /contratoaddvalidadlogistica/{workflowid}
     defaults: { _controller: NononsenseHomeBundle:ContratoConcreto:pasologistica, workflowid: 0}
 
-nononsense_activity:
-    path: /activity
-    defaults: { _controller: NononsenseHomeBundle:Activity:list}
-
 nononsense_documents:
     path: /documents
     defaults: { _controller: NononsenseHomeBundle:Documents:list}
@@ -721,11 +717,11 @@ nononsense_request_save_standby:
 
 # Certifications
 nononsense_certifications_list:
-    path: /certificaciones
+    path: /certifications
     defaults: { _controller: NononsenseHomeBundle:Certification:list}
 
 nononsense_certifications_download:
-    path: /certificaciones/descargar/{id}
+    path: /certifications/descargar/{id}
     defaults: { _controller: NononsenseHomeBundle:Certification:download}
 
 
@@ -743,3 +739,12 @@ nononsense_delegations_edit:
     path: /delegations/{id}
     defaults: { _controller: NononsenseHomeBundle:Delegations:edit}
 
+
+# Efectividad de Área
+nononsense_activity:
+    path: /graphics/general
+    defaults: { _controller: NononsenseHomeBundle:Activity:list}
+
+nononsense_activity_templates:
+    path: /graphics/templates
+    defaults: { _controller: NononsenseHomeBundle:Activity:templates}

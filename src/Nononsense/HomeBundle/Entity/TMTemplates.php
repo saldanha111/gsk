@@ -83,7 +83,7 @@ class TMTemplates
     /**
      * @var integer
      *
-     * @ORM\Column(name="first_edtition", type="integer", nullable=true)
+     * @ORM\Column(name="first_edition", type="integer", nullable=true)
      */
     protected $firstEdition;
 

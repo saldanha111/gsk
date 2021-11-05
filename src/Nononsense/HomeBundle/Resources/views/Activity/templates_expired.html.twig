@@ -1,0 +1,20 @@
+<table id="inProcessParcial" class="table table-striped">
+    <thead>
+    <tr>
+        <th>Id</th>
+        <th>Plantilla</th>
+        <th>Edición</th>
+        <th>Estado</th>
+    </tr>
+    </thead>
+    {% if items is defined %}
+        {% for item in items %}
+            <tr>
+                <td>{{item.id}}</td>
+                <td>{{item.name}}</td>
+                <td>{{item.numEdition}}</td>
+                <td>{{item.state}}</td>
+            </tr>
+        {% endfor %}
+    {% endif %}
+</table>

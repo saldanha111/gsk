@@ -103,6 +103,13 @@ class CVActions
      */
     protected $finishWorkflow;
 
+    /**
+     * @var boolean 
+     *
+     * @ORM\Column(name="graphic", type="boolean",  options={"default" = false}, nullable=true)
+     */
+    protected $graphic;
+
     
 
     public function __construct()
@@ -408,5 +415,28 @@ class CVActions
     public function getDescriptionReconc()
     {
         return $this->descriptionReconc;
+    }
+
+    /**
+     * Set graphic
+     *
+     * @param boolean $graphic
+     * @return CVActions
+     */
+    public function setGraphic($graphic)
+    {
+        $this->graphic = $graphic;
+
+        return $this;
+    }
+
+    /**
+     * Get graphic
+     *
+     * @return boolean 
+     */
+    public function getGraphic()
+    {
+        return $this->graphic;
     }
 }
