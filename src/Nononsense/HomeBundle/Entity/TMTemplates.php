@@ -83,7 +83,7 @@ class TMTemplates
     /**
      * @var integer
      *
-     * @ORM\Column(name="first_edtition", type="integer", nullable=true)
+     * @ORM\Column(name="first_edition", type="integer", nullable=true)
      */
     protected $firstEdition;
 
@@ -119,6 +119,14 @@ class TMTemplates
      * @Groups({"detail_document"})
      */
     protected $logbook;
+
+    /**
+     * @var boolean $correlative
+     *
+     * @ORM\Column(name="correlative", type="boolean",  options={"default" = false})
+     * @Groups({"detail_document"})
+     */
+    protected $correlative;
 
     /**
      * @var boolean $uniqid
@@ -249,6 +257,11 @@ class TMTemplates
     protected $openedBy;
 
     /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\CVRecords", mappedBy="template")
+     */
+    protected $cvRecords;
+
+    /**
      * @var string
      *
      * @ORM\Column(name="token", type="string", nullable=true)
@@ -288,6 +301,13 @@ class TMTemplates
      * @Groups({"detail_document"})
      */
     protected $notFillableItSelf;
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="minutes_verification", type="integer", nullable=true)
+     */
+    protected $minutesVerification;
 
 
 
@@ -1338,5 +1358,84 @@ class TMTemplates
     public function getNotFillableItSelf()
     {
         return $this->notFillableItSelf;
+    }
+
+    /**
+     * Add cvRecords
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVRecords $cvRecords
+     * @return TMTemplates
+     */
+    public function addCvRecord(\Nononsense\HomeBundle\Entity\CVRecords $cvRecords)
+    {
+        $this->cvRecords[] = $cvRecords;
+
+        return $this;
+    }
+
+    /**
+     * Remove cvRecords
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVRecords $cvRecords
+     */
+    public function removeCvRecord(\Nononsense\HomeBundle\Entity\CVRecords $cvRecords)
+    {
+        $this->cvRecords->removeElement($cvRecords);
+    }
+
+    /**
+     * Get cvRecords
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getCvRecords()
+    {
+        return $this->cvRecords;
+    }
+
+    /**
+     * Set correlative
+     *
+     * @param boolean $correlative
+     * @return TMTemplates
+     */
+    public function setCorrelative($correlative)
+    {
+        $this->correlative = $correlative;
+
+        return $this;
+    }
+
+    /**
+     * Get correlative
+     *
+     * @return boolean 
+     */
+    public function getCorrelative()
+    {
+        return $this->correlative;
+    }
+
+    /**
+     * Set minutesVerification
+     *
+     * @param integer $minutesVerification
+     * @return TMTemplates
+     */
+    public function setMinutesVerification($minutesVerification)
+    {
+        $this->minutesVerification = $minutesVerification;
+
+        return $this;
+    }
+
+    /**
+     * Get minutesVerification
+     *
+     * @return integer 
+     */
+    public function getMinutesVerification()
+    {
+        return $this->minutesVerification;
     }
 }

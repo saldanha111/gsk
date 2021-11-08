@@ -3,6 +3,7 @@
 namespace Nononsense\HomeBundle\Entity;
 
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\Query\ResultSetMapping;
 
 /**
  * AreasRepository
@@ -177,19 +178,39 @@ class TMTemplatesRepository extends EntityRepository
                 }
             }
 
-            
+            if(isset($filters["id"])){
+                $sintax.=$logical." t.id=:id";
+                $parameters["id"]=$filters["id"];
+                $logical=" AND ";
+            }
+
+            if(isset($filters["init_cumplimentation"])){
+                $sintax.=$logical." s.id=6 AND (t.inactive!=1 OR t.inactive IS NULL) AND (t.notFillableItSelf!=1 OR t.notFillableItSelf IS NULL)";
+                $logical=" AND ";
+            }
+
+            if(isset($filters["nest_init_cumplimentation"])){
+                $sintax.=$logical." s.id=6 AND (t.inactive!=1 OR t.inactive IS NULL)";
+                $logical=" AND ";
+            }
+
         }
 
 
 
-        $sintax = " FROM Nononsense\HomeBundle\Entity\TMTemplates t LEFT JOIN Nononsense\HomeBundle\Entity\Areas a WITH t.area=a.id LEFT JOIN Nononsense\HomeBundle\Entity\TMStates s WITH t.tmState=s.id LEFT JOIN Nononsense\UserBundle\Entity\Users ua WITH t.applicant=ua.id LEFT JOIN Nononsense\UserBundle\Entity\Users uo WITH t.owner=uo.id LEFT JOIN Nononsense\UserBundle\Entity\Users ub WITH t.backup=ub.id ".$tables_extra.$sintax;
+        $sintax = " FROM Nononsense\HomeBundle\Entity\TMTemplates t LEFT JOIN Nononsense\HomeBundle\Entity\Areas a WITH t.area=a.id LEFT JOIN Nononsense\HomeBundle\Entity\TMStates s WITH t.tmState=s.id  LEFT JOIN Nononsense\HomeBundle\Entity\QrsTypes q WITH t.QRType=q.id LEFT JOIN Nononsense\UserBundle\Entity\Users ua WITH t.applicant=ua.id LEFT JOIN Nononsense\UserBundle\Entity\Users uo WITH t.owner=uo.id LEFT JOIN Nononsense\UserBundle\Entity\Users ub WITH t.backup=ub.id ".$tables_extra.$sintax;
 
         switch($type){
             case "list": 
                 if(isset($filters["user"])){
                     $parameters["user"]=$filters["user"];
+                    $case=", CASE WHEN ".$this->sintax_pending('workflow_select')." THEN 1 ELSE 0 END require_action";
                 }
-                $query = $em->createQuery("SELECT t.id,t.name,a.name nameArea,t.number,t.numEdition,s.id status,t.inactive,s.name stateName,t.created,t.reference,ua.name applicantName,uo.name ownerName,ub.name backupName,t.effectiveDate,t.reviewDate,t.historyChange,uo.id ownerId,ub.id backupId,t.dateReview,t.needNewEdition,t.notFillableItSelf, CASE WHEN ".$this->sintax_pending('workflow_select')." THEN 1 ELSE 0 END require_action ".$fields_extra.$sintax." ".$orderby);
+                else{
+                    $case="";
+                }
+    
+                $query = $em->createQuery("SELECT t.logbook,t.uniqid,t.id,t.name,a.name nameArea,t.number,t.numEdition,s.id status,t.inactive,s.name stateName,t.created,t.reference,ua.name applicantName,uo.name ownerName,ub.name backupName,t.effectiveDate,t.reviewDate,t.historyChange,uo.id ownerId,ub.id backupId,t.dateReview,t.needNewEdition,t.notFillableItSelf,q.id qr".$case.$fields_extra.$sintax." ".$orderby);
                 if(isset($filters["limit_from"])){
                     $query->setFirstResult($filters["limit_from"]*$filters["limit_many"])->setMaxResults($filters["limit_many"]);
                 }
@@ -199,7 +220,6 @@ class TMTemplatesRepository extends EntityRepository
                 }
 
                 $items=$query->getResult();
-
                 break;
 
             case "count":
@@ -227,5 +247,203 @@ class TMTemplatesRepository extends EntityRepository
         $sintax_pending=" (t.tmState=1 AND (t.backup=:user OR t.owner=:user)) OR (t.id IN (SELECT IDENTITY(".$table_alias.".template) FROM Nononsense\HomeBundle\Entity\TMWorkflow ".$table_alias." WHERE ".$table_alias.".template=t.id AND ".$table_alias.".action=".$elaborators." AND ".$table_alias.".userEntiy=:user))";
 
         return $sintax_pending;
+    }
+
+    public function activity($type,$filters)
+    {
+        $em = $this->getEntityManager();
+
+        switch($type){
+            case "list":
+
+                if(isset($filters["group"])){
+                    switch($filters["group"]){
+                        case 1: 
+                            $list = $this->createQueryBuilder('t')
+                                ->select('t.id','t.name','s.name state','t.numEdition');
+                            break;
+                        /*case 2:
+                            $list = $this->createQueryBuilder('s')
+                                ->select('u.id as usercreatedid','u.name as creator','COUNT(s.id) as conta');
+                            $list->addSelect("SUM(DATEDIFF(s.modified,s.created)) as duration");
+                            break;*/
+                        case 3:
+                            $list = $this->createQueryBuilder('t')
+                                ->select('t.name','COUNT(t.id) as conta');
+                            break;
+                        /*case 4:
+                            $list = $this->createQueryBuilder('s')
+                                ->select('a2.name accion','u.id as usercreatedid','u.name as creator','COUNT(s.id) as conta');
+                            $list->addSelect("SUM(DATEDIFF(s.modified,s.created)) as duration");
+                            break;*/
+                    }
+                }
+                else{
+                    $list = $this->createQueryBuilder('t')
+                        ->select('t.id','t.name','s.name state','t.numEdition');
+                }
+                
+
+
+                break;
+            case "count":
+                $list = $this->createQueryBuilder('t')
+                    ->select('COUNT(t.id) as conta');
+                break;
+        }
+
+        $list->leftJoin("t.area", "a3")
+            ->leftJoin("t.tmState", "s");
+
+        if(!empty($filters)){
+
+            if(isset($filters["plantilla_id"])){
+                $list->andWhere('t.id=:plantilla_id');
+                $list->setParameter('plantilla_id', $filters["plantilla_id"]);
+            }
+
+            if(isset($filters["name"])){
+                $terms = explode(" ", $filters["name"]);
+                foreach($terms as $key => $term){
+                    $list->andWhere('t.name LIKE :name'.$key);
+                    $list->setParameter('name'.$key, '%' . $term. '%');
+                }
+            }
+
+            if(isset($filters["area"])){
+                $list->andWhere('a3.id=:area');
+                $list->setParameter('area', $filters["area"]);
+            }
+        }
+
+        if(isset($filters["group"])){
+            switch($filters["group"]){
+                case 1: 
+                    $list->andWhere('s.id=7 or s.id=8'); // Cargamos las obsoletas y las dadas de baja
+                    if($type=="list"){
+                        $list->orderBy('t.id', 'DESC');
+                    }
+                    break;
+                case 3: 
+                    $list->andWhere('t.firstEdition IS NOT NULL');
+                    $list->groupBy('t.firstEdition')
+                    ->addGroupBy('t.name');
+                    
+                    if($type=="list"){
+                        $list->orderBy('COUNT(t.id)', 'DESC');
+                    }
+                    break;
+            }
+        }
+
+
+        if(isset($filters["limit_from"])){
+            $list->setFirstResult($filters["limit_from"]*$filters["limit_many"])->setMaxResults($filters["limit_many"]);
+        }
+
+        $query = $list->getQuery();
+
+
+        switch($type){
+            case "list":
+                return $query->getResult();
+                break;
+            case "count":
+                /*if(isset($filters["group"]) && $filters["group"]=="3"){
+                    return count($query->getResult());
+                }
+                else{*/
+                    return $query->getSingleResult()["conta"];
+                //}
+                break;
+        }
+    }
+
+    public function activityAux($type,$filters)
+    {
+        $em = $this->getEntityManager();
+        $rsm = new ResultSetMapping();
+
+        $sintax=" ";
+        $logical=" WHERE ";
+        $orderby=" ";
+        $groupby=" ";
+        $limit="";
+
+        $tables_extra="";
+        $fields_extra="";
+
+        if(!empty($filters)){
+
+            if(isset($filters["name"])){
+                $terms = explode(" ", $filters["name"]);
+                foreach($terms as $key => $term){
+                    $sintax.=$logical." t.name LIKE :name".$key;
+                    $parameters["name".$key]="%".$term."%";
+                    $logical=" AND ";
+                }
+            }
+
+            if(isset($filters["plantilla_id"])){
+                $sintax.=$logical." t.id=:plantilla_id";
+                $parameters["plantilla_id"]=$filters["plantilla_id"];
+                $logical=" AND ";
+            }
+
+            if(isset($filters["area"])){
+                $sintax.=$logical." a3.id=:area";
+                $parameters["area"]=$filters["area"];
+                $logical=" AND ";
+            }
+
+            if(isset($filters["group"])){
+                switch($filters["group"]){
+                    case 3: 
+                        $sintax.=$logical." t.first_edition IS NOT NULL";
+                        $groupby=" GROUP BY t.first_edition,t.name";
+                        $orderby=" ORDER BY conta DESC";
+                        break;
+                }
+            }
+        }
+
+
+        $sintax = " FROM tm_templates t LEFT JOIN areas a3 ON t.area_id=a3.id ".$tables_extra.$sintax;
+
+        switch($type){
+            case "list": 
+                
+                if(isset($filters["limit_from"])){
+                    $limit=" OFFSET :from ROWS FETCH NEXT :many ROWS ONLY";
+                    $parameters["from"]=$filters["limit_from"]*$filters["limit_many"];
+                    $parameters["many"]=$filters["limit_many"];
+                }
+
+
+                $query = $em->createNativeQuery("SELECT t.name,COUNT(t.id) as conta".$fields_extra.$sintax." ".$groupby." ".$orderby." ".$limit,$rsm);
+                $rsm->addScalarResult('name', 'name');
+                $rsm->addScalarResult('conta', 'conta');                
+                if(!empty($parameters)){
+                    $query->setParameters($parameters);
+                }
+
+                $items=$query->getResult();
+
+
+                break;
+
+            case "count":
+
+                $query = $em->createNativeQuery("SELECT COUNT(DISTINCT t.first_edition) conta ".$sintax,$rsm);
+                $rsm->addScalarResult('conta', 'conta');
+                if(!empty($parameters)){
+                    $query->setParameters($parameters);
+                }
+
+                $items=$query->getSingleResult()["conta"];
+                break;
+        }
+        
+        return $items;
     }
 }

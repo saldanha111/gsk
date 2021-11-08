@@ -1,0 +1,244 @@
+<?php
+
+namespace Nononsense\HomeBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * CVRecordsHistory
+ *
+ * @ORM\Table()
+ * @ORM\Table(name="cv_records_history")
+ * @ORM\Entity(repositoryClass="Nononsense\HomeBundle\Entity\CVRecordsHistoryRepository")
+ */
+class CVRecordsHistory
+{
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="id", type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    private $id;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="field", type="string", length=60)
+     */
+    private $field;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="info", type="string", length=90, nullable=true)
+     */
+    private $info;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="field_index", type="string", length=30, nullable=true)
+     */
+    private $index;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="field_value", type="text")
+     */
+    private $value;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="prev_value", type="text", nullable=true)
+     */
+    private $prevValue;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="line_options", type="boolean", nullable=true)
+     */
+    private $lineOptions;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="CVSignatures")
+     * @ORM\JoinColumn(name="signature_id", referencedColumnName="id")
+     */
+    private $signature;
+
+
+    /**
+     * Get id
+     *
+     * @return integer 
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * Set field
+     *
+     * @param string $field
+     * @return InstanciasStepsHistory
+     */
+    public function setField($field)
+    {
+        $this->field = $field;
+
+        return $this;
+    }
+
+    /**
+     * Get field
+     *
+     * @return string 
+     */
+    public function getField()
+    {
+        return $this->field;
+    }
+
+    /**
+     * Set value
+     *
+     * @param string $value
+     * @return InstanciasStepsHistory
+     */
+    public function setValue($value)
+    {
+        $this->value = $value;
+
+        return $this;
+    }
+
+    /**
+     * Get value
+     *
+     * @return string 
+     */
+    public function getValue()
+    {
+        return $this->value;
+    }
+
+    /**
+     * Set prevValue
+     *
+     * @param string $prevValue
+     * @return InstanciasStepsHistory
+     */
+    public function setPrevValue($prevValue)
+    {
+        $this->prevValue = $prevValue;
+
+        return $this;
+    }
+
+    /**
+     * Get prevValue
+     *
+     * @return string 
+     */
+    public function getPrevValue()
+    {
+        return $this->prevValue;
+    }
+
+    /**
+     * Set prevValue
+     *
+     * @param string $index
+     * @return InstanciasStepsHistory
+     */
+    public function setIndex($index)
+    {
+        $this->index = $index;
+
+        return $this;
+    }
+
+    /**
+     * Get index
+     *
+     * @return string 
+     */
+    public function getIndex()
+    {
+        return $this->index;
+    }
+
+    /**
+     * Set lineOptions
+     *
+     * @param boolean $lineOptions
+     * @return InstanciasStepsHistory
+     */
+    public function setLineOptions($lineOptions)
+    {
+        $this->lineOptions = $lineOptions;
+
+        return $this;
+    }
+
+    /**
+     * Get lineOptions
+     *
+     * @return boolean 
+     */
+    public function getLineOptions()
+    {
+        return $this->lineOptions;
+    }
+
+    /**
+     * Set signature
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVSignatures $signature
+     * @return CVRecordsHistory
+     */
+    public function setSignature(\Nononsense\HomeBundle\Entity\CVSignatures $signature = null)
+    {
+        $this->signature = $signature;
+
+        return $this;
+    }
+
+    /**
+     * Get signature
+     *
+     * @return \Nononsense\HomeBundle\Entity\CVSignatures 
+     */
+    public function getSignature()
+    {
+        return $this->signature;
+    }
+
+    /**
+     * Set info
+     *
+     * @param string $info
+     * @return CVRecordsHistory
+     */
+    public function setInfo($info)
+    {
+        $this->info = $info;
+
+        return $this;
+    }
+
+    /**
+     * Get info
+     *
+     * @return string 
+     */
+    public function getInfo()
+    {
+        return $this->info;
+    }
+}

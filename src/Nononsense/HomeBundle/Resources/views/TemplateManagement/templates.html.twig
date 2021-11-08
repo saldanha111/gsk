@@ -239,7 +239,7 @@
                                 
                                 <td>
                                     {% if item.status == 6 and not item.inactive and not item.notFillableItSelf %}
-                                        <a class="btn btn-xs btn-danger" href="#" target="_self"><i class="fa fa-pencil" aria-hidden="true"></i> {{'Iniciar cumpl.'|trans}}</a>
+                                        <a class="btn btn-xs btn-danger" href="{{path('nononsense_cv_new', {'template': item.id, 'id':0})}}" target="_self"><i class="fa fa-pencil" aria-hidden="true"></i> {{'Iniciar cumpl.'|trans}}</a>
                                     {% endif %}
                                 </td>
                                 <td>

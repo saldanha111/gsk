@@ -168,7 +168,7 @@ class QrsController extends Controller
         return $this->redirect($this->generateUrl('nononsense_qr_list'));
     }
 
-    public function viewQrAction($id){
+    public function viewQrAction(Request $request, $id){
         
         $is_valid = $this->get('app.security')->permissionSeccion('qrs_gestion');
         if(!$is_valid){
@@ -181,7 +181,13 @@ class QrsController extends Controller
             $qr = $this->getDoctrine()->getRepository('NononsenseHomeBundle:Qrs')->find($id);
 
             if($qr){
-                $filename = self::generateQrImage($qr);
+                if($request->get("dynamic")){
+                    $dynamic=TRUE;
+                }
+                else{
+                    $dynamic=FALSE;
+                }
+                $filename = self::generateQrImage($qr,$dynamic);
 
                 $rootdir = $this->get('kernel')->getRootDir();
                 $ruta_img_qr = $rootdir . "/files/qrs/";
@@ -229,20 +235,28 @@ class QrsController extends Controller
         return $response;
     }
 
-    private function generateQrImage($qr){
+    private function generateQrImage($qr,$dynamic){
         $filename = $qr->getId().".png";
         $rootdir = $this->get('kernel')->getRootDir();
         $ruta_img_qr = $rootdir . "/files/qrs/";
 
-        $fields = $qr->getFields();
+        if(!$dynamic){
+            $fields = $qr->getFields();
 
-        $array_fields = array();
-        foreach ($fields as $field) {
-           $array_fields[$field->getName()]=$field->getValue();
+            $array_fields = array();
+            foreach ($fields as $field) {
+               $array_fields[$field->getName()]=$field->getValue();
+            }
+
+            $qrArray = $array_fields;
+            $qrLabel = json_encode($qrArray, JSON_UNESCAPED_UNICODE);
+
         }
-
-        $qrArray = array('id'=>$qr->getId(), 'type' => $qr->getType()->getName(), 'fields'=>$array_fields);
-        $qrLabel = json_encode($qrArray);
+        else{
+            $qrArray = $this->container->get('router')->generate('nononsense_qrs_json_qr', array("id" => $qr->getId()),TRUE);
+            $qrLabel = $qrArray;
+        }
+        
 
 
         $qrCode = new QrCode();

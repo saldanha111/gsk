@@ -373,7 +373,6 @@ class RecordsController extends Controller
         if(!$expired_token){
             $em = $this->getDoctrine()->getManager();
 
-            // get the InstanciasSteps entity
             $record = $this->getDoctrine()
                 ->getRepository('NononsenseHomeBundle:RecordsDocuments')
                 ->find($id);
@@ -455,7 +454,7 @@ class RecordsController extends Controller
         $expired_token = $this->get('utilities')->tokenExpired($_REQUEST["token"]);
         if(!$expired_token){
             $this->get('utilities')->tokenRemove($_REQUEST["token"]);
-            // get the InstanciasSteps entity
+
             $record = $this->getDoctrine()
                 ->getRepository('NononsenseHomeBundle:RecordsDocuments')
                 ->find($id);

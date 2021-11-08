@@ -387,7 +387,6 @@ class RecordsContractsController extends Controller
         if ($expired_token == 1) {
             $data["expired_token"] = 1;
         } else {
-            // get the InstanciasSteps entity
             /** @var RecordsContracts $record */
             $record = $this->getDoctrine()
                 ->getRepository('NononsenseHomeBundle:RecordsContracts')
@@ -466,7 +465,7 @@ class RecordsContractsController extends Controller
             $data["expired_token"] = 1;
         } else {
             $this->get('utilities')->tokenRemove($token);
-            // get the InstanciasSteps entity
+
             $record = $this->getDoctrine()
                 ->getRepository('NononsenseHomeBundle:RecordsContracts')
                 ->find($id);

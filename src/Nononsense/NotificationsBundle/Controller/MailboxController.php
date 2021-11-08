@@ -5,8 +5,10 @@ namespace Nononsense\NotificationsBundle\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Nononsense\NotificationsBundle\Entity\Notifications;
 use Nononsense\NotificationsBundle\Entity\MessagesUsers;
+use Nononsense\NotificationsBundle\Entity\Users;
 use Nononsense\NotificationsBundle\Form\Type as FormMessages;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 
 class MailboxController extends Controller
@@ -277,5 +279,70 @@ class MailboxController extends Controller
             $mar->setTrash($val);
             $em->flush();
         } 
+    }
+
+    public function mailsAction(Request $request){
+
+        $em     = $this->getDoctrine()->getManager();
+
+        $filters['user']        = $this->container->get('security.context')->getToken()->getUser();
+        $filters['page']        = (!$request->get('page')) ? 1 : $request->get('page');
+        $filters['section']     = $request->get('section');
+
+        $limit  = 15;
+
+        $emails = $em->getRepository(Notifications::class)->listBy($filters, $limit);
+
+        return $this->render('NononsenseNotificationsBundle:Mailbox:mails.html.twig', ['emails' => $emails['rows']]);
+
+    }
+
+    public function mailsViewAction(Request $request){
+
+        $em     = $this->getDoctrine()->getManager();
+
+        $user   = $this->container->get('security.context')->getToken()->getUser();
+
+        $email = $em->getRepository(Notifications::class)->find(array('author' => $user, 'id' => $request->get('id')));
+
+        $email->setModified(new \DateTime());
+
+        $em->persist($email);
+        $em->flush($email);
+
+        return $this->render('NononsenseNotificationsBundle:Mailbox:mailsView.html.twig', ['email' => $email]);
+
+    }
+
+    public function mailsEditAction(Request $request){
+
+        $emails = json_decode($request->get('emails'));
+
+        echo $request->get('event');
+
+        print_r($emails);
+    
+        die();        
+        // if ($emails) {
+
+        //     $user   = $this->container->get('security.context')->getToken()->getUser();
+        
+        //     $em     = $this->getDoctrine()->getManager();
+        //     $emails = $em->getRepository(Notifications::class)->findBy(['author'=> $user, 'id' => $emails]);
+
+        //     foreach ($emails as $key => $email) {
+        //         $email->setModified(new \DateTime());
+        //         $em->persist($email);
+        //     }
+
+        //     $em->flush($email);
+        // }
+
+        // $response = new Response();
+        // $response->setContent(json_encode([
+        //     'success' => true,
+        // ]));
+        // $response->headers->set('Content-Type', 'application/json');
+        // return $response;
     }
 }

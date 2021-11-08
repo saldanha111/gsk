@@ -24,6 +24,11 @@ class TMCumplimentations
     protected $id;
 
     /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\CVWorkflow", mappedBy="type")
+     */
+    protected $cvWorkflows;
+
+    /**
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=255,  nullable=true)
@@ -133,5 +138,71 @@ class TMCumplimentations
     public function getTmSecondWorkflows()
     {
         return $this->tmSecondWorkflows;
+    }
+
+    /**
+     * Add cvWorkflows
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVWorkflow $cvWorkflows
+     * @return TMCumplimentations
+     */
+    public function addCvWorkflow(\Nononsense\HomeBundle\Entity\CVWorkflow $cvWorkflows)
+    {
+        $this->cvWorkflows[] = $cvWorkflows;
+
+        return $this;
+    }
+
+    /**
+     * Remove cvWorkflows
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVWorkflow $cvWorkflows
+     */
+    public function removeCvWorkflow(\Nononsense\HomeBundle\Entity\CVWorkflow $cvWorkflows)
+    {
+        $this->cvWorkflows->removeElement($cvWorkflows);
+    }
+
+    /**
+     * Get cvWorkflows
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getCvWorkflows()
+    {
+        return $this->cvWorkflows;
+    }
+
+    /**
+     * Add cvSignatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVSignatures $cvSignatures
+     * @return TMCumplimentations
+     */
+    public function addCvSignature(\Nononsense\HomeBundle\Entity\CVSignatures $cvSignatures)
+    {
+        $this->cvSignatures[] = $cvSignatures;
+
+        return $this;
+    }
+
+    /**
+     * Remove cvSignatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVSignatures $cvSignatures
+     */
+    public function removeCvSignature(\Nononsense\HomeBundle\Entity\CVSignatures $cvSignatures)
+    {
+        $this->cvSignatures->removeElement($cvSignatures);
+    }
+
+    /**
+     * Get cvSignatures
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getCvSignatures()
+    {
+        return $this->cvSignatures;
     }
 }

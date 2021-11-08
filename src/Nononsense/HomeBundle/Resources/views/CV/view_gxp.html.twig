@@ -1,0 +1,282 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}Docoaro - GSK | Documentos {% endblock %}
+{% block head %}
+    {{ parent() }}
+    <link rel="stylesheet" href="/js/plugins/sweetalert/sweetalert.min.css">
+{% endblock %}
+{% block main_title %} Solicitud de modificación de un dato GxP {% endblock %}
+
+{% block content %}
+
+    <div class="wrapper wrapper-content animated fadeInUp">
+        {% for flashMessage in app.session.flashbag.get('error') %}
+        <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+            <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+            {{ flashMessage }}
+        </div>
+        {% endfor %}
+
+        <div class="row">
+            <div class="col-lg-11">
+                <table id="inProcess" class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th>Id Registro afectado</th>
+                        <th>Area</th>
+                        <th>Nombre</th>
+                        <th>Última vez modificado</th>
+                        <th>Solicitado por</th>
+                        <th>Acción</th>
+                    </tr>
+                    </thead>
+                    <tr>
+                        <td>{{item.id}}</td>
+                        <td>{{item.area}}</td>
+                        <td>{{item.name}}</td>
+                        <td>{{item.modified | date('d-m-Y H:i:s') }}</td>
+                        <td>{{signature_request.user.name}}</td>
+                        <td>
+                            <a class="btn btn-xs btn-primary" href="{{path('nononsense_cv_docoaro_new', {'id': item.id})}}?view_reupdate=1" target="_blank" target="_blank">{{'Ver GxP modificado'|trans}}</a>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <form class="form-horizontal" id="form_item" action="{{path('nononsense_request_save_gxp', {'id': item.id}) }}" method="POST"  enctype="multipart/form-data">
+            <div class="row">
+                <div class="col-lg-5 col-lg-offset-1">
+                    
+
+                </div>
+                <div class="col-lg-5" id="box_workflow">
+                    <div id="verifications">
+                        {% if secondWf is defined and secondWf is not empty %}
+                            {% for wf in secondWf %}
+                                <div class="line_workflow">
+                                    <div class="form-group">
+                                        <label class="col-sm-3 control-label">{{wf.numberSignature==1 ? 'ECO' : 'Verific.'}}</label>
+                                        <div class="col-sm-4 masterbox_type_workflow">
+                                            <select class="form-control type_workflow" style="width: 100%;" disabled="disabled">
+                                                <option value=""></option>
+                                                <option value="1" {{wf.group is defined and wf.group is not empty ? 'selected="selected"'}}>Grupo</option>
+                                                <option value="2" {{wf.user is defined and wf.user is not empty ? 'selected="selected"'}}>Usuario</option>
+                                            </select>
+                                        </div>
+
+                                        {% if wf.group is defined and wf.group is not empty %}
+                                            <div class="master_box_group">
+                                                <div class="col-sm-4">
+                                                    <select class="form-control select_group" disabled="disabled" style="width: 100%;">
+                                                        <option value=""></option>
+                                                        {% for group in groups %}
+                                                            <option value="{{group.id}}" {{wf.group.id==group.id ? 'selected="selected"'}}>{{group.name}}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        {% else %}
+                                            <div class="master_box_user">
+                                                <div class="col-sm-4">
+                                                    <select class="form-control select_user" disabled="disabled" style="width: 100%;">
+                                                        <option value=""></option>
+                                                        {% for user in users %}
+                                                            <option value="{{user.id}}" {{wf.user.id==user.id ? 'selected="selected"'}}>{{user.name}}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                                {% if currentWf.numberSignature==1 %}
+                                    <div>
+                                        <button type="button" class="btn btn-default pull-right add_line" data-type="test"><i class="fa fa-plus"></i> Añadir</button>
+                                    </div><br>
+                                {% endif %}
+                        {% endif %}
+                        <div>
+                            <p>Justificación</p>
+                            <textarea id="comment" name="observations" class="form-control" rows="10" cols="91"></textarea>
+                        </div><br>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-8 col-lg-offset-4">
+                            <div id="signature-pad">
+                                <p>Introduzca su firma</p>
+                                <input type="password" name="password" id="box_password" class="form-control" required="required"><br>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <input type="submit" class="btn btn-primary pull-right" data-action="1" value="Aprobar" style="margin-left:10px">
+                            <input type="submit" class="btn btn-danger pull-right" data-action="2" value="Rechazar">
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <input type="hidden" name="action" value="" required="required" />
+        </form>
+    </div>
+
+
+    <div style="display:none">
+        <div id="box_groups">
+            <div class="master_box_group">
+                <div class="col-sm-4">
+                    <select class="form-control select_group" name="relationals[]" style="width: 100%;" required="required">
+                        <option value=""></option>
+                        {% for group in groups %}
+                            <option value="{{group.id}}">{{group.name}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div id="box_users">
+            <div class="master_box_user">
+                <div class="col-sm-4">
+                    <select class="form-control select_user" name="relationals[]" style="width: 100%;" required="required">
+                        <option value=""></option>
+                        {% for user in users %}
+                            <option value="{{user.id}}">{{user.name}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div id="box_remove">
+            <div class="master_box_remove">
+                <div class="col-sm-1">
+                    <a href="javascript:void(0)" class="btn btn-xs btn-danger remove_line"><i class="fa fa-times" aria-hidden="true"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <did style="display:none" id="new_line">
+        <div class="line_workflow">
+            <div class="form-group">
+                <label class="col-sm-3 control-label">Verif.</label>
+                <div class="col-sm-4 masterbox_type_workflow">
+                    <select class="form-control type_workflow" name="types[]" style="width: 100%;">
+                        <option value="1">Grupo</option>
+                        <option value="2" selected="selected">Usuario</option>
+                    </select>
+                </div>
+            </div>
+        </div> 
+    </did>
+{% endblock %}
+
+{% block scripts %}
+    {{ parent() }}
+    <script type="text/javascript" src="/js/plugins/sweetalert/sweetalert.min.js"></script>
+    <script  charset="utf-8">
+    var dataworkflow;
+    var array_elements = {};
+    $( document ).ready(function() {
+        
+        /* Eliminamos linea en ese paso del workflow */
+        $(document).on('click', '.remove_line', function() {
+            $(this).closest(".line_workflow").remove();
+        });
+
+        /* Añadimos linea en ese paso del workflow */
+        $(document).on('click', '.add_line', function() {
+            add_line($(this));
+        });
+        
+        ActivateMenu('docxpresso_gxp');
+        $('#side-menu').metisMenu();
+
+        $(document).on('change', '.type_workflow', function() {
+            switch($(this).val()){
+                case "1":
+                    $(this).closest(".line_workflow").find(".master_box_user").remove();
+                    $(this).closest(".line_workflow").find(".masterbox_type_workflow").after($("#box_groups").html());
+                    break;
+                case "2":
+                    $(this).closest(".line_workflow").find(".master_box_group").remove();
+                    $(this).closest(".line_workflow").find(".masterbox_type_workflow").after($("#box_users").html());
+                    break;
+                default:
+                    $(this).closest(".line_workflow").find(".master_box_group").remove();
+                    $(this).closest(".line_workflow").find(".master_box_user").remove();
+                    break;
+            }
+        });
+
+
+        $('#form_item').on('submit', function(e){
+            if(!repeat_workflow()){
+                if(password_valid($("#box_password").val())){
+                    if($(document.activeElement).data("action")=="1" || $("[name='observations']").val()){
+                        $("[name='action']").val($(document.activeElement).data("action"));
+                        return true;
+                    }
+                    else{
+                        toastr.error("La justificación es obligatoria si rechaza la aprobación",'aviso');
+                    }
+                }
+                else{
+                    toastr.error("La contraseña es incorecta", 'aviso');
+                }
+            }
+            else{
+                toastr.error("No puede haber un mismo usuario en el workflow",'aviso');
+            }
+            return false;
+        });
+
+    });
+
+    /* Añadimos una nueva linea */
+    function add_line(element){
+        element.closest("#verifications").find(".line_workflow:last").after($("#new_line").html());
+        element.closest("#verifications").find(".line_workflow:last").find(".masterbox_type_workflow").after($("#box_users").html()+$("#box_remove").html());
+    }
+
+    function repeat_workflow(){
+        var result = true;
+        var array = [];
+        $('.select_user','#box_workflow').each(function() {
+            array.push($(this).val());
+        });
+        if(checkIfArrayIsUnique(array)){
+            return false;
+        }
+        return result;
+    }
+
+    function password_valid(password){
+        var result;
+        $.ajax({
+            url: "{{ path('nononsense_mclean_get_sign_valid') }}",
+            type: 'POST',
+            dataType: 'json',
+            async: false,
+            data: {password: password},
+            success: function(response) {
+                console.log(response);
+                if(response.valid){
+                    result=true;
+                }else{
+                    result=false;
+                }
+            },
+            error: function() {
+                result=false;
+            }
+        });
+
+        return result;
+    }
+
+</script>
+{% endblock %}
+
+

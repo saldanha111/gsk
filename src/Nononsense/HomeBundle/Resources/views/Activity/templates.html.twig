@@ -1,0 +1,116 @@
+{% extends '::base.html.twig' %}
+{% if filters.group is defined and filters.group=="1" %}
+    {% set title_search = 'Plantillas caducadas' %}
+{% elseif filters.group is defined and filters.group=="2" %}
+    {% set title_search = 'Plantillas más cumplimentadas' %}
+{% elseif filters.group is defined and filters.group=="3" %}
+    {% set title_search = 'Plantillas más modificadas' %}
+{% elseif filters.group is defined and filters.group=="4" %}
+    {% set title_search = 'Plantillas más modificadas en menos de 3 meses' %}
+{% else %}
+    {% set title_search = '' %}
+{% endif %}
+
+{% block page_title %}Docoaro - GSK | Actividad de área {% endblock %}
+{% block head %}
+{{ parent() }}
+<link rel="stylesheet" href="/css/plugins/datapicker/datepicker3.css">
+{% endblock %}
+{% block main_title %} {{title_search}}{% endblock %}
+{% block content %}
+
+<div class="wrapper wrapper-content">
+    {% for flashMessage in app.session.flashbag.get('error') %}
+    <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+        <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+        {{ flashMessage }}
+    </div><br>
+    {% endfor %}
+    {% for flashMessage in app.session.flashbag.get('success') %}
+    <div class="alert alert-success alert-dismissable" style="margin: 10px 16px 0 16px">
+        <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+        {{ flashMessage }}
+    </div><br>
+    {% endfor %}
+    <div class="row">
+        <div class="col-sm-12">
+            <div>
+                <div class="row">
+                    <form class="form-horizontal" id="form_item" action="{{ path('nononsense_activity_templates')}}" method="GET">
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">ID.Plant.</label>
+                            <div class="col-sm-1 item_filter">
+                                <input type="number" name="plantilla_id" class="form-control" value="{{filters.plantilla_id is defined ? filters.plantilla_id : ''}}">
+                            </div>
+
+                            <label class="col-sm-1 control-label">Plantilla</label>
+                            <div class="col-sm-2 item_filter">
+                                <input type="text" name="name" class="form-control" value="{{filters.name is defined ? filters.name : ''}}">
+                            </div>
+
+                            <label class="col-sm-1 control-label">Área</label>
+                            <div class="col-sm-1 item_filter">
+                                <select class="form-control" name="area" style="width: 100%;">
+                                    <option value=""></option>
+                                    {% for area in areas %}
+                                        <option value="{{area.id}}" {{filters.area is defined and filters.area==area.id ? 'selected="selected"'}}>{{area.name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <label class="col-sm-1 control-label">Mostrar</label>
+                            <div class="col-sm-2 item_filter">
+                                <select class="form-control" style="width: 100%;" name="group">
+                                    <option value="1" {{filters.group is defined and filters.group == 1 ? 'selected="selected"' : ''}}>Plantillas daducadas</option>
+                                    <option value="2" {{filters.group is defined and filters.group == 2 ? 'selected="selected"' : ''}}>Plantillas más cumplimentadas</option>
+                                    <option value="3" {{filters.group is defined and filters.group == 3 ? 'selected="selected"' : ''}}>Plantillas más modificadas</option>
+                                    <option value="4" {{filters.group is defined and filters.group == 4 ? 'selected="selected"' : ''}}>Plantillas más modificadas en menos de 3 meses</option>
+                                    
+                                  </select>
+                            </div>
+
+                            <div class="col-sm-1">
+                                <button type="submit" class="btn btn-primary pull-right">Filtrar</button>
+                            </div>
+                        </div>
+                      </form>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                            {% if filters.group == 1 %}
+                                {% include 'NononsenseHomeBundle:Activity:templates_expired.html.twig' %}
+                            {% endif %}
+                            {% if filters.group == 2 %}
+                                {# {% include 'NononsenseHomeBundle:Activity:table_activity_group_user.html.twig' %} #}
+                            {% endif %}
+                            {% if filters.group == 3 %}
+                                {% include 'NononsenseHomeBundle:Activity:templates_with_editions.html.twig' %}
+                            {% endif %}
+                            {% if filters.group == 4 %}
+                                {# {% include 'NononsenseHomeBundle:Activity:table_activity_group_action_user.html.twig' %} #}
+                            {% endif %}
+
+                        {% if pagination is defined and pagination.needed %}
+                            {% include '::pagination2.html.twig' %}
+                        {% endif %}
+                        
+                        {% if count==0 %}
+                            <br><b>No se han encontrado datos disponibles</b>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+{{ parent() }}
+<script>
+$(function () {
+    ActivateMenu('graphics_templates');
+    $('#side-menu').metisMenu();
+});
+</script>
+{% endblock %}

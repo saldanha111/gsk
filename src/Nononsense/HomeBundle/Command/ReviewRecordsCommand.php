@@ -6,6 +6,9 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 //use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
+use Nononsense\HomeBundle\Entity\CVSecondWorkflowStates;
+use Nononsense\HomeBundle\Entity\SpecificGroups;
+use Nononsense\HomeBundle\Entity\CVSecondWorkflow;
 
 /**
 * 
@@ -25,92 +28,82 @@ class ReviewRecordsCommand extends ContainerAwareCommand
 
 	protected function execute(InputInterface $input, OutputInterface $output){
 
-		$steps = $this->getSteps();
+		$em = $this->getContainer()->get('doctrine')->getManager();
 
-		if ($steps) {
+		$areas = $em->getRepository('NononsenseHomeBundle:Areas')->findAll();
+		foreach($areas as $area){
+			$ids=array();
+			$qb 		= $em->createQueryBuilder();
+		    $records = $qb->select('i')
+		    				->from('NononsenseHomeBundle:CVRecords', 'i')
+		    				->leftJoin("i.template", "t")
+		    				->andWhere('i.openDate <= :modified')
+		    				->andWhere('i.inEdition = 1')
+		    				->andWhere('(i.blocked = 0 OR i.blocked IS NULL)')
+		    				->andWhere('IDENTITY(t.area) = :area')
+		    				->setParameter('modified', new \DateTime('-2 hour'))
+		    				->setParameter('area', $area->getId())
+		    				->getQuery()
+		    				->getResult();
+		   
+		    if ($records) {				
+			    foreach ($records as $key => $record) {
+		    		$record->setBlocked(1);
+		    		$em->persist($record);
+		    		$ids[] = $record->getId();
+			    }
+			}
 
-			$users = $this->getUsers();
 
-	    	$subject = 'Registros bloqueados';
-	        $message = 'Los siguientes registros han sido bloqueados y necesitan ser gestionados por su parte o algún otro FLL. Acceda al siguiente  Link para gestionar los bloqueos.<br><br>'.implode('<br>', $steps);
-	        $baseUrl = trim($this->getContainer()->getParameter('cm_installation'), '/').$this->getContainer()->get('router')->generate('nononsense_backoffice_standby_documents_list');
+			if ($ids) {
 
-		    foreach ($users as $key => $user) {
-	            if ($this->getContainer()->get('utilities')->sendNotification($user['email'], $baseUrl, "", "", $subject, $message)) {
-	                
-	                $output->writeln(['Mensaje enviado: '.$user['email']]);
+		    	$subject = 'Registros bloqueados';
+		        $message = 'Los siguientes registros han sido bloqueados y necesitan ser gestionados por su parte o algún otro FLL. Acceda al siguiente  Link para gestionar los bloqueos.<br><br>'.implode('<br>', $ids);
+		        $baseUrl = trim($this->getContainer()->getParameter('cm_installation'), '/').$this->getContainer()->get('router')->generate('nononsense_cv_search')."?blocked=1";
 
-	                if ($input->getOption('msg')) {
-	                	$output->writeln(['Asunto: '.$subject]);	
-	                	$output->writeln(['Cuerpo del mensaje: '.$message]);
-	                	$output->writeln(['']);	
-	                }
+		        $typesw = $em->getRepository(CVSecondWorkflowStates::class)->findOneBy(array("id" => "2"));
+		        $specific = $em->getRepository(SpecificGroups::class)->findOneBy(array("name" => "ECO"));
+            	$other_group = $specific->getGroup();
 
-	            }else{
+            	$sworkflow = new CVSecondWorkflow();
+	            $sworkflow->setRecord($record);
+	            $sworkflow->setGroup($other_group);
+	            $sworkflow->setNumberSignature(1);
+	            $sworkflow->setType($typesw);
+	            $sworkflow->setSigned(FALSE);
+	            $em->persist($sworkflow);
 
-	            	$output->writeln(['<error>Error: '.$user['email'].'</error>']);
-	            }
+	            if($area->getFll()){
+		            if ($this->getContainer()->get('utilities')->sendNotification($area->getFll()->getEmail(), $baseUrl, "", "", $subject, $message)) {
+
+		            	$sworkflow = new CVSecondWorkflow();
+			            $sworkflow->setRecord($record);
+			            $sworkflow->setUser($area->getFll());
+			            $sworkflow->setNumberSignature(2);
+			            $sworkflow->setType($typesw);
+			            $sworkflow->setSigned(FALSE);
+			            $em->persist($sworkflow);
+		                
+		                $output->writeln(['Mensaje enviado: '.$area->getFll()->getEmail()]);
+
+		                if ($input->getOption('msg')) {
+		                	$output->writeln(['Asunto: '.$subject]);	
+		                	$output->writeln(['Cuerpo del mensaje: '.$message]);
+		                	$output->writeln(['']);	
+		                }
+
+		            }else{
+
+		            	$output->writeln(['<error>Error: '.$area->getFll()->getEmail().'</error>']);
+		            }
+		        }
+
+		    }else{
+		    	$output->writeln(['<comment>Ningún registro bloqueado para el area '.$area->getName().'</comment>']);
 		    }
-
-	    }else{
-	    	$output->writeln(['<comment>Ningún registro bloqueado</comment>']);
-	    }
+		}
+		$em->flush();
 
 	    $output->writeln(['<info>Proceso completado</info>']);	
-	}
-
-	protected function getSteps(){
-
-		$em = $this->getContainer()->get('doctrine')->getManager();
-
-	    $qb 		= $em->createQueryBuilder();
-	    $instancias = $qb->select('iw, st')
-	    				->from('NononsenseHomeBundle:InstanciasWorkflows', 'iw')
-	    				//->join('iw.Steps','st')
-	    				->join("iw.Steps", "st", "WITH", 'st.dependsOn = 0')
-	    				->where('iw.modified <= :modified')
-	    				->setParameter('modified', new \DateTime('-8 hour'))
-	    				->andWhere('iw.in_edition = 1')
-	    				//->andWhere('st.dependsOn = 0')
-	    				->getQuery()
-	    				->getResult();
-
-	    if ($instancias) {
-	    							
-		    foreach ($instancias as $key => $instancia) {
-	    		$instancia->setInEdition(0);
-	    		$instancia->setStatus(11);
-
-	    		$em->persist($instancia);
-
-	    		foreach ($instancia->getSteps() as $key => $step) {
-	    			$steps[] = $step->getId();
-	    		}
-		    }
-
-		    $em->flush();
-
-		    return $steps;
-		}
-
-		return false;
-	}
-
-	protected function getUsers(){
-
-		$em = $this->getContainer()->get('doctrine')->getManager();
-
-		$qb 	= $em->createQueryBuilder();
-		$query 	= $qb->select('u.email')
-		   ->distinct()
-		   ->from('NononsenseGroupBundle:GroupUsers', 'gu')
-		   ->join('gu.group', 'g')
-		   ->join('gu.user', 'u')
-		   ->where("g.tipo = 'FLL'")
-		   ->getQuery();
-
-		$users = $query->getResult();
-
-		return $users;
 	}
 }

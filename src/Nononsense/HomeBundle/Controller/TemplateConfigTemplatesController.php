@@ -2,7 +2,6 @@
 namespace Nononsense\HomeBundle\Controller;
 
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Nononsense\HomeBundle\Entity\InstanciasSteps;
 use Symfony\Component\Filesystem\Filesystem;
 use Nononsense\UtilsBundle\Classes;
 
@@ -202,11 +201,25 @@ class TemplateConfigTemplatesController extends Controller
                 $template->setUniqid(0); 
             }
 
+            if($request->get("correlative")){
+               $template->setCorrelative(1); 
+            }
+            else{
+                $template->setCorrelative(0); 
+            }
+
             if($request->get("not_fillable_it_self")){
                $template->setNotFillableItSelf(1); 
             }
             else{
                 $template->setNotFillableItSelf(NULL); 
+            }
+
+            if($request->get("minutes_verification")){
+               $template->setMinutesVerification($request->get("minutes_verification")); 
+            }
+            else{
+                $template->setMinutesVerification(NULL); 
             }
 
             if($request->get("qr")){

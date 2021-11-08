@@ -92,6 +92,13 @@
                     </div>
 
                     <div class="form-group">
+                        <label class="col-sm-2 control-label">Minutos notificación verificación</label>
+                        <div class="col-sm-1">
+                            <input type="number" name="minutes_verification" class="form-control"  {{template.tmState.id == 6 ? 'readonly="readonly"' : ''}} value="{{template.minutesVerification is defined and template.minutesVerification is not null ? template.minutesVerification : ''}}" required="required">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
                         <div class="col-sm-7 col-sm-offset-2">
                             <div class="checkbox">
                                 <label>
@@ -106,6 +113,16 @@
                             <div class="checkbox">
                                 <label>
                                     <input name="unique" value="1" type="checkbox"  {{template.tmState.id == 6 ? 'disabled="disabled"' : ''}} {{template.uniqid is defined and template.uniqid==1 ? "checked='checked'" : ''}}> Identificador único
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-sm-7 col-sm-offset-2">
+                            <div class="checkbox">
+                                <label>
+                                    <input name="correlative" value="1" type="checkbox"  {{template.tmState.id == 6 ? 'disabled="disabled"' : ''}} {{template.correlative is defined and template.correlative==1 ? "checked='checked'" : ''}}> Cumplimentación/verificación se realiza según la correlatividad de las firmas
                                 </label>
                             </div>
                         </div>

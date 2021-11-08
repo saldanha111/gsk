@@ -9,9 +9,12 @@ namespace Nononsense\HomeBundle\Controller;
 
 
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Nononsense\HomeBundle\Entity\InstanciasWorkflows;
-use Nononsense\HomeBundle\Entity\InstanciasSteps;
 use Nononsense\HomeBundle\Entity\Activityuser;
+use Nononsense\HomeBundle\Entity\CVSignatures;
+use Nononsense\HomeBundle\Entity\TMCumplimentationsType;
+use Nononsense\HomeBundle\Entity\Areas;
+use Nononsense\HomeBundle\Entity\TMTemplates;
+use Nononsense\UserBundle\Entity\Users;
 use Nononsense\UtilsBundle\Classes;
 
 
@@ -26,29 +29,23 @@ use Symfony\Component\Serializer\Encoder\XmlEncoder;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Validator\Constraints\DateTime;
+use Doctrine\ORM\Query\ResultSetMapping;
 
 class ActivityController extends Controller
 {
     public function listAction(Request $request){
 
-        $user = $this->container->get('security.context')->getToken()->getUser();
-        $can_be = false;
-
-        foreach ($user->getGroups() as $groupMe) {
-            $type = $groupMe->getGroup()->getTipo();
-            if ($type == 'FLL') {
-                $can_be = true;
-            }
-        }
-
-        if (!$can_be) {
+        $is_valid = $this->get('app.security')->permissionSeccion('graphics_cv');
+        if(!$is_valid){
             $this->get('session')->getFlashBag()->add(
                 'error',
-                'No tiene permisos para acceder a esta sección'
+                    'No tiene permisos suficientes'
             );
-            $route = $this->container->get('router')->generate('nononsense_home_homepage');
-            return $this->redirect($route);
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
+
+        $em = $this->getDoctrine()->getManager();
+        $user = $this->container->get('security.context')->getToken()->getUser();
 
         $filters=Array();
         $filters2=Array();
@@ -88,7 +85,7 @@ class ActivityController extends Controller
                 $filters["limit_many"]=$request->get("limit_many");
             }
             else{
-               $filters["limit_many"]=99999999999999; 
+               $filters["limit_many"]=15; 
             }
         }
         else{
@@ -99,14 +96,14 @@ class ActivityController extends Controller
 
         $array_item["suser"]["id"]=$user->getId();
         $array_item["filters"]=$filters;
-        $array_item["items"] = $this->getDoctrine()->getRepository(ActivityUser::class)->search("list",$filters);
+        $array_item["items"] = $em->getRepository(CVSignatures::class)->activity("list",$filters);
         foreach($array_item["items"] as $key => $item){
             $array_item["items"][$key]["formatDuration"]=$this->convert_seconds($item["duration"]);
         }
         
-        $array_item["count"] = $this->getDoctrine()->getRepository(ActivityUser::class)->search("count",$filters2);
+        $array_item["count"] = $em->getRepository(CVSignatures::class)->activity("count",$filters2);
 
-        $url=$this->container->get('router')->generate('nononsense_search');
+        $url=$this->container->get('router')->generate('nononsense_activity');
         $params=$request->query->all();
         unset($params["page"]);
         if(!empty($params)){
@@ -117,9 +114,103 @@ class ActivityController extends Controller
         }
         $array_item["pagination"]=\Nononsense\UtilsBundle\Classes\Utils::paginador($filters["limit_many"],$request,$url,$array_item["count"],"/", $parameters);
 
+        $array_item["actions"] = $em->getRepository(TMCumplimentationsType::class)->search("list",array());
+        $array_item["users"] = $em->getRepository(Users::class)->findAll();
+        $array_item["areas"] = $em->getRepository(Areas::class)->findBy(array(),array("name" => "ASC"));
+
         if(!$request->get("export_excel") && !$request->get("export_pdf")){
             switch($request->get("group")){
-                default: return $this->render('NononsenseHomeBundle:Contratos:activity_general.html.twig',$array_item);
+                default: return $this->render('NononsenseHomeBundle:Activity:activity_general.html.twig',$array_item);
+            }
+            
+        }
+    }
+
+
+    public function templatesAction(Request $request){
+
+        $is_valid = $this->get('app.security')->permissionSeccion('graphics_templates');
+        if(!$is_valid){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                    'No tiene permisos suficientes'
+            );
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+        }
+
+        $em = $this->getDoctrine()->getManager();
+        $user = $this->container->get('security.context')->getToken()->getUser();
+
+        $filters=Array();
+        $filters2=Array();
+        $types=array();
+
+        $filters=array_filter($request->query->all());
+        $filters2=array_filter($request->query->all());
+
+
+        $array_item["suser"]["id"]=$user->getId();
+
+        if(!$request->get("export_excel") && !$request->get("export_pdf")){
+            if($request->get("page")){
+                $filters["limit_from"]=$request->get("page")-1;
+            }
+            else{
+                $filters["limit_from"]=0;
+            }
+
+            if($request->get("limit_many")){
+                $filters["limit_many"]=$request->get("limit_many");
+            }
+            else{
+               $filters["limit_many"]=15; 
+            }
+        }
+        else{
+            $filters["limit_from"]=0;
+            $filters["limit_many"]=99999999999999;
+        }
+
+
+        $array_item["suser"]["id"]=$user->getId();
+        $array_item["filters"]=$filters;
+
+        /*$rsm = new ResultSetMapping();
+        
+        $query = $em->createNativeQuery("SELECT t.name,COUNT(t.id) AS conta FROM tm_templates t LEFT JOIN areas a3 ON t.area_id=a3.id WHERE t.first_edition IS NOT NULL GROUP BY t.first_edition,t.name ORDER BY conta DESC OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY ",$rsm);
+        $rsm->addScalarResult('name', 'name');
+        $rsm->addScalarResult('conta', 'conta');
+
+        $tests=$query->getResult();
+
+        var_dump($tests);die();*/
+
+        if($filters["group"]==1){
+            $array_item["items"] = $em->getRepository(TMTemplates::class)->activity("list",$filters);
+            $array_item["count"] = $em->getRepository(TMTemplates::class)->activity("count",$filters2);
+        }
+        else{
+            $array_item["items"] = $em->getRepository(TMTemplates::class)->activityAux("list",$filters);
+            $array_item["count"] = $em->getRepository(TMTemplates::class)->activityAux("count",$filters2);
+            //var_dump($array_item["count"]);die();
+        }
+
+        $url=$this->container->get('router')->generate('nononsense_activity_templates');
+        $params=$request->query->all();
+        unset($params["page"]);
+        if(!empty($params)){
+            $parameters=TRUE;
+        }
+        else{
+            $parameters=FALSE;
+        }
+        $array_item["pagination"]=\Nononsense\UtilsBundle\Classes\Utils::paginador($filters["limit_many"],$request,$url,$array_item["count"],"/", $parameters);
+
+        $array_item["areas"] = $em->getRepository(Areas::class)->findBy(array(),array("name" => "ASC"));
+
+        if(!$request->get("export_excel") && !$request->get("export_pdf")){
+            switch($request->get("group")){
+                default: return $this->render('NononsenseHomeBundle:Activity:templates.html.twig',$array_item);
             }
             
         }
