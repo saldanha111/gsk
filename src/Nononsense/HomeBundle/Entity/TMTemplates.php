@@ -123,7 +123,7 @@ class TMTemplates
     /**
      * @var boolean $correlative
      *
-     * @ORM\Column(name="correlative", type="boolean",  options={"default" = false})
+     * @ORM\Column(name="correlative", type="boolean",  options={"default" = false}, nullable=true)
      * @Groups({"detail_document"})
      */
     protected $correlative;
@@ -131,7 +131,7 @@ class TMTemplates
     /**
      * @var boolean $uniqid
      *
-     * @ORM\Column(name="uniqid", type="boolean",  options={"default" = false})
+     * @ORM\Column(name="uniqid", type="boolean",  options={"default" = false}, nullable=true)
      * @Groups({"detail_document"})
      */
     protected $uniqid;
@@ -139,7 +139,7 @@ class TMTemplates
     /**
      * @var boolean $isSimple
      *
-     * @ORM\Column(name="is_simple", type="boolean",  options={"default" = false})
+     * @ORM\Column(name="is_simple", type="boolean",  options={"default" = false}, nullable=true)
      * @Groups({"detail_document"})
      */
     protected $isSimple;
