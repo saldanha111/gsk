@@ -519,9 +519,11 @@ class CVCumplimentationController extends Controller
                     }
 
                     //Vaciamos próximo workflow activo
+                    $find_next=0;
                     $clean_wfs=$this->getDoctrine()->getRepository(CVWorkflow::class)->findBy(array('record' => $record,"signed" => TRUE));
                     foreach($clean_wfs as $clean_wf){
                         if($clean_wf->getType()->getTmType()==$next_state->getType()){
+                            $find_next=1;
                             $clean_wf->setSigned(FALSE);
                             $em->persist($clean_wf);
                         }
@@ -554,6 +556,13 @@ class CVCumplimentationController extends Controller
                             $em->persist($other_signature);
                         }
                     }
+
+                    //Si no hay workflow siguiente y no es un estado final, saltamos al siguiente
+                    if(!$find_next && !$next_state->getFinal()){
+                        $next_state=$next_state->getJumpState();
+                        
+                    }
+                    
                     $record->setState($next_state);
                 }
             }

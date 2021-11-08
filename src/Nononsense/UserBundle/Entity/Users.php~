@@ -162,11 +162,6 @@ class Users implements AdvancedUserInterface, \Serializable
      * @ORM\OneToMany(targetEntity="\Nononsense\NotificationsBundle\Entity\MessagesUsers", mappedBy="user")
      */
     protected $messages;
-    
-    /**
-     * @ORM\OneToMany(targetEntity="\Nononsense\NewsBundle\Entity\News", mappedBy="user")
-     */
-    protected $news;
 
     /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\Documents", mappedBy="userCreatedEntiy")
@@ -277,11 +272,6 @@ class Users implements AdvancedUserInterface, \Serializable
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\Areas", mappedBy="fll")
      */
     protected $areas;
-
-    /**
-     * @ORM\OneToMany(targetEntity="\Nononsense\UserBundle\Entity\UsersSection", mappedBy="user")
-     */
-    protected $sections;
 
     /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\Tokens", mappedBy="user")
@@ -903,39 +893,6 @@ class Users implements AdvancedUserInterface, \Serializable
     }
 
     /**
-     * Add news
-     *
-     * @param \Nononsense\NewsBundle\Entity\News $news
-     * @return Users
-     */
-    public function addNews(\Nononsense\NewsBundle\Entity\News $news)
-    {
-        $this->news[] = $news;
-
-        return $this;
-    }
-
-    /**
-     * Remove news
-     *
-     * @param \Nononsense\NewsBundle\Entity\News $news
-     */
-    public function removeNews(\Nononsense\NewsBundle\Entity\News $news)
-    {
-        $this->news->removeElement($news);
-    }
-
-    /**
-     * Get news
-     *
-     * @return \Doctrine\Common\Collections\Collection 
-     */
-    public function getNews()
-    {
-        return $this->news;
-    }
-
-    /**
      * Add instanciasworkflowscolaborated
      *
      * @param \Nononsense\UserBundle\Entity\Roles $instanciasworkflowscolaborated
@@ -1013,207 +970,6 @@ class Users implements AdvancedUserInterface, \Serializable
     {
         return $this->area;
     }
-
-    /**
-     * Add InstanciasWorkflowValidatedN1
-     *
-     * @param \Nononsense\HomeBundle\Entity\InstanciasWorkflows $instanciasWorkflowValidatedN1
-     * @return Users
-     */
-    public function addInstanciasWorkflowValidatedN1(\Nononsense\HomeBundle\Entity\InstanciasWorkflows $instanciasWorkflowValidatedN1)
-    {
-        $this->InstanciasWorkflowValidatedN1[] = $instanciasWorkflowValidatedN1;
-
-        return $this;
-    }
-
-    /**
-     * Remove InstanciasWorkflowValidatedN1
-     *
-     * @param \Nononsense\HomeBundle\Entity\InstanciasWorkflows $instanciasWorkflowValidatedN1
-     */
-    public function removeInstanciasWorkflowValidatedN1(\Nononsense\HomeBundle\Entity\InstanciasWorkflows $instanciasWorkflowValidatedN1)
-    {
-        $this->InstanciasWorkflowValidatedN1->removeElement($instanciasWorkflowValidatedN1);
-    }
-
-    /**
-     * Get InstanciasWorkflowValidatedN1
-     *
-     * @return \Doctrine\Common\Collections\Collection 
-     */
-    public function getInstanciasWorkflowValidatedN1()
-    {
-        return $this->InstanciasWorkflowValidatedN1;
-    }
-
-    /**
-     * Add InstanciasWorkflowValidatedN2
-     *
-     * @param \Nononsense\HomeBundle\Entity\InstanciasWorkflows $instanciasWorkflowValidatedN2
-     * @return Users
-     */
-    public function addInstanciasWorkflowValidatedN2(\Nononsense\HomeBundle\Entity\InstanciasWorkflows $instanciasWorkflowValidatedN2)
-    {
-        $this->InstanciasWorkflowValidatedN2[] = $instanciasWorkflowValidatedN2;
-
-        return $this;
-    }
-
-    /**
-     * Remove InstanciasWorkflowValidatedN2
-     *
-     * @param \Nononsense\HomeBundle\Entity\InstanciasWorkflows $instanciasWorkflowValidatedN2
-     */
-    public function removeInstanciasWorkflowValidatedN2(\Nononsense\HomeBundle\Entity\InstanciasWorkflows $instanciasWorkflowValidatedN2)
-    {
-        $this->InstanciasWorkflowValidatedN2->removeElement($instanciasWorkflowValidatedN2);
-    }
-
-    /**
-     * Get InstanciasWorkflowValidatedN2
-     *
-     * @return \Doctrine\Common\Collections\Collection 
-     */
-    public function getInstanciasWorkflowValidatedN2()
-    {
-        return $this->InstanciasWorkflowValidatedN2;
-    }
-
-    /**
-     * Add sections
-     *
-     * @param \Nononsense\UserBundle\Entity\Userssection $sections
-     * @return Users
-     */
-    public function addSection(\Nononsense\UserBundle\Entity\UsersSection $sections)
-    {
-        $this->sections[] = $sections;
-
-        return $this;
-    }
-
-    /**
-     * Remove sections
-     *
-     * @param \Nononsense\UserBundle\Entity\Userssection $sections
-     */
-    public function removeSection(\Nononsense\UserBundle\Entity\UsersSection $sections)
-    {
-        $this->sections->removeElement($sections);
-    }
-
-    /**
-     * Get sections
-     *
-     * @return \Doctrine\Common\Collections\Collection 
-     */
-    public function getSections()
-    {
-        return $this->sections;
-    }
-
-
-    /**
-     * Add InstanciasWorkflowValidatedLogistica1
-     *
-     * @param \Nononsense\HomeBundle\Entity\InstanciasWorkflows $instanciasWorkflowValidatedLogistica1
-     * @return Users
-     */
-    public function addInstanciasWorkflowValidatedLogistica1(\Nononsense\HomeBundle\Entity\InstanciasWorkflows $instanciasWorkflowValidatedLogistica1)
-    {
-        $this->InstanciasWorkflowValidatedLogistica1[] = $instanciasWorkflowValidatedLogistica1;
-
-        return $this;
-    }
-
-    /**
-     * Remove InstanciasWorkflowValidatedLogistica1
-     *
-     * @param \Nononsense\HomeBundle\Entity\InstanciasWorkflows $instanciasWorkflowValidatedLogistica1
-     */
-    public function removeInstanciasWorkflowValidatedLogistica1(\Nononsense\HomeBundle\Entity\InstanciasWorkflows $instanciasWorkflowValidatedLogistica1)
-    {
-        $this->InstanciasWorkflowValidatedLogistica1->removeElement($instanciasWorkflowValidatedLogistica1);
-    }
-
-    /**
-     * Get InstanciasWorkflowValidatedLogistica1
-     *
-     * @return \Doctrine\Common\Collections\Collection 
-     */
-    public function getInstanciasWorkflowValidatedLogistica1()
-    {
-        return $this->InstanciasWorkflowValidatedLogistica1;
-    }
-
-    /**
-     * Add InstanciasWorkflowColaboratedLogistica
-     *
-     * @param \Nononsense\HomeBundle\Entity\InstanciasWorkflows $instanciasWorkflowColaboratedLogistica
-     * @return Users
-     */
-    public function addInstanciasWorkflowColaboratedLogistica(\Nononsense\HomeBundle\Entity\InstanciasWorkflows $instanciasWorkflowColaboratedLogistica)
-    {
-        $this->InstanciasWorkflowColaboratedLogistica[] = $instanciasWorkflowColaboratedLogistica;
-
-        return $this;
-    }
-
-    /**
-     * Remove InstanciasWorkflowColaboratedLogistica
-     *
-     * @param \Nononsense\HomeBundle\Entity\InstanciasWorkflows $instanciasWorkflowColaboratedLogistica
-     */
-    public function removeInstanciasWorkflowColaboratedLogistica(\Nononsense\HomeBundle\Entity\InstanciasWorkflows $instanciasWorkflowColaboratedLogistica)
-    {
-        $this->InstanciasWorkflowColaboratedLogistica->removeElement($instanciasWorkflowColaboratedLogistica);
-    }
-
-    /**
-     * Get InstanciasWorkflowColaboratedLogistica
-     *
-     * @return \Doctrine\Common\Collections\Collection 
-     */
-    public function getInstanciasWorkflowColaboratedLogistica()
-    {
-        return $this->InstanciasWorkflowColaboratedLogistica;
-    }
-
-    /**
-     * Add InstanciasWorkflowValidatedLogistica
-     *
-     * @param \Nononsense\HomeBundle\Entity\InstanciasWorkflows $instanciasWorkflowValidatedLogistica
-     * @return Users
-     */
-    public function addInstanciasWorkflowValidatedLogistica(\Nononsense\HomeBundle\Entity\InstanciasWorkflows $instanciasWorkflowValidatedLogistica)
-    {
-        $this->InstanciasWorkflowValidatedLogistica[] = $instanciasWorkflowValidatedLogistica;
-
-        return $this;
-    }
-
-    /**
-     * Remove InstanciasWorkflowValidatedLogistica
-     *
-     * @param \Nononsense\HomeBundle\Entity\InstanciasWorkflows $instanciasWorkflowValidatedLogistica
-     */
-    public function removeInstanciasWorkflowValidatedLogistica(\Nononsense\HomeBundle\Entity\InstanciasWorkflows $instanciasWorkflowValidatedLogistica)
-    {
-        $this->InstanciasWorkflowValidatedLogistica->removeElement($instanciasWorkflowValidatedLogistica);
-    }
-
-    /**
-     * Get InstanciasWorkflowValidatedLogistica
-     *
-     * @return \Doctrine\Common\Collections\Collection 
-     */
-    public function getInstanciasWorkflowValidatedLogistica()
-    {
-        return $this->InstanciasWorkflowValidatedLogistica;
-    }
-
-
 
     /**
      * Set deleted

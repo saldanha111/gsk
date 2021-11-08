@@ -47,6 +47,12 @@ class CVStates
     protected $cvActions;
 
     /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\CVStates")
+     * @ORM\JoinColumn(name="jump_state_id", referencedColumnName="id", nullable=true)
+     */
+    protected $jumpSate;
+
+    /**
      * @var boolean 
      *
      * @ORM\Column(name="final", type="boolean",  options={"default" = false}, nullable=true)
@@ -418,5 +424,28 @@ class CVStates
     public function getNameAlternativeReconc()
     {
         return $this->nameAlternativeReconc;
+    }
+
+    /**
+     * Set jumpSate
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVStates $jumpSate
+     * @return CVStates
+     */
+    public function setJumpSate(\Nononsense\HomeBundle\Entity\CVStates $jumpSate = null)
+    {
+        $this->jumpSate = $jumpSate;
+
+        return $this;
+    }
+
+    /**
+     * Get jumpSate
+     *
+     * @return \Nononsense\HomeBundle\Entity\CVStates 
+     */
+    public function getJumpSate()
+    {
+        return $this->jumpSate;
     }
 }
