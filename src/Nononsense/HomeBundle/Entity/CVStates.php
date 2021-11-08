@@ -50,7 +50,7 @@ class CVStates
      * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\CVStates")
      * @ORM\JoinColumn(name="jump_state_id", referencedColumnName="id", nullable=true)
      */
-    protected $jumpSate;
+    protected $jumpState;
 
     /**
      * @var boolean 
@@ -427,25 +427,25 @@ class CVStates
     }
 
     /**
-     * Set jumpSate
+     * Set jumpState
      *
-     * @param \Nononsense\HomeBundle\Entity\CVStates $jumpSate
+     * @param \Nononsense\HomeBundle\Entity\CVStates $jumpState
      * @return CVStates
      */
-    public function setJumpSate(\Nononsense\HomeBundle\Entity\CVStates $jumpSate = null)
+    public function setJumpState(\Nononsense\HomeBundle\Entity\CVStates $jumpState = null)
     {
-        $this->jumpSate = $jumpSate;
+        $this->jumpState = $jumpState;
 
         return $this;
     }
 
     /**
-     * Get jumpSate
+     * Get jumpState
      *
      * @return \Nononsense\HomeBundle\Entity\CVStates 
      */
-    public function getJumpSate()
+    public function getJumpState()
     {
-        return $this->jumpSate;
+        return $this->jumpState;
     }
 }
