@@ -1728,7 +1728,7 @@ class ProductsController extends Controller
                 ->setCellValue('C' . $i, $item->getProductInput()->getProduct()->getPartNumber())
                 ->setCellValue('D' . $i, $item->getProductInput()->getProduct()->getName())
                 ->setCellValue('E' . $i, $item->getAmount())
-                ->setCellValue('F' . $i, $item->getDate()->format('Y-m-d H:i:s'))
+                ->setCellValue('F' . $i, $item->getDate()->format('d/m/Y H:i:s'))
                 ->setCellValue('G' . $i, $item->getUser()->getName());
 
             $i++;
