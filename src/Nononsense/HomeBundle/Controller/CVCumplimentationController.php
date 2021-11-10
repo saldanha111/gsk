@@ -767,8 +767,8 @@ class CVCumplimentationController extends Controller
                     ->setCellValue('B'.$i, $item["name"])
                     ->setCellValue('C'.$i, $item["area"])
                     ->setCellValue('D'.$i, $item["creator"])
-                    ->setCellValue('E'.$i, ($item["created"]) ? $item["created"] : '')
-                    ->setCellValue('F'.$i, ($item["modified"]) ? $item["modified"] : '')
+                    ->setCellValue('E'.$i, ($item["created"]) ? $item["created"]->format('d/m/Y H:i:s') : '')
+                    ->setCellValue('F'.$i, ($item["modified"]) ? $item["modified"]->format('d/m/Y H:i:s') : '')
                     ->setCellValue('G'.$i, $item["state"]);
                 }
 
