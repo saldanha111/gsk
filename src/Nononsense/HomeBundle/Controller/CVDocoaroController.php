@@ -248,6 +248,14 @@ class CVDocoaroController extends Controller
             $json_content["data"]=array_merge($json_content2["data"],$json_content["data"]);
         }
 
+        if (array_key_exists("gsk_manual_fill",$json_content["data"])){
+            unset($json_content["data"]["gsk_manual_fill"]);
+        }
+
+        if (array_key_exists("gsk_comment",$json_content["data"])){
+            unset($json_content["data"]["gsk_comment"]);
+        }
+
         if($request->get("mode")){
             switch($request->get("mode")){
                 case "c":   $json_content["configuration"]["prefix_view"]="u_;in_;dxo_";
@@ -597,7 +605,15 @@ class CVDocoaroController extends Controller
                             else{
                                 $field=$change->getField();
                             }
-                            $fullText .= "<tr><td></td><td>Linea ".($change->getIndex()+1)."</td><td>".$field."</td>";
+
+                            if(is_numeric($change->getIndex())){
+                                $index=$change->getIndex();
+                            }
+                            else{
+                                $index=-1;
+                            }
+
+                            $fullText .= "<tr><td></td><td>Linea ".($index+1)."</td><td>".$field."</td>";
                             if(!is_null($change->getLineOptions())){
                                 $fullText .= "<td></td><td>".$change->getValue()."</td><td>Eliminado</td>";
                             }
