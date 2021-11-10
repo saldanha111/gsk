@@ -706,7 +706,8 @@ class CVCumplimentationController extends Controller
         $array_item["suser"]["id"]=$user->getId();
         $array_item["filters"]=$filters;
         $array_item["items"] = $this->getDoctrine()->getRepository(CVRecords::class)->search("list",$filters);
-        $array_item["states"]=$this->getDoctrine()->getRepository(CVStates::class)->findAll();
+        $array_item["states"]= $this->getDoctrine()->getRepository(CVStates::class)->findAll();
+        $array_item["areas"] = $this->getDoctrine()->getRepository(Areas::class)->findBy(array(),array("name" => "ASC"));
         
         $array_item["count"] = $this->getDoctrine()->getRepository(CVRecords::class)->search("count",$filters2);
 
@@ -738,14 +739,23 @@ class CVCumplimentationController extends Controller
                 $phpExcelObject->setActiveSheetIndex(0)
                  ->setCellValue('A1', 'Nº')
                  ->setCellValue('B1', 'Nombre')
-                 ->setCellValue('C1', 'Iniciado por')
-                 ->setCellValue('D1', 'Fecha inicio')
-                 ->setCellValue('E1', 'Ultima modificación')
-                 ->setCellValue('F1', 'Estado');
+                 ->setCellValue('C1', 'Nombre')
+                 ->setCellValue('D1', 'Iniciado por')
+                 ->setCellValue('E1', 'Fecha inicio')
+                 ->setCellValue('F1', 'Ultima modificación')
+                 ->setCellValue('G1', 'Estado');
             }
 
             if($request->get("export_pdf")){
-                $html='<html><body style="font-size:8px;width:100%"><table autosize="1" style="overflow:wrap;width:100%"><tr style="font-size:8px;width:100%"><th style="font-size:8px;width:6%">Nº</th><th style="font-size:8px;width:49%">Nombre</th><th style="font-size:8px;width:10%">Iniciado por</th><th style="font-size:8px;width:10%">F. inicio</th><th style="font-size:8px;width:10%">F. modific.</th><th style="font-size:8px;width:10%">Estado</th></tr>';
+                $html='<html><body style="font-size:8px;width:100%"><table autosize="1" style="overflow:wrap;width:100%"><tr style="font-size:8px;width:100%">
+                        <th style="font-size:8px;width:6%">Nº</th>
+                        <th style="font-size:8px;width:45%">Nombre</th>
+                        <th style="font-size:8px;width:9%">Area</th>
+                        <th style="font-size:8px;width:10%">Iniciado por</th>
+                        <th style="font-size:8px;width:10%">F. inicio</th>
+                        <th style="font-size:8px;width:10%">F. modific.</th>
+                        <th style="font-size:8px;width:10%">Estado</th>
+                    </tr>';
             }
 
             $i=2;
@@ -755,14 +765,23 @@ class CVCumplimentationController extends Controller
                     $phpExcelObject->getActiveSheet()
                     ->setCellValue('A'.$i, $item["id"])
                     ->setCellValue('B'.$i, $item["name"])
-                    ->setCellValue('C'.$i, $item["creator"])
-                    ->setCellValue('D'.$i, ($item["created"]) ? $item["created"] : '')
-                    ->setCellValue('E'.$i, ($item["modified"]) ? $item["modified"] : '')
-                    ->setCellValue('F'.$i, $item["state"]);
+                    ->setCellValue('C'.$i, $item["area"])
+                    ->setCellValue('D'.$i, $item["creator"])
+                    ->setCellValue('E'.$i, ($item["created"]) ? $item["created"] : '')
+                    ->setCellValue('F'.$i, ($item["modified"]) ? $item["modified"] : '')
+                    ->setCellValue('G'.$i, $item["state"]);
                 }
 
                 if($request->get("export_pdf")){
-                    $html.='<tr style="font-size:8px"><td>'.$item["id"].'</td><td>'.$item["name"].'</td><td>'.$item["creator"].'</td><td>'.(($item["created"]) ? $item["created"]->format('Y-m-d H:i:s') : '').'</td><td>'.(($item["modified"]) ? $item["modified"]->format('Y-m-d H:i:s') : '').'</td><td>'.$item["state"].'</td></tr>';
+                    $html.='<tr style="font-size:8px">
+                        <td>'.$item["id"].'</td>
+                        <td>'.$item["name"].'</td>
+                        <td>'.$item["area"].'</td>
+                        <td>'.$item["creator"].'</td>
+                        <td>'.(($item["created"]) ? $item["created"]->format('d/m/Y H:i:s') : '').'</td>
+                        <td>'.(($item["modified"]) ? $item["modified"]->format('d/m/Y H:i:s') : '').'</td>
+                        <td>'.$item["state"].'</td>
+                    </tr>';
                 }
 
                 $i++;

@@ -83,6 +83,16 @@
                                   </select>
                             </div>
 
+                            <label class="col-sm-1 control-label">Área</label>
+                            <div class="col-sm-1 item_filter">
+                                <select class="form-control" name="area" style="width: 100%;">
+                                    <option value=""></option>
+                                    {% for area in areas %}
+                                        <option value="{{area.id}}" {{filters.area is defined and filters.area==area.id ? 'selected="selected"'}}>{{area.name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
                             <div class="col-sm-1">
                               <div class="checkbox">
                                 <label>
@@ -121,6 +131,7 @@
                             <th>Nº</th>
                             <th></th>
                             <th>Plantilla</th>
+                            <th>Area</th>
                             <th>Iniciado por</th>
                             <th>Fecha inicio</th>
                             <th>Ultima modificación</th>
@@ -145,6 +156,7 @@
                                     {% endif %}
                                 </td>
                                 <td>{{item.name}}</td>
+                                <td>{{item.area}}</td>
                                 <td>{{item.creator}}</td>
                                 <td>{{ item.created is defined ? item.created|date("d/m/Y H:i:s") : '' }}</td>
                                 <td>{{ item.modified is defined ? item.modified|date("d/m/Y H:i:s") : '' }}</td>
@@ -218,9 +230,9 @@
                     
                     {% if pagination is defined and pagination.needed %}
                         {% include '::pagination2.html.twig' %}
-                        <a href="{{pagination.url}}{{pagination.character}}export_excel=1" target="_blank" class="btn btn-primary pull-right"><i class="fa fa-file-excel-o" aria-hidden="true"></i> Excel</a> 
-                        <a href="{{pagination.url}}{{pagination.character}}export_pdf=1" target="_blank" class="btn btn-primary pull-right" style="margin-right:1px"><i class="fa fa-file-pdf-o" aria-hidden="true"></i> PDF</a> 
                     {% endif %}
+                    <a href="{{pagination.url}}{{pagination.character}}export_excel=1" target="_blank" class="btn btn-primary pull-right"><i class="fa fa-file-excel-o" aria-hidden="true"></i> Excel</a> 
+                    <a href="{{pagination.url}}{{pagination.character}}export_pdf=1" target="_blank" class="btn btn-primary pull-right" style="margin-right:1px"><i class="fa fa-file-pdf-o" aria-hidden="true"></i> PDF</a> 
                     
                     {% if count==0 %}
                         <br><b>No se han encontrado datos disponibles</b>

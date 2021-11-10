@@ -179,6 +179,7 @@ class Utilities{
         $pdf->SetTitle(('Registros GSK'));
         $pdf->SetSubject('Registros GSK');
         $pdf->setFontSubsetting(true);
+        $pdf->SetPrintHeader(true);
         $pdf->SetFont('helvetica', '', 9, '', true);
         $pdf->AddPage('L', 'A4');
         $filename = 'list_records';

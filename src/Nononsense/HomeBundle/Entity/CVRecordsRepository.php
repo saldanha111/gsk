@@ -262,6 +262,11 @@ class CVRecordsRepository extends EntityRepository
                 $list->andWhere($require_action.'=1');
             }
 
+            if(isset($filters["area"])){
+                $list->andWhere('ar.id=:area');
+                $list->setParameter('area', $filters["area"]);
+            }
+
 
             if(isset($filters["from"])){
                 $list->andWhere('i.created>=:from');
