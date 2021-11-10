@@ -105,13 +105,13 @@ class CVReconciliationController extends Controller
                     ->setCellValue('B'.$i, $item["area"])
                     ->setCellValue('C'.$i, $item["name"])
                     ->setCellValue('D'.$i, $item["creator"])
-                    ->setCellValue('E'.$i, ($item["created"]) ? $item["created"] : '')
+                    ->setCellValue('E'.$i, ($item["created"]) ? $item["created"]->format('d/m/Y H:i:s') : '')
                     ->setCellValue('F'.$i, $item["state"])
-                    ->setCellValue('G'.$i, ($item["modified"]) ? $item["modified"] : '');
+                    ->setCellValue('G'.$i, ($item["modified"]) ? $item["modified"]->format('d/m/Y H:i:s') : '');
                 }
 
                 if($request->get("export_pdf")){
-                    $html.='<tr style="font-size:8px"><td>'.$item["id"].'</td><td>'.$item["area"].'</td><td>'.$item["name"].'</td><td>'.$item["creator"].'</td><td>'.(($item["created"]) ? $item["created"]->format('Y-m-d H:i:s') : '').'</td><td>'.$item["state"].'</td><td>'.(($item["modified"]) ? $item["modified"]->format('Y-m-d H:i:s') : '').'</td></tr>';
+                    $html.='<tr style="font-size:8px"><td>'.$item["id"].'</td><td>'.$item["area"].'</td><td>'.$item["name"].'</td><td>'.$item["creator"].'</td><td>'.(($item["created"]) ? $item["created"]->format('d/m/Y H:i:s') : '').'</td><td>'.$item["state"].'</td><td>'.(($item["modified"]) ? $item["modified"]->format('d/m/Y H:i:s') : '').'</td></tr>';
                 }
 
                 $i++;

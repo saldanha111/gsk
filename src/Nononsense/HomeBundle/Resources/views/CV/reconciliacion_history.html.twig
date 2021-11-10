@@ -41,9 +41,9 @@
                             <td>{{item.area}}</td>
                             <td>{{item.name}}</td>
                             <td>{{item.creator}}</td>
-                            <td>{{item.created | date('d-m-Y H:i:s') }}</td>
+                            <td>{{item.created | date('d/m/Y H:i:s') }}</td>
                             <td>{{item.state}}</td>
-                            <td>{{item.modified | date('d-m-Y H:i:s') }}</td>
+                            <td>{{item.modified | date('d/m/Y H:i:s') }}</td>
                             <td class="noprint"><a class="btn btn-xs btn-primary"href="{{path('nononsense_cv_docoaro_new', {'id': item.id})}}?readonly=1" target="_blank">{{'Ver'|trans}}</a></td>
                             <td class="noprint">
                                 {# {% if plantilla.txhash is defined and plantilla.txhash !="" %}
