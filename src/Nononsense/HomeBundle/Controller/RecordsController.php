@@ -230,12 +230,12 @@ class RecordsController extends Controller
                     ->setCellValue('C'.$i, $item["usuario"])
                     ->setCellValue('D'.$i, $next_signer)
                     ->setCellValue('E'.$i, $item["nameType"])
-                    ->setCellValue('F'.$i, ($item["created"]) ? $item["created"] : '')
+                    ->setCellValue('F'.$i, ($item["created"]) ? $item["created"]->format('d/m/Y H:i:s') : '')
                     ->setCellValue('G'.$i, $status);
                 }
 
                 if($request->get("export_pdf")){
-                    $html.='<tr style="font-size:8px"><td>'.$item["id"].'</td><td>'.$item["name"].'</td><td>'.$item["usuario"].'</td><td>'.$next_signer.'</td><td>'.$item["nameType"].'</td><td>'.(($item["created"]) ? $item["created"]->format('Y-m-d H:i:s') : '').'</td><td>'.$status.'</td></tr>';
+                    $html.='<tr style="font-size:8px"><td>'.$item["id"].'</td><td>'.$item["name"].'</td><td>'.$item["usuario"].'</td><td>'.$next_signer.'</td><td>'.$item["nameType"].'</td><td>'.(($item["created"]) ? $item["created"]->format('d/m/Y H:i:s') : '').'</td><td>'.$status.'</td></tr>';
                 }
 
                 $i++;
