@@ -252,6 +252,9 @@ class CVDocoaroController extends Controller
             switch($request->get("mode")){
                 case "c":   $json_content["configuration"]["prefix_view"]="u_;in_;dxo_";
                             $json_content["configuration"]["apply_required"]=1;
+                            if($signature->getAction()->getId()==15 && !$signature->getSigned()){
+                                $json_content["configuration"]["cancel_button"]=0;
+                            }
                     break;
                 case "v":   $json_content["configuration"]["prefix_view"]="";
                             $json_content["configuration"]["prefix_edit"]="verchk_;";

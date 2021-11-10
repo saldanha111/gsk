@@ -261,7 +261,7 @@ class CVCumplimentationController extends Controller
             //Miramos si se tiene que reconciliar
             $users_actions=$this->get('utilities')->get_users_actions($user,1);
             $reconciliation = $this->getDoctrine()->getRepository(CVRecords::class)->search("list",array("plantilla_id" => $item->getId(),"code_unique" => $array_unique, "limit_from" => 0,"limit_many" => 1,"users" => $users_actions));
-            if($reconciliation[0]){
+            if($reconciliation && $reconciliation[0]){
                 $recon=$em->getRepository(CVRecords::class)->findOneBy(array("id" => $reconciliation[0]["id"]));
                 $record->setReconciliation($recon);
                 $record->setJson($recon->getJson());
