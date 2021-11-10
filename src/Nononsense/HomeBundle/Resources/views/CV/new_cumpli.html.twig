@@ -70,11 +70,12 @@
                     {% endif %}
                 </div>
                 <div class="col-lg-5" id="box_workflow">
+                    {% set last_type = null  %}
                     {% if secondWf is defined and secondWf is not empty %}
                         {% set count = 0 %}
                         {% for wf in secondWf %}
                             {% for number in 1..wf.signaturesNumber %}
-                                {% if last_type is defined and wf.tmCumplimentation.tmType != last_type %}
+                                {% if last_type is defined and last_type is not empty and wf.tmCumplimentation.tmType != last_type %}
                                     <div>
                                         <button type="button" class="btn btn-default pull-right add_line1" data-type="test"><i class="fa fa-plus"></i> Añadir</button>
                                     </div><br><br>
@@ -105,16 +106,12 @@
                                                     <input type="hidden" name="relationals[]" value="{{app.user.id}}" required="required"> 
                                                 </div>
                                             </div>
-                                            <div>**0**</div>
                                         {% endif %}
                                     </div>
                                 </div>
-                                <div>**1**</div>
                                 {% set count = count + 1 %}
                             {% endfor %}
-                            <div>**2**</div>
                             {% set last_type = wf.tmCumplimentation.tmType  %}
-                            <div>**3**</div>
                         {% endfor %}
                     {% endif %}
                     <div>

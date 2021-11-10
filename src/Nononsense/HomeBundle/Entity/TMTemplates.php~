@@ -309,6 +309,14 @@ class TMTemplates
      */
     protected $minutesVerification;
 
+    /**
+     * @var boolean $isReactive
+     *
+     * @ORM\Column(name="is_reactive", type="boolean",  options={"default" = false}, nullable=true)
+     * @Groups({"detail_document"})
+     */
+    protected $isReactive;
+
 
 
 
