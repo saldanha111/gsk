@@ -248,8 +248,8 @@ class CVDocoaroController extends Controller
             $json_content["data"]=array_merge($json_content2["data"],$json_content["data"]);
         }
 
-        if (array_key_exists("gsk_manual_fill",$json_content["data"])){
-            unset($json_content["data"]["gsk_manual_fill"]);
+        if (array_key_exists("gsk_is_manual_fill",$json_content["data"])){
+            unset($json_content["data"]["gsk_is_manual_fill"]);
         }
 
         if (array_key_exists("gsk_comment",$json_content["data"])){
@@ -539,7 +539,7 @@ class CVDocoaroController extends Controller
                    $signature->setJustification(TRUE); 
                 }
 
-                if(array_key_exists("gsk_manual_fill",$params["data"]) && $params["data"]["gsk_manual_fill"]){
+                if(array_key_exists("gsk_is_manual_fill",$params["data"]) && $params["data"]["gsk_is_manual_fill"]){
                    $signature->setManualFill(TRUE); 
                 }
 

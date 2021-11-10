@@ -72,7 +72,7 @@ function checkCommentCompulsory(element){
 }
 
 function is_manual_fill(){
-	gsk_comment=1;
+	$("#form_fill").append('<input type="hidden" name="gsk_is_manual_fill" value="1" />');
 	swal({
         title: "Error en la carga de datos",
         text: "Uno de los campos diseñado para ser cumplimentado automáticamente requiere de su imputación manual y por tanto de justificación",
