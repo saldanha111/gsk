@@ -367,7 +367,7 @@ class ProductsController extends Controller
                 $minStockEdited = $this->editMinStock($request->get('stockMinimum'), $product);
                 if($minStockEdited){
                     $now = new DateTime();
-                    $signature = 'Modificación de stock mínimo registrado con contraseña de usuario ' . $this->getUser()->getName() . ' el día ' . $now->format('d-m-Y H:i:s');
+                    $signature = 'Modificación de stock mínimo registrado con contraseña de usuario ' . $this->getUser()->getName() . ' el día ' . $now->format('d/m/Y H:i:s');
                     $this->saveSignature(
                         $product,
                         $oldMinStock,
@@ -382,7 +382,7 @@ class ProductsController extends Controller
                     $stockEdited = $this->editStockMaterial((int) $request->get('stock'), $product, $request->get('observations'), false);
                     if($stockEdited){
                         $now = new DateTime();
-                        $signature = 'Modificación de stock registrado con contraseña de usuario ' . $this->getUser()->getName() . ' el día ' . $now->format('d-m-Y H:i:s');
+                        $signature = 'Modificación de stock registrado con contraseña de usuario ' . $this->getUser()->getName() . ' el día ' . $now->format('d/m/Y H:i:s');
                         $this->saveSignature(
                             $product,
                             $oldStock,
@@ -403,7 +403,7 @@ class ProductsController extends Controller
                     $stockEdited = $this->editStockReactivo([$request->get('output')], $product);
                     if($stockEdited){
                         $now = new DateTime();
-                        $signature = 'Modificación de stock registrado con contraseña de usuario ' . $this->getUser()->getName() . ' el día ' . $now->format('d-m-Y H:i:s');
+                        $signature = 'Modificación de stock registrado con contraseña de usuario ' . $this->getUser()->getName() . ' el día ' . $now->format('d/m/Y H:i:s');
                         $this->saveSignature(
                             $product,
                             $oldStock,
@@ -425,7 +425,7 @@ class ProductsController extends Controller
                 $activeEdited = $oldActive != $product->getActive();
                 if($activeEdited){
                     $now = new DateTime();
-                    $signature = 'Modificación del estado registrado con contraseña de usuario ' . $this->getUser()->getName() . ' el día ' . $now->format('d-m-Y H:i:s');
+                    $signature = 'Modificación del estado registrado con contraseña de usuario ' . $this->getUser()->getName() . ' el día ' . $now->format('d/m/Y H:i:s');
                     $this->saveSignature(
                         $product,
                         (int) $oldActive,
@@ -1674,7 +1674,7 @@ class ProductsController extends Controller
             $provider = $item->getProduct()->getProvider();
             $presentation = $item->getProduct()->getPresentation();
             $amount = $item->getAmount();
-            $receptionDate = $item->getReceptionDate()->format('Y-m-d H:i:s');
+            $receptionDate = $item->getReceptionDate()->format('d/m/Y H:i:s');
             $observations = $item->getObservations();
             $user = $item->getUser()->getName();
             $html .= "
