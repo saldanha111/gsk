@@ -37,8 +37,8 @@ $( document ).ready(function() {
 		}
 	});
 
+	manual_fill=0;
 	$('#form_fill').find('input[readonly="readonly"][required="required"]:visible, select[readonly="readonly"][required="required"]:visible, textarea[readonly="readonly"][required="required"]:visible').each(function() {
-		manual_fill=0;
 		if(!$(this).val()){
 			$(this).attr("readonly", false); 
 			manual_fill=1;
