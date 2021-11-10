@@ -45,7 +45,7 @@
 
         <form class="form-horizontal" id="form_item" action="{{path('nononsense_cv_record_sign', {'id': item.id}) }}" method="POST"  enctype="multipart/form-data">
 
-            {% if signature.justification or signature.action.justification or (signature.record.reconciliation is not empty and signature.record.cvSignatures|length==1) || signature.manualFill %}
+            {% if signature.justification or signature.action.justification or (signature.record.reconciliation is not empty and signature.record.cvSignatures|length==1) or signature.manualFill %}
                 <div class="row">
                     <div class="col-lg-5 col-lg-offset-1">
                         {% if signature.justification %}
