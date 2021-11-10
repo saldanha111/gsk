@@ -507,9 +507,15 @@ class CVCumplimentationController extends Controller
             }
 
             if($signature->getAction()->getFinishWorkflow() || $finish_workflow){
-                if($record->getState()!=$signature->getAction()->getNextState()){
-                    //Capturamos el estado correspondiente a la última acción que se firma
-                    $next_state=$signature->getAction()->getNextState();
+                //Capturamos el estado correspondiente a la última acción que se firma
+                $next_state=$signature->getAction()->getNextState();
+
+                //Caso excepcional, miramos si es un inicio de cumplimentación, si finaliza su cumplimentación y si tiene que saltar el workflow
+                if($signature->getAction()->getId()==15 && $signature->getFinish()){
+                    $next_state=$this->getDoctrine()->getRepository(CVStates::class)->findOneBy(array('id' => 4));
+                }
+                if($record->getState()!=$next_state){
+                    
 
                     //Si hay una firma de devolución en un workflow activo, tiene prioridad esta a la hora de setear el próximo estado
                     $action=$this->getDoctrine()->getRepository(CVActions::class)->findOneBy(array('id' => 6));
