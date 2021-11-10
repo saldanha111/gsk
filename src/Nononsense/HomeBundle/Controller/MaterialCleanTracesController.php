@@ -213,7 +213,7 @@ class MaterialCleanTracesController extends Controller
 
             if($request->get("export_pdf")){
                 $html.='</table></body></html>';
-                $this->returnPDFResponseFromHTML($html);
+                $this->get('utilities')->returnPDFResponseFromHTML($html);
             }
         }
     }
@@ -528,7 +528,7 @@ class MaterialCleanTracesController extends Controller
 
         return $this->render('NononsenseHomeBundle:MaterialClean:trace_view.html.twig',$result);
     }
-    private function returnPDFResponseFromHTML($html){
+    /*private function returnPDFResponseFromHTML($html){
         //set_time_limit(30); uncomment this line according to your needs
         // If you are not in a controller, retrieve of some way the service container and then retrieve it
         //$pdf = $this->container->get("white_october.tcpdf")->create('vertical', PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
@@ -547,5 +547,5 @@ class MaterialCleanTracesController extends Controller
 
         $pdf->writeHTMLCell($w = 0, $h = 0, $x = '', $y = '', $html, $border = 0, $ln = 1, $fill = 0, $reseth = true, $align = '', $autopadding = true);
         $pdf->Output($filename.".pdf",'I'); // This will output the PDF as a response directly
-    }
+    }*/
 }
