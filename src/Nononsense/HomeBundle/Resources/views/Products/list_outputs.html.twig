@@ -81,7 +81,7 @@
                                 <td>{{ item.productInput.product.partNumber }}</td>
                                 <td>{{ item.productInput.product.name }}</td>
                                 <td>{{ item.amount|number_format }}</td>
-                                <td>{{ item.date|date('Y-m-d') }}</td>
+                                <td>{{ item.date|date('d/m/Y') }}</td>
                                 <td>{{ item.user.name }}</td>
 {#                                <td>#}
 {#                                    <a href="{{path('nononsense_products_outputs_view_qr', {'id': item.id}) }}" target="_blank" class="btn btn-xs"><i class="fa fa-qrcode" aria-hidden="true"></i> Ver QR</a>#}

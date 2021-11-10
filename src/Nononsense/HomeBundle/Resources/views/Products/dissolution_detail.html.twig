@@ -89,7 +89,7 @@
                                     <span>{{ item.product.name }}</span></td>
                                 <td>{{ item.product.casNumber }}</td>
                                 <td>{{ item.lotNumber }}</td>
-                                <td>{{ item.destructionDate | date('d-m-Y H:i:s') }}</td>
+                                <td>{{ item.destructionDate | date('d/m/Y H:i:s') }}</td>
                                 <td><a href="#" class="del-line"><i class="fa fa-trash-o" aria-hidden="true"></i> Eliminar</a></td>
                             </tr>
                         {% endfor %}

@@ -90,7 +90,7 @@
                                 <td>{{item.product.provider}}</td>
                                 <td>{{item.product.presentation}}</td>
                                 <td>{{item.amount}}</td>
-                                <td>{{ item.receptionDate | date("d-m-Y H:i:s")  }}</td>
+                                <td>{{ item.receptionDate | date("d/m/Y H:i:s")  }}</td>
                                 <td>
                                     <p data-toggle="tooltip" data-placement="left" title="{{ item.observations|length > 50 ? item.observations : '' }}">
                                         {{ item.observations|length > 50 ? item.observations|slice(0, 50) ~ '...' : item.observations  }}

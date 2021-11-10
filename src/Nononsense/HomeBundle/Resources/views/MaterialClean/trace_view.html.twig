@@ -275,8 +275,8 @@
     <td>{{status[item.status]}}</td>
     <td>{{item.code}}</td>
     <td>{{item.cleanUser.name}}</td>
-    <td>{{item.cleanDate | date("d-m-Y H:i:s")}}</td>
-    <td>{{item.cleanExpiredDate | date("d-m-Y H:i:s")}}</td>
+    <td>{{item.cleanDate | date("d/m/Y H:i:s")}}</td>
+    <td>{{item.cleanExpiredDate | date("d/m/Y H:i:s")}}</td>
     <td>
         {% if item.verificationUser.name is defined %}
             {{ item.verificationUser.name }}
@@ -284,7 +284,7 @@
     </td>
     <td>
         {% if item.verificationDate is defined and item.verificationDate | date("Y") > 0 %}
-            {{ item.verificationDate | date("d-m-Y") }}
+            {{ item.verificationDate | date("d/m/Y") }}
         {% endif %}
     </td>
     <td>
@@ -294,7 +294,7 @@
     </td>
     <td>
         {% if item.reviewDate is defined and item.reviewDate | date("Y") > 0 %}
-            {{item.reviewDate | date("d-m-Y")}}
+            {{item.reviewDate | date("d/m/Y")}}
         {% endif %}
     </td>
     <td>
@@ -304,7 +304,7 @@
     </td>
     <td>
         {% if item.dirtyMaterialDate is defined and item.dirtyMaterialDate | date("Y") > 0 %}
-            {{item.dirtyMaterialDate | date("d-m-Y")}}
+            {{item.dirtyMaterialDate | date("d/m/Y")}}
         {% endif %}
     </td>
 {% endblock %}

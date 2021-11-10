@@ -60,7 +60,7 @@
                                         <td>{{ item.name }}</td>
                                         <td>
                                             {% if item.created is defined and item.created is not null %}
-                                                {{ item.created | date('d-m-Y H:i:s') }}
+                                                {{ item.created | date('d/m/Y H:i:s') }}
                                             {% endif %}
                                         </td>
                                         <td>

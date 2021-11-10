@@ -1462,6 +1462,7 @@ class ProductsController extends Controller
 
         $i = 2;
         foreach ($items as $product) {
+            $destructionFormatted = ($product['destructionDate']) ? (new DateTime($product['destructionDate']))->format('d/m/Y') : '';
             $phpExcelObject->getActiveSheet()
                 ->setCellValue('A' . $i, $product['productType'])
                 ->setCellValue('B' . $i, $product['productName'])
@@ -1471,7 +1472,7 @@ class ProductsController extends Controller
                 ->setCellValue('F' . $i, $product['internalCode'])
                 ->setCellValue('G' . $i, $product['provider'])
                 ->setCellValue('H' . $i, $product['presentation'])
-                ->setCellValue('I' . $i, $product['destructionDate'])
+                ->setCellValue('I' . $i, $destructionFormatted)
                 ->setCellValue('J' . $i, $product['state'])
                 ->setCellValue('K' . $i, $product['stock'])
                 ->setCellValue('L' . $i, $product['minStock'])
@@ -1519,7 +1520,7 @@ class ProductsController extends Controller
                             </tr>';
 
         foreach($items as $item) {
-            $destructionFormatted = ($item['destructionDate']) ? (new DateTime($item['destructionDate']))->format('Y-m-d') : '';
+            $destructionFormatted = ($item['destructionDate']) ? (new DateTime($item['destructionDate']))->format('d/m/Y') : '';
             $productType = $item['productType'];
             $productName = $item['productName'];
             $qrCode = $item['qrCode'];
@@ -1558,28 +1559,7 @@ class ProductsController extends Controller
                     </body>
                 </html>';
 
-        return $this->returnPDFResponseFromHTML($html);
-    }
-
-    private function returnPDFResponseFromHTML($html){
-        //set_time_limit(30); uncomment this line according to your needs
-        // If you are not in a controller, retrieve of some way the service container and then retrieve it
-        //$pdf = $this->container->get("white_october.tcpdf")->create('vertical', PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
-        //if you are in a controlller use :
-        $pdf = $this->get("white_october.tcpdf")->create('horizontal', PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
-        $pdf->SetAuthor('GSK');
-        $pdf->SetTitle(('Registros GSK'));
-        $pdf->SetSubject('Registros GSK');
-        $pdf->setFontSubsetting(true);
-        $pdf->SetFont('helvetica', '', 9, '', true);
-        //$pdf->SetMargins(20,20,40, true);
-        $pdf->AddPage('L', 'A4');
-
-
-        $filename = 'list_records';
-
-        $pdf->writeHTMLCell($w = 0, $h = 0, $x = '', $y = '', $html, $border = 0, $ln = 1, $fill = 0, $reseth = true, $align = '', $autopadding = true);
-        return $pdf->Output($filename.".pdf",'I'); // This will output the PDF as a response directly
+        return $this->get('utilities')->returnPDFResponseFromHTML($html);
     }
 
     /** ProductInpus[] $items
@@ -1627,7 +1607,7 @@ class ProductsController extends Controller
                     ->setCellValue('E' . $i, $item->getProduct()->getProvider())
                     ->setCellValue('F' . $i, $item->getProduct()->getPresentation())
                     ->setCellValue('G' . $i, $item->getAmount())
-                    ->setCellValue('H' . $i, $item->getReceptionDate()->format('Y-m-d H:i:s'))
+                    ->setCellValue('H' . $i, $item->getReceptionDate()->format('d/m/Y H:i:s'))
                     ->setCellValue('I' . $i, $item->getObservations())
                     ->setCellValue('J' . $i, $item->getUser()->getName());
             }else{
@@ -1638,7 +1618,7 @@ class ProductsController extends Controller
                     ->setCellValue('D' . $i, $item->getProduct()->getProvider())
                     ->setCellValue('E' . $i, $item->getProduct()->getPresentation())
                     ->setCellValue('F' . $i, $item->getAmount())
-                    ->setCellValue('G' . $i, $item->getReceptionDate()->format('Y-m-d H:i:s'))
+                    ->setCellValue('G' . $i, $item->getReceptionDate()->format('d/m/Y H:i:s'))
                     ->setCellValue('H' . $i, $item->getObservations())
                     ->setCellValue('I' . $i, $item->getUser()->getName());
             }
