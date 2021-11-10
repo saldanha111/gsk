@@ -515,8 +515,6 @@ class CVCumplimentationController extends Controller
                     $next_state=$this->getDoctrine()->getRepository(CVStates::class)->findOneBy(array('id' => 4));
                 }
                 if($record->getState()!=$next_state){
-                    
-
                     //Si hay una firma de devolución en un workflow activo, tiene prioridad esta a la hora de setear el próximo estado
                     $action=$this->getDoctrine()->getRepository(CVActions::class)->findOneBy(array('id' => 6));
                     $exist_return=$this->getDoctrine()->getRepository(CVSignatures::class)->findBy(array('record' => $record,"signed" => TRUE,"finish" => TRUE,'action' => $action),array("id" => "DESC"));
@@ -526,7 +524,7 @@ class CVCumplimentationController extends Controller
 
                     //Vaciamos próximo workflow activo
                     $find_next=0;
-                    $clean_wfs=$this->getDoctrine()->getRepository(CVWorkflow::class)->findBy(array('record' => $record,"signed" => TRUE));
+                    $clean_wfs=$this->getDoctrine()->getRepository(CVWorkflow::class)->findBy(array('record' => $record));
                     foreach($clean_wfs as $clean_wf){
                         if($clean_wf->getType()->getTmType()==$next_state->getType()){
                             $find_next=1;
