@@ -1700,7 +1700,7 @@ class ProductsController extends Controller
                     </body>
                 </html>';
 
-        return $this->returnPDFResponseFromHTML($html);
+        return $this->get('utilities')->returnPDFResponseFromHTML($html);
     }
 
     /**
