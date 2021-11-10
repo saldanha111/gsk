@@ -12,6 +12,7 @@ use Nononsense\HomeBundle\Entity\CVRecordsHistory;
 use Nononsense\UserBundle\Entity\Users;
 use Nononsense\NotificationsBundle\Entity\Notifications;
 use Nononsense\GroupBundle\Entity\GroupUsers;
+use Nononsense\HomeBundle\Utils\GskPdf;
 
 class Utilities{
     
@@ -174,12 +175,16 @@ class Utilities{
 
 
     public function returnPDFResponseFromHTML($html){
-        $pdf = $this->container->get("white_october.tcpdf")->create('horizontal', PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+        //$pdf = $this->container->get("white_october.tcpdf")->create('horizontal', PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+        $pdf = new GskPdf('horizontal', PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false, false, array());
         $pdf->SetAuthor('GSK');
         $pdf->SetTitle(('Registros GSK'));
         $pdf->SetSubject('Registros GSK');
         $pdf->setFontSubsetting(true);
+
+        $pdf->SetHeaderData(NULL, NULL, date("d/m/Y H:i:s"),NULL, array(0,0,0), array(0,0,0));
         $pdf->SetPrintHeader(true);
+        $pdf->SetPrintFooter(true);
         $pdf->SetFont('helvetica', '', 9, '', true);
         $pdf->AddPage('L', 'A4');
         $filename = 'list_records';
