@@ -110,11 +110,12 @@
                                 </div>
                                 {% set count = count + 1 %}
                             {% endfor %}
+                            asdfasdfasdf
                             {% set last_type = wf.tmCumplimentation.tmType  %}
                         {% endfor %}
                     {% endif %}
                     <div>
-                        <button type="button" class="btn btn-default pull-right add_line{{wf.tmCumplimentation.tmType.id}}" data-type="test"><i class="fa fa-plus"></i> Añadir</button>
+                        <button type="button" class="btn btn-default pull-right add_line{{last_type.id}}" data-type="test"><i class="fa fa-plus"></i> Añadir</button>
                     </div><br>
                 </div>
             </div>
