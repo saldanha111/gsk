@@ -42,7 +42,12 @@ $( document ).ready(function() {
 		if(!$(this).val()){
 			$(this).attr("readonly", false); 
 			manual_fill=1;
-			$("#form_fill").append('<input type="hidden" name="gsk_manual_fill[]" value="'+$(this).attr('name')+'" />');
+			if($("#form_fill").find("[name='gsk_manual_fill\[\]'][value='"+$(this).attr('name')+"']").length){
+				$("#form_fill").find("[name='gsk_manual_fill\[\]'][value='"+$(this).attr('name')+"']").val($(this).attr('name'));
+			}
+			else{
+				$("#form_fill").append('<input type="hidden" name="gsk_manual_fill[]" value="'+$(this).attr('name')+'" />');
+			}
 		}
 	});
 
