@@ -194,6 +194,10 @@ class CVRecordsRepository extends EntityRepository
                 $list->setParameter('plantilla_id', $filters["plantilla_id"]);
             }
 
+            if(isset($filters["reconc"])){
+                $list->andWhere('i.reconciliation IS NOT NULL');
+            }
+
             if(isset($filters["blocked"]) && $filters["blocked"]){
                 $list->andWhere('i.blocked=1');
 
