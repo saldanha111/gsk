@@ -106,6 +106,13 @@ class CVSignatures
     /**
      * @var boolean 
      *
+     * @ORM\Column(name="manual_fill", type="boolean",  options={"default" = false}, nullable=true)
+     */
+    protected $manualFill;
+
+    /**
+     * @var boolean 
+     *
      * @ORM\Column(name="finish", type="boolean",  options={"default" = false}, nullable=true)
      */
     protected $finish;
@@ -768,5 +775,28 @@ class CVSignatures
     public function getDelegation()
     {
         return $this->delegation;
+    }
+
+    /**
+     * Set manualFill
+     *
+     * @param boolean $manualFill
+     * @return CVSignatures
+     */
+    public function setManualFill($manualFill)
+    {
+        $this->manualFill = $manualFill;
+
+        return $this;
+    }
+
+    /**
+     * Get manualFill
+     *
+     * @return boolean 
+     */
+    public function getManualFill()
+    {
+        return $this->manualFill;
     }
 }

@@ -45,13 +45,15 @@
 
         <form class="form-horizontal" id="form_item" action="{{path('nononsense_cv_record_sign', {'id': item.id}) }}" method="POST"  enctype="multipart/form-data">
 
-            {% if signature.justification or signature.action.justification or (signature.record.reconciliation is not empty and signature.record.cvSignatures|length==1) %}
+            {% if signature.justification or signature.action.justification or (signature.record.reconciliation is not empty and signature.record.cvSignatures|length==1) || signature.manualFill %}
                 <div class="row">
                     <div class="col-lg-5 col-lg-offset-1">
                         {% if signature.justification %}
                             <p>Ha modificado valores previamente imputados. Explique por qué</p>
                         {% elseif  signature.action.justification %} 
                             <p>Esta acción requiere de una justificación obligatoria</p>
+                        {% elseif  signature.manualFill %} 
+                            <p>Ha inputado campos automáticos de forma manual y por ello es necesaria una justificación</p>
                         {% endif %} 
                         <textarea id="comment" name="justification" required="required" class="form-control" rows="10" cols="91"></textarea>
                     </div>

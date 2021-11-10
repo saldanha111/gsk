@@ -530,6 +530,11 @@ class CVDocoaroController extends Controller
                 if(array_key_exists("gsk_comment",$params["data"]) && $params["data"]["gsk_comment"]){
                    $signature->setJustification(TRUE); 
                 }
+
+                if(array_key_exists("gsk_manual_fill",$params["data"]) && $params["data"]["gsk_manual_fill"]){
+                   $signature->setManualFill(TRUE); 
+                }
+
                 $em->persist($signature);
                 $record->setInEdition(FALSE);
                 $record->setOpenedBy(NULL);
