@@ -386,6 +386,12 @@ class TMTemplatesRepository extends EntityRepository
                         $orderby=" ORDER BY conta DESC";
                         $sintax = " FROM tm_templates t LEFT JOIN areas a3 ON t.area_id=a3.id ".$tables_extra.$sintax;
                         break;
+                    case 4: 
+                        $sintax.=$logical." t.first_edition IS NOT NULL AND diff_edition_days<90";
+                        $groupby=" GROUP BY t.first_edition,t.name";
+                        $orderby=" ORDER BY conta DESC";
+                        $sintax = " FROM tm_templates t LEFT JOIN areas a3 ON t.area_id=a3.id ".$tables_extra.$sintax;
+                        break;
                 }
             }
         }
@@ -408,6 +414,7 @@ class TMTemplatesRepository extends EntityRepository
                         $query = $em->createNativeQuery("SELECT t.name,COUNT(r.template_id) as conta".$fields_extra.$sintax." ".$groupby." ".$orderby." ".$limit,$rsm);
                         break;
                     case 3: 
+                    case 4: 
                         $query = $em->createNativeQuery("SELECT t.name,COUNT(t.id) as conta".$fields_extra.$sintax." ".$groupby." ".$orderby." ".$limit,$rsm);
                         break;
                 }
@@ -431,6 +438,7 @@ class TMTemplatesRepository extends EntityRepository
                         $query = $em->createNativeQuery("SELECT COUNT(DISTINCT r.template_id) conta ".$sintax,$rsm);
                         break;
                     case 3: 
+                    case 4:
                         $query = $em->createNativeQuery("SELECT COUNT(DISTINCT t.first_edition) conta ".$sintax,$rsm);
                         break;
                 }

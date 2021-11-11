@@ -310,6 +310,13 @@ class TMTemplates
     protected $minutesVerification;
 
     /**
+     * @var integer
+     *
+     * @ORM\Column(name="diff_edition_days", type="integer", nullable=true)
+     */
+    protected $diffEditionDays;
+
+    /**
      * @var boolean $isReactive
      *
      * @ORM\Column(name="is_reactive", type="boolean",  options={"default" = false}, nullable=true)

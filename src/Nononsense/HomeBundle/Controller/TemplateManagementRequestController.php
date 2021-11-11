@@ -281,9 +281,9 @@ class TemplateManagementRequestController extends Controller
                 $itemplate=NULL;
                 $num_edition=1;
                 $first_edition=NULL;
-                
+                $num_days=NULL;
 
-                $last_record = $this->getDoctrine()->getRepository(TMTemplates::class)->findOneBy(array("prefix" => $desc_prefix),array('id' => 'DESC'));
+                $last_record = $this->getDoctrine()->getRepository(TMTemplates::class)->findOneBy(array("prefix" => $desc_prefix,"firstEdition" => NULL),array('id' => 'DESC'));
                 if(!$last_record){
                     $number_id=1;
                 }
@@ -315,6 +315,10 @@ class TemplateManagementRequestController extends Controller
                 else{
                     $first_edition=$templates[0]->getFirstEdition();
                 }
+
+                $last_date = $templates[0]->getCreated();
+                $now_date = new DateTime();
+                $num_days = $last_date->diff($now_date)->format("%a");
 
                 $number_id=$templates[0]->getNumberId();
                 
@@ -384,6 +388,7 @@ class TemplateManagementRequestController extends Controller
         $template->setTemplateId($itemplate);
         $template->setNumEdition($num_edition);
         $template->setFirstEdition($first_edition);
+        $template->setDiffEditionDays($num_days);
 
         $owner = $this->getDoctrine()->getRepository(Users::class)->findOneBy(array("id" => $request->get("owner")));
         $backup = $this->getDoctrine()->getRepository(Users::class)->findOneBy(array("id" => $request->get("backup")));

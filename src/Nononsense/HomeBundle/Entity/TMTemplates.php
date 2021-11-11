@@ -310,6 +310,13 @@ class TMTemplates
     protected $minutesVerification;
 
     /**
+     * @var integer
+     *
+     * @ORM\Column(name="diff_edition_days", type="integer", nullable=true)
+     */
+    protected $diffEditionDays;
+
+    /**
      * @var boolean $isReactive
      *
      * @ORM\Column(name="is_reactive", type="boolean",  options={"default" = false}, nullable=true)
@@ -1468,5 +1475,28 @@ class TMTemplates
     public function getIsReactive()
     {
         return $this->isReactive;
+    }
+
+    /**
+     * Set diffEditionDays
+     *
+     * @param integer $diffEditionDays
+     * @return TMTemplates
+     */
+    public function setDiffEditionDays($diffEditionDays)
+    {
+        $this->diffEditionDays = $diffEditionDays;
+
+        return $this;
+    }
+
+    /**
+     * Get diffEditionDays
+     *
+     * @return integer 
+     */
+    public function getDiffEditionDays()
+    {
+        return $this->diffEditionDays;
     }
 }
