@@ -61,7 +61,7 @@
                             <label class="col-sm-1 control-label">Mostrar</label>
                             <div class="col-sm-2 item_filter">
                                 <select class="form-control" style="width: 100%;" name="group">
-                                    <option value="1" {{filters.group is defined and filters.group == 1 ? 'selected="selected"' : ''}}>Plantillas daducadas</option>
+                                    <option value="1" {{filters.group is defined and filters.group == 1 ? 'selected="selected"' : ''}}>Plantillas caducadas</option>
                                     <option value="2" {{filters.group is defined and filters.group == 2 ? 'selected="selected"' : ''}}>Plantillas más cumplimentadas</option>
                                     <option value="3" {{filters.group is defined and filters.group == 3 ? 'selected="selected"' : ''}}>Plantillas más modificadas</option>
                                     <option value="4" {{filters.group is defined and filters.group == 4 ? 'selected="selected"' : ''}}>Plantillas más modificadas en menos de 3 meses</option>
@@ -81,7 +81,7 @@
                                 {% include 'NononsenseHomeBundle:Activity:templates_expired.html.twig' %}
                             {% endif %}
                             {% if filters.group == 2 %}
-                                {# {% include 'NononsenseHomeBundle:Activity:table_activity_group_user.html.twig' %} #}
+                                {% include 'NononsenseHomeBundle:Activity:templates_most_cumpl.html.twig' %}
                             {% endif %}
                             {% if filters.group == 3 %}
                                 {% include 'NononsenseHomeBundle:Activity:templates_with_editions.html.twig' %}

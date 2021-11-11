@@ -262,20 +262,6 @@ class TMTemplatesRepository extends EntityRepository
                             $list = $this->createQueryBuilder('t')
                                 ->select('t.id','t.name','s.name state','t.numEdition');
                             break;
-                        /*case 2:
-                            $list = $this->createQueryBuilder('s')
-                                ->select('u.id as usercreatedid','u.name as creator','COUNT(s.id) as conta');
-                            $list->addSelect("SUM(DATEDIFF(s.modified,s.created)) as duration");
-                            break;*/
-                        case 3:
-                            $list = $this->createQueryBuilder('t')
-                                ->select('t.name','COUNT(t.id) as conta');
-                            break;
-                        /*case 4:
-                            $list = $this->createQueryBuilder('s')
-                                ->select('a2.name accion','u.id as usercreatedid','u.name as creator','COUNT(s.id) as conta');
-                            $list->addSelect("SUM(DATEDIFF(s.modified,s.created)) as duration");
-                            break;*/
                     }
                 }
                 else{
@@ -322,15 +308,6 @@ class TMTemplatesRepository extends EntityRepository
                     $list->andWhere('s.id=7 or s.id=8'); // Cargamos las obsoletas y las dadas de baja
                     if($type=="list"){
                         $list->orderBy('t.id', 'DESC');
-                    }
-                    break;
-                case 3: 
-                    $list->andWhere('t.firstEdition IS NOT NULL');
-                    $list->groupBy('t.firstEdition')
-                    ->addGroupBy('t.name');
-                    
-                    if($type=="list"){
-                        $list->orderBy('COUNT(t.id)', 'DESC');
                     }
                     break;
             }
@@ -398,17 +375,23 @@ class TMTemplatesRepository extends EntityRepository
 
             if(isset($filters["group"])){
                 switch($filters["group"]){
+                    case 2: 
+                        $groupby=" GROUP BY r.template_id,t.name";
+                        $orderby=" ORDER BY conta DESC";
+                        $sintax = " FROM cv_records r LEFT JOIN tm_templates t ON r.template_id=t.id LEFT JOIN areas a3 ON t.area_id=a3.id ".$tables_extra.$sintax;
+                        break;
                     case 3: 
                         $sintax.=$logical." t.first_edition IS NOT NULL";
                         $groupby=" GROUP BY t.first_edition,t.name";
                         $orderby=" ORDER BY conta DESC";
+                        $sintax = " FROM tm_templates t LEFT JOIN areas a3 ON t.area_id=a3.id ".$tables_extra.$sintax;
                         break;
                 }
             }
         }
 
 
-        $sintax = " FROM tm_templates t LEFT JOIN areas a3 ON t.area_id=a3.id ".$tables_extra.$sintax;
+        
 
         switch($type){
             case "list": 
@@ -420,7 +403,16 @@ class TMTemplatesRepository extends EntityRepository
                 }
 
 
-                $query = $em->createNativeQuery("SELECT t.name,COUNT(t.id) as conta".$fields_extra.$sintax." ".$groupby." ".$orderby." ".$limit,$rsm);
+                switch($filters["group"]){
+                    case 2: 
+                        $query = $em->createNativeQuery("SELECT t.name,COUNT(r.template_id) as conta".$fields_extra.$sintax." ".$groupby." ".$orderby." ".$limit,$rsm);
+                        break;
+                    case 3: 
+                        $query = $em->createNativeQuery("SELECT t.name,COUNT(t.id) as conta".$fields_extra.$sintax." ".$groupby." ".$orderby." ".$limit,$rsm);
+                        break;
+                }
+
+                
                 $rsm->addScalarResult('name', 'name');
                 $rsm->addScalarResult('conta', 'conta');                
                 if(!empty($parameters)){
@@ -434,7 +426,15 @@ class TMTemplatesRepository extends EntityRepository
 
             case "count":
 
-                $query = $em->createNativeQuery("SELECT COUNT(DISTINCT t.first_edition) conta ".$sintax,$rsm);
+                switch($filters["group"]){
+                    case 2: 
+                        $query = $em->createNativeQuery("SELECT COUNT(DISTINCT r.template_id) conta ".$sintax,$rsm);
+                        break;
+                    case 3: 
+                        $query = $em->createNativeQuery("SELECT COUNT(DISTINCT t.first_edition) conta ".$sintax,$rsm);
+                        break;
+                }
+                
                 $rsm->addScalarResult('conta', 'conta');
                 if(!empty($parameters)){
                     $query->setParameters($parameters);
