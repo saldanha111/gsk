@@ -317,7 +317,7 @@ class TemplateManagementRequestController extends Controller
                 }
 
                 $last_date = $templates[0]->getCreated();
-                $now_date = new DateTime();
+                $now_date = new \DateTime();
                 $num_days = $last_date->diff($now_date)->format("%a");
 
                 $number_id=$templates[0]->getNumberId();
@@ -350,7 +350,7 @@ class TemplateManagementRequestController extends Controller
         $raw_response = curl_exec($ch);
         $response = json_decode($raw_response, true);
 
-        if(!$response["version"]){
+        if(!array_key_exists('version', $response)){
             $response["id"]=NULL;
             $response["version"]["id"]=NULL;
             $response["version"]["configuration"]["id"]=NULL;
