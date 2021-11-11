@@ -498,7 +498,7 @@ class Utilities{
 
         $arr = new \stdClass();
 
-        $arr->removedOrAdded = 'removed';
+        //$arr->removedOrAdded = 'removed';
 
         if (is_object($value)) {
             foreach ($value as $key => $v) {
