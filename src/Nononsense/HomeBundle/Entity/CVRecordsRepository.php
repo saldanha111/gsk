@@ -163,12 +163,7 @@ class CVRecordsRepository extends EntityRepository
             
 
         if($type=="list"){
-            if(!empty($filters) && isset($filters["order_recon"])){
-               $list->orderBy('i.id', 'ASC'); 
-            }
-            else{
-                $list->orderBy('i.id', 'DESC');
-            }
+            $list->orderBy('i.id', 'DESC');
         }
 
 
@@ -290,11 +285,11 @@ class CVRecordsRepository extends EntityRepository
             }
 
             if(isset($filters["code_unique"])){
-                if (array_key_exists('gsk_template_id', $filters["code_unique"])) {
+                /*if (array_key_exists('gsk_template_id', $filters["code_unique"])) {
                     $list->andWhere("t.id=:gsk_template_id OR t.id IN (SELECT cu_aux.firstEdition FROM Nononsense\HomeBundle\Entity\TMTemplates cu_aux WHERE cu_aux.id=:gsk_template_id) OR t.firstEdition IN (SELECT cu_aux2.firstEdition FROM Nononsense\HomeBundle\Entity\TMTemplates cu_aux2 WHERE cu_aux2.id=:gsk_template_id)");
                     $list->setParameter('gsk_template_id', $filters["code_unique"]["gsk_template_id"]);
                     unset($filters["code_unique"]["gsk_template_id"]);
-                }
+                }*/
                 $strlen=strlen(json_encode($filters["code_unique"]));
                 $list->andWhere("LENGTH(i.codeUnique)=:strlen");
                 $list->andWhere("ISJSON(i.codeUnique) > 0");
@@ -313,7 +308,8 @@ class CVRecordsRepository extends EntityRepository
             }
 
             if(isset($filters["recon_history"])){
-                $list->andWhere('i.id=:recon_history OR i.id IN (SELECT recon_aux2.id FROM Nononsense\HomeBundle\Entity\CVRecords recon_aux2 WHERE (IDENTITY(recon_aux2.firstReconciliation) = (SELECT IDENTITY(recon_aux1.firstReconciliation) FROM Nononsense\HomeBundle\Entity\CVRecords recon_aux1 WHERE recon_aux1.reconciliation=:recon_history) OR recon_aux2.id = (SELECT IDENTITY(recon_aux3.firstReconciliation) FROM Nononsense\HomeBundle\Entity\CVRecords recon_aux3 WHERE recon_aux3.reconciliation=:recon_history)))');
+                //$list->andWhere('i.id=:recon_history OR i.id IN (SELECT recon_aux2.id FROM Nononsense\HomeBundle\Entity\CVRecords recon_aux2 WHERE (IDENTITY(recon_aux2.firstReconciliation) = (SELECT IDENTITY(recon_aux1.firstReconciliation) FROM Nononsense\HomeBundle\Entity\CVRecords recon_aux1 WHERE recon_aux1.reconciliation=:recon_history) OR recon_aux2.id = (SELECT IDENTITY(recon_aux3.firstReconciliation) FROM Nononsense\HomeBundle\Entity\CVRecords recon_aux3 WHERE recon_aux3.reconciliation=:recon_history)))');
+                $list->andWhere('i.id=:recon_history OR i.firstReconciliation=:recon_history');
                 $list->setParameter('recon_history', $filters["recon_history"]);
             }
 

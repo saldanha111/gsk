@@ -85,7 +85,7 @@
                                     <div class="form-group">
                                         <div class="col-sm-4">
                                             <input class="form-control" type="text" value="{{wf.tmCumplimentation.name}}" readonly="readonly">
-                                            <input type="hidden" name="types[]" value="{{wf.tmCumplimentation.tmType.id}}" required="required"> 
+                                            <input type="hidden" name="types[]" value="{{wf.tmCumplimentation.id}}" required="required"> 
                                         </div>
                                         <div class="col-sm-3 masterbox_type_workflow">
                                             {% if count!=0 %}
@@ -279,7 +279,7 @@
                             $('#box_unique_codes').find('.uniqid').each(function () {
                                 array_elements[$(this).attr('name')] = $(this).val();
                             });
-                            array_elements["gsk_template_id"] = {{item.id}};
+                            //array_elements["gsk_template_id"] = {{item.id}};
                             console.log(array_elements);
                             if(start_cumplimentation()){
                                 return true;
@@ -294,7 +294,7 @@
                                 $('#box_unique_codes').find('.uniqid').each(function () {
                                     array_elements[$(this).attr('name')] = $(this).val();
                                 });
-                                array_elements["gsk_template_id"] = {{item.id}};
+                                //array_elements["gsk_template_id"] = {{item.id}};
                                 console.log(array_elements);
                                 if(start_cumplimentation()){
                                     return true;

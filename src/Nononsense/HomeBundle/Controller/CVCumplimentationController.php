@@ -174,7 +174,7 @@ class CVCumplimentationController extends Controller
                 }
             }
 
-            $array_unique["gsk_template_id"]=$item->getId();
+            //$array_unique["gsk_template_id"]=$item->getId();
         }
 
         $json_unique=json_encode($array_unique, JSON_FORCE_OBJECT);
@@ -208,7 +208,6 @@ class CVCumplimentationController extends Controller
             }
             $loaded[$item_type]++;
         }
-
 
         foreach($expected as $key => $item_expected){
             if($item_expected>$loaded[$key]){

@@ -49,15 +49,19 @@ class CVReconciliationController extends Controller
         $filters["limit_from"]=0;
         $filters["limit_many"]=99999999999;
 
-        $filters["recon_history"]=$id;
-        $filters2["recon_history"]=$id;
-        $filters["order_recon"]=1;
-        $filters2["order_recon"]=1;
-
-
-
         $array_item["suser"]["id"]=$user->getId();
         $array_item["record"]=$this->getDoctrine()->getRepository(CVRecords::class)->findOneBy(array("id" => $id));
+
+        if($array_item["record"]->getFirstReconciliation()){
+            $filters["recon_history"]=$array_item["record"]->getFirstReconciliation()->getId();
+            $filters2["recon_history"]=$array_item["record"]->getFirstReconciliation()->getId();
+        }
+        else{
+            $filters["recon_history"]=$array_item["record"]->getId();
+            $filters2["recon_history"]=$array_item["record"]->getId();
+        }
+
+        
         $array_item["filters"]=$filters;
         $array_item["items"] = $this->getDoctrine()->getRepository(CVRecords::class)->search("list",$filters);
         $array_item["count"] = $this->getDoctrine()->getRepository(CVRecords::class)->search("count",$filters2);
