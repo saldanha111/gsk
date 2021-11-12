@@ -18,16 +18,16 @@ class DefaultController extends Controller
     {
     	$em = $this->getDoctrine()->getManager();
 
-		$array_subsecciones = array();        
-        $Egroups =$em->getRepository('NononsenseGroupBundle:GroupUsers')->findBy(array("user"=>$this->getUser()));
-        foreach ($Egroups as $groupUser) {
-
-            $subseccionsGroup = $em->getRepository('NononsenseUserBundle:GroupsSubsecciones')->findBy(array('group'=>$groupUser->getGroup()));
-            foreach ($subseccionsGroup as $subseccionGroup) {
-            	array_push($array_subsecciones, $subseccionGroup->getSubseccion()->getNameId());
-            }
+		$array_subsecciones = array();
+        $array_groups = array();         
+        foreach ($this->getUser()->getGroups() as $group) {
+            array_push($array_groups, $group->getGroup()->getId());
         }
 
+        $subseccionsGroup = $em->getRepository('NononsenseUserBundle:GroupsSubsecciones')->findBy(array('group'=>$array_groups));
+        foreach ($subseccionsGroup as $subseccionGroup) {
+            array_push($array_subsecciones, $subseccionGroup->getSubseccion()->getNameId());
+        }
         $data = array();
         $data['array_subsecciones'] = $array_subsecciones;
 

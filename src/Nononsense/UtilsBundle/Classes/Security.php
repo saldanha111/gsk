@@ -27,14 +27,14 @@ class Security
 
         $subseccionObj = $this->em->getRepository('NononsenseUserBundle:Subsecciones')->findOneByNameId($subseccion);
 
-        $Egroups =$this->em->getRepository('NononsenseGroupBundle:GroupUsers')->findBy(array("user"=>$this->user));
-        foreach ($Egroups as $groupUser) {
+        $array_groups = array();         
+        foreach ($this->user->getGroups() as $group) {
+            array_push($array_groups, $group->getGroup()->getId());
+        }
 
-            $groupSubseccionObj = $this->em->getRepository('NononsenseUserBundle:GroupsSubsecciones')->findBy(array('group'=>$groupUser->getGroup(), 'subseccion'=>$subseccionObj));
-            if($groupSubseccionObj){
-                $is_grant = 1;
-                break;
-            }
+        $groupSubseccionObj = $this->em->getRepository('NononsenseUserBundle:GroupsSubsecciones')->findBy(array('group'=>$array_groups, 'subseccion'=>$subseccionObj));
+        if($groupSubseccionObj){
+            $is_grant = 1;
         }
 
         return $is_grant;
