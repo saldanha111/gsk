@@ -394,7 +394,7 @@ class Utilities{
 
     public $multi_obj_diff_counter = 0;
 
-    public function multi_obj_diff($obj1, $obj2, $compare, $regex, $field, $evidencia, $clonedObj, $removedOrAdded = null, $compareWith, $aux = ''){
+    public function multi_obj_diff($obj1, $obj2, $obj3, $compare, $regex, $field, $evidencia, $clonedObj, $removedOrAdded = null, $compareWith, $aux = ''){
 
         if ($this->multi_obj_diff_counter == 0) {
             $clonedObj = clone $obj1; //Clone $obj1 once time to get keys of the first dimension
@@ -421,7 +421,7 @@ class Utilities{
                 $deph = ($compare == '$obj2->variables->$field->value') ? $obj2 : $obj2->$key; //Check if first insert or not
 
                 if (is_object($value)) {
-                    $multi = $this->multi_obj_diff($value, $deph, $compare, $regex, $field, $evidencia, $clonedObj, $removedOrAdded, $compareWith, $key);
+                    $multi = $this->multi_obj_diff($value, $deph, $obj3, $compare, $regex, $field, $evidencia, $clonedObj, $removedOrAdded, $compareWith, $key);
                     if ($multi) {
                         $diff[$key] =  $multi;
                         //$diff[$key] = (key($multi) == 'value') ? $multi['value'] : $multi; //(key($multi) == 'value') ? $multi['value'] : $multi;
@@ -455,17 +455,31 @@ class Utilities{
                                 $this->insertDiff($field, $index, $value, $other_value, $lineOptions, $evidencia);
                             }
                         }else{
+                            $flag_checkbox=0;
                             if ($field == $removedOrAdded) {
                                 $lineOptions = 1;
                             }
 
-                            $diff[$key]['field'] = $field;
-                            $diff[$key]['line_options'] = $lineOptions;
-                            $diff[$key]['field_index'] = $index;
-                            $diff[$key]['field_value'] = $value;
-                            $diff[$key]['prevVal'] = $other_value;
+                            if(isset($obj3) && $obj3 && $obj3->variables->$field->subformat=="checkbox" && $obj3->variables->$field->value==""){
+                                $obj3->variables->$field->value=0;
+                                if ($other_value == $obj3->variables->$field->value && ($value=="" || $value==0)) {
+                                    $flag_checkbox=1;
+                                }
+                            }
 
-                            $this->insertDiff($field, $index, $value, $other_value, $lineOptions, $evidencia);
+                            if (isset($obj3) && $other_value == $obj3->variables->$field->value && $obj3) {
+                                $lineOptions = 1;
+                            }
+
+                            if(!$flag_checkbox){
+                                $diff[$key]['field'] = $field;
+                                $diff[$key]['line_options'] = $lineOptions;
+                                $diff[$key]['field_index'] = $index;
+                                $diff[$key]['field_value'] = $value;
+                                $diff[$key]['prevVal'] = $other_value;
+
+                                $this->insertDiff($field, $index, $value, $other_value, $lineOptions, $evidencia);
+                            }
                         }
                         // if ($field == $removedOrAdded) { //Check removed or added field
                         //     $lineOptions = ($compareWith == 'old') ? 0 : 1; //if we compare the old object, we know that it is removed (1), otherwise, added (0)

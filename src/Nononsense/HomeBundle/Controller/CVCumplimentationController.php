@@ -574,19 +574,20 @@ class CVCumplimentationController extends Controller
             $obj1 = json_decode($signature->getJson())->data;
             if(count($all_signatures)>0){
                 $obj2 = json_decode($all_signatures[0]->getJson())->data;
+                $obj3 = json_decode($signature->getRecord()->getJson())->configuration;
 
                 //Compares new signature with old step and instert differences
                 $this->get('utilities')->multi_obj_diff_counter = 0;
-                $this->get('utilities')->multi_obj_diff($obj1, $obj2, '$obj2->$key', '/^(in_|gsk_|dxo_|delete_)|(name|extension\b)/', false, $signature, false, null, 'new');
+                $this->get('utilities')->multi_obj_diff($obj1, $obj2, $obj3, '$obj2->$key', '/^(in_|gsk_|dxo_|delete_)|(name|extension\b)/', false, $signature, false, null, 'new');
 
                 //Compares old signature with new step and check removed fields
                 $this->get('utilities')->multi_obj_diff_counter = 0;
-                $this->get('utilities')->multi_obj_diff($obj2, $obj1, '$obj2->$key', '/^(in_|gsk_|dxo_|delete_)|(name|extension\b)/', false, $signature, false, null, 'old');
+                $this->get('utilities')->multi_obj_diff($obj2, $obj1, $obj3, '$obj2->$key', '/^(in_|gsk_|dxo_|delete_)|(name|extension\b)/', false, $signature, false, null, 'old');
             }
             else{
                 $obj2 = json_decode($signature->getRecord()->getJson())->configuration;
                 //Compares with default values
-                $this->get('utilities')->multi_obj_diff($obj1, $obj2, '$obj2->variables->$field->value', '/^(in_|gsk_|dxo_|delete_)|(name|extension\b)/', false, $signature, false, null, 'new');
+                $this->get('utilities')->multi_obj_diff($obj1, $obj2, NULL, '$obj2->variables->$field->value', '/^(in_|gsk_|dxo_|delete_)|(name|extension\b)/', false, $signature, false, null, 'new');
             }
         
             //Certificamos la cumplimentación e una plantilla por pasar por un estado final
