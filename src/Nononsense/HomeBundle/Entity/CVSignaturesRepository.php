@@ -195,6 +195,11 @@ class CVSignaturesRepository extends EntityRepository
                 $list->setParameter('action', $filters["action"]);
             }
 
+            if(isset($filters["subaction"])){
+                $list->andWhere('a.id=:subaction');
+                $list->setParameter('subaction', $filters["subaction"]);
+            }
+
             if(isset($filters["area"])){
                 $list->andWhere('a3.id=:area');
                 $list->setParameter('area', $filters["area"]);

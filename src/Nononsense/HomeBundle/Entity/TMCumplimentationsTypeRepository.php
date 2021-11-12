@@ -29,7 +29,7 @@ class TMCumplimentationsTypeRepository extends EntityRepository
         }
             
         if($type=="list"){
-            $list->orderBy('t.id', 'DESC');
+            $list->orderBy('t.id', 'ASC');
         }
 
         if(isset($filters["limit_from"])){

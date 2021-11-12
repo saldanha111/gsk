@@ -14,6 +14,7 @@ use Nononsense\HomeBundle\Entity\CVSignatures;
 use Nononsense\HomeBundle\Entity\TMCumplimentationsType;
 use Nononsense\HomeBundle\Entity\Areas;
 use Nononsense\HomeBundle\Entity\TMTemplates;
+use Nononsense\HomeBundle\Entity\CVActions;
 use Nononsense\UserBundle\Entity\Users;
 use Nononsense\UtilsBundle\Classes;
 
@@ -114,6 +115,7 @@ class ActivityController extends Controller
         }
         $array_item["pagination"]=\Nononsense\UtilsBundle\Classes\Utils::paginador($filters["limit_many"],$request,$url,$array_item["count"],"/", $parameters);
 
+        $array_item["subactions"] = $em->getRepository(CVActions::class)->findBy(array("graphic" => TRUE),array("type" => "ASC"));
         $array_item["actions"] = $em->getRepository(TMCumplimentationsType::class)->search("list",array());
         $array_item["users"] = $em->getRepository(Users::class)->findAll();
         $array_item["areas"] = $em->getRepository(Areas::class)->findBy(array(),array("name" => "ASC"));
