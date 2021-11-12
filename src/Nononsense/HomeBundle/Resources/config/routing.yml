@@ -741,10 +741,14 @@ nononsense_delegations_edit:
 
 
 # Efectividad de Área
+nononsense_activity_tm_templates:
+    path: /graphics/elab-aprob
+    defaults: { _controller: NononsenseHomeBundle:Activity:tmList}
+
 nononsense_activity:
-    path: /graphics/general
+    path: /graphics/cumpl-verif
     defaults: { _controller: NononsenseHomeBundle:Activity:list}
 
 nononsense_activity_templates:
-    path: /graphics/templates
+    path: /graphics/general-templates
     defaults: { _controller: NononsenseHomeBundle:Activity:templates}

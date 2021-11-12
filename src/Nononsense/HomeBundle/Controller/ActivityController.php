@@ -16,6 +16,8 @@ use Nononsense\HomeBundle\Entity\Areas;
 use Nononsense\HomeBundle\Entity\TMTemplates;
 use Nononsense\HomeBundle\Entity\CVActions;
 use Nononsense\UserBundle\Entity\Users;
+use Nononsense\HomeBundle\Entity\TMSignatures;
+use Nononsense\HomeBundle\Entity\TMActions;
 use Nononsense\UtilsBundle\Classes;
 
 
@@ -34,6 +36,84 @@ use Doctrine\ORM\Query\ResultSetMapping;
 
 class ActivityController extends Controller
 {
+    public function tmListAction(Request $request){
+
+        $is_valid = $this->get('app.security')->permissionSeccion('graphics_tm');
+        if(!$is_valid){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                    'No tiene permisos suficientes'
+            );
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+        }
+
+        $em = $this->getDoctrine()->getManager();
+        $user = $this->container->get('security.context')->getToken()->getUser();
+
+        $filters=Array();
+        $filters2=Array();
+        $types=array();
+
+        $filters=array_filter($request->query->all());
+        $filters2=array_filter($request->query->all());
+
+        $filters["user"]=$user;
+        $filters2["user"]=$user;
+
+
+        $array_item["suser"]["id"]=$user->getId();
+
+        if(!$request->get("export_excel") && !$request->get("export_pdf")){
+            if($request->get("page")){
+                $filters["limit_from"]=$request->get("page")-1;
+            }
+            else{
+                $filters["limit_from"]=0;
+            }
+
+            if($request->get("limit_many")){
+                $filters["limit_many"]=$request->get("limit_many");
+            }
+            else{
+               $filters["limit_many"]=15; 
+            }
+        }
+        else{
+            $filters["limit_from"]=0;
+            $filters["limit_many"]=99999999999999;
+        }
+
+
+        $array_item["suser"]["id"]=$user->getId();
+        $array_item["filters"]=$filters;
+        $array_item["items"] = $em->getRepository(TMSignatures::class)->activity("list",$filters);
+
+        
+        $array_item["count"] = $em->getRepository(TMSignatures::class)->activity("count",$filters2);
+
+        $url=$this->container->get('router')->generate('nononsense_activity');
+        $params=$request->query->all();
+        unset($params["page"]);
+        if(!empty($params)){
+            $parameters=TRUE;
+        }
+        else{
+            $parameters=FALSE;
+        }
+        $array_item["pagination"]=\Nononsense\UtilsBundle\Classes\Utils::paginador($filters["limit_many"],$request,$url,$array_item["count"],"/", $parameters);
+
+        $array_item["actions"] = $em->getRepository(TMActions::class)->findAll();
+        $array_item["users"] = $em->getRepository(Users::class)->findAll();
+        $array_item["areas"] = $em->getRepository(Areas::class)->findBy(array(),array("name" => "ASC"));
+
+        if(!$request->get("export_excel") && !$request->get("export_pdf")){
+            switch($request->get("group")){
+                default: return $this->render('NononsenseHomeBundle:Activity:activity_tm_templates.html.twig',$array_item);
+            }
+            
+        }
+    }
+
     public function listAction(Request $request){
 
         $is_valid = $this->get('app.security')->permissionSeccion('graphics_cv');

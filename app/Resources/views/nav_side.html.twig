@@ -152,7 +152,7 @@
                 <a href="{{path('nononsense_records')}}?pending_for_me=1"><i class="fa fa-file" aria-hidden="true"></i> <span class="nav-label">Mis Doc. Pend.</span></a>
             </li>
 
-            {% if 'graphics_cv' in array_subsecciones or 'graphics_templates' in array_subsecciones %}
+            {% if 'graphics_cv' in array_subsecciones or 'graphics_templates' in array_subsecciones or 'graphics_tm' in array_subsecciones %}
                 <li>
                     <a href="#">
                         <i class="fa fa-pie-chart" aria-hidden="true"></i>
@@ -160,6 +160,12 @@
                         <span class="fa arrow"></span>
                     </a>
                     <ul class="nav nav-second-level">
+                        {% if 'graphics_tm' in array_subsecciones %}
+                            <li id="graphics_tm">
+                                <a href="{{path('nononsense_activity_tm_templates')}}?limit_many=15"> <span class="nav-label">Elab./Aprob</span></a>
+                            </li>
+                        {% endif %}
+
                         {% if 'graphics_cv' in array_subsecciones %}
                             <li id="graphics_cv">
                                 <a href="{{path('nononsense_activity')}}?limit_many=15"> <span class="nav-label">Cumpl./Verif.</span></a>
