@@ -52,6 +52,7 @@ var udateTime = function() {
 
     document.getElementById('minutes').textContent = minutes;
     document.getElementById('seconds').textContent = seconds;
+    document.getElementById('gmt').textContent = currentDate.toString().match(/([A-Z]+[\+-][0-9]+)/)[1];
 };
 
 udateTime();
