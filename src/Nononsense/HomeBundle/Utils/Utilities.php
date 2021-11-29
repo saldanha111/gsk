@@ -287,7 +287,7 @@ class Utilities{
         return $return;
     }
 
-    public function wich_second_wf($record,$user,$type,$subtype){
+    public function wich_second_wf($record,$user,$type,$subtype = NULL){
         $return=NULL;
         $groups=array();
         foreach($user->getGroups() as $uniq_group){
@@ -547,7 +547,7 @@ class Utilities{
 
         if (strpos($stepHistory->getValue(), ';base64,') !== false) {
             $extension = explode("/", mime_content_type($stepHistory->getValue()))[1];
-            $path=$this->getParameter('crt.root_dir')."/file-record/".date('Y')."/".date('m');
+            $path=$this->container->getParameter('crt.root_dir')."/file-record/".date('Y')."/".date('m');
             if (!is_dir($path)) {
                 mkdir($path, 0777, true);
             }
