@@ -1,6 +1,7 @@
 <?php
 namespace Nononsense\HomeBundle\Controller;
 
+use Doctrine\ORM\EntityManager;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Nononsense\UtilsBundle\Classes;
@@ -606,6 +607,11 @@ class CVCumplimentationController extends Controller
                 }
                 $em->persist($record);
                 $em->flush();
+                $template = $record->getTemplate();
+                if($template->getIsReactive())
+                {
+                    $this->makeReactivosActions($signature);
+                }
                 $file = Utils::api3($this->forward('NononsenseHomeBundle:CVDocoaro:link', ['request' => $request, 'id'  => $record->getId()])->getContent());
                 $file = Utils::saveFile($file, $slug, $this->getParameter('crt.root_dir'));
                 Utils::setCertification($this->container, $file, $slug, $record->getId());                
@@ -880,5 +886,14 @@ class CVCumplimentationController extends Controller
         header('Content-Length: ' . strlen($file));
         echo $file;
         exit;
+    }
+
+    /**
+     * @param CVSignatures $signature
+     * @return void
+     */
+    private function makeReactivosActions(CVSignatures $signature)
+    {
+        $this->forward('NononsenseHomeBundle:ProductsDissolution:saveReactivoUse', ['signature'  => $signature]);
     }
 }

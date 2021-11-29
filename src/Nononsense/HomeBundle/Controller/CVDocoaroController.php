@@ -121,19 +121,24 @@ class CVDocoaroController extends Controller
 
 
         $token_get_data = $this->get('utilities')->generateToken();
+        if($record->getTemplate()->getIsReactive()){
+            $jsActivityName = '026template';
+        }else{
+            $jsActivityName = 'activity';
+        }
         if(!$record->getState() || (!$record->getState()->getFinal() && !$request->get("pdf") && !$request->get("readonly") && !$request->get("in_edition")) || $request->get("reupdate")){ // Si no es un estado final,no queremos sacar un pdf, no es solo lectura, no está en edición y no es una modificación gxp
             $mode="c";
             if($record->getState()){
                 if($record->getState()->getType()){
                     switch($record->getState()->getType()->getName()){
-                        case "Cumplimentador": $mode="c";$scriptUrl = urlencode($baseUrl . "../js/js_oarodoc/activity.js?v=".uniqid());break;
+                        case "Cumplimentador": $mode="c";$scriptUrl = urlencode($baseUrl . "../js/js_oarodoc/".$jsActivityName.".js?v=".uniqid());break;
                         case "Verificador": $mode="v";$scriptUrl = urlencode($baseUrl . "../js/js_oarodoc/validation.js?v=".uniqid());break;
 
                     }
                 }
                 else{
                     if($record->getState()->getFinal() && $request->get("reupdate")){
-                        $mode="c";$scriptUrl = urlencode($baseUrl . "../js/js_oarodoc/activity.js?v=".uniqid());
+                        $mode="c";$scriptUrl = urlencode($baseUrl . "../js/js_oarodoc/".$jsActivityName.".js?v=".uniqid());
                     }
                 }
             }
