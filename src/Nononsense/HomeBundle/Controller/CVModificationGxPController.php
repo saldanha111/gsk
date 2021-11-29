@@ -329,14 +329,15 @@ class CVModificationGxPController extends Controller
 
                 $obj1 = json_decode($signature->getJsonAux())->data;
                 $obj2 = json_decode($signature->getJson())->data;
+                $obj3 = json_decode($signature->getRecord()->getJson())->configuration;
 
                 //Compares new signature with old step and instert differences
                 $this->get('utilities')->multi_obj_diff_counter = 0;
-                $this->get('utilities')->multi_obj_diff($obj1, $obj2, '$obj2->$key', '/^(in_|gsk_|dxo_|delete_)|(name|extension\b)/', false, $signature_request, false, null, 'new');
+                $this->get('utilities')->multi_obj_diff($obj1, $obj2, $obj3, '$obj2->$key', '/^(in_|gsk_|dxo_|delete_)|(name|extension\b)/', false, $signature_request, false, null, 'new');
 
                 //Compares old signature with new step and check removed fields
                 $this->get('utilities')->multi_obj_diff_counter = 0;
-                $this->get('utilities')->multi_obj_diff($obj2, $obj1, '$obj2->$key', '/^(in_|gsk_|dxo_|delete_)|(name|extension\b)/', false, $signature_request, false, null, 'old');
+                $this->get('utilities')->multi_obj_diff($obj2, $obj1, $obj3, '$obj2->$key', '/^(in_|gsk_|dxo_|delete_)|(name|extension\b)/', false, $signature_request, false, null, 'old');
 
                 $signature->setJson($signature->getJsonAux());
                 $em->persist($signature);
