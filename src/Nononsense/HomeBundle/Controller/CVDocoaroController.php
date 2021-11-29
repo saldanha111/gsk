@@ -263,6 +263,9 @@ class CVDocoaroController extends Controller
                             if($signature->getAction()->getId()==15 && !$signature->getSigned()){
                                 $json_content["configuration"]["cancel_button"]=0;
                             }
+                            $json_content["configuration"]["partial_save_button"]=1;
+                            $json_content["configuration"]["cancel_button"]=1;
+                            $json_content["configuration"]["close_button"]=1;
                     break;
                 case "v":   $json_content["configuration"]["prefix_view"]="";
                             $json_content["configuration"]["prefix_edit"]="verchk_;";
