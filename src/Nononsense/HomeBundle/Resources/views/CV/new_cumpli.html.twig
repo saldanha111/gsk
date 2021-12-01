@@ -103,7 +103,7 @@
                                             <div class="master_box_user">
                                                 <div class="col-sm-4">
                                                     <input class="form-control" type="text" value="{{app.user.name}}" readonly="readonly">
-                                                    <input type="hidden" name="relationals[]" value="{{app.user.id}}" required="required"> 
+                                                    <input class="select_user" type="hidden" name="relationals[]" value="{{app.user.id}}" required="required"> 
                                                 </div>
                                             </div>
                                         {% endif %}
@@ -168,7 +168,7 @@
         <div class="row line_workflow">
             <div class="form-group">
                 <div class="col-sm-4">
-                    <select class="form-control select_user" name="types[]" style="width: 100%;" required="required">
+                    <select class="form-control" name="types[]" style="width: 100%;" required="required">
                         {% for type in type_cumplimentations %}
                             {% if type.tmType.id == 1 %}
                                 <option value="{{type.id}}" class="{{type.tmType.name}}">{{type.name}}</option>
@@ -191,7 +191,7 @@
         <div class="row line_workflow">
             <div class="form-group">
                 <div class="col-sm-4">
-                    <select class="form-control select_user" name="types[]" style="width: 100%;" required="required">
+                    <select class="form-control" name="types[]" style="width: 100%;" required="required">
                         {% for type in type_cumplimentations %}
                             {% if type.tmType.id == 2 %}
                                 <option value="{{type.id}}" class="{{type.tmType.name}}">{{type.name}}</option>
@@ -411,6 +411,7 @@
         $('.select_user','#box_workflow').each(function() {
             array.push($(this).val());
         });
+        console.log(array);
         if(checkIfArrayIsUnique(array)){
             return false;
         }

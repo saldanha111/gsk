@@ -9,7 +9,8 @@ function checkIfArrayIsUnique(arr) {
     var map = {}, i, size;
 
     for (i = 0, size = arr.length; i < size; i++){
-        if (map[arr[i]]){
+        if (arr[i] in map){
+            //console.log(i+ "=>" +arr[i]+" => REPETIDO");
             return false;
         }
 
