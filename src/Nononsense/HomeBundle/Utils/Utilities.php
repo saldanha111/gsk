@@ -9,6 +9,7 @@ use Nononsense\HomeBundle\Entity\LogsTypes;
 use Nononsense\HomeBundle\Entity\LogsTypesRepository;
 use Nononsense\HomeBundle\Entity\Tokens;
 use Nononsense\HomeBundle\Entity\CVRecordsHistory;
+use Nononsense\HomeBundle\Entity\TMCumplimentations;
 use Nononsense\UserBundle\Entity\Users;
 use Nononsense\NotificationsBundle\Entity\Notifications;
 use Nononsense\GroupBundle\Entity\GroupUsers;
@@ -200,7 +201,9 @@ class Utilities{
             $groups[]=$uniq_group->getGroup();
         }
 
-        $wfs=$this->em->getRepository('NononsenseHomeBundle:CVWorkflow')->findBy(array('record' => $record,"signed" => FALSE,"type" => $record->getState()->getType()));
+        $subtypes=$this->em->getRepository('NononsenseHomeBundle:TMCumplimentations')->findBy(array("tmType" => $record->getState()->getType()));
+
+        $wfs=$this->em->getRepository('NononsenseHomeBundle:CVWorkflow')->findBy(array('record' => $record,"signed" => FALSE,"type" => $subtypes));
         if(count($wfs)==0){
             return NULL;
         }

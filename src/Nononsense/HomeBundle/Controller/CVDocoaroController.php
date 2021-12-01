@@ -322,10 +322,12 @@ class CVDocoaroController extends Controller
 
         if(!$expired_token){
             $id_usuario = $this->get('utilities')->getUserByToken($_REQUEST["token"]);
+
             if(!$id_usuario){
                 return false;
             }
             $this->get('utilities')->tokenRemove($_REQUEST["token"]);
+
             
             $record = $this->getDoctrine()->getRepository(CVRecords::class)->findOneBy(array("id" => $id));
             if(!$record){
@@ -370,7 +372,7 @@ class CVDocoaroController extends Controller
             if(!$wf && !$request->get("reupdate")){
                 return false;
             }
-
+            
             //Miramos si es el último firmante del workflow dentro de una misma fase
             if($wf){
                 $last_wf = $this->getDoctrine()->getRepository(CVWorkflow::class)->search("count",array("record" => $record,"not_this" => $wf->getId(),"signed" => FALSE,"type"=>$wf->getType()->getTmType()));
