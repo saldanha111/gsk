@@ -13,6 +13,7 @@ use Nononsense\UserBundle\Entity\Users;
 use Nononsense\NotificationsBundle\Entity\Notifications;
 use Nononsense\GroupBundle\Entity\GroupUsers;
 use Nononsense\HomeBundle\Utils\GskPdf;
+use Nononsense\UtilsBundle\Classes\Utils;
 
 class Utilities{
     
