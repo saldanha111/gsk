@@ -322,12 +322,10 @@ class CVDocoaroController extends Controller
 
         if(!$expired_token){
             $id_usuario = $this->get('utilities')->getUserByToken($_REQUEST["token"]);
-
             if(!$id_usuario){
                 return false;
             }
             $this->get('utilities')->tokenRemove($_REQUEST["token"]);
-
             
             $record = $this->getDoctrine()->getRepository(CVRecords::class)->findOneBy(array("id" => $id));
             if(!$record){
@@ -372,7 +370,7 @@ class CVDocoaroController extends Controller
             if(!$wf && !$request->get("reupdate")){
                 return false;
             }
-            
+
             //Miramos si es el último firmante del workflow dentro de una misma fase
             if($wf){
                 $last_wf = $this->getDoctrine()->getRepository(CVWorkflow::class)->search("count",array("record" => $record,"not_this" => $wf->getId(),"signed" => FALSE,"type"=>$wf->getType()->getTmType()));
@@ -477,24 +475,47 @@ class CVDocoaroController extends Controller
                         }
                         break;
                     case "4":
-                        switch($params["action"]){
-                            case "save_partial": 
-                                $action_id=7;
-                                break;
-                            case "save": 
-                                if($finish_workflow){
-                                    $action_id=8;
-                                }
-                                else{
-                                    $action_id=17;
-                                }
-                                break;
-                            case "cancel":
-                                $action_id=9;
-                                break;
-                            case "return":
-                                $action_id=6;
-                                break;
+                        if($wf && $wf->getType()->getId()==3){
+                            switch($params["action"]){
+                                case "save_partial": 
+                                    $action_id=32;
+                                    break;
+                                case "save": 
+                                    if($finish_workflow){
+                                        $action_id=33;
+                                    }
+                                    else{
+                                        $action_id=35;
+                                    }
+                                    break;
+                                case "cancel":
+                                    $action_id=34;
+                                    break;
+                                case "return":
+                                    $action_id=31;
+                                    break;
+                            }
+                        }
+                        else{
+                            switch($params["action"]){
+                                case "save_partial": 
+                                    $action_id=7;
+                                    break;
+                                case "save": 
+                                    if($finish_workflow){
+                                        $action_id=8;
+                                    }
+                                    else{
+                                        $action_id=17;
+                                    }
+                                    break;
+                                case "cancel":
+                                    $action_id=9;
+                                    break;
+                                case "return":
+                                    $action_id=6;
+                                    break;
+                            }
                         }
                         break;
                     case "5":
