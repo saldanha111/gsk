@@ -112,4 +112,8 @@ services:
         tags:
             - { name: kernel.event_listener, event: security.authentication.failure, method: onAuthenticationFailureLogin }
 
+    app.exception_listener.exit:
+        class: Nononsense\UserBundle\Security\Events\ExceptionListenerExit
+        arguments: ['@doctrine.orm.entity_manager', '@request_stack']
+
 

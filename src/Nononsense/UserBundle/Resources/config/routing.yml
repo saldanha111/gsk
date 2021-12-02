@@ -113,6 +113,10 @@ nononsense_users_ldap:
     path:     /ldap
     defaults: { _controller: NononsenseUserBundle:Login:ldapComponent}
 
+nononsense_users_log:
+    path:     /log
+    defaults: { _controller: NononsenseUserBundle:Access:log}
+
 nononsense_users_homepage:
     # path:     /{page}/{query}
     # defaults: { _controller: NononsenseUserBundle:Users:index, page: 1, query: 'q'} Old users index

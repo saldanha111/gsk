@@ -179,7 +179,22 @@ class AccountRequestController extends Controller
 				$em->persist($accountRequest);
 				$em->flush();
 
-				
+				$subject = ($accountRequest->getStatus()) ? 'Solicitud aceptada' : 'Solicitud rechazada';
+				$accountRequestType = ($accountRequest->getRequestId()->getRequestType()) ? 'Alta' : 'Baja';
+				$this->get('utilities')->sendNotification(
+					$accountRequest->getRequestId()->getEmail(), 
+					'', 
+					'', 
+					'', 
+					$subject, 
+					'<ul>
+						<li>Grupo: '.$accountRequest->getGroupId()->getName().'</li>
+						<li>MUDID: '.$accountRequest->getRequestId()->getMudId().'</li>
+						<li>Tipo: '.$accountRequestType.'</li>
+					</ul>
+					<p>'.$accountRequest->getObservation().'</p>'
+				);
+
 			} catch (\Exception $e) {
 				$message = ['type' => 'error', 'message' => $e->getMessage()];
 			}

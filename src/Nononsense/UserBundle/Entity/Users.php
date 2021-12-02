@@ -342,6 +342,11 @@ class Users implements AdvancedUserInterface, \Serializable
     private $activeDirectory = false;
 
     /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\Logs", mappedBy="user")
+     */
+    private $logs;
+
+    /**
      * Users constructor.
      */
     
@@ -2365,5 +2370,38 @@ class Users implements AdvancedUserInterface, \Serializable
     public function getActiveDirectory()
     {
         return $this->activeDirectory;
+    }
+
+    /**
+     * Add logs
+     *
+     * @param \Nononsense\HomeBundle\Entity\Logs $logs
+     * @return Users
+     */
+    public function addLog(\Nononsense\HomeBundle\Entity\Logs $logs)
+    {
+        $this->logs[] = $logs;
+
+        return $this;
+    }
+
+    /**
+     * Remove logs
+     *
+     * @param \Nononsense\HomeBundle\Entity\Logs $logs
+     */
+    public function removeLog(\Nononsense\HomeBundle\Entity\Logs $logs)
+    {
+        $this->logs->removeElement($logs);
+    }
+
+    /**
+     * Get logs
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getLogs()
+    {
+        return $this->logs;
     }
 }

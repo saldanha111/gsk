@@ -64,6 +64,7 @@ security:
             logout:
                 path:   /users/logout
                 target: /
+                handler: app.exception_listener.exit
             remember_me:
                 key: Qn65f7wtgGZKCCzWQZps04AskmNSiZrvl3qVZRCCIp
                 lifetime: 31536000

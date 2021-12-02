@@ -44,6 +44,13 @@ class Logs
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\Logs", mappedBy="type")
      */
     protected $Logs;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="logs", cascade={"persist"})
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
+     */
+    private $user;
+
     /**
      * Constructor
      */
@@ -162,5 +169,28 @@ class Logs
     public function getLogs()
     {
         return $this->Logs;
+    }
+
+    /**
+     * Set user
+     *
+     * @param \Nononsense\UserBundle\Entity\Users $user
+     * @return Logs
+     */
+    public function setUser(\Nononsense\UserBundle\Entity\Users $user = null)
+    {
+        $this->user = $user;
+
+        return $this;
+    }
+
+    /**
+     * Get user
+     *
+     * @return \Nononsense\UserBundle\Entity\Users 
+     */
+    public function getUser()
+    {
+        return $this->user;
     }
 }
