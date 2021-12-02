@@ -9,6 +9,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Nononsense\HomeBundle\Entity\CVSecondWorkflowStates;
 use Nononsense\HomeBundle\Entity\SpecificGroups;
 use Nononsense\HomeBundle\Entity\CVSecondWorkflow;
+use Nononsense\GroupBundle\Entity\GroupUsers;
 
 /**
 * 
@@ -31,6 +32,7 @@ class ReviewRecordsCommand extends ContainerAwareCommand
 		$em = $this->getContainer()->get('doctrine')->getManager();
 
 		$areas = $em->getRepository('NononsenseHomeBundle:Areas')->findAll();
+		$ids_eco=array();
 		foreach($areas as $area){
 			$ids=array();
 			$qb 		= $em->createQueryBuilder();
@@ -80,7 +82,7 @@ class ReviewRecordsCommand extends ContainerAwareCommand
 			if ($ids) {
 
 		    	$subject = 'Registros bloqueados';
-		        $message = 'Los siguientes registros han sido bloqueados y necesitan ser gestionados por su parte o algún otro FLL. Acceda al siguiente  Link para gestionar los bloqueos.<br><br>'.implode('<br>', $ids);
+		        $message = 'Los siguientes registros han sido bloqueados y necesitan ser gestionados por su parte. Acceda al siguiente  Link para gestionar los bloqueos.<br><br>'.implode('<br>', $ids);
 		        $baseUrl = trim($this->getContainer()->getParameter('cm_installation'), '/').$this->getContainer()->get('router')->generate('nononsense_cv_search')."?blocked=1";
 
 		        
@@ -102,10 +104,35 @@ class ReviewRecordsCommand extends ContainerAwareCommand
 		            }
 		        }
 
+		        $ids_eco=array_merge($ids_eco,$ids);
+
 		    }else{
 		    	$output->writeln(['<comment>Ningún registro bloqueado para el area '.$area->getName().'</comment>']);
 		    }
 		}
+
+		$ids_eco_uniq = array_unique($ids_eco);
+		$specific = $em->getRepository(SpecificGroups::class)->findOneBy(array("name" => "ECO"));
+		$eco=$specific->getGroup();
+        $eco_users = $em->getRepository(GroupUsers::class)->findBy(["group" => $eco]);
+        $message = 'Los siguientes registros han sido bloqueados y necesitan ser gestionados por su parte o algún otro FLL. Acceda al siguiente  Link para gestionar los bloqueos.<br><br>'.implode('<br>', $ids_eco_uniq);
+    	foreach ($eco_users as $eco_user) {
+    		if ($this->getContainer()->get('utilities')->sendNotification($eco_user->getUser()->getEmail(), $baseUrl, "", "", $subject, $message)) {
+
+                $output->writeln(['Mensaje enviado: '.$eco_user->getUser()->getEmail()]);
+
+                if ($input->getOption('msg')) {
+                	$output->writeln(['Asunto: '.$subject]);	
+                	$output->writeln(['Cuerpo del mensaje: '.$message]);
+                	$output->writeln(['']);	
+                }
+
+            }else{
+
+            	$output->writeln(['<error>Error: '.$area->getFll()->getEmail().'</error>']);
+            }
+    	}
+
 		$em->flush();
 
 	    $output->writeln(['<info>Proceso completado</info>']);	
