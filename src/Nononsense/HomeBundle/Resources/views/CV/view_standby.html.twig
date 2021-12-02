@@ -37,6 +37,10 @@
                         <td>{{item.creator}}</td>
                         <td>
                             <a class="btn btn-xs btn-primary" href="{{path('nononsense_cv_docoaro_new', {'id': item.id})}}?in_edition=1" target="_blank" target="_blank">{{'Ver registro bloqueado'|trans}}</a>
+
+                            {% if item.reconId is defined and item.reconId is not empty %}
+                                <span class="btn btn-xs btn-info disabled"><i class="fa fa-info" aria-hidden="true"></i> Reconciliación</span>
+                            {% endif %}
                         </td>
                     </tr>
                 </table>
