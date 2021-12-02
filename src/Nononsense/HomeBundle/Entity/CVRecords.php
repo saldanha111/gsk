@@ -154,6 +154,13 @@ class CVRecords
      */
     protected $pending;
 
+    /**
+     * @var boolean 
+     *
+     * @ORM\Column(name="eco_next_on_stand_by", type="boolean", nullable=true)
+     */
+    protected $ecoNextOnStandBy;
+
     
     public function __construct()
     {
@@ -723,5 +730,28 @@ class CVRecords
     public function getPending()
     {
         return $this->pending;
+    }
+
+    /**
+     * Set ecoNextOnStandBy
+     *
+     * @param boolean $ecoNextOnStandBy
+     * @return CVRecords
+     */
+    public function setEcoNextOnStandBy($ecoNextOnStandBy)
+    {
+        $this->ecoNextOnStandBy = $ecoNextOnStandBy;
+
+        return $this;
+    }
+
+    /**
+     * Get ecoNextOnStandBy
+     *
+     * @return boolean 
+     */
+    public function getEcoNextOnStandBy()
+    {
+        return $this->ecoNextOnStandBy;
     }
 }

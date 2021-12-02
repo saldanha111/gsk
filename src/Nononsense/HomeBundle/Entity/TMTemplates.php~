@@ -1476,4 +1476,27 @@ class TMTemplates
     {
         return $this->isReactive;
     }
+
+    /**
+     * Set diffEditionDays
+     *
+     * @param integer $diffEditionDays
+     * @return TMTemplates
+     */
+    public function setDiffEditionDays($diffEditionDays)
+    {
+        $this->diffEditionDays = $diffEditionDays;
+
+        return $this;
+    }
+
+    /**
+     * Get diffEditionDays
+     *
+     * @return integer 
+     */
+    public function getDiffEditionDays()
+    {
+        return $this->diffEditionDays;
+    }
 }

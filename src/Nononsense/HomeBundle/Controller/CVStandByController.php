@@ -217,6 +217,17 @@ class CVStandByController extends Controller
             $baseURL=$this->container->get('router')->generate('nononsense_cv_search')."?id=".$record->getId();
             $this->get('utilities')->sendNotification($record->getOpenedBy()->getEmail(), $baseURL, "", "", $subject, $mensaje);
         }
+
+        if($id_action==29){
+            $subject="Se solicita confirmación de ECO para el desbloqueo";
+            $mensaje='Se ha solicitado por parte del FLL la confirmación para el desbloqueo del registro '.$record->getId().'. Para proceder con el desbloqueo, acceda a la sección "Documentos en Stand By" y busque el documento o bien puede pinchar en el siguiente link"';
+            $baseURL=$this->container->get('router')->generate('nononsense_request_view_standby', ["id" => $record->getId()]);
+            $eco_users = $em->getRepository(GroupUsers::class)->findBy(["group" => $eco]);
+            foreach ($eco_users as $eco_user) {
+                $this->get('utilities')->sendNotification($eco_user->getUser()->getEmail(), $baseURL, "", "", $subject, $mensaje);
+            }
+            $record->setEcoNextOnStandBy(TRUE);
+        }
         
 
         if($id_action==30){
@@ -235,20 +246,19 @@ class CVStandByController extends Controller
             Utils::setCertification($this->container, $file, $slug, $record->getId()); 
         }
 
-        
-        
-        if($request->get('action')==1 ||  $request->get('action')==3){
-            $this->get('session')->getFlashBag()->add(
-                'success',
-                "Se ha aprobado el desbloqueo de la plantilla correctamente"
-            );
+        switch($request->get('action')){
+            case 1: $message_alert = "Se ha aprobado el desbloqueo de la plantilla correctamente";
+                break;
+            case 2: $message_alert = "Se ha rechazado el desbloqueo de la plantilla";
+                break;
+            case 3: $message_alert = "Se ha solicitado la confirmación por parte de ECO para el desbloqueo de la plantilla";
+                break;
         }
-        else{
-            $this->get('session')->getFlashBag()->add(
-                'success',
-                "Se ha rechazado el desbloqueo de la plantilla"
-            );
-        }
+
+        $this->get('session')->getFlashBag()->add(
+            'success',
+            $message_alert
+        );
 
         $em->flush();
         $route = $this->container->get('router')->generate('nononsense_cv_search')."?blocked=1";
