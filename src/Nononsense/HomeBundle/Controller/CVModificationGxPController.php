@@ -314,6 +314,7 @@ class CVModificationGxPController extends Controller
             }
         }
         
+        $message_ok="Ha firmado la aprobación de la modificación. El cambio solo tendrá efecto cuando firmen todos los firmantes";
 
         //Si ya no hay registros pendientes en el workflow o es un rechazo
         if($pending_wf==0 || $request->get('action')!=1){
@@ -352,13 +353,15 @@ class CVModificationGxPController extends Controller
 
             $file = Utils::api3($this->forward('NononsenseHomeBundle:CVDocoaro:link', ['request' => $request, 'id'  => $record->getId()])->getContent());
             $file = Utils::saveFile($file, $slug, $this->getParameter('crt.root_dir'));
-            Utils::setCertification($this->container, $file, $slug, $record->getId());                
+            Utils::setCertification($this->container, $file, $slug, $record->getId());  
+
+            $message_ok="Se ha aprobado la modificación de la plantilla correctamente";              
         }
 
         if($request->get('action')==1){
             $this->get('session')->getFlashBag()->add(
                 'success',
-                "Se ha aprobado la modificación de la plantilla correctamente"
+                $message_ok
             );
         }
         else{
