@@ -235,7 +235,7 @@ class CVModificationGxPController extends Controller
         $typesw = $em->getRepository(CVSecondWorkflowStates::class)->findOneBy(array("id" => "1"));
 
         //Si es el ECO puede añadir firmas adicionales
-        if($wf->getNumberSignature()==1){
+        if($wf->getNumberSignature()==1 && $request->get('action')==1){
             if($request->get('types')){
                 $count=$wf->getNumberSignature()+1;
                 foreach($request->get('types') as $key => $type){
@@ -318,9 +318,11 @@ class CVModificationGxPController extends Controller
 
         //Si ya no hay registros pendientes en el workflow o es un rechazo
         if($pending_wf==0 || $request->get('action')!=1){
+
             foreach($record->getCvSecondWorkflows() as $item_wf){
                 $em->remove($item_wf);
             }
+
             $record->setUserGxP(NULL);
             $em->persist($record);
 
@@ -343,7 +345,7 @@ class CVModificationGxPController extends Controller
                 $signature->setJson($signature->getJsonAux());
                 $em->persist($signature);
             }
-
+            
             $em->flush();
 
             //Certificamos solo tras la última acción sobre el flujo de modificación gxp
