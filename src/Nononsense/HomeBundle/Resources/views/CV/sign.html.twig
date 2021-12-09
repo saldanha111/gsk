@@ -46,16 +46,39 @@
         <form class="form-horizontal" id="form_item" action="{{path('nononsense_cv_record_sign', {'id': item.id}) }}" method="POST"  enctype="multipart/form-data">
 
             {% if signature.justification or signature.action.justification or (signature.record.reconciliation is not empty and signature.record.cvSignatures|length==1) or signature.manualFill %}
-                <div class="row">
+
+                {% if signature.justification %}
+                    <div class="row">
+                        <div class="col-lg-5 col-lg-offset-1">
+                            <p>Ha modificado valores previamente imputados. Indique por qué</p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-5 col-lg-offset-1">
+                            <select class="form-control" id="choose" name="choose" required="required">
+                                <option value=""></option>
+                                <option value="1">EE</option>
+                                <option value="2">ET</option>
+                                <option value="3">Otro</option>
+                            </select>
+                        </div>
+                    </div><br>
+                {% endif%} 
+
+                {% set display = 'style=display:block;' %}
+                {% if signature.justification %}
+                    {% set display = 'style=display:none;' %}
+                {% endif%} 
+
+                <div class="row" id="box_justification"  {{display}}>
                     <div class="col-lg-5 col-lg-offset-1">
-                        {% if signature.justification %}
-                            <p>Ha modificado valores previamente imputados. Explique por qué</p>
-                        {% elseif  signature.action.justification %} 
+                        {% if  signature.action.justification %} 
                             <p>Esta acción requiere de una justificación obligatoria</p>
                         {% elseif  signature.manualFill %} 
                             <p>Ha imputado campos automáticos de forma manual y por ello es necesaria una justificación</p>
                         {% endif %} 
-                        <textarea id="comment" name="justification" required="required" class="form-control" rows="10" cols="91"></textarea>
+
+                        <textarea id="comment" name="justification" class="form-control" rows="10" cols="91" required="required"></textarea>
                     </div>
                 </div>
                 <br>
@@ -109,6 +132,21 @@
 
         $('#form_item input').on('keypress', function(e) {
             return e.which !== 13;
+        });
+
+        $('#choose').on('change', function() {
+            var value;
+            switch($(this).val()){
+                case "1": value="EE";$("#box_justification").hide();
+                    break;
+                case "2": value="ET";$("#box_justification").hide();
+                    break;
+                case "3": value="";$("#box_justification").show();
+                    break;
+                default: value="";$("#box_justification").hide();
+                    break;
+            }
+            $("#comment").val(value);
         });
     });
 
