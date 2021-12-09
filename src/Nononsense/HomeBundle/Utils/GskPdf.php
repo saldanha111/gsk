@@ -6,6 +6,11 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class GskPdf extends TCPDF {
 
+    private $name;
+
+    public function setName($name){
+        $this->name=$name;
+    }
     //Page header
     public function Header() {
         // Logo
@@ -15,7 +20,7 @@ class GskPdf extends TCPDF {
         $this->SetY(5);
         $this->SetFont('helvetica', 'B', 8);
         // Title
-        $this->Cell(0, 200, date("d/m/Y H:i:s"), 0, false, 'C', 0, '', 0, false, 'M', 'M');
+        $this->Cell(0, 200, $this->name. " - ".date("d/m/Y H:i:s"), 0, false, 'C', 0, '', 0, false, 'M', 'M');
     }
 
     // Page footer
