@@ -652,6 +652,11 @@ nononsense_cv_search:
     methods:    [GET]
     defaults: { _controller: NononsenseHomeBundle:CVCumplimentation:list}
 
+nononsense_cv_record_audittrail:
+    path: /cv/records/{id}/audittrail
+    methods:    [GET]
+    defaults: { _controller: NononsenseHomeBundle:CVDocoaro:auditTrail, id: 0}
+
 nononsense_cv_record:
     path: /cv/records/{id}
     methods:    [GET]

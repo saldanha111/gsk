@@ -593,12 +593,29 @@ class CVDocoaroController extends Controller
         }
     }
 
+    public function auditTrailAction(Request $request, int $id)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $array_item=array();
+
+        $user = $this->container->get('security.context')->getToken()->getUser();
+
+        $record = $this->getDoctrine()->getRepository(CVRecords::class)->findOneBy(array("id" => $id));
+        if(!$record){
+            return false;
+        }
+
+        $html='<html><body style="font-size:8px;width:100%">Documento: <b>'.$record->getTemplate()->getName().'</b><br>Registro:<b>'.$record->getId().'</b><br><br>'.$this->get_signatures($record,1).'</body></html>';
+
+        $this->get('utilities')->returnPDFResponseFromHTML($html);
+    }
+
     private function get_signatures($record,$audittrail)
     {
         $fullText = "";
         $signatures = $this->getDoctrine()->getRepository(CVSignatures::class)->findBy(array("record" => $record, "signed" => TRUE),array("id" => "ASC"));
         if($signatures){
-            $fullText = "<table id='tablefirmas' class='table' style='max-width:none!important'><tr><td colspan='7' width='100%'><b>Firmas</b></td></tr>";
+            $fullText = '<table id="tablefirmas" class="table" style="max-width:none!important"><tr><td colspan="7" width="100%"><b>Firmas</b></td></tr>';
             foreach ($signatures as $key => $signature) {
                 $id = $signature->getNumberSignature();
                 $name = $signature->getUser()->getName();
@@ -621,13 +638,13 @@ class CVDocoaroController extends Controller
                     $comment .= '"'.$signature->getAction()->getDescription().'"';
                 }
 
-                $fullText .= "<tr><td width='5%'>" . $id . "</td><td colspan='6'>".$action."</td></tr><tr><td width='5%'></td><td width='15%'>" . $name . "<br>" . $date . "</td><td width='80%' colspan='4'>".$comment ."</td></tr>";
+                $fullText .= '<tr><td width="5%">' . $id . '</td><td colspan="6">'.$action.'</td></tr><tr><td width="5%"></td><td width="15%">' . $name . '<br>' . $date . '</td><td width="80%" colspan="4">'.$comment .'</td></tr>';
                 if($audittrail){
                     $first=1;
                     foreach($signature->getChanges() as $change){
                         if($change->getLineOptions()!=1){
                             if($first){
-                                $fullText .= "<tr><td></td><td>Linea</td><td>Campo</td><td>Valor actual</td><td>Valor anterior</td><td>Acción</td></tr>";
+                                $fullText .= '<tr><td></td><td>Linea</td><td>Campo</td><td>Valor actual</td><td>Valor anterior</td><td>Acción</td></tr>';
                                 $first=0;
                             }
                             if($change->getInfo()){
@@ -644,20 +661,20 @@ class CVDocoaroController extends Controller
                                 $index=-1;
                             }
 
-                            $fullText .= "<tr><td></td><td>Linea ".($index+1)."</td><td>".$field."</td>";
+                            $fullText .= '<tr><td></td><td>Linea '.($index+1).'</td><td>'.$field.'</td>';
                             if(!is_null($change->getLineOptions())){
-                                $fullText .= "<td></td><td>".$change->getValue()."</td><td>Eliminado</td>";
+                                $fullText .= '<td></td><td>'.$change->getValue().'</td><td>Eliminado</td>';
                             }
                             else{
-                                $fullText .= "<td>".$change->getValue()."</td><td>".$change->getPrevValue()."</td><td>Modificado</td>";
+                                $fullText .= '<td>'.$change->getValue().'</td><td>'.$change->getPrevValue().'</td><td>Modificado</td>';
                             }
-                            $fullText .= "</tr>";
+                            $fullText .= '</tr>';
                         }
                     }
                 }
-                $fullText .= "<tr><td colspan='7' width='100%'></td></tr>";
+                $fullText .= '<tr><td colspan="7" width="100%"></td></tr>';
             }
-            $fullText .= "</table>";
+            $fullText .= '</table>';
         }
         return $fullText;
     }
