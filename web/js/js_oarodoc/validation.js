@@ -47,9 +47,10 @@ $( document ).ready(function() {
 
 	$(".btn_option_table").hide();
 
-	input_manual="";
+	var input_manual="";
 	$('#form_fill').find('input[name^="gsk_manual_fill"]').each(function() {
 		input_manual+=$(this).val()+",";
+		console.log("#"+input_manual+"#");
 	});
 
 	if(input_manual!=""){
