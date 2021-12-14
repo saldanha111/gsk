@@ -43,15 +43,15 @@ $( document ).ready(function() {
 		if(!$(this).val()){
 			$(this).attr("readonly", false); 
 			manual_fill=1;
-			find=0;
+			var find=0;
 			custom_value=$(this).attr('name');
 			$("#form_fill").find("[name='gsk_manual_fill\[\]']").each(function(){
 				console.log("##"+custom_value+"##");
 				if($(this).val()==custom_value){
-					$find=1;
+					find=1;
 				}
 			});
-			if(!find){
+			if(find==0){
 				$("#form_fill").append('<input type="hidden" name="gsk_manual_fill[]" value="'+$(this).attr('name')+'" />');
 			}
 		}
