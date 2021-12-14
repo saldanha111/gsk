@@ -103,7 +103,7 @@ class ActivityController extends Controller
         $array_item["pagination"]=\Nononsense\UtilsBundle\Classes\Utils::paginador($filters["limit_many"],$request,$url,$array_item["count"],"/", $parameters);
 
         $array_item["actions"] = $em->getRepository(TMActions::class)->findAll();
-        $array_item["users"] = $em->getRepository(Users::class)->findAll();
+        $array_item["users"] = $em->getRepository(Users::class)->findBy(array(),array("name" => "ASC"));
         $array_item["areas"] = $em->getRepository(Areas::class)->findBy(array(),array("name" => "ASC"));
 
         if(!$request->get("export_excel") && !$request->get("export_pdf")){
@@ -197,7 +197,7 @@ class ActivityController extends Controller
 
         $array_item["subactions"] = $em->getRepository(CVActions::class)->findBy(array("graphic" => TRUE),array("type" => "ASC"));
         $array_item["actions"] = $em->getRepository(TMCumplimentationsType::class)->search("list",array());
-        $array_item["users"] = $em->getRepository(Users::class)->findAll();
+        $array_item["users"] = $em->getRepository(Users::class)->findBy(array(),array("name" => "ASC"));
         $array_item["areas"] = $em->getRepository(Areas::class)->findBy(array(),array("name" => "ASC"));
 
         if(!$request->get("export_excel") && !$request->get("export_pdf")){

@@ -89,8 +89,8 @@ class DocumentsController extends Controller
         $serializer = $this->get('serializer');
 
         $array_item["types"] = $this->getDoctrine()->getRepository(Types::class)->findAll();
-        $array_item["users"] = $this->getDoctrine()->getRepository(Users::class)->findAll();
-        $array_item["groups"] = $this->getDoctrine()->getRepository(Groups::class)->findAll();
+        $array_item["users"] = $this->getDoctrine()->getRepository(Users::class)->findBy(array(),array("name" => "ASC"));
+        $array_item["groups"] = $this->getDoctrine()->getRepository(Groups::class)->findBy(array(),array("name" => "ASC"));
 
         if($id!=0){
             $item = $this->getDoctrine()->getRepository(Documents::class)->findOneById($id);

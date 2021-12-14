@@ -99,7 +99,7 @@ class AreasController extends Controller
             }
         }
 
-        $array_item["users"] = $this->getDoctrine()->getRepository(Users::class)->findAll();
+        $array_item["users"] = $this->getDoctrine()->getRepository(Users::class)->findBy(array(),array("name" => "ASC"));
                 
 
         return $this->render('NononsenseHomeBundle:Areas:area.html.twig',$array_item);

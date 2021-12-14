@@ -68,8 +68,8 @@ class RetentionCategoriesController extends Controller
 
         $states = $em->getRepository(RCStates::class)->findAll();
         $types = $em->getRepository(RCTypes::class)->findAll();
-        $users = $em->getRepository(Users::class)->findAll();
-        $groups = $em->getRepository(Groups::class)->findAll();
+        $users = $em->getRepository(Users::class)->findBy(array(),array("name" => "ASC"));
+        $groups = $em->getRepository(Groups::class)->findBy(array(),array("name" => "ASC"));
         $used = (count($category->getTemplates()) > 1);
 
         $data = [

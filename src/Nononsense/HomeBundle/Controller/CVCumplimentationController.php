@@ -82,8 +82,8 @@ class CVCumplimentationController extends Controller
 
         $array["type_cumplimentations"] = $this->getDoctrine()->getRepository(TMCumplimentations::class)->findBy(array(),array("id" => "ASC"));
         $array["secondWf"]=$em->getRepository(TMSecondWorkflow::class)->findBy(array("template" => $template));
-        $array["users"] = $em->getRepository(Users::class)->findAll();
-        $array["groups"] = $em->getRepository(Groups::class)->findAll();
+        $array["users"] = $em->getRepository(Users::class)->findBy(array(),array("name" => "ASC"));
+        $array["groups"] = $em->getRepository(Groups::class)->findBy(array(),array("name" => "ASC"));
         
         return $this->render('NononsenseHomeBundle:CV:new_cumpli.html.twig',$array);
     }

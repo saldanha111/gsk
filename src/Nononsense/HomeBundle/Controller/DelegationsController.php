@@ -105,7 +105,7 @@ class DelegationsController extends Controller
         }
 
         $array_item['delegation'] = $delegation;
-        $array_item["users"] = $em->getRepository(Users::class)->findAll();
+        $array_item["users"] = $em->getRepository(Users::class)->findBy(array(),array("name" => "ASC"));
         $array_item["types"] = $this->getDoctrine()->getRepository(DelegationsTypes::class)->findAll();
         $array_item['time'] = time();
 
