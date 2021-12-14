@@ -45,7 +45,7 @@ $( document ).ready(function() {
 			manual_fill=1;
 			var find=0;
 			custom_value=$(this).attr('name');
-			$("#form_fill").find("[name='gsk_manual_fill\[\]']").each(function(){
+			$("#form_fill").find("[name^='gsk_manual_fill']").each(function(){
 				console.log("##"+custom_value+"##");
 				if($(this).val()==custom_value){
 					find=1;
