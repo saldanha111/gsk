@@ -42,7 +42,14 @@ $( document ).ready(function() {
 		if(!$(this).val()){
 			$(this).attr("readonly", false); 
 			manual_fill=1;
-			if(!$("#form_fill").find("[name='gsk_manual_fill\[\]'][innerHtml='"+$(this).attr('name')+"']").length){
+			find=0;
+
+			$("#form_fill").find("[name='gsk_manual_fill\[\]']").each(function(){
+				if($(this).val()==$(this).attr('name')){
+					$find=1;
+				}
+			});
+			if(!find){
 				$("#form_fill").append('<input type="hidden" name="gsk_manual_fill[]" value="'+$(this).attr('name')+'" />');
 			}
 		}
