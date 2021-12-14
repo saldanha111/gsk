@@ -42,7 +42,7 @@ $( document ).ready(function() {
 		if(!$(this).val()){
 			$(this).attr("readonly", false); 
 			manual_fill=1;
-			if(!$("#form_fill").find("[name='gsk_manual_fill\[\]'][html='"+$(this).attr('name')+"']").length){
+			if(!$("#form_fill").find("[name='gsk_manual_fill\[\]'][innerHtml='"+$(this).attr('name')+"']").length){
 				$("#form_fill").append('<input type="hidden" name="gsk_manual_fill[]" value="'+$(this).attr('name')+'" />');
 			}
 		}
