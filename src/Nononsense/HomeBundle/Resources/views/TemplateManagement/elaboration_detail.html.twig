@@ -104,7 +104,7 @@
                                                 {% endif %}
                                             </div>
                                             <div class="col-sm-3 box_signatures">
-                                                <input type="number" name="signatures[]" class="form-control field_cumplimentation" value="{{cumplimentation.signaturesNumber is defined ? cumplimentation.signaturesNumber : ''}}" required="required">
+                                                <input type="number" min="1" name="signatures[]" class="form-control field_cumplimentation" value="{{cumplimentation.signaturesNumber is defined ? cumplimentation.signaturesNumber : ''}}" required="required">
                                             </div>
                                             <div class="col-sm-1">
                                                 <a href="javascript:void(0)" class="btn btn-xs btn-danger remove_line"><i class="fa fa-times" aria-hidden="true"></i></a>
@@ -116,7 +116,7 @@
                             <br>
                             <div class="row">
                                 <div class="col-lg-11">
-                                    <input type="submit" class="btn btn-primary pull-right" value="Firmar">
+                                    <input type="submit" id="pre_workflow_submit" class="btn btn-primary pull-right" value="Firmar" {{ cumplimentations is not defined or cumplimentations is empty ? 'disabled="disabled"' : ''}}>
                                     <button type="button" class="btn btn-default pull-right add_line" style="margin-right:4px"><i class="fa fa-plus"></i> Añadir</button>
                                 </div>
                             </div><br> 
@@ -299,7 +299,7 @@
                 {% endif %}
             </div>
             <div class="col-sm-3 box_signatures">
-                <input type="number" name="signatures[]" class="form-control field_cumplimentation" value="" required="required">
+                <input type="number" name="signatures[]" min="1" class="form-control field_cumplimentation" value="" required="required">
             </div>
             <div class="col-sm-1">
                 <a href="javascript:void(0)" class="btn btn-xs btn-danger remove_line"><i class="fa fa-times" aria-hidden="true"></i></a>
@@ -346,8 +346,13 @@ $( document ).ready(function() {
         if (signaturePad.isEmpty()){
             toastr.error("La firma es obligatoria",'aviso');
         }else{
-            $("#signature").val(signaturePad.toDataURL());
-            return true;
+            if($('#form_upload_document').find('[name="finish_elaboration"]').is(':checked') && {{min_cumplimentations}}==0){
+                toastr.error("Debe haber al menos un cumplimentador o un verificador y haber firmado el workflow",'aviso');
+            }
+            else{
+                $("#signature").val(signaturePad.toDataURL());
+                return true;
+            }
         }
         return false;
     });
@@ -356,8 +361,13 @@ $( document ).ready(function() {
         if (signaturePad2.isEmpty()){
             toastr.error("La firma es obligatoria",'aviso');
         }else{
-            $("#signature2").val(signaturePad2.toDataURL());
-            return true;
+            if($('#form_sign_configuration').find('[name="finish_elaboration"]').is(':checked') && {{min_cumplimentations}}==0){
+                toastr.error("Debe haber al menos un cumplimentador o un verificador y haber firmado el workflow",'aviso');
+            }
+            else{
+                $("#signature2").val(signaturePad2.toDataURL());
+                return true;
+            }
         }
         return false;
     });
@@ -392,12 +402,14 @@ $( document ).ready(function() {
     /* Añadimos linea en ese paso del workflow */
     $(document).on('click', '.add_line', function() {
         add_line();
+        check_sign();
     });
 
     /* Eliminamos linea en ese paso del workflow */
     $(document).on('click', '.remove_line', function() {
         $(this).closest(".line_workflow").remove();
         add_justification();
+        check_sign();
     });
 
     $(document).on('change', '.field_cumplimentation', function() {
@@ -435,6 +447,15 @@ function add_line(){
 
 function add_justification(){
     $(".justify_workflow").show();
+}
+
+function check_sign(){
+    if($('#form_sign_workflow').find('.field_cumplimentation').length){
+        $("#pre_workflow_submit").prop('disabled', false);
+    }
+    else{
+        $("#pre_workflow_submit").prop('disabled', true);
+    }
 }
 
 </script>

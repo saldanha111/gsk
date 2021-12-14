@@ -166,6 +166,12 @@ class TemplateElaborateTemplatesController extends Controller
         $action = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 2));
         $array_item["elab"] = $this->getDoctrine()->getRepository(TMWorkflow::class)->findBy(array("template" => $array_item["template"], "action" => $action),array("id" => "ASC"));
         $array_item["cumplimentations"] = $this->getDoctrine()->getRepository(TMSecondWorkflow::class)->findBy(array("template" => $array_item["template"]),array("id" => "ASC"));
+        if(count($array_item["cumplimentations"])>0){
+            $array_item["min_cumplimentations"]=1;
+        }
+        else{
+            $array_item["min_cumplimentations"]=0;
+        }
 
 
         return $this->render('NononsenseHomeBundle:TemplateManagement:elaboration_detail.html.twig',$array_item);
