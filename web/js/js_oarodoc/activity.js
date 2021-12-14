@@ -1,4 +1,5 @@
 var gsk_comment=0;
+var custom_value;
 $( document ).ready(function() {
 	$("#btn_save").html('<i class="fa fa-send-o"></i> Enviar y firmar');
 	$("#btn_save_partial").html('<i class="fa fa-save"></i> Guardar y firmar');
@@ -45,7 +46,7 @@ $( document ).ready(function() {
 			find=0;
 			custom_value=$(this).attr('name');
 			$("#form_fill").find("[name='gsk_manual_fill\[\]']").each(function(){
-				console.log(custom_value);
+				console.log("##"+custom_value+"##");
 				if($(this).val()==custom_value){
 					$find=1;
 				}
