@@ -50,7 +50,7 @@ $( document ).ready(function() {
 
 	
 
-	$('#form_fill').find('input[name^="gsk_manual_fill"]').each(function() {
+	$('#form_fill').find('[name^="gsk_manual_fill"]').each(function() {
 		$('[name="'+$(this).val()+'"]').attr("readonly", false);
 	});
 
