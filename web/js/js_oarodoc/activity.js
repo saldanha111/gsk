@@ -7,6 +7,7 @@ $( document ).ready(function() {
 	$('input[name ="gsk_comment"]').remove();
 	$('#form_fill').on('keyup change paste', 'input:not(:disabled):not([readonly]), select:not(:disabled):not([readonly]), textarea:not(:disabled):not([readonly])', function(){
 		$("#btn_custom_close").addClass("disabled");
+		$("#btn_cancel").removeClass("disabled");
 		if(checkCommentCompulsory($(this))){
 			$("#form_fill").append('<input type="hidden" name="gsk_comment" value="1" />');
 		}
@@ -63,10 +64,18 @@ $( document ).ready(function() {
 		$('[name="'+$(this).val()+'"]').attr("readonly", false);
 	});
 
+	init_prefill=0;
 	$('#form_fill').find('[name="gsk_init_prefill"]').each(function() {
 		$("#btn_custom_close").addClass("disabled");
 		$(this).remove();
+		init_prefill=1;
 	});
+
+	console.log(data.dxo_gsk_firmas);
+
+	if(init_prefill==0 && data.dxo_gsk_firmas==""){
+		$("#btn_cancel").addClass("disabled");
+	}
 
 	if(manual_fill){
 		is_manual_fill();
