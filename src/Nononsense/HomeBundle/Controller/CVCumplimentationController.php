@@ -187,6 +187,10 @@ class CVCumplimentationController extends Controller
             $params["data"]=array_merge($params["data"],$value_qr);
         }
 
+        if($request->get("unique") || $request->get("value_qr")){
+            $params["data"]["gsk_init_prefill"]=1;
+        }
+
         $json_value=json_encode(array("data" => $params["data"]), JSON_FORCE_OBJECT);
         $sign->setJson($json_value);
         $em->persist($sign);

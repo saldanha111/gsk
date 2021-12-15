@@ -63,6 +63,11 @@ $( document ).ready(function() {
 		$('[name="'+$(this).val()+'"]').attr("readonly", false);
 	});
 
+	$('#form_fill').find('[name="gsk_init_prefill"]').each(function() {
+		$("#btn_custom_close").addClass("disabled");
+		$(this).remove();
+	});
+
 	if(manual_fill){
 		is_manual_fill();
 	}
