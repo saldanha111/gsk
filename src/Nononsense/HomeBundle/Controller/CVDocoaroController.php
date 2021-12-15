@@ -435,6 +435,8 @@ class CVDocoaroController extends Controller
                                 break;
                             case "cancel":
                                 $signature->setFinish(TRUE);
+                                $fix_action = $this->getDoctrine()->getRepository(CVActions::class)->findOneBy(array("id" => 1));
+                                $signature->setAction($fix_action);
                                 break;
                         }
                     }

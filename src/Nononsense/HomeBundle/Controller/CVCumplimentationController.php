@@ -556,6 +556,25 @@ class CVCumplimentationController extends Controller
                         }
                     }
 
+                    //Sacamos los emails de los usuarios a los que tenemos que notificar de que tienen una cumplimentación pendiente por haber sido rechazada la cancelación en verificación
+                    if($next_state->getType() && $next_state->getType()->getId()==1 && $signature->getAction()->getId()==2){
+                        $emails_wfs=$this->getDoctrine()->getRepository(CVWorkflow::class)->findBy(array('record' => $record));
+                        foreach($emails_wfs as $email_wfs){
+                            if($email_wfs->getType()->getTmType()==$next_state->getType()){
+                                $send_email=2;
+                                if($email_wfs->getUser()){
+                                    $emails[]=$email_wfs->getUser()->getEmail();
+                                }
+                                else{
+                                    $aux_users = $em->getRepository(GroupUsers::class)->findBy(["group" => $email_wfs->getGroup()]);
+                                    foreach ($aux_users as $aux_user) {
+                                        $emails[]=$aux_user->getUser()->getEmail();
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                     //Vaciamos próximo bloque de firmas activo
                     $other_signatures=$this->getDoctrine()->getRepository(CVSignatures::class)->findBy(array('record' => $record,"signed" => TRUE,"finish" => TRUE));
                     foreach($other_signatures as $other_signature){
@@ -623,17 +642,27 @@ class CVCumplimentationController extends Controller
 
 
 
-            if($send_email==1){
+            if($send_email){
+                switch($send_email){
+                    case 1:
+                        $subject="Cumplimentación pendiente de verificación";
+                        $mensaje='El registro con ID '.$record->getId().' está pendiente de verificación por su parte. Para poder verificarlo puede acceder a la sección "Buscador" o "En proceso", buscar el documento y pulsar en Verificar';
+                        $baseURL=$this->container->get('router')->generate('nononsense_cv_search')."?id=".$record->getId();
+                        break;
+                    case 2:
+                        $subject="Cancelación rechazada en verificación";
+                        $mensaje='La cancelación del registro con ID '.$record->getId().' ha sido rechazada en verificación. Para poder continuar con la cumplimentación puede acceder a la sección "Buscador" o "En proceso", buscar el documento y pulsar en Cumplimentar';
+                        $baseURL=$this->container->get('router')->generate('nononsense_cv_search')."?id=".$record->getId();
+                        break;
+                }
+
                 foreach($emails as $email){
-                    $subject="Cumplimentación pendiente de verificación";
-                    $mensaje='El registro con ID '.$record->getId().' está pendiente de verificación por su parte. Para poder verificarlo puede acceder a la sección "Buscador" o "En proceso", buscar el documento y pulsar en Verificar';
-                    $baseURL=$this->container->get('router')->generate('nononsense_cv_search')."?id=".$record->getId();
                     $this->get('utilities')->sendNotification($email, $baseURL, "", "", $subject, $mensaje);
                 }
+                
             }
 
         }
-
 
         $em->persist($record);
         $em->flush();
