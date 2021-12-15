@@ -184,6 +184,11 @@ class CVRecordsRepository extends EntityRepository
                 $list->setParameter('not_this', $filters["not_this"]);
             }
 
+            if(isset($filters["return"])){
+                $list->andWhere('s.id=1 AND (SELECT COUNT(ret.id) FROM Nononsense\HomeBundle\Entity\cvSignatures ret WHERE IDENTITY(ret.action)=6)>0');
+            }
+
+
             if(isset($filters["plantilla_id"])){
                 $list->andWhere('t.id=:plantilla_id');
                 $list->setParameter('plantilla_id', $filters["plantilla_id"]);
