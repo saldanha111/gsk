@@ -42,7 +42,7 @@ class CVRecordsRepository extends EntityRepository
                     $require_action.=$operator."(sig.user=:eluser1".$key." OR (sig.user IS NULL AND last.user is NULL) 
                             OR
                             (
-                                t.correlative=TRUE AND sig.user IS NULL AND  (w.user=:eluser1".$key." OR (w.group IN (:groups".$key.") AND :eluser3".$key." NOT IN (SELECT IDENTITY(vvv1_".$key.".user) FROM Nononsense\HomeBundle\Entity\CVWorkflow vvv1_".$key." WHERE vvv1_".$key.".record=i.id)  AND :eluser3".$key." NOT IN (SELECT IDENTITY(vvv2_".$key.".user) FROM Nononsense\HomeBundle\Entity\CVSignatures vvv2_".$key." LEFT JOIN  Nononsense\HomeBundle\Entity\CVActions vvv3_".$key." WITH vvv2_".$key.".action=vvv3_".$key.".id WHERE vvv2_".$key.".record=i.id AND (vvv3_".$key.".type!=a.type OR vvv2_".$key.".finish=TRUE)) ))
+                                t.correlative=TRUE AND sig.user IS NULL AND  (w.user=:eluser1".$key." OR (w.group IN (:groups".$key.") AND :eluser3".$key." NOT IN (SELECT IDENTITY(vvv1_".$key.".user) FROM Nononsense\HomeBundle\Entity\CVWorkflow vvv1_".$key." WHERE vvv1_".$key.".record=i.id AND vvv1_".$key.".user IS NOT NULL)  AND :eluser3".$key." NOT IN (SELECT IDENTITY(vvv2_".$key.".user) FROM Nononsense\HomeBundle\Entity\CVSignatures vvv2_".$key." LEFT JOIN  Nononsense\HomeBundle\Entity\CVActions vvv3_".$key." WITH vvv2_".$key.".action=vvv3_".$key.".id WHERE vvv2_".$key.".record=i.id AND (vvv3_".$key.".type!=a.type OR vvv2_".$key.".finish=TRUE)) ))
                             )
                             OR
                             (
