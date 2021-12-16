@@ -470,7 +470,7 @@ class CVCumplimentationController extends Controller
             foreach ($aux_users as $aux_user) {
                 $subject="Modificaciones GxP";
                 $mensaje='Se ha realizado una modificación GxP sobre el registro '.$record->getId().' y está pendiente de aprobación por su parte. Para poder aprobarlo puede acceder a la sección "Modificaciones GxP", buscar el documento y pulsar en  "Aprobar modificación GxP"';
-                $baseURL=$this->container->get('router')->generate('nononsense_cv_search',true)."?gxp=1&id=".$record->getId();
+                $baseURL=$this->container->get('router')->generate('nononsense_cv_search',array(),true)."?gxp=1&id=".$record->getId();
                 $this->get('utilities')->sendNotification($aux_user->getUser()->getEmail(), $baseURL, "", "", $subject, $mensaje);
             }
         }
@@ -647,12 +647,12 @@ class CVCumplimentationController extends Controller
                     case 1:
                         $subject="Cumplimentación pendiente de verificación";
                         $mensaje='El registro con ID '.$record->getId().' está pendiente de verificación por su parte. Para poder verificarlo puede acceder a la sección "Buscador" o "En proceso", buscar el documento y pulsar en Verificar';
-                        $baseURL=$this->container->get('router')->generate('nononsense_cv_search')."?id=".$record->getId();
+                        $baseURL=$this->container->get('router')->generate('nononsense_cv_search',array(),true)."?id=".$record->getId();
                         break;
                     case 2:
                         $subject="Cancelación rechazada en verificación";
                         $mensaje='La cancelación del registro con ID '.$record->getId().' ha sido rechazada en verificación. Para poder continuar con la cumplimentación puede acceder a la sección "Buscador" o "En proceso", buscar el documento y pulsar en Cumplimentar';
-                        $baseURL=$this->container->get('router')->generate('nononsense_cv_search',true)."?id=".$record->getId();
+                        $baseURL=$this->container->get('router')->generate('nononsense_cv_search',array(),true)."?id=".$record->getId();
                         break;
                 }
 
