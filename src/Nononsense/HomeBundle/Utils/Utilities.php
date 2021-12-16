@@ -396,9 +396,6 @@ class Utilities{
 
            return $notification;
        }
-       else{
-            retun false;
-       }
     }
 
     public $multi_obj_diff_counter = 0;
