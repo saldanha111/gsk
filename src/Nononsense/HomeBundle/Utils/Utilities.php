@@ -383,18 +383,22 @@ class Utilities{
     public function insertNotification($email,$subject,$message){
 
        $user = $this->em->getRepository(Users::class)->findOneBy(array('email' => $email));
+       if($user){
+           $notification = new Notifications();
 
-       $notification = new Notifications();
+           $notification->setSubject($subject);
+           $notification->setBody($message);
+           $notification->setIsActive(1);
+           $notification->setUser($user);
 
-       $notification->setSubject($subject);
-       $notification->setBody($message);
-       $notification->setIsActive(1);
-       $notification->setUser($user);
+           $this->em->persist($notification);
+           $this->em->flush();
 
-       $this->em->persist($notification);
-       $this->em->flush();
-
-       return $notification;
+           return $notification;
+       }
+       else{
+            retun false;
+       }
     }
 
     public $multi_obj_diff_counter = 0;
