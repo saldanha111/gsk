@@ -382,7 +382,7 @@ class Utilities{
 
     public function insertNotification($email,$subject,$message){
 
-       $user = $this->em->getRepository('NononsenseUserBundle:Users')->findOneBy(array('email' => $email));
+       $user = $this->em->getRepository(Users::class)->findOneBy(array('email' => $email));
 
        $notification = new Notifications();
 

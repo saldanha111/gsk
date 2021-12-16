@@ -44,6 +44,7 @@ class CertificateCommand extends ContainerAwareCommand
 			} catch (\Exception $e) {
 				$subject = 'Error de certificación';
 				$message = 'Error durante la certificación de un documento: '.$e->getMessage();
+				echo $message;die();
 				$this->getContainer()->get('utilities')->sendNotification('asantos@oaro.net', false, false, false, $subject, $message);
 				$output->writeln(['<error>'.$e->getMessage().'</error>']);
 			}
