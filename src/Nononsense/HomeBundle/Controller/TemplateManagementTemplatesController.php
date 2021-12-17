@@ -112,6 +112,26 @@ class TemplateManagementTemplatesController extends Controller
 
         if($request->get("state")){
             $filters["state"]=$request->get("state");
+
+            $perm_state = $this->getDoctrine()->getRepository(TMStates::class)->findOneBy(array("id" => $request->get("state")));
+            if($perm_state->getPem() && !$this->get('app.security')->permissionSeccion($perm_state->getPem())){
+                $this->get('session')->getFlashBag()->add(
+                    'error',
+                    'No tiene permisos suficientes'
+                );
+                $route=$this->container->get('router')->generate('nononsense_home_homepage');
+                return $this->redirect($route);
+            }
+        }
+        else{
+            if(!$request->get("request_drop") && !$request->get("request_review")){
+                $this->get('session')->getFlashBag()->add(
+                    'error',
+                    'Tiene que filtrar por al menos un estado'
+                );
+                $route=$this->container->get('router')->generate('nononsense_home_homepage');
+                return $this->redirect($route);
+            }
         }
 
         if($request->get("applicant")){
@@ -172,7 +192,7 @@ class TemplateManagementTemplatesController extends Controller
                         'error',
                         'No tiene permisos suficientes'
                     );
-                    $route=$this->container->get('router')->generate('nononsense_tm_templates');
+                    $route=$this->container->get('router')->generate('nononsense_home_homepage');
                     return $this->redirect($route);
                 }
                 return $this->render('NononsenseHomeBundle:TemplateManagement:requests_review_templates.html.twig',$array_item);
@@ -185,7 +205,7 @@ class TemplateManagementTemplatesController extends Controller
                     'error',
                     'No tiene permisos suficientes'
                 );
-                $route=$this->container->get('router')->generate('nononsense_tm_templates');
+                $route=$this->container->get('router')->generate('nononsense_home_homepage');
                 return $this->redirect($route);
             }
             return $this->render('NononsenseHomeBundle:TemplateManagement:request_drop_templates.html.twig',$array_item);            
@@ -219,7 +239,7 @@ class TemplateManagementTemplatesController extends Controller
                     'error',
                     'La plantilla indicada no se encuentra en vigor y por tanto no se puede realizar ninguna acción de solicitud sobre ella'
                 );
-                $route=$this->container->get('router')->generate('nononsense_tm_templates');
+                $route=$this->container->get('router')->generate('nononsense_home_homepage');
                 return $this->redirect($route);
             }
         }
@@ -232,7 +252,7 @@ class TemplateManagementTemplatesController extends Controller
                     'error',
                     'No tiene permisos suficientes'
                 );
-                $route=$this->container->get('router')->generate('nononsense_tm_templates');
+                $route=$this->container->get('router')->generate('nononsense_home_homepage');
                 return $this->redirect($route);
             }
 
@@ -241,7 +261,7 @@ class TemplateManagementTemplatesController extends Controller
                     'error',
                     'Solo el dueño o backup de esta plantilla puede crear una solicitud de baja'
                 );
-                $route=$this->container->get('router')->generate('nononsense_tm_templates');
+                $route=$this->container->get('router')->generate('nononsense_home_homepage');
                 return $this->redirect($route);
             }
 
@@ -253,7 +273,7 @@ class TemplateManagementTemplatesController extends Controller
                     'error',
                     'Ya existe una solicitud de baja para esta plantilla'
                 );
-                $route=$this->container->get('router')->generate('nononsense_tm_templates');
+                $route=$this->container->get('router')->generate('nononsense_home_homepage');
                 return $this->redirect($route);
             }
         }
@@ -266,7 +286,7 @@ class TemplateManagementTemplatesController extends Controller
                     'error',
                     'No tiene permisos suficientes'
                 );
-                $route=$this->container->get('router')->generate('nononsense_tm_templates');
+                $route=$this->container->get('router')->generate('nononsense_home_homepage');
                 return $this->redirect($route);
             }
 
@@ -278,7 +298,7 @@ class TemplateManagementTemplatesController extends Controller
                     'error',
                     'No esta denominado como administrador de esta plantilla y por tanto no puede tramitar aprobar o rechazar la solicitud de baja'
                 );
-                $route=$this->container->get('router')->generate('nononsense_tm_templates');
+                $route=$this->container->get('router')->generate('nononsense_home_homepage');
                 return $this->redirect($route);
             }
 
@@ -289,7 +309,7 @@ class TemplateManagementTemplatesController extends Controller
                     'error',
                     'No hay una solicitud de baja para esta plantilla'
                 );
-                $route=$this->container->get('router')->generate('nononsense_tm_templates');
+                $route=$this->container->get('router')->generate('nononsense_home_homepage');
                 return $this->redirect($route);
             }
         }
@@ -301,7 +321,7 @@ class TemplateManagementTemplatesController extends Controller
                     'error',
                     'No tiene permisos suficientes'
                 );
-                $route=$this->container->get('router')->generate('nononsense_tm_templates');
+                $route=$this->container->get('router')->generate('nononsense_home_homepage');
                 return $this->redirect($route);
             }
 
@@ -319,7 +339,7 @@ class TemplateManagementTemplatesController extends Controller
                     'error',
                     'Solo el dueño o elaborador de esta plantilla puede crear una solicitud de revisión'
                 );
-                $route=$this->container->get('router')->generate('nononsense_tm_templates');
+                $route=$this->container->get('router')->generate('nononsense_home_homepage');
                 return $this->redirect($route);
             }
 
@@ -328,7 +348,7 @@ class TemplateManagementTemplatesController extends Controller
                     'error',
                     'Ya existe una solicitud de revisión abierta para esta plantilla'
                 );
-                $route=$this->container->get('router')->generate('nononsense_tm_templates');
+                $route=$this->container->get('router')->generate('nononsense_home_homepage');
                 return $this->redirect($route);
             }
 
@@ -337,7 +357,7 @@ class TemplateManagementTemplatesController extends Controller
                     'error',
                     'No se puede realizar una solicitud de esta plantilla puesto que aún ha llegado la fecha de su revisión periódica'
                 );
-                $route=$this->container->get('router')->generate('nononsense_tm_templates');
+                $route=$this->container->get('router')->generate('nononsense_home_homepage');
                 return $this->redirect($route);
             }
 
@@ -360,7 +380,7 @@ class TemplateManagementTemplatesController extends Controller
                 'error',
                 'No tiene permisos suficientes'
             );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
 
@@ -375,7 +395,7 @@ class TemplateManagementTemplatesController extends Controller
                             'error',
                             'Solo el dueño o backup puede aceptar o rechazar la solicitud'
                         );
-                        $route=$this->container->get('router')->generate('nononsense_tm_templates');
+                        $route=$this->container->get('router')->generate('nononsense_home_homepage');
                         return $this->redirect($route);
                     }
 
@@ -410,7 +430,7 @@ class TemplateManagementTemplatesController extends Controller
 
                             $em->flush();
 
-                            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+                            $route=$this->container->get('router')->generate('nononsense_home_homepage');
                             return $this->redirect($route);
                         }
                     }
@@ -422,7 +442,7 @@ class TemplateManagementTemplatesController extends Controller
             'error',
             'No se ha podido efectuar la operación sobre la plantilla especifiada. Es posible que ya se haya realizado una acción sobre ella o que la plantilla ya no exista'
         );
-        $route=$this->container->get('router')->generate('nononsense_tm_templates');
+        $route=$this->container->get('router')->generate('nononsense_home_homepage');
         return $this->redirect($route);
     }
 
@@ -438,7 +458,7 @@ class TemplateManagementTemplatesController extends Controller
                 'error',
                 'No tiene permisos suficientes'
             );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
 
@@ -454,7 +474,7 @@ class TemplateManagementTemplatesController extends Controller
                             'error',
                             'Ya hay una solicitud de baja para esta plantilla'
                         );
-                        $route=$this->container->get('router')->generate('nononsense_tm_templates');
+                        $route=$this->container->get('router')->generate('nononsense_home_homepage');
                         return $this->redirect($route);
                     }
 
@@ -463,7 +483,7 @@ class TemplateManagementTemplatesController extends Controller
                             'error',
                             'Solo el dueño o backup puede crear una solicitud de baja'
                         );
-                        $route=$this->container->get('router')->generate('nononsense_tm_templates');
+                        $route=$this->container->get('router')->generate('nononsense_home_homepage');
                         return $this->redirect($route);
                     }
 
@@ -512,7 +532,7 @@ class TemplateManagementTemplatesController extends Controller
 
                         $em->flush();
 
-                        $route=$this->container->get('router')->generate('nononsense_tm_templates');
+                        $route=$this->container->get('router')->generate('nononsense_home_homepage');
                         return $this->redirect($route);
                     }
                     
@@ -524,7 +544,7 @@ class TemplateManagementTemplatesController extends Controller
             'error',
             'No se ha podido efectuar la operación sobre la plantilla especificada. Es posible que ya se haya realizado una acción sobre ella o que la plantilla ya no exista'
         );
-        $route=$this->container->get('router')->generate('nononsense_tm_templates');
+        $route=$this->container->get('router')->generate('nononsense_home_homepage');
         return $this->redirect($route);
     }
 
@@ -540,7 +560,7 @@ class TemplateManagementTemplatesController extends Controller
                 'error',
                 'No tiene permisos suficientes'
             );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
 
@@ -557,7 +577,7 @@ class TemplateManagementTemplatesController extends Controller
                             'error',
                             'No existe una solicitud de baja sobre esta plantilla'
                         );
-                        $route=$this->container->get('router')->generate('nononsense_tm_templates');
+                        $route=$this->container->get('router')->generate('nononsense_home_homepage');
                         return $this->redirect($route);
                     }
 
@@ -569,7 +589,7 @@ class TemplateManagementTemplatesController extends Controller
                             'error',
                             'No tiene permisos para aceptar la solicitud de esta plantilla'
                         );
-                        $route=$this->container->get('router')->generate('nononsense_tm_templates');
+                        $route=$this->container->get('router')->generate('nononsense_home_homepage');
                         return $this->redirect($route);
                     }
 
@@ -628,7 +648,7 @@ class TemplateManagementTemplatesController extends Controller
                         $em->flush();
 
                         $this->get('session')->getFlashBag()->add('message',$desc_error);
-                        $route=$this->container->get('router')->generate('nononsense_tm_templates');
+                        $route=$this->container->get('router')->generate('nononsense_home_homepage');
                         return $this->redirect($route);
                     }
                     
@@ -640,7 +660,7 @@ class TemplateManagementTemplatesController extends Controller
             'error',
             'No se ha podido efectuar la operación sobre la solicitud especificada. Es posible que ya se haya realizado una acción sobre ella'
         );
-        $route=$this->container->get('router')->generate('nononsense_tm_templates');
+        $route=$this->container->get('router')->generate('nononsense_home_homepage');
         return $this->redirect($route);
     }
 
@@ -771,7 +791,7 @@ class TemplateManagementTemplatesController extends Controller
                 'error',
                 'No se puede cargar la configuración de esta plantilla'
             );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
         

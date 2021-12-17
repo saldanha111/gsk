@@ -43,7 +43,7 @@ class TemplateElaborateTemplatesController extends Controller
                 'error',
                 'No tiene permisos suficientes'
             );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
 
@@ -55,7 +55,7 @@ class TemplateElaborateTemplatesController extends Controller
                 'error',
                 'La plantilla indicada no se encuentra en estado de elaboración'
             );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
 
@@ -91,7 +91,7 @@ class TemplateElaborateTemplatesController extends Controller
                 'error',
                 'No tiene permisos para elaborar este documento'
             );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
 
@@ -188,7 +188,7 @@ class TemplateElaborateTemplatesController extends Controller
                 'error',
                 'No tiene permisos suficientes'
             );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
 
@@ -200,7 +200,7 @@ class TemplateElaborateTemplatesController extends Controller
                 'error',
                 'La plantilla indicada no se encuentra en estado de elaboración'
             );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
 
@@ -209,7 +209,7 @@ class TemplateElaborateTemplatesController extends Controller
                 'error',
                 'No se puede efectuar la operación'
             );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
 
@@ -263,7 +263,7 @@ class TemplateElaborateTemplatesController extends Controller
                 'error',
                 'No tiene permisos para elaborar este documento'
             );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
 
@@ -320,7 +320,7 @@ class TemplateElaborateTemplatesController extends Controller
                         'error',
                         'Hubo un problema al firmar la configuración realizada. Es posible que la plantilla haya cambiado desde entonces'
                     );
-                    $route=$this->container->get('router')->generate('nononsense_tm_templates');
+                    $route=$this->container->get('router')->generate('nononsense_home_homepage');
                     return $this->redirect($route);
                 }
 
@@ -346,7 +346,7 @@ class TemplateElaborateTemplatesController extends Controller
                 'error',
                 'Hubo un problema al subir el documento de la nueva plantilla'
             );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
 
@@ -411,7 +411,7 @@ class TemplateElaborateTemplatesController extends Controller
         $em->flush();
 
         $this->get('session')->getFlashBag()->add('message', "La operación se ha ejecutado con éxito");
-        $route = $this->container->get('router')->generate('nononsense_tm_templates');
+        $route = $this->container->get('router')->generate('nononsense_home_homepage');
         return $this->redirect($route);
     }
 
@@ -426,7 +426,7 @@ class TemplateElaborateTemplatesController extends Controller
                 'error',
                 'No tiene permisos suficientes'
             );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
 
@@ -438,7 +438,7 @@ class TemplateElaborateTemplatesController extends Controller
                 'error',
                 'La plantilla indicada no se encuentra en estado de elaboración'
             );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
 
@@ -447,7 +447,7 @@ class TemplateElaborateTemplatesController extends Controller
                 'error',
                 'No se puedo efectuar la operación'
             );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
 
@@ -535,7 +535,7 @@ class TemplateElaborateTemplatesController extends Controller
                 'error',
                 'No tiene permisos suficientes'
             );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
 
@@ -547,7 +547,7 @@ class TemplateElaborateTemplatesController extends Controller
                 'error',
                 'La plantilla indicada no se encuentra en solicitud de cancelación'
             );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
 
@@ -583,7 +583,7 @@ class TemplateElaborateTemplatesController extends Controller
                 'error',
                 'No tiene permisos para tramitar la cancelación de este documento o ya lo ha firmado previamente'
             );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
 
@@ -634,7 +634,7 @@ class TemplateElaborateTemplatesController extends Controller
                 'error',
                 'No tiene permisos suficientes'
             );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
 
@@ -646,7 +646,7 @@ class TemplateElaborateTemplatesController extends Controller
                 'error',
                 'La plantilla indicada no se encuentra en solicitud de cancelación para poder realizar el trámite'
             );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
 
@@ -657,7 +657,7 @@ class TemplateElaborateTemplatesController extends Controller
                 'error',
                 'No se puede efectuar la operación'
             );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
 
@@ -695,7 +695,7 @@ class TemplateElaborateTemplatesController extends Controller
                 'error',
                 'No tiene permisos para tramitar la cancelación del documento o ya lo ha firmado previamente'
             );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
 
@@ -707,7 +707,7 @@ class TemplateElaborateTemplatesController extends Controller
                 'error',
                 'Hubo un problema al tramitar la firma de solicitud de cancelación'
             );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
 
@@ -801,7 +801,7 @@ class TemplateElaborateTemplatesController extends Controller
         $em->flush();
 
         
-        $route = $this->container->get('router')->generate('nononsense_tm_templates');
+        $route = $this->container->get('router')->generate('nononsense_home_homepage');
        
 
         return $this->redirect($route);

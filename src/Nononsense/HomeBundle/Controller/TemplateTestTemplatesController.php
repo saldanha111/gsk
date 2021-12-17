@@ -45,7 +45,7 @@ class TemplateTestTemplatesController extends Controller
                 'error',
                 'No tiene permisos suficientes'
             );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
 
@@ -57,7 +57,7 @@ class TemplateTestTemplatesController extends Controller
                 'error',
                 'La plantilla indicada no se encuentra en fase test'
             );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
 
@@ -94,7 +94,7 @@ class TemplateTestTemplatesController extends Controller
                 'error',
                 'No tiene permisos para testear este documento'
             );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
 
@@ -177,7 +177,7 @@ class TemplateTestTemplatesController extends Controller
                 'error',
                 'No tiene permisos suficientes'
             );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
 
@@ -208,7 +208,7 @@ class TemplateTestTemplatesController extends Controller
 	                'error',
 	                'La plantilla indicada no se encuentra en fase test'
 	            );
-	            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+	            $route=$this->container->get('router')->generate('nononsense_home_homepage');
 	            return $this->redirect($route);
 	        }
 
@@ -217,7 +217,7 @@ class TemplateTestTemplatesController extends Controller
 	                'error',
 	                'No se puede efectuar la operación'
 	            );
-	            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+	            $route=$this->container->get('router')->generate('nononsense_home_homepage');
 	            return $this->redirect($route);
 	        }
 	    
@@ -373,7 +373,7 @@ class TemplateTestTemplatesController extends Controller
                 'error',
                 'No tiene permisos suficientes'
             );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
 
@@ -385,7 +385,7 @@ class TemplateTestTemplatesController extends Controller
                 'error',
                 'La plantilla indicada no se encuentra en fase Test'
             );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
 
@@ -394,7 +394,7 @@ class TemplateTestTemplatesController extends Controller
                 'error',
                 'No se puedo efectuar la operación'
             );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
 
@@ -405,7 +405,7 @@ class TemplateTestTemplatesController extends Controller
 	                'error',
 	                'No se puedo efectuar la operación'
 	            );
-	            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+	            $route=$this->container->get('router')->generate('nononsense_home_homepage');
 	            return $this->redirect($route);
         	}
         }
@@ -414,7 +414,7 @@ class TemplateTestTemplatesController extends Controller
                 'error',
                 'No se puedo efectuar la operación'
             );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
 
@@ -489,7 +489,7 @@ class TemplateTestTemplatesController extends Controller
                 'error',
                 'No tiene permisos para testear este documento'
             );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
 
@@ -624,7 +624,7 @@ class TemplateTestTemplatesController extends Controller
        
         if($request->get("finish_tests")){
         	$this->get('session')->getFlashBag()->add('message', "La operación se ha ejecutado con éxito");
-        	$route = $this->container->get('router')->generate('nononsense_tm_templates');
+        	$route = $this->container->get('router')->generate('nononsense_home_homepage');
         }
         else{
         	 $this->get('session')->getFlashBag()->add('message', "El test se ha añadido correctamente");

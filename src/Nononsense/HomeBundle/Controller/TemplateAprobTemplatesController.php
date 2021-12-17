@@ -46,7 +46,7 @@ class TemplateAprobTemplatesController extends Controller
                 'error',
                 'No tiene permisos suficientes'
             );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
 
@@ -58,7 +58,7 @@ class TemplateAprobTemplatesController extends Controller
                 'error',
                 'La plantilla indicada no se encuentra en fase de aprobación'
             );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
 
@@ -98,7 +98,7 @@ class TemplateAprobTemplatesController extends Controller
                 'error',
                 'No tiene permisos para aprobar esta plantilla'
             );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
 
@@ -167,7 +167,7 @@ class TemplateAprobTemplatesController extends Controller
                 'error',
                 'No tiene permisos suficientes'
             );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
 
@@ -179,7 +179,7 @@ class TemplateAprobTemplatesController extends Controller
                 'error',
                 'La plantilla indicada no se encuentra en fase de aprobación'
             );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
 
@@ -188,7 +188,7 @@ class TemplateAprobTemplatesController extends Controller
                 'error',
                 'No se puede efectuar la operación'
             );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
 
@@ -199,7 +199,7 @@ class TemplateAprobTemplatesController extends Controller
 	                'error',
 	                'No se puede efectuar la operación'
 	            );
-	            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+	            $route=$this->container->get('router')->generate('nononsense_home_homepage');
 	            return $this->redirect($route);
         	}
         }
@@ -208,7 +208,7 @@ class TemplateAprobTemplatesController extends Controller
                 'error',
                 'No se puede efectuar la operación'
             );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
         
@@ -248,7 +248,7 @@ class TemplateAprobTemplatesController extends Controller
                 'error',
                 'No tiene permisos para aprobar este documento'
             );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
 
@@ -437,7 +437,7 @@ class TemplateAprobTemplatesController extends Controller
 
         $this->get('session')->getFlashBag()->add('message', "La aprobación se ha realizado correctamente");
         if($user_workflow_finish){
-        	$route = $this->container->get('router')->generate('nononsense_tm_templates');
+        	$route = $this->container->get('router')->generate('nononsense_home_homepage');
         }
         else{
         	$route = $this->container->get('router')->generate('nononsense_tm_aprob_detail', array("id" => $template->getId()),TRUE);

@@ -42,6 +42,13 @@ class TMStates
      */
     protected $number;
 
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="pem", type="string", length=255,  nullable=true)
+     */
+    protected $pem;
+
 
 
     public function __construct()
@@ -140,5 +147,28 @@ class TMStates
     public function getTmTemplates()
     {
         return $this->tmTemplates;
+    }
+
+    /**
+     * Set pem
+     *
+     * @param string $pem
+     * @return TMStates
+     */
+    public function setPem($pem)
+    {
+        $this->pem = $pem;
+
+        return $this;
+    }
+
+    /**
+     * Get pem
+     *
+     * @return string 
+     */
+    public function getPem()
+    {
+        return $this->pem;
     }
 }

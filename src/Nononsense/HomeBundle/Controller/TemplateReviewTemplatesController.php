@@ -46,7 +46,7 @@ class TemplateReviewTemplatesController extends Controller
                 'error',
                 'No tiene permisos suficientes'
             );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
 
@@ -64,7 +64,7 @@ class TemplateReviewTemplatesController extends Controller
                 'error',
                 'Solo el dueño o elaborador de esta plantilla puede crear una solicitud de revisión'
             );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
 
@@ -73,7 +73,7 @@ class TemplateReviewTemplatesController extends Controller
                 'error',
                 'Ya existe una solicitud de revisión abierta para esta plantilla'
             );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
 
@@ -82,7 +82,7 @@ class TemplateReviewTemplatesController extends Controller
                 'error',
                 'No se puede realizar una solicitud de esta plantilla puesto que aún ha llegado la fecha de su revisión periódica'
             );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
 
@@ -134,7 +134,7 @@ class TemplateReviewTemplatesController extends Controller
 
                         $em->flush();
 
-                        $route=$this->container->get('router')->generate('nononsense_tm_templates');
+                        $route=$this->container->get('router')->generate('nononsense_home_homepage');
                         return $this->redirect($route);
                     }
                     
@@ -146,7 +146,7 @@ class TemplateReviewTemplatesController extends Controller
             'error',
             'No se ha podido efectuar la operación sobre la plantilla especificada. Es posible que ya se haya realizado una acción sobre ella o que la plantilla ya no exista'
         );
-        $route=$this->container->get('router')->generate('nononsense_tm_templates');
+        $route=$this->container->get('router')->generate('nononsense_home_homepage');
         return $this->redirect($route);
     }
 
@@ -160,7 +160,7 @@ class TemplateReviewTemplatesController extends Controller
                 'error',
                 'No tiene permisos suficientes'
             );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
 
@@ -172,7 +172,7 @@ class TemplateReviewTemplatesController extends Controller
                 'error',
                 'La plantilla indicada no se encuentra en vigor para poder realizar una revisión'
             );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
 
@@ -209,7 +209,7 @@ class TemplateReviewTemplatesController extends Controller
                 'error',
                 'No tiene permisos para revisar este documento o ya lo ha firmado previamente'
             );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
 
@@ -277,7 +277,7 @@ class TemplateReviewTemplatesController extends Controller
                 'error',
                 'No tiene permisos suficientes'
             );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
 
@@ -289,7 +289,7 @@ class TemplateReviewTemplatesController extends Controller
                 'error',
                 'La plantilla indicada no se encuentra en vigor para poder realizar una revisión'
             );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
 
@@ -300,7 +300,7 @@ class TemplateReviewTemplatesController extends Controller
                 'error',
                 'No se puede efectuar la operación'
             );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
 
@@ -338,7 +338,7 @@ class TemplateReviewTemplatesController extends Controller
                 'error',
                 'No tiene permisos para revisar este documento o ya lo ha firmado previamente'
             );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
 
@@ -354,7 +354,7 @@ class TemplateReviewTemplatesController extends Controller
                 'error',
                 'Hubo un problema al tramitar la firma de la solicitud de revisión'
             );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
 
@@ -428,7 +428,7 @@ class TemplateReviewTemplatesController extends Controller
         $em->flush();
 
         $this->get('session')->getFlashBag()->add('message', "La revisión se ha realizado con éxito");
-        $route = $this->container->get('router')->generate('nononsense_tm_templates');
+        $route = $this->container->get('router')->generate('nononsense_home_homepage');
        
 
         return $this->redirect($route);

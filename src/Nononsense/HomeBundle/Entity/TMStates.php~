@@ -42,6 +42,13 @@ class TMStates
      */
     protected $number;
 
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="pem", type="string", length=255,  nullable=true)
+     */
+    protected $pem;
+
 
 
     public function __construct()

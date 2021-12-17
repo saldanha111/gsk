@@ -48,7 +48,7 @@ class TemplateConfigTemplatesController extends Controller
                 'error',
                 'No tiene permisos suficientes'
             );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
 
@@ -60,7 +60,7 @@ class TemplateConfigTemplatesController extends Controller
                 'error',
                 'La plantilla indicada no se encuentra en fase de configuración'
             );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
 
@@ -89,7 +89,7 @@ class TemplateConfigTemplatesController extends Controller
                 'error',
                 'No tiene permisos para configurar esta plantilla'
             );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
 
@@ -145,7 +145,7 @@ class TemplateConfigTemplatesController extends Controller
                 'error',
                 'No tiene permisos suficientes'
             );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
 
@@ -157,7 +157,7 @@ class TemplateConfigTemplatesController extends Controller
                 'error',
                 'La plantilla indicada no se encuentra en fase de configuración'
             );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
 
@@ -166,7 +166,7 @@ class TemplateConfigTemplatesController extends Controller
                 'error',
                 'No se puede efectuar la operación'
             );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
         
@@ -336,7 +336,7 @@ class TemplateConfigTemplatesController extends Controller
         else{
         	$this->get('session')->getFlashBag()->add('message', "La plantilla se ha puesto en vigor");
         }
-        $route = $this->container->get('router')->generate('nononsense_tm_templates');
+        $route = $this->container->get('router')->generate('nononsense_home_homepage');
 
         return $this->redirect($route);
     }

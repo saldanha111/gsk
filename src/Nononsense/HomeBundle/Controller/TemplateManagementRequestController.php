@@ -50,7 +50,7 @@ class TemplateManagementRequestController extends Controller
                     'error',
                     'La plantilla indicada ya tiene una nueva edición en proceso'
                 );
-                $route = $this->container->get('router')->generate('nononsense_tm_templates');
+                $route = $this->container->get('router')->generate('nononsense_home_homepage');
                 return $this->redirect($route);
            }
         }
@@ -453,7 +453,7 @@ class TemplateManagementRequestController extends Controller
         $em->flush();
         
         $this->get('session')->getFlashBag()->add('message', "Solicitud creada correctamente");
-        $route = $this->container->get('router')->generate('nononsense_tm_templates');
+        $route = $this->container->get('router')->generate('nononsense_home_homepage');
         return $this->redirect($route);
     }
 }
