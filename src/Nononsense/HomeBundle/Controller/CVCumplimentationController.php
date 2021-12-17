@@ -520,10 +520,12 @@ class CVCumplimentationController extends Controller
                 }
                 if($record->getState()!=$next_state){
                     //Si hay una firma de devolución en un workflow activo, tiene prioridad esta a la hora de setear el próximo estado
-                    $action=$this->getDoctrine()->getRepository(CVActions::class)->findOneBy(array('id' => 6));
-                    $exist_return=$this->getDoctrine()->getRepository(CVSignatures::class)->findBy(array('record' => $record,"signed" => TRUE,"finish" => TRUE,'action' => $action),array("id" => "DESC"));
-                    if(count($exist_return)>0 && $record->getState()->getType()==$exist_return[0]->getAction()->getType()){
-                        $next_state=$exist_return[0]->getAction()->getNextState();
+                    if($signature->getAction()->getId()!=9){ //Si no es un envió a cancelación desde verificación
+                        $action=$this->getDoctrine()->getRepository(CVActions::class)->findOneBy(array('id' => 6));
+                        $exist_return=$this->getDoctrine()->getRepository(CVSignatures::class)->findBy(array('record' => $record,"signed" => TRUE,"finish" => TRUE,'action' => $action),array("id" => "DESC"));
+                        if(count($exist_return)>0 && $record->getState()->getType()==$exist_return[0]->getAction()->getType()){
+                            $next_state=$exist_return[0]->getAction()->getNextState();
+                        }
                     }
 
                     //Vaciamos próximo workflow activo
