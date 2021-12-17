@@ -184,18 +184,10 @@ class CVRecordsRepository extends EntityRepository
                 $list->setParameter('not_this', $filters["not_this"]);
             }
 
-            if(isset($filters["return"])){
-                $list->andWhere('s.id=1 AND (SELECT COUNT(ret.id) FROM Nononsense\HomeBundle\Entity\cvSignatures ret WHERE IDENTITY(ret.action)=6)>0');
-            }
-
 
             if(isset($filters["plantilla_id"])){
                 $list->andWhere('t.id=:plantilla_id');
                 $list->setParameter('plantilla_id', $filters["plantilla_id"]);
-            }
-
-            if(isset($filters["reconc"])){
-                $list->andWhere('i.reconciliation IS NOT NULL');
             }
 
             if(isset($filters["blocked"]) && $filters["blocked"]){
@@ -250,8 +242,20 @@ class CVRecordsRepository extends EntityRepository
 
             if(isset($filters["status"])){
                 switch($filters["status"]){
-                    case 7:
-                        $list->andWhere('i.state=7 OR i.state=8');
+                    case -1:
+                        $list->andWhere('i.reconciliation IS NOT NULL');
+                        break;
+                    case -2:
+                        $list->andWhere('s.id=1 AND (SELECT COUNT(ret.id) FROM Nononsense\HomeBundle\Entity\cvSignatures ret WHERE IDENTITY(ret.action)=6)>0');
+                        break;
+                    case -3:
+                        $list->andWhere('s.final IS NULL');
+                        break;
+                    case -4:
+                        $list->andWhere('i.inEdition=1');
+                        break;
+                    case 9:
+                        $list->andWhere('i.blocked=1');
                         break;
                     default:
                         $list->andWhere('i.state=:state');

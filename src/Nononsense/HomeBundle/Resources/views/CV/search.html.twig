@@ -80,6 +80,10 @@
                                     {% for state in states %}
                                         <option value="{{state.id}}" {{filters.status is defined and filters.status == state.id ? 'selected="selected"' : ''}}>{{state.name}}</option>
                                     {% endfor %}
+                                    <option value="-1" {{filters.status is defined and filters.status == -1 ? 'selected="selected"'}}>Reconciliado</option>
+                                    <option value="-2" {{filters.status is defined and filters.status == -2 ? 'selected="selected"'}}>Con devolución</option>
+                                    <option value="-3"  {{filters.status is defined and filters.status == -3 ? 'selected="selected"'}}>En proceso</option>
+                                    <option value="-4"  {{filters.status is defined and filters.status == -4 ? 'selected="selected"'}}>En edición</option>
                                   </select>
                             </div>
 
@@ -97,22 +101,6 @@
                               <div class="checkbox">
                                 <label>
                                   <input name="pending_for_me" value="1" type="checkbox" {% if filters.pending_for_me is defined and  filters.pending_for_me == true %} checked="checked" {% endif %}> Mis Reg. Pend.
-                                </label>
-                              </div>
-                            </div>
-
-                            <div class="col-sm-1">
-                              <div class="checkbox">
-                                <label>
-                                  <input name="reconc" value="1" type="checkbox" {% if filters.reconc is defined and  filters.reconc == true %} checked="checked" {% endif %}> Reconciliación
-                                </label>
-                              </div>
-                            </div>
-
-                            <div class="col-sm-1">
-                              <div class="checkbox">
-                                <label>
-                                  <input name="return" value="1" type="checkbox" {% if filters.return is defined and  filters.return == true %} checked="checked" {% endif %}> En devolución
                                 </label>
                               </div>
                             </div>
