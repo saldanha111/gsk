@@ -254,6 +254,9 @@ class CVRecordsRepository extends EntityRepository
                     case -4:
                         $list->andWhere('i.inEdition=1');
                         break;
+                    case -5:
+                        $list->andWhere('s.final=TRUE');
+                        break;
                     case 9:
                         $list->andWhere('i.blocked=1');
                         break;

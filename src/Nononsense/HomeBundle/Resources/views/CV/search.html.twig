@@ -84,6 +84,7 @@
                                     <option value="-2" {{filters.status is defined and filters.status == -2 ? 'selected="selected"'}}>Con devolución</option>
                                     <option value="-3"  {{filters.status is defined and filters.status == -3 ? 'selected="selected"'}}>En proceso</option>
                                     <option value="-4"  {{filters.status is defined and filters.status == -4 ? 'selected="selected"'}}>En edición</option>
+                                    <option value="-5"  {{filters.status is defined and filters.status == -5 ? 'selected="selected"'}}>Finalizado</option>
                                   </select>
                             </div>
 
@@ -332,7 +333,11 @@
         location.href=url;
     });
 
-    {% if filters.gxp is defined and filters.gxp=="1" %}
+    {% if filters.status is defined and filters.status=="-5" %}
+    ActivateMenu('docxpresso_archivo');
+    {% elseif filters.pending_for_me is defined and filters.pending_for_me=="1" %}
+        ActivateMenu('docxpresso_proceso');
+    {% elseif filters.gxp is defined and filters.gxp=="1" %}
         ActivateMenu('docxpresso_gxp');
     {% elseif filters.blocked is defined and filters.blocked=="1" %}
         ActivateMenu('docxpresso_standby');
