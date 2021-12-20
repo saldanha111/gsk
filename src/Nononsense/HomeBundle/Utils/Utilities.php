@@ -176,10 +176,10 @@ class Utilities{
     }
 
 
-    public function returnPDFResponseFromHTML($html){
+    public function returnPDFResponseFromHTML($html,$title){
         //$pdf = $this->container->get("white_october.tcpdf")->create('horizontal', PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
         $pdf = new GskPdf('horizontal', PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false, false, array());
-        $pdf->setName($this->container->get('security.context')->getToken()->getUsername());
+        $pdf->setName($title." - ".$this->container->get('security.context')->getToken()->getUsername());
         $pdf->SetAuthor('GSK');
         $pdf->SetTitle(('Registros GSK'));
         $pdf->SetSubject('Registros GSK');

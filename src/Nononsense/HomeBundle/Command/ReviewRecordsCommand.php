@@ -33,10 +33,11 @@ class ReviewRecordsCommand extends ContainerAwareCommand
 
 		$areas = $em->getRepository('NononsenseHomeBundle:Areas')->findAll();
 		$ids_eco=array();
+		$aux_message_eco="";
 		foreach($areas as $area){
 			$ids=array();
 			$qb 		= $em->createQueryBuilder();
-		    $records = $qb->select('i')
+		   	$records = $qb->select('i')
 		    				->from('NononsenseHomeBundle:CVRecords', 'i')
 		    				->leftJoin("i.template", "t")
 		    				->andWhere('i.openDate <= :modified')
@@ -47,34 +48,40 @@ class ReviewRecordsCommand extends ContainerAwareCommand
 		    				->setParameter('area', $area->getId())
 		    				->getQuery()
 		    				->getResult();
-		   
+		   	$aux_message="";
 		    if ($records) {	
-		    	$typesw = $em->getRepository(CVSecondWorkflowStates::class)->findOneBy(array("id" => "2"));
-			    $specific = $em->getRepository(SpecificGroups::class)->findOneBy(array("name" => "ECO"));
-	            $other_group = $specific->getGroup();
+	    		$typesw = $em->getRepository(CVSecondWorkflowStates::class)->findOneBy(array("id" => "2"));
+		    	$specific = $em->getRepository(SpecificGroups::class)->findOneBy(array("name" => "ECO"));
+            		$other_group = $specific->getGroup();
 
-			    foreach ($records as $key => $record) {
+		    	foreach ($records as $key => $record) {
 		    		$record->setBlocked(1);
 		    		$em->persist($record);
 		    		$ids[] = $record->getId();
+		    		$aux_message.=$record->getId()." - Código: ".$record->getTemplate()->getId()." - Título: ".$record->getTemplate()->getName()." - Edición: ".$record->getTemplate()->getNumEdition()."<br>";
 
-	            	$sworkflow = new CVSecondWorkflow();
-		            $sworkflow->setRecord($record);
-		            $sworkflow->setGroup($other_group);
-		            $sworkflow->setNumberSignature(1);
-		            $sworkflow->setType($typesw);
-		            $sworkflow->setSigned(FALSE);
-		            $em->persist($sworkflow);
+		            $sworkflow = new CVSecondWorkflow();
+			        $sworkflow->setRecord($record);
+			        $sworkflow->setGroup($other_group);
+			        $sworkflow->setNumberSignature(1);
+			        $sworkflow->setType($typesw);
+			        $sworkflow->setSigned(FALSE);
+			        $em->persist($sworkflow);
 
-		            if($area->getFll()){
-		            	$sworkflow = new CVSecondWorkflow();
-			            $sworkflow->setRecord($record);
-			            $sworkflow->setUser($area->getFll());
-			            $sworkflow->setNumberSignature(2);
-			            $sworkflow->setType($typesw);
-			            $sworkflow->setSigned(FALSE);
-			            $em->persist($sworkflow);
-		            }
+			        if($area->getFll()){
+			            $sworkflow = new CVSecondWorkflow();
+				        $sworkflow->setRecord($record);
+				        $sworkflow->setUser($area->getFll());
+				        $sworkflow->setNumberSignature(2);
+				        $sworkflow->setType($typesw);
+				        $sworkflow->setSigned(FALSE);
+				        $em->persist($sworkflow);
+			        }
+
+			        if (!in_array($record->getId(), $ids_eco)) {
+			        	$aux_message_eco.=$record->getId()." - Código: ".$record->getTemplate()->getId()." - Título: ".$record->getTemplate()->getName()." - Edición: ".$record->getTemplate()->getNumEdition()."<br>";
+			        	$ids_eco[]=$record->getId();
+			        }
 			    }
 			}
 
@@ -82,10 +89,8 @@ class ReviewRecordsCommand extends ContainerAwareCommand
 			if ($ids) {
 
 		    	$subject = 'Registros bloqueados';
-		        $message = 'Los siguientes registros han sido bloqueados y necesitan ser gestionados por su parte. Acceda al siguiente  Link para gestionar los bloqueos.<br><br>'.implode('<br>', $ids);
+		        $message = 'Los siguientes registros han sido bloqueados y necesitan ser gestionados por su parte. Acceda al siguiente  Link para gestionar los bloqueos.<br><br>'.$aux_message;
 		        $baseUrl = trim($this->getContainer()->getParameter('cm_installation'), '/').$this->getContainer()->get('router')->generate('nononsense_cv_search')."?blocked=1";
-
-		        
 
 	            if($area->getFll()){
 		            if ($this->getContainer()->get('utilities')->sendNotification($area->getFll()->getEmail(), $baseUrl, "", "", $subject, $message)) {
@@ -104,18 +109,15 @@ class ReviewRecordsCommand extends ContainerAwareCommand
 		            }
 		        }
 
-		        $ids_eco=array_merge($ids_eco,$ids);
-
 		    }else{
 		    	$output->writeln(['<comment>Ningún registro bloqueado para el area '.$area->getName().'</comment>']);
 		    }
 		}
 
-		$ids_eco_uniq = array_unique($ids_eco);
 		$specific = $em->getRepository(SpecificGroups::class)->findOneBy(array("name" => "ECO"));
 		$eco=$specific->getGroup();
         $eco_users = $em->getRepository(GroupUsers::class)->findBy(["group" => $eco]);
-        $message = 'Los siguientes registros han sido bloqueados y necesitan ser gestionados por su parte o algún otro FLL. Acceda al siguiente  Link para gestionar los bloqueos.<br><br>'.implode('<br>', $ids_eco_uniq);
+        $message = 'Los siguientes registros han sido bloqueados y necesitan ser gestionados por su parte o algún otro FLL. Acceda al siguiente  Link para gestionar los bloqueos.<br><br>'.$aux_message_eco;
     	foreach ($eco_users as $eco_user) {
     		if ($this->getContainer()->get('utilities')->sendNotification($eco_user->getUser()->getEmail(), $baseUrl, "", "", $subject, $message)) {
 

@@ -16,11 +16,11 @@
     </div>
     {% endfor %}
     <div id="box_recon">
-        <h1>Reconciliación del registro {{record.id}} - {{record.template.name}}</h1>
+        <h1>Reconciliación del registro {{record.id}} - Código:{{record.template.id}} - Título:{{record.template.name}} - Edición:{{record.template.numEdition}}</h1>
         <div class="row">
             <br>
             <div class="col-sm-12">
-                <b>{{count}} Registros reconciliados - {{ "now"|date("d/m/Y H:i:s") }}</b>
+                <b>{{count}} Registros reconciliados - {{app.user.name}} - {{ "now"|date("d/m/Y H:i:s") }}</b>
                 <table id="inProcess2" class="table table-striped">
                     <thead>
                     <tr>

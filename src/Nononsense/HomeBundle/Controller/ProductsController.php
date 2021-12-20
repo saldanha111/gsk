@@ -1559,7 +1559,7 @@ class ProductsController extends Controller
                     </body>
                 </html>';
 
-        return $this->get('utilities')->returnPDFResponseFromHTML($html);
+        return $this->get('utilities')->returnPDFResponseFromHTML($html,"Stock de almacén en Reactivos");
     }
 
     /** ProductInpus[] $items
@@ -1700,7 +1700,7 @@ class ProductsController extends Controller
                     </body>
                 </html>';
 
-        return $this->get('utilities')->returnPDFResponseFromHTML($html);
+        return $this->get('utilities')->returnPDFResponseFromHTML($html,"Entradas de productos al almacén de reactivos");
     }
 
     /**

@@ -608,8 +608,8 @@ class CVDocoaroController extends Controller
         }
 
         $html='<html><body style="font-size:8px;width:100%">Documento: <b>'.$record->getTemplate()->getName().'</b><br>Registro:<b>'.$record->getId().'</b><br><br>'.$this->get_signatures($record,1).'</body></html>';
-
-        $this->get('utilities')->returnPDFResponseFromHTML($html);
+        $title="Audittrail ".$record->getId()." - Código: ".$record->getTemplate()->getId()." - Título: ".$record->getTemplate()->getName()." - Edición: ".$record->getTemplate()->getNumEdition();
+        $this->get('utilities')->returnPDFResponseFromHTML($html,$title);
     }
 
     private function get_signatures($record,$audittrail)

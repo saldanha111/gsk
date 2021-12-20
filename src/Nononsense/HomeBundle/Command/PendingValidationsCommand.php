@@ -47,20 +47,21 @@ class PendingValidationsCommand extends ContainerAwareCommand
 		    				->setParameter('states', $states)
 		    				->getQuery()
 		    				->getResult();
-		   
+		   $aux_message="";
 		    if ($records) {				
 			    foreach ($records as $key => $record) {
 		    		$record->setPending(1);
 		    		$em->persist($record);
 		    		$ids[] = $record->getId();
+		    		$aux_message.=$record->getId()." - Código: ".$record->getTemplate()->getId()." - Título: ".$record->getTemplate()->getName()." - Edición: ".$record->getTemplate()->getNumEdition()."<br>";
 			    }
 			}
 
 
 			if ($ids) {
 				$subject = 'Registros pendientes de verificar';
-		        $message = 'Los siguientes registros están pendientes de verificación y necesitan ser gestionados por parte de algún verificador involucrado en su workflow correspondiente.<br><br>'.implode('<br>', $ids);
-		        $baseUrl = trim($this->getContainer()->getParameter('cm_installation'), '/').$this->getContainer()->get('router')->generate('nononsense_cv_search')."?blocked=1";
+		        $message = 'Los siguientes registros están pendientes de verificación y necesitan ser gestionados por parte de algún verificador involucrado en su workflow correspondiente.<br><br>'. $aux_message;
+		        $baseUrl = trim($this->getContainer()->getParameter('cm_installation'), '/').$this->getContainer()->get('router')->generate('nononsense_cv_search')."?pending_for_me=1";
 
 		        if($area->getFll()){
 		            if ($this->getContainer()->get('utilities')->sendNotification($area->getFll()->getEmail(), $baseUrl, "", "", $subject, $message)) {

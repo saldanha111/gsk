@@ -145,7 +145,8 @@ class CVReconciliationController extends Controller
 
             if($request->get("export_pdf")){
                 $html.='</table></body></html>';
-                $this->get('utilities')->returnPDFResponseFromHTML($html);
+                $title="Reconciliación ".$array_item["record"]->getId()." - Código: ".$array_item["record"]->getTemplate()->getId()." - Título: ".$array_item["record"]->getTemplate()->getName()." - Edición: ".$array_item["record"]->getTemplate()->getNumEdition();
+                $this->get('utilities')->returnPDFResponseFromHTML($html,$title);
             }
         }
         

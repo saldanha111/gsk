@@ -213,14 +213,14 @@ class CVStandByController extends Controller
 
         if($id_action==28){
             $subject="Registro desbloqueado";
-            $mensaje='Se ha aprobado el desbloqueo del registro '.$record->getId().'. Para poder continuar con su trabajo, acceda a la sección "Buscador" o "En proceso" y busca el documento o bien puede pinchar en el siguiente link"';
+            $mensaje='Se ha aprobado el desbloqueo del registro '.$record->getId().' - Código: '.$record->getTemplate()->getId().' - Título: '.$record->getTemplate()->getName().' - Edición: '.$record->getTemplate()->getNumEdition().'. Para poder continuar con su trabajo, acceda a la sección "Buscador" o "En proceso" y busca el documento o bien puede pinchar en el siguiente link"';
             $baseURL=$this->container->get('router')->generate('nononsense_cv_search',array(),true)."?id=".$record->getId();
             $this->get('utilities')->sendNotification($record->getOpenedBy()->getEmail(), $baseURL, "", "", $subject, $mensaje);
         }
 
         if($id_action==29){
             $subject="Se solicita confirmación de ECO para el desbloqueo";
-            $mensaje='Se ha solicitado por parte del FLL la confirmación para el desbloqueo del registro '.$record->getId().'. Para proceder con el desbloqueo, acceda a la sección "Documentos en Stand By" y busque el documento o bien puede pinchar en el siguiente link"';
+            $mensaje='Se ha solicitado por parte del FLL la confirmación para el desbloqueo del registro '.$record->getId().' - Código: '.$record->getTemplate()->getId().' - Título: '.$record->getTemplate()->getName().' - Edición: '.$record->getTemplate()->getNumEdition().'. Para proceder con el desbloqueo, acceda a la sección "Documentos en Stand By" y busque el documento o bien puede pinchar en el siguiente link"';
             $baseURL=$this->container->get('router')->generate('nononsense_request_view_standby', ["id" => $record->getId()],array(),true);
             $eco_users = $em->getRepository(GroupUsers::class)->findBy(["group" => $eco]);
             foreach ($eco_users as $eco_user) {

@@ -602,12 +602,12 @@ class TemplateTestTemplatesController extends Controller
 
                 if($next_state==4){
                     $subject="Plantilla a aprobar";
-                    $mensaje='La plantilla con ID '.$id.' está pendiente de aprobación por su parte. Para poder revisarlo puede acceder a "Gestión de plantillas -> En aprobación", buscar la plantilla correspondiente y pulsar en Aprobar';
+                    $mensaje='La plantilla con Código '.$template->getId().' - Título: '.$template->getName().' - Edición: '.$template->getNumEdition().' está pendiente de aprobación por su parte. Para poder revisarlo puede acceder a "Gestión de plantillas -> En aprobación", buscar la plantilla correspondiente y pulsar en Aprobar';
                     $baseURL=$this->container->get('router')->generate('nononsense_tm_aprob_detail', array("id" => $id),TRUE);
                 }
                 else{
                     $subject="La plantilla no ha pasado los tests";
-                    $mensaje='La plantilla con ID '.$id.' no ha pasado los tests realizados y require de nuevo de su elaboración. Para poder realizar las correcciones pertinentes, puede acceder a "Gestión de plantillas -> En elaboración", buscar la plantilla correspondiente y pulsar en Elaborar. Podrá ver los tests y comentarios de cada uno de llos pulsando en el Audit Trail';
+                    $mensaje='La plantilla con Código '.$template->getId().' - Título: '.$template->getName().' - Edición: '.$template->getNumEdition().' no ha pasado los tests realizados y require de nuevo de su elaboración. Para poder realizar las correcciones pertinentes, puede acceder a "Gestión de plantillas -> En elaboración", buscar la plantilla correspondiente y pulsar en Elaborar. Podrá ver los tests y comentarios de cada uno de llos pulsando en el Audit Trail';
                     $baseURL=$this->container->get('router')->generate('nononsense_tm_elaborate_detail', array("id" => $id),TRUE);
                 }
 

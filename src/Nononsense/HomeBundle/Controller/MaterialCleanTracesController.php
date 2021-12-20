@@ -213,7 +213,7 @@ class MaterialCleanTracesController extends Controller
 
             if($request->get("export_pdf")){
                 $html.='</table></body></html>';
-                $this->get('utilities')->returnPDFResponseFromHTML($html);
+                $this->get('utilities')->returnPDFResponseFromHTML($html,"Trazabilidad de material limpio");
             }
         }
     }
