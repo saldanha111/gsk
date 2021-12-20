@@ -705,6 +705,7 @@ class CVCumplimentationController extends Controller
             //$type_delegation=3;
         }
 
+        $desc_pdf="Listado de registros";
 
         if(isset($filters["pending_for_me"]) && isset($filters["gxp"])){
             unset($filters["pending_for_me"]);
@@ -718,6 +719,14 @@ class CVCumplimentationController extends Controller
             unset($filters2["pending_for_me"]);
             $filters["pending_blocked"]=1;
             $filters2["pending_blocked"]=1;
+        }
+
+        if(isset($filters["gxp"])){
+            $desc_pdf="Solicitudes GxP";
+        }
+
+        if(isset($filters["blocked"])){
+            $desc_pdf="Registros en revisión";
         }
 
         $users_actions=$this->get('utilities')->get_users_actions($user,$type_delegation);
@@ -852,7 +861,7 @@ class CVCumplimentationController extends Controller
 
             if($request->get("export_pdf")){
                 $html.='</table></body></html>';
-                $this->get('utilities')->returnPDFResponseFromHTML($html,"Listado de registros");
+                $this->get('utilities')->returnPDFResponseFromHTML($html,$desc_pdf);
             }
         }
     }
