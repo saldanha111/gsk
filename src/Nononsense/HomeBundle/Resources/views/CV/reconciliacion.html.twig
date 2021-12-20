@@ -1,0 +1,34 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}Docoaro - GSK | {{'Homepage'|trans}} {% endblock %}
+{% block head %}
+{{ parent() }}
+
+{% endblock %}
+{% block main_title %} Historial de reconciliación{% endblock %}
+{% block content %}
+
+
+<div class="wrapper wrapper-content">
+    {% for flashMessage in app.session.flashbag.get('error') %}
+    <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+        <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+        {{ flashMessage }}
+    </div>
+    {% endfor %}
+    <div id="box_recon">
+        <h1>Reconciliación del registro {{record.id}} - Código:{{record.template.id}} - Título:{{record.template.name}} - Edición:{{record.template.numEdition}}</h1>
+        <div class="row">
+            <br>
+            <div class="col-sm-12" id="html_reconciliation">
+                {{ html|raw }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+{{ parent() }}
+<script>
+
+</script>
+{% endblock %}

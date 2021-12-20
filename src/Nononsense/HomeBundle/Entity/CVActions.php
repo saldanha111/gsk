@@ -110,6 +110,13 @@ class CVActions
      */
     protected $graphic;
 
+    /**
+     * @var boolean 
+     *
+     * @ORM\Column(name="archive", type="boolean",  options={"default" = false}, nullable=true)
+     */
+    protected $archive;
+
     
 
     public function __construct()
@@ -438,5 +445,28 @@ class CVActions
     public function getGraphic()
     {
         return $this->graphic;
+    }
+
+    /**
+     * Set archive
+     *
+     * @param boolean $archive
+     * @return CVActions
+     */
+    public function setArchive($archive)
+    {
+        $this->archive = $archive;
+
+        return $this;
+    }
+
+    /**
+     * Get archive
+     *
+     * @return boolean 
+     */
+    public function getArchive()
+    {
+        return $this->archive;
     }
 }

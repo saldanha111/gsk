@@ -198,8 +198,8 @@
                                 </td>
                                 <td>
                                     {% if item.finalState %}
-                                        <a class="btn btn-xs btn-info" href="{{path('nononsense_cv_docoaro_new', {'id': item.id})}}?&audittrail=1" target="_self"><i class="fa fa-book" aria-hidden="true"></i> Audit Trail</a>
-                                        <a class="btn btn-xs btn-danger" href="{{path('nononsense_cv_docoaro_new', {'id': item.id})}}?pdf=1&audittrail=1" target="_self"><i class="fa fa-file-pdf-o" aria-hidden="true"></i> PDF</a>
+                                        <a class="btn btn-xs btn-info" href="{{path('nononsense_cv_record_audittrail', {'id': item.id})}}" target="_self"><i class="fa fa-book" aria-hidden="true"></i> Audit Trail</a>
+                                        <a class="btn btn-xs btn-danger" href="{{path('nononsense_cv_record_audittrail', {'id': item.id})}}?pdf=1" target="_self"><i class="fa fa-file-pdf-o" aria-hidden="true"></i> PDF</a>
                                     {% endif %} 
                                 </td>
                                 <td>

@@ -607,9 +607,14 @@ class CVDocoaroController extends Controller
             return false;
         }
 
-        $html='<html><body style="font-size:8px;width:100%">Documento: <b>'.$record->getTemplate()->getName().'</b><br>Registro:<b>'.$record->getId().'</b><br><br>'.$this->get_signatures($record,1).'</body></html>';
+        $html='Documento: <b>'.$record->getTemplate()->getName().'</b><br>Registro:<b>'.$record->getId().'</b><br><br>'.$this->get_signatures($record,1);
         $title="Audittrail ".$record->getId()." - Código: ".$record->getTemplate()->getId()." - Título: ".$record->getTemplate()->getName()." - Edición: ".$record->getTemplate()->getNumEdition();
-        $this->get('utilities')->returnPDFResponseFromHTML($html,$title);
+        if($request->get("pdf")){
+            $this->get('utilities')->returnPDFResponseFromHTML('<html><body style="font-size:8px;width:100%">'.$html.'</body></html>',$title);
+        }
+        else{
+            return $this->render('NononsenseHomeBundle:CV:reconciliacion.html.twig',array("html" => $html, "record" => $record));
+        }
     }
 
     private function get_signatures($record,$audittrail)
@@ -618,63 +623,100 @@ class CVDocoaroController extends Controller
         $signatures = $this->getDoctrine()->getRepository(CVSignatures::class)->findBy(array("record" => $record, "signed" => TRUE),array("id" => "ASC"));
         if($signatures){
             $fullText = '<table id="tablefirmas" class="table" style="max-width:none!important"><tr><td colspan="7" width="100%"><b>Firmas</b></td></tr>';
+            //Ver si se trata de firmas de modificación gxp con aprobación total al final, sino no cuentan
+            $action_without_audittrail=array();
+            $tmp_array=array();
             foreach ($signatures as $key => $signature) {
-                $id = $signature->getNumberSignature();
-                $name = $signature->getUser()->getName();
-                $date = $signature->getModified()->format('d-m-Y H:i:s');
-                $comment="";
-                if($signature->getDescription()){
-                    $comment = "Comentarios: ".$signature->getDescription()."<br>";
-                }
-
-                if($signature->getDelegation()){
-                    $comment .= "Delegación de firma por ausencia<br>";
-                }
-
-                if($signature->getRecord()->getReconciliation()){
-                    $action = $signature->getAction()->getNameReconc();
-                    $comment .= '"'.$signature->getAction()->getDescriptionReconc().'"';
+                if($signature->getAction()->getId()==18){
+                    if(!empty($tmp_array)){
+                        $action_without_audittrail = array_merge($action_without_audittrail, $tmp_array);
+                        unset($tmp_array);
+                    }
+                    $tmp_array[]=$key;
                 }
                 else{
-                    $action = $signature->getAction()->getName();
-                    $comment .= '"'.$signature->getAction()->getDescription().'"';
-                }
-
-                $fullText .= '<tr><td width="5%">' . $id . '</td><td colspan="6">'.$action.'</td></tr><tr><td width="5%"></td><td width="15%">' . $name . '<br>' . $date . '</td><td width="80%" colspan="4">'.$comment .'</td></tr>';
-                if($audittrail){
-                    $first=1;
-                    foreach($signature->getChanges() as $change){
-                        if($change->getLineOptions()!=1){
-                            if($first){
-                                $fullText .= '<tr><td></td><td>Linea</td><td>Campo</td><td>Valor actual</td><td>Valor anterior</td><td>Acción</td></tr>';
-                                $first=0;
+                    if($signature->getAction()->getId()==26){
+                        $tmp_array[]=$key;
+                    }
+                    else{
+                        if($signature->getAction()->getId()==27){
+                            unset($tmp_array);
+                            $tmp_array = array();
+                        }
+                        else{
+                            if(!empty($tmp_array)){
+                                $action_without_audittrail = array_merge($action_without_audittrail, $tmp_array);
+                                unset($tmp_array);
                             }
-                            if($change->getInfo()){
-                                $field=$change->getInfo();
-                            }
-                            else{
-                                $field=$change->getField();
-                            }
-
-                            if(is_numeric($change->getIndex())){
-                                $index=$change->getIndex();
-                            }
-                            else{
-                                $index=-1;
-                            }
-
-                            $fullText .= '<tr><td></td><td>Linea '.($index+1).'</td><td>'.$field.'</td>';
-                            if(!is_null($change->getLineOptions())){
-                                $fullText .= '<td></td><td>'.$change->getValue().'</td><td>Eliminado</td>';
-                            }
-                            else{
-                                $fullText .= '<td>'.$change->getValue().'</td><td>'.$change->getPrevValue().'</td><td>Modificado</td>';
-                            }
-                            $fullText .= '</tr>';
                         }
                     }
                 }
-                $fullText .= '<tr><td colspan="7" width="100%"></td></tr>';
+            }
+
+            if(!$record->getUserGxP() && !empty($tmp_array)){
+                $action_without_audittrail = array_merge($action_without_audittrail, $tmp_array);
+            }
+
+            foreach ($signatures as $key => $signature) {
+                if($audittrail || $signature->getAction()->getArchive() || in_array($key, $action_without_audittrail) || !$record->getState()->getFinal()){
+                    $id = $signature->getNumberSignature();
+                    $name = $signature->getUser()->getName();
+                    $date = $signature->getModified()->format('d-m-Y H:i:s');
+                    $comment="";
+                    if($signature->getDescription()){
+                        $comment = "Comentarios: ".$signature->getDescription()."<br>";
+                    }
+
+                    if($signature->getDelegation()){
+                        $comment .= "Delegación de firma por ausencia<br>";
+                    }
+
+                    if($signature->getRecord()->getReconciliation()){
+                        $action = $signature->getAction()->getNameReconc();
+                        $comment .= '"'.$signature->getAction()->getDescriptionReconc().'"';
+                    }
+                    else{
+                        $action = $signature->getAction()->getName();
+                        $comment .= '"'.$signature->getAction()->getDescription().'"';
+                    }
+
+                    $fullText .= '<tr><td width="5%">' . $id . '</td><td colspan="6">'.$action.'</td></tr><tr><td width="5%"></td><td width="15%">' . $name . '<br>' . $date . '</td><td width="80%" colspan="4">'.$comment .'</td></tr>';
+                    if($audittrail){
+                        $first=1;
+                        foreach($signature->getChanges() as $change){
+                            if($change->getLineOptions()!=1){
+                                if($first){
+                                    $fullText .= '<tr><td></td><td>Linea</td><td>Campo</td><td>Valor actual</td><td>Valor anterior</td><td>Acción</td></tr>';
+                                    $first=0;
+                                }
+                                if($change->getInfo()){
+                                    $field=$change->getInfo();
+                                }
+                                else{
+                                    $field=$change->getField();
+                                }
+
+                                if(is_numeric($change->getIndex())){
+                                    $index=$change->getIndex();
+                                }
+                                else{
+                                    $index=-1;
+                                }
+
+                                $fullText .= '<tr><td></td><td>Linea '.($index+1).'</td><td>'.$field.'</td>';
+                                if(!is_null($change->getLineOptions())){
+                                    $fullText .= '<td></td><td>'.$change->getValue().'</td><td>Eliminado</td>';
+                                }
+                                else{
+                                    $fullText .= '<td>'.$change->getValue().'</td><td>'.$change->getPrevValue().'</td><td>Modificado</td>';
+                                }
+                                $fullText .= '</tr>';
+                            }
+                        }
+                    }
+                    $fullText .= '<tr><td colspan="7" width="100%"></td></tr>';
+                }
+                
             }
             $fullText .= '</table>';
         }

@@ -6288,3 +6288,7 @@ a.navbar-minimalize.btn-primary {
 	.only-mobile { display:block;}
 	.border-xs-top {border-top:1px solid #e7eaec;}
 }
+
+#html_reconciliation{
+  font-size:13px;
+}

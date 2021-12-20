@@ -246,7 +246,7 @@ class CVRecordsRepository extends EntityRepository
                         $list->andWhere('i.reconciliation IS NOT NULL');
                         break;
                     case -2:
-                        $list->andWhere('s.id=1 AND (SELECT COUNT(ret.id) FROM Nononsense\HomeBundle\Entity\cvSignatures ret WHERE IDENTITY(ret.action)=6)>0');
+                        $list->andWhere('s.id=1 AND (SELECT COUNT(ret.id) FROM Nononsense\HomeBundle\Entity\cvSignatures ret WHERE IDENTITY(ret.action)=6 AND IDENTITY(ret.record)=i.id)>0');
                         break;
                     case -3:
                         $list->andWhere('s.final IS NULL');
