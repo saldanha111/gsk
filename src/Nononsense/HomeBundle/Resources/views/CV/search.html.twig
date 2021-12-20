@@ -204,7 +204,7 @@
                                     {% endif %} 
                                 </td>
                                 <td>
-                                {% if item.finalState and (item.state_id==7 or item.state_id==8) %}
+                                {% if item.finalState and (item.state_id==7 or item.state_id==8) and (filters.blocked is not defined or filters.blocked is empty) %}
                                     {% if item.usergxp is empty and item.lastAction!=18 and item.lastActionUnsigned!=18 %}
                                         <a class="btn btn-xs btn-default" href="{{path('nononsense_request_modification_gxp', {'id': item.id})}}" target="_self"><i class="fa fa-pencil-square" aria-hidden="true"></i> {{ 'Solicitar modificación'|trans }}</a>
                                     {% else %}
