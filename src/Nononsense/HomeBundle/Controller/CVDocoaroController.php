@@ -566,6 +566,22 @@ class CVDocoaroController extends Controller
                     $signature->setJson($last_signature->getJson());
                     $signature->setJsonAux($json_value);
                 }
+
+                //Grabamos valores con etiqueta info para la busqueda por esta etiqueta
+                if($json_record){
+                    $json_record_pointer=json_decode($json_record,TRUE);
+                    $json_info=array();
+                    $array_signature=json_decode($signature->getJson(),TRUE);
+                    foreach($array_signature["data"] as $key => $values){
+                        if (array_key_exists($key,$json_record_pointer["configuration"]["variables"]) && $json_record_pointer["configuration"]["variables"][$key]["info"]!="" && $json_record_pointer["configuration"]["variables"][$key]["info"]!=$key){
+                            $json_info["data"][$json_record_pointer["configuration"]["variables"][$key]["info"]]=$values;
+                        }
+                    }
+                    if(!empty($json_info)){
+                        $signature->setJsonInfo(json_encode($json_info, JSON_FORCE_OBJECT));
+                    }
+                }
+
                 $signature->setVersion($response["version"]["id"]);
                 $signature->setConfiguration($response["version"]["configuration"]["id"]);
                 if(array_key_exists("gsk_comment",$params["data"]) && $params["data"]["gsk_comment"]){

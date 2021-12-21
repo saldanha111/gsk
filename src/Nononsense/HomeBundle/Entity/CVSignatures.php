@@ -130,6 +130,13 @@ class CVSignatures
     protected $jsonAux;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="json_info", type="text", nullable=true)
+     */
+    protected $jsonInfo;
+
+    /**
      * @var boolean
      *
      * @ORM\Column(name="delegation", type="boolean",  nullable=true)
@@ -798,5 +805,28 @@ class CVSignatures
     public function getManualFill()
     {
         return $this->manualFill;
+    }
+
+    /**
+     * Set jsonInfo
+     *
+     * @param string $jsonInfo
+     * @return CVSignatures
+     */
+    public function setJsonInfo($jsonInfo)
+    {
+        $this->jsonInfo = $jsonInfo;
+
+        return $this;
+    }
+
+    /**
+     * Get jsonInfo
+     *
+     * @return string 
+     */
+    public function getJsonInfo()
+    {
+        return $this->jsonInfo;
     }
 }

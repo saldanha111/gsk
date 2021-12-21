@@ -282,9 +282,12 @@ class CVModificationGxPController extends Controller
         $signature->setSignDate(new \DateTime());
         $signature->setJson($last_signature->getJson());
         $signature->setJsonAux($last_signature->getJsonAux());
+        $signature->setJsonInfo($last_signature->getJsonInfo());
         $signature->setVersion($last_signature->getVersion());
         $signature->setConfiguration($last_signature->getConfiguration());
         $signature->setFinish(TRUE);
+
+        
 
 
         //Miramos si es una firma delegada o no
@@ -343,6 +346,22 @@ class CVModificationGxPController extends Controller
                 $this->get('utilities')->multi_obj_diff($obj2, $obj1, $obj3, '$obj2->$key', '/^(in_|gsk_|dxo_|delete_)|(name|extension\b)/', false, $signature_request, false, null, 'old');
 
                 $signature->setJson($signature->getJsonAux());
+
+                //Grabamos valores con etiqueta info para la busqueda por esta etiqueta
+                if($record->getJson()){
+                    $json_record_pointer=json_decode($record->getJson(),TRUE);
+                    $json_info=array();
+                    $array_signature=json_decode($signature->getJson(),TRUE);
+                    foreach($array_signature["data"] as $key => $values){
+                        if (array_key_exists($key,$json_record_pointer["configuration"]["variables"]) && $json_record_pointer["configuration"]["variables"][$key]["info"]!="" && $json_record_pointer["configuration"]["variables"][$key]["info"]!=$key){
+                            $json_info["data"][$json_record_pointer["configuration"]["variables"][$key]["info"]]=$values;
+                        }
+                    }
+                    if(!empty($json_info)){
+                        $signature->setJsonInfo(json_encode($json_info, JSON_FORCE_OBJECT));
+                    }
+                }
+
                 $em->persist($signature);
             }
             

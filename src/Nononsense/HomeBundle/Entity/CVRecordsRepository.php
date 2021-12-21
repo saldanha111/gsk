@@ -290,10 +290,27 @@ class CVRecordsRepository extends EntityRepository
             }
 
             if(isset($filters["var"]) && isset($filters["value"])){
-                $list->andWhere("ISJSON(last.json) > 0");
-                $list->andWhere("JSON_VALUE(last.json, :var) LIKE :value");
-                $list->setParameter('var', '$.data.'.$filters["var"]);
-                $list->setParameter('value', '%'.$filters["value"].'%');
+              
+                $list->andWhere("(last.json LIKE :var_1 AND (SUBSTRING(
+                    last.json,
+                    CHARINDEX(:var_2, last.json,0) + LENGTH(:var_2),
+                    CHARINDEX('}',last.json,(CHARINDEX(:var_2, last.json,0) + LENGTH(:var_2)))
+                        -(CHARINDEX(:var_2, last.json,0) + LENGTH(:var_2))
+                    ) LIKE :valueJson) OR 
+                    (last.jsonInfo LIKE :var_1 AND SUBSTRING(
+                    last.jsonInfo,
+                    CHARINDEX(:var_2, last.jsonInfo,0) + LENGTH(:var_2),
+                    CHARINDEX('}',last.jsonInfo,(CHARINDEX(:var_2, last.jsonInfo,0) + LENGTH(:var_2)))
+                        -(CHARINDEX(:var_2, last.jsonInfo,0) + LENGTH(:var_2))
+                    ) LIKE :valueJson) 
+                    OR last.json LIKE :var_simple 
+                    OR last.jsonInfo LIKE :var_simple)");
+
+                
+                $list->setParameter('var_1', '%'.$filters["var"].'%');
+                $list->setParameter('var_2', '"'.$filters["var"].'":{');
+                $list->setParameter('var_simple', '%"'.$filters["var"].'":"'.$filters["value"].'"%');
+                $list->setParameter('valueJson', '%:"'.$filters["value"].'"%');
             }
 
             if(isset($filters["code_unique"])){
@@ -339,7 +356,6 @@ class CVRecordsRepository extends EntityRepository
         }
 
         $query = $list->getQuery();
-
 
         switch($type){
             case "list":

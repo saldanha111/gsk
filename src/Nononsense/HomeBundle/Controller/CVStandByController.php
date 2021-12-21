@@ -192,6 +192,7 @@ class CVStandByController extends Controller
         $signature->setModified(new \DateTime());
         $signature->setSignDate(new \DateTime());
         $signature->setJson($last_signature->getJson());
+        $signature->setJsonInfo($last_signature->getJsonInfo());
         $signature->setVersion($last_signature->getVersion());
         $signature->setConfiguration($last_signature->getConfiguration());
         $signature->setFinish(TRUE);
