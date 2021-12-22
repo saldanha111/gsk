@@ -27,12 +27,12 @@
                     <form class="form-horizontal" id="form_item" action="{{ path('nononsense_tm_templates')}}" method="GET">
                         <div class="row">
 
-                            <label class="col-sm-1 control-label item_filter">Nombre</label>
+                            <label class="col-sm-1 control-label item_filter">Título</label>
                             <div class="col-sm-2 item_filter">
                                 <input type="text" name="name" class="form-control" value="{{filters.name is defined ? filters.name : ''}}">
                             </div>
 
-                            <label class="col-sm-1 control-label item_filter">Nº.</label>
+                            <label class="col-sm-1 control-label item_filter">Código</label>
                             <div class="col-sm-2 item_filter">
                                 <input type="text" name="number" class="form-control" value="{{filters.number is defined ? filters.number : ''}}">
                             </div>
