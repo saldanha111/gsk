@@ -549,7 +549,7 @@ class TemplateManagementTemplatesController extends Controller
                         }
 
                         $subject="Solicitud de baja";
-                        $mensaje='Se ha tramitado la solicitud de baja para la plantilla con Código '.$template->getId().' - Título: '.$template->getName().' - Edición: '.$template->getNumEdition().'. Para poder revisar dicha soliciutd puede acceder a "Gestión de plantillas -> Solicitudes de baja", buscar la plantilla correspondiente y pulsar en Administrar';
+                        $mensaje='Se ha tramitado la solicitud de baja para la plantilla con Código '.$template->getNumber().' - Título: '.$template->getName().' - Edición: '.$template->getNumEdition().'. Para poder revisar dicha soliciutd puede acceder a "Gestión de plantillas -> Solicitudes de baja", buscar la plantilla correspondiente y pulsar en Administrar';
                         $baseURL=$this->container->get('router')->generate('nononsense_tm_template_detail', array("id" => $id),TRUE)."?pending_request_drop=1";
                         foreach($users_notifications as $email){
                             $this->get('utilities')->sendNotification($email, $baseURL, "", "", $subject, $mensaje);

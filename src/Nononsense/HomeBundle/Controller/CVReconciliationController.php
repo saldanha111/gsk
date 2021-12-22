@@ -87,20 +87,22 @@ class CVReconciliationController extends Controller
 
                 $phpExcelObject->getProperties();
                 $phpExcelObject->setActiveSheetIndex(0)
-                 ->setCellValue('A1', 'Id')
-                 ->setCellValue('B1', 'Area')
-                 ->setCellValue('C1', 'Nombre')
-                 ->setCellValue('D1', 'Solicitante')
-                 ->setCellValue('E1', 'Fecha solicitud')
-                 ->setCellValue('F1', 'Estado')
-                 ->setCellValue('G1', 'Ultima modificación');
+                 ->setCellValue('A1', "Reconciliación ".$array_item["record"]->getId()." - Código: ".$array_item["record"]->getTemplate()->getNumber()." - Título: ".$array_item["record"]->getTemplate()->getName()." - Edición: ".$array_item["record"]->getTemplate()->getNumEdition()." - ".$user->getUsername()." - ".date("d/m/Y H:i:s"));
+                 $phpExcelObject->setActiveSheetIndex()
+                 ->setCellValue('A2', 'Id')
+                 ->setCellValue('B2', 'Area')
+                 ->setCellValue('C2', 'Nombre')
+                 ->setCellValue('D2', 'Solicitante')
+                 ->setCellValue('E2', 'Fecha solicitud')
+                 ->setCellValue('F2', 'Estado')
+                 ->setCellValue('G2', 'Ultima modificación');
             }
 
             if($request->get("export_pdf")){
                 $html='<html><body style="font-size:8px;width:100%"><table autosize="1" style="overflow:wrap;width:100%"><tr style="font-size:8px;width:100%"><th style="font-size:8px;width:5%">Id</th><th style="font-size:8px;width:15%">Area</th><th style="font-size:8px;width:30%">Nombre</th><th style="font-size:8px;width:15%">Solicitante</th><th style="font-size:8px;width:10%">F. solicitud</th><th style="font-size:8px;width:15%">Estado</th><th style="font-size:8px;width:10%">Ult. modificación</th></tr>';
             }
 
-            $i=2;
+            $i=3;
             foreach($array_item["items"] as $item){
 
                 if($request->get("export_excel")){
@@ -145,7 +147,7 @@ class CVReconciliationController extends Controller
 
             if($request->get("export_pdf")){
                 $html.='</table></body></html>';
-                $title="Reconciliación ".$array_item["record"]->getId()." - Código: ".$array_item["record"]->getTemplate()->getId()." - Título: ".$array_item["record"]->getTemplate()->getName()." - Edición: ".$array_item["record"]->getTemplate()->getNumEdition();
+                $title="Reconciliación ".$array_item["record"]->getId()." - Código: ".$array_item["record"]->getTemplate()->getNumber()." - Título: ".$array_item["record"]->getTemplate()->getName()." - Edición: ".$array_item["record"]->getTemplate()->getNumEdition();
                 $this->get('utilities')->returnPDFResponseFromHTML($html,$title);
             }
         }

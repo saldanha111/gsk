@@ -59,21 +59,24 @@ class MaterialCleanTracesController extends Controller
 
                 $phpExcelObject->getProperties();
                 $phpExcelObject->setActiveSheetIndex(0)
-                 ->setCellValue('A1', 'P.order')
-                 ->setCellValue('B1', 'Material')
-                 ->setCellValue('C1', 'Estado')
-                 ->setCellValue('D1', 'Identificador')
-                 ->setCellValue('E1', 'Usuario limpieza')
-                 ->setCellValue('F1', 'Fecha limpieza')
-                 ->setCellValue('G1', 'Fecha caducidad')
-                 ->setCellValue('H1', 'Usuario verificación')
-                 ->setCellValue('I1', 'Fecha verificación')
-                 ->setCellValue('J1', 'Comentario verificación')
-                 ->setCellValue('K1', 'Usuario limpieza vencida')
-                 ->setCellValue('L1', 'Fecha limpieza vencida')
-                 ->setCellValue('M1', 'Usuario revisión')
-                 ->setCellValue('N1', 'Fecha revisión')
-                 ->setCellValue('O1', 'Comentario revisión');
+                 ->setCellValue('A1', "Trazabilidad de material limpio - ".$user->getUsername()." - ".date("d/m/Y H:i:s"));
+
+                 $phpExcelObject->setActiveSheetIndex()
+                 ->setCellValue('A2', 'P.order')
+                 ->setCellValue('B2', 'Material')
+                 ->setCellValue('C2', 'Estado')
+                 ->setCellValue('D2', 'Identificador')
+                 ->setCellValue('E2', 'Usuario limpieza')
+                 ->setCellValue('F2', 'Fecha limpieza')
+                 ->setCellValue('G2', 'Fecha caducidad')
+                 ->setCellValue('H2', 'Usuario verificación')
+                 ->setCellValue('I2', 'Fecha verificación')
+                 ->setCellValue('J2', 'Comentario verificación')
+                 ->setCellValue('K2', 'Usuario limpieza vencida')
+                 ->setCellValue('L2', 'Fecha limpieza vencida')
+                 ->setCellValue('M2', 'Usuario revisión')
+                 ->setCellValue('N2', 'Fecha revisión')
+                 ->setCellValue('O2', 'Comentario revisión');
             }
 
             if($request->get("export_pdf")){
@@ -145,7 +148,7 @@ class MaterialCleanTracesController extends Controller
                 </tr>';
             }
 
-            $i=2;
+            $i=3;
             foreach($array_item["items"] as $item){
                 switch($item->getStatus()){
                     case 1: $status="Material limpio";break;

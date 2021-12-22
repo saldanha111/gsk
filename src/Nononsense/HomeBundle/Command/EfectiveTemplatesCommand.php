@@ -34,7 +34,7 @@ class EfectiveTemplatesCommand extends ContainerAwareCommand
 		    foreach ($templates as $key => $template) {
 		    	$users=array();
 		    	$baseUrl = trim($this->getContainer()->getParameter('cm_installation'), '/').$this->getContainer()->get('router')->generate('nononsense_tm_config_detail', array("id" => $template->getId()));
-		    	$aux_message=$template->getId()." - Nº: ".$template->getNumber()." - Título: ".$template->getNumber()." - Edición: ".$template->getNumEdition();
+		    	$aux_message=$template->getId()." - Códigoº: ".$template->getNumber()." - Título: ".$template->getName()." - Edición: ".$template->getNumEdition();
 		    	foreach($template->getTmWorkflows() as $wf){
 
 		    		if($wf->getAction()->getId()==5){

@@ -485,7 +485,7 @@ class CVCumplimentationController extends Controller
             $aux_users = $em->getRepository(GroupUsers::class)->findBy(["group" => $other_group]);
             foreach ($aux_users as $aux_user) {
                 $subject="Modificaciones GxP";
-                $mensaje='Se ha realizado una modificación GxP sobre el registro '.$record->getId().' - Código: '.$record->getTemplate()->getId().' - Título: '.$record->getTemplate()->getName().' - Edición: '.$record->getTemplate()->getNumEdition().' y está pendiente de aprobación por su parte. Para poder aprobarlo puede acceder a la sección "Modificaciones GxP", buscar el documento y pulsar en  "Aprobar modificación GxP"';
+                $mensaje='Se ha realizado una modificación GxP sobre el registro '.$record->getId().' - Código: '.$record->getTemplate()->getNumber().' - Título: '.$record->getTemplate()->getName().' - Edición: '.$record->getTemplate()->getNumEdition().' y está pendiente de aprobación por su parte. Para poder aprobarlo puede acceder a la sección "Modificaciones GxP", buscar el documento y pulsar en  "Aprobar modificación GxP"';
                 $baseURL=$this->container->get('router')->generate('nononsense_cv_search',array(),true)."?gxp=1&id=".$record->getId();
                 $this->get('utilities')->sendNotification($aux_user->getUser()->getEmail(), $baseURL, "", "", $subject, $mensaje);
             }
@@ -679,12 +679,12 @@ class CVCumplimentationController extends Controller
                 switch($send_email){
                     case 1:
                         $subject="Cumplimentación pendiente de verificación";
-                        $mensaje='El registro con ID '.$record->getId().' - Código: '.$record->getTemplate()->getId().' - Título: '.$record->getTemplate()->getName().' - Edición: '.$record->getTemplate()->getNumEdition().' está pendiente de verificación por su parte. Para poder verificarlo puede acceder a la sección "Buscador" o "En proceso", buscar el documento y pulsar en Verificar';
+                        $mensaje='El registro con ID '.$record->getId().' - Código: '.$record->getTemplate()->getNumber().' - Título: '.$record->getTemplate()->getName().' - Edición: '.$record->getTemplate()->getNumEdition().' está pendiente de verificación por su parte. Para poder verificarlo puede acceder a la sección "Buscador" o "En proceso", buscar el documento y pulsar en Verificar';
                         $baseURL=$this->container->get('router')->generate('nononsense_cv_search',array(),true)."?id=".$record->getId();
                         break;
                     case 2:
                         $subject="Cancelación rechazada en verificación";
-                        $mensaje='La cancelación del registro con ID '.$record->getId().' - Código: '.$record->getTemplate()->getId().' - Título: '.$record->getTemplate()->getName().' - Edición: '.$record->getTemplate()->getNumEdition().' ha sido rechazada en verificación. Para poder continuar con la cumplimentación puede acceder a la sección "Buscador" o "En proceso", buscar el documento y pulsar en Cumplimentar';
+                        $mensaje='La cancelación del registro con ID '.$record->getId().' - Código: '.$record->getTemplate()->getNumber().' - Título: '.$record->getTemplate()->getName().' - Edición: '.$record->getTemplate()->getNumEdition().' ha sido rechazada en verificación. Para poder continuar con la cumplimentación puede acceder a la sección "Buscador" o "En proceso", buscar el documento y pulsar en Cumplimentar';
                         $baseURL=$this->container->get('router')->generate('nononsense_cv_search',array(),true)."?id=".$record->getId();
                         break;
                 }
@@ -818,13 +818,15 @@ class CVCumplimentationController extends Controller
 
                 $phpExcelObject->getProperties();
                 $phpExcelObject->setActiveSheetIndex(0)
-                 ->setCellValue('A1', 'Nº')
-                 ->setCellValue('B1', 'Nombre')
-                 ->setCellValue('C1', 'Nombre')
-                 ->setCellValue('D1', 'Iniciado por')
-                 ->setCellValue('E1', 'Fecha inicio')
-                 ->setCellValue('F1', 'Ultima modificación')
-                 ->setCellValue('G1', 'Estado');
+                 ->setCellValue('A1', $desc_pdf." - ".$user->getUsername()." - ".date("d/m/Y H:i:s"));
+                $phpExcelObject->setActiveSheetIndex()
+                 ->setCellValue('A2', 'Nº')
+                 ->setCellValue('B2', 'Nombre')
+                 ->setCellValue('C2', 'Nombre')
+                 ->setCellValue('D2', 'Iniciado por')
+                 ->setCellValue('E2', 'Fecha inicio')
+                 ->setCellValue('F2', 'Ultima modificación')
+                 ->setCellValue('G2', 'Estado');
             }
 
             if($request->get("export_pdf")){
@@ -839,7 +841,7 @@ class CVCumplimentationController extends Controller
                     </tr>';
             }
 
-            $i=2;
+            $i=3;
             foreach($array_item["items"] as $item){
 
                 if($request->get("export_excel")){

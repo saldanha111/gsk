@@ -405,22 +405,22 @@ class TemplateAprobTemplatesController extends Controller
                 switch($next_state){
                     case 5:
                         $subject="Plantilla aprobada";
-                        $mensaje='La plantilla con ID '.$id.' está pendiente de configuración por su parte. Para poder revisarlo puede acceder a "Gestión de plantillas -> Pdt. configuración", buscar la plantilla correspondiente y pulsar en Configurar';
+                        $mensaje='La plantilla Código: '.$template->getNumber().' - Título: '.$template->getName().' - Edición: '.$template->getNumEdition().' está pendiente de configuración por su parte. Para poder revisarlo puede acceder a "Gestión de plantillas -> Pdt. configuración", buscar la plantilla correspondiente y pulsar en Configurar';
                         $baseURL=$this->container->get('router')->generate('nononsense_tm_config_detail', array("id" => $id),TRUE);
                         break;
                     case 3:
                         $subject="Test rechazados";
-                        $mensaje='La plantilla con ID '.$id.' está pendiente de realizar nuevos tests por su parte. Para poder revisarlos puede acceder a "Gestión de plantillas -> En test", buscar la plantilla correspondiente y pulsar en Testear';
+                        $mensaje='La plantilla Código: '.$template->getNumber().' - Título: '.$template->getName().' - Edición: '.$template->getNumEdition().' está pendiente de realizar nuevos tests por su parte. Para poder revisarlos puede acceder a "Gestión de plantillas -> En test", buscar la plantilla correspondiente y pulsar en Testear';
                         $baseURL=$this->container->get('router')->generate('nononsense_tm_test_detail', array("id" => $id),TRUE);
                         break;
                     case 2:
                         $subject="Plantilla rechazada";
-                        $mensaje='La plantilla con ID '.$id.' está pendiente de revisión por su parte por haberse solicitado su reelaboración. Para poder revisarlo puede acceder a "Gestión de plantillas -> En elaboración", buscar la plantilla correspondiente y pulsar en Elaborar';
+                        $mensaje='La plantilla Código: '.$template->getNumber().' - Título: '.$template->getName().' - Edición: '.$template->getNumEdition().' está pendiente de revisión por su parte por haberse solicitado su reelaboración. Para poder revisarlo puede acceder a "Gestión de plantillas -> En elaboración", buscar la plantilla correspondiente y pulsar en Elaborar';
                         $baseURL=$this->container->get('router')->generate('nononsense_tm_elaborate_detail', array("id" => $id),TRUE);
                         break;
                     case 9:
                         $subject="Plantilla cancelada";
-                        $mensaje='La plantilla con ID '.$id.' está pendiente de revisión por su parte por haberse solicitado su cancelación. Para poder revisarlo puede acceder a "Gestión de plantillas -> En elaboración", buscar la plantilla correspondiente y pulsar en Gestionar cancelación';
+                        $mensaje='La plantilla Código: '.$template->getNumber().' - Título: '.$template->getName().' - Edición: '.$template->getNumEdition().' está pendiente de revisión por su parte por haberse solicitado su cancelación. Para poder revisarlo puede acceder a "Gestión de plantillas -> En elaboración", buscar la plantilla correspondiente y pulsar en Gestionar cancelación';
                         $baseURL=$this->container->get('router')->generate('nononsense_tm_elaborate_detail', array("id" => $id),TRUE);
                         break;
                 }

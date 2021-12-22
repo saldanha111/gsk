@@ -1445,22 +1445,24 @@ class ProductsController extends Controller
 
         $phpExcelObject->getProperties();
         $phpExcelObject->setActiveSheetIndex(0)
-            ->setCellValue('A1', 'Tipo')
-            ->setCellValue('B1', 'Nombre')
-            ->setCellValue('C1', 'Qr')
-            ->setCellValue('D1', 'Part. Number')
-            ->setCellValue('E1', 'CAS Number')
-            ->setCellValue('F1', 'Código interno')
-            ->setCellValue('G1', 'Proveedor')
-            ->setCellValue('H1', 'Presentación')
-            ->setCellValue('I1', 'Fecha de destrucción')
-            ->setCellValue('J1', 'Estado')
-            ->setCellValue('K1', 'Stock actual')
-            ->setCellValue('L1', 'Stock Mínimo')
-            ->setCellValue('M1', 'Observaciones')
-            ->setCellValue('N1', 'Activo');
+            ->setCellValue('A1', "Stock de almacén en Reactivos - ".$this->getUser()->getName()." - ".date("d/m/Y H:i:s"));
+        $phpExcelObject->setActiveSheetIndex()
+            ->setCellValue('A2', 'Tipo')
+            ->setCellValue('B2', 'Nombre')
+            ->setCellValue('C2', 'Qr')
+            ->setCellValue('D2', 'Part. Number')
+            ->setCellValue('E2', 'CAS Number')
+            ->setCellValue('F2', 'Código interno')
+            ->setCellValue('G2', 'Proveedor')
+            ->setCellValue('H2', 'Presentación')
+            ->setCellValue('I2', 'Fecha de destrucción')
+            ->setCellValue('J2', 'Estado')
+            ->setCellValue('K2', 'Stock actual')
+            ->setCellValue('L2', 'Stock Mínimo')
+            ->setCellValue('M2', 'Observaciones')
+            ->setCellValue('N2', 'Activo');
 
-        $i = 2;
+        $i = 3;
         foreach ($items as $product) {
             $destructionFormatted = ($product['destructionDate']) ? (new DateTime($product['destructionDate']))->format('d/m/Y') : '';
             $phpExcelObject->getActiveSheet()
@@ -1571,32 +1573,34 @@ class ProductsController extends Controller
         $phpExcelObject = $this->get('phpexcel')->createPHPExcelObject();
 
         $phpExcelObject->getProperties();
+        $phpExcelObject->setActiveSheetIndex(0)
+            ->setCellValue('A1', "Entrada de productos al almacén de reactivos - ".$this->getUser()->getName()." - ".date("d/m/Y H:i:s"));
         if($type=== 'reactivo'){
-            $phpExcelObject->setActiveSheetIndex(0)
-                ->setCellValue('A1', 'Id')
-                ->setCellValue('B1', 'CAS Number')
-                ->setCellValue('C1', 'Part. Number')
-                ->setCellValue('D1', 'Nombre')
-                ->setCellValue('E1', 'Proveedor')
-                ->setCellValue('F1', 'Presentación')
-                ->setCellValue('G1', 'Cantidad')
-                ->setCellValue('H1', 'Fecha de recepción')
-                ->setCellValue('I1', 'Comentarios')
-                ->setCellValue('J1', 'Usuario');
+            $phpExcelObject->setActiveSheetIndex()
+                ->setCellValue('A2', 'Id')
+                ->setCellValue('B2', 'CAS Number')
+                ->setCellValue('C2', 'Part. Number')
+                ->setCellValue('D2', 'Nombre')
+                ->setCellValue('E2', 'Proveedor')
+                ->setCellValue('F2', 'Presentación')
+                ->setCellValue('G2', 'Cantidad')
+                ->setCellValue('H2', 'Fecha de recepción')
+                ->setCellValue('I2', 'Comentarios')
+                ->setCellValue('J2', 'Usuario');
         }else{
-            $phpExcelObject->setActiveSheetIndex(0)
-                ->setCellValue('A1', 'Id')
-                ->setCellValue('B1', 'Part. Number')
-                ->setCellValue('C1', 'Nombre')
-                ->setCellValue('D1', 'Proveedor')
-                ->setCellValue('E1', 'Presentación')
-                ->setCellValue('F1', 'Cantidad')
-                ->setCellValue('G1', 'Fecha de recepción')
-                ->setCellValue('H1', 'Comentarios')
-                ->setCellValue('I1', 'Usuario');
+            $phpExcelObject->setActiveSheetIndex()
+                ->setCellValue('A2', 'Id')
+                ->setCellValue('B2', 'Part. Number')
+                ->setCellValue('C2', 'Nombre')
+                ->setCellValue('D2', 'Proveedor')
+                ->setCellValue('E2', 'Presentación')
+                ->setCellValue('F2', 'Cantidad')
+                ->setCellValue('G2', 'Fecha de recepción')
+                ->setCellValue('H2', 'Comentarios')
+                ->setCellValue('I2', 'Usuario');
         }
 
-        $i = 2;
+        $i = 3;
         foreach ($items as $item) {
             if($type === 'reactivo'){
                 $phpExcelObject->getActiveSheet()
@@ -1712,15 +1716,17 @@ class ProductsController extends Controller
         $phpExcelObject = $this->get('phpexcel')->createPHPExcelObject();
         $phpExcelObject->getProperties();
         $phpExcelObject->setActiveSheetIndex(0)
-            ->setCellValue('A1', 'Id')
-            ->setCellValue('B1', 'Entrada Id')
-            ->setCellValue('C1', 'Part Number')
-            ->setCellValue('D1', 'Nombre')
-            ->setCellValue('E1', 'Cantidad')
-            ->setCellValue('F1', 'Fecha de retirada')
-            ->setCellValue('G1', 'Usuario');
+            ->setCellValue('A1', "Salida de productos de el almacén de reactivos - ".$this->getUser()->getName()." - ".date("d/m/Y H:i:s"));
+        $phpExcelObject->setActiveSheetIndex()
+            ->setCellValue('A2', 'Id')
+            ->setCellValue('B2', 'Entrada Id')
+            ->setCellValue('C2', 'Part Number')
+            ->setCellValue('D2', 'Nombre')
+            ->setCellValue('E2', 'Cantidad')
+            ->setCellValue('F2', 'Fecha de retirada')
+            ->setCellValue('G2', 'Usuario');
 
-        $i = 2;
+        $i = 3;
         foreach ($items as $item) {
             $phpExcelObject->getActiveSheet()
                 ->setCellValue('A' . $i, $item->getId())

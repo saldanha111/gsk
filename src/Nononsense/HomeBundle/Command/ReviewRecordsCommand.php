@@ -58,7 +58,7 @@ class ReviewRecordsCommand extends ContainerAwareCommand
 		    		$record->setBlocked(1);
 		    		$em->persist($record);
 		    		$ids[] = $record->getId();
-		    		$aux_message.=$record->getId()." - Código: ".$record->getTemplate()->getId()." - Título: ".$record->getTemplate()->getName()." - Edición: ".$record->getTemplate()->getNumEdition()."<br>";
+		    		$aux_message.=$record->getId()." - Código: ".$record->getTemplate()->getNumber()." - Título: ".$record->getTemplate()->getName()." - Edición: ".$record->getTemplate()->getNumEdition()."<br>";
 
 		            $sworkflow = new CVSecondWorkflow();
 			        $sworkflow->setRecord($record);
@@ -79,7 +79,7 @@ class ReviewRecordsCommand extends ContainerAwareCommand
 			        }
 
 			        if (!in_array($record->getId(), $ids_eco)) {
-			        	$aux_message_eco.=$record->getId()." - Código: ".$record->getTemplate()->getId()." - Título: ".$record->getTemplate()->getName()." - Edición: ".$record->getTemplate()->getNumEdition()."<br>";
+			        	$aux_message_eco.=$record->getId()." - Código: ".$record->getTemplate()->getNumber()." - Título: ".$record->getTemplate()->getName()." - Edición: ".$record->getTemplate()->getNumEdition()."<br>";
 			        	$ids_eco[]=$record->getId();
 			        }
 			    }

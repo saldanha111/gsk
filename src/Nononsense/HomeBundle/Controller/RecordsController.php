@@ -138,13 +138,16 @@ class RecordsController extends Controller
 
                 $phpExcelObject->getProperties();
                 $phpExcelObject->setActiveSheetIndex(0)
-                 ->setCellValue('A1', 'Nº')
-                 ->setCellValue('B1', 'Nombre')
-                 ->setCellValue('C1', 'Creador')
-                 ->setCellValue('D1', 'Próximo firmante')
-                 ->setCellValue('E1', 'Tipo')
-                 ->setCellValue('F1', 'Fecha')
-                 ->setCellValue('G1', 'Estado');
+                 ->setCellValue('A1', "Listado de documentos - ".$user->getUsername()." - ".date("d/m/Y H:i:s"));
+
+                 $phpExcelObject->setActiveSheetIndex()
+                 ->setCellValue('A2', 'Nº')
+                 ->setCellValue('B2', 'Nombre')
+                 ->setCellValue('C2', 'Creador')
+                 ->setCellValue('D2', 'Próximo firmante')
+                 ->setCellValue('E2', 'Tipo')
+                 ->setCellValue('F2', 'Fecha')
+                 ->setCellValue('G2', 'Estado');
             }
 
             if($request->get("export_pdf")){
@@ -204,7 +207,7 @@ class RecordsController extends Controller
                 </tr>';
             }
 
-            $i=2;
+            $i=3;
             foreach($array_item["items"] as $item){
                 switch($item["status"]){
                     case 1: $status="En proceso";break;

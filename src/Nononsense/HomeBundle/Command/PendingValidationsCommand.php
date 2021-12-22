@@ -53,7 +53,7 @@ class PendingValidationsCommand extends ContainerAwareCommand
 		    		$record->setPending(1);
 		    		$em->persist($record);
 		    		$ids[] = $record->getId();
-		    		$aux_message.=$record->getId()." - Código: ".$record->getTemplate()->getId()." - Título: ".$record->getTemplate()->getName()." - Edición: ".$record->getTemplate()->getNumEdition()."<br>";
+		    		$aux_message.=$record->getId()." - Código: ".$record->getTemplate()->getNumber()." - Título: ".$record->getTemplate()->getName()." - Edición: ".$record->getTemplate()->getNumEdition()."<br>";
 			    }
 			}
 
