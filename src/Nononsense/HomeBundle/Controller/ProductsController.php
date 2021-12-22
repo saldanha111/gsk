@@ -1719,7 +1719,7 @@ class ProductsController extends Controller
         $phpExcelObject = $this->get('phpexcel')->createPHPExcelObject();
         $phpExcelObject->getProperties();
         $phpExcelObject->setActiveSheetIndex(0)
-            ->setCellValue('A1', "Salida de productos de el almacén de reactivos - ".$this->getUser()->getName()." - ".date("d/m/Y H:i:s"));
+            ->setCellValue('A1', "Retirada de almacén - ".$this->getUser()->getUserName()." - ".date("d/m/Y H:i:s"));
         $phpExcelObject->setActiveSheetIndex()
             ->setCellValue('A2', 'Id')
             ->setCellValue('B2', 'Entrada Id')
