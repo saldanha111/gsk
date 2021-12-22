@@ -291,7 +291,7 @@ class CVRecordsRepository extends EntityRepository
 
             if(isset($filters["var"]) && isset($filters["value"])){
               
-                $list->andWhere("(last.json LIKE :var_1 AND (SUBSTRING(
+                $list->andWhere("(last.json LIKE :var_1 AND SUBSTRING(
                     last.json,
                     CHARINDEX(:var_2, last.json,0) + LENGTH(:var_2),
                     CHARINDEX('}',last.json,(CHARINDEX(:var_2, last.json,0) + LENGTH(:var_2)))
@@ -304,7 +304,7 @@ class CVRecordsRepository extends EntityRepository
                         -(CHARINDEX(:var_2, last.jsonInfo,0) + LENGTH(:var_2))
                     ) LIKE :valueJson) 
                     OR last.json LIKE :var_simple 
-                    OR last.jsonInfo LIKE :var_simple)");
+                    OR last.jsonInfo LIKE :var_simple");
 
                 
                 $list->setParameter('var_1', '%'.$filters["var"].'%');

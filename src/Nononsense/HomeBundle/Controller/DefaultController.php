@@ -3,7 +3,7 @@
 namespace Nononsense\HomeBundle\Controller;
 use Nononsense\UtilsBundle\Classes;
 
-
+use Nononsense\HomeBundle\Entity\Areas;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -32,6 +32,15 @@ class DefaultController extends Controller
         $data['array_subsecciones'] = $array_subsecciones;
 
         return $this->render('::nav_side.html.twig', $data);
+    }
+
+    public function popupAreasAction()
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $data["areas"] = $this->getDoctrine()->getRepository(Areas::class)->findBy(array(),array("name" => "ASC"));
+
+        return $this->render('::popupAreas.html.twig', $data);
     }
 
     public function topSideAction(){

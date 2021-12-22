@@ -81,7 +81,19 @@ class TemplateManagementTemplatesController extends Controller
         $array_item["users"] = $this->getDoctrine()->getRepository(Users::class)->findBy(array(),array("name" => "ASC"));
         $array_item["states"] = $this->getDoctrine()->getRepository(TMStates::class)->findBy(array(),array("number" => "ASC"));
         
-        
+        if(!$this->get('app.security')->permissionSeccion('dueno_gp') && !$this->get('app.security')->permissionSeccion('elaborador_gp') && !$this->get('app.security')->permissionSeccion('tester_gp') && !$this->get('app.security')->permissionSeccion('aprobador_gp') && !$this->get('app.security')->permissionSeccion('admin_gp')){
+            $array_item["extend"]=FALSE;
+        }   
+        else{
+            if($request->get("cumpl") && $request->get("cumpl")!=""){
+                $filters["cumpl"]=$request->get("cumpl");
+                $array_item["extend"]=FALSE;
+            }
+            else{
+                $array_item["extend"]=TRUE;
+            }
+            
+        }
 
         if(!$request->get("export_excel")){
             if($request->get("page")){
@@ -114,13 +126,26 @@ class TemplateManagementTemplatesController extends Controller
             $filters["state"]=$request->get("state");
 
             $perm_state = $this->getDoctrine()->getRepository(TMStates::class)->findOneBy(array("id" => $request->get("state")));
-            if($perm_state->getPem() && !$this->get('app.security')->permissionSeccion($perm_state->getPem())){
-                $this->get('session')->getFlashBag()->add(
-                    'error',
-                    'No tiene permisos suficientes'
-                );
-                $route=$this->container->get('router')->generate('nononsense_home_homepage');
-                return $this->redirect($route);
+
+            if($perm_state){
+                if($perm_state->getPem()){
+                    $pems = explode(";", $perm_state->getPem());
+                    $find=0;
+                    foreach($pems as $pem){
+                        if($this->get('app.security')->permissionSeccion($pem)){
+                            $find=1;
+                        }
+                    }
+
+                    if(!$find){
+                        $this->get('session')->getFlashBag()->add(
+                                'error',
+                                'No tiene permisos suficientes'
+                            );
+                            $route=$this->container->get('router')->generate('nononsense_home_homepage');
+                            return $this->redirect($route);
+                    }
+                }
             }
         }
         else{

@@ -49,13 +49,19 @@
                                 </div>
                             {% endif %}
 
+                            {% if not extend %}
+                                <div class="col-sm-1 item_filter">
+                                    <button type="submit" class="btn btn-primary">Filtrar</button>
+                                </div>
+                            {% endif %}
+
                             
 
                             
                         </div><br>
                         <div class="row">  
 
-                            {% if users is defined %}
+                            {% if users is defined and extend %}
                                 <label class="col-sm-1 control-label item_filter">Solicitante</label>
                                 <div class="col-sm-2 item_filter">
                                   <select class="form-control" style="width: 100%;" name="applicant">
@@ -67,7 +73,7 @@
                                 </div>
                             {% endif %}
 
-                            {% if users is defined %}
+                            {% if users is defined and extend %}
                                 <label class="col-sm-1 control-label item_filter">Dueño</label>
                                 <div class="col-sm-2 item_filter">
                                   <select class="form-control" style="width: 100%;" name="owner">
@@ -79,7 +85,7 @@
                                 </div>
                             {% endif %}
 
-                            {% if users is defined %}
+                            {% if users is defined and extend %}
                                 <label class="col-sm-1 control-label item_filter">Backup</label>
                                 <div class="col-sm-2 item_filter">
                                   <select class="form-control" style="width: 100%;" name="backup">
@@ -91,41 +97,46 @@
                                 </div>
                             {% endif %}
                         </div><br>
-                        <div class="row">
-                            {% if states is defined %}
-                                <label class="col-sm-1 control-label item_filter">Estado</label>
-                                <div class="col-sm-2 item_filter">
-                                  <select class="form-control" style="width: 100%;" name="state">
-                                    <option value=""></option>
-                                    {% for state in states %}
-                                        {% if state.id != 9 %}
-                                            <option value="{{state.id}}" {{ filters.state is defined and filters.state==state.id ? 'selected="selected"' : ''}}>{{state.name}}</option>
-                                        {% endif %}
-                                    {% endfor %}
-                                  </select>
+                        {% if extend %}
+                            <div class="row">
+                                {% if states is defined %}
+                                    <label class="col-sm-1 control-label item_filter">Estado</label>
+                                    <div class="col-sm-2 item_filter">
+                                      <select class="form-control" style="width: 100%;" name="state">
+                                        <option value=""></option>
+                                        {% for state in states %}
+                                            {% if state.id != 9 %}
+                                                <option value="{{state.id}}" {{ filters.state is defined and filters.state==state.id ? 'selected="selected"' : ''}}>{{state.name}}</option>
+                                            {% endif %}
+                                        {% endfor %}
+                                      </select>
+                                    </div>
+                                {% endif %}
+
+                                <div class="col-sm-1">
+                                  <div class="checkbox">
+                                    <label>
+                                      <input name="draft" value="1" type="checkbox" {% if filters.draft is defined and  filters.draft == true %} checked="checked" {% endif %}> DRAFT
+                                    </label>
+                                  </div>
                                 </div>
-                            {% endif %}
 
-                            <div class="col-sm-1">
-                              <div class="checkbox">
-                                <label>
-                                  <input name="draft" value="1" type="checkbox" {% if filters.draft is defined and  filters.draft == true %} checked="checked" {% endif %}> DRAFT
-                                </label>
-                              </div>
-                            </div>
+                                <div class="col-sm-1">
+                                  <div class="checkbox">
+                                    <label>
+                                      <input name="pending_for_me" value="1" type="checkbox" {% if filters.pending_for_me is defined and  filters.pending_for_me == true %} checked="checked" {% endif %}> Mis Reg. Pend.
+                                    </label>
+                                  </div>
+                                </div>
 
-                            <div class="col-sm-1">
-                              <div class="checkbox">
-                                <label>
-                                  <input name="pending_for_me" value="1" type="checkbox" {% if filters.pending_for_me is defined and  filters.pending_for_me == true %} checked="checked" {% endif %}> Mis Reg. Pend.
-                                </label>
-                              </div>
+                                <div class="col-sm-4 item_filter">
+                                    <button type="submit" class="btn btn-primary">Filtrar</button>
+                                </div>
                             </div>
-
-                            <div class="col-sm-4 item_filter">
-                                <button type="submit" class="btn btn-primary">Filtrar</button>
-                            </div>
-                        </div>
+                        {% else %}
+                            <input type="hidden" name="state" value="{{filters.state is defined ? filters.state : ''}}">
+                        {% endif %}
+                        <input type="hidden" name="cumpl" value="{{filters.cumpl is defined and filters.cumpl == 1 ? '1' : ''}}">
                       </form>
                 </div>
                 <br>
@@ -134,20 +145,28 @@
                         <thead>
                         <tr>
                             <th>Id</th>
-                            <th>Nº.</th>
+                            <th>Código</th>
                             <th>Ed.</th>
-                            <th>Nombre</th>
+                            <th>Título</th>
                             <th>Area</th>
-                            <th>Solicitante</th>
+                            {% if extend %}
+                                <th>Solicitante</th>
+                            {% endif %}
                             <th>F.efectiva</th>
                             <th>F.revisión</th>
-                            <th>Dueño</th>
-                            <th>Backup</th>
+                            {% if extend %}
+                                <th>Dueño</th>
+                                <th>Backup</th>
+                            {% endif %}
                             <th>Norma.ref</th>
-                            <th>Estado</th>
-                            <th>Inactiva</th>
+                            {% if extend %}
+                                <th>Estado</th>
+                                <th>Inactiva</th>
+                            {% endif %}
                             <th></th>
-                            <th></th>
+                            {% if extend %}
+                                <th></th>
+                            {% endif %}
                             <th></th>
                             <th></th>
                         </tr>
@@ -160,14 +179,20 @@
                                 <td>{{item.numEdition}}</td>
                                 <td><a href="{{path('nononsense_tm_template_detail', {'id': item.id}) }}">{{item.name}}</a></td>
                                 <td>{{item.nameArea}}</td>
-                                <td>{{item.applicantName}}</td>
+                                {% if extend %}
+                                    <td>{{item.applicantName}}</td>
+                                {% endif %}
                                 <td>{{item.effectiveDate is defined and item.effectiveDate is not null ? item.effectiveDate|date("d/m/Y") : ''}}</td>
                                 <td>{{item.dateReview is defined and item.dateReview is not null ? item.dateReview|date("d/m/Y") : ''}}</td>
-                                <td>{{item.ownerName}}</td>
-                                <td>{{item.backupName}}</td>
+                                {% if extend %}
+                                    <td>{{item.ownerName}}</td>
+                                    <td>{{item.backupName}}</td>
+                                {% endif %}
                                 <td>{{item.reference}}</td>
-                                <td>{{item.stateName}}</td>
-                                <td>{{item.inactive is defined and item.inactive  ? 'Si' : 'No'}}</td>
+                                {% if extend %}
+                                    <td>{{item.stateName}}</td>
+                                    <td>{{item.inactive is defined and item.inactive  ? 'Si' : 'No'}}</td>
+                                {% endif %}
                                 <td>
                                     <div class="btn-group btn-xs">
                                         <button type="button" class="btn btn-xs btn-primary" data-toggle="dropdown"><i class="fa fa-ellipsis-h"></i></button>
@@ -176,66 +201,72 @@
                                           <span class="sr-only">Toggle Dropdown</span>
                                         </button>
                                         <ul class="dropdown-menu" role="menu">
-                                            {% if item.status == 6 %}
-                                                <li><a href="{{path('nononsense_tm_request')}}?id={{item.id}}"><i class="fa fa-recycle"></i> {{ 'Nueva edición'|trans }}</a></li>
+                                            {% if extend %}
+                                                {% if item.status == 6 %}
+                                                    <li><a href="{{path('nononsense_tm_request')}}?id={{item.id}}"><i class="fa fa-recycle"></i> {{ 'Nueva edición'|trans }}</a></li>
+                                                {% endif %}
                                             {% endif %}
                                             <li><a href="{{path('nononsense_tm_template_changes_history', {'id': item.id})}}"><i class="fa fa-file-text-o"></i> {{ ' Historial de cambios'|trans }}</a></li>
-                                            <li><a href="{{path('nononsense_tm_template_audit_trail', {'id': item.id})}}"><i class="fa fa-book"></i> {{ 'Audit Trail'|trans }}</a></li>
-                                            <li><a href="{{path('nononsense_tm_template_cover_page', {'id': item.id})}}"><i class="fa fa-print"></i> {{ 'Imprimir plantilla'|trans }}</a></li>
-                                            {% if item is defined and item.status==6 and (item.ownerId==app.user.id or item.backupId==app.user.id ) %}
-                                                <li><a href="{{path('nononsense_tm_template_detail', {'id': item.id})}}?request_drop=1"><i class="fa fa-thumbs-o-down"></i> {{ 'Solicitar baja'|trans }}</a></li>
-                                            {% endif %}
+                                            {% if extend %}
+                                                <li><a href="{{path('nononsense_tm_template_audit_trail', {'id': item.id})}}"><i class="fa fa-book"></i> {{ 'Audit Trail'|trans }}</a></li>
+                                                <li><a href="{{path('nononsense_tm_template_cover_page', {'id': item.id})}}"><i class="fa fa-print"></i> {{ 'Imprimir plantilla'|trans }}</a></li>
+                                                {% if item is defined and item.status==6 and (item.ownerId==app.user.id or item.backupId==app.user.id ) %}
+                                                    <li><a href="{{path('nononsense_tm_template_detail', {'id': item.id})}}?request_drop=1"><i class="fa fa-thumbs-o-down"></i> {{ 'Solicitar baja'|trans }}</a></li>
+                                                {% endif %}
 
-                                            {% if item is defined and item.status==6 and (item.dateReview is empty or item.dateReview|date > date()) %}
-                                                <li><a href="{{path('nononsense_tm_template_detail', {'id': item.id})}}?request_review=1"><i class="fa fa-eye"></i> {{ 'Solicitar revisión'|trans }}</a></li>
+                                                {% if item is defined and item.status==6 and (item.dateReview is empty or item.dateReview|date > date()) %}
+                                                    <li><a href="{{path('nononsense_tm_template_detail', {'id': item.id})}}?request_review=1"><i class="fa fa-eye"></i> {{ 'Solicitar revisión'|trans }}</a></li>
+                                                {% endif %}
                                             {% endif %}
                                         </ul>
                                     </div>
                                 </td>
-                                <td>
-                                    {% if item.require_action %}
-                                        {% if item.status == 1 %}
-                                            <a class="btn btn-xs btn-danger" href="{{path('nononsense_tm_template_detail', {'id': item.id}) }}" target="_self"><i class="fa fa-gavel" aria-hidden="true"></i> {{'Consultar solicitud'|trans}}</a>
+                                {% if extend %}
+                                    <td>
+                                        {% if item.require_action %}
+                                            {% if item.status == 1 %}
+                                                <a class="btn btn-xs btn-danger" href="{{path('nononsense_tm_template_detail', {'id': item.id}) }}" target="_self"><i class="fa fa-gavel" aria-hidden="true"></i> {{'Consultar solicitud'|trans}}</a>
+                                            {% endif %}
+
+                                            {% if item.status == 2 %}
+                                                <a class="btn btn-xs btn-danger" href="{{path('nononsense_tm_elaborate_detail', {'id': item.id}) }}" target="_self"><i class="fa fa-scissors" aria-hidden="true"></i> {{'Elaborar'|trans}}</a>
+                                            {% endif %}
+
+                                            {% if item.status == 3 %}
+                                                <a class="btn btn-xs btn-danger" href="{{path('nononsense_tm_test_detail', {'id': item.id}) }}" target="_self"><i class="fa fa-flask" aria-hidden="true"></i> {{'Testear'|trans}}</a>
+                                            {% endif %}
+
+                                            {% if item.status == 4 %}
+                                                <a class="btn btn-xs btn-danger" href="{{path('nononsense_tm_aprob_detail', {'id': item.id}) }}" target="_self"><i class="fa fa-check" aria-hidden="true"></i> {{'Aprobar'|trans}}</a>
+                                            {% endif %}
+
+                                            {% if item.status == 5 %}
+                                                <a class="btn btn-xs btn-danger" href="{{path('nononsense_tm_config_detail', {'id': item.id}) }}" target="_self"><i class="fa fa-gear" aria-hidden="true"></i> {{'Configurar'|trans}}</a>
+                                            {% endif %}
+
+                                            {% if item.status == 9 %}
+                                                <a class="btn btn-xs btn-danger" href="{{path('nononsense_tm_elaborate_detail_cancel', {'id': item.id}) }}" target="_self"><i class="fa fa-scissors" aria-hidden="true"></i> {{'Tramitar cancelación'|trans}}</a>
+                                            {% endif %}
+
+
+                                            {% if item.status == 11 %}
+                                                <a class="btn btn-xs btn-danger" href="{{path('nononsense_tm_config_detail', {'id': item.id}) }}" target="_self"><i class="fa fa-gear" aria-hidden="true"></i> {{'Modificar configuración'|trans}}</a>
+                                            {% endif %}
+                                        {% endif %}
+                                        
+                                        {% if item.status == 6 %}
+                                            <a class="btn btn-xs btn-primary" href="{{path('nononsense_tm_config_detail', {'id': item.id}) }}" target="_self"><i class="fa fa-thumbs-o-up" aria-hidden="true"></i> {{'En vigor'|trans}}</a>
                                         {% endif %}
 
-                                        {% if item.status == 2 %}
-                                            <a class="btn btn-xs btn-danger" href="{{path('nononsense_tm_elaborate_detail', {'id': item.id}) }}" target="_self"><i class="fa fa-scissors" aria-hidden="true"></i> {{'Elaborar'|trans}}</a>
+                                        {% if item.status == 7 %}
+                                            <a class="btn btn-xs btn-default disabled" href="#" target="_self"><i class="fa fa-ban" aria-hidden="true"></i> {{'Obsoleta'|trans}}</a>
                                         {% endif %}
 
-                                        {% if item.status == 3 %}
-                                            <a class="btn btn-xs btn-danger" href="{{path('nononsense_tm_test_detail', {'id': item.id}) }}" target="_self"><i class="fa fa-flask" aria-hidden="true"></i> {{'Testear'|trans}}</a>
+                                        {% if item.status == 14 %}
+                                            <a class="btn btn-xs btn-default disabled" href="#" target="_self"><i class="fa fa-remove" aria-hidden="true"></i> {{'Cancelada'|trans}}</a>
                                         {% endif %}
-
-                                        {% if item.status == 4 %}
-                                            <a class="btn btn-xs btn-danger" href="{{path('nononsense_tm_aprob_detail', {'id': item.id}) }}" target="_self"><i class="fa fa-check" aria-hidden="true"></i> {{'Aprobar'|trans}}</a>
-                                        {% endif %}
-
-                                        {% if item.status == 5 %}
-                                            <a class="btn btn-xs btn-danger" href="{{path('nononsense_tm_config_detail', {'id': item.id}) }}" target="_self"><i class="fa fa-gear" aria-hidden="true"></i> {{'Configurar'|trans}}</a>
-                                        {% endif %}
-
-                                        {% if item.status == 9 %}
-                                            <a class="btn btn-xs btn-danger" href="{{path('nononsense_tm_elaborate_detail_cancel', {'id': item.id}) }}" target="_self"><i class="fa fa-scissors" aria-hidden="true"></i> {{'Tramitar cancelación'|trans}}</a>
-                                        {% endif %}
-
-
-                                        {% if item.status == 11 %}
-                                            <a class="btn btn-xs btn-danger" href="{{path('nononsense_tm_config_detail', {'id': item.id}) }}" target="_self"><i class="fa fa-gear" aria-hidden="true"></i> {{'Modificar configuración'|trans}}</a>
-                                        {% endif %}
-                                    {% endif %}
-                                    
-                                    {% if item.status == 6 %}
-                                        <a class="btn btn-xs btn-primary" href="{{path('nononsense_tm_config_detail', {'id': item.id}) }}" target="_self"><i class="fa fa-thumbs-o-up" aria-hidden="true"></i> {{'En vigor'|trans}}</a>
-                                    {% endif %}
-
-                                    {% if item.status == 7 %}
-                                        <a class="btn btn-xs btn-default disabled" href="#" target="_self"><i class="fa fa-ban" aria-hidden="true"></i> {{'Obsoleta'|trans}}</a>
-                                    {% endif %}
-
-                                    {% if item.status == 14 %}
-                                        <a class="btn btn-xs btn-default disabled" href="#" target="_self"><i class="fa fa-remove" aria-hidden="true"></i> {{'Cancelada'|trans}}</a>
-                                    {% endif %}
-                                </td>
+                                    </td>
+                                {% endif %}
                                 
                                 <td>
                                     {% if item.status == 6 and not item.inactive and not item.notFillableItSelf %}
@@ -283,7 +314,11 @@ $( document ).ready(function() {
         {% elseif filters.state==11 %}
             ActivateMenu('pendientes_vigor_gestion_plantillas');
         {% elseif filters.state==6 %}
-            ActivateMenu('en_vigor_gestion_plantillas');
+            {% if extend %}
+                ActivateMenu('en_vigor_gestion_plantillas');
+            {% else %}   
+                ActivateMenu('docxpresso_nuevo');
+            {% endif %} 
         {% endif %}
     {% endif %}
     $('#side-menu').metisMenu();
