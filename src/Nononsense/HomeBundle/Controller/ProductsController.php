@@ -1573,9 +1573,10 @@ class ProductsController extends Controller
         $phpExcelObject = $this->get('phpexcel')->createPHPExcelObject();
 
         $phpExcelObject->getProperties();
-        $phpExcelObject->setActiveSheetIndex(0)
-            ->setCellValue('A1', "Entrada de productos al almacén de reactivos - ".$this->getUser()->getName()." - ".date("d/m/Y H:i:s"));
+        
         if($type=== 'reactivo'){
+            $phpExcelObject->setActiveSheetIndex(0)
+            ->setCellValue('A1', "Entrada de reactivos al almacén de reactivos - ".$this->getUser()->getUserName()." - ".date("d/m/Y H:i:s"));
             $phpExcelObject->setActiveSheetIndex()
                 ->setCellValue('A2', 'Id')
                 ->setCellValue('B2', 'CAS Number')
@@ -1588,6 +1589,8 @@ class ProductsController extends Controller
                 ->setCellValue('I2', 'Comentarios')
                 ->setCellValue('J2', 'Usuario');
         }else{
+            $phpExcelObject->setActiveSheetIndex(0)
+            ->setCellValue('A1', "Entrada de material al almacén de reactivos - ".$this->getUser()->getUserName()." - ".date("d/m/Y H:i:s"));
             $phpExcelObject->setActiveSheetIndex()
                 ->setCellValue('A2', 'Id')
                 ->setCellValue('B2', 'Part. Number')
