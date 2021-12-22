@@ -15,6 +15,8 @@ class MaterialCleanTracesController extends Controller
 {
     public function listAction(Request $request)
     {
+        $user = $this->container->get('security.context')->getToken()->getUser();
+        
         $is_valid = $this->get('app.security')->permissionSeccion('mc_traces_list');
         if(!$is_valid){
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
