@@ -309,7 +309,7 @@ class AccountRequestController extends Controller
 	private function signForm($cn, $pass, $hideLdapErrors = true){
 
 		try {
-			$ldapdn = $this->container->getParameter('ldap.search_dn');
+			$ldapdn = $this->container->getParameter('ldap.dn_string');
 			$ldapdn = str_replace('{username}', $cn, $ldapdn);
 
 			$ldap   = $this->container->get('ldap');
@@ -335,7 +335,7 @@ class AccountRequestController extends Controller
 		// if (isset($mudid) && $mudid) {
 		// 	# code...
 		// }
-		$ldapdn   = $this->container->getParameter('ldap.dn_string'); //'cn=admin,cn=users,dc=demo,dc=local'; $this->container->getParameter('ldap.search_dn');
+		$ldapdn   = $this->container->getParameter('ldap.search_dn'); //'cn=admin,cn=users,dc=demo,dc=local'; $this->container->getParameter('ldap.search_dn');
 		$ldappass = $this->container->getParameter('ldap.search_password');; //$this->container->getParameter('ldap.search_password');
 
 		$uid_key = 'sAMAccountName'; //$this->container->getParameter('ldap.uid_key');

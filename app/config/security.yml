@@ -56,11 +56,11 @@ security:
                 login_path: /users/login
                 remember_me: true
                 default_target_path: /users/login_init
-            form_ldap:
-                check_path: /users/check_user
-                login_path: /users/login
-                service: ldap
-                dn_string: '%ldap.search_dn%'
+            # form_ldap:
+            #     check_path: /users/check_user
+            #     login_path: /users/login
+            #     service: ldap
+            #     dn_string: '%ldap.dn_string%'
             logout:
                 path:   /users/logout
                 target: /
