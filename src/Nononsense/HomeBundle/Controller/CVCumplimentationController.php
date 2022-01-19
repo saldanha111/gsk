@@ -789,7 +789,7 @@ class CVCumplimentationController extends Controller
         $array_item["items"] = $this->getDoctrine()->getRepository(CVRecords::class)->search("list",$filters);
         foreach($array_item["items"] as $key => $item){
             $array_item["items"][$key]["observer"]=0;
-            if($array_item["items"][$key]["alternativeState"]=="Verificar" && $array_item["items"][$key]["requireAction"]=="1" ){
+            if(array_key_exists("alternativeState",$array_item["items"][$key]) && $array_item["items"][$key]["alternativeState"]=="Verificar" && array_key_exists("requireAction",$array_item["items"][$key]) &&  $array_item["items"][$key]["requireAction"]=="1" ){
                 $wf=$this->get('utilities')->wich_wf($array_item["items"][$key]["id"],$user,1);
                 if($wf->getType()->getId()==3){
                     $array_item["items"][$key]["observer"]=1;
