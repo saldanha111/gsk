@@ -196,6 +196,9 @@ class Utilities{
     }
 
     public function wich_wf($record,$user,$type){
+        if(is_int($record)){
+            $record = $this->em->getRepository('NononsenseHomeBundle:CVRecords')->findOneBy(array("id" => $record));
+        }
         $return=NULL;
         $groups=array();
         foreach($user->getGroups() as $uniq_group){

@@ -180,7 +180,17 @@
                                             {% if not item.finalState %}
                                                 {% if item.canBeOpenedState %}
                                                     {% if item.requireAction %}
-                                                        <a class="btn btn-xs {{item.colorState}}" {{ item.type_id is defined and item.type_id==1 and item.logbook and item.creator is not empty  ? 'name=completarregistro data-template='~item.id~' data-loogbook=1' : 'href='~path('nononsense_cv_docoaro_new', {'id': item.id})~' target=_self' }}><i class="{{item.iconState}}" aria-hidden="true"></i> {{ item.reconId is defined and item.reconId is not empty ? item.alternativeStateReconc : item.alternativeState }}</a>  
+                                                        {% if item.reconId is defined and item.reconId is not empty %}
+                                                            {% set caption_btn = item.alternativeStateReconc %}
+                                                        {% else %}
+                                                            {% set caption_btn = item.alternativeState %}
+                                                        {% endif %}
+
+                                                        {% if item.observer %}
+                                                            {% set caption_btn = "Observar" %}
+                                                        {% endif %}
+
+                                                        <a class="btn btn-xs {{item.colorState}}" {{ item.type_id is defined and item.type_id==1 and item.logbook and item.creator is not empty  ? 'name=completarregistro data-template='~item.id~' data-loogbook=1' : 'href='~path('nononsense_cv_docoaro_new', {'id': item.id})~' target=_self' }}><i class="{{item.iconState}}" aria-hidden="true"></i> {{ caption_btn }}</a>  
                                                     {% else %}
                                                         <a href="#" class="btn btn-xs btn-warning disabled"><i class="fa fa-pencil" aria-hidden="true"></i> Pendiente </a>
                                                     {% endif %}

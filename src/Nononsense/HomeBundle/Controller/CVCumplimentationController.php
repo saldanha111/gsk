@@ -787,6 +787,15 @@ class CVCumplimentationController extends Controller
         $array_item["suser"]["id"]=$user->getId();
         $array_item["filters"]=$filters;
         $array_item["items"] = $this->getDoctrine()->getRepository(CVRecords::class)->search("list",$filters);
+        foreach($array_item["items"] as $key => $item){
+            $array_item["items"][$key]["observer"]=0;
+            if($array_item["items"][$key]["alternativeState"]=="Verificar" && $array_item["items"][$key]["requireAction"]=="1" ){
+                $wf=$this->get('utilities')->wich_wf($array_item["items"][$key]["id"],$user,1);
+                if($wf->getType()->getId()==3){
+                    $array_item["items"][$key]["observer"]=1;
+                }
+            }
+        }
         $array_item["states"]= $this->getDoctrine()->getRepository(CVStates::class)->findAll();
         $array_item["areas"] = $this->getDoctrine()->getRepository(Areas::class)->findBy(array(),array("name" => "ASC"));
         
