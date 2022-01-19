@@ -551,7 +551,7 @@ class Utilities{
         $stepHistory->setValue($value);
 
 
-        if (strpos($stepHistory->getValue(), ';base64,') !== false) {
+        /*if (strpos($stepHistory->getValue(), ';base64,') !== false) {
             $extension = explode("/", mime_content_type($stepHistory->getValue()))[1];
             $path=$this->container->getParameter('crt.root_dir')."/file-record/".date('Y')."/".date('m');
             if (!is_dir($path)) {
@@ -562,7 +562,7 @@ class Utilities{
             file_put_contents($path."/".$fileName, $file);
             $url_file=$path."/".$fileName;
             Utils::setCertification($this->container, $url_file, "file-record", $evidencia->getRecord()->getId());   
-        } 
+        } */
 
         $stepHistory->setPrevValue($prevValue);
         $stepHistory->setLineOptions($lineOptions);
