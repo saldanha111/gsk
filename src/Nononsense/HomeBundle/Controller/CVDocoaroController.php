@@ -697,7 +697,7 @@ class CVDocoaroController extends Controller
                     }
 
                     $fullText .= '<tr><td width="5%">' . $id . '</td><td colspan="6">'.$action.'</td></tr><tr><td width="5%"></td><td width="15%">' . $name . '<br>' . $date . '</td><td width="80%" colspan="4">'.$comment .'</td></tr>';
-                    if($audittrail){
+                    if($audittrail || $record->getState()->getId()==4){
                         $first=1;
                         foreach($signature->getChanges() as $change){
                             if($change->getLineOptions()!=1){
