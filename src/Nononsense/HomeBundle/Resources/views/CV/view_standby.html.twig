@@ -114,8 +114,9 @@
                             {% if currentWf is defined and (currentWf.group is empty and currentWf.group!=eco) %}
                                 <input type="submit" class="btn btn-warning pull-right" data-action="3" value="Pedir confirmación ECO" style="margin-left:10px">
                             {% endif %}
-                            <input type="submit" class="btn btn-danger pull-right" data-action="2" value="Rechazar">
-                            
+                            {% if not item.finalState %}
+                                <input type="submit" class="btn btn-danger pull-right" data-action="2" value="Rechazar">
+                            {% endif %}
                         </div>
                     </div>
                 </div>
