@@ -735,6 +735,55 @@ class CVDocoaroController extends Controller
                 
             }
             $fullText .= '</table>';
+
+            /* Mostramos registros reconciliados */
+            $user = $record->getUser();
+            $filters=array();
+
+            $filters["users"]=$this->get('utilities')->get_users_actions($user,1);
+
+            $array_item["suser"]["id"]=$user->getId();
+
+            $filters["limit_from"]=0;
+            $filters["limit_many"]=99999999999;
+
+            if($record->getFirstReconciliation()){
+                $filters["recon_history"]=$record->getFirstReconciliation()->getId();
+            }
+            else{
+                $filters["recon_history"]=$record->getId();
+            }
+
+            $documentsReconciliacion = $this->getDoctrine()->getRepository(CVRecords::class)->search("list",$filters);
+
+            if(count($documentsReconciliacion)>1 && ($audittrail || $signature->getAction()->getArchive() || in_array($key, $action_without_audittrail) || !$record->getState()->getFinal() || $record->getState()->getId()==4)){
+
+                $fullText.='<br><br><table class="table" style="max-width:none!important"><tr><th colspan="7">Reconciliación ('.count($documentsReconciliacion).' registros reconciliados)</th></tr><tr>
+                        <td>Nº</td>
+                        <td>Area</td>
+                        <td>Nombre</td>
+                        <td>Solicitante</td>
+                        <td>Fecha solicitud</td>
+                        <td>Estado</td>
+                        <td>Ultima Modificación</td></tr>';
+                foreach($documentsReconciliacion as $key => $element){
+                    $url=$this->container->get('router')->generate('nononsense_cv_docoaro_new', array('id' => $element["id"]),TRUE);
+                    $name=str_replace('"', '\"', $element["name"]);
+                    if($record->getId()!=$element["id"]){
+                        $fullText.='<tr><td>'.$element["id"].'</td><td>'.$element["area"].'</td><td><a href="'.$url.'" target="_blank">'.$name.'</a></td>';
+                    }
+                    else{
+                        $fullText.='<tr><td>'.$element["id"].'</td><td>'.$element["area"].'</td><td><b>'.$name.'</b></td>';
+                    }
+
+                    $fullText.='<td>'.$element["creator"].'</td>
+                                <td>'.$element["created"]->format('d/m/Y H:i:s').'</td>
+                                <td>'.$element["state"].'</td>
+                                <td>'.$element["modified"]->format('d/m/Y H:i:s').'</td></tr>';
+
+                }   
+                $fullText.='</table>';
+            }
         }
         return $fullText;
     }
