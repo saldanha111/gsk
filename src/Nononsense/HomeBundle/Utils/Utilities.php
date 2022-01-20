@@ -195,7 +195,7 @@ class Utilities{
         $pdf->Output($filename.".pdf",'I'); // This will output the PDF as a response directly
     }
 
-    public function wich_wf($record,$user,$type){
+    public function wich_wf($record,$user){
         if(is_int($record)){
             $record = $this->em->getRepository('NononsenseHomeBundle:CVRecords')->findOneBy(array("id" => $record));
         }
@@ -204,6 +204,14 @@ class Utilities{
         foreach($user->getGroups() as $uniq_group){
             $groups[]=$uniq_group->getGroup();
         }
+
+        if($record->getState()->getType()->getId()==1){
+            $type_delegation=1;
+        }
+        else{
+            $type_delegation=4;
+        }
+
 
         $subtypes=$this->em->getRepository('NononsenseHomeBundle:TMCumplimentations')->findBy(array("tmType" => $record->getState()->getType()));
 
@@ -239,7 +247,7 @@ class Utilities{
         }
 
         if($find==0){
-            $users_actions=$this->get_users_actions($user,$type);
+            $users_actions=$this->get_users_actions($user,$type_delegation);
             foreach($users_actions as $user_action){
                 foreach($wfs as $item){
                     if($item->getUser() && $item->getUser()==$user_action){

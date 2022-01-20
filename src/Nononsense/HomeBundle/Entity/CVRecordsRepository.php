@@ -25,8 +25,53 @@ class CVRecordsRepository extends EntityRepository
                     $groups[]=$uniq_group->getGroup();
                 }
             }
+            $key=0;
+            if (isset($filters["usersc"]) || isset($filters["usersv"])) {
+                $types_cumpl=array(1 => "c",2 => "v");
+                foreach($types_cumpl as $key_type_cumpl => $type_cumpl){
+                    if(isset($filters["users".$type_cumpl])){
+                        foreach($filters["users".$type_cumpl] as $uniq_user){
+                            $array_users[$key]["user"] = $uniq_user;
+                            $groups=array();
+                            $array_users[$key]["groups"]=array();
+                            foreach($array_users[$key]["user"]->getGroups() as $uniq_group){
+                                $array_users[$key]["groups"][]=$uniq_group->getGroup();
+                            }
+                            $array_users[$key]["types"]=$key_type_cumpl;
+                            $key++;
+                        }
+
+                    }
+
+                }
+
+                $require_action="CASE  WHEN ";
+                $operator="";
+                foreach($array_users as $key => $array_item){
+                    $array_types[$key]=$key_type_cumpl;
+                    $require_action.=$operator."(sig.user=:eluser1".$key." OR (sig.user IS NULL AND last.user is NULL) 
+                            OR
+                            (
+                                t.correlative=TRUE AND sig.user IS NULL AND ty.id=:type".$key." AND (w.user=:eluser1".$key." OR (w.group IN (:groups".$key.") AND :eluser3".$key." NOT IN (SELECT IDENTITY(vvv1_".$key.".user) FROM Nononsense\HomeBundle\Entity\CVWorkflow vvv1_".$key." WHERE vvv1_".$key.".record=i.id AND vvv1_".$key.".user IS NOT NULL)  AND :eluser3".$key." NOT IN (SELECT IDENTITY(vvv2_".$key.".user) FROM Nononsense\HomeBundle\Entity\CVSignatures vvv2_".$key." LEFT JOIN  Nononsense\HomeBundle\Entity\CVActions vvv3_".$key." WITH vvv2_".$key.".action=vvv3_".$key.".id WHERE vvv2_".$key.".record=i.id AND (vvv3_".$key.".type!=a.type OR vvv2_".$key.".finish=TRUE)) ))
+                            )
+                            OR
+                            (
+                                t.correlative=FALSE AND sig.user IS NULL AND ty.id=:type".$key." AND (
+                                     :eluser2".$key." IN (SELECT IDENTITY(vvv5_".$key.".user) FROM Nononsense\HomeBundle\Entity\CVWorkflow vvv5_".$key." LEFT JOIN  Nononsense\HomeBundle\Entity\TMCumplimentations vvv11_".$key." WITH vvv5_".$key.".type=vvv11_".$key.".id WHERE vvv5_".$key.".record=i.id AND vvv5_".$key.".signed=FALSE AND vvv11_".$key.".tmType=s.type) AND :eluser3".$key." NOT IN (SELECT IDENTITY(vvv6_".$key.".user) FROM Nononsense\HomeBundle\Entity\CVSignatures vvv6_".$key." LEFT JOIN  Nononsense\HomeBundle\Entity\CVActions vvv7_".$key." WITH vvv6_".$key.".action=vvv7_".$key.".id WHERE vvv6_".$key.".record=i.id AND (vvv7_".$key.".type!=a.type OR vvv6_".$key.".finish=TRUE))
+                                )
+                            )
+                            OR
+                            (
+                                t.correlative=FALSE AND sig.user IS NULL AND ty.id=:type".$key." AND (SELECT COUNT(vvv8_".$key.".id) FROM Nononsense\HomeBundle\Entity\CVWorkflow vvv8_".$key."  LEFT JOIN  Nononsense\HomeBundle\Entity\TMCumplimentations vvv12_".$key." WITH vvv8_".$key.".type=vvv12_".$key.".id WHERE vvv8_".$key.".record=i.id AND vvv12_".$key.".tmType=s.type AND vvv8_".$key.".signed=FALSE AND vvv8_".$key.".group IN (:groups".$key."))>0  AND :eluser3".$key." NOT IN (SELECT IDENTITY(vvv9_".$key.".user) FROM Nononsense\HomeBundle\Entity\CVSignatures vvv9_".$key." LEFT JOIN  Nononsense\HomeBundle\Entity\CVActions vvv10_".$key." WITH vvv9_".$key.".action=vvv10_".$key.".id WHERE vvv9_".$key.".record=i.id AND (vvv10_".$key.".type!=a.type OR vvv9_".$key.".finish=TRUE))
+                            )
+                        )";
+                        $operator=" OR ";
+                }
+                $require_action.=" THEN 1 ELSE 0 END";
+            }
 
             if (isset($filters["users"])) {
+                unset($array_users);
                 foreach($filters["users"] as $key => $uniq_user){
                     $array_users[$key]["user"] = $uniq_user;
                     $groups=array();
@@ -35,29 +80,6 @@ class CVRecordsRepository extends EntityRepository
                         $array_users[$key]["groups"][]=$uniq_group->getGroup();
                     }
                 }
-
-                $require_action="CASE  WHEN ";
-                $operator="";
-                foreach($array_users as $key => $array_item){
-                    $require_action.=$operator."(sig.user=:eluser1".$key." OR (sig.user IS NULL AND last.user is NULL) 
-                            OR
-                            (
-                                t.correlative=TRUE AND sig.user IS NULL AND  (w.user=:eluser1".$key." OR (w.group IN (:groups".$key.") AND :eluser3".$key." NOT IN (SELECT IDENTITY(vvv1_".$key.".user) FROM Nononsense\HomeBundle\Entity\CVWorkflow vvv1_".$key." WHERE vvv1_".$key.".record=i.id AND vvv1_".$key.".user IS NOT NULL)  AND :eluser3".$key." NOT IN (SELECT IDENTITY(vvv2_".$key.".user) FROM Nononsense\HomeBundle\Entity\CVSignatures vvv2_".$key." LEFT JOIN  Nononsense\HomeBundle\Entity\CVActions vvv3_".$key." WITH vvv2_".$key.".action=vvv3_".$key.".id WHERE vvv2_".$key.".record=i.id AND (vvv3_".$key.".type!=a.type OR vvv2_".$key.".finish=TRUE)) ))
-                            )
-                            OR
-                            (
-                                t.correlative=FALSE AND sig.user IS NULL AND (
-                                     :eluser2".$key." IN (SELECT IDENTITY(vvv5_".$key.".user) FROM Nononsense\HomeBundle\Entity\CVWorkflow vvv5_".$key." LEFT JOIN  Nononsense\HomeBundle\Entity\TMCumplimentations vvv11_".$key." WITH vvv5_".$key.".type=vvv11_".$key.".id WHERE vvv5_".$key.".record=i.id AND vvv5_".$key.".signed=FALSE AND vvv11_".$key.".tmType=s.type) AND :eluser3".$key." NOT IN (SELECT IDENTITY(vvv6_".$key.".user) FROM Nononsense\HomeBundle\Entity\CVSignatures vvv6_".$key." LEFT JOIN  Nononsense\HomeBundle\Entity\CVActions vvv7_".$key." WITH vvv6_".$key.".action=vvv7_".$key.".id WHERE vvv6_".$key.".record=i.id AND (vvv7_".$key.".type!=a.type OR vvv6_".$key.".finish=TRUE))
-                                )
-                            )
-                            OR
-                            (
-                                t.correlative=FALSE AND sig.user IS NULL AND (SELECT COUNT(vvv8_".$key.".id) FROM Nononsense\HomeBundle\Entity\CVWorkflow vvv8_".$key."  LEFT JOIN  Nononsense\HomeBundle\Entity\TMCumplimentations vvv12_".$key." WITH vvv8_".$key.".type=vvv12_".$key.".id WHERE vvv8_".$key.".record=i.id AND vvv12_".$key.".tmType=s.type AND vvv8_".$key.".signed=FALSE AND vvv8_".$key.".group IN (:groups".$key."))>0  AND :eluser3".$key." NOT IN (SELECT IDENTITY(vvv9_".$key.".user) FROM Nononsense\HomeBundle\Entity\CVSignatures vvv9_".$key." LEFT JOIN  Nononsense\HomeBundle\Entity\CVActions vvv10_".$key." WITH vvv9_".$key.".action=vvv10_".$key.".id WHERE vvv9_".$key.".record=i.id AND (vvv10_".$key.".type!=a.type OR vvv9_".$key.".finish=TRUE))
-                            )
-                        )";
-                        $operator=" OR ";
-                }
-                $require_action.=" THEN 1 ELSE 0 END";
 
                 $require_gxp="CASE  WHEN ";
                 $operator="";
@@ -115,7 +137,9 @@ class CVRecordsRepository extends EntityRepository
                     ->select('i.id', 't.name','u.name creator','i.created','i.modified','t.logbook','s.name state','s.nameReconc stateReconc','i.inEdition','t.logbook','a.nameAlternative pendingAction','sigu.id idNextSigner','ty.name type','s.final finalState','s.color colorState','s.icon iconState','s.canBeOpened canBeOpenedState','s.nameAlternative alternativeState','s.nameAlternativeReconc  alternativeStateReconc','ty.id type_id','sig.version','a.id action','s.id state_id','IDENTITY(i.reconciliation) reconId','IDENTITY(i.firstReconciliation) reconFirstId','ar.name area','IDENTITY(i.firstNested) firstNestedId','IDENTITY(last.action) lastAction','IDENTITY(sig.action) lastActionUnsigned','IDENTITY(i.userGxP) usergxp','i.ecoNextOnStandBy');
 
                 if((!isset($filters["gxp"]) && !isset($filters["blocked"]))){
-                    $list->addSelect($require_action." AS requireAction");
+                    if(isset($require_action)){
+                        $list->addSelect($require_action." AS requireAction");
+                    }
                 }
 
                 if(!empty($filters) && isset($filters["have_json"])){
@@ -138,13 +162,18 @@ class CVRecordsRepository extends EntityRepository
         }
 
         if($type=="list" || isset($filters["pending_for_me"]) || isset($filters["pending_blocked"]) || isset($filters["pending_gxp"])){
-            foreach($array_users as $key => $item_array){
-                $list->setParameter('eluser1'.$key, $item_array["user"]);
-                $list->setParameter('groups'.$key, $item_array["groups"]);
-                
-                if(!isset($filters["gxp"]) && !isset($filters["blocked"])){
-                    $list->setParameter('eluser2'.$key, $item_array["user"]->getId());
-                    $list->setParameter('eluser3'.$key, $array_users[0]["user"]->getId());    
+            if(isset($array_users)){
+                foreach($array_users as $key => $item_array){
+                    $list->setParameter('eluser1'.$key, $item_array["user"]);
+                    $list->setParameter('groups'.$key, $item_array["groups"]);
+                    if(array_key_exists("types",$item_array)){
+                        $list->setParameter('type'.$key, $item_array["types"]);
+                    }
+
+                    if(!isset($filters["gxp"]) && !isset($filters["blocked"])){
+                        $list->setParameter('eluser2'.$key, $item_array["user"]->getId());
+                        $list->setParameter('eluser3'.$key, $array_users[0]["user"]->getId());    
+                    }
                 }
             }
         }

@@ -53,7 +53,7 @@ class CVCumplimentationController extends Controller
         else{
             $filter="nest_init_cumplimentation";
         }
-       
+        
         $items=$this->getDoctrine()->getRepository(TMTemplates::class)->list("list",array("id" => $template,$filter => 1));
 
         if(!$items){
@@ -132,6 +132,15 @@ class CVCumplimentationController extends Controller
         }
         else{
             $record = $em->getRepository(CVRecords::class)->findOneBy(array("id" => $request->get("nest")));
+        }
+
+        if($record->getState()->getType()->getId()==1){
+            $type_delegation=1;
+            $prefix_type_delegation="c";
+        }
+        else{
+            $type_delegation=4;
+            $prefix_type_delegation="v";
         }
 
         $record->setUser($user);
@@ -263,8 +272,8 @@ class CVCumplimentationController extends Controller
         $reconc=0;
         if($item->getUniqid()){
             //Miramos si se tiene que reconciliar
-            $users_actions=$this->get('utilities')->get_users_actions($user,1);
-            $reconciliation = $this->getDoctrine()->getRepository(CVRecords::class)->search("list",array("plantilla_id" => $item->getId(),"code_unique" => $array_unique, "limit_from" => 0,"limit_many" => 1,"users" => $users_actions));
+            $users_actions=$this->get('utilities')->get_users_actions($user,$type_delegation);
+            $reconciliation = $this->getDoctrine()->getRepository(CVRecords::class)->search("list",array("plantilla_id" => $item->getId(),"code_unique" => $array_unique, "limit_from" => 0,"limit_many" => 1,"users".$prefix_type_delegation => $users_actions));
             if($reconciliation && $reconciliation[0]){
                 $recon=$em->getRepository(CVRecords::class)->findOneBy(array("id" => $reconciliation[0]["id"]));
                 $record->setReconciliation($recon);
@@ -322,6 +331,15 @@ class CVCumplimentationController extends Controller
 
         $array["item"] = $this->getDoctrine()->getRepository(CVRecords::class)->findOneBy(array("id" => $id));
 
+        if($array["item"]->getState()->getType()->getId()==1){
+            $type_delegation=1;
+            $prefix_type_delegation="c";
+        }
+        else{
+            $type_delegation=4;
+            $prefix_type_delegation="v";
+        }
+
         if(!$array["item"]){
             $this->get('session')->getFlashBag()->add(
                 'error',
@@ -361,9 +379,9 @@ class CVCumplimentationController extends Controller
             return $this->redirect($route);
         }
 
-        $users_actions=$this->get('utilities')->get_users_actions($user,1);
+        $users_actions=$this->get('utilities')->get_users_actions($user,$type_delegation);
 
-        $can_sign = $this->getDoctrine()->getRepository(CVRecords::class)->search("count",array("id" => $array["item"]->getId(),"pending_for_me" => 1,"users" => $users_actions));
+        $can_sign = $this->getDoctrine()->getRepository(CVRecords::class)->search("count",array("id" => $array["item"]->getId(),"pending_for_me" => 1,"users".$prefix_type_delegation => $users_actions));
 
         if($can_sign==0){
             $this->get('session')->getFlashBag()->add(
@@ -436,9 +454,18 @@ class CVCumplimentationController extends Controller
             return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
         }
 
-        $users_actions=$this->get('utilities')->get_users_actions($user,1);
+        if($record->getState()->getType()->getId()==1){
+            $type_delegation=1;
+            $prefix_type_delegation="c";
+        }
+        else{
+            $type_delegation=4;
+            $prefix_type_delegation="v";
+        }
 
-        $can_sign = $this->getDoctrine()->getRepository(CVRecords::class)->search("count",array("id" => $record->getId(),"pending_for_me" => 1,"users" => $users_actions));
+        $users_actions=$this->get('utilities')->get_users_actions($user,$type_delegation);
+
+        $can_sign = $this->getDoctrine()->getRepository(CVRecords::class)->search("count",array("id" => $record->getId(),"pending_for_me" => 1,"users".$prefix_type_delegation => $users_actions));
 
         if($can_sign==0){
             $this->get('session')->getFlashBag()->add(
@@ -449,7 +476,7 @@ class CVCumplimentationController extends Controller
             return $this->redirect($route);
         }
 
-        $wf=$this->get('utilities')->wich_wf($record,$user,1);
+        $wf=$this->get('utilities')->wich_wf($record,$user);
 
         if(!$wf && $signature->getAction()->getId()!=18){
             $this->get('session')->getFlashBag()->add(
@@ -728,13 +755,13 @@ class CVCumplimentationController extends Controller
         $filters=array_filter($request->query->all());
         $filters2=array_filter($request->query->all());
 
-        $type_delegation=1;
+        $type_delegation="";
         if(isset($filters["gxp"])){
             $type_delegation=2;
         }
-        if(isset($filters["blocked"])){
-            //$type_delegation=3;
-        }
+        /*if(isset($filters["blocked"])){
+            $type_delegation=3;
+        }*/
 
         $desc_pdf="Listado de registros";
 
@@ -760,9 +787,23 @@ class CVCumplimentationController extends Controller
             $desc_pdf="Registros en revisión";
         }
 
-        $users_actions=$this->get('utilities')->get_users_actions($user,$type_delegation);
-        $filters["users"]=$users_actions;
-        $filters2["users"]=$users_actions;
+        switch($type_delegation){
+            case 2:
+                $users_actions=$this->get('utilities')->get_users_actions($user,2);
+                $filters["users"]=$users_actions;
+                $filters2["users"]=$users_actions;
+            break;
+
+            default:
+                $users_actions=$this->get('utilities')->get_users_actions($user,1);
+                $filters["usersc"]=$users_actions;
+                $filters2["usersc"]=$users_actions;
+
+                $users_actions=$this->get('utilities')->get_users_actions($user,4);
+                $filters["usersv"]=$users_actions;
+                $filters2["usersv"]=$users_actions;
+            break;
+        }
 
         $filters["fll"]=$fll;
         $filters2["fll"]=$fll;
@@ -790,7 +831,7 @@ class CVCumplimentationController extends Controller
         foreach($array_item["items"] as $key => $item){
             $array_item["items"][$key]["observer"]=0;
             if(array_key_exists("alternativeState",$array_item["items"][$key]) && $array_item["items"][$key]["alternativeState"]=="Verificar" && array_key_exists("requireAction",$array_item["items"][$key]) &&  $array_item["items"][$key]["requireAction"]=="1" ){
-                $wf=$this->get('utilities')->wich_wf($array_item["items"][$key]["id"],$user,1);
+                $wf=$this->get('utilities')->wich_wf($array_item["items"][$key]["id"],$user);
                 if($wf->getType()->getId()==3){
                     $array_item["items"][$key]["observer"]=1;
                 }

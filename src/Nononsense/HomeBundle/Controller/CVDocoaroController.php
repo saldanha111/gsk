@@ -236,10 +236,8 @@ class CVDocoaroController extends Controller
             $json_content["data"]["dxo_gsk_logbook"] = 0;
             $json_content["data"]["dxo_gsk_logbook_bloque"] = "";
         }
-
-
         
-
+        
         $signature = $this->getDoctrine()->getRepository(CVSignatures::class)->findOneBy(array("record" => $record),array("id" => "DESC"));
         $json2=$signature->getJson();
 
@@ -332,6 +330,16 @@ class CVDocoaroController extends Controller
                 return false;
             }
 
+            if($record->getState()->getType()->getId()==1){
+                $type_delegation=1;
+                $prefix_type_delegation="c";
+            }
+            else{
+                $type_delegation=4;
+                $prefix_type_delegation="v";
+            }
+
+
             $request = Request::createFromGlobals();
             $params = array();
             $content = $request->getContent();
@@ -355,10 +363,11 @@ class CVDocoaroController extends Controller
 
             $user = $this->getDoctrine()->getRepository(Users::class)->findOneBy(array("id" => $id_usuario));
 
-            $users_actions=$this->get('utilities')->get_users_actions($user,1);
+
+            $users_actions=$this->get('utilities')->get_users_actions($user,$type_delegation);
             
 
-            $can_sign = $this->getDoctrine()->getRepository(CVRecords::class)->search("count",array("id" => $record->getId(),"pending_for_me" => 1,"users" => $users_actions));
+            $can_sign = $this->getDoctrine()->getRepository(CVRecords::class)->search("count",array("id" => $record->getId(),"pending_for_me" => 1,"users".$prefix_type_delegation => $users_actions));
 
             if($can_sign==0 && !$request->get("reupdate")){
                 return false;
@@ -366,7 +375,7 @@ class CVDocoaroController extends Controller
 
             //Miramos wf que le toca
 
-            $wf=$this->get('utilities')->wich_wf($record,$user,1);
+            $wf=$this->get('utilities')->wich_wf($record,$user);
             if(!$wf && !$request->get("reupdate")){
                 return false;
             }
@@ -740,7 +749,17 @@ class CVDocoaroController extends Controller
             $user = $record->getUser();
             $filters=array();
 
-            $filters["users"]=$this->get('utilities')->get_users_actions($user,1);
+            if($record->getState()->getType()){
+                if($record->getState()->getType()->getId()==1){
+                    $type_delegation=1;
+                    $prefix_type_delegation="c";
+                }
+                else{
+                    $type_delegation=4;
+                    $prefix_type_delegation="v";
+                }
+                $filters["users".$prefix_type_delegation]=$this->get('utilities')->get_users_actions($user,$type_delegation);
+            }
 
             $array_item["suser"]["id"]=$user->getId();
 
@@ -792,9 +811,17 @@ class CVDocoaroController extends Controller
     {
         $fullText = "";
 
-        $users_actions=$this->get('utilities')->get_users_actions($current->getUser(),1);
+        if($current->getState()->getType()->getId()==1){
+            $type_delegation=1;
+            $prefix_type_delegation="c";
+        }
+        else{
+            $type_delegation=4;
+            $prefix_type_delegation="v";
+        }
+        $users_actions=$this->get('utilities')->get_users_actions($current->getUser(),$type_delegation);
 
-        $records = $this->getDoctrine()->getRepository(CVRecords::class)->search("list",array("users" => $users_actions,"not_this"=>$current->getId(),"plantilla_id"=>$current->getTemplate()->getId(),"limit_from" => 0, "limit_many" => $num,"have_json" => 1,"have_signature" => 1));
+        $records = $this->getDoctrine()->getRepository(CVRecords::class)->search("list",array("users".$prefix_type_delegation => $users_actions,"not_this"=>$current->getId(),"plantilla_id"=>$current->getTemplate()->getId(),"limit_from" => 0, "limit_many" => $num,"have_json" => 1,"have_signature" => 1));
         
         $array_records=array();
         $array_fields=array();

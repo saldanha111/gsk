@@ -39,9 +39,7 @@ class CVReconciliationController extends Controller
         $filters=array_filter($request->query->all());
         $filters2=array_filter($request->query->all());
 
-        $users_actions=$this->get('utilities')->get_users_actions($user,1);
-        $filters["users"]=$users_actions;
-        $filters2["users"]=$users_actions;
+        
 
 
         $array_item["suser"]["id"]=$user->getId();
@@ -51,6 +49,22 @@ class CVReconciliationController extends Controller
 
         $array_item["suser"]["id"]=$user->getId();
         $array_item["record"]=$this->getDoctrine()->getRepository(CVRecords::class)->findOneBy(array("id" => $id));
+
+        if($array_item["record"]->getState()->getType()){
+            if($array_item["record"]->getState()->getType()->getId()==1){
+                $type_delegation=1;
+                $prefix_type_delegation="c";
+            }
+            else{
+                $type_delegation=4;
+                $prefix_type_delegation="v";
+            }
+            $users_actions=$this->get('utilities')->get_users_actions($user,$type_delegation);
+            $filters["users".$prefix_type_delegation]=$users_actions;
+            $filters2["users".$prefix_type_delegation]=$users_actions;
+        }
+        
+
 
         if($array_item["record"]->getFirstReconciliation()){
             $filters["recon_history"]=$array_item["record"]->getFirstReconciliation()->getId();
