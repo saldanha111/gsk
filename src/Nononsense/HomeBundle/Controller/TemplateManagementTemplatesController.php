@@ -191,6 +191,10 @@ class TemplateManagementTemplatesController extends Controller
             $filters["pending_for_me"]=$request->get("pending_for_me");
         }
 
+        if($request->get("order")){
+            $filters["order"]=$request->get("order");
+        }
+
 
         $array_item["filters"]=$filters;
         $array_item["items"] = $this->getDoctrine()->getRepository(TMTemplates::class)->list("list",$filters);

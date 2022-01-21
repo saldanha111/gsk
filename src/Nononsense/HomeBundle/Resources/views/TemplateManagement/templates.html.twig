@@ -49,17 +49,25 @@
                                 </div>
                             {% endif %}
 
-                            {% if not extend %}
-                                <div class="col-sm-1 item_filter">
-                                    <button type="submit" class="btn btn-primary">Filtrar</button>
-                                </div>
-                            {% endif %}
+                            
 
                             
 
                             
                         </div><br>
                         <div class="row">  
+                            {% if not extend %}
+                                <label class="col-sm-1 control-label item_filter">Ordenar por</label>
+                                <div class="col-sm-2 item_filter">
+                                  <select class="form-control" style="width: 100%;" name="order">
+                                    <option value="" {{filters.order is defined and filters.order is empty ? 'selected="selected"'}}>Más Recientes</option>
+                                    <option value="2" {{filters.order is defined and filters.order == 2 ? 'selected="selected"'}}>Más usadas</option>
+                                  </select>
+                                </div>
+                                <div class="col-sm-1 item_filter">
+                                    <button type="submit" class="btn btn-primary">Filtrar</button>
+                                </div>
+                            {% endif %}
 
                             {% if users is defined and extend %}
                                 <label class="col-sm-1 control-label item_filter">Solicitante</label>
