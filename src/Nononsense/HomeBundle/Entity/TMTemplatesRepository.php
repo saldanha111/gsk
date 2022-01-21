@@ -71,193 +71,183 @@ class TMTemplatesRepository extends EntityRepository
 
     public function list($type,$filters)
     {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         $em = $this->getEntityManager();
 
-        switch($type){
-            case "list":
-                $list = $this->createQueryBuilder('t')
-                    ->select('t.logbook','t.uniqid','t.id','t.name','a.name nameArea','t.number','t.numEdition','s.id status','t.inactive','s.name stateName','t.created','t.reference','ua.name applicantName','uo.name ownerName','ub.name backupName','t.effectiveDate','t.reviewDate','t.historyChange','uo.id ownerId','ub.id backupId','t.dateReview','t.needNewEdition','t.notFillableItSelf','q.id qr');
+        $sintax=" ";
+        $logical=" WHERE ";
+        $orderby=" ORDER BY t.id DESC, s.id DESC";
 
-                if(isset($filters["order"])){
-                    switch($filters["order"]){
-                        case 2: 
-                            $list->addSelect("(SELECT COUNT(cvr.id) FROM Nononsense\HomeBundle\Entity\CVRecords cvr WITH t.id=cvr.template LEFT JOIN Nononsense\HomeBundle\Entity\CVSignatures cvs WITH cvr.id=cvs.record AND cvs.user=:user) used");
-                            break;
-                    }
-                }
-
-                if(isset($filters["user"])){
-                    $list->setParameter('user', $filters["user"]);
-                    $list->addSelect("CASE WHEN ".$this->sintax_pending('workflow_select')." THEN 1 ELSE 0 END require_action");
-                }
-
-                break;
-            case "count":
-                $list = $this->createQueryBuilder('t')
-                    ->select('COUNT(DISTINCT t.id) as conta');
-                break;
-        }
-
-
-        $list->leftJoin("t.area", "a")
-            ->leftJoin("t.tmState", "s")
-            ->leftJoin("t.QRType", "q")
-            ->leftJoin("t.applicant", "ua")
-            ->leftJoin("t.owner", "uo")
-            ->leftJoin("t.backup", "ub");
-
-        
-         
-
-        if($type=="list"){
-            $list->orderBy('t.id', 'DESC');    
-            $list->addOrderBy('s.id', 'DESC');
-        }
-
-
+        $tables_extra="";
+        $fields_extra="";
 
         if(!empty($filters)){
 
             if(isset($filters["name"])){
                 $terms = explode(" ", $filters["name"]);
                 foreach($terms as $key => $term){
-                    $list->andWhere('t.name LIKE :name'.$key);
-                    $list->setParameter('name'.$key, '%' . $term. '%');
+                    $sintax.=$logical." t.name LIKE :name".$key;
+                    $parameters["name".$key]="%".$term."%";
+                    $logical=" AND ";
                 }
             }
 
             if(isset($filters["number"])){
-                $list->andWhere('t.number=:number');
-                $list->setParameter('number', $filters["number"]);
+                $sintax.=$logical." t.number=:number";
+                $parameters["number"]=$filters["number"];
+                $logical=" AND ";
             }
 
-            if(isset($filters["applicant"])){
-                $list->andWhere('ua.id=:applicant');
-                $list->setParameter('applicant', $filters["applicant"]);
+            if(isset($filters["area"])){
+                $sintax.=$logical." a.id=:area";
+                $parameters["area"]=$filters["area"];
+                $logical=" AND ";
             }
-
-            if(isset($filters["owner"])){
-                $list->andWhere('uo.id=:owner');
-                $list->setParameter('owner', $filters["owner"]);
-            }
-
-            if(isset($filters["backup"])){
-                $list->andWhere('ub.id=:backup');
-                $list->setParameter('backup', $filters["backup"]);
-            }
-
-            if(isset($filters["draft"])){
-                $list->andWhere('s.id<5');
-            }
-
-            if(isset($filters["applicant_drop"])){
-                $list->andWhere('ud.id=:applicant_drop');
-                $list->setParameter('applicant_drop', $filters["applicant_drop"]);
-            }
-
-            if(isset($filters["changes_history"])){
-                $list->andWhere('(t.id=:changes_history OR t.firstEdition=:changes_history)');
-                $list->setParameter('changes_history', $filters["changes_history"]);
-                $list->orderBy('t.id', 'ASC');
-            }
-
-            if(isset($filters["id"])){
-                $list->andWhere('t.id=:id');
-                $list->setParameter('id', $filters["id"]);
-            }
-
-
-            if(isset($filters["init_cumplimentation"])){
-                $list->andWhere('s.id=6 AND (t.inactive!=1 OR t.inactive IS NULL) AND (t.notFillableItSelf!=1 OR t.notFillableItSelf IS NULL)');
-            }
-
-            if(isset($filters["nest_init_cumplimentation"])){
-                $list->andWhere('s.id=6 AND (t.inactive!=1 OR t.inactive IS NULL)');
-            }
-
-            if(isset($filters["request_drop"])){
-                $list->andWhere('sg.action=8 AND sg.tmDropAction IS NULL');
-                $list->addSelect("ud.name applicantDropRequestName");
-                $list->addSelect("sg.created dropRequestDate");
-
-                /*$list->leftJoin("t.area", "a")
-
-                $tables_extra="LEFT JOIN Nononsense\HomeBundle\Entity\TMSignatures sg WITH t.id=sg.template LEFT JOIN Nononsense\UserBundle\Entity\Users ud WITH sg.userEntiy=ud.id";*/
-            }
-
-            if(isset($filters["request_review"])){
-                $list->andWhere('s.id=6 AND sg.action=12');
-                $list->addSelect("ud.name ReviewRequestName");
-                $list->addSelect("sg.created ReviewRequestDate");
-
-                /*$tables_extra="LEFT JOIN Nononsense\HomeBundle\Entity\TMSignatures sg WITH t.requestReview=sg.id LEFT JOIN Nononsense\UserBundle\Entity\Users ud WITH sg.userEntiy=ud.id";*/
-            }
-
 
             if(isset($filters["state"])){
                 switch($filters["state"]){
                     case 2:
                     case 9:
-                        $list->andWhere('(s.id=2 OR s.id=9)');
+                        $sintax.=$logical." (s.id=2 OR s.id=9)";
                         break;
                     default:
-                        $list->andWhere('s.id=:state');
-                        $list->setParameter('state', $filters["state"]);
+                        $sintax.=$logical." s.id=:state";
+                        $parameters["state"]=$filters["state"];
                 }
                 
                 $logical=" AND ";
             }
 
+            if(isset($filters["applicant"])){
+                $sintax.=$logical." ua.id=:applicant";
+                $parameters["applicant"]=$filters["applicant"];
+                $logical=" AND ";
+            }
 
-            if(isset($filters["area"])){
-                $list->andWhere('a.id=:area');
-                $list->setParameter('area', $filters["area"]);
+            if(isset($filters["owner"])){
+                $sintax.=$logical." uo.id=:owner";
+                $parameters["owner"]=$filters["owner"];
+                $logical=" AND ";
+            }
+
+            if(isset($filters["backup"])){
+                $sintax.=$logical." ub.id=:backup";
+                $parameters["backup"]=$filters["backup"];
+                $logical=" AND ";
+            }
+
+            if(isset($filters["draft"])){
+                $sintax.=$logical." s.id<5";
+                $logical=" AND ";
+            }
+
+            if(isset($filters["request_drop"])){
+                $sintax.=$logical." sg.action=8 AND sg.tmDropAction IS NULL";
+                $logical=" AND ";
+
+                $tables_extra="LEFT JOIN Nononsense\HomeBundle\Entity\TMSignatures sg WITH t.id=sg.template LEFT JOIN Nononsense\UserBundle\Entity\Users ud WITH sg.userEntiy=ud.id";
+                $fields_extra=",ud.name applicantDropRequestName,sg.created dropRequestDate";
+            }
+
+            if(isset($filters["applicant_drop"])){
+                $sintax.=$logical." ud.id=:applicant_drop";
+                $parameters["applicant_drop"]=$filters["applicant_drop"];
+                $logical=" AND ";
+            }
+
+            if(isset($filters["changes_history"])){
+                $sintax.=$logical." (t.id=:changes_history OR t.firstEdition=:changes_history)";
+                $parameters["changes_history"]=$filters["changes_history"];
+                $logical=" AND ";
+                $orderby="Order by t.id ASC";
+            }
+
+            if(isset($filters["request_review"])){
+                $sintax.=$logical." s.id=6 AND sg.action=12";
+                $logical=" AND ";
+
+                $tables_extra="LEFT JOIN Nononsense\HomeBundle\Entity\TMSignatures sg WITH t.requestReview=sg.id LEFT JOIN Nononsense\UserBundle\Entity\Users ud WITH sg.userEntiy=ud.id";
+                $fields_extra=",ud.name ReviewRequestName,sg.created ReviewRequestDate";
             }
 
             if (isset($filters["pending_for_me"])) {
                 if(!isset($filters["request_drop"])) {
-                    $list->andWhere("(".$this->sintax_pending("workflow_where").")");
+                    $sintax.=$logical."(".$this->sintax_pending("workflow_where").")";
                 }
                 else{
-                    $list->andWhere("t.id IN (SELECT IDENTITY(w_admin.template) FROM Nononsense\HomeBundle\Entity\TMWorkflow w_admin WHERE w_admin.template=t.id AND w_admin.action=5 AND w_admin.userEntiy=:user)");
+                    $sintax.=$logical." (t.id IN (SELECT IDENTITY(w_admin.template) FROM Nononsense\HomeBundle\Entity\TMWorkflow w_admin WHERE w_admin.template=t.id AND w_admin.action=5 AND w_admin.userEntiy=:user))";
                 }
             }
+
+            if(isset($filters["id"])){
+                $sintax.=$logical." t.id=:id";
+                $parameters["id"]=$filters["id"];
+                $logical=" AND ";
+            }
+
+            if(isset($filters["init_cumplimentation"])){
+                $sintax.=$logical." s.id=6 AND (t.inactive!=1 OR t.inactive IS NULL) AND (t.notFillableItSelf!=1 OR t.notFillableItSelf IS NULL)";
+                $logical=" AND ";
+            }
+
+            if(isset($filters["nest_init_cumplimentation"])){
+                $sintax.=$logical." s.id=6 AND (t.inactive!=1 OR t.inactive IS NULL)";
+                $logical=" AND ";
+            }
+
+            
+
         }
 
 
-        if(isset($filters["limit_from"])){
-            $list->setFirstResult($filters["limit_from"]*$filters["limit_many"])->setMaxResults($filters["limit_many"]);
-        }
 
-        $query = $list->getQuery();
+        $sintax = " FROM Nononsense\HomeBundle\Entity\TMTemplates t LEFT JOIN Nononsense\HomeBundle\Entity\Areas a WITH t.area=a.id LEFT JOIN Nononsense\HomeBundle\Entity\TMStates s WITH t.tmState=s.id  LEFT JOIN Nononsense\HomeBundle\Entity\QrsTypes q WITH t.QRType=q.id LEFT JOIN Nononsense\UserBundle\Entity\Users ua WITH t.applicant=ua.id LEFT JOIN Nononsense\UserBundle\Entity\Users uo WITH t.owner=uo.id LEFT JOIN Nononsense\UserBundle\Entity\Users ub WITH t.backup=ub.id ".$tables_extra.$sintax;
 
         switch($type){
-            case "list":
-                return $query->getResult();
+            case "list": 
+                if(isset($filters["user"])){
+                    $parameters["user"]=$filters["user"];
+                    $case=", CASE WHEN ".$this->sintax_pending('workflow_select')." THEN 1 ELSE 0 END require_action";
+                }
+                else{
+                    $case="";
+                }
+
+                if(isset($filters["order"])){
+                    switch($filters["order"]){
+                        case 2: 
+                            $orderby=" ORDER BY used DESC";
+                            $fields_extra.=",(SELECT COUNT(cvr.id) used FROM Nononsense\HomeBundle\Entity\CVRecords cvr WITH t.id=cvr.template LEFT JOIN Nononsense\HomeBundle\Entity\CVSignatures cvs WITH cvr.id=cvs.record AND cvs.user=:user) used";
+                            break;
+                    }
+                }
+    
+                $query = $em->createQuery("SELECT t.logbook,t.uniqid,t.id,t.name,a.name nameArea,t.number,t.numEdition,s.id status,t.inactive,s.name stateName,t.created,t.reference,ua.name applicantName,uo.name ownerName,ub.name backupName,t.effectiveDate,t.reviewDate,t.historyChange,uo.id ownerId,ub.id backupId,t.dateReview,t.needNewEdition,t.notFillableItSelf,q.id qr".$case.$fields_extra.$sintax." ".$orderby);
+                if(isset($filters["limit_from"])){
+                    $query->setFirstResult($filters["limit_from"]*$filters["limit_many"])->setMaxResults($filters["limit_many"]);
+                }
+                
+                if(!empty($parameters)){
+                    $query->setParameters($parameters);
+                }
+
+                $items=$query->getResult();
                 break;
+
             case "count":
-                return $query->getSingleResult()["conta"];
+                if(isset($filters["pending_for_me"]) && isset($filters["user"])){
+                    $parameters["user"]=$filters["user"];
+                }
+                $query = $em->createQuery("SELECT COUNT(DISTINCT t.id) conta ".$sintax);
+
+                if(!empty($parameters)){
+                    $query->setParameters($parameters);
+                }
+
+                $items=$query->getSingleResult()["conta"];
                 break;
         }
+        
+        return $items;
     }
 
     private function sintax_pending($table_alias){
