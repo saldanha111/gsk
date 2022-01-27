@@ -643,7 +643,18 @@ class CVDocoaroController extends Controller
             $this->get('utilities')->returnPDFResponseFromHTML('<html><body style="font-size:8px;width:100%">'.$html.'</body></html>',$title);
         }
         else{
-            return $this->render('NononsenseHomeBundle:CV:reconciliacion.html.twig',array("html" => $html, "record" => $record, "actions" => $actions, "subactions" => $subactions, "filters" => $filters));
+            $url=$this->container->get('router')->generate('nononsense_cv_record_audittrail', ["id" => $id]);
+            $params=$request->query->all();
+            unset($params["page"]);
+            if(!empty($params)){
+                $parameters=TRUE;
+            }
+            else{
+                $parameters=FALSE;
+            }
+            $pagination=\Nononsense\UtilsBundle\Classes\Utils::paginador(99999999999,$request,$url,99999999999,"/", $parameters);
+
+            return $this->render('NononsenseHomeBundle:CV:reconciliacion.html.twig',array("html" => $html, "record" => $record, "actions" => $actions, "subactions" => $subactions, "filters" => $filters,"pagination" => $pagination));
         }
     }
 
