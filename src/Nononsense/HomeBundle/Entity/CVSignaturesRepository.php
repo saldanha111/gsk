@@ -12,7 +12,7 @@ use Doctrine\ORM\EntityRepository;
  */
 class CVSignaturesRepository extends EntityRepository
 {
-    public function search($type,$filters)
+    public function search($type,$filters,$order = NULL)
     {
         $em = $this->getEntityManager();
 
@@ -27,9 +27,19 @@ class CVSignaturesRepository extends EntityRepository
                     ->select('COUNT(s.id) as conta');
                 break;
         }
+
+        $list->leftJoin("s.action", "a")
+        ->leftJoin("s.user", "u");
             
         if($type=="list"){
-            $list->orderBy('s.id', 'DESC');
+            if(!$order){
+                $list->orderBy('s.id', 'DESC');
+            }
+            else{
+                switch($order){
+                    case 1: $list->orderBy('s.id', 'ASC');break;
+                }
+            }
         }
 
         if(!empty($filters)){
@@ -56,6 +66,24 @@ class CVSignaturesRepository extends EntityRepository
 
             if(isset($filters["have_json"])){
                 $list->andWhere('s.json IS NOT NULL');
+            }
+
+            if(isset($filters["subaction"])){
+                $list->andWhere('s.action=:subaction');
+                $list->setParameter('subaction', $filters["subaction"]);
+            }
+
+            if(isset($filters["action"])){
+                $list->andWhere('a.type=:action');
+                $list->setParameter('action', $filters["action"]);
+            }
+
+            if(isset($filters["creator"])){
+                $terms = explode(" ", $filters["creator"]);
+                foreach($terms as $key => $term){
+                    $list->andWhere('u.name LIKE :creator'.$key);
+                    $list->setParameter('creator'.$key, '%' . $term. '%');
+                }
             }
         }
 

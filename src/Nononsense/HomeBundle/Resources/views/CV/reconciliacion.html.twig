@@ -16,7 +16,42 @@
     </div>
     {% endfor %}
     <div id="box_recon">
-        <h1>Reconciliación del registro {{record.id}} - Código:{{record.template.id}} - Título:{{record.template.name}} - Edición:{{record.template.numEdition}}</h1>
+        <h1>Reconciliación del registro {{record.id}} - Código:{{record.template.id}} - Título:{{record.template.name}} - Edición:{{record.template.numEdition}}</h1><br><br>
+        <div class="row">
+            <form class="form-horizontal" id="form_item" action="{{ path('nononsense_cv_record_audittrail', {'id': record.id})}}" method="GET">
+                    <div class="form-group">
+
+                        <label class="col-sm-1 control-label">Usuario</label>
+                        <div class="col-sm-2 item_filter">
+                            <input type="text" name="creator" class="form-control" value="{{filters.creator is defined ? filters.creator : ''}}">
+                        </div>
+
+                        <label class="col-sm-1 control-label">Acción</label>
+                        <div class="col-sm-1 item_filter">
+                            <select class="form-control" name="action" style="width: 100%;">
+                                <option value=""></option>
+                                {% for action in actions %}
+                                    <option value="{{action.id}}" {{filters.action is defined and filters.action==action.id ? 'selected="selected"'}}>{{action.name}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <label class="col-sm-1 control-label">Subacción</label>
+                        <div class="col-sm-3 item_filter">
+                            <select class="form-control" name="subaction" style="width: 100%;">
+                                <option value=""></option>
+                                {% for subaction in subactions %}
+                                    <option value="{{subaction.id}}" {{filters.subaction is defined and filters.subaction==subaction.id ? 'selected="selected"'}}>{{subaction.type.name|first}}-{{subaction.name}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-sm-1">
+                            <button type="submit" class="btn btn-primary pull-right">Filtrar</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
         <div class="row">
             <br>
             <div class="col-sm-12" id="html_reconciliation">

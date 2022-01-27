@@ -15,6 +15,7 @@ use Nononsense\HomeBundle\Entity\CVActions;
 use Nononsense\HomeBundle\Entity\TMSecondWorkflow;
 use Nononsense\HomeBundle\Entity\CVSignatures;
 use Nononsense\HomeBundle\Entity\CVWorkflow;
+use Nononsense\HomeBundle\Entity\TMCumplimentationsType;
 
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -632,20 +633,26 @@ class CVDocoaroController extends Controller
             return false;
         }
 
-        $html='Documento: <b>'.$record->getTemplate()->getName().'</b><br>Registro:<b>'.$record->getId().'</b><br><br>'.$this->get_signatures($record,1);
+        $filters=array_filter($request->query->all());
+
+        $subactions = $em->getRepository(CVActions::class)->findBy(array("graphic" => TRUE),array("type" => "ASC"));
+        $actions = $em->getRepository(TMCumplimentationsType::class)->search("list",array());
+        $html='Documento: <b>'.$record->getTemplate()->getName().'</b><br>Registro:<b>'.$record->getId().'</b><br><br>'.$this->get_signatures($record,1,$filters);
         $title="Audittrail ".$record->getId()." - Código: ".$record->getTemplate()->getId()." - Título: ".$record->getTemplate()->getName()." - Edición: ".$record->getTemplate()->getNumEdition();
         if($request->get("pdf")){
             $this->get('utilities')->returnPDFResponseFromHTML('<html><body style="font-size:8px;width:100%">'.$html.'</body></html>',$title);
         }
         else{
-            return $this->render('NononsenseHomeBundle:CV:reconciliacion.html.twig',array("html" => $html, "record" => $record));
+            return $this->render('NononsenseHomeBundle:CV:reconciliacion.html.twig',array("html" => $html, "record" => $record, "actions" => $actions, "subactions" => $subactions, "filters" => $filters));
         }
     }
 
-    private function get_signatures($record,$audittrail)
+    private function get_signatures($record,$audittrail,$filters = NULL)
     {
         $fullText = "";
-        $signatures = $this->getDoctrine()->getRepository(CVSignatures::class)->findBy(array("record" => $record, "signed" => TRUE),array("id" => "ASC"));
+        $filters["record"]=$record;
+        $filters["signed"]=TRUE;
+        $signatures = $this->getDoctrine()->getRepository(CVSignatures::class)->search("list",$filters,$order=1);
         if($signatures){
             $fullText = '<table id="tablefirmas" class="table" style="max-width:none!important"><tr><td colspan="7" width="100%"><b>Firmas</b></td></tr>';
             //Ver si se trata de firmas de modificación gxp con aprobación total al final, sino no cuentan
