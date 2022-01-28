@@ -119,9 +119,9 @@ $( document ).ready(function() {
 		if(!$('textarea[name="gsk_comment_description"]').length){
 			$("#form_fill").append('<textarea name="gsk_comment_description" style="display:none"></textarea>');
 		}
-		gsk_comment_description="";
+		gsk_comment_description="<b><u>Modificación de datos</u></b><br>";
 		Object.keys(comment_field).forEach(function (key){
-			gsk_comment_description+=comment_field[key];
+			gsk_comment_description+=comment_field[key]+"<br><hr><br>";
 		});
 		$('textarea[name="gsk_comment_description"]').val(gsk_comment_description);
     });
@@ -156,7 +156,7 @@ function checkCommentCompulsory(element){
 
     	current_value=element.val();
     	show_modal(
-    		"Se ha modificado un valor cumplimentado anteriormente","<div class='row'><div class='col-lg-11 col-lg-offset-1'>Está modificando un dato guardado previamente, justifique esta acción<br><br><div id='box_comments' data-comment_key='"+field_original+"'>Modificación de datos<br>"+
+    		"Se ha modificado un valor cumplimentado anteriormente","<div class='row'><div class='col-lg-11 col-lg-offset-1'>Está modificando un dato guardado previamente, justifique esta acción<br><br><div id='box_comments' data-comment_key='"+field_original+"'>"+
     		"Campo: <b>"+field+"</b><br>"+ line +
     		"Valor previo: <b>"+prev_value+"</b><br>"+
     		"Nuevo valor: <b>"+current_value+"</b></div></div></div><br>"+
