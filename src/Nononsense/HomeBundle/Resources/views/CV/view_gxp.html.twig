@@ -39,7 +39,7 @@
                             <a class="btn btn-xs btn-primary" href="{{path('nononsense_cv_docoaro_new', {'id': item.id})}}?view_reupdate=1" target="_blank" target="_blank">{{'Ver GxP modificado'|trans}}</a>
                         </td>
                     </tr>
-                    <tr><td colspan="6">Descripción: {{signature_request.description}}</td></tr>
+                    <tr><td colspan="6">Descripción: {{signature_request.description|escape_tags|raw}}</td></tr>
                 </table>
             </div>
         </div>

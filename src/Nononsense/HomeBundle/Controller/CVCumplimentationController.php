@@ -134,7 +134,7 @@ class CVCumplimentationController extends Controller
             $record = $em->getRepository(CVRecords::class)->findOneBy(array("id" => $request->get("nest")));
         }
 
-        if($record->getState()->getType()->getId()==1){
+        if($record->getState()->getFinal() || $record->getState()->getType()->getId()==1){
             $type_delegation=1;
             $prefix_type_delegation="c";
         }
@@ -331,7 +331,7 @@ class CVCumplimentationController extends Controller
 
         $array["item"] = $this->getDoctrine()->getRepository(CVRecords::class)->findOneBy(array("id" => $id));
 
-        if($array["item"]->getState()->getType()->getId()==1){
+        if($array["item"]->getState()->getFinal() || $array["item"]->getState()->getType()->getId()==1){
             $type_delegation=1;
             $prefix_type_delegation="c";
         }
@@ -359,6 +359,8 @@ class CVCumplimentationController extends Controller
 
         $array["signature"] = $this->getDoctrine()->getRepository(CVSignatures::class)->findOneBy(array("record" => $array["item"]),array("id" => "DESC"));
 
+
+
         if(!$array["signature"] || $array["signature"]->getSigned() || (!$array["signature"]->getVersion() && $array["signature"]->getAction()->getId()!=12)){
             $this->get('session')->getFlashBag()->add(
                 'error',
@@ -366,6 +368,11 @@ class CVCumplimentationController extends Controller
             );
             $route = $this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
+        }
+
+        if($array["signature"]->getAction()->getId()==18){
+            $type_delegation=1;
+            $prefix_type_delegation="c";
         }
 
         $user = $this->container->get('security.context')->getToken()->getUser();
@@ -454,7 +461,7 @@ class CVCumplimentationController extends Controller
             return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
         }
 
-        if($record->getState()->getType()->getId()==1){
+        if($record->getState()->getFinal() || $record->getState()->getType()->getId()==1){
             $type_delegation=1;
             $prefix_type_delegation="c";
         }
@@ -488,7 +495,7 @@ class CVCumplimentationController extends Controller
         }
 
         if($request->get('justification')){
-            $signature->setDescription($request->get('justification'));
+            $signature->setDescription($signature->getDescription()."<br>".$request->get('justification'));
         }
 
         

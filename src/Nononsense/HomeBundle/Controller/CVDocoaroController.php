@@ -260,6 +260,10 @@ class CVDocoaroController extends Controller
             unset($json_content["data"]["gsk_comment"]);
         }
 
+        if (array_key_exists("gsk_comment_description",$json_content["data"])){
+            unset($json_content["data"]["gsk_comment_description"]);
+        }
+
         if($request->get("mode")){
             switch($request->get("mode")){
                 case "c":   $json_content["configuration"]["prefix_view"]="u_;in_;dxo_";
@@ -321,17 +325,17 @@ class CVDocoaroController extends Controller
 
         if(!$expired_token){
             $id_usuario = $this->get('utilities')->getUserByToken($_REQUEST["token"]);
+            
             if(!$id_usuario){
                 return false;
             }
-            $this->get('utilities')->tokenRemove($_REQUEST["token"]);
             
             $record = $this->getDoctrine()->getRepository(CVRecords::class)->findOneBy(array("id" => $id));
             if(!$record){
                 return false;
             }
 
-            if($record->getState()->getType()->getId()==1){
+            if($record->getState()->getFinal() || $record->getState()->getType()->getId()==1){
                 $type_delegation=1;
                 $prefix_type_delegation="c";
             }
@@ -339,7 +343,6 @@ class CVDocoaroController extends Controller
                 $type_delegation=4;
                 $prefix_type_delegation="v";
             }
-
 
             $request = Request::createFromGlobals();
             $params = array();
@@ -602,6 +605,12 @@ class CVDocoaroController extends Controller
                    $signature->setManualFill(TRUE); 
                 }
 
+                if(array_key_exists("gsk_comment_description",$params["data"]) && $params["data"]["gsk_comment_description"]){
+                   $signature->setDescription($params["data"]["gsk_comment_description"]); 
+                }
+
+                
+
                 $em->persist($signature);
                 $record->setInEdition(FALSE);
                 $record->setOpenedBy(NULL);
@@ -829,7 +838,7 @@ class CVDocoaroController extends Controller
     {
         $fullText = "";
 
-        if($current->getState()->getType()->getId()==1){
+        if($current->getState()->getFinal() || $current->getState()->getType()->getId()==1){
             $type_delegation=1;
             $prefix_type_delegation="c";
         }

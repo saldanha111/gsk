@@ -119,7 +119,7 @@ $( document ).ready(function() {
 		if(!$('textarea[name="gsk_comment_description"]').length){
 			$("#form_fill").append('<textarea name="gsk_comment_description" style="display:none"></textarea>');
 		}
-		gsk_comment_description="<b><u>Modificación de datos</u></b><br>";
+		gsk_comment_description="<b><u>Modificación de datos</u></b><br><hr><br>";
 		Object.keys(comment_field).forEach(function (key){
 			gsk_comment_description+=comment_field[key]+"<br><hr><br>";
 		});

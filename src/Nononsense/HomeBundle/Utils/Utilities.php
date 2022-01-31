@@ -205,7 +205,7 @@ class Utilities{
             $groups[]=$uniq_group->getGroup();
         }
 
-        if($record->getState()->getType()->getId()==1){
+        if($record->getState()->getFinal() || $record->getState()->getType()->getId()==1){
             $type_delegation=1;
         }
         else{

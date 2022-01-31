@@ -223,6 +223,9 @@ class TMTemplatesRepository extends EntityRepository
                     $parameters["from"]=$filters["limit_from"]*$filters["limit_many"];
                     $parameters["many"]=$filters["limit_many"];
                 }
+                else{
+                    $limit=" OFFSET 0 ROWS FETCH NEXT 999999999 ROWS ONLY";
+                }
                 
                 if(isset($filters["order"])){
                     switch($filters["order"]){
