@@ -1,4 +1,7 @@
-var gsk_comment=0;
+//var gsk_comment=0;
+var custom_value;
+var comment_field = new Array();
+var gsk_comment_description="";
 $( document ).ready(function() {
     $("#btn_save").html('<i class="fa fa-send-o"></i> Enviar y firmar');
     $("#btn_save_partial").html('<i class="fa fa-save"></i> Guardar y firmar');

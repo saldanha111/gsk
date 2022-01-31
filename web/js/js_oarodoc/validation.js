@@ -2,7 +2,6 @@
 var custom_value;
 var comment_field = new Array();
 var gsk_comment_description="";
-var prevData;
 $( document ).ready(function() {
 	$("#btn_save").html('<i class="fa fa-send-o"></i> Verificación total');
 	$("#btn_save_partial").html('<i class="fa fa-save"></i> Verificación parcial');
