@@ -9,9 +9,6 @@ $( document ).ready(function() {
     //$('input[name ="gsk_comment"]').remove();
     $('#form_fill').on('keyup change paste', 'input:not(:disabled):not([readonly]), select:not(:disabled):not([readonly]), textarea:not(:disabled):not([readonly])', function(){
         $("#btn_custom_close").addClass("disabled");
-        if(checkCommentCompulsory($(this))){
-            $("#form_fill").append('<input type="hidden" name="gsk_comment" value="1" />');
-        }
 
         /* Si imputamos un campo, reflejamos que tiene que ser atribuíble a la siguiente firma */
         index=$(this).attr('name').replace(/^(u_)/,"in_");
