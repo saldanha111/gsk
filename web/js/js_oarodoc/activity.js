@@ -20,12 +20,9 @@ $( document ).ready(function() {
 		$("input[name='gsk_percent']").val($(".progress_document").html());
 	});
 	$('#form_fill').on('blur', 'input:not(:disabled):not([readonly]), select:not(:disabled):not([readonly]), textarea:not(:disabled):not([readonly])', function(){
-		
 		if(checkCommentCompulsory($(this))){
 			//$("#form_fill").append('<input type="hidden" name="gsk_comment" value="1" />');
 		}
-
-		
 	});
 
 	//$("#form_fill").append('<input type="hidden" name="gsk_percent" value="'+$(".progress_document").html()+'" />');
@@ -54,7 +51,6 @@ $( document ).ready(function() {
 			var find=0;
 			custom_value=$(this).attr('name');
 			$("#form_fill").find("[name^='gsk_manual_fill']").each(function(){
-				console.log("##"+custom_value+"##");
 				if($(this).val()==custom_value){
 					find=1;
 				}
@@ -119,9 +115,9 @@ $( document ).ready(function() {
 		if(!$('textarea[name="gsk_comment_description"]').length){
 			$("#form_fill").append('<textarea name="gsk_comment_description" style="display:none"></textarea>');
 		}
-		gsk_comment_description="<b><u>Modificación de datos</u></b><br><hr><br>";
+		gsk_comment_description="<b><u>Modificación de datos</u></b><hr>";
 		Object.keys(comment_field).forEach(function (key){
-			gsk_comment_description+=comment_field[key]+"<br><hr><br>";
+			gsk_comment_description+=comment_field[key]+"<hr>";
 		});
 		$('textarea[name="gsk_comment_description"]').val(gsk_comment_description);
     });
@@ -140,11 +136,10 @@ function checkCommentCompulsory(element){
     	field=field_original.replace(/\[(\d+)\]/ig, '');
     	if(key){
     		line="Linea: <b>"+(parseInt(key)+1)+"</b><br>";
-    		prev_value=data[field][parseInt(key)];
     	}
     	else{
-    		prev_value=data[field];
     	}
+    	prev_value=prefill_value[field_original];
     	switch(element.data("type")){
 			case "input": current_value=element.val();break;
 			case "textarea": current_value=element.val();break;
@@ -154,7 +149,6 @@ function checkCommentCompulsory(element){
 			case "radio": current_value=element.val();break;
 		}
 
-    	current_value=element.val();
     	show_modal(
     		"Se ha modificado un valor cumplimentado anteriormente","<div class='row'><div class='col-lg-11 col-lg-offset-1'>Está modificando un dato guardado previamente, justifique esta acción<br><br><div id='box_comments' data-comment_key='"+field_original+"'>"+
     		"Campo: <b>"+field+"</b><br>"+ line +
