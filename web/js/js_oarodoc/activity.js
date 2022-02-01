@@ -188,7 +188,7 @@ function is_manual_fill(){
 
 function show_modal(title, body) {
 	if(!$("#modal_gsk_comment").length){
-	    var html = '<div class="modal fade" tabindex="-1" role="dialog" id="modal_gsk_comment">' +
+	    var html = '<div class="modal" tabindex="-1" role="dialog" id="modal_gsk_comment">' +
 	    '<div class="modal-dialog">' +
 	    '<div class="modal-content">' +
 	    '<div class="modal-header">' +
