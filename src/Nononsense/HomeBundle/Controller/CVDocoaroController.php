@@ -268,6 +268,10 @@ class CVDocoaroController extends Controller
             unset($json_content["data"]["gsk_manual_description"]);
         }
 
+        if (array_key_exists("finish_verification",$json_content["data"])){
+            unset($json_content["data"]["finish_verification"]);
+        }
+
         
 
         if($request->get("mode")){
@@ -464,6 +468,30 @@ class CVDocoaroController extends Controller
                 $state_id="1";
                 if($record->getState()){
                     $state_id=$record->getState()->getId();
+                }
+
+                //Si el estado del documento es en verificación y se hace un guardado parcial
+                if($state_id==4 && $params["action"]=="save_partial"){
+                    //Si el usuario finaliza su parte de la verificación es un guardado total
+                    if(array_key_exists("finish_verification",$params["data"]) && $params["data"]["finish_verification"]){
+                        $params["action"]="save";
+                    }
+
+                    //Si existe algún campo No cumple, es una devolución
+                    foreach($params["data"] as $variable){
+                        if(is_array($variable)){
+                            foreach($variable as $item_variable){
+                                if($item_variable=="No cumple"){
+                                    $params["action"]="return";
+                                }
+                            }
+                        }
+                        else{
+                            if($variable=="No cumple"){
+                                $params["action"]="return";
+                            }
+                        }
+                    }
                 }
                 
                 switch($state_id){

@@ -3,9 +3,10 @@ var custom_value;
 var comment_field = new Array();
 var gsk_comment_description="";
 $( document ).ready(function() {
-	$("#btn_save").html('<i class="fa fa-send-o"></i> Verificación total');
-	$("#btn_save_partial").html('<i class="fa fa-save"></i> Verificación parcial');
-	//$('input[name ="gsk_comment"]').remove();
+	//$("#btn_save").html('<i class="fa fa-send-o"></i> Verificación total');
+	$("#btn_save_partial").html('<i class="fa fa-save"></i> Verificar');
+	$("#btn_save_partial").attr('id','btn_pre_save_partial');
+	$('#btn_save').hide();
 
 	$('#form_fill').on('keyup change paste', 'input:not(:disabled):not([readonly]), select:not(:disabled):not([readonly]), textarea:not(:disabled):not([readonly])', function(){
 		$("#btn_custom_close").addClass("disabled");
@@ -41,14 +42,49 @@ $( document ).ready(function() {
 		}
 	});
 
+	$(document).on("change","#finish_verification",function() {
+		var finish=false;
+		if($(this).is(':checked')){
+			if(!$('textarea[name="finish_verification"]').length){
+				$("#form_fill").append('<textarea name="finish_verification" style="display:none">1</textarea>');
+			}
+		}
+		else{
+			if($('textarea[name="finish_verification"]').length){
+				$('textarea[name="finish_verification"]').remove();
+			}
+		}
+	});
+
+	$(document).on("click","#btn_pre_save_partial",function() {
+		var html = '<div class="modal" tabindex="-1" role="dialog" id="modal_save_verification">' +
+	    '<div class="modal-dialog">' +
+	    '<div class="modal-content">' +
+	    '<div class="modal-header">' +
+	    '<h4 class="modal-title">Finalizar verificación</h4>' +
+	    '</div>' +
+	    '<div class="modal-body">' +
+	    '<p><input type="checkbox" id="finish_verification"> ¿Desea dar por finalizada su parte de la verificación?</p>' +
+	    '</div>' +
+	    '<div class="modal-footer">' +
+	    '<button type="button" class="btn btn-primary" id="btn_save_partial">Verificar</button>' +
+	    '</div>' +
+	    '</div>' +
+	    '</div>' +
+	    '</div>';
+
+	    var modal = $(html);
+	    modal.modal();
+	});
+
 	
-	$("#btn_cancel").after('<button type="button" id="btn_return" class="btn btn-warning" style="margin-left:4px"><i class="fa fa-arrow-circle-o-left"></i> Devolver</button>');
+	/*$("#btn_cancel").after('<button type="button" id="btn_return" class="btn btn-warning" style="margin-left:4px"><i class="fa fa-arrow-circle-o-left"></i> Devolver</button>');
 
 	$(document).on("click","#btn_return",function() {
 		if(!$(this).hasClass("disabled")){
 			send_form("return");
 		}
-	});
+	});*/
 
 	$(".btn_option_table").hide();
 
