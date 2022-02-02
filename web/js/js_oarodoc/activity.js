@@ -92,7 +92,7 @@ $( document ).ready(function() {
 	}
 
 	if(manual_fill){
-		//is_manual_fill();
+		is_manual_fill();
 	}
 
 	$(document.body).on('change', "#choose", function () {
@@ -297,7 +297,7 @@ function show_modal_manual(title, body) {
 }
 
 function is_manual_fill(){
-	$("#form_fill").append('<input type="hidden" name="gsk_is_manual_fill" value="1" />');
+	//$("#form_fill").append('<input type="hidden" name="gsk_is_manual_fill" value="1" />');
 	swal({
         title: "Error en la carga de datos",
         text: "Uno de los campos diseñado para ser cumplimentado automáticamente requiere de su imputación manual y por tanto de justificación",
