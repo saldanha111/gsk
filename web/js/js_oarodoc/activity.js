@@ -165,7 +165,7 @@ $( document ).ready(function() {
     });
 
     $(document.body).on('hidden.bs.modal', "#modal_gsk_manual", function () {
-    	$('#modal_change_manual').remove();
+    	$('#modal_gsk_manual').remove();
     });
 });
 
@@ -212,6 +212,7 @@ function checkCommentCompulsory(element){
             "</div><br>"+
             "<div class='row' id='box_justification' style='display:none'><div class='col-lg-10 col-lg-offset-1'><textarea id='modal_change' class='form-control' rows='10' cols='91' required='required'></textarea></div></div>"
     		);
+    	return true;
     }
     return false;
 }
@@ -269,6 +270,8 @@ function popupManualFill(element){
     		"Nuevo valor: <b>"+current_value+"</b></div></div></div><br>"+
             "<div class='row' id='box_justification'><div class='col-lg-10 col-lg-offset-1'><textarea id='modal_change_manual' class='form-control' rows='10' cols='91' required='required'></textarea></div></div>"
     		);
+
+    	return true;
     }
     return false;
 }

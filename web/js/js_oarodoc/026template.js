@@ -153,13 +153,8 @@ function checkCommentCompulsory(element){
             "</div><br>"+
             "<div class='row' id='box_justification' style='display:none'><div class='col-lg-10 col-lg-offset-1'><textarea id='modal_change' class='form-control' rows='10' cols='91' required='required'></textarea></div></div>"
             );
-        /*gsk_comment=1;
-        swal({
-            title: "Se ha modificado un valor cumplimentado anteriormente. ",
-            text: "Está modificando un dato guardado previamente, se le solicitará la justificación del cambio al guardar y firmar el registro",
-            type: "warning"
-          });
-        return true;*/
+
+        return true;
     }
     return false;
 }
