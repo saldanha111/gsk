@@ -2,6 +2,8 @@
 var custom_value;
 var comment_field = new Array();
 var gsk_comment_description="";
+var manual_field = new Array();
+var gsk_manual_description="";
 $( document ).ready(function() {
 	$("#btn_save").html('<i class="fa fa-send-o"></i> Enviar y firmar');
 	$("#btn_save_partial").html('<i class="fa fa-save"></i> Guardar y firmar');
@@ -43,10 +45,13 @@ $( document ).ready(function() {
 		}
 	});
 
+
+	/* Cuando un valor automático debe ser inputado de forma manual */
 	manual_fill=0;
 	$('#form_fill').find('input[readonly="readonly"][required="required"]:visible, select[readonly="readonly"][required="required"]:visible, textarea[readonly="readonly"][required="required"]:visible').each(function() {
 		if(!$(this).val()){
 			$(this).attr("readonly", false); 
+			$(this).addClass("gsk_field_manual_fill");
 			manual_fill=1;
 			var find=0;
 			custom_value=$(this).attr('name');
@@ -67,6 +72,14 @@ $( document ).ready(function() {
 		$('[name="'+$(this).val()+'"]').attr("readonly", false);
 	});
 
+	$('#form_fill').on('blur', '.gsk_field_manual_fill', function(){
+		if(popupManualFill($(this))){
+
+		}
+	});
+
+	/* FIN Cuando un valor automático debe ser inputado de forma manual */
+
 	init_prefill=0;
 	$('#form_fill').find('[name="gsk_init_prefill"]').each(function() {
 		$("#btn_custom_close").addClass("disabled");
@@ -79,7 +92,7 @@ $( document ).ready(function() {
 	}
 
 	if(manual_fill){
-		is_manual_fill();
+		//is_manual_fill();
 	}
 
 	$(document.body).on('change', "#choose", function () {
@@ -115,7 +128,7 @@ $( document ).ready(function() {
 		if(!$('textarea[name="gsk_comment_description"]').length){
 			$("#form_fill").append('<textarea name="gsk_comment_description" style="display:none"></textarea>');
 		}
-		gsk_comment_description="<b><u>Modificación de datos</u></b><hr>";
+		gsk_comment_description="<br><b><u>Modificación de datos</u></b><br>";
 		Object.keys(comment_field).forEach(function (key){
 			gsk_comment_description+=comment_field[key]+"<hr>";
 		});
@@ -125,6 +138,35 @@ $( document ).ready(function() {
     $(document.body).on('hidden.bs.modal', "#modal_gsk_comment", function () {
     	$('#modal_gsk_comment').remove();
     });
+
+    $(document.body).on('click', "#save_manual", function () {
+		
+	    if (!$('#modal_change_manual').val()) {
+	        swal({
+		        title: "Justificación necesaria",
+		        text: "Es obligatorio escribir una justificación",
+		        type: "warning"
+		      });
+	    }
+	    else{
+		    key=$("#box_manual").data("comment_key");
+		    manual_field[key]=$("#box_manual").html()+"<br>"+$("#modal_change_manual").val();
+		    $('#modal_gsk_manual').modal('toggle');
+		}
+
+		if(!$('textarea[name="gsk_manual_description"]').length){
+			$("#form_fill").append('<textarea name="gsk_manual_description" style="display:none"></textarea>');
+		}
+		gsk_manual_description="<br><b><u>Inputación manual</u></b><br>";
+		Object.keys(manual_field).forEach(function (key){
+			gsk_manual_description+=manual_field[key]+"<hr>";
+		});
+		$('textarea[name="gsk_manual_description"]').val(gsk_manual_description);
+    });
+
+    $(document.body).on('hidden.bs.modal', "#modal_gsk_manual", function () {
+    	$('#modal_change_manual').remove();
+    });
 });
 
 // Alertamos al usuario que se ha cambiado un campo previamente cargado por otro usuario y por tanto se va a pedir justificación
@@ -132,13 +174,17 @@ function checkCommentCompulsory(element){
     if(element.hasClass("change_prefill") /*&& !gsk_comment*/){
     	var line="";
     	field_original=element.attr('name');
-    	key = field_original.match(/\[(\d+)\]/)[1];
+    	if(field_original.match(/\[(\d+)\]/)){
+    		key = field_original.match(/\[(\d+)\]/)[1];
+    	}
+    	else{
+    		key = null;
+    	}
     	field=field_original.replace(/\[(\d+)\]/ig, '');
     	if(key){
     		line="Linea: <b>"+(parseInt(key)+1)+"</b><br>";
     	}
-    	else{
-    	}
+
     	prev_value=prefill_value[field_original];
     	switch(element.data("type")){
 			case "input": current_value=element.val();break;
@@ -166,24 +212,8 @@ function checkCommentCompulsory(element){
             "</div><br>"+
             "<div class='row' id='box_justification' style='display:none'><div class='col-lg-10 col-lg-offset-1'><textarea id='modal_change' class='form-control' rows='10' cols='91' required='required'></textarea></div></div>"
     		);
-    	/*gsk_comment=1;
-        swal({
-	        title: "Se ha modificado un valor cumplimentado anteriormente. ",
-	        text: "Está modificando un dato guardado previamente, se le solicitará la justificación del cambio al guardar y firmar el registro",
-	        type: "warning"
-	      });
-        return true;*/
     }
     return false;
-}
-
-function is_manual_fill(){
-	$("#form_fill").append('<input type="hidden" name="gsk_is_manual_fill" value="1" />');
-	swal({
-        title: "Error en la carga de datos",
-        text: "Uno de los campos diseñado para ser cumplimentado automáticamente requiere de su imputación manual y por tanto de justificación",
-        type: "warning"
-    });
 }
 
 function show_modal(title, body) {
@@ -207,4 +237,70 @@ function show_modal(title, body) {
 	    var modal = $(html);
 	    modal.modal({backdrop: 'static', keyboard: false});
 	}
+}
+
+
+// El usuario debe justificar porque imputa un campo de forma manual
+function popupManualFill(element){
+    if(element.hasClass("gsk_field_manual_fill")){
+    	var line="";
+    	field_original=element.attr('name');
+    	if(field_original.match(/\[(\d+)\]/)){
+    		key = field_original.match(/\[(\d+)\]/)[1];
+    	}
+    	else{
+    		key = null;
+    	}
+    	field=field_original.replace(/\[(\d+)\]/ig, '');
+    	prev_value=prefill_value[field_original];
+    	switch(element.data("type")){
+			case "input": current_value=element.val();break;
+			case "textarea": current_value=element.val();break;
+			case "hidden": current_value=element.val();break;
+			case "checkbox": if (element.is(":checked")){current_value=element.val();}else{current_value="";}break;
+			case "select": current_value=element.val();break;
+			case "radio": current_value=element.val();break;
+		}
+
+    	show_modal_manual(
+    		"Inputación manual de campo automático","<div class='row'><div class='col-lg-11 col-lg-offset-1'>Está rellenando manualmente un campo que en principio ha sido diseñado para imputarse de forma automática. Justifique su acción<br><br><div id='box_manual' data-comment_key='"+field_original+"'>"+
+    		"Campo: <b>"+field+"</b><br>"+ line +
+    		"Valor previo: <b>"+prev_value+"</b><br>"+
+    		"Nuevo valor: <b>"+current_value+"</b></div></div></div><br>"+
+            "<div class='row' id='box_justification'><div class='col-lg-10 col-lg-offset-1'><textarea id='modal_change_manual' class='form-control' rows='10' cols='91' required='required'></textarea></div></div>"
+    		);
+    }
+    return false;
+}
+
+function show_modal_manual(title, body) {
+	if(!$("#modal_gsk_manual").length){
+	    var html = '<div class="modal" tabindex="-1" role="dialog" id="modal_gsk_manual">' +
+	    '<div class="modal-dialog">' +
+	    '<div class="modal-content">' +
+	    '<div class="modal-header">' +
+	    '<h4 class="modal-title">' + title + '</h4>' +
+	    '</div>' +
+	    '<div class="modal-body">' +
+	    '<p>' + body + '</p>' +
+	    '</div>' +
+	    '<div class="modal-footer">' +
+	    '<button type="button" class="btn btn-primary" id="save_manual">Guardar</button>' +
+	    '</div>' +
+	    '</div>' +
+	    '</div>' +
+	    '</div>';
+
+	    var modal = $(html);
+	    modal.modal({backdrop: 'static', keyboard: false});
+	}
+}
+
+function is_manual_fill(){
+	$("#form_fill").append('<input type="hidden" name="gsk_is_manual_fill" value="1" />');
+	swal({
+        title: "Error en la carga de datos",
+        text: "Uno de los campos diseñado para ser cumplimentado automáticamente requiere de su imputación manual y por tanto de justificación",
+        type: "warning"
+    });
 }

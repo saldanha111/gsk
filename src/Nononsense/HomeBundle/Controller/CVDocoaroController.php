@@ -264,6 +264,12 @@ class CVDocoaroController extends Controller
             unset($json_content["data"]["gsk_comment_description"]);
         }
 
+        if (array_key_exists("gsk_manual_description",$json_content["data"])){
+            unset($json_content["data"]["gsk_manual_description"]);
+        }
+
+        
+
         if($request->get("mode")){
             switch($request->get("mode")){
                 case "c":   $json_content["configuration"]["prefix_view"]="u_;in_;dxo_";
@@ -605,9 +611,16 @@ class CVDocoaroController extends Controller
                    $signature->setManualFill(TRUE); 
                 }
 
-                if(array_key_exists("gsk_comment_description",$params["data"]) && $params["data"]["gsk_comment_description"]){
-                   $signature->setDescription($params["data"]["gsk_comment_description"]); 
-                }
+
+                /* Añadimos descripciones de modificaciones o inputación manual que han sido descritas campo por campo */
+                    if(array_key_exists("gsk_comment_description",$params["data"]) && $params["data"]["gsk_comment_description"]){
+                       $signature->setDescription($params["data"]["gsk_comment_description"]); 
+                    }
+
+                    if(array_key_exists("gsk_manual_description",$params["data"]) && $params["data"]["gsk_manual_description"]){
+                       $signature->setDescription($signature->getDescription().$params["data"]["gsk_manual_description"]); 
+                    }
+                /* */
 
                 
 
