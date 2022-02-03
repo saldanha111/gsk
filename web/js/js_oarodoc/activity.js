@@ -87,7 +87,7 @@ $( document ).ready(function() {
 		init_prefill=1;
 	});
 	
-	if(init_prefill==0 && (!data.hasOwnProperty("dxo_gsk_firmas") || data.dxo_gsk_firmas=="")){
+	if(init_prefill==0 && data && (!data.hasOwnProperty("dxo_gsk_firmas") || data.dxo_gsk_firmas=="")){
 		$("#btn_cancel").addClass("disabled");
 	}
 
