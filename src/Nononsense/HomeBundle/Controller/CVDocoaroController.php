@@ -272,6 +272,23 @@ class CVDocoaroController extends Controller
             unset($json_content["data"]["finish_verification"]);
         }
 
+
+        //Miramos si es el último firmante del workflow dentro de una misma fase
+            $finish_workflow=0;
+            $user = $this->getDoctrine()->getRepository(Users::class)->findOneBy(array("id" => $id_usuario));
+            $wf=$this->get('utilities')->wich_wf($record,$user);
+            if($wf){
+                $last_wf = $this->getDoctrine()->getRepository(CVWorkflow::class)->search("count",array("record" => $record,"not_this" => $wf->getId(),"signed" => FALSE,"type"=>$wf->getType()->getTmType()));
+                if($last_wf==0){
+                    $finish_workflow=1;
+                }
+                else{
+                    $finish_workflow=0;
+                }
+            }
+            $json_content["data"]["is_final_signature"]=$finish_workflow;
+        /* */
+
         
 
         if($request->get("mode")){
@@ -363,6 +380,12 @@ class CVDocoaroController extends Controller
                 $params = json_decode($content, true); // 2nd param to get as array
             }
 
+            $finish_verification=FALSE;
+            if(array_key_exists("finish_verification",$params["data"]) && $params["data"]["finish_verification"]){
+                $finish_verification=TRUE;
+                unset($params["data"]["finish_verification"]);
+            }
+
             if($params["action"]=="close"){
                 $record->setInEdition(FALSE);
                 $record->setOpenedBy(NULL);
@@ -417,6 +440,31 @@ class CVDocoaroController extends Controller
                 $all_signatures = $this->getDoctrine()->getRepository(CVSignatures::class)->findBy(array("record" => $record)); 
                 $last_signature = $this->getDoctrine()->getRepository(CVSignatures::class)->findOneBy(array("record" => $record),array("id" => "DESC"));
 
+                //Si el estado del documento es en verificación y se hace un guardado como ahora todos son parciales, miramos si es un guardado total en base al check finish_verification y si es una devolución si no cumple algúno de los elementos
+                    if($record->getState() && $record->getState()->getId()==4 && ($params["action"]=="save_partial")){
+                        //Si el usuario finaliza su parte de la verificación es un guardado total
+                        if($finish_verification){
+                            $params["action"]="save";
+
+                            //Si existe algún campo No cumple, es una devolución
+                            foreach($params["data"] as $key1 => $variable){
+                                if(is_array($variable)){
+                                    foreach($variable as $key2 => $item_variable){
+                                        if($item_variable=="No cumple" && strpos($key2, "verchk_") !== false){
+                                            $params["action"]="return";
+                                        }
+                                    }
+                                }
+                                else{
+                                    if($variable=="No cumple" && strpos($key1, "verchk_") !== false){
+                                        $params["action"]="return";
+                                    }
+                                }
+                            }
+                        } 
+                    }
+                /* */
+
                 if($last_signature->getSigned()){
                     $signature = new CVSignatures();
                     $signature->setUser($user);
@@ -470,29 +518,7 @@ class CVDocoaroController extends Controller
                     $state_id=$record->getState()->getId();
                 }
 
-                //Si el estado del documento es en verificación y se hace un guardado parcial
-                if($state_id==4 && $params["action"]=="save_partial"){
-                    //Si el usuario finaliza su parte de la verificación es un guardado total
-                    if(array_key_exists("finish_verification",$params["data"]) && $params["data"]["finish_verification"]){
-                        $params["action"]="save";
-                    }
-
-                    //Si existe algún campo No cumple, es una devolución
-                    foreach($params["data"] as $variable){
-                        if(is_array($variable)){
-                            foreach($variable as $item_variable){
-                                if($item_variable=="No cumple"){
-                                    $params["action"]="return";
-                                }
-                            }
-                        }
-                        else{
-                            if($variable=="No cumple"){
-                                $params["action"]="return";
-                            }
-                        }
-                    }
-                }
+                
                 
                 switch($state_id){
                     case "1":
@@ -631,22 +657,24 @@ class CVDocoaroController extends Controller
 
                 $signature->setVersion($response["version"]["id"]);
                 $signature->setConfiguration($response["version"]["configuration"]["id"]);
-                if(array_key_exists("gsk_comment",$params["data"]) && $params["data"]["gsk_comment"]){
+                /*if(array_key_exists("gsk_comment",$params["data"]) && $params["data"]["gsk_comment"]){
                    $signature->setJustification(TRUE); 
                 }
 
                 if(array_key_exists("gsk_is_manual_fill",$params["data"]) && $params["data"]["gsk_is_manual_fill"]){
                    $signature->setManualFill(TRUE); 
-                }
+                }*/
 
 
                 /* Añadimos descripciones de modificaciones o inputación manual que han sido descritas campo por campo */
                     if(array_key_exists("gsk_comment_description",$params["data"]) && $params["data"]["gsk_comment_description"]){
                        $signature->setDescription($params["data"]["gsk_comment_description"]); 
+                       $signature->setJustification(TRUE); 
                     }
 
                     if(array_key_exists("gsk_manual_description",$params["data"]) && $params["data"]["gsk_manual_description"]){
-                       $signature->setDescription($signature->getDescription().$params["data"]["gsk_manual_description"]); 
+                       $signature->setDescription($signature->getDescription().$params["data"]["gsk_manual_description"]);
+                       $signature->setManualFill(TRUE);  
                     }
                 /* */
 

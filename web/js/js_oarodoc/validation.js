@@ -57,6 +57,12 @@ $( document ).ready(function() {
 	});
 
 	$(document).on("click","#btn_pre_save_partial",function() {
+		if(!data.is_final_signature || $("#form_fill").valid()){
+			checkbox='<p><input type="checkbox" id="finish_verification"> ¿Desea dar por finalizada su parte de la verificación?</p>';
+		}
+		else{
+			checkbox='<p>No puede finalizar su verificación de forma total ya que es usted el último firmante</p>';
+		}
 		var html = '<div class="modal" tabindex="-1" role="dialog" id="modal_save_verification">' +
 	    '<div class="modal-dialog">' +
 	    '<div class="modal-content">' +
@@ -64,7 +70,7 @@ $( document ).ready(function() {
 	    '<h4 class="modal-title">Finalizar verificación</h4>' +
 	    '</div>' +
 	    '<div class="modal-body">' +
-	    '<p><input type="checkbox" id="finish_verification"> ¿Desea dar por finalizada su parte de la verificación?</p>' +
+	    checkbox +
 	    '</div>' +
 	    '<div class="modal-footer">' +
 	    '<button type="button" class="btn btn-primary" id="btn_save_partial">Verificar</button>' +
@@ -151,7 +157,12 @@ function checkCommentCompulsory(element){
     if(element.hasClass("change_prefill") /*&& !gsk_comment*/){
     	var line="";
     	field_original=element.attr('name');
-    	key = field_original.match(/\[(\d+)\]/)[1];
+    	if(field_original.match(/\[(\d+)\]/)){
+    		key = field_original.match(/\[(\d+)\]/)[1];
+    	}
+    	else{
+    		key = null;
+    	}
     	field=field_original.replace(/\[(\d+)\]/ig, '');
     	if(key){
     		line="Linea: <b>"+(parseInt(key)+1)+"</b><br>";

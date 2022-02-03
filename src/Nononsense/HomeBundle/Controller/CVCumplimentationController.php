@@ -453,7 +453,7 @@ class CVCumplimentationController extends Controller
             return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
         }
 
-        if(!$request->get('justification') && ($signature->getJustification() || $signature->getAction()->getJustification() || ($record->getReconciliation() && count($record->getCvSignatures())==1))){
+        if(!$request->get('justification') && ($signature->getAction()->getJustification() || ($record->getReconciliation() && count($record->getCvSignatures())==1))){
             $this->get('session')->getFlashBag()->add(
                 'error',
                 "El registro no se pudo firmar porque era necesaria una justificación"
@@ -497,6 +497,30 @@ class CVCumplimentationController extends Controller
         if($request->get('justification')){
             $signature->setDescription($signature->getDescription()."<br>".$request->get('justification'));
         }
+
+       // Si el registro está en verificación y hay modificaciones de campos, vaciamos el workflow activo para que tengan que volver a firmar
+            if($record->getState() && $record->getState()->getId()==4 && $signature->getJustification()){
+               $clean_wfs=$this->getDoctrine()->getRepository(CVWorkflow::class)->findBy(array('record' => $record));
+                foreach($clean_wfs as $clean_wf){
+                    if($clean_wf->getType()->getTmType()==$record->getState()->getType() && $wf!=$clean_wf && $clean_wf->getSigned()){
+                        $clean_wf->setSigned(FALSE);
+                        $em->persist($clean_wf);
+                    }
+                }
+
+                foreach($all_signatures as $clean_signature){
+                    if($clean_signature->getAction()->getType()==$record->getState()->getType() && $signature!=$clean_signature && $clean_signature->getFinish()){
+                        $clean_signature->setFinish(FALSE);
+                        $em->persist($clean_signature);
+                        // Avisamos por email de que tienen que voler a firmar
+                        $subject="Cambio en su verificación";
+                        $mensaje='Se ha realizado una modificación en su verificación sobre el registro '.$record->getId().' - Código: '.$record->getTemplate()->getNumber().' - Título: '.$record->getTemplate()->getName().' - Edición: '.$record->getTemplate()->getNumEdition().' y tiene que volver a verificar el documento. Vaya a "Busador" y filtre por id de documento';
+                        $baseURL=$this->container->get('router')->generate('nononsense_cv_search',array(),true)."?id=".$record->getId();
+                        $this->get('utilities')->sendNotification($clean_signature->getUser()->getEmail(), $baseURL, "", "", $subject, $mensaje);
+                    }
+                }
+            }
+        /* */
 
         
 
