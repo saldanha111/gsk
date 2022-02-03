@@ -196,7 +196,7 @@ function checkCommentCompulsory(element){
 		}
 
     	show_modal(
-    		"Se ha modificado un valor cumplimentado anteriormente","<div class='row'><div class='col-lg-11 col-lg-offset-1'>Está modificando un dato guardado previamente, justifique esta acción<br><br><div id='box_comments' data-comment_key='"+field_original+"'>"+
+    		"Se ha modificado un valor cumplimentado anteriormente","<div class='row'><div class='col-lg-10 col-lg-offset-1'>Está modificando un dato guardado previamente, justifique esta acción<br><br><div id='box_comments' data-comment_key='"+field_original+"'>"+
     		"Campo: <b>"+field+"</b><br>"+ line +
     		"Valor previo: <b>"+prev_value+"</b><br>"+
     		"Nuevo valor: <b>"+current_value+"</b></div></div></div><br>"+
@@ -253,6 +253,9 @@ function popupManualFill(element){
     		key = null;
     	}
     	field=field_original.replace(/\[(\d+)\]/ig, '');
+    	if(key){
+    		line="Linea: <b>"+(parseInt(key)+1)+"</b><br>";
+    	}
     	prev_value=prefill_value[field_original];
     	switch(element.data("type")){
 			case "input": current_value=element.val();break;
@@ -264,7 +267,7 @@ function popupManualFill(element){
 		}
 
     	show_modal_manual(
-    		"Inputación manual de campo automático","<div class='row'><div class='col-lg-11 col-lg-offset-1'>Está rellenando manualmente un campo que en principio ha sido diseñado para imputarse de forma automática. Justifique su acción<br><br><div id='box_manual' data-comment_key='"+field_original+"'>"+
+    		"Inputación manual de campo automático","<div class='row'><div class='col-lg-10 col-lg-offset-1'>Está rellenando manualmente un campo que en principio ha sido diseñado para imputarse de forma automática. Justifique su acción<br><br><div id='box_manual' data-comment_key='"+field_original+"'>"+
     		"Campo: <b>"+field+"</b><br>"+ line +
     		"Valor previo: <b>"+prev_value+"</b><br>"+
     		"Nuevo valor: <b>"+current_value+"</b></div></div></div><br>"+

@@ -272,6 +272,9 @@ class CVDocoaroController extends Controller
             unset($json_content["data"]["finish_verification"]);
         }
 
+        if (array_key_exists("gsk_comment_no_cumple",$json_content["data"])){
+            unset($json_content["data"]["gsk_comment_no_cumple"]);
+        }
 
         //Miramos si es el último firmante del workflow dentro de una misma fase
             $finish_workflow=0;
@@ -384,6 +387,10 @@ class CVDocoaroController extends Controller
             if(array_key_exists("finish_verification",$params["data"]) && $params["data"]["finish_verification"]){
                 $finish_verification=TRUE;
                 unset($params["data"]["finish_verification"]);
+            }
+
+            if(array_key_exists("is_final_signature",$params["data"]) && $params["data"]["is_final_signature"]){
+                unset($params["data"]["is_final_signature"]);
             }
 
             if($params["action"]=="close"){
@@ -676,6 +683,11 @@ class CVDocoaroController extends Controller
                        $signature->setDescription($signature->getDescription().$params["data"]["gsk_manual_description"]);
                        $signature->setManualFill(TRUE);  
                     }
+
+                    if(array_key_exists("gsk_comment_no_cumple",$params["data"]) && $params["data"]["gsk_comment_no_cumple"]){
+                       $signature->setDescription($signature->getDescription().$params["data"]["gsk_comment_no_cumple"]);  
+                    }
+
                 /* */
 
                 
