@@ -51,6 +51,11 @@ class TMTemplatesRepository extends EntityRepository
                     $parameters["parent"]=$filters["parent"];
                 }
             }
+
+            if(isset($filters["operative"])){
+                $sintax.=$logical." t.tmState=6";
+                $logical=" AND ";
+            }
         }
 
 

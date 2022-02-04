@@ -3,6 +3,7 @@
 {% block head %}
 {{ parent() }}
 <link rel="stylesheet" href="/css/plugins/datapicker/datepicker3.css">
+<link rel="stylesheet" href="/plugins/select2/dist/css/select2.min.css">
 {% endblock %}
 {% block main_title %} Buscador de contenido en plantillas{% endblock %}
 {% block content %}
@@ -26,6 +27,17 @@
                 <div class="row">
                     <form class="form-horizontal" id="form_item" action="{{ path('nononsense_cv_content_search')}}" method="GET">
                         <div class="form-group">
+                            <label class="col-sm-1 control-label">Plantilla</label>
+                            <div class="col-sm-4">
+                              <select class="form-control select_template" required="required">
+                                {% if filters.template is defined %}
+                                    <option value="{{template.id}}" selected="selected">{{template.name}}</option>
+                                {% endif %}
+                              </select>
+                            </div>
+                            <input type="hidden" name="template" value="{{filters.template is defined ? filters.template : ''}}">
+                        </div>
+                        <div class="form-group">
                             <label class="col-sm-1 control-label">Contenido</label>
                             <div class="col-sm-9 item_filter">
                                 <input type="text" name="content" class="form-control" value="{{filters.content is defined ? filters.content : ''}}">
@@ -35,32 +47,43 @@
                         <div class="form-group">
                             <label class="col-sm-1 control-label">ID Registro</label>
                             <div class="col-sm-1 item_filter">
-                                <input type="number" name="id" class="form-control" value="{{filters.id is defined ? filters.id : ''}}">
-                            </div>
-
-                            <label class="col-sm-1 control-label">Nombre</label>
-                            <div class="col-sm-2 item_filter">
-                                <input type="text" name="name" class="form-control" value="{{filters.name is defined ? filters.name : ''}}">
+                                <input type="number" name="record" class="form-control" value="{{filters.record is defined ? filters.record : ''}}">
                             </div>
 
                             <label class="col-sm-1 control-label">Usuario</label>
                             <div class="col-sm-2 item_filter">
                                 <input type="text" name="creator" class="form-control" value="{{filters.creator is defined ? filters.creator : ''}}">
                             </div>
+                            <label class="col-sm-1 control-label">Acción</label>
+                            <div class="col-sm-1 item_filter">
+                                <select class="form-control" name="action" style="width: 100%;">
+                                    <option value=""></option>
+                                    {% for action in actions %}
+                                        <option value="{{action.id}}" {{filters.action is defined and filters.action==action.id ? 'selected="selected"'}}>{{action.name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <label class="col-sm-1 control-label">Subacción</label>
+                            <div class="col-sm-2 item_filter">
+                                <select class="form-control" name="subaction" style="width: 100%;">
+                                    <option value=""></option>
+                                    {% for subaction in subactions %}
+                                        <option value="{{subaction.id}}" {{filters.subaction is defined and filters.subaction==subaction.id ? 'selected="selected"'}}>{{subaction.type.name|first}}-{{subaction.name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label class="col-sm-1 control-label">Variable</label>
                             <div class="col-sm-2 item_filter">
-                                <input type="text" name="field" class="form-control" value="{{filters.field is defined ? filters.field : ''}}">
+                                <input type="text" name="var" class="form-control" value="{{filters.var is defined ? filters.var : ''}}">
                             </div>
                             
                             <label class="col-sm-1 control-label">Valor</label>
                             <div class="col-sm-2 item_filter">
                                 <input type="text" name="value" class="form-control" value="{{filters.value is defined ? filters.value : ''}}">
                             </div>
-                        </div>
-                        <div class="form-group">
-
                             <label class="col-sm-1 control-label">Fecha</label>
                             <div class="col-sm-1 item_filter">
                                 <input type="text" class="form-control pull-right" autocomplete="off" name="from" id="from" value="{{filters.from is defined ? filters.from|date("Y-m-d") : ''}}">
@@ -70,76 +93,87 @@
                                 <input type="text" class="form-control pull-right" autocomplete="off" name="until" id="until" value="{{filters.until is defined ? filters.until|date("Y-m-d") : ''}}">
                             </div>
 
-                            <div class="col-sm-offset-1 col-sm-1">
+                            <div class="col-sm-1">
                                 <button type="submit" class="btn btn-primary pull-right">Filtrar</button>
                             </div>
                         </div>
-
 
                         <input type="hidden" name="record_contains" value="{{filters.record_contains is defined ? filters.record_contains : ''}}">
                       </form>
                 </div>
                 <div class="row">
-                
-                    <table id="inProcessParcial" class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>ID Registro</th>
-                                <th>Nombre plantilla</th>
-                                <th>Nº.evidencia</th>
-                                <th>Campo</th>
-                                <th>Nº.Linea</th>
-                                <th>Valor</th>
-                                <th>Valor anterior</th>
-                                <th>Usuario</th>
-                                <th>Fecha de modificación</th>
-                                <th>Opciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for history in histories %}
-                            <tr>
-                                <td><a class="btn btn-xs btn-primary" href="{{ path('nononsense_cv_search')}}?id={{history.recordId}}"><i class="fa fa-file-text-o" aria-hidden="true"></i> {{history.recordId}}</a></td>
-                                <td>{{history.templateName}}</td>
-                                <td>{{history.numberSignature}}</td>
-                                <td>{{history.field}}</td>
-                                <td>{{history.index is defined and history.index != '' ? history.index : ''}}</td>
-                                <td>
-                                    {% if 'base64' in history.value %}
-                                        <a href="{{path('nononsense_cv_content_search_file_download', {id: history.id})}}">Descargar archivo</a>
-                                    {% else %}
-                                        {{history.value}}
-                                    {% endif %}
-                                </td>
-                                
-                                <td>
-                                    {% if 'base64' in history.prevValue %}
-                                        <a href="{{path('nononsense_cv_content_search_file_download', {id: history.id})}}?type=prev">Descargar archivo</a>
-                                    {% else %}
-                                        {{history.prevValue}}
-                                    {% endif %}
-                                </td>
-                                <td>{{history.userName}}</td>
-                                <td>{{history.modified|date('d/m/Y H:i:s')}}</td>
-                                <td>
-                                    {% if history.lineOptions is defined and history.lineOptions is not null %}
-                                        {% if history.lineOptions == 1 %}
-                                            <span  class="btn btn-xs btn-primary disabled"><i class="fa fa-plus" aria-hidden="true"></i> Nuevo</span>
-                                        {% elseif history.lineOptions == 0 %}
-                                            <span  class="btn btn-xs btn-danger disabled"><i class="fa fa-times" aria-hidden="true"></i> Eliminado</span>
-                                        {% endif %}
-                                    {% else %}
-                                         <span  class="btn btn-xs btn-warning disabled"><i class="fa fa-pencil" aria-hidden="true"></i> Modificado</span>
-                                    {% endif %}
-                                    
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                    {% if filters.template is defined and filters.template is not empty %}
+                        {% if count>0 %}
+                            <table id="inProcessParcial" class="table table-striped" style="display: block;overflow-x: auto;white-space: nowrap;">
+                                <thead>
+                                    <tr>
+                                        <th>Nº.</th>
+                                        <th>Usuario</th>
+                                        <th>Acción</th>
+                                        <th>Fecha</th>
+                                        {% set dataconvert=histories[0].json|json_decode(true).data %}
+                                        {% set configconvert=histories[0].record.json|json_decode(true).configuration.variables %}
+                                        {% for key, value in dataconvert %}
+                                            {% if not (key matches '/^in_.*/') and not (key matches '/^dxo_gsk_.*/') and not (key matches '/^gsk_comment_.*/') %}
 
-                    {% if pagination is defined and pagination.needed %}
-                        {% include '::pagination2.html.twig' %}
+                                                {% if configconvert[key] is defined and configconvert[key]["info"] is defined and configconvert[key]["info"]!="" %}
+                                                    {% set field=configconvert[key]["info"] %}
+                                                {% else %}
+                                                    {% set field=key %}
+                                                {% endif %}
+                                                <th>{{field}}</th>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for history in histories %}
+                                        <tr>
+                                            <td>{{history.record.id}}</td>
+                                            <td>{{history.user.name}}</td>
+                                            <td>{{history.action.name}}</td>
+                                            <td>{{ history.created is defined ? history.created|date("d/m/Y H:i:s") : '' }}</td>
+                                            {% for key in dataconvert|keys %}
+                                                {% if not (key matches '/^in_.*/') and not (key matches '/^dxo_gsk_.*/') and not (key matches '/^gsk_comment_.*/') %}
+                                                    <td>
+                                                        {% if history.json|json_decode(true).data[key] is defined %}
+                                                            {% set value=history.json|json_decode(true).data[key] %}
+                                                            {% if value is defined %}
+                                                                {% if value is iterable %}
+                                                                    {% if value["value"] is defined %}
+                                                                        <img src='{{value["value"]}}' style='width:100px'>
+                                                                    {% else %}
+                                                                        {% for key2, value2 in value %}
+                                                                            {% if value2["value"] is defined %}
+                                                                                <img src='{{value2["value"]}}' style='width:100px'> <i class="line_content">(L{{key2+1}})</i><br>
+                                                                            {% else %}
+                                                                                {{value2}} <i class="line_content">(L{{key2+1}})</i><br>
+                                                                            {% endif %}
+                                                                        {% endfor %}
+                                                                    {% endif %}
+                                                                {% else %}
+                                                                    {{value}}
+                                                                {% endif %}
+                                                            {% endif %}
+                                                        {% endif %}
+                                                    </td>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+
+                            {% if pagination is defined and pagination.needed %}
+                                {% include '::pagination2.html.twig' %}
+                            {% endif %}
+                            <a href="{{pagination.url}}{{pagination.character}}export_excel=1" target="_blank" class="btn btn-primary pull-right"><i class="fa fa-file-excel-o" aria-hidden="true"></i> Excel</a> 
+                            <a href="{{pagination.url}}{{pagination.character}}export_pdf=1" target="_blank" class="btn btn-primary pull-right" style="margin-right:1px"><i class="fa fa-file-pdf-o" aria-hidden="true"></i> PDF</a> 
+                        {% else %}
+                            No hay registros
+                        {% endif %}
+                    {% else %}
+                        Debe filtrar por al menos una plantilla
                     {% endif %}
                
                 </div>
@@ -153,6 +187,8 @@
 {{ parent() }}
 <script src="/js/plugins/datapicker/bootstrap-datepicker.js"></script>
 <script src="/js/plugins/datapicker/locales/bootstrap-datepicker.es.js" charset="UTF-8"></script>
+<script src="/plugins/select2/dist/js/select2.full.min.js"></script>
+<script src="/plugins/select2/es.js"></script>
 <script>
   $(function () {
     $('#from').datepicker({
@@ -167,6 +203,46 @@
       format: 'yyyy-mm-dd',
       language: 'es'
     });
+
+    $.fn.select2.defaults.set('language', 'es');
+
+    /* Buscamos la plantilla sobre la que queremos filtrar */
+    $(".select_template").select2({
+        templateResult: format_template,
+        minimumInputLength: 3,
+            ajax: { // instead of writing the function to execute the request we use Select2's convenient helper
+              url: function () {
+                return url_templates_json();
+              },
+              dataType: 'json',
+              quietMillis: 250,
+              data: function (params, page) {
+                  return {
+                      name: params.term, // search term
+                  };
+                  
+              },
+              processResults: function (data, page) { // parse the results into the format expected by Select2.
+                console.log(data);
+                return {results: data.items};
+              },
+              cache: false
+        },
+        escapeMarkup: function(m) { return m; }
+    });
+
+    $('.select_template').on("select2:select", function(e) { 
+        $('input[name ="template"]').val(e.params.data.id);
+    });
   });
+function url_templates_json(){
+    url="{{ path('nononsense_templates_active_json') }}?cv=1&operative=1";
+    return url;
+}
+function format_template (option) {
+    if (!option.id) { return option.text; }
+    var ob = option.text;  // replace image source with option.img (available in JSON)
+    return ob;
+}
 </script>
 {% endblock %}

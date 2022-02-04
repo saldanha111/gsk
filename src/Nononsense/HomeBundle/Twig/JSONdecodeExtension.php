@@ -11,9 +11,9 @@ class JSONdecodeExtension extends \Twig_Extension
         );
     }
 
-    public function jsonDecode($str)
+    public function jsonDecode($str,$option = FALSE)
     {
-        return json_decode($str);
+        return json_decode($str,$option);
     }
 
     public function getName()

@@ -53,13 +53,22 @@ class TemplateManagementTemplatesController extends Controller
             $filters["name"]=$request->get("name");
         }
 
+        if($request->get("operative")){
+            $filters["operative"]=$request->get("operative");
+        }
+
 
         $items=$em->getRepository('NononsenseHomeBundle:TMTemplates')->listActiveForRequest($filters);
         $serializer = $this->get('serializer');
         $array_items = json_decode($serializer->serialize($items,'json',array('groups' => array('json'))),true);
         foreach($array_items as $key => $item){
             $array["items"][$key]["id"]=$item["id"];
-            $array["items"][$key]["text"]=$item["name"]." - ".$item["prefix"];
+            if(!$request->get("cv")){
+                $array["items"][$key]["text"]=$item["name"]." - ".$item["prefix"];
+            }
+            else{
+                $array["items"][$key]["text"]=$item["id"]." - ".$item["name"];
+            }
             $array["items"][$key]["area"]=$item["area"]["id"];
         }
 

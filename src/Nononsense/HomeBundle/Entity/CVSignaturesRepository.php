@@ -29,7 +29,8 @@ class CVSignaturesRepository extends EntityRepository
         }
 
         $list->leftJoin("s.action", "a")
-        ->leftJoin("s.user", "u");
+        ->leftJoin("s.user", "u")
+        ->leftJoin("s.record", "r");
             
         if($type=="list"){
             if(!$order){
@@ -52,6 +53,11 @@ class CVSignaturesRepository extends EntityRepository
             if(isset($filters["signed"])){
                 $list->andWhere('s.signed=:signed');
                 $list->setParameter('signed', $filters["signed"]);
+            }
+
+            if(isset($filters["template"])){
+                $list->andWhere('r.template=:template');
+                $list->setParameter('template', $filters["template"]);
             }
 
             if(isset($filters["not_this"])){
@@ -85,11 +91,47 @@ class CVSignaturesRepository extends EntityRepository
                     $list->setParameter('creator'.$key, '%' . $term. '%');
                 }
             }
+
+            if(isset($filters["content"])){
+                $terms = explode(" ", $filters["content"]);
+                foreach($terms as $key => $term){
+                    $list->andWhere('s.json LIKE :content'.$key);
+                    $list->setParameter('content'.$key, '%' . $term. '%');
+                }
+            }
+
+            if(isset($filters["var"]) && isset($filters["value"])){
+                $list->andWhere("(s.json LIKE :var_1 AND SUBSTRING(
+                    s.json,
+                    CHARINDEX(:var_2, s.json,0) + LENGTH(:var_2),
+                    CHARINDEX('}',s.json,(CHARINDEX(:var_2, s.json,0) + LENGTH(:var_2)))
+                        -(CHARINDEX(:var_2, s.json,0) + LENGTH(:var_2))
+                    ) LIKE :valueJson)
+                    OR s.json LIKE :var_simple");
+
+                
+                $list->setParameter('var_1', '%'.$filters["var"].'%');
+                $list->setParameter('var_2', '"'.$filters["var"].'":{');
+                $list->setParameter('var_simple', '%"'.$filters["var"].'":"'.$filters["value"].'"%');
+                $list->setParameter('valueJson', '%:"'.$filters["value"].'"%');
+            }
+
+            if(isset($filters["from"])){
+                $list->andWhere('s.created>=:from');
+                $list->setParameter('from', $filters["from"]);
+            }
+
+            if(isset($filters["until"])){
+                $list->andWhere('s.created<=:until');
+                $list->setParameter('until', $filters["until"]." 23:59:00");
+            }
         }
 
 
-        if(isset($filters["limit_from"])){
-            $list->setFirstResult($filters["limit_from"]*$filters["limit_many"])->setMaxResults($filters["limit_many"]);
+        if($type=="list"){
+            if(isset($filters["limit_from"])){
+                $list->setFirstResult($filters["limit_from"]*$filters["limit_many"])->setMaxResults($filters["limit_many"]);
+            }
         }
 
         $query = $list->getQuery();

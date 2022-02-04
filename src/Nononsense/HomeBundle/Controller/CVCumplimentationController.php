@@ -23,6 +23,7 @@ use Nononsense\HomeBundle\Entity\CVSecondWorkflowStates;
 use Nononsense\HomeBundle\Entity\SpecificGroups;
 use Nononsense\HomeBundle\Entity\TMCumplimentations;
 use Nononsense\GroupBundle\Entity\GroupUsers;
+use Nononsense\HomeBundle\Entity\TMCumplimentationsType;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
@@ -981,6 +982,223 @@ class CVCumplimentationController extends Controller
     }
 
     public function listContentAction(Request $request){
+        $user = $this->container->get('security.context')->getToken()->getUser();
+
+        $filters = array_filter($request->query->all());
+        $filters["signed"]=TRUE;
+
+        if(!$request->get("export_excel") && !$request->get("export_pdf")){
+            if($request->get("page")){
+                $filters["limit_from"]=$request->get("page")-1;
+            }
+            else{
+                $filters["limit_from"]=0;
+            }
+            $filters["limit_many"]=15;
+        }
+        else{
+            $filters["limit_from"]=0;
+            $filters["limit_many"]=99999999999;
+        }
+
+        $url=$this->container->get('router')->generate('nononsense_cv_content_search');
+        $params=$request->query->all();
+        unset($params["page"]);
+        if(!empty($params)){
+            $parameters=TRUE;
+        }
+        else{
+            $parameters=FALSE;
+        }
+
+        $template=NULL;
+        if($request->get("template")){
+            $template = $this->getDoctrine()->getRepository(TMTemplates::class)->findOneBy(array("id" => $request->get("template")));
+        }
+
+        
+        $histories = $this->getDoctrine()->getRepository(CVSignatures::class)->search("list",$filters);
+        $count = $this->getDoctrine()->getRepository(CVSignatures::class)->search("count",$filters);
+        $subactions = $this->getDoctrine()->getRepository(CVActions::class)->findBy(array("graphic" => TRUE),array("type" => "ASC"));
+        $actions = $this->getDoctrine()->getRepository(TMCumplimentationsType::class)->search("list",array());
+        $pagination=\Nononsense\UtilsBundle\Classes\Utils::paginador($filters["limit_many"],$request,$url,$count,"/", $parameters);
+
+        if(!$request->get("export_excel") && !$request->get("export_pdf")){
+            return $this->render('NononsenseHomeBundle:CV:search_contain.html.twig', ['histories' => $histories, 'filters' => $filters, 'pagination' => $pagination, "count" => $count, "template" => $template, "subactions" => $subactions, "actions" => $actions]);
+        }
+        else{
+            //Exportamos a Excel
+
+            if($request->get("export_excel")){
+                $phpExcelObject = $this->get('phpexcel')->createPHPExcelObject();
+
+                $phpExcelObject->getProperties();
+                $phpExcelObject->setActiveSheetIndex(0)
+                 ->setCellValue('A1', "Buscador de contenido - ".$user->getUsername()." - ".date("d/m/Y H:i:s"));
+                $phpExcelObject->setActiveSheetIndex()
+                 ->setCellValue('A2', 'Nº')
+                 ->setCellValue('B2', 'Usuario')
+                 ->setCellValue('C2', 'Acción')
+                 ->setCellValue('D2', 'Fecha');
+
+                $array_json=json_decode($histories[0]->getJson(),true);
+                $config_json = json_decode($histories[0]->getRecord()->getJson(),TRUE);
+                $column=4;
+                foreach($array_json["data"] as $key => $value){
+                    if (strpos($key, 'in_') !== 0 && strpos($key, 'dxo_gsk_') !== 0 && strpos($key, 'gsk_comment_') !== 0) {
+                        if(array_key_exists($key, $config_json["configuration"]["variables"]) && $config_json["configuration"]["variables"][$key]["info"]!=""){
+                            $field=$config_json["configuration"]["variables"][$key]["info"];
+                        }
+                        else{
+                            $field=$key;
+                        }
+                        $phpExcelObject->getActiveSheet()->setCellValueByColumnAndRow($column, 2, $field);
+                        $column++;
+                    }
+                }
+            }
+
+            if($request->get("export_pdf")){
+                $html='<html><body style="font-size:8px;width:100%"><table autosize="1" style="overflow:wrap;width:100%"><tr style="font-size:8px;width:100%">
+                        <th style="font-size:8px">Nº</th>
+                        <th style="font-size:8px">Usuario</th>
+                        <th style="font-size:8px">Acción</th>
+                        <th style="font-size:8px">Fecha</th>';
+                $array_json=json_decode($histories[0]->getJson(),true);
+                $config_json = json_decode($histories[0]->getRecord()->getJson(),TRUE);
+                foreach($array_json["data"] as $key => $value){
+                    if (strpos($key, 'in_') !== 0 && strpos($key, 'dxo_gsk_') !== 0 && strpos($key, 'gsk_comment_') !== 0) {
+                        if(array_key_exists($key, $config_json["configuration"]["variables"]) && $config_json["configuration"]["variables"][$key]["info"]!=""){
+                            $field=$config_json["configuration"]["variables"][$key]["info"];
+                        }
+                        else{
+                            $field=$key;
+                        }
+                        $html.='<th style="font-size:8px">'.$field.'</th>';
+                    }
+                }
+                
+                $html.='</tr>';
+            }
+
+            $i=3;
+            foreach($histories as $item){
+
+                if($request->get("export_excel")){
+                    $phpExcelObject->getActiveSheet()
+                    ->setCellValue('A'.$i, $item->getRecord()->getId())
+                    ->setCellValue('B'.$i, $item->getUser()->getName())
+                    ->setCellValue('C'.$i, $item->getAction()->getName())
+                    ->setCellValue('D'.$i, ($item->getCreated()) ? $item->getCreated()->format('d/m/Y H:i:s') : '');
+
+                    $column=4;
+                    $array_json=json_decode($histories[0]->getJson(),true);
+                    foreach($array_json["data"] as $key => $value){
+                        if (strpos($key, 'in_') !== 0 && strpos($key, 'dxo_gsk_') !== 0 && strpos($key, 'gsk_comment_') !== 0) {
+                            if(array_key_exists($key, json_decode($item->getJson(),true)["data"])){
+                                $value=json_decode($item->getJson(),true)["data"][$key];
+                                if($value){
+                                    if(is_array($value)){
+                                        if(array_key_exists("value", $value)){
+                                            $phpExcelObject->getActiveSheet()->setCellValueByColumnAndRow($column, $i, '<img src='.$value["value"].' style="width:50px">');
+                                        }
+                                        else{
+                                            $new_value="";
+                                            foreach($value as $key2=>$value2){
+                                                if(is_array($value2) && array_key_exists("value", $value2)){
+                                                    $new_value.='<img src='.$value2["value"].' style="width:50px"> - L'.$key2.' ### ';
+                                                }
+                                                else{ 
+                                                    $new_value.=$value2.' - L'.$key2.' ### ';
+                                                }
+                                            }
+                                            $phpExcelObject->getActiveSheet()->setCellValueByColumnAndRow($column, $i, $new_value);
+                                        }
+                                    }
+                                    else{
+                                        $phpExcelObject->getActiveSheet()->setCellValueByColumnAndRow($column, $i, $value);
+                                    }
+                                }
+                            }
+                            $column++;
+                        }
+                    }
+                }
+
+                if($request->get("export_pdf")){
+                    $html.='<tr style="font-size:8px">
+                        <td>'.$item->getRecord()->getId().'</td>
+                        <td>'.$item->getUser()->getName().'</td>
+                        <td>'.$item->getAction()->getName().'</td>
+                        <td>'.(($item->getCreated()) ? $item->getCreated()->format('d/m/Y H:i:s') : '').'</td>';
+                    $array_json=json_decode($histories[0]->getJson(),true);
+                    foreach($array_json["data"] as $key => $value){
+                        if (strpos($key, 'in_') !== 0 && strpos($key, 'dxo_gsk_') !== 0 && strpos($key, 'gsk_comment_') !== 0) {
+                            $html.='<td>';
+                            if(array_key_exists($key, json_decode($item->getJson(),true)["data"])){
+                                $value=json_decode($item->getJson(),true)["data"][$key];
+                                if($value){
+                                    if(is_array($value)){
+                                        if(array_key_exists("value", $value)){
+                                            $html.='<img src='.$value["value"].' style="width:50px">';
+                                        }
+                                        else{
+                                            foreach($value as $key2=>$value2){
+                                                if(is_array($value2) && array_key_exists("value", $value2)){
+                                                    $html.='<img src='.$value2["value"].' style="width:50px"> - L'.$key2.'<br>';
+                                                }
+                                                else{ 
+                                                    $html.=$value2.' - L'.$key2.'<br>';
+                                                }
+                                            }
+                                        }
+                                    }
+                                    else{
+                                        $html.=$value;
+                                    }
+                                }
+                            }
+                            $html.='</td>';
+                        }
+                    }
+                    $html.='</tr>';
+                }
+
+                $i++;
+            }
+
+            if($request->get("export_excel")){
+                $phpExcelObject->getActiveSheet()->setTitle('Buscador de contenido');
+                // Set active sheet index to the first sheet, so Excel opens this as the first sheet
+                $phpExcelObject->setActiveSheetIndex(0);
+
+                // create the writer
+                $writer = $this->get('phpexcel')->createWriter($phpExcelObject, 'Excel2007');
+                // create the response
+                $response = $this->get('phpexcel')->createStreamedResponse($writer);
+                // adding headers
+                $dispositionHeader = $response->headers->makeDisposition(
+                  ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+                  'content_search.xlsx'
+                );
+                $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
+                $response->headers->set('Pragma', 'public');
+                $response->headers->set('Cache-Control', 'maxage=1');
+                $response->headers->set('Content-Disposition', $dispositionHeader);
+
+                return $response; 
+            }
+
+            if($request->get("export_pdf")){
+                $html.='</table></body></html>';
+                $this->get('utilities')->returnPDFResponseFromHTML($html,"Buscador de contenido");
+            }
+        }
+
+        
+    }
+
+    public function listContentOldAction(Request $request){
         $filters = array_filter($request->query->all());
 
         if(!$request->get("export_excel") && !$request->get("export_pdf")){
@@ -997,7 +1215,7 @@ class CVCumplimentationController extends Controller
             $filters["limit_many"]=99999999999;
         }
 
-        $url=$this->container->get('router')->generate('nononsense_cv_search');
+        $url=$this->container->get('router')->generate('nononsense_cv_content_search');
         $params=$request->query->all();
         unset($params["page"]);
         if(!empty($params)){
@@ -1012,7 +1230,7 @@ class CVCumplimentationController extends Controller
         $count = $this->getDoctrine()->getRepository(CVRecordsHistory::class)->list("count",$filters);
         $pagination=\Nononsense\UtilsBundle\Classes\Utils::paginador($filters["limit_many"],$request,$url,$count,"/", $parameters);
 
-        return $this->render('NononsenseHomeBundle:CV:search_contain.html.twig', ['histories' => $histories, 'filters' => $filters, 'pagination' => $pagination, "count" => $count]);
+        return $this->render('NononsenseHomeBundle:CV:search_containOld.html.twig', ['histories' => $histories, 'filters' => $filters, 'pagination' => $pagination, "count" => $count]);
     }
 
     public function downloadBase64Action(Request $request, $id){
