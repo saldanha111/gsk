@@ -230,12 +230,12 @@ class CVDocoaroController extends Controller
         $json_content["data"]["dxo_gsk_firmas_bloque"] = $only_signatures;
 
         if($request->get("logbook") && $request->get("logbook")>0){
-            $json_content["data"]["dxo_gsk_logbook"] = 1;
-            $json_content["data"]["dxo_gsk_logbook_bloque"] = $this->get_logbook($record,$request->get("logbook"));
+            $json_content["data"]["dxo_gsk_logbook_bloque"] = 1;
+            $json_content["data"]["dxo_gsk_logbook"] = $this->get_logbook($record,$request->get("logbook"));
         }
         else{
-            $json_content["data"]["dxo_gsk_logbook"] = 0;
-            $json_content["data"]["dxo_gsk_logbook_bloque"] = "";
+            $json_content["data"]["dxo_gsk_logbook_bloque"] = 0;
+            $json_content["data"]["dxo_gsk_logbook"] = "";
         }
         
         
