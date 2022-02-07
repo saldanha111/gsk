@@ -132,7 +132,7 @@
                                             <td>{{history.record.id}}</td>
                                             <td>{{history.user.name}}</td>
                                             <td>{{history.action.name}}</td>
-                                            <td>{{ history.created is defined ? history.created|date("d/m/Y H:i:s") : '' }}</td>
+                                            <td>{{ history.created is defined ? history.created|date("d/m/Y H:i:s")|gskdate : '' }}</td>
                                             {% for key in dataconvert|keys %}
                                                 {% if not (key matches '/^in_.*/') and not (key matches '/^dxo_gsk_.*/') and not (key matches '/^gsk_comment_.*/') %}
                                                     <td>

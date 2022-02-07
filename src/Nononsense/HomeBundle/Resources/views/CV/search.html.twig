@@ -163,8 +163,8 @@
                                 <td>{{item.name}}</td>
                                 <td>{{item.area}}</td>
                                 <td>{{item.creator}}</td>
-                                <td>{{ item.created is defined ? item.created|date("d/m/Y H:i:s") : '' }}</td>
-                                <td>{{ item.modified is defined ? item.modified|date("d/m/Y H:i:s") : '' }}</td>
+                                <td>{{ item.created is defined ? item.created|date("d/m/Y H:i:s")|gskdate : '' }}</td>
+                                <td>{{ item.modified is defined ? item.modified|date("d/m/Y H:i:s")|gskdate : '' }}</td>
                                 <td>{{ item.reconId is defined and item.reconId is not empty ? item.stateReconc : item.state }}</td>
                                 <td>
                                     {% if item.inEdition is defined and item.inEdition == true %}

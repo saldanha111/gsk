@@ -124,7 +124,7 @@
                                     <td>{{item.template.numEdition}}</td>
                                     <td>{{item.template.name}}</td>
                                     <td>{{item.template.area.name}}</td>
-                                    <td>{{item.created is defined and item.created is not empty ? item.created|date("d/m/Y H:i:s") : '' }}</td>
+                                    <td>{{item.created is defined and item.created is not empty ? item.created|date("d/m/Y H:i:s")|gskdate : '' }}</td>
                                     <td>{{item.action.name }}</td>
                                     <td>{{item.userEntiy.name}}</td>
                                 </tr>

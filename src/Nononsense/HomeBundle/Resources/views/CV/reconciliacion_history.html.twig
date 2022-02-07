@@ -20,7 +20,7 @@
         <div class="row">
             <br>
             <div class="col-sm-12">
-                <b>{{count}} Registros reconciliados - {{app.user.name}} - {{ "now"|date("d/m/Y H:i:s") }}</b>
+                <b>{{count}} Registros reconciliados - {{app.user.name}} - {{ "now"|date("d/m/Y H:i:s")|gskdate }}</b>
                 <table id="inProcess2" class="table table-striped">
                     <thead>
                     <tr>
@@ -53,7 +53,7 @@
                         </tr>
                     {% endfor %}
                 </table>
-                <b>{{count}} Registros reconciliados - {{ "now"|date("d/m/Y H:i:s") }}</b>
+                <b>{{count}} Registros reconciliados - {{ "now"|date("d/m/Y H:i:s")|gskdate }}</b>
             </div>
         </div>
     </div>

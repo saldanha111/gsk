@@ -105,7 +105,7 @@
                                     {% endif %}
                                 </td>
                                 <td>{{item.nameType}}</td>
-                                <td>{{item.created|date("d/m/Y")}}</td>
+                                <td>{{item.created|date("d/m/Y")|gskdate}}</td>
                                 <td>
                                 {% if item.status is defined and item.status==1 and suser.id==item.usercreatedid %}
                                     <a href="{{path('nononsense_records_link', {'id': item.id}) }}" class="btn btn-xs btn-primary"><i class="fa fa-pencil" aria-hidden="true"></i> Completar registro</a>

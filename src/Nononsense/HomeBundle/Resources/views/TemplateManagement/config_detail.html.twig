@@ -73,7 +73,7 @@
 
 
                     <div class="form-group">
-                        <label class="col-sm-2 control-label">Fecha entrada en vigor<br><span style="font-weight: normal">(Estimada:{{template.estimatedEffectiveDate is defined and template.estimatedEffectiveDate is not null ? template.estimatedEffectiveDate|date("d/m/Y") : ''}})</span></label>
+                        <label class="col-sm-2 control-label">Fecha entrada en vigor<br><span style="font-weight: normal">(Estimada:{{template.estimatedEffectiveDate is defined and template.estimatedEffectiveDate is not null ? template.estimatedEffectiveDate|date("d/m/Y")|gskdate : ''}})</span></label>
                         <div class="col-sm-2">
                             <input type="text" name="public_date" id="public_date" class="form-control"  {{template.tmState.id == 6 ? 'readonly="readonly"' : ''}} value="{{template.effectiveDate is defined and template.effectiveDate is not null ? template.effectiveDate|date("d/m/Y") : ''}}" required="required">
                         </div>

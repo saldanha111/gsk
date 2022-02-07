@@ -21,7 +21,7 @@
                             <!-- timeline time label -->
                             <li class="time-label">
                                   <span class="bg-blue">
-                                    {{signature.created|date("d/m/Y")}}
+                                    {{signature.created|date("d/m/Y")|gskdate}}
                                   </span>
                             </li>
                             <!-- /.timeline-label -->
@@ -56,7 +56,7 @@
                           
 
                           <div class="timeline-item">
-                            <span class="time"><i class="fa fa-clock-o"></i> {{signature.created|date("d/m/Y H:i:s")}}</span>
+                            <span class="time"><i class="fa fa-clock-o"></i> {{signature.created|date("d/m/Y H:i:s")|gskdate}}</span>
 
                             <h3 class="timeline-header"><a href="#">{{signature.userEntiy.name}}</a> - 
 

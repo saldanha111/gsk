@@ -47,7 +47,7 @@
                                    <tr>
                                        <td>{{certification.hash}}</td>
                                        <td>{{certification.txHash is not null ? certification.txHash : 'Sin certificar'}}</td>
-                                       <td>{% if certification.modified is defined and certification.modified is not null %}{{certification.modified|date("d/m/Y H:i:s")}}{% endif %}</td>
+                                       <td>{% if certification.modified is defined and certification.modified is not null %}{{certification.modified|date("d/m/Y H:i:s")|gskdate}}{% endif %}</td>
                                        <td>{{certification.type.name}}</td>
                                        <td>{{certification.recordId}}</td>
                                        <td><a href="{{path('nononsense_certifications_download', {id:certification.id})}}">Descargar</a></td>

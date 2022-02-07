@@ -39,7 +39,7 @@
                 {% for test in tests %}
                     <tr {% if max_id_no_test is defined and test.signature.id < max_id_no_test %} class="strikeout" {% endif %}>
                         <td><a href="{{path('nononsense_tm_test_new', {'id': template.id}) }}?pdf=1&test={{test.id}}&configuration={{test.signature.configuration}}" class="btn btn-xs btn-danger pull-right"  target="_blank"><i class="fa fa-file-pdf-o"></i> Cumpl.</a></td>
-                        <td>{{test.created is defined and test.created is not null ? test.created|date("d/m/Y H:i:s") : ''}}</td>
+                        <td>{{test.created is defined and test.created is not null ? test.created|date("d/m/Y H:i:s")|gskdate : ''}}</td>
                         <td>{% if test.result.id == 1 %}<span class="label bg-green"{% else %}<span class="label bg-red"{% endif %} data-toggle="tooltip" data-placement="left" title="{{ test.signature.description }}">{{test.result.name}}</span></td>
                         <td>{{test.userEntiy.name}}</td>
                         {% if template.tmState.id == 3 %}
@@ -71,7 +71,7 @@
                                 <td></td>
                             {% endif %}
                             <td><a href="{{path('nononsense_tm_test_new', {'id': template.id}) }}?pdf=1&test={{subtest.id}}&configuration={{subtest.signature.configuration}}" class="btn btn-xs btn-danger pull-right"  target="_blank"><i class="fa fa-file-pdf-o"></i> Verif.</a></td>
-                            <td>{{subtest.created is defined and subtest.created is not null ? subtest.created|date("d/m/Y H:i:s") : ''}}</td>
+                            <td>{{subtest.created is defined and subtest.created is not null ? subtest.created|date("d/m/Y H:i:s")|gskdate : ''}}</td>
                             <td>{% if subtest.result.id == 1 %}<span class="label bg-green"{% else %}<span class="label bg-red"{% endif %} data-toggle="tooltip" data-placement="left" title="{{ subtest.signature.description }}">{{subtest.result.name}}</span></td>
                             <td>{{subtest.userEntiy.name}}</td>
                             {% if aprobs is defined %}

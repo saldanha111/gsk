@@ -190,8 +190,8 @@
                                 {% if extend %}
                                     <td>{{item.applicantName}}</td>
                                 {% endif %}
-                                <td>{{item.effectiveDate is defined and item.effectiveDate is not null ? item.effectiveDate|date("d/m/Y") : ''}}</td>
-                                <td>{{item.dateReview is defined and item.dateReview is not null ? item.dateReview|date("d/m/Y") : ''}}</td>
+                                <td>{{item.effectiveDate is defined and item.effectiveDate is not null ? item.effectiveDate|date("d/m/Y")|gskdate : ''}}</td>
+                                <td>{{item.dateReview is defined and item.dateReview is not null ? item.dateReview|date("d/m/Y")|gskdate : ''}}</td>
                                 {% if extend %}
                                     <td>{{item.ownerName}}</td>
                                     <td>{{item.backupName}}</td>

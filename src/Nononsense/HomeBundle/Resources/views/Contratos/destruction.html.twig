@@ -89,8 +89,8 @@
                                     {% endif %}
                                 </td>
                                 <td>{{ item.dependsOn==0 ? item.name : item.name2 }}</td>
-                                <td>{{ item.created is defined ? item.created|date("d/m/Y H:i:s") : '' }}</td>
-                                <td>{{ item.modified is defined ? item.modified|date("d/m/Y H:i:s") : '' }}</td>
+                                <td>{{ item.created is defined ? item.created|date("d/m/Y H:i:s")|gskdate : '' }}</td>
+                                <td>{{ item.modified is defined ? item.modified|date("d/m/Y H:i:s")|gskdate : '' }}</td>
                                 
                                 <td>022</td>
                                 <td>25/10/2026</td>

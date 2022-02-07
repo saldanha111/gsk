@@ -73,8 +73,8 @@
                                 <td>{{item.typeName}}</td>
                                 <td>{{item.name}}</td>
                                 <td>{{item.sustituteName}}</td>
-                                <td>{{ item.created is defined and item.created is not empty ? item.created|date("d/m/Y H:i:s") : '' }}</td>
-                                <td>{{ item.deleted is defined and item.deleted is not empty ? item.deleted|date("d/m/Y H:i:s") : '' }}</td>
+                                <td>{{ item.created is defined and item.created is not empty ? item.created|date("d/m/Y H:i:s")|gskdate : '' }}</td>
+                                <td>{{ item.deleted is defined and item.deleted is not empty ? item.deleted|date("d/m/Y H:i:s")|gskdate : '' }}</td>
                                 <td>
                                     {% if item.deleted is not defined or item.deleted is empty %}
                                         <a href="javascript:delegation_delete({{ item.id }})" class="btn btn-xs" target="_self"><i class="fa fa-trash" aria-hidden="true"></i> Cancelar</a>

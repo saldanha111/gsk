@@ -16,8 +16,8 @@
                 <td>{{item.id_reg}}</td>
                 <td>{{item.name}}</td>
                 <td>{{item.creator}}</td>
-                <td>{{item.created is defined and item.created is not empty ? item.created|date("d/m/Y H:i:s") : '' }}</td>
-                <td>{{item.modified is defined and item.modified is not empty  ? item.modified|date("d/m/Y H:i:s") : '' }}</td>
+                <td>{{item.created is defined and item.created is not empty ? item.created|date("d/m/Y H:i:s")|gskdate : '' }}</td>
+                <td>{{item.modified is defined and item.modified is not empty  ? item.modified|date("d/m/Y H:i:s")|gskdate : '' }}</td>
                 <td>{{item.accion|capitalize}}</td>
                 <td>{{item.formatDuration}}</td>
             </tr>
