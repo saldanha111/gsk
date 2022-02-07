@@ -932,8 +932,8 @@ class CVCumplimentationController extends Controller
                     ->setCellValue('B'.$i, $item["name"])
                     ->setCellValue('C'.$i, $item["area"])
                     ->setCellValue('D'.$i, $item["creator"])
-                    ->setCellValue('E'.$i, ($item["created"]) ? $item["created"]->format('d/m/Y H:i:s') : '')
-                    ->setCellValue('F'.$i, ($item["modified"]) ? $item["modified"]->format('d/m/Y H:i:s') : '')
+                    ->setCellValue('E'.$i, ($item["created"]) ? $this->get('utilities')->sp_date($item["created"]->format('d/M/Y H:i:s')) : '')
+                    ->setCellValue('F'.$i, ($item["modified"]) ? $this->get('utilities')->sp_date($item["modified"]->format('d/m/Y H:i:s')) : '')
                     ->setCellValue('G'.$i, $item["state"]);
                 }
 
@@ -943,8 +943,8 @@ class CVCumplimentationController extends Controller
                         <td>'.$item["name"].'</td>
                         <td>'.$item["area"].'</td>
                         <td>'.$item["creator"].'</td>
-                        <td>'.(($item["created"]) ? $item["created"]->format('d/m/Y H:i:s') : '').'</td>
-                        <td>'.(($item["modified"]) ? $item["modified"]->format('d/m/Y H:i:s') : '').'</td>
+                        <td>'.(($item["created"]) ? $this->get('utilities')->sp_date($item["created"]->format('d/m/Y H:i:s')) : '').'</td>
+                        <td>'.(($item["modified"]) ? $this->get('utilities')->sp_date($item["modified"]->format('d/m/Y H:i:s')) : '').'</td>
                         <td>'.$item["state"].'</td>
                     </tr>';
                 }
@@ -1089,7 +1089,7 @@ class CVCumplimentationController extends Controller
                     ->setCellValue('A'.$i, $item->getRecord()->getId())
                     ->setCellValue('B'.$i, $item->getUser()->getName())
                     ->setCellValue('C'.$i, $item->getAction()->getName())
-                    ->setCellValue('D'.$i, ($item->getCreated()) ? $item->getCreated()->format('d/m/Y H:i:s') : '');
+                    ->setCellValue('D'.$i, ($item->getCreated()) ? $this->get('utilities')->sp_date($item->getCreated()->format('d/m/Y H:i:s')) : '');
 
                     $column=4;
                     $array_json=json_decode($histories[0]->getJson(),true);
@@ -1130,7 +1130,7 @@ class CVCumplimentationController extends Controller
                         <td>'.$item->getRecord()->getId().'</td>
                         <td>'.$item->getUser()->getName().'</td>
                         <td>'.$item->getAction()->getName().'</td>
-                        <td>'.(($item->getCreated()) ? $item->getCreated()->format('d/m/Y H:i:s') : '').'</td>';
+                        <td>'.(($item->getCreated()) ? $this->get('utilities')->sp_date($item->getCreated()->format('d/m/Y H:i:s')) : '').'</td>';
                     $array_json=json_decode($histories[0]->getJson(),true);
                     foreach($array_json["data"] as $key => $value){
                         if (strpos($key, 'in_') !== 0 && strpos($key, 'dxo_gsk_') !== 0 && strpos($key, 'gsk_comment_') !== 0) {

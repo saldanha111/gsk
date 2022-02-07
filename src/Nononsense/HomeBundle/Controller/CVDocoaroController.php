@@ -911,9 +911,9 @@ class CVDocoaroController extends Controller
                     }
 
                     $fullText.='<td>'.$element["creator"].'</td>
-                                <td>'.$element["created"]->format('d/m/Y H:i:s').'</td>
+                                <td>'.$this->get('utilities')->sp_date($element["created"]->format('d/m/Y H:i:s')).'</td>
                                 <td>'.$element["state"].'</td>
-                                <td>'.$element["modified"]->format('d/m/Y H:i:s').'</td></tr>';
+                                <td>'.$this->get('utilities')->sp_date($element["modified"]->format('d/m/Y H:i:s')).'</td></tr>';
 
                 }   
                 $fullText.='</table>';

@@ -195,6 +195,12 @@ class Utilities{
         $pdf->Output($filename.".pdf",'I'); // This will output the PDF as a response directly
     }
 
+    public function sp_date($date){
+        $before = array("/01/", "/02/", "/03/", "/04/", "/05/", "/06/", "/07/", "/08/", "/09/", "/10/", "/11/", "/12/");
+        $after = array("/Enero/","/Febrero/","/Marzo/","/Abril/","/Mayo/","/Junio/","/Julio/","/Agosto/","/Septiembre/","/Octubre/","/Noviembre/","/Diciembre/");
+        return str_replace($before, $after, $date);
+    }
+
     public function wich_wf($record,$user){
         if(is_int($record)){
             $record = $this->em->getRepository('NononsenseHomeBundle:CVRecords')->findOneBy(array("id" => $record));

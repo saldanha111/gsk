@@ -367,7 +367,7 @@ class ProductsController extends Controller
                 $minStockEdited = $this->editMinStock($request->get('stockMinimum'), $product);
                 if($minStockEdited){
                     $now = new DateTime();
-                    $signature = 'Modificación de stock mínimo registrado con contraseña de usuario ' . $this->getUser()->getName() . ' el día ' . $now->format('d/m/Y H:i:s');
+                    $signature = 'Modificación de stock mínimo registrado con contraseña de usuario ' . $this->getUser()->getName() . ' el día ' . $this->get('utilities')->sp_date($now->format('d/m/Y H:i:s'));
                     $this->saveSignature(
                         $product,
                         $oldMinStock,
@@ -382,7 +382,7 @@ class ProductsController extends Controller
                     $stockEdited = $this->editStockMaterial((int) $request->get('stock'), $product, $request->get('observations'), false);
                     if($stockEdited){
                         $now = new DateTime();
-                        $signature = 'Modificación de stock registrado con contraseña de usuario ' . $this->getUser()->getName() . ' el día ' . $now->format('d/m/Y H:i:s');
+                        $signature = 'Modificación de stock registrado con contraseña de usuario ' . $this->getUser()->getName() . ' el día ' . $this->get('utilities')->sp_date($now->format('d/m/Y H:i:s'));
                         $this->saveSignature(
                             $product,
                             $oldStock,
@@ -403,7 +403,7 @@ class ProductsController extends Controller
                     $stockEdited = $this->editStockReactivo([$request->get('output')], $product);
                     if($stockEdited){
                         $now = new DateTime();
-                        $signature = 'Modificación de stock registrado con contraseña de usuario ' . $this->getUser()->getName() . ' el día ' . $now->format('d/m/Y H:i:s');
+                        $signature = 'Modificación de stock registrado con contraseña de usuario ' . $this->getUser()->getName() . ' el día ' . $this->get('utilities')->sp_date($now->format('d/m/Y H:i:s'));
                         $this->saveSignature(
                             $product,
                             $oldStock,
@@ -425,7 +425,7 @@ class ProductsController extends Controller
                 $activeEdited = $oldActive != $product->getActive();
                 if($activeEdited){
                     $now = new DateTime();
-                    $signature = 'Modificación del estado registrado con contraseña de usuario ' . $this->getUser()->getName() . ' el día ' . $now->format('d/m/Y H:i:s');
+                    $signature = 'Modificación del estado registrado con contraseña de usuario ' . $this->getUser()->getName() . ' el día ' . $this->get('utilities')->sp_date($now->format('d/m/Y H:i:s'));
                     $this->saveSignature(
                         $product,
                         (int) $oldActive,
@@ -1464,7 +1464,7 @@ class ProductsController extends Controller
 
         $i = 3;
         foreach ($items as $product) {
-            $destructionFormatted = ($product['destructionDate']) ? (new DateTime($product['destructionDate']))->format('d/m/Y') : '';
+            $destructionFormatted = ($product['destructionDate']) ? $this->get('utilities')->sp_date((new DateTime($product['destructionDate']))->format('d/m/Y')) : '';
             $phpExcelObject->getActiveSheet()
                 ->setCellValue('A' . $i, $product['productType'])
                 ->setCellValue('B' . $i, $product['productName'])
@@ -1522,7 +1522,7 @@ class ProductsController extends Controller
                             </tr>';
 
         foreach($items as $item) {
-            $destructionFormatted = ($item['destructionDate']) ? (new DateTime($item['destructionDate']))->format('d/m/Y') : '';
+            $destructionFormatted = ($item['destructionDate']) ? $this->get('utilities')->sp_date((new DateTime($item['destructionDate']))->format('d/m/Y')) : '';
             $productType = $item['productType'];
             $productName = $item['productName'];
             $qrCode = $item['qrCode'];
@@ -1614,7 +1614,7 @@ class ProductsController extends Controller
                     ->setCellValue('E' . $i, $item->getProduct()->getProvider())
                     ->setCellValue('F' . $i, $item->getProduct()->getPresentation())
                     ->setCellValue('G' . $i, $item->getAmount())
-                    ->setCellValue('H' . $i, $item->getReceptionDate()->format('d/m/Y H:i:s'))
+                    ->setCellValue('H' . $i, $this->get('utilities')->sp_date($item->getReceptionDate()->format('d/m/Y H:i:s')))
                     ->setCellValue('I' . $i, $item->getObservations())
                     ->setCellValue('J' . $i, $item->getUser()->getName());
             }else{
@@ -1625,7 +1625,7 @@ class ProductsController extends Controller
                     ->setCellValue('D' . $i, $item->getProduct()->getProvider())
                     ->setCellValue('E' . $i, $item->getProduct()->getPresentation())
                     ->setCellValue('F' . $i, $item->getAmount())
-                    ->setCellValue('G' . $i, $item->getReceptionDate()->format('d/m/Y H:i:s'))
+                    ->setCellValue('G' . $i, $this->get('utilities')->sp_date($item->getReceptionDate()->format('d/m/Y H:i:s')))
                     ->setCellValue('H' . $i, $item->getObservations())
                     ->setCellValue('I' . $i, $item->getUser()->getName());
             }
@@ -1681,7 +1681,7 @@ class ProductsController extends Controller
             $provider = $item->getProduct()->getProvider();
             $presentation = $item->getProduct()->getPresentation();
             $amount = $item->getAmount();
-            $receptionDate = $item->getReceptionDate()->format('d/m/Y H:i:s');
+            $receptionDate = $this->get('utilities')->sp_date($item->getReceptionDate()->format('d/m/Y H:i:s'));
             $observations = $item->getObservations();
             $user = $item->getUser()->getName();
             $html .= "
@@ -1737,7 +1737,7 @@ class ProductsController extends Controller
                 ->setCellValue('C' . $i, $item->getProductInput()->getProduct()->getPartNumber())
                 ->setCellValue('D' . $i, $item->getProductInput()->getProduct()->getName())
                 ->setCellValue('E' . $i, $item->getAmount())
-                ->setCellValue('F' . $i, $item->getDate()->format('d/m/Y H:i:s'))
+                ->setCellValue('F' . $i, $this->get('utilities')->sp_date($item->getDate()->format('d/m/Y H:i:s')))
                 ->setCellValue('G' . $i, $item->getUser()->getName());
 
             $i++;
