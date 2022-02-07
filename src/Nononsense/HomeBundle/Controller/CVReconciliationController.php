@@ -101,7 +101,7 @@ class CVReconciliationController extends Controller
 
                 $phpExcelObject->getProperties();
                 $phpExcelObject->setActiveSheetIndex(0)
-                 ->setCellValue('A1', "Reconciliación ".$array_item["record"]->getId()." - Código: ".$array_item["record"]->getTemplate()->getNumber()." - Título: ".$array_item["record"]->getTemplate()->getName()." - Edición: ".$array_item["record"]->getTemplate()->getNumEdition()." - ".$user->getUsername()." - ".date("d/m/Y H:i:s"));
+                 ->setCellValue('A1', "Reconciliación ".$array_item["record"]->getId()." - Código: ".$array_item["record"]->getTemplate()->getNumber()." - Título: ".$array_item["record"]->getTemplate()->getName()." - Edición: ".$array_item["record"]->getTemplate()->getNumEdition()." - ".$user->getUsername()." - ".$this->get('utilities')->sp_date(date("d/m/Y H:i:s")));
                  $phpExcelObject->setActiveSheetIndex()
                  ->setCellValue('A2', 'Id')
                  ->setCellValue('B2', 'Area')

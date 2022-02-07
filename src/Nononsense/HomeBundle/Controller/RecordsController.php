@@ -138,7 +138,7 @@ class RecordsController extends Controller
 
                 $phpExcelObject->getProperties();
                 $phpExcelObject->setActiveSheetIndex(0)
-                 ->setCellValue('A1', "Listado de documentos - ".$user->getUsername()." - ".date("d/m/Y H:i:s"));
+                 ->setCellValue('A1', "Listado de documentos - ".$user->getUsername()." - ".$this->get('utilities')->sp_date(date("d/m/Y H:i:s")));
 
                  $phpExcelObject->setActiveSheetIndex()
                  ->setCellValue('A2', 'Nº')

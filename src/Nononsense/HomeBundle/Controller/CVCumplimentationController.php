@@ -900,7 +900,7 @@ class CVCumplimentationController extends Controller
 
                 $phpExcelObject->getProperties();
                 $phpExcelObject->setActiveSheetIndex(0)
-                 ->setCellValue('A1', $desc_pdf." - ".$user->getUsername()." - ".date("d/m/Y H:i:s"));
+                 ->setCellValue('A1', $desc_pdf." - ".$user->getUsername()." - ".$this->get('utilities')->sp_date(date("d/m/Y H:i:s")));
                 $phpExcelObject->setActiveSheetIndex()
                  ->setCellValue('A2', 'Nº')
                  ->setCellValue('B2', 'Nombre')
@@ -1034,7 +1034,7 @@ class CVCumplimentationController extends Controller
 
                 $phpExcelObject->getProperties();
                 $phpExcelObject->setActiveSheetIndex(0)
-                 ->setCellValue('A1', "Buscador de contenido - ".$user->getUsername()." - ".date("d/m/Y H:i:s"));
+                 ->setCellValue('A1', "Buscador de contenido - ".$user->getUsername()." - ".$this->get('utilities')->sp_date(date("d/m/Y H:i:s")));
                 $phpExcelObject->setActiveSheetIndex()
                  ->setCellValue('A2', 'Nº')
                  ->setCellValue('B2', 'Usuario')
