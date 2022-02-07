@@ -104,6 +104,27 @@ class CVSignatures
     protected $justification;
 
     /**
+     * @var string 
+     *
+     * @ORM\Column(name="field_justific_modific", type="string", nullable=true)
+     */
+    protected $fieldJustificModific;
+
+    /**
+     * @var string 
+     *
+     * @ORM\Column(name="field_justific_manual", type="string", nullable=true)
+     */
+    protected $fieldJustificManual;
+
+    /**
+     * @var string 
+     *
+     * @ORM\Column(name="field_justific_return", type="string", nullable=true)
+     */
+    protected $fieldJustificReturn;
+
+    /**
      * @var boolean 
      *
      * @ORM\Column(name="manual_fill", type="boolean",  options={"default" = false}, nullable=true)
@@ -828,5 +849,74 @@ class CVSignatures
     public function getJsonInfo()
     {
         return $this->jsonInfo;
+    }
+
+    /**
+     * Set fieldJustificModific
+     *
+     * @param string $fieldJustificModific
+     * @return CVSignatures
+     */
+    public function setFieldJustificModific($fieldJustificModific)
+    {
+        $this->fieldJustificModific = $fieldJustificModific;
+
+        return $this;
+    }
+
+    /**
+     * Get fieldJustificModific
+     *
+     * @return string 
+     */
+    public function getFieldJustificModific()
+    {
+        return $this->fieldJustificModific;
+    }
+
+    /**
+     * Set fieldJustificManual
+     *
+     * @param string $fieldJustificManual
+     * @return CVSignatures
+     */
+    public function setFieldJustificManual($fieldJustificManual)
+    {
+        $this->fieldJustificManual = $fieldJustificManual;
+
+        return $this;
+    }
+
+    /**
+     * Get fieldJustificManual
+     *
+     * @return string 
+     */
+    public function getFieldJustificManual()
+    {
+        return $this->fieldJustificManual;
+    }
+
+    /**
+     * Set fieldJustificReturn
+     *
+     * @param string $fieldJustificReturn
+     * @return CVSignatures
+     */
+    public function setFieldJustificReturn($fieldJustificReturn)
+    {
+        $this->fieldJustificReturn = $fieldJustificReturn;
+
+        return $this;
+    }
+
+    /**
+     * Get fieldJustificReturn
+     *
+     * @return string 
+     */
+    public function getFieldJustificReturn()
+    {
+        return $this->fieldJustificReturn;
     }
 }

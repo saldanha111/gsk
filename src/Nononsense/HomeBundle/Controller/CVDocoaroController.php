@@ -675,17 +675,17 @@ class CVDocoaroController extends Controller
 
                 /* Añadimos descripciones de modificaciones o inputación manual que han sido descritas campo por campo */
                     if(array_key_exists("gsk_comment_description",$params["data"]) && $params["data"]["gsk_comment_description"]){
-                       $signature->setDescription($params["data"]["gsk_comment_description"]); 
+                       $signature->setFieldJustificModific($params["data"]["gsk_comment_description"]); 
                        $signature->setJustification(TRUE); 
                     }
 
                     if(array_key_exists("gsk_manual_description",$params["data"]) && $params["data"]["gsk_manual_description"]){
-                       $signature->setDescription($signature->getDescription().$params["data"]["gsk_manual_description"]);
+                       $signature->setFieldJustificManual($params["data"]["gsk_manual_description"]);
                        $signature->setManualFill(TRUE);  
                     }
 
                     if(array_key_exists("gsk_comment_no_cumple",$params["data"]) && $params["data"]["gsk_comment_no_cumple"]){
-                       $signature->setDescription($signature->getDescription().$params["data"]["gsk_comment_no_cumple"]);  
+                       $signature->setFieldJustificReturn($params["data"]["gsk_comment_no_cumple"]);  
                     }
 
                 /* */
@@ -812,6 +812,13 @@ class CVDocoaroController extends Controller
                         $action = $signature->getAction()->getName();
                         $comment .= '"'.$signature->getAction()->getDescription().'"';
                     }
+
+                    if(!$record->getState()->getFinal() || $audittrail){
+                        $comment .= $signature->getFieldJustificModific();
+                        $comment .= $signature->getFieldJustificManual();
+                        $comment .= $signature->getFieldJustificReturn();
+                    }
+
 
                     $fullText .= '<tr><td width="5%">' . $id . '</td><td colspan="6">'.$action.'</td></tr><tr><td width="5%"></td><td width="15%">' . $name . '<br>' . $date . '</td><td width="80%" colspan="4">'.$comment .'</td></tr>';
                     if($audittrail || $record->getState()->getId()==4){
