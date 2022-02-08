@@ -177,7 +177,7 @@ class Utilities{
 
 
     public function returnPDFResponseFromHTML($html,$title){
-        //$pdf = $this->container->get("white_october.tcpdf")->create('horizontal', PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+        ini_set('memory_limit', '-1');
         try{
             $pdf = new GskPdf('horizontal', PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false, false, array());
             $pdf->setName($title." - ".$this->container->get('security.context')->getToken()->getUsername());
