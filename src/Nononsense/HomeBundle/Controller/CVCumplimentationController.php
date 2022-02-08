@@ -1140,12 +1140,12 @@ class CVCumplimentationController extends Controller
                                 if($value){
                                     if(is_array($value)){
                                         if(array_key_exists("value", $value)){
-                                            $html.='IMG';
+                                            $html.='<img src='.$value["value"].' style="width:50px">';
                                         }
                                         else{
                                             foreach($value as $key2=>$value2){
                                                 if(is_array($value2) && array_key_exists("value", $value2)){
-                                                    $html.='IMG - L'.$key2.'<br>';
+                                                    $html.='<img src='.$value2["value"].' style="width:50px"> - L'.$key2.'<br>';
                                                 }
                                                 else{ 
                                                     $html.=$value2.' - L'.$key2.'<br>';
