@@ -178,21 +178,30 @@ class Utilities{
 
     public function returnPDFResponseFromHTML($html,$title){
         //$pdf = $this->container->get("white_october.tcpdf")->create('horizontal', PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
-        $pdf = new GskPdf('horizontal', PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false, false, array());
-        $pdf->setName($title." - ".$this->container->get('security.context')->getToken()->getUsername());
-        $pdf->SetAuthor('GSK');
-        $pdf->SetTitle(('Registros GSK'));
-        $pdf->SetSubject('Registros GSK');
-        $pdf->setFontSubsetting(true);
+        try{
+            $pdf = new GskPdf('horizontal', PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false, false, array());
+            $pdf->setName($title." - ".$this->container->get('security.context')->getToken()->getUsername());
+            $pdf->SetAuthor('GSK');
+            $pdf->SetTitle(('Registros GSK'));
+            $pdf->SetSubject('Registros GSK');
+            $pdf->setFontSubsetting(true);
 
-        $pdf->SetHeaderData(NULL, NULL, date("d/m/Y H:i:s"),NULL, array(0,0,0), array(0,0,0));
-        $pdf->SetPrintHeader(true);
-        $pdf->SetPrintFooter(true);
-        $pdf->SetFont('helvetica', '', 9, '', true);
-        $pdf->AddPage('L', 'A4');
-        $filename = 'list_records';
-        $pdf->writeHTMLCell($w = 0, $h = 0, $x = '', $y = '', $html, $border = 0, $ln = 1, $fill = 0, $reseth = true, $align = '', $autopadding = true);
-        $pdf->Output($filename.".pdf",'I'); // This will output the PDF as a response directly
+            $pdf->SetHeaderData(NULL, NULL, date("d/m/Y H:i:s"),NULL, array(0,0,0), array(0,0,0));
+            $pdf->SetPrintHeader(true);
+            $pdf->SetPrintFooter(true);
+            $pdf->SetFont('helvetica', '', 9, '', true);
+            $pdf->AddPage('L', 'A4');
+            $filename = 'list_records';
+            $pdf->writeHTMLCell($w = 0, $h = 0, $x = '', $y = '', $html, $border = 0, $ln = 1, $fill = 0, $reseth = true, $align = '', $autopadding = true);
+            $pdf->Output($filename.".pdf",'I'); // This will output the PDF as a response directly
+        } catch (\Exception $e) {
+            $url=$this->container->get('router')->generate('nononsense_home_homepage');
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                    'Error al exportar a pdf, la cantidad de información que desea exportar es demasiada para el formato PDF.  Intentelo en formato Excel'
+            );
+            return $this->redirect($url);
+        }
     }
 
     public function sp_date($date){
