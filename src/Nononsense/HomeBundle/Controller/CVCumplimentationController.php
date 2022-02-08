@@ -1193,7 +1193,7 @@ class CVCumplimentationController extends Controller
                 $html.='</table></body></html>';
                 try{
                     $this->get('utilities')->returnPDFResponseFromHTML($html,"Buscador de contenido");
-                } catch (Exception $e) {
+                } catch (\Exception $e) {
                     $url=$this->container->get('router')->generate('nononsense_cv_content_search');
                     $this->get('session')->getFlashBag()->add(
                         'error',
