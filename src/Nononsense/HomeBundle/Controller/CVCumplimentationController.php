@@ -1191,7 +1191,16 @@ class CVCumplimentationController extends Controller
 
             if($request->get("export_pdf")){
                 $html.='</table></body></html>';
-                $this->get('utilities')->returnPDFResponseFromHTML($html,"Buscador de contenido");
+                try{
+                    $this->get('utilities')->returnPDFResponseFromHTML($html,"Buscador de contenido");
+                } catch (Exception $e) {
+                    $url=$this->container->get('router')->generate('nononsense_cv_content_search');
+                    $this->get('session')->getFlashBag()->add(
+                        'error',
+                            'Error al exportar a pdf, la cantidad de información que desea exportar es demasiada para el formato PDF.  Intentelo en formato Excel'
+                    );
+                    return $this->redirect($url);
+                }
             }
         }
 
