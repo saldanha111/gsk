@@ -119,9 +119,12 @@ class Utilities{
             $command = 'AutoFirma sign -i '.$path_document_to_sign.' -o '.$path_document_to_sign.' -store pkcs12:'.$p12Path.' -filter cualquiertexto -password '.$p12Pass;
             $result = shell_exec($command);
             if(strpos($result,'La operacion ha terminado correctamente') === false){
+                $this->get('utilities')->sendNotification('sergio.saldana@nodalblock.com', false, false, false, 'Error Al firmar el contrato', $result);
+                $this->logger->error("Utilities->signWithP12: ".$result);
                 return false;
             }
         } catch(\Exception $ex){
+            $this->get('utilities')->sendNotification('sergio.saldana@nodalblock.com', false, false, false, 'Error Al firmar el contrato', $ex->getMessage());
             $this->logger->error("Utilities->signWithP12: ".$ex->getCode().": ".$ex->getMessage());
             return false;
         }
