@@ -20,6 +20,11 @@ var udateTime = function() {
     ];
 
     document.getElementById('weekDay').textContent = weekDays[weekDay];
+
+    if (day < 10) {
+        day = "0" + day;
+    }
+
     document.getElementById('day').textContent = day;
     
     const months = [
@@ -52,7 +57,15 @@ var udateTime = function() {
 
     document.getElementById('minutes').textContent = minutes;
     document.getElementById('seconds').textContent = seconds;
-    document.getElementById('gmt').textContent = currentDate.toString().match(/([A-Z]+[\+-][0-9]+)/)[1];
+    var gmt = currentDate.getTimezoneOffset()/-60;
+    if(gmt==0){
+        gmt="";
+    }
+    else{
+        gmt="+"+gmt;
+    }
+    document.getElementById('gmt').textContent = "GMT "+gmt;
+    //document.getElementById('gmt').textContent = currentDate.toString().match(/([A-Z]+[\+-][0-9]+)/)[1];
 };
 
 udateTime();

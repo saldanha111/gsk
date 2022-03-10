@@ -345,6 +345,7 @@ class TemplateManagementRequestController extends Controller
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST,"POST");
         curl_setopt($ch, CURLOPT_HTTPHEADER,array("Api-Key: ".$this->getParameter('api_key_docoaro')));
         curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, array("name" => $number.": ".$name)); 
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); 
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         $raw_response = curl_exec($ch);
