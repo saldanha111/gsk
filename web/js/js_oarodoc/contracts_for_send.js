@@ -1,4 +1,9 @@
 $( document ).ready(function() {
+	$("span.view_date").each(function( index ) {
+		custom_date=$(this).html().toUpperCase();
+		custom_date=custom_date.replace(/\.\//,"/");
+		$(this).html(custom_date);
+	});
 	$("#btn_save").hide();
 	$("#btn_cancel").hide();
 	$("#btn_save_partial").hide();

@@ -11,6 +11,12 @@ $( document ).ready(function() {
 	$("#btn_save_partial").attr('id','btn_pre_save_partial');
 	$('#btn_save').hide();
 
+	$("span.view_date").each(function( index ) {
+		custom_date=$(this).html().toUpperCase();
+		custom_date=custom_date.replace(/\.\//,"/");
+		$(this).html(custom_date);
+	});
+
 	$('#form_fill').on('keyup change paste', 'input:not(:disabled):not([readonly]), select:not(:disabled):not([readonly]), textarea:not(:disabled):not([readonly])', function(){
 		$("#btn_custom_close").addClass("disabled");
 		$("#btn_cancel").removeClass("disabled");

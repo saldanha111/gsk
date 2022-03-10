@@ -6,6 +6,12 @@ $( document ).ready(function() {
     $("#btn_save").html('<i class="fa fa-send-o"></i> Enviar y firmar');
     $("#btn_save_partial").html('<i class="fa fa-save"></i> Guardar y firmar');
 
+    $("span.view_date").each(function( index ) {
+        custom_date=$(this).html().toUpperCase();
+        custom_date=custom_date.replace(/\.\//,"/");
+        $(this).html(custom_date);
+    });
+
     //$('input[name ="gsk_comment"]').remove();
     $('#form_fill').on('keyup change paste', 'input:not(:disabled):not([readonly]), select:not(:disabled):not([readonly]), textarea:not(:disabled):not([readonly])', function(){
         $("#btn_custom_close").addClass("disabled");

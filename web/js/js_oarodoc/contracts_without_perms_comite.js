@@ -1,4 +1,9 @@
 $( document ).ready(function() {
+	$("span.view_date").each(function( index ) {
+		custom_date=$(this).html().toUpperCase();
+		custom_date=custom_date.replace(/\.\//,"/");
+		$(this).html(custom_date);
+	});
 	$("#btn_save").hide();
 	$("#btn_save_partial").hide();
 	// importante que este vaya antes que el display none, si no, no se oculta ninguna
