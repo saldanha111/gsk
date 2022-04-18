@@ -189,6 +189,9 @@
                             hide_loader();
                             let datos = JSON.parse(response.responseText);
                             if(datos.status === 200){
+                                if(datos.data.cleanDate != 'undefined'){
+                                    $('input[name="cleanDate"]').val(datos.data.cleanDate);
+                                }
                                 $('input[name="expirationDate"]').val(datos.data.expirationDate);
                                 if(datos.data.otherName){
                                     showOtherInput();

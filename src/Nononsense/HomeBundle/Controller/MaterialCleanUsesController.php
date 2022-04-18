@@ -83,10 +83,10 @@ class MaterialCleanUsesController extends Controller
             'center' => $materialCleanClean->getCenter(),
             'material' => $materialCleanClean->getMaterial(),
             'lotCode' => $po,
-            'cleanDate' => ($materialCleanClean->getCleanDate())->format('d-m-Y'),
-            'cleanExpirationDate' => ($materialCleanClean->getCleanExpiredDate())->format('d-m-Y'),
+            'cleanDate' => ($materialCleanClean->getCleanDate())->format('d-m-Y H:i:s'),
+            'cleanExpirationDate' => ($materialCleanClean->getCleanExpiredDate())->format('d-m-Y H:i:s'),
             'cleanUser' => $materialCleanClean->getCleanUser(),
-            'usesDate' => (new DateTime())->format('d-m-Y'),
+            'usesDate' => (new DateTime())->format('d-m-Y H:i:s'),
             'error' => $error
         ];
 
@@ -177,9 +177,7 @@ class MaterialCleanUsesController extends Controller
     {
         $now = new DateTime();
         $expirationDate = $materialCleanClean->getCleanExpiredDate();
-        $interval = $now->diff($expirationDate);
-
-        return ($interval->format('%a') > 0 && $interval->invert);
+        return ($expirationDate < $now);
     }
 
     /**

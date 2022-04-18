@@ -65,8 +65,8 @@ class MaterialCleanCleansController extends Controller
         );
         $array_item['code'] = $barcode;
         $array_item['materialCleanCode'] = $materialCleanCode;
-        $array_item['cleanDate'] = $cleanDate->format('d-m-Y');
-        $array_item['expirationDate'] = ($expirationDate instanceof DateTime) ? $expirationDate->format('d-m-Y') : '';
+        $array_item['cleanDate'] = $cleanDate->format('d-m-Y H:i:s');
+        $array_item['expirationDate'] = ($expirationDate instanceof DateTime) ? $expirationDate->format('d-m-Y H:i:s') : '';
         $array_item['materialsUrl'] = $this->generateUrl('nononsense_mclean_get_material_by_center_json', ['id' => 'xxx']);
 
         return $this->render('NononsenseHomeBundle:MaterialClean:cleans_view.html.twig', $array_item);

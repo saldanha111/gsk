@@ -161,8 +161,9 @@ class MaterialCleanMaterialsController extends Controller
                 $otherName = $materialInput->getOtherName();
                 $additionalInfo = $materialInput->getAdditionalInfo();
 
+                $data['cleanDate'] = (new DateTime())->format('d-m-Y H:i:s');
                 $data['expirationDays'] = $expirationDays;
-                $data['expirationDate'] = $expirationDate->format('d-m-Y');
+                $data['expirationDate'] = $expirationDate->format('d-m-Y H:i:s');
                 $data['otherName'] = $otherName;
                 $data['additionalInfo'] = $additionalInfo;
                 $status = 200;
