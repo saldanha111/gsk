@@ -280,7 +280,8 @@
                 cancelButtonColor: '#ac2925',
                 confirmButtonText: "Guardar",
                 cancelButtonText: "Cancelar",
-                closeOnConfirm: false
+                closeOnConfirm: false,
+                showLoaderOnConfirm: true,
             }, function (password) {
                 if(password !== false && password !== ''){
                     $.ajax({
