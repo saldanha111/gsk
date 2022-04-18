@@ -1,0 +1,75 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+ARIA 1.0//EN" "http://www.w3.org/WAI/ARIA/schemata/xhtml-aria-1.dtd">
+<html lang="es" xml:lang="es" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge"/>
+    <title>Firma Contrato</title>
+    <script type="text/javascript" src="{{ asset('bundles/nononsensehome/sign_contract_public/jquery-1.9.0.min.js') }}"></script>
+    <link rel="stylesheet" href="{{ asset('bundles/nononsensehome/sign_contract_public/signature-pad.css?time=' ~ time) }}">
+    <link rel="stylesheet" href="{{ asset('bundles/nononsensehome/sign_contract_public/bootstrap.css?time=' ~ time) }}">
+    <link rel="stylesheet" href="{{ asset('bundles/nononsensehome/sign_contract_public/sweetalert.min.css?time=' ~ time) }}">
+    <link rel="stylesheet" href="{{ asset('bundles/nononsensehome/web/viewer.css?time=' ~ time) }}">
+    <link rel="stylesheet" href="{{ asset('bundles/nononsensehome/css/loader-generic.css?time=' ~ time) }}">
+    <style type="text/css">
+        body{
+            font-family: "Helvetica Neue", "Helvetica", "Lucida Grande", Arial, "Ubuntu", "Cantarell", "Fira Sans", sans-serif;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+        }
+        .div_result{
+            width: 80%;
+            margin: 0 auto;
+            text-align: center;
+            margin-top: 10px;
+            font-size: 22px;
+        }
+        .div_link{
+            width: 80%;
+            margin: 0 auto;
+            text-align: center;
+            margin-top: 10px;
+            font-size: 22px;
+            height: 800px;
+            background-color:#f1f1f1;
+        }
+        .footer{
+            background: none repeat scroll 0 0 white;
+            border-top: 1px solid #e7eaec;
+            padding: 10px 20px;
+            text-align: right;
+            width: 100%;
+        }
+
+        .footer-wrapper{
+            padding-top:80px;
+        }
+
+    </style>
+</head>
+
+<body>
+<div style="float: left; width: 100%; height: 120px;">
+    <div style="width: 100%; height: 100%;">
+        <div style="display: table; height: 100%; margin-left: 10%;">
+            <div style="display: table-cell; vertical-align: middle;">
+                <img src="/img/logo-gsk.png">
+            </div>
+        </div>
+    </div>
+    <div class='div_link'>
+        <h2 style="font-size: 34px; padding-top: 100px;"> El enlace del contrato ha caducado </h2>
+    </div>
+    <div class="footer-wrapper">
+        <div class="footer">
+            <div>
+                <strong>Copyright</strong> No-nonsense Labs ©  
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+
+<script>
+</script>
+
+</html>

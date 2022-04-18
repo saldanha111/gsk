@@ -1194,7 +1194,7 @@ class RecordsContractsController extends Controller
 
             return $this->render('NononsenseHomeBundle:Contratos:sign_contract.html.twig', $array_data);
         }
-        throw new Exception("Contrato no existente", 1);
+        return $this->render('NononsenseHomeBundle:Contratos:sign_contract_expired.html.twig', ['time' => time()]);
     }
 
     /**
