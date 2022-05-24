@@ -257,7 +257,6 @@ class CertificationController extends Controller
                 header('Cache-Control: must-revalidate');
                 header('Pragma: public');
                 header('Content-Length: ' . filesize($fileName));
-                die("después de headers");
                 readfile($fileName);
             }
         }
