@@ -176,7 +176,7 @@ class Utilities{
     }
 
 
-    public function returnPDFResponseFromHTML($html,$title){
+    public function returnPDFResponseFromHTML($html,$title, string $filename = 'list_records'){
         ini_set('memory_limit', '-1');
         try{
             $pdf = new GskPdf('horizontal', PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false, false, array());
