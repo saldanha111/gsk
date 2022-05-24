@@ -244,7 +244,6 @@ class CertificationController extends Controller
             $httpCode = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
             if ($httpCode === 200) {
-                return new JsonResponse(["code" => "fue 200"]);
                 $json = json_decode($raw_response, TRUE);
                 $data = $json["data"];
                 die($data);
