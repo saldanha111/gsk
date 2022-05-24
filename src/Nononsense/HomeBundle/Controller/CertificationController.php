@@ -241,7 +241,7 @@ class CertificationController extends Controller
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
             $raw_response = curl_exec($ch);
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $httpCode = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
             if ($httpCode === 200) {
                 return new JsonResponse(["code" => "fue 200"]);
