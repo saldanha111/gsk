@@ -257,6 +257,8 @@ class CertificationController extends Controller
                     header('Content-Length: ' . filesize($fileName));
                     readfile($fileName);
                 }
+            } else {
+                return $raw_response;
             }
         }
     }
