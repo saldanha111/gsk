@@ -220,13 +220,14 @@ class CertificationController extends Controller
     /**
      * @throws Exception
      */
-    public function downloadCertificatesAction(string $hash){
+    public function downloadCertificatesAction(string $hash)
+    {
 
         if (!$this->isAllowed('crt_gestion')) return $this->redirect($this->generateUrl('nononsense_home_homepage'));
 
-        $url 	= $this->getParameter('api3.url').'/hash/' . $hash . "/certificate";
+        $url = $this->getParameter('api3.url') . '/hash/' . $hash . "/certificate";
         $header = [
-            'apiKey:'.$this->getParameter('api3.key'),
+            'apiKey:' . $this->getParameter('api3.key'),
             "accept:" => "application/pdf"
         ];
 
@@ -246,12 +247,12 @@ class CertificationController extends Controller
                 $json = json_decode($raw_response, TRUE);
                 $data = $json["data"];
                 $decoded = base64_decode($data["file_base64"]);
-                 $fileName = $data["file_name"];
+                $fileName = $data["file_name"];
                 file_put_contents($fileName, $decoded);
-                if (file_exists($fileName)){
+                if (file_exists($fileName)) {
                     header('Content-Description: File Transfer');
                     header('Content-Type: application/octet-stream');
-                    header('Content-Disposition: attachment; filename="'.basename($fileName).'"');
+                    header('Content-Disposition: attachment; filename="' . basename($fileName) . '"');
                     header('Expires: 0');
                     header('Cache-Control: must-revalidate');
                     header('Pragma: public');
@@ -260,7 +261,7 @@ class CertificationController extends Controller
                 }
             }
         }
-        return new JsonResponse(["msg" => "Has was not provided"]);
-    }
 
+        return $this->redirectToRoute("nononsense_certifications_list");
+    }
 }
