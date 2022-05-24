@@ -7,6 +7,7 @@ use Nononsense\HomeBundle\Entity\CertificationsRepository;
 use Nononsense\HomeBundle\Entity\CertificationsType;
 use Nononsense\HomeBundle\Utils\FiltersUtils;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Nononsense\HomeBundle\Entity\Certifications;
@@ -257,10 +258,9 @@ class CertificationController extends Controller
                     header('Content-Length: ' . filesize($fileName));
                     readfile($fileName);
                 }
-            } else {
-                return $raw_response;
             }
         }
+        return new JsonResponse(["msg" => "Has was not provided"]);
     }
 
 }
