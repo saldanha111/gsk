@@ -242,23 +242,20 @@ class CertificationController extends Controller
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
             $raw_response = curl_exec($ch);
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
             if ($httpCode === 200) {
                 $json = json_decode($raw_response, TRUE);
                 $data = $json["data"];
                 $decoded = base64_decode($data["file_base64"]);
                 $fileName = $data["file_name"];
                 file_put_contents($fileName, $decoded);
-                if (file_exists($fileName)) {
-                    header('Content-Description: File Transfer');
-                    header('Content-Type: application/octet-stream');
-                    header('Content-Disposition: attachment; filename="' . basename($fileName) . '"');
-                    header('Expires: 0');
-                    header('Cache-Control: must-revalidate');
-                    header('Pragma: public');
-                    header('Content-Length: ' . filesize($fileName));
-                    readfile($fileName);
-                }
+                header('Content-Description: File Transfer');
+                header('Content-Type: application/octet-stream');
+                header('Content-Disposition: attachment; filename="' . basename($fileName) . '"');
+                header('Expires: 0');
+                header('Cache-Control: must-revalidate');
+                header('Pragma: public');
+                header('Content-Length: ' . filesize($fileName));
+                readfile($fileName);
             }
         }
 
