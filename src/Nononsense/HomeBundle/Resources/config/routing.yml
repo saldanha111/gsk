@@ -729,6 +729,10 @@ nononsense_certifications_download:
     path: /certifications/descargar/{id}
     defaults: { _controller: NononsenseHomeBundle:Certification:download}
 
+nononsense_certifications_download_certificates:
+    path: /certifications/descargar/certificates/{hash}
+    defaults: { _controller: NononsenseHomeBundle:Certification:downloadCertificates }
+
 
 # Delegations
 nononsense_delegations_list:
