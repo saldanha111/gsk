@@ -245,6 +245,7 @@ class CertificationController extends Controller
             if ($httpCode === 200) {
                 $json = json_decode($raw_response, TRUE);
                 $data = $json["data"];
+                die($data);
                 $decoded = base64_decode($data["file_base64"]);
                 $fileName = $data["file_name"];
                 file_put_contents($fileName, $decoded);
