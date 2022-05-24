@@ -6,7 +6,12 @@
 {% endblock %}
 {% block main_title %} Certificaciones{% endblock %}
 {% block content %}
-
+    {% for flashMessage in app.session.flashbag.get('error') %}
+        <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+            <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+            {{ flashMessage }}
+        </div>
+    {% endfor %}
     <div class="wrapper wrapper-content">
         <div class="row">
             <div class="col-sm-12">

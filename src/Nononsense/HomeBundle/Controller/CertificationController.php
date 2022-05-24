@@ -9,6 +9,7 @@ use Nononsense\HomeBundle\Utils\FiltersUtils;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Nononsense\HomeBundle\Entity\Certifications;
 use Nononsense\UtilsBundle\Classes\Utils;
@@ -246,22 +247,28 @@ class CertificationController extends Controller
             if ($httpCode === 200) {
                 $json = json_decode($raw_response, TRUE);
                 $data = $json["data"];
-                $decoded = base64_decode($data["file_base64"]);
-
                 $fileName = $data["file_name"];
-                file_put_contents($fileName, $decoded);
-                header('Content-Description: File Transfer');
-                header('Content-Type: application/octet-stream');
-                header('Content-Disposition: attachment; filename="' . basename($fileName) . '"');
-                header('Expires: 0');
-                header('Cache-Control: must-revalidate');
-                header('Pragma: public');
-                header('Content-Length: ' . filesize($fileName));
 
-                return readfile($fileName);
+                $pdf = base64_decode($data["file_base64"]);
+
+                $response = new Response($pdf);
+                $response->headers->set('Content-Type', 'application/octet-stream');
+                $response->headers->set('Content-Description','File Transfer');
+                $response->headers->set('Content-Disposition' ,'attachment; filename="' . basename($fileName) . '"');
+                $response->headers->set('Content-Length', strlen($pdf));
+                $response->headers->set('Cache-Control', 'no-cache private');
+
+                $response->sendHeaders();
+
+                return $response;
             }
         }
 
+        $this->get('session')->getFlashBag()->add(
+            'error',
+            "Hubo un error cuando se accedía al certificado"
+        );
         return $this->redirectToRoute("nononsense_certifications_list");
+
     }
 }
