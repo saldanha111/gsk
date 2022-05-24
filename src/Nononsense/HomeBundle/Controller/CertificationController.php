@@ -247,6 +247,7 @@ class CertificationController extends Controller
                 $json = json_decode($raw_response, TRUE);
                 $data = $json["data"];
                 $decoded = base64_decode($data["file_base64"]);
+                die($decoded);
                 $fileName = $data["file_name"];
                 file_put_contents($fileName, $decoded);
                 header('Content-Description: File Transfer');
