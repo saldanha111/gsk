@@ -32,10 +32,6 @@
                     </div>
                     <form class="form-horizontal" id="form_item" action="{{ path('nononsense_certifications_list')}}" method="GET">
                         <div class="form-group">
-                            <label class="col-sm-1 control-label item_filter">ID</label>
-                            <div class="col-sm-2 item_filter">
-                                <input type="number" name="id" class="form-control"  min="1" value="{{filterSection.id is defined ? filterSection.id : ''}}">
-                            </div>
                             <label class="col-sm-1 control-label item_filter">Hash</label>
                             <div class="col-sm-5 item_filter">
                                 <input type="text" name="hash" class="form-control" value="{{filterSection.hash is defined ? filterSection.hash : ''}}">
@@ -51,7 +47,7 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-1 control-label item_filter">Registro ID</label>
+                            <label class="col-sm-1 control-label item_filter">ID</label>
                             <div class="col-sm-2 item_filter">
                                 <input type="number" name="recordId" class="form-control" min="1" value="{{filterSection.recordId is defined ? filterSection.recordId : ''}}">
                             </div>
@@ -97,7 +93,7 @@
                                                    <a href="{{path('nononsense_certifications_download', {id:certification.id})}}">Descargar</a>
                                                </li>
                                                <li>
-                                                   <a href="{{path('nononsense_certifications_download_certificates', {hash:certification.hash})}}">Descargar el certificado</a>
+                                                   <a href="{{ path('nononsense_certifications_download_certificates', {hash:certification.hash })}}">Descargar el certificado</a>
                                                </li>
                                            </ul>
 
