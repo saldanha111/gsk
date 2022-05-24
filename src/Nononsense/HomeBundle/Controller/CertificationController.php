@@ -249,7 +249,6 @@ class CertificationController extends Controller
                 $decoded = base64_decode($data["file_base64"]);
 
                 $fileName = $data["file_name"];
-                die($decoded);
                 file_put_contents($fileName, $decoded);
                 header('Content-Description: File Transfer');
                 header('Content-Type: application/octet-stream');
@@ -258,6 +257,7 @@ class CertificationController extends Controller
                 header('Cache-Control: must-revalidate');
                 header('Pragma: public');
                 header('Content-Length: ' . filesize($fileName));
+                die("después de headers");
                 readfile($fileName);
             }
         }
