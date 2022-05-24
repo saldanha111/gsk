@@ -2,6 +2,7 @@
 
 namespace Nononsense\HomeBundle\Entity;
 
+use DateTime;
 use Doctrine\ORM\EntityRepository;
 
 /**
@@ -12,4 +13,73 @@ use Doctrine\ORM\EntityRepository;
  */
 class CertificationsRepository extends EntityRepository
 {
+    public function list($filters, $paginate=1)
+    {
+        $list = $this->createQueryBuilder('c')
+            ->select('c')
+            ->orderBy('c.id', 'DESC');
+
+        $list = self::fillFilersQuery($filters, $list);
+        if($paginate==1 && isset($filters["limit_from"])){
+            $list->setFirstResult($filters["limit_from"]*$filters["limit_many"])->setMaxResults($filters["limit_many"]);
+        }
+        $query = $list->getQuery();
+
+        return $query->getResult();
+    }
+
+    public function count($filters)
+    {
+        $list = $this->createQueryBuilder('c')
+            ->select('COUNT(c.id) as conta')
+            ->leftJoin("c.type", "t");
+
+        $list = self::fillFilersQuery($filters, $list);
+        $query = $list->getQuery();
+
+        return $query->getSingleResult()["conta"];
+    }
+
+    private function fillFilersQuery($filters, $list){
+        if(isset($filters["id"])){
+            $terms = explode(" ", $filters["id"]);
+            foreach($terms as $key => $term){
+                $list->andWhere('c.id  = :id');
+                $list->setParameter('id', $term);
+            }
+        }
+        if(isset($filters["hash"])){
+            $terms = explode(" ", $filters["hash"]);
+            foreach($terms as $key => $term){
+                $list->andWhere('c.hash LIKE :hash'.$key);
+                $list->setParameter('hash'.$key, '%' . $term. '%');
+            }
+        }
+        if(isset($filters["type"])){
+            $terms = explode(" ", $filters["type"]);
+            foreach($terms as $key => $term){
+                $list->andWhere('c.type  = :type');
+                $list->setParameter('type', $term);
+            }
+        }
+        if(isset($filters["recordId"])){
+            $terms = explode(" ", $filters["recordId"]);
+            foreach($terms as $key => $term){
+                $list->andWhere('c.recordId  = :recordId');
+                $list->setParameter('recordId', $term);
+            }
+        }
+        if(isset($filters["from"])){
+            $dateFrom = DateTime::createFromFormat('d-m-Y',$filters["from"]);
+            $list->andWhere('c.modified>=:from');
+            $list->setParameter('from', $dateFrom->format('Y-m-d'));
+        }
+        if(isset($filters["until"])){
+            $dateUntil = DateTime::createFromFormat('d-m-Y',$filters["until"]);
+            $list->andWhere('c.modified<=:until');
+            $list->setParameter('until', $dateUntil->format('Y-m-d')." 23:59:00");
+        }
+
+        return $list;
+    }
 }
