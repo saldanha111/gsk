@@ -258,7 +258,7 @@ class CertificationController extends Controller
                 header('Pragma: public');
                 header('Content-Length: ' . filesize($fileName));
 
-                readfile($fileName);
+                return readfile($fileName);
             }
         }
 
