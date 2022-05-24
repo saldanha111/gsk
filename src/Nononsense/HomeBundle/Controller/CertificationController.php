@@ -37,7 +37,7 @@ class CertificationController extends Controller
             $filters["limit_many"]=99999999999;
         }
 
-        $fields = ["id", "hash", "type", "recordId", "from", "until"];
+        $fields = ["hash", "type", "recordId", "from", "until"];
         FiltersUtils::requestToFilters($request, $filters, $fields);
 
         /** @var CertificationsRepository $certificationRepository */
@@ -160,11 +160,6 @@ class CertificationController extends Controller
         $html='<html><body style="font-size:8px;width:100%">';
         $sintax_head_f="<b>Filtros:</b><br>";
 
-        if($request->get("id")){
-            $html.=$sintax_head_f."Id => ".$request->get("id")."<br>";
-            $sintax_head_f="";
-        }
-
         if($request->get("hash")){
             $html.=$sintax_head_f."Hash => ".$request->get("hash")."<br>";
             $sintax_head_f="";
@@ -177,7 +172,7 @@ class CertificationController extends Controller
         }
 
         if($request->get("recordId")){
-            $html.=$sintax_head_f."Record Id => ".$request->get("recordId")."<br>";
+            $html.=$sintax_head_f."Id => ".$request->get("recordId")."<br>";
             $sintax_head_f="";
         }
 
@@ -197,7 +192,7 @@ class CertificationController extends Controller
                 <th style="font-size:8px;width:10%">Tipo</th>
                 <th style="font-size:8px;width:40%">Hash</th>
                 <th style="font-size:8px;width:40%">TX Hash</th>
-                <th style="font-size:8px;width:5%">Registro</th> 
+                <th style="font-size:8px;width:5%">ID</th> 
             </tr>';
 
         forEach($certifications as $certification){
@@ -250,7 +245,7 @@ class CertificationController extends Controller
                 $json = json_decode($raw_response, TRUE);
                 $data = $json["data"];
                 $decoded = base64_decode($data["file_base64"]);
-                $fileName = $data["file_name"];
+                 $fileName = $data["file_name"];
                 file_put_contents($fileName, $decoded);
                 if (file_exists($fileName)){
                     header('Content-Description: File Transfer');
