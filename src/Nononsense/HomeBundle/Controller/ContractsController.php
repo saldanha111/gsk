@@ -35,6 +35,7 @@ class ContractsController extends Controller
             $paginate = 1;
         } else {
             $paginate = 0;
+            $filters["limit_many"]=99999999999;
         }
 
         if ($request->get("name")) {
