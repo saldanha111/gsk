@@ -62,7 +62,7 @@
                         {% endif %}
                         {% if 'admin_gp' in array_subsecciones %}
                             <li id="pendientes_gestion_plantillas">
-                                <a href="{{path('nononsense_tm_templates')}}?state=5"><span class="nav-label">Pdt. configuración</span></a>
+                                <a href="{{path('nononsense_tm_templates')}}?state=5"><span class="nav-label">Pdt. <configura></configura>ción</span></a>
                             </li>
                         {% endif %}
                         {% if 'admin_gp' in array_subsecciones %}
@@ -323,7 +323,17 @@
                     </ul>
                 </li>
              {% endif %}
-
+            {% if 'qrs_gestion' in array_subsecciones
+                or 'areas_gestion' in array_subsecciones
+                or 'usuarios_gestion' in array_subsecciones
+                or 'grupos_gestion' in array_subsecciones
+                or 'delegations_gestion' in array_subsecciones
+                or 'notifications_gestion' in array_subsecciones
+            %}
+                <li id="notifications">
+                    <a href="{{path('nononsense_notifications_overview')}}"><i class="fa fa-certificate"></i> <span class="nav-label">Modelo de notificaciones</span></a>
+                </li>
+             {% endif %}
              {% if 'crt_gestion' in array_subsecciones %}
                 <li id="certifications">
                     <a href="{{path('nononsense_certifications_list')}}"><i class="fa fa-certificate"></i> <span class="nav-label">Certificados</span></a>
