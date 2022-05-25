@@ -133,4 +133,21 @@ class GroupsRepository extends EntityRepository
         return $groups->getQuery()->getArrayResult();
 
     }
+
+    /**
+     * List of groups for selects
+     *
+     * @return array
+     */
+    public function listGroupsForSelect()
+    {
+        $list = $this->createQueryBuilder('g');
+        $list->select('g.id, g.name')
+            ->where('g.isActive = :is_active')
+            ->setParameter('is_active', true);
+
+        $query = $list->getQuery();
+
+        return $query->getResult();
+    }
 }
