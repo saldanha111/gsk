@@ -4,6 +4,7 @@ namespace Nononsense\HomeBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
+use Nononsense\NotificationsBundle\Entity\NotificationsModels;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -324,7 +325,10 @@ class TMTemplates
      */
     protected $isReactive;
 
-
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\NotificationsBundle\Entity\NotificationsModels", mappedBy="templateId")
+     */
+    protected $notificationsModels;
 
 
     public function __construct()
@@ -1499,4 +1503,29 @@ class TMTemplates
     {
         return $this->diffEditionDays;
     }
+
+
+    /**
+     * Get notificationsModels
+     *
+     * @return NotificationsModels
+     */
+    public function getNotificationModels()
+    {
+        return $this->notificationsModels;
+    }
+
+    /**
+     * Set notificationsModels
+     *
+     * @param NotificationsModels $notificationsModels
+     * @return TMTemplates
+     */
+    public function setNotificationModels(NotificationsModels $notificationsModels)
+    {
+        $this->notificationsModels = $notificationsModels;
+
+        return $this;
+    }
+
 }
