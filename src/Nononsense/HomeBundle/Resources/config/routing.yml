@@ -761,3 +761,36 @@ nononsense_activity:
 nononsense_activity_templates:
     path: /graphics/general-templates
     defaults: { _controller: NononsenseHomeBundle:Activity:templates}
+
+# Notifications Models module
+nononsense_notifications_overview:
+    path:     /notifications/overview
+    defaults: { _controller: NononsenseHomeBundle:NotificationsModels:showOverview}
+
+nononsense_notifications_templates_creator:
+    path:     /notifications/templates/creator
+    defaults: { _controller: NononsenseHomeBundle:NotificationsModels:creator}
+
+nononsense_notifications_templates_creator_groups_json:
+    path:     /notifications/templates/creator/json/groups
+    defaults: { _controller: NononsenseHomeBundle:NotificationsModels:getGroups}
+
+nononsense_notifications_templates_creator_users_json:
+    path:     /notifications/templates/creator/json/users
+    defaults: { _controller: NononsenseHomeBundle:NotificationsModels:getUsers}
+
+nononsense_notifications_templates_notification_add:
+    path:     /notifications/templates/creator/notification/add
+    defaults: { _controller: NononsenseHomeBundle:NotificationsModels:addNotification}
+
+nononsense_notifications_templates_notification_list:
+    path:     /notifications/templates/creator/notification/list
+    defaults: { _controller: NononsenseHomeBundle:NotificationsModels:listNotification}
+
+nononsense_notifications_templates_notification_remove:
+    path:     /notifications/templates/creator/notification/remove
+    defaults: { _controller: NononsenseHomeBundle:NotificationsModels:removeNotification}
+
+nononsense_notifications_templates_notification_detail:
+    path:     /notifications/templates/creator/notification/detail
+    defaults: { _controller: NononsenseHomeBundle:NotificationsModels:detailNotification}
