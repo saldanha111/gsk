@@ -56,7 +56,6 @@ class UsersRepository extends EntityRepository
     /**
      * Gest user names and ids
      *
-     * @return Paginator
      */
     public function getUserNames()
     {
