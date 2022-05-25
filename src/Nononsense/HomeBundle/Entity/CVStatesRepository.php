@@ -12,5 +12,14 @@ use Doctrine\ORM\EntityRepository;
  */
 class CVStatesRepository extends EntityRepository
 {
-	
+    public function list()
+    {
+        $list = $this->createQueryBuilder('c')
+            ->select('c.id, c.name')
+            ->orderBy('c.id', 'DESC');
+
+        $query = $list->getQuery();
+
+        return $query->getResult();
+    }
 }
