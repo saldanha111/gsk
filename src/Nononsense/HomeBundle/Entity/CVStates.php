@@ -4,6 +4,7 @@ namespace Nononsense\HomeBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
+use Nononsense\NotificationsBundle\Entity\NotificationsModels;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Serializer\Annotation\Groups;
 
@@ -100,6 +101,11 @@ class CVStates
      * @ORM\Column(name="name_alternative_reconc", type="string", length=255,  nullable=true)
      */
     protected $nameAlternativeReconc;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\NotificationsBundle\Entity\NotificationsModels", mappedBy="state")
+     */
+    protected $notificationsModels;
 
     public function __construct()
     {
@@ -448,4 +454,25 @@ class CVStates
     {
         return $this->jumpState;
     }
+
+    /**
+     * @return NotificationsModels
+     */
+    public function getNotificationsModels()
+    {
+        return $this->notificationsModels;
+    }
+
+    /**
+     * @param NotificationsModels $notificationsModels
+     * @return CVStates
+     */
+    public function setNotificationsModels(NotificationsModels $notificationsModels)
+    {
+        $this->notificationsModels = $notificationsModels;
+
+        return $this;
+    }
+
+
 }
