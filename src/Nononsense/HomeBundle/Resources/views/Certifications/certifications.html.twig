@@ -16,25 +16,6 @@
         <div class="row">
             <div class="col-sm-12">
                 <div>
-                    <div class="row">
-                        {% for flashMessage in app.session.flashbag.get('error') %}
-                            <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
-                                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
-                                {{ flashMessage }}
-                            </div>
-                            <br>
-                        {% endfor %}
-                        {% for flashMessage in app.session.flashbag.get('message') %}
-                            <div class="alert alert-success alert-dismissable" style="margin: 10px 16px 0 16px">
-                                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
-                                {{ flashMessage }}
-                            </div>
-                            <br>
-                        {% endfor %}
-                        <form class="form-horizontal" id="form_item" method="GET">
-                            
-                        </form>
-                    </div>
                     <form class="form-horizontal" id="form_item" action="{{ path('nononsense_certifications_list')}}" method="GET">
                         <div class="form-group">
                             <label class="col-sm-1 control-label item_filter">Hash</label>
