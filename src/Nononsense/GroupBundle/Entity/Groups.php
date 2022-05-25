@@ -137,7 +137,12 @@ class Groups
     /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\SpecificGroups", mappedBy="group")
      */
-    protected $specificGroups;  
+    protected $specificGroups;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\NotificationsBundle\Entity\NotificationsModels", mappedBy="group")
+     */
+    protected $notificationsModels;
 
     /**
      * Get id
