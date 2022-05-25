@@ -33,9 +33,11 @@ class NotificationsModelsController extends Controller
 
         return $this->render('NononsenseHomeBundle:NotificationsModels:notifications_models_management.html.twig',
             [
-                "finder" => [
-                    "statuses" => $this->statusFinder()
-                ]
+                "finder" =>
+                    [
+                        "statuses" => $this->statusFinder()
+                    ]
+                ,"list" => $this->getNotificationList()
             ]
         );
 
@@ -68,10 +70,11 @@ class NotificationsModelsController extends Controller
                 "finder" => [
                     "statuses" => $this->statusFinder()
                     , "filter" => $filters
-                ],
-                "data" => [
+                ]
+                ,"data" => [
                     "template" => $myTemplate
                 ]
+                ,"list" => $this->getNotificationList()
             ]
         );
 
