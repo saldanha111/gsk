@@ -329,6 +329,11 @@ class Users implements AdvancedUserInterface, \Serializable
     protected $delegationssustitutes;
 
     /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\NotificationsBundle\Entity\NotificationsModels", mappedBy="user")
+     */
+    protected $notificationsModels;
+
+    /**
      * Users constructor.
      */
     
