@@ -1,0 +1,148 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}Docoaro - GSK | {{ 'Homepage'|trans }} {% endblock %}
+{% block head %}
+    {{ parent() }}
+    <link rel="stylesheet" href="/plugins/select2/dist/css/select2.min.css">
+{% endblock %}
+{% block main_title %} Notificador de cambios de estados de plantillas{% endblock %}
+{% block content %}
+    {% for flashMessage in app.session.flashbag.get('error') %}
+        <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+            <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+            {{ flashMessage }}
+        </div>
+    {% endfor %}
+    <div class="wrapper wrapper-content">
+        <div class="row">
+            <div class="col-sm-12">
+                <div>
+                    <form class="form-horizontal" id="form_item" action="{{ path('nononsense_notifications_templates_notification_list')}}" method="GET">
+                        <div class="form-group">
+                            <label class="col-sm-2">Buscar Plantilla</label>
+                            <div class="col-sm-4">
+                                <select class="form-control select_template" style="width: 100%;">
+                                    {% if item is defined %}
+                                        <option value="{{item.id}}" selected="selected">{{item.name}}</option>
+                                    {% endif %}
+                                </select>
+                            </div>
+                            <input type="hidden" name="templateId" value="">
+
+                            <div class="form-group pull-right">
+                                <div class="col-sm-1 item_filter">
+                                    <button type="submit" class="btn btn-primary pull-right">Filtrar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="row">
+                        <div class="col-sm-1 item_filter pull-right">
+                            <a href="{{path('nononsense_notifications_templates_creator')}}"  class="btn btn-primary pull-right" style="margin-right:4px">
+                                <i class="fa fa-plus"></i> Nueva Notificación
+                            </a>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <br>
+                        <table class="table table-striped">
+                            <thead>
+                            <tr>
+                                <th>Título</th>
+                                <th>Estado</th>
+                                <th>Destino</th>
+                                <th>Fecha Creación</th>
+                                <th>Creador</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+
+                            <tbody>
+                                {% for notificationModel in items %}
+                                   <tr>
+                                       <td>
+                                           <a href="{{path('nononsense_notifications_templates_notification_detail', { notificationModelId: notificationModel.id })}}">
+                                               {{notificationModel.title}}
+                                           </a>
+                                       </td>
+                                       <td>{{notificationModel.state}}</td>
+                                       <td>{{notificationModel.destination}}</td>
+                                       <td>{{notificationModel.createdAt|date("d/m/Y H:i:s")|gskdate}}</td>
+                                       <td>{{notificationModel.createdBy}}</td>
+                                       <td>
+                                           {% if not notificationModel.isRemoved %}
+                                           <ul style="list-style-type: none; padding:0px">
+                                               <li>
+                                                   <a href="{{path('nononsense_notifications_templates_notification_remove', { notificationModelId: notificationModel.id })}}"><i class="fa fa-trash" aria-hidden="true"></i> Eliminar </a>
+                                               </li>
+                                           </ul>
+                                           {% endif %}
+                                       </td>
+                                   </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+
+                        {% if count==0 %}
+                            <br><b>No se han encontrado datos disponibles</b>
+                        {% endif %}
+                        {% if pagination is defined and pagination.needed %}
+                            {% include '::pagination2.html.twig' %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ parent() }}
+    <script src="/plugins/select2/dist/js/select2.full.min.js"></script>
+    <script src="/plugins/select2/es.js"></script>
+    <script>
+        $( document ).ready(function() {
+            {% if item is defined %}
+                $('input[name ="template"]').val("{{item.id}}");
+            {% endif %}
+            /* Buscamos la plantilla sobre la que queremos crear una nueva notificación */
+            $(".select_template").select2({
+                templateResult: format_template,
+                minimumInputLength: 3,
+                ajax: { // instead of writing the function to execute the request we use Select2's convenient helper
+                    url: function () {
+                        return url_templates_json();
+                    },
+                    dataType: 'json',
+                    quietMillis: 250,
+                    data: function (params, page) {
+                        return {
+                            name: params.term, // search term
+                        };
+
+                    },
+                    processResults: function (data, page) { // parse the results into the format expected by Select2.
+                        console.log(data);
+                        return {results: data.items};
+                    },
+                    cache: false
+                },
+                escapeMarkup: function(m) { return m; }
+            });
+            $('.select_template').on("select2:select", function(e) {
+               $('input[name ="templateId"]').val(e.params.data.id);
+            });
+        });
+
+        function format_template (option) {
+            console.log("format_template");
+            if (!option.id) { return option.text; }
+            var ob = option.text;
+            return ob;
+        }
+        function url_templates_json(){
+            url="{{ path('nononsense_templates_active_json') }}?no_request_in_proccess=1";
+            return url;
+        }
+    </script>
+{% endblock %}

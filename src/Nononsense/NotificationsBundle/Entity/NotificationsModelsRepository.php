@@ -13,25 +13,66 @@ use Doctrine\ORM\Tools\Pagination\Paginator;
  */
 class NotificationsModelsRepository extends EntityRepository
 {
-    /**
-     * Gets the list of notificationsModels
-     *
-     * @return Paginator
-     */
-    public function list($page=1, $max=20): Paginator
-    {
-        $notificationsModels = $this->createQueryBuilder('nm')
-            ->select('nm', 't', 'u', 'g', 's')
-            ->join('nm.templateId', 't') //join notificationsModels with TMTemplates
-            ->join('nm.user', 'u') //join notificationsModels with the users
-            ->join('nm.group', 'g') //join notificationsModels with the groups
-            ->join('nm.state', 's') //join notificationsModels with the states
-            ->addOrderBy('nm.created','DESC');
-        ;
-        $notificationsModels->setFirstResult(($page-1) * $max);
-        $notificationsModels->setMaxResults($max);
+   const TEMPLATE_ID = "templateId";
+//    /**
+//     * Gets the list of notificationsModels
+//     *
+//     * @return Paginator
+//     */
+//    public function list($page=1, $max=20): Paginator
+//    {
+//        $notificationsModels = $this->createQueryBuilder('nm')
+//            ->select('nm', 't', 'u', 'g', 's')
+//            ->join('nm.templateId', 't') //join notificationsModels with TMTemplates
+//            ->join('nm.user', 'u') //join notificationsModels with the users
+//            ->join('nm.group', 'g') //join notificationsModels with the groups
+//            ->join('nm.state', 's') //join notificationsModels with the states
+//            ->addOrderBy('nm.created','DESC');
+//        ;
+//        $notificationsModels->setFirstResult(($page-1) * $max);
+//        $notificationsModels->setMaxResults($max);
+//
+//        return new Paginator($notificationsModels);
+//    }
 
-        return new Paginator($notificationsModels);
+    public function list($filters, $paginate=1)
+    {
+        $list = $this->createQueryBuilder('n')
+            ->select('n')
+            ->orderBy('n.id', 'DESC');
+
+        $list = self::fillFilersQuery($filters, $list);
+        if($paginate==1 && isset($filters["limit_from"])){
+            $list->setFirstResult($filters["limit_from"]*$filters["limit_many"])->setMaxResults($filters["limit_many"]);
+        }
+        $query = $list->getQuery();
+
+        return $query->getResult();
+    }
+
+    public function count($filters)
+    {
+        $list = $this->createQueryBuilder('n')
+            ->select('COUNT(n.id) as conta')
+        ;
+
+        $list = self::fillFilersQuery($filters, $list);
+        $query = $list->getQuery();
+
+        return $query->getSingleResult()["conta"];
+    }
+
+    private function fillFilersQuery($filters, $list){
+
+        if(isset($filters[self::TEMPLATE_ID])){
+            $terms = explode(" ", $filters[self::TEMPLATE_ID]);
+            foreach($terms as $key => $term){
+                $list->andWhere('n.templateId  = :id');
+                $list->setParameter('id', $term);
+            }
+        }
+
+        return $list;
     }
 
 }

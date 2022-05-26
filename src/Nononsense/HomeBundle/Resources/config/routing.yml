@@ -763,10 +763,6 @@ nononsense_activity_templates:
     defaults: { _controller: NononsenseHomeBundle:Activity:templates}
 
 # Notifications Models module
-nononsense_notifications_overview:
-    path:     /notifications/overview
-    defaults: { _controller: NononsenseHomeBundle:NotificationsModels:showOverview}
-
 nononsense_notifications_templates_creator:
     path:     /notifications/templates/creator
     defaults: { _controller: NononsenseHomeBundle:NotificationsModels:creator}

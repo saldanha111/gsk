@@ -362,12 +362,11 @@ class NotificationsModels
     /**
      * Set removedAt
      *
-     * @param DateTime $removedAt
      * @return NotificationsModels
      */
-    public function setRemovedAt($removedAt)
+    public function setRemovedAt()
     {
-        $this->removedAt = $removedAt;
+        $this->removedAt = new DateTime();
 
         return $this;
     }

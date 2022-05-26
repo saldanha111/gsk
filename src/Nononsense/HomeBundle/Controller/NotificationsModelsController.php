@@ -14,6 +14,7 @@ use Nononsense\NotificationsBundle\Entity\NotificationsModels;
 use Nononsense\NotificationsBundle\Entity\NotificationsModelsRepository;
 use Nononsense\UserBundle\Entity\Users;
 use Nononsense\UserBundle\Entity\UsersRepository;
+use Nononsense\UtilsBundle\Classes\Utils;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,60 +25,19 @@ class NotificationsModelsController extends Controller
     const GROUP = 1;
     const USER = 2;
     const EMAIL = 3;
-
-    public function showOverviewAction(Request $request)
-    {
-        if (!$this->isAllowed('crt_gestion')) return $this->redirect($this->generateUrl('nononsense_home_homepage'));
-
-        $user = $this->container->get('security.context')->getToken()->getUser();
-
-        return $this->render('NononsenseHomeBundle:NotificationsModels:notifications_models_management.html.twig',
-            [
-                "finder" =>
-                    [
-                        "statuses" => $this->statusFinder()
-                    ]
-                ,"list" => $this->getNotificationList()
-            ]
-        );
-
-    }
+    const LIMIT_MANY = 15;
 
     public function creatorAction(Request $request)
     {
-        if (!$this->isAllowed('crt_gestion')) return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+        if (!$this->isAllowed('notifications_gestion')) return $this->redirect($this->generateUrl('nononsense_home_homepage'));
 
-        $user = $this->container->get('security.context')->getToken()->getUser();
-
-        $data = ["templateId"];
-        $filters = [];
-        FiltersUtils::requestToFilters($request,$filters, $data);
-
-        $templates = $this->templateFinder($filters);
-        if(count($templates) < 1) {
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                'La plantilla indicada ya tiene una nueva edición en proceso'
-            );
-            $route = $this->container->get('router')->generate('nononsense_home_homepage');
-            return $this->redirect($route);
-        }
-
-        $myTemplate = $this->getMyTemplate($templates);
-
-        return $this->render('NononsenseHomeBundle:NotificationsModels:notifications_models_management.html.twig',
-            [
+        return $this->render('NononsenseHomeBundle:NotificationsModels:notifications_models_new.html.twig'
+            , [
                 "finder" => [
                     "statuses" => $this->statusFinder()
-                    , "filter" => $filters
                 ]
-                ,"data" => [
-                    "template" => $myTemplate
-                ]
-                ,"list" => $this->getNotificationList()
             ]
         );
-
     }
 
     public function addNotificationAction(Request $request)
@@ -108,17 +68,31 @@ class NotificationsModelsController extends Controller
 
     public function listNotificationAction(Request $request) {
 
-        return $this->render('NononsenseHomeBundle:NotificationsModels:notifications_models_management.html.twig',
-            [
-                "finder" => [
-                    "statuses" => $this->statusFinder()
-                ],
-                "list" => $this->getNotificationList()
-            ]
-        );
+        if (!$this->isAllowed('crt_gestion')) return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+
+        $filters = [];
+        FiltersUtils::paginationFilters($filters, (int) $request->get("page"), self::LIMIT_MANY);
+        $paginate = 1;
+        $fields = ["templateId"];
+        FiltersUtils::requestToFilters($request, $filters, $fields);
+
+        /** @var NotificationsModelsRepository $notificationsModelsRepository */
+        $notificationsModelsRepository = $this->getDoctrine()->getRepository(NotificationsModels::class);
+
+        $notificationModels = $notificationsModelsRepository->list($filters, $paginate);
+
+        $array_item["items"] = $this->getNotificationList($notificationModels);
+
+        $array_item["count"] = $notificationsModelsRepository->count($filters);
+        $array_item["pagination"] = Utils::getPaginator($request, $filters["limit_many"], $array_item["count"]);
+
+        return $this->render('NononsenseHomeBundle:NotificationsModels:notifications_models_list.html.twig',$array_item);
     }
 
     public function removeNotificationAction(Request $request) {
+
+        /** @var Users $user */
+        $user = $this->container->get('security.context')->getToken()->getUser();
 
         $notificationModelId = (int) $request->get("notificationModelId");
 
@@ -127,20 +101,15 @@ class NotificationsModelsController extends Controller
 
         /** @var NotificationsModels $notificationModel */
         $notificationModel = $notificationsModelsRepository->find($notificationModelId);
+        $notificationModel->setRemovedAt();
+        $notificationModel->setRemovedBy($user);
         $notificationModel->setIsRemoved(true);
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($notificationModel);
         $em->flush();
 
-        return $this->render('NononsenseHomeBundle:NotificationsModels:notifications_models_management.html.twig',
-            [
-                "finder" => [
-                    "statuses" => $this->statusFinder()
-                ],
-                "list" => $this->getNotificationList()
-            ]
-        );
+        return $this->redirectToRoute("nononsense_notifications_templates_notification_list");
     }
 
     public function detailNotificationAction(Request $request) {
@@ -163,21 +132,20 @@ class NotificationsModelsController extends Controller
         );
     }
 
-    public function templateFinder(array $filters): array
-    {
-        $filter = [
-            "no_request_in_proccess" => 1
-        ];
-        if (isset($filters["templateId"])) {
-            $filter["id"] = $filters["templateId"];
-        }
-        if (isset($filters["state"])) {
-            $filter["state"] = $filters["state"];
-        }
-
-        return $this->getDoctrine()->getRepository('NononsenseHomeBundle:TMTemplates')->listActiveForRequest($filter);
-
-    }
+//    public function templateFinder(array $filters): array
+//    {
+//        $filter = [
+//            "no_request_in_proccess" => 1
+//        ];
+//        if (isset($filters["templateId"])) {
+//            $filter["id"] = $filters["templateId"];
+//        }
+//        if (isset($filters["state"])) {
+//            $filter["state"] = $filters["state"];
+//        }
+//
+//        return $this->getDoctrine()->getRepository('NononsenseHomeBundle:TMTemplates')->listActiveForRequest($filter);
+//    }
 
     private function isAllowed($section){
 
@@ -200,17 +168,13 @@ class NotificationsModelsController extends Controller
         return array_map("self::statusToSelect", $statuses);
     }
 
-    private function getNotificationList(): array
+    private function getNotificationList(array $notificationsModelsIds): array
     {
-        /** @var NotificationsModelsRepository $notificationsModelsRepository */
-        $notificationsModelsRepository = $this->getDoctrine()->getRepository(NotificationsModels::class);
-
-        $notificationsModelsList = $notificationsModelsRepository->findAll();
         $myNotificationsModelsList = [];
 
         /** @var NotificationsModels $notificationModel */
-        foreach($notificationsModelsList as $notificationModel) {
-            $myNotificationsModelsList[] = $this->fromNotificationModelToArray($notificationModel);
+        foreach($notificationsModelsIds as $notificationsModelsId) {
+            $myNotificationsModelsList[] = $this->fromNotificationModelToArray($notificationsModelsId);
         }
 
         return $myNotificationsModelsList;
@@ -223,16 +187,6 @@ class NotificationsModelsController extends Controller
             , "name" => $status["name"]
         ]
         ;
-    }
-
-    private function getMyTemplate(array $templates): array
-    {
-        $template = $templates[0];
-        return [
-            "id" => $template->getId(),
-            "name" => $template->getName(),
-            "statusId" => $template->getTmState()->getId()
-        ];
     }
 
     public function getUsersAction(): JsonResponse
@@ -295,6 +249,8 @@ class NotificationsModelsController extends Controller
 
     private function getDestination(NotificationsModels $notificationModel)
     {
+        $destination = "";
+
         if (!is_null($notificationModel->getUser())) {
             /** @var Users $user */
             $user = $this->getDoctrine()->getRepository(Users::class)->find($notificationModel->getUser());
@@ -312,7 +268,6 @@ class NotificationsModelsController extends Controller
         }
 
         return $destination;
-
     }
 
     /**
@@ -321,6 +276,7 @@ class NotificationsModelsController extends Controller
      */
     public function fromNotificationModelToArray(NotificationsModels $notificationModel): array
     {
+
         /** @var TMTemplates $tmTemplate */
         $tmTemplate = $this->getDoctrine()->getRepository(TMTemplates::class)->find($notificationModel->getTemplateId());
 
