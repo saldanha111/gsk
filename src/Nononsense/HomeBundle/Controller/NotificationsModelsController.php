@@ -76,6 +76,13 @@ class NotificationsModelsController extends Controller
         $fields = ["templateId"];
         FiltersUtils::requestToFilters($request, $filters, $fields);
 
+
+        /** @var TMTemplates $tmTemplate */
+        $tmTemplate = $this->getDoctrine()->getRepository(TMTemplates::class)->find($request->get("templateId"));
+
+        $array_item["item"]["id"] = (int)$request->get("templateId");
+        $array_item["item"]["name"] = $tmTemplate->getName();
+
         /** @var NotificationsModelsRepository $notificationsModelsRepository */
         $notificationsModelsRepository = $this->getDoctrine()->getRepository(NotificationsModels::class);
 
@@ -131,21 +138,6 @@ class NotificationsModelsController extends Controller
             ]
         );
     }
-
-//    public function templateFinder(array $filters): array
-//    {
-//        $filter = [
-//            "no_request_in_proccess" => 1
-//        ];
-//        if (isset($filters["templateId"])) {
-//            $filter["id"] = $filters["templateId"];
-//        }
-//        if (isset($filters["state"])) {
-//            $filter["state"] = $filters["state"];
-//        }
-//
-//        return $this->getDoctrine()->getRepository('NononsenseHomeBundle:TMTemplates')->listActiveForRequest($filter);
-//    }
 
     private function isAllowed($section){
 

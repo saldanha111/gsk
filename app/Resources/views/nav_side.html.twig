@@ -319,21 +319,22 @@
                             <li id="browse_requests">
                                 <a href="{{path('nononsense_user_check_requests')}}"><span class="nav-label">Solicitudes</span></a>
                             </li>
+                            {% if 'qrs_gestion' in array_subsecciones
+                                or 'areas_gestion' in array_subsecciones
+                                or 'usuarios_gestion' in array_subsecciones
+                                or 'grupos_gestion' in array_subsecciones
+                                or 'delegations_gestion' in array_subsecciones
+                                or 'notifications_gestion' in array_subsecciones
+                            %}
+                                <li id="notifications">
+                                    <a href="{{path('nononsense_notifications_templates_notification_list')}}"><i class="fa fa-certificate"></i> <span class="nav-label">Modelo de notificaciones</span></a>
+                                </li>
+                            {% endif %}
                         {% endif %}
                     </ul>
                 </li>
              {% endif %}
-            {% if 'qrs_gestion' in array_subsecciones
-                or 'areas_gestion' in array_subsecciones
-                or 'usuarios_gestion' in array_subsecciones
-                or 'grupos_gestion' in array_subsecciones
-                or 'delegations_gestion' in array_subsecciones
-                or 'notifications_gestion' in array_subsecciones
-            %}
-                <li id="notifications">
-                    <a href="{{path('nononsense_notifications_templates_notification_list')}}"><i class="fa fa-certificate"></i> <span class="nav-label">Modelo de notificaciones</span></a>
-                </li>
-             {% endif %}
+
              {% if 'crt_gestion' in array_subsecciones %}
                 <li id="certifications">
                     <a href="{{path('nononsense_certifications_list')}}"><i class="fa fa-certificate"></i> <span class="nav-label">Certificados</span></a>
