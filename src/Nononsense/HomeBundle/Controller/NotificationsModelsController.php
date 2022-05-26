@@ -76,11 +76,13 @@ class NotificationsModelsController extends Controller
         $fields = ["templateId"];
         FiltersUtils::requestToFilters($request, $filters, $fields);
 
-        /** @var TMTemplates $tmTemplate */
-        $tmTemplate = $this->getDoctrine()->getRepository(TMTemplates::class)->find((int)$request->get("templateId"));
+        if ($request->get("templateId")) {
+            /** @var TMTemplates $tmTemplate */
+            $tmTemplate = $this->getDoctrine()->getRepository(TMTemplates::class)->find((int)$request->get("templateId"));
 
-        $array_item["item"]["id"] = (int)$request->get("templateId");
-        $array_item["item"]["name"] = $tmTemplate->getName();
+            $array_item["item"]["id"] = (int)$request->get("templateId");
+            $array_item["item"]["name"] = $tmTemplate->getName();
+        }
 
         /** @var NotificationsModelsRepository $notificationsModelsRepository */
         $notificationsModelsRepository = $this->getDoctrine()->getRepository(NotificationsModels::class);
