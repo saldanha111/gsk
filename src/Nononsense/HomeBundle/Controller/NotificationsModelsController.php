@@ -6,6 +6,8 @@ namespace Nononsense\HomeBundle\Controller;
 use DateTime;
 use Nononsense\GroupBundle\Entity\Groups;
 use Nononsense\GroupBundle\Entity\GroupsRepository;
+use Nononsense\GroupBundle\Entity\GroupUsers;
+use Nononsense\GroupBundle\Entity\GroupUsersRepository;
 use Nononsense\HomeBundle\Entity\CVStates;
 use Nononsense\HomeBundle\Entity\CVStatesRepository;
 use Nononsense\HomeBundle\Entity\TMTemplates;
@@ -47,6 +49,7 @@ class NotificationsModelsController extends Controller
             "templateId" => (int)$request->get("templateId")
             , "stateId" => (int)$request->get("state")
             , "msg" => $request->get("msg")
+            , "subject" => $request->get("subject")
             , "type" => (int)$request->get("type")
             , "collectionId" => (int)$request->get("collectionId")
             , "email" => $request->get("email")
@@ -68,7 +71,11 @@ class NotificationsModelsController extends Controller
 
     public function listNotificationAction(Request $request) {
 
-        if (!$this->isAllowed('crt_gestion')) return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+        $this->get('utilities')->checkNotification();
+//        $groupId= $this->get('utilities')->checkNotification()[2]->getGroup()->getId();
+//        return $this->getDoctrine()->getRepository(GroupUsers::class)->findUsersByGroupId($groupId);
+
+        if (!$this->isAllowed('notifications_gestion')) return $this->redirect($this->generateUrl('nononsense_home_homepage'));
 
         $filters = [];
         FiltersUtils::paginationFilters($filters, (int) $request->get("page"), self::LIMIT_MANY);
@@ -132,6 +139,7 @@ class NotificationsModelsController extends Controller
 
         $notificationDetail = $this->fromNotificationModelToArray($notificationModel);
         $notificationDetail["msg"] = $notificationModel->getBody();
+        $notificationDetail["subject"] = $notificationModel->getSubject();
 
         return $this->render('NononsenseHomeBundle:NotificationsModels:notifications_models_detail.html.twig',
             [
@@ -211,6 +219,7 @@ class NotificationsModelsController extends Controller
         $notificationModel->setState($cvState);
 
         $notificationModel->setBody($data["msg"]);
+        $notificationModel->setSubject($data["subject"]);
 
         $type = $data["type"];
 

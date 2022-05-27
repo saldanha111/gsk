@@ -4,12 +4,17 @@ namespace Nononsense\HomeBundle\Utils;
 
 use DateTime;
 use Doctrine\ORM\OptimisticLockException;
+use Nononsense\HomeBundle\Entity\CVRecords;
+use Nononsense\HomeBundle\Entity\CVStates;
 use Nononsense\HomeBundle\Entity\Logs;
 use Nononsense\HomeBundle\Entity\LogsTypes;
 use Nononsense\HomeBundle\Entity\LogsTypesRepository;
+use Nononsense\HomeBundle\Entity\TMTemplates;
 use Nononsense\HomeBundle\Entity\Tokens;
 use Nononsense\HomeBundle\Entity\CVRecordsHistory;
 use Nononsense\HomeBundle\Entity\TMCumplimentations;
+use Nononsense\NotificationsBundle\Entity\NotificationsModels;
+use Nononsense\NotificationsBundle\Entity\NotificationsModelsRepository;
 use Nononsense\UserBundle\Entity\Users;
 use Nononsense\NotificationsBundle\Entity\Notifications;
 use Nononsense\GroupBundle\Entity\GroupUsers;
@@ -17,6 +22,8 @@ use Nononsense\HomeBundle\Utils\GskPdf;
 use Nononsense\UtilsBundle\Classes\Utils;
 
 class Utilities{
+
+    const BLOCKED_STATE = 9; // Id del estado bloqueado en la tabla cv_states
     
     public function __construct(\Doctrine\ORM\EntityManager $em, $logger, $session, $container, $templating) {
         $this->em = $em;
@@ -610,5 +617,65 @@ class Utilities{
         }
 
         return $users;
+    }
+    public function checkNotificationForBlockedStates($record) {
+
+        /** @var CVStates $cvBlockedState */
+        $cvBlockedState = $this->em->getRepository("NononsenseHomeBundle:CVStates")->find(self::BLOCKED_STATE);
+
+        $this->checkNotification($record, $cvBlockedState);
+    }
+
+    public function checkNotification($record, CVStates $state){
+        /** @var TMTemplates $template */
+        $template = $record->getTemplate();
+
+        $notificationsModels = $this->em->getRepository("NononsenseNotificationBundle:NotificationsModel")->findOneBy(
+            [
+                "id" => $template->getId()
+                , "state_id" => $state->getId()
+            ]
+        );
+
+//        /** @var NotificationsModels $notificationsModels */
+//        $notificationsModels = $this->em->getRepository('NononsenseNotificationsBundle:NotificationsModels')->findAll();
+
+        /** @var NotificationsModels $notificationsModel */
+        foreach($notificationsModels as $notificationsModel){
+            $subject = $notificationsModel->getSubject();
+            $email = $notificationsModel->getEmail();
+            $message = $notificationsModel->getBody();
+            if (!is_null($email)) {
+                $this->sendNotification($email, "", "", "", $subject, $message);
+            } else {
+                $notificationModelUser = $notificationsModel->getUser();
+                if(!is_null($notificationModelUser)) {
+                    $this->sendEmailToUser($notificationModelUser->getId(), $subject, $message);
+                } else {
+                    $notificationModelGroup = $notificationsModel->getGroup();
+                    /** @var GroupUsers $groupUsers */
+                    $groupUsers = $this->em->getRepository('NononsenseGroupBundle:GroupUsers')->findBy([
+                        "group" => $notificationModelGroup->getId()
+                    ]);
+                    /** @var GroupUsers $groupUser */
+                    forEach($groupUsers as $groupUser) {
+                        /** @var Users $user */
+                        $user = $groupUser->getUser();
+                        $this->sendEmailToUser($user->getId(),$subject,$message);
+                    }
+                }
+            }
+        }
+    }
+
+    private function sendEmailToUser(int $userId, string $subject, string $message) {
+        /** @var Users $user */
+        $user = $this->em->getRepository("NononsenseUserBundle:Users")->find($userId);
+
+        if (!is_null($user)){
+            $userEmail = $user->getEmail();
+            $this->sendNotification($userEmail, "", "", "", $subject, $message);
+        }
+
     }
 }

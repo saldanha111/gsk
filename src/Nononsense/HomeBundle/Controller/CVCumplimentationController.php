@@ -89,7 +89,7 @@ class CVCumplimentationController extends Controller
         return $this->render('NononsenseHomeBundle:CV:new_cumpli.html.twig',$array);
     }
 
-    //Guardamos el nuevo registro (PRE CUMPLIMENTADO)
+    //Guardamos el nuevo registro (PRECUMPLIMENTADO)
     public function newSaveAction(Request $request, int $template)
     {
         $em = $this->getDoctrine()->getManager();
@@ -130,6 +130,7 @@ class CVCumplimentationController extends Controller
             $record->setInEdition(FALSE);
             $record->setEnabled(TRUE);
             $record->setState($state);
+            $this->get('utilities')->checkNotification($record, $state);
         }
         else{
             $record = $em->getRepository(CVRecords::class)->findOneBy(array("id" => $request->get("nest")));
@@ -160,6 +161,7 @@ class CVCumplimentationController extends Controller
                 $aux_record->setNested($before_nested);
                 $aux_record->setFirstNested($record);
                 $em->persist($aux_record);
+                $this->get('utilities')->checkNotification($aux_record, $state);
                 $before_nested=$aux_record;
             }
         }
@@ -683,6 +685,7 @@ class CVCumplimentationController extends Controller
                     }
                     
                     $record->setState($next_state);
+                    $this->get('utilities')->checkNotification($record, $next_state);
                 }
             }
 

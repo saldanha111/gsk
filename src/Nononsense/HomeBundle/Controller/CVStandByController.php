@@ -241,10 +241,10 @@ class CVStandByController extends Controller
             $em->persist($record);
 
             $em->flush();
-
+            $this->get('utilities')->checkNotification($record, $action->getNextState());
             $file = Utils::api3($this->forward('NononsenseHomeBundle:CVDocoaro:link', ['request' => $request, 'id'  => $record->getId()])->getContent());
             $file = Utils::saveFile($file, $slug, $this->getParameter('crt.root_dir'));
-            Utils::setCertification($this->container, $file, $slug, $record->getId()); 
+            Utils::setCertification($this->container, $file, $slug, $record->getId());
         }
 
         switch($request->get('action')){

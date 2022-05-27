@@ -56,6 +56,8 @@ class ReviewRecordsCommand extends ContainerAwareCommand
 
 		    	foreach ($records as $key => $record) {
 		    		$record->setBlocked(1);
+                    // estado bloqueado
+                    $this->getContainer()->get('utilities')->checkNotificationForBlockedStates($record);
 		    		$em->persist($record);
 		    		$ids[] = $record->getId();
 		    		$aux_message.=$record->getId()." - Código: ".$record->getTemplate()->getNumber()." - Título: ".$record->getTemplate()->getName()." - Edición: ".$record->getTemplate()->getNumEdition()."<br>";
