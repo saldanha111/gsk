@@ -300,7 +300,6 @@ class GroupController extends Controller
     
     public function addbulkAction(Request $request)
     {
-        die($this->get('app.security')->);
         if (!$this->get('app.security')->permissionSeccion('grupos_gestion')) {
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
@@ -334,11 +333,6 @@ class GroupController extends Controller
                 $new->setUser($user);
                 $new->setType($type);
                 $em->persist($new);
-
-                /** @var LogsTypes $logType */
-                $logType = $em->getRepository(LogsTypes::class)->findOneBy(['id' => 2]); //Adding or removing user into a group
-                $description = "Usuario añadido: " . $user->getName() . " IP:" . $request->getClientIp();
-                //$this->log($logType, $request->get, $description);
 
             }
         }
@@ -381,10 +375,6 @@ class GroupController extends Controller
             'deletedUser',
             'The user membership was revoked.'
             );
-            /** @var LogsTypes $logType */
-            $logType = $em->getRepository(LogsTypes::class)->findOneBy(['id' => 2]); //Adding or removing user into a group
-            $description = "Usuario eliminado: " . $row->getUser()->getName() . " IP:" . $request->getClientIp();
-            $this->log($logType, $row->getUser(), $description);
         }
         
         $group = $em->getRepository('NononsenseGroupBundle:Groups')
@@ -409,19 +399,5 @@ class GroupController extends Controller
         } else {
             return false;
         }
-    }
-
-    private function log(LogsTypes $logType, Users $user, ?string $description): void
-    {
-        $em = $this->getDoctrine()->getManager();
-
-        $log = new Logs();
-        $log->setType($logType);
-        $log->setDate(new \DateTime());
-        $log->setUser($user);
-        $log->setDescription($description);
-
-        $em->persist($log);
-        $em->flush();
     }
 }
