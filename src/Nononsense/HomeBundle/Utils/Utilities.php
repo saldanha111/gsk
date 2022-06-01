@@ -176,7 +176,7 @@ class Utilities{
     }
 
 
-    public function returnPDFResponseFromHTML($html,$title, string $filename = 'list_records'){
+    public function returnPDFResponseFromHTML($html, string $title, string $filename = 'list_records'){
         ini_set('memory_limit', '-1');
         try{
             $pdf = new GskPdf('horizontal', PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false, false, array());
@@ -191,7 +191,6 @@ class Utilities{
             $pdf->SetPrintFooter(true);
             $pdf->SetFont('helvetica', '', 9, '', true);
             $pdf->AddPage('L', 'A4');
-            $filename = 'list_records';
             $pdf->writeHTMLCell($w = 0, $h = 0, $x = '', $y = '', $html, $border = 0, $ln = 1, $fill = 0, $reseth = true, $align = '', $autopadding = true);
             $pdf->Output($filename.".pdf",'I'); // This will output the PDF as a response directly
         } catch (\Exception $e) {

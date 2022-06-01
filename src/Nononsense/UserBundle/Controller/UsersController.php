@@ -18,6 +18,10 @@ use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
 class UsersController extends Controller
 {
+
+    const TITLE_PDF = " Listado de usuarios";
+    const FILENAME_PDF = "list_users";
+
     public function indexAction($page, $query = 'q')
     {
         if (!$this->get('app.security')->permissionSeccion('usuarios_gestion')) {
@@ -368,8 +372,10 @@ class UsersController extends Controller
         $filters['locked_from']  = $request->get('locked_from');
         $filters['locked_until'] = $request->get('locked_until');
         $filters['uri']          = ($request->query->all()) ? $_SERVER['REQUEST_URI'].'&csv=true' : $_SERVER['REQUEST_URI'].'?csv=true';
+        $filters['pdf']          = ($request->query->all()) ? $_SERVER['REQUEST_URI'].'&pdf=true' : $_SERVER['REQUEST_URI'].'?pdf=true';
 
         if ($request->get('csv')) return $this->reportCsvAction($this->getDoctrine()->getRepository('NononsenseUserBundle:Users')->listBy($filters, 1000)['rows'], $filters);
+        if ($request->get('pdf')) return $this->reportPDFAction($request, $this->getDoctrine()->getRepository('NononsenseUserBundle:Users')->listBy($filters, 1000)['rows'], $filters);
 
         $users     = $this->getDoctrine()->getRepository('NononsenseUserBundle:Users')->listBy($filters, 20);
         $params    = $request->query->all();           
@@ -438,5 +444,74 @@ class UsersController extends Controller
         $response->headers->set('Content-Disposition', $dispositionHeader);
 
         return $response;
+    }
+
+    public function reportPDFAction($request, $data, $filters){
+
+        $html='<html><body style="font-size:8px;width:100%">';
+        $sintax_head_f="<b>Filtros:</b><br>";
+
+        if($request->get("name")){
+            $html.=$sintax_head_f."Nombre => ".$request->get("name")."<br>";
+            $sintax_head_f="";
+        }
+
+        if($request->get("email")){
+            $html.=$sintax_head_f."Email => ".$request->get("email")."<br>";
+            $sintax_head_f="";
+        }
+
+        if($request->get("phone")){
+            $html.=$sintax_head_f."Teléfono => ".$request->get("phone")."<br>";
+            $sintax_head_f="";
+        }
+
+        if($request->get("from")){
+            $html.=$sintax_head_f."Fecha de alta  => ".$request->get("from") . " / " . $request->get("until") . "<br>";
+            $sintax_head_f="";
+        }
+
+        if($request->get("locked_from")){
+            $html.=$sintax_head_f."Fecha de baja  => ".$request->get("locked_from") . " / " . $request->get("locked_until") . "<br>";
+            $sintax_head_f="";
+        }
+
+        if($request->get("is_active")){
+            $html.=$sintax_head_f."Tipo => ".$request->get("is_active") . "<br>";
+            $sintax_head_f="";
+        }
+
+        if (!$this->get('app.security')->permissionSeccion('usuarios_gestion')) {
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+        }
+
+        $html.='<br>
+            <table autosize="1" style="overflow:wrap;width:95%">
+            <tr style="font-size:8px;width:100%">
+                <th style="font-size:8px;width:20%">Nombre y apellidos</th>
+                <th style="font-size:8px;width:20%">Email</th>
+                <th style="font-size:8px;width:10%">Teléfono</th>
+                <th style="font-size:8px;width:20%">Fecha de alta</th>
+                <th style="font-size:8px;width:20%">Última modificación</th> 
+                <th style="font-size:8px;width:20%">Fecha de baja</th> 
+            </tr>';
+
+        foreach ($data as $key => $value) {
+            $html.='<tr style="font-size:8px">
+                        <td>'.$value->getName().'</td>
+                        <td>'.$value->getEmail().'</td>
+                        <td>'.$value->getPhone().'</td>
+                        <td>'.date_format($value->getCreated(), 'd-m-Y').'</td>
+                        <td>'.date_format($value->getModified(), 'd-m-Y').'</td>'
+            ;
+            if ($value->getLocked() !== null && $value->getLocked()) {
+                $html.='<td>'.date_format($value->getLocked(), 'd-m-Y').'</td>';
+            }
+            $html.='</tr>';
+        }
+
+        $html.='</table></body></html>';
+
+        return $this->get('utilities')->returnPDFResponseFromHTML($html, self::TITLE_PDF, self::FILENAME_PDF);
     }
 }
