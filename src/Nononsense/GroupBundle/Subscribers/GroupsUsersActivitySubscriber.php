@@ -64,7 +64,7 @@ class GroupsUsersActivitySubscriber implements EventSubscriber
         // add some code to check the entity type as early as possible
         if ($entity instanceof GroupUsers) {
             /** @var LogsTypes $logType */
-            $logType = $args->getEntityManager()->getRepository(LogsTypes::class)->findOneBy(['id' => 1]); //Adding or removing user into a group
+            $logType = $args->getEntityManager()->getRepository(LogsTypes::class)->findOneBy(['id' => 2]); //Adding or removing user into a group
             /** @var Users $userLogged */
 //            $userLogged = $this->container->get('security.context')->getToken()->getUser();
             $userLogged = $this->context->getToken()->getUser();

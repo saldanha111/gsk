@@ -56,7 +56,7 @@ class UserActivitySubscriber implements EventSubscriber
             $ip = $request->getClientIp();
 
             /** @var LogsTypes $logType */
-            $logType = $args->getEntityManager()->getRepository(LogsTypes::class)->findOneBy(['id' => 1]); //Adding or removing user into a group
+            $logType = $args->getEntityManager()->getRepository(LogsTypes::class)->findOneBy(['id' => 3]); //Updating user profile
             /** @var Users $userLogged */
             $userLogged = $this->context->getToken()->getUser();
             $log = new Logs();
