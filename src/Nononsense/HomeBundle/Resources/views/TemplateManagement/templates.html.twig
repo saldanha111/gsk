@@ -38,7 +38,7 @@
                             </div>
 
                             {% if areas is defined %}
-                                <label class="col-sm-1 control-label item_filter">Area</label>
+                                <label class="col-sm-1 control-label item_filter">Área</label>
                                 <div class="col-sm-2 item_filter">
                                   <select class="form-control" style="width: 100%;" name="area">
                                     <option value=""></option>
@@ -132,7 +132,7 @@
                                 <div class="col-sm-1">
                                   <div class="checkbox">
                                     <label>
-                                      <input name="pending_for_me" value="1" type="checkbox" {% if filters.pending_for_me is defined and  filters.pending_for_me == true %} checked="checked" {% endif %}> Mis Reg. Pend.
+                                      <input name="pending_for_me" value="1" type="checkbox" {% if filters.pending_for_me is defined and  filters.pending_for_me == true %} checked="checked" {% endif %}> Mis Registros Pendientes
                                     </label>
                                   </div>
                                 </div>
@@ -154,19 +154,19 @@
                         <tr>
                             <th>Id</th>
                             <th>Código</th>
-                            <th>Ed.</th>
+                            <th>Edición</th>
                             <th>Título</th>
-                            <th>Area</th>
+                            <th>Área</th>
                             {% if extend %}
                                 <th>Solicitante</th>
                             {% endif %}
-                            <th>F.efectiva</th>
-                            <th>F.revisión</th>
+                            <th>Fecha efectiva</th>
+                            <th>Fecha revisión</th>
                             {% if extend %}
                                 <th>Dueño</th>
                                 <th>Backup</th>
                             {% endif %}
-                            <th>Norma.ref</th>
+                            <th>Norma referencia</th>
                             {% if extend %}
                                 <th>Estado</th>
                                 <th>Inactiva</th>

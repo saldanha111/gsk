@@ -864,7 +864,7 @@ class CVCumplimentationController extends Controller
             $array_item["items"][$key]["observer"]=0;
             if(array_key_exists("alternativeState",$array_item["items"][$key]) && $array_item["items"][$key]["alternativeState"]=="Verificar" && array_key_exists("requireAction",$array_item["items"][$key]) &&  $array_item["items"][$key]["requireAction"]=="1" ){
                 $wf=$this->get('utilities')->wich_wf($array_item["items"][$key]["id"],$user);
-                if($wf->getType()->getId()==3){
+                if($wf && $wf->getType()->getId()==3){
                     $array_item["items"][$key]["observer"]=1;
                 }
             }
@@ -904,7 +904,7 @@ class CVCumplimentationController extends Controller
                 $phpExcelObject->setActiveSheetIndex()
                  ->setCellValue('A2', 'Nº')
                  ->setCellValue('B2', 'Nombre')
-                 ->setCellValue('C2', 'Nombre')
+                 ->setCellValue('C2', 'Área')
                  ->setCellValue('D2', 'Iniciado por')
                  ->setCellValue('E2', 'Fecha inicio')
                  ->setCellValue('F2', 'Ultima modificación')
@@ -915,10 +915,10 @@ class CVCumplimentationController extends Controller
                 $html='<html><body style="font-size:8px;width:100%"><table autosize="1" style="overflow:wrap;width:100%"><tr style="font-size:8px;width:100%">
                         <th style="font-size:8px;width:6%">Nº</th>
                         <th style="font-size:8px;width:45%">Nombre</th>
-                        <th style="font-size:8px;width:9%">Area</th>
+                        <th style="font-size:8px;width:9%">Área</th>
                         <th style="font-size:8px;width:10%">Iniciado por</th>
-                        <th style="font-size:8px;width:10%">F. inicio</th>
-                        <th style="font-size:8px;width:10%">F. modific.</th>
+                        <th style="font-size:8px;width:10%">Fecha inicio</th>
+                        <th style="font-size:8px;width:10%">Fecha modificación</th>
                         <th style="font-size:8px;width:10%">Estado</th>
                     </tr>';
             }

@@ -214,6 +214,7 @@ class Utilities{
             $record = $this->em->getRepository('NononsenseHomeBundle:CVRecords')->findOneBy(array("id" => $record));
         }
         $return=NULL;
+        $item_find=NULL;
         $groups=array();
         foreach($user->getGroups() as $uniq_group){
             $groups[]=$uniq_group->getGroup();

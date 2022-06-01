@@ -47,7 +47,7 @@
                                 <input type="number" name="id" class="form-control" value="{{filters.id is defined ? filters.id : ''}}">
                             </div>
 
-                            <label class="col-sm-1 control-label">ID.Plant.</label>
+                            <label class="col-sm-2 control-label">Identificador Plantilla</label>
                             <div class="col-sm-1 item_filter">
                                 <input type="number" name="plantilla_id" class="form-control" value="{{filters.plantilla_id is defined ? filters.plantilla_id : ''}}">
                             </div>
@@ -98,10 +98,10 @@
                                 </select>
                             </div>
 
-                            <div class="col-sm-1">
+                            <div class="col-sm-2">
                               <div class="checkbox">
                                 <label>
-                                  <input name="pending_for_me" value="1" type="checkbox" {% if filters.pending_for_me is defined and  filters.pending_for_me == true %} checked="checked" {% endif %}> Mis Reg. Pend.
+                                  <input name="pending_for_me" value="1" type="checkbox" {% if filters.pending_for_me is defined and  filters.pending_for_me == true %} checked="checked" {% endif %}> Mis Registros Pendientes
                                 </label>
                               </div>
                             </div>
