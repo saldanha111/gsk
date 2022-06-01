@@ -31,7 +31,7 @@ class AccessController extends Controller
 
         $params = $request->query->all();
         unset($params["page"]);
-        $parameters = (!empty($params)) ? true : false;
+        $parameters = !empty($params);
 
         if ($request->get('export_excel') == '1') {
             $logs = $em->getRepository(Logs::class)->listBy($filters, 1048575);
