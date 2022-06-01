@@ -903,7 +903,7 @@ class CVCumplimentationController extends Controller
                  ->setCellValue('A1', $desc_pdf." - ".$user->getUsername()." - ".$this->get('utilities')->sp_date(date("d/m/Y H:i:s")));
                 $phpExcelObject->setActiveSheetIndex()
                  ->setCellValue('A2', 'Nº')
-                 ->setCellValue('B2', 'Nombre')
+                 ->setCellValue('B2', 'Plantilla')
                  ->setCellValue('C2', 'Área')
                  ->setCellValue('D2', 'Iniciado por')
                  ->setCellValue('E2', 'Fecha inicio')
@@ -914,11 +914,11 @@ class CVCumplimentationController extends Controller
             if($request->get("export_pdf")){
                 $html='<html><body style="font-size:8px;width:100%"><table autosize="1" style="overflow:wrap;width:100%"><tr style="font-size:8px;width:100%">
                         <th style="font-size:8px;width:6%">Nº</th>
-                        <th style="font-size:8px;width:45%">Nombre</th>
+                        <th style="font-size:8px;width:45%">Plantilla</th>
                         <th style="font-size:8px;width:9%">Área</th>
                         <th style="font-size:8px;width:10%">Iniciado por</th>
                         <th style="font-size:8px;width:10%">Fecha inicio</th>
-                        <th style="font-size:8px;width:10%">Fecha modificación</th>
+                        <th style="font-size:8px;width:10%">Ultima modificación</th>
                         <th style="font-size:8px;width:10%">Estado</th>
                     </tr>';
             }
