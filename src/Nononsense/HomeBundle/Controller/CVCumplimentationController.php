@@ -914,7 +914,7 @@ class CVCumplimentationController extends Controller
                  ->setCellValue('C2', 'Área')
                  ->setCellValue('D2', 'Iniciado por')
                  ->setCellValue('E2', 'Fecha inicio')
-                 ->setCellValue('F2', 'Ultima modificación')
+                 ->setCellValue('F2', 'Última modificación')
                  ->setCellValue('G2', 'Estado');
             }
 
