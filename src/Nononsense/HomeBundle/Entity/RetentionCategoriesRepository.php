@@ -104,4 +104,16 @@ class RetentionCategoriesRepository extends EntityRepository
 
         return $list;
     }
+
+    public function listToArray(): array
+    {
+        $list = $this->createQueryBuilder('rc')
+            ->select('rc')
+            ->orderBy('rc.id', 'DESC');
+
+        $query = $list->getQuery();
+
+        return $query->getArrayResult();
+    }
+
 }
