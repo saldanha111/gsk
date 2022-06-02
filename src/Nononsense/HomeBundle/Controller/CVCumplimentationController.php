@@ -41,9 +41,10 @@ use Nononsense\UtilsBundle\Classes\Utils;
 
 class CVCumplimentationController extends Controller
 {
-    const CUMPLIMENTACIONES = 1;
-    const MODIFICACIONES = 2;
-    const VERIFICACIONES = 4;
+    const CUMPLIMENTACION = 1;
+    const MODIFICACION = 2;
+    const STANDBY_OR_REVISION = 3;
+    const VERIFICACION = 4;
 
     //Creamos nuevo registro
 
@@ -142,11 +143,11 @@ class CVCumplimentationController extends Controller
         }
 
         if($record->getState()->getFinal() || $record->getState()->getType()->getId()==1){
-            $type_delegation=1;
+            $type_delegation=self::CUMPLIMENTACION;
             $prefix_type_delegation="c";
         }
         else{
-            $type_delegation=4;
+            $type_delegation=self::VERIFICACION;
             $prefix_type_delegation="v";
         }
 
@@ -339,11 +340,11 @@ class CVCumplimentationController extends Controller
         $array["item"] = $this->getDoctrine()->getRepository(CVRecords::class)->findOneBy(array("id" => $id));
 
         if($array["item"]->getState()->getFinal() || $array["item"]->getState()->getType()->getId()==1){
-            $type_delegation=1;
+            $type_delegation=self::CUMPLIMENTACION;
             $prefix_type_delegation="c";
         }
         else{
-            $type_delegation=4;
+            $type_delegation=self::VERIFICACION;
             $prefix_type_delegation="v";
         }
 
@@ -378,7 +379,7 @@ class CVCumplimentationController extends Controller
         }
 
         if($array["signature"]->getAction()->getId()==18){
-            $type_delegation=1;
+            $type_delegation=self::CUMPLIMENTACION;
             $prefix_type_delegation="c";
         }
 
@@ -469,11 +470,11 @@ class CVCumplimentationController extends Controller
         }
 
         if($record->getState()->getFinal() || $record->getState()->getType()->getId()==1){
-            $type_delegation=1;
+            $type_delegation=self::CUMPLIMENTACION;
             $prefix_type_delegation="c";
         }
         else{
-            $type_delegation=4;
+            $type_delegation=self::VERIFICACION;
             $prefix_type_delegation="v";
         }
 
@@ -795,10 +796,10 @@ class CVCumplimentationController extends Controller
 
         $type_delegation="";
         if(isset($filters["gxp"])){
-            $type_delegation=self::MODIFICACIONES;
+            $type_delegation=self::MODIFICACION;
         }
         if(isset($filters["blocked"])){
-            $type_delegation=3;
+            $type_delegation=self::STANDBY_OR_REVISION;
         }
 
         $desc_pdf="Listado de registros";
@@ -826,18 +827,18 @@ class CVCumplimentationController extends Controller
         }
 
         switch($type_delegation){
-            case self::MODIFICACIONES:
-            case 3:
+            case self::MODIFICACION:
+            case self::STANDBY_OR_REVISION:
                 $users_actions=$this->get('utilities')->get_users_actions($user,$type_delegation);
                 $filters["users"]=$users_actions;
                 $filters2["users"]=$users_actions;
                 break;
             default:
-                $users_actions=$this->get('utilities')->get_users_actions($user,self::CUMPLIMENTACIONES);
+                $users_actions=$this->get('utilities')->get_users_actions($user,self::CUMPLIMENTACION);
                 $filters["usersc"]=$users_actions;
                 $filters2["usersc"]=$users_actions;
 
-                $users_actions=$this->get('utilities')->get_users_actions($user, self::VERIFICACIONES);
+                $users_actions=$this->get('utilities')->get_users_actions($user, self::VERIFICACION);
                 $filters["usersv"]=$users_actions;
                 $filters2["usersv"]=$users_actions;
             break;
