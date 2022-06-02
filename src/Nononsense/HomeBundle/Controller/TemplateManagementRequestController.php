@@ -457,4 +457,17 @@ class TemplateManagementRequestController extends Controller
         $route = $this->container->get('router')->generate('nononsense_home_homepage');
         return $this->redirect($route);
     }
+
+    public function retrieveRetentionsByTemplateIdAction(Request $request, int $templateId): Response
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $template["selected"]=$em->getRepository('NononsenseHomeBundle:TMTemplates')->listRetentionsByTemplateId($templateId);
+        $template["allCategories"]=$em->getRepository('NononsenseHomeBundle:RetentionCategories')->listToArray();
+
+        $response = new Response(json_encode($template), 200);
+        $response->headers->set('Content-Type', 'application/json');
+
+        return $response;
+    }
 }

@@ -603,6 +603,10 @@ nononsense_prepare_workflow_json:
     path:     /prepare/workfow/json/{area}
     defaults: { _controller: NononsenseHomeBundle:TemplateManagementRequest:listUsersAndGroupsJson, area: 0}
 
+nononsense_templates_retentions_json:
+    path:     /templates/retentions/json/{templateId}
+    defaults: { _controller: NononsenseHomeBundle:TemplateManagementRequest:retrieveRetentionsByTemplateId}
+
 # Retención
 
 nononsense_retention_categories_list:

@@ -517,4 +517,16 @@ class TMTemplatesRepository extends EntityRepository
         
         return $items;
     }
+
+    public function listRetentionsByTemplateId(int $templateId)
+    {
+        $template = $this->createQueryBuilder('t')
+            ->select('t, r')
+            ->leftJoin("t.retentions", "r")
+            ->where('t.id = :templateId');
+        $template->setParameter('templateId', $templateId);
+
+        return $template->getQuery()->getArrayResult();
+
+    }
 }
