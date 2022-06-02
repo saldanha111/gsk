@@ -45,6 +45,23 @@
             {% if downloadUrl is defined %}
                 <div class="box box-default">
                     <div class="box-header with-border">
+                        <h3 class="box-title">Sobreescribir plantilla</h3>
+                    </div>
+                    <!-- /.box-header -->
+                    <div class="box-body">
+                        <div class="form-group">
+                            <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalUploadFile"><i class="fa fa-upload"></i> Subir documento</button>
+                        </div>
+                    </div>
+                    {% if template.openedBy is defined and template.openedBy is not empty and template.openedBy.id!=app.user.id %}
+                        <div class="overlay">
+                            <i class="fa fa-cog fa-spin"></i>
+                        </div>
+                    {% endif %}
+                    <!-- /.box-body -->
+                </div>
+                <div class="box box-default">
+                    <div class="box-header with-border">
                       <h3 class="box-title">Configurar</h3>
                     </div>
                     <!-- /.box-header -->
@@ -59,32 +76,10 @@
                         </div>
                     {% endif %}
                     <!-- /.box-body -->
-                </div>  
-            {% endif %}
-            <div class="box box-default">
-                <div class="box-header with-border">
-                  <h3 class="box-title">Sobreescribir plantilla</h3>
                 </div>
-                <!-- /.box-header -->
-                <div class="box-body">
-                    <div class="form-group">
-                        <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalUploadFile"><i class="fa fa-upload"></i> Subir documento</button>
-                    </div> 
-                </div>
-                {% if template.openedBy is defined and template.openedBy is not empty and template.openedBy.id!=app.user.id %}
-                    <div class="overlay">
-                      <i class="fa fa-cog fa-spin"></i>
-                    </div>
-                {% endif %}
-                <!-- /.box-body -->
-            </div> 
-        </div>
-
-        {% if downloadUrl is defined %}
-            <div class="col-lg-4">
                 <div class="box box-default">
                     <div class="box-header with-border">
-                      <h3 class="box-title">Workflow cumplimentación</h3>
+                        <h3 class="box-title">Workflow cumplimentación</h3>
                     </div>
                     <!-- /.box-header -->
                     <div class="box-body">
@@ -110,16 +105,16 @@
                                                 <a href="javascript:void(0)" class="btn btn-xs btn-danger remove_line"><i class="fa fa-times" aria-hidden="true"></i></a>
                                             </div>
                                         </div>
-                                    </div> 
+                                    </div>
                                 {% endfor %}
                             </div>
                             <br>
                             <div class="row">
-                                <div class="col-lg-11">
+                                <div class="col-lg-12">
                                     <input type="submit" id="pre_workflow_submit" class="btn btn-primary pull-right" value="Firmar" {{ cumplimentations is not defined or cumplimentations is empty ? 'disabled="disabled"' : ''}}>
                                     <button type="button" class="btn btn-default pull-right add_line" style="margin-right:4px"><i class="fa fa-plus"></i> Añadir</button>
                                 </div>
-                            </div><br> 
+                            </div><br>
 
                             <div class="modal fade" tabindex="-1" role="dialog" id="modalSignWorkflow">
                                 <div class="modal-dialog" role="document">
@@ -127,10 +122,10 @@
                                         <div class="modal-header">
                                             <h5 class="modal-title">Firmar elaboración</h5>
                                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                              <span aria-hidden="true">&times;</span>
+                                                <span aria-hidden="true">&times;</span>
                                             </button>
                                         </div>
-                                    
+
                                         <div class="modal-body">
                                             <div class="row justify_workflow" style="display: none">
                                                 <div class="col-lg-10 col-lg-offset-1">
@@ -140,11 +135,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="row">
-                                                <div class="col-lg-10 col-lg-offset-1">
-                                                    <input id="finish_elaboration_aux" value="1" type="checkbox"> Finalizar elaboración
-                                                </div>
-                                            </div><br>
+                                            <br>
                                             <div class="row">
                                                 <div class="col-lg-10 col-lg-offset-1">
                                                     <div id="signature-pad3" class="input-group">
@@ -153,7 +144,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            
+
                                         </div>
                                         <div class="modal-footer">
                                             <a name="borrarFirmar" class="btn btn-secondary" id="borrarFirmar3">Limpiar firma</a>
@@ -169,11 +160,20 @@
                     </div>
                     {% if template.openedBy is defined and template.openedBy is not empty and template.openedBy.id!=app.user.id %}
                         <div class="overlay">
-                          <i class="fa fa-cog fa-spin"></i>
+                            <i class="fa fa-cog fa-spin"></i>
                         </div>
                     {% endif %}
                     <!-- /.box-body -->
-                </div>   
+                </div>
+            {% endif %}
+            <div class="form-group">
+                <a href="{{path('nononsense_tm_elaborate_configuration', {'id': template.id}) }}" class="btn btn-primary pull-right">Finalizar elaboración</a>
+            </div>
+        </div>
+
+        {% if downloadUrl is defined %}
+            <div class="col-lg-4">
+
             </div>
         {% endif %}
 
@@ -214,11 +214,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-lg-10 col-lg-offset-1">
-                        <input name="finish_elaboration" value="1" type="checkbox"> Finalizar elaboración
-                    </div>
-                </div><br>
+                <br>
                 <div class="row">
                     <div class="col-lg-10 col-lg-offset-1">
                         <div id="signature-pad2" class="input-group">
@@ -258,11 +254,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-lg-10 col-lg-offset-1">
-                        <input name="finish_elaboration" value="1" type="checkbox"> Finalizar elaboración
-                    </div>
-                </div><br>
+                <br>
                 <div class="row">
                     <div class="col-lg-10 col-lg-offset-1">
                         <div id="signature-pad" class="input-group">
