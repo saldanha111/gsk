@@ -51,6 +51,7 @@ class NotificationsModelsController extends Controller
             , "collectionId" => (int)$request->get("collectionId")
             , "email" => $request->get("email")
             , "createdBy" => (int)$userid
+            , "subject" => $request->get("subject")
         ];
         $notificationModel = $this->createNotification($data);
 
