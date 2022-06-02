@@ -925,7 +925,7 @@ class CVCumplimentationController extends Controller
                         <th style="font-size:8px;width:9%">Área</th>
                         <th style="font-size:8px;width:10%">Iniciado por</th>
                         <th style="font-size:8px;width:10%">Fecha inicio</th>
-                        <th style="font-size:8px;width:10%">Ultima modificación</th>
+                        <th style="font-size:8px;width:10%">Última modificación</th>
                         <th style="font-size:8px;width:10%">Estado</th>
                     </tr>';
             }
