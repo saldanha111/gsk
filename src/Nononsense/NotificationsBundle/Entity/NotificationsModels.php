@@ -88,6 +88,11 @@ class NotificationsModels
      * @ORM\Column(name="removed_at", type="datetime")
      */
     protected $removedAt;
+
+    /**
+     * @ORM\Column(name="subject", type="string")
+     */
+    protected $subject;
     
 
     public function __construct(){
@@ -369,6 +374,22 @@ class NotificationsModels
         $this->removedAt = new DateTime();
 
         return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSubject(): string
+    {
+        return $this->subject;
+    }
+
+    /**
+     * @param string $subject
+     */
+    public function setSubject(string $subject)
+    {
+        $this->subject = $subject;
     }
 
 }

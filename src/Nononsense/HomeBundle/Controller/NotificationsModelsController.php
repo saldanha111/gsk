@@ -132,6 +132,7 @@ class NotificationsModelsController extends Controller
 
         $notificationDetail = $this->fromNotificationModelToArray($notificationModel);
         $notificationDetail["msg"] = $notificationModel->getBody();
+        $notificationDetail["subject"] = $notificationModel->getSubject();
 
         return $this->render('NononsenseHomeBundle:NotificationsModels:notifications_models_detail.html.twig',
             [
@@ -211,6 +212,7 @@ class NotificationsModelsController extends Controller
         $notificationModel->setState($cvState);
 
         $notificationModel->setBody($data["msg"]);
+        $notificationModel->setSubject($data["subject"]);
 
         $type = $data["type"];
 
