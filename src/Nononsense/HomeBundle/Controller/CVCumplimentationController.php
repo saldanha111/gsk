@@ -41,7 +41,13 @@ use Nononsense\UtilsBundle\Classes\Utils;
 
 class CVCumplimentationController extends Controller
 {
+    const CUMPLIMENTACIONES = 1;
+    const MODIFICACIONES = 2;
+    const VERIFICACIONES = 4;
+
     //Creamos nuevo registro
+
+
     public function newAction(Request $request, int $template)
     {   
         $em = $this->getDoctrine()->getManager();
@@ -789,11 +795,11 @@ class CVCumplimentationController extends Controller
 
         $type_delegation="";
         if(isset($filters["gxp"])){
-            $type_delegation=2;
+            $type_delegation=self::MODIFICACIONES;
         }
-        /*if(isset($filters["blocked"])){
+        if(isset($filters["blocked"])){
             $type_delegation=3;
-        }*/
+        }
 
         $desc_pdf="Listado de registros";
 
@@ -820,18 +826,18 @@ class CVCumplimentationController extends Controller
         }
 
         switch($type_delegation){
-            case 2:
-                $users_actions=$this->get('utilities')->get_users_actions($user,2);
+            case self::MODIFICACIONES:
+            case 3:
+                $users_actions=$this->get('utilities')->get_users_actions($user,$type_delegation);
                 $filters["users"]=$users_actions;
                 $filters2["users"]=$users_actions;
-            break;
-
+                break;
             default:
-                $users_actions=$this->get('utilities')->get_users_actions($user,1);
+                $users_actions=$this->get('utilities')->get_users_actions($user,self::CUMPLIMENTACIONES);
                 $filters["usersc"]=$users_actions;
                 $filters2["usersc"]=$users_actions;
 
-                $users_actions=$this->get('utilities')->get_users_actions($user,4);
+                $users_actions=$this->get('utilities')->get_users_actions($user, self::VERIFICACIONES);
                 $filters["usersv"]=$users_actions;
                 $filters2["usersv"]=$users_actions;
             break;

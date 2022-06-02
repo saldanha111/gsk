@@ -15,7 +15,8 @@ class CVRecordsRepository extends EntityRepository
 	public function search($type,$filters)
     {
         $em = $this->getEntityManager();
-
+        $require_blocked = null;
+        $require_gxp = null;
         if(!empty($filters)){
             if (isset($filters["user"])) {
                 $user = $filters["user"];
@@ -146,11 +147,11 @@ class CVRecordsRepository extends EntityRepository
                     $list->addSelect('i.json');
                 }
 
-                if(isset($filters["gxp"]) && $filters["gxp"]){
+                if(isset($filters["gxp"]) && $filters["gxp"] && $require_gxp){
                     $list->addSelect($require_gxp." AS allow_gxp");
                 }
 
-                if(isset($filters["blocked"]) && $filters["blocked"]){
+                if(isset($filters["blocked"]) && $filters["blocked"] && $require_blocked){
                     $list->addSelect($require_blocked." AS allow_blocked");
                 }
 
