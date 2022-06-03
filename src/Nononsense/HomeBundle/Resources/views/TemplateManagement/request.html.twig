@@ -222,15 +222,12 @@
             </div>
 
             <div class="row">
-                <div class="col-lg-10 col-lg-offset-1">
-                    <div id="signature-pad" class="input-group">
-                            <h2>Introduzca su firma</h2>
-                            <canvas width="300" height="150" style="touch-action: none; border: 2px solid #eee; box-shadow: 0px 0px 6px 1px rgba(80, 90, 100, 0.5)"></canvas>
-                        </div>
-                        <input type="hidden" id="signature" name="signature" />
-                        <a name="borrarFirmar" class="btn btn-secondary" id="borrarFirmar">Limpiar firma</a>
-                        <button type="submit" class="btn btn-primary"><i class="fa fa-floppy-o" aria-hidden="true"></i> Firmar</button>
+                <div class="col-lg-2 col-lg-offset-1">
+                    <div id="signature-pad">
+                        <p>Introduzca su firma</p>
+                        <input type="password" name="password" id="box_password" class="form-control" required="required"><br>
                     </div>
+                    <button type="submit" class="btn btn-primary"><i class="fa fa-floppy-o" aria-hidden="true"></i> Firmar</button>
                 </div>
             </div>
         </form>
@@ -286,7 +283,6 @@
     <script src="/plugins/select2/dist/js/select2.full.min.js"></script>
     <script src="/plugins/select2/es.js"></script>
     <script src="/plugins/dual_listbox/dist/multi.min.js"></script>
-    <script src="/js/plugins/signature-pad/signature-pad.min.js"></script>
     <script>
     var dataworkflow;
     $( document ).ready(function() {
@@ -459,16 +455,7 @@
             escapeMarkup: function(m) { return m; }
         });
 
-        var canvas = document.querySelector("canvas");
-
-        var signaturePad = new SignaturePad(canvas);
-
-
-        $('#borrarFirmar').on('click', function () {
-            signaturePad.clear();
-        });
-
-        $('.select_template').on("select2:select", function(e) { 
+        $('.select_template').on("select2:select", function(e) {
             $('input[name ="template"]').val(e.params.data.id);
             load_users_to_area(e.params.data.area);
             load_prefixes_to_area(e.params.data.area);
@@ -477,10 +464,10 @@
 
         $('#form_item').on('submit', function(e){
             if(($('[name="retention[]"]').val() && $('[name="request_type"]:checked').val()==1) || $('[name="request_type"]:checked').val()==2){
-                if (signaturePad.isEmpty()){
+                const firma = document.getElementById("box_password").value;
+                if (firma === ""){
                     toastr.error("Debe firmar la solicitud",'aviso');
                 }else{
-                    $("#signature").val(signaturePad.toDataURL());
                     if(onwer_backup_is_on_elab_aprob()){
                         return true; 
                     }

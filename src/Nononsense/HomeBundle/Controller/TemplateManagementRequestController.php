@@ -96,6 +96,15 @@ class TemplateManagementRequestController extends Controller
 
         $array_error=array();
 
+        if(!$request->get('password') || !$this->get('utilities')->checkUser($request->get('password'))){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                "No se pudo firmar el registro, la contraseña es incorrecta"
+            );
+            $route = $this->container->get('router')->generate('nononsense_tm_request');
+            return $this->redirect($route);
+        }
+
         if(!$request->get("request_type")){
             $this->get('session')->getFlashBag()->add(
                 'error',
@@ -120,6 +129,9 @@ class TemplateManagementRequestController extends Controller
                 }
                 if(!$request->get("retention")){
                     $array_error[]="Categorías de retención";
+                }
+                if(!$request->get("password")){
+                    $array_error[]="Firma";
                 }
                 if(($request->get("area")==10 || $request->get("area")==11)){
                     if(!$request->get("num_project")){
