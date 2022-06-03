@@ -36,10 +36,10 @@
                             </div>
                         </div>
 
-                        <div class="form-group" id="box_existent_template">
+                        <div class="form-group" id="box_existent_template" style="display:none;">
                             <label class="col-sm-2 control-label">Buscar Plantilla</label>
                             <div class="col-sm-4">
-                              <select class="form-control select_template" style="width: 100%;">
+                              <select class="form-control select_template" id="select_template" style="width: 100%;">
                                 {% if item is defined %}
                                     <option value="{{item.id}}" selected="selected">{{item.name}}</option>
                                 {% endif %}
@@ -100,18 +100,20 @@
                             </div>
                         </div>
 
+
                         <div class="form-group" id="retentionDiv">
                             <label class="col-sm-2 control-label" for="retention">Cat.Retención</label>
                             <div class="col-sm-7">
                                 {% if retention_categories is defined %}
-                                    <select multiple="multiple" name="retention[]" id="retention">
-                                        {% for retention in retention_categories %}
-                                          <option value="{{retention.id}}">{{retention.name}}</option>
-                                        {% endfor %}
-                                    </select>
+                                <select multiple="multiple" name="retention[]" id="retention">
+                                    {% for retention in retention_categories %}
+                                      <option value="{{retention.id}}">{{retention.name}}</option>
+                                    {% endfor %}
+                                </select>
                                 {% endif %}
                             </div>
                         </div>
+
 
                         <div class="form-group">
                             <label class="col-sm-2 control-label">Desc. solicitud</label>
@@ -410,15 +412,19 @@
         $(document).on('change', '[name="request_type"]', function() {
             switch($(this).val()){
                 case "1":
+                    document.getElementById("retentionDiv").style.display = "block";
                     $("#box_new_template").show();
                     $("[name='area']").prop('required',true);
                     $("[name='name']").prop('required',true);
                     $("[name='prefix']").prop('required',true);
                     $("[name='template']").prop('required',false);
-                    $("#box_existent_template").hide();
+                    document.getElementById("box_existent_template").style.display = "none";
+                    // $("#box_existent_template").hide();
+                    // document.getElementById("retention").style.display = "block";
                     break;
                 case "2":
-                    document.getElementById("retentionDiv").style.display = "none";
+                    // document.getElementById("retention").style.display = "none";
+                    $('#select_template').val('').trigger('change');
                     $("#box_new_template").hide();
                     $("[name='area']").prop('required',false);
                     $("[name='name']").prop('required',false);
@@ -431,9 +437,10 @@
             clear_workflow();
         });
 
-        const categoriasRetencion = $('#retention' ).multi({ non_selected_header: 'Categorías de retención disponibles',
+        $('#retention').multi({ non_selected_header: 'Categorías de retención disponibles',
             selected_header: 'Categorías de retención que aplican'
         });
+
         $('#public_date').datepicker({
           autoclose: true,
           orientation: 'bottom auto',
@@ -620,21 +627,22 @@
 
                         for(let j  = 0; j < selected.length; j++) {
                             let toggleSelected = (selected[j].id===allCategories[i].id)
-                                ? " selected"
+                                ? " selected='selected'"
                                 : ""
                             ;
-                            options += '<option value="' + allCategories[i].id + '" ' + toggleSelected + '>'
-                                            + allCategories[i].name
-                                        + '</option>';
+                            options += '<option value="' + allCategories[i].id + '"' + toggleSelected + '>'
+                                + allCategories[i].name + "asdfasdfasdfsa"
+                                + '</option>'
+                            ;
                         }
                     }
-                    $("select#retention").empty().append(options);
-                    document.getElementById("retentionDiv").style.display = "block";
+                    // $('#retention').remove();
+                    // document.getElementById("retention").style.display = "none";
 
-                    $('#retention' ).multi({ non_selected_header: 'Categorías de retención disponibles',
-                        selected_header: 'Categorías de retención que aplican'
-                    });
+                    console.log(options);
 
+
+                    $("#retention").empty().append(options);
                 }
                 else{
                     toastr.error("No ha sido posible cargar las categorías de esta plantilla','", 'Error');
@@ -741,6 +749,8 @@
         url=url.replace("template_id", templateId);
         return url;
     }
+
+
 </script>
 {% endblock %}
 
