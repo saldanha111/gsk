@@ -410,20 +410,16 @@
 
         /* Si cambiamos el tipo de solicitud, limpiamos workflow y cambiamos los campos visibles según el tipo de solicitud */
         $(document).on('change', '[name="request_type"]', function() {
-            switch($(this).val()){
-                case "1":
-                    document.getElementById("retentionDiv").style.display = "block";
+            const selectedOption = parseInt($(this).val()); const NEW_TEMPLATE = 1; const NEW_EDITION = 2;
+            switch(selectedOption){
+                case NEW_TEMPLATE:
                     $("#box_new_template").show();
                     $("[name='area']").prop('required',true);
                     $("[name='name']").prop('required',true);
                     $("[name='prefix']").prop('required',true);
                     $("[name='template']").prop('required',false);
-                    document.getElementById("box_existent_template").style.display = "none";
-                    // $("#box_existent_template").hide();
-                    // document.getElementById("retention").style.display = "block";
                     break;
-                case "2":
-                    // document.getElementById("retention").style.display = "none";
+                case NEW_EDITION:
                     $('#select_template').val('').trigger('change');
                     $("#box_new_template").hide();
                     $("[name='area']").prop('required',false);
@@ -432,6 +428,7 @@
                     $("[name='template']").prop('required',true);
                     $("#box_existent_template").show();
                     break;
+                default: break;
             }
 
             clear_workflow();
@@ -610,46 +607,41 @@
         });
     }
 
-    /* Buscamos el json de usuarios y grupos para el area seleccionado */
+    /* Nueva edición - Buscamos el json de categorías de retención para la plantilla seleccionada  */
     function load_template_retentions(templateId){
-
         const url_template_retentions=get_url_template_retentions(templateId);
+        const UNABLE_LOAD_CATEGORIES = "No ha sido posible cargar las categorías de esta plantilla";
         $.ajax({
             type: 'GET',
             dataType: "json",
             url: url_template_retentions,
             success: function(data){
-                if(data.allCategories.length > 0){
-                    const allCategories = data.allCategories;
+                const allCategories = data.allCategories;
+                const NUM_CATEGORIES = allCategories.length;
+                if( NUM_CATEGORIES > 0){
                     const selected = data.selected;
+                    const NUM_ASSOCIATED_CATEGORIES = selected.length;
                     let options = "";
-                    for(let i  = 0; i < allCategories.length; i++) {
-
-                        for(let j  = 0; j < selected.length; j++) {
+                    for(let i = 0; i < NUM_CATEGORIES; i++) {
+                        for(let j = 0; j < NUM_ASSOCIATED_CATEGORIES; j++) {
                             let toggleSelected = (selected[j].id===allCategories[i].id)
                                 ? " selected='selected'"
                                 : ""
                             ;
                             options += '<option value="' + allCategories[i].id + '"' + toggleSelected + '>'
-                                + allCategories[i].name + "asdfasdfasdfsa"
-                                + '</option>'
+                                    + allCategories[i].name
+                                    + '</option>'
                             ;
                         }
                     }
-                    // $('#retention').remove();
-                    // document.getElementById("retention").style.display = "none";
-
-                    console.log(options);
-
-
                     $("#retention").empty().append(options);
                 }
                 else{
-                    toastr.error("No ha sido posible cargar las categorías de esta plantilla','", 'Error');
+                    toastr.error(UNABLE_LOAD_CATEGORIES,"", "Error");
                 }
             },
             error: function (request, status, error) {
-                toastr.error("No ha sido posible cargar las categorías de esta plantilla','", 'Error');
+                toastr.error(UNABLE_LOAD_CATEGORIES,"", "Error");
             }
         });
     }
