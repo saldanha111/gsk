@@ -1,6 +1,7 @@
 <?php
 namespace Nononsense\HomeBundle\Controller;
 
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Nononsense\UtilsBundle\Classes;
@@ -56,12 +57,7 @@ class TemplateConfigTemplatesController extends Controller
 
         $array_item["template"] = $this->getDoctrine()->getRepository(TMTemplates::class)->findOneBy(array("id" => $id));
         if($array_item["template"]->getTmState()->getId()!=5 && $array_item["template"]->getTmState()->getId()!=11  && $array_item["template"]->getTmState()->getId()!=6){
-        	$this->get('session')->getFlashBag()->add(
-                'error',
-                'La plantilla indicada no se encuentra en fase de configuración'
-            );
-            $route=$this->container->get('router')->generate('nononsense_home_homepage');
-            return $this->redirect($route);
+            return $this->returnToHomePage("La plantilla indicada no se encuentra en fase de configuración");
         }
 
 
@@ -85,12 +81,7 @@ class TemplateConfigTemplatesController extends Controller
         }
 
         if(!$find){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                'No tiene permisos para configurar esta plantilla'
-            );
-            $route=$this->container->get('router')->generate('nononsense_home_homepage');
-            return $this->redirect($route);
+            return $this->returnToHomePage("No tiene permisos para configurar esta plantilla");
         }
 
         $action = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 2));
@@ -141,33 +132,23 @@ class TemplateConfigTemplatesController extends Controller
 
         $is_valid = $this->get('app.security')->permissionSeccion('admin_gp');
         if(!$is_valid){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                'No tiene permisos suficientes'
-            );
-            $route=$this->container->get('router')->generate('nononsense_home_homepage');
-            return $this->redirect($route);
+            return $this->returnToHomePage('No tiene permisos suficientes');
+        }
+
+        $password =  $request->get('password');
+        if(!$password || !$this->get('utilities')->checkUser($password)){
+            return $this->returnToHomePage("No se pudo firmar el registro, la contraseña es incorrecta");
         }
 
         $user = $this->container->get('security.context')->getToken()->getUser();
 
         $template = $this->getDoctrine()->getRepository(TMTemplates::class)->findOneBy(array("id" => $id));
         if($template->getTmState()->getId()!=5 && $template->getTmState()->getId()!=11  && $template->getTmState()->getId()!=6){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                'La plantilla indicada no se encuentra en fase de configuración'
-            );
-            $route=$this->container->get('router')->generate('nononsense_home_homepage');
-            return $this->redirect($route);
+            return $this->returnToHomePage('La plantilla indicada no se encuentra en fase de configuración');
         }
 
         if(!$template->getOpenedBy() || $template->getOpenedBy()!=$user){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                'No se puede efectuar la operación'
-            );
-            $route=$this->container->get('router')->generate('nononsense_home_homepage');
-            return $this->redirect($route);
+            return $this->returnToHomePage('No se puede efectuar la operación');
         }
         
         $action = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id"=>"5"));
@@ -319,7 +300,15 @@ class TemplateConfigTemplatesController extends Controller
         $signature->setUserEntiy($user);
         $signature->setCreated(new \DateTime());
         $signature->setModified(new \DateTime());
-        $signature->setSignature($request->get("signature"));
+        /**
+         * Hay que eliminar toda referencia al guardado de la imagen correspondiente a la firma.
+         * TODO: se ha puesto un guión como medida preventiva. Hay que quitar la línea y desmarcar la casilla de "not null" en la tabla.
+         * @see: https://www.notion.so/oarotech/cf5ea14e748f4fedad342aeb34912ff0?v=243814d2031849f7aaa454fc09c14f5c&p=a14abdce08164343a308de44ea75128e
+         * Tarea: Sustituir todas las cajas del proceso de gestión de plantillas por contraseñas como en el resto de la plataforma → implica adaptar código en el backend y modificar las tablas correspondientes en la bd.
+         **/
+        //        $signature->setSignature($request->get("signature"));
+        $signature->setSignature("-");
+
         $signature->setVersion($response["version"]["id"]);
         $signature->setConfiguration($response["version"]["configuration"]["id"]);
         $signature->setDescription($description);
@@ -331,13 +320,22 @@ class TemplateConfigTemplatesController extends Controller
 
         
         if($next_state->getId()!=6){
-            $this->get('session')->getFlashBag()->add('message', "La configuración de la plantilla se ha realizado correctamente");
+            $message = "La configuración de la plantilla se ha realizado correctamente";
         }
         else{
-        	$this->get('session')->getFlashBag()->add('message', "La plantilla se ha puesto en vigor");
+            $message = "La plantilla se ha puesto en vigor";
         }
-        $route = $this->container->get('router')->generate('nononsense_home_homepage');
 
+        return $this->returnToHomePage($message, "message");
+    }
+
+    private function returnToHomePage(string $msgError, string $type = "error"): RedirectResponse
+    {
+        $this->get('session')->getFlashBag()->add(
+            $type,
+            $msgError
+        );
+        $route=$this->container->get('router')->generate('nononsense_home_homepage');
         return $this->redirect($route);
     }
 }

@@ -98,11 +98,15 @@
                             </div>
                         </div>
 
-                        <div class="form-group" style="display:none" id="retentionDiv">
+                        <div class="form-group" id="retentionDiv">
                             <label class="col-sm-2 control-label">Cat.Retención</label>
                             <div class="col-sm-7">
                                 {% if retention_categories is defined %}
-                                    <select multiple="multiple" name="retention[]" id="retention"></select>
+                                    <select multiple="multiple" name="retention[]" id="retention">
+                                        {% for retention in retention_categories %}
+                                            <option value={{retention.id}}>{{retention.name}}</option>;
+                                        {% endfor %}
+                                    </select>
                                 {% endif %}
                             </div>
                         </div>
@@ -286,8 +290,10 @@
     <script>
     var dataworkflow;
     $( document ).ready(function() {
-        
-        
+
+        $('#retention').multi({ non_selected_header: 'Categorías de retención disponibles',
+            selected_header: 'Categorías de retención que aplican'
+        });
 
         ActivateMenu('new_request_gp');
         $('#side-menu').metisMenu();
@@ -401,17 +407,17 @@
 
         /* Si cambiamos el tipo de solicitud, limpiamos workflow y cambiamos los campos visibles según el tipo de solicitud */
         $(document).on('change', '[name="request_type"]', function() {
-            switch($(this).val()){
-                case "1":
-                    $("#box_new_template").show();
+            const selectedOption = parseInt($(this).val());
+            const NEW_TEMPLATE = 1; const NEW_EDITION = 2;
+            switch(selectedOption){
+                case NEW_TEMPLATE:
+                    $('#retention' ).remove();
                     $("[name='area']").prop('required',true);
                     $("[name='name']").prop('required',true);
                     $("[name='prefix']").prop('required',true);
                     $("[name='template']").prop('required',false);
-                    $("#box_existent_template").hide();
                     break;
-                case "2":
-                    $("#box_new_template").hide();
+                case NEW_EDITION:
                     $("[name='area']").prop('required',false);
                     $("[name='name']").prop('required',false);
                     $("[name='prefix']").prop('required',false);
@@ -459,7 +465,7 @@
             $('input[name ="template"]').val(e.params.data.id);
             load_users_to_area(e.params.data.area);
             load_prefixes_to_area(e.params.data.area);
-            load_template_retentions(e.params.data.id);
+            load_associated_categories_byTemplateId(e.params.data.id);
         });
 
         $('#form_item').on('submit', function(e){
@@ -583,44 +589,53 @@
         });
     }
 
-    /* Buscamos el json de usuarios y grupos para el area seleccionado */
-    function load_template_retentions(templateId){
+    /* New edition: Buscamos el json de categorías para la plantilla seleccionada */
+    function load_associated_categories_byTemplateId(templateId){
+        const UNABLE_LOAD_CATEGORIES = "No ha sido posible cargar las categorías de esta plantilla";
         url_template_retentions=get_url_template_retentions(templateId);
         $.ajax({
             type: 'GET',
             dataType: "json",
             url: url_template_retentions,
             success: function(data){
-                if(data.allCategories.length > 0){
+                if (data.selected[0] && data.allCategories) {
                     const allCategories = data.allCategories;
-                    const selected = data.selected[0].retentions;
-                    let options = "";
-                    for(let i  = 0; i < allCategories.length; i++) {
-
-                        for(let j  = 0; j < selected.length; j++) {
-                            let toggleSelected = (selected[j].id===allCategories[i].id)
-                                ? "selected='selected'"
-                                : ""
-                            ;
-                            options += '<option value="' + allCategories[i].id + '"' + toggleSelected + '>'
-                                            + allCategories[i].name
-                                        + '</option>';
+                    let num_categories = (allCategories) ? allCategories.length : 0;
+                    if(0 < num_categories){
+                        const associatedCategories = data.selected[0].retentions;
+                        let num_associated_categories = (associatedCategories) ? associatedCategories.length : 0;
+                        let options = "";
+                        for(let i  = 0; i < num_categories; i++) {
+                            for(let j  = 0; j < num_associated_categories; j++) {
+                                let toggleSelected = (associatedCategories[j].id===allCategories[i].id)
+                                    ? "selected='selected'"
+                                    : ""
+                                ;
+                                options += '<option value="' + allCategories[i].id + '"' + toggleSelected + '>'
+                                    + allCategories[i].name
+                                    + '</option>';
+                            }
                         }
+                        $("#retention").empty().append(options);
+
+                        $("#retention").removeAttr("data-multijs");
+                        $("#retention").show();
+                        $(".multi-wrapper").remove();
+                        $('#retention' ).multi({ non_selected_header: 'Categorías de retención disponibles',
+                            selected_header: 'Categorías de retención que aplican'
+                        });
+
                     }
-                    $("select#retention").empty().append(options);
-                    document.getElementById("retentionDiv").style.display = "block";
-
-                    $('#retention' ).multi({ non_selected_header: 'Categorías de retención disponibles',
-                        selected_header: 'Categorías de retención que aplican'
-                    });
-
+                    else{
+                        toastr.error(UNABLE_LOAD_CATEGORIES,"", "Error");
+                    }
+                }else{
+                    toastr.error(UNABLE_LOAD_CATEGORIES,"", "Error");
                 }
-                else{
-                    toastr.error("No ha sido posible cargar las categorías de esta plantilla','", 'Error');
-                }
+
             },
             error: function (request, status, error) {
-                toastr.error("No ha sido posible cargar las categorías de esta plantilla','", 'Error');
+                toastr.error(UNABLE_LOAD_CATEGORIES,"", "Error");
             }
         });
     }

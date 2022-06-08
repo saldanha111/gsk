@@ -1,6 +1,7 @@
 <?php
 namespace Nononsense\HomeBundle\Controller;
 
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Nononsense\UtilsBundle\Classes;
@@ -96,22 +97,13 @@ class TemplateManagementRequestController extends Controller
 
         $array_error=array();
 
-        if(!$request->get('password') || !$this->get('utilities')->checkUser($request->get('password'))){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                "No se pudo firmar el registro, la contraseña es incorrecta"
-            );
-            $route = $this->container->get('router')->generate('nononsense_tm_request');
-            return $this->redirect($route);
+        $password =  $request->get('password');
+        if(!$password || !$this->get('utilities')->checkUser($password)){
+            return $this->returnToTmRequest("No se pudo firmar el registro, la contraseña es incorrecta");
         }
 
         if(!$request->get("request_type")){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                'El campo "Tipo de solicitud" es obligatorio'
-            );
-            $route = $this->container->get('router')->generate('nononsense_tm_request');
-            return $this->redirect($route);
+            return $this->returnToTmRequest("El campo 'Tipo de solicitud' es obligatorio");
         }
 
         $user = $this->container->get('security.context')->getToken()->getUser();
@@ -192,12 +184,7 @@ class TemplateManagementRequestController extends Controller
         }
 
         if(!empty($array_error)) {
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                'Los siguientes campos son obligatorios: '.implode(",", $array_error)
-            );
-            $route = $this->container->get('router')->generate('nononsense_tm_request');
-            return $this->redirect($route);
+            return $this->returnToTmRequest("Los siguientes campos son obligatorios: ".implode(",", $array_error));
         }
 
         $array_workflow=array(2=>"relationals_elab",3=>"relationals_test",4=>"relationals_aprob",5=>"relationals_admin");
@@ -208,36 +195,26 @@ class TemplateManagementRequestController extends Controller
             foreach($request->get($itemw) as $key => $wid){
                 if($request->get("type_".$itemw)[$key]==2){
                     if (in_array($wid, $array_users)) {
-                        $this->get('session')->getFlashBag()->add('error','No puede añadir el mismo usuario dentro del mismo paso en el workflow');
-                        $route = $this->container->get('router')->generate('nononsense_tm_request');
-                        return $this->redirect($route);
+                        return $this->returnToTmRequest("No puede añadir el mismo usuario dentro del mismo paso en el workflow");
                     }
 
                     switch($itemw){
                         case "relationals_aprob":
                             if (in_array($wid, $array_type_users["relationals_elab"])) {
-                                $this->get('session')->getFlashBag()->add('error','Un mismo usuario no puede estar como aprobador si ya está como  elaborador');
-                                $route = $this->container->get('router')->generate('nononsense_tm_request');
-                                return $this->redirect($route);
+                                return $this->returnToTmRequest("Un mismo usuario no puede estar como aprobador si ya está como  elaborador");
                             }
 
                             if (in_array($wid, $array_type_users["relationals_test"])) {
-                                $this->get('session')->getFlashBag()->add('error','Un mismo usuario no puede estar como aprobador si ya está como tester');
-                                $route = $this->container->get('router')->generate('nononsense_tm_request');
-                                return $this->redirect($route);
+                                return $this->returnToTmRequest("Un mismo usuario no puede estar como aprobador si ya está como tester");
                             }
 
                             if($user->getId()==$wid && $request->get("area")!=10 && $request->get("area")!=11){
-                                $this->get('session')->getFlashBag()->add('error','No puede añadirse como aprobador en su propia solicitud');
-                                $route = $this->container->get('router')->generate('nononsense_tm_request');
-                                return $this->redirect($route);
+                                return $this->returnToTmRequest("No puede añadirse como aprobador en su propia solicitud");
                             }
                             break;
                         case "relationals_admin":
                             if($user->getId()==$wid && $request->get("area")!=10 && $request->get("area")!=11){
-                                $this->get('session')->getFlashBag()->add('error','No puede añadirse como administrador en su propia solicitud');
-                                $route = $this->container->get('router')->generate('nononsense_tm_request');
-                                return $this->redirect($route);
+                                return $this->returnToTmRequest("No puede añadirse como administrador en su propia solicitud");
                             }
                             break;
                     }
@@ -248,19 +225,15 @@ class TemplateManagementRequestController extends Controller
             }
 
             if(empty($request->get($itemw)) && ($itemw!="relationals_test" || ($request->get("area")!=10 && $request->get("area")!=11))){
-                $this->get('session')->getFlashBag()->add('error','No puede haber un workflow vacío');
-                $route = $this->container->get('router')->generate('nononsense_tm_request');
-                return $this->redirect($route);
+                return $this->returnToTmRequest("No puede haber un workflow vacío");
             }
         }
 
         if (!in_array($request->get("owner"),$request->get("relationals_elab")) && !in_array($request->get("owner"),$request->get("relationals_aprob")) && !in_array($request->get("backup"),$request->get("relationals_elab")) && !in_array($request->get("backup"),$request->get("relationals_aprob"))) {
-
-            $this->get('session')->getFlashBag()->add('error','El dueño o backup debe estar dentro del workflow de elaboración o aprobación');
-                $route = $this->container->get('router')->generate('nononsense_tm_request');
-                return $this->redirect($route);
+            return $this->returnToTmRequest("El dueño o backup debe estar dentro del workflow de elaboración o aprobación");
         }
 
+        /** @var TMActions $action */
         $action = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id"=>"6"));
 
         switch($request->get("request_type")){
@@ -268,16 +241,12 @@ class TemplateManagementRequestController extends Controller
                 $area = $this->getDoctrine()->getRepository(Areas::class)->findOneById($request->get("area"));
 
                 if(!$area){
-                    $this->get('session')->getFlashBag()->add('error','El área indicado no existe');
-                    $route = $this->container->get('router')->generate('nononsense_tm_request');
-                    return $this->redirect($route);
+                    return $this->returnToTmRequest("El área indicado no existe");
                 }
 
                 $prefix = $this->getDoctrine()->getRepository(AreaPrefixes::class)->findOneBy(array("id"=> $request->get("prefix"),"area" => $area));
                 if(!$prefix){
-                    $this->get('session')->getFlashBag()->add('error','La numeración indicada no existe');
-                    $route = $this->container->get('router')->generate('nononsense_tm_request');
-                    return $this->redirect($route);
+                    return $this->returnToTmRequest("La numeración indicada no existe");
                 }
                 $desc_prefix=$prefix->getName();
                 $retentions = $this->getDoctrine()->getRepository(RetentionCategories::class)->findBy(array("id"=> $request->get("retention")));
@@ -307,9 +276,7 @@ class TemplateManagementRequestController extends Controller
             case 2:
                 $templates=$em->getRepository('NononsenseHomeBundle:TMTemplates')->listActiveForRequest(array("id"=>$request->get("template"),"no_request_in_proccess" => 1));
                 if(!$templates){
-                    $this->get('session')->getFlashBag()->add('error','El template indicado no está disponible');
-                    $route = $this->container->get('router')->generate('nononsense_tm_request');
-                    return $this->redirect($route);
+                    return $this->returnToTmRequest("El template indicado no está disponible");
                 }
                 $retentions = $templates[0]->getRetentions();
                 $desc_prefix=$templates[0]->getPrefix();
@@ -348,7 +315,7 @@ class TemplateManagementRequestController extends Controller
             $number= str_replace("#NUMPROY#", $request->get("num_project"), $number);
         }
 
-        
+        /** @var TMStates $state */
         $state = $this->getDoctrine()->getRepository(TMStates::class)->findOneBy(array("id"=> 1));
 
         $base_url=$this->getParameter('api_docoaro')."/documents/".$plantilla."/clone";
@@ -403,7 +370,9 @@ class TemplateManagementRequestController extends Controller
         $template->setFirstEdition($first_edition);
         $template->setDiffEditionDays($num_days);
 
+        /** @var Users $owner */
         $owner = $this->getDoctrine()->getRepository(Users::class)->findOneBy(array("id" => $request->get("owner")));
+        /** @var Users $backup */
         $backup = $this->getDoctrine()->getRepository(Users::class)->findOneBy(array("id" => $request->get("backup")));
 
         $template->setOwner($owner);
@@ -423,7 +392,14 @@ class TemplateManagementRequestController extends Controller
         $signature->setUserEntiy($user);
         $signature->setCreated(new \DateTime());
         $signature->setModified(new \DateTime());
-        $signature->setSignature($request->get("signature"));
+        /**
+         * Hay que eliminar toda referencia al guardado de la imagen correspondiente a la firma.
+         * TODO: se ha puesto un guión como medida preventiva. Hay que quitar la línea y desmarcar la casilla de "not null" en la tabla.
+         * @see: https://www.notion.so/oarotech/cf5ea14e748f4fedad342aeb34912ff0?v=243814d2031849f7aaa454fc09c14f5c&p=a14abdce08164343a308de44ea75128e
+         * Tarea: Sustituir todas las cajas del proceso de gestión de plantillas por contraseñas como en el resto de la plataforma → implica adaptar código en el backend y modificar las tablas correspondientes en la bd.
+         **/
+        //        $signature->setSignature($request->get("signature"));
+        $signature->setSignature("-");
         $signature->setVersion($response["version"]["id"]);
         $signature->setConfiguration($response["version"]["configuration"]["id"]);
         $em->persist($signature);
@@ -481,5 +457,15 @@ class TemplateManagementRequestController extends Controller
         $response->headers->set('Content-Type', 'application/json');
 
         return $response;
+    }
+
+    private function returnToTmRequest(string $msgError,string $type = "error"): RedirectResponse
+    {
+        $this->get('session')->getFlashBag()->add(
+            $type,
+            $msgError
+        );
+        $route=$this->container->get('router')->generate('nononsense_tm_request');
+        return $this->redirect($route);
     }
 }

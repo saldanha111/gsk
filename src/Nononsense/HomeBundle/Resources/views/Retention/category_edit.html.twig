@@ -135,14 +135,14 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-4 control-label">Firma</label>
-                            <div class="col-sm-7">
-                                <div id="signature-pad" class="input-group">
-                                    <canvas width="300" height="150"
-                                            style="touch-action: none; border: 2px solid #eee; box-shadow: 0px 0px 6px 1px rgba(80, 90, 100, 0.5)"></canvas>
+                            <div class="row">
+                                <div class="col-lg-10 col-lg-offset-1 mb-3">
+                                    <div id="signature-pad2" class="input-group">
+                                        <label for="box_password">Introduzca su firma</label><br>
+                                        <input type="password" name="password" id="box_password" class="form-control" required="required"><br>
+                                    </div>
                                 </div>
-                                <input type="hidden" id="firma" name="signature"/>
-                                <a href="#" class="btn btn-primary" id="borrar-firma">Limpiar firma</a>
+
                             </div>
                         </div>
                     </div>
@@ -176,7 +176,6 @@
     {{ parent() }}
     <script src="{{ asset('bundles/nononsensehome/js/select2.full.min.js') }}"></script>
     <script src="{{ asset('js/plugins/sweetalert/sweetalert.min.js') }}"></script>
-    <script src="{{ asset('js/plugins/signature-pad/signature-pad.min.js') }}"></script>
 
     <script>
 
@@ -184,8 +183,6 @@
         ActivateMenu('retention_admin');
         $('#side-menu').metisMenu();
         $('.search-select').select2();
-        const canvas = document.querySelector("canvas");
-        const signaturePad = new SignaturePad(canvas);
 
         $(document).on('change','input[name="confirmationType"]',function(){
             let radioChecked = $('input[name="confirmationType"]:checked').val();

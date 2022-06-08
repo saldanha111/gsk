@@ -29,11 +29,14 @@
                             <input type="text" id="pin" name='pin' placeholder="Código" class="form-control">
                         </div>
                     </div>
-                    <div id="signature-pad" class="input-group">
-                        <h2>Introduzca su firma</h2>
-                        <canvas width="300" height="150" style="touch-action: none; border: 2px solid #eee; box-shadow: 0px 0px 6px 1px rgba(80, 90, 100, 0.5)"></canvas>
+                    <div class="row">
+                        <div class="col-lg-10 col-lg-offset-1 mb-3">
+                            <div id="signature-pad2" class="input-group">
+                                <label for="box_password">Introduzca su firma</label><br>
+                                <input type="password" name="password" id="box_password" class="form-control" required="required"><br>
+                            </div>
+                        </div>
                     </div>
-                    <input type="hidden" id="firma" name="firma" />
                     <div class="row">
                         <div class="form-group">
                             <div class="col-xs-12">
@@ -47,7 +50,6 @@
                             </div>
                         </div>
                     </div>
-                    <a name="borrarFirmar" class="btn btn-primary" id="borrarFirmar">Limpiar firma</a>
                     <a name="guardarRegistro" class="btn btn-secondary">Firmar</a>
                 </form>
             </div>
@@ -58,7 +60,6 @@
 {% endblock %}
 {% block scripts %}
 {{ parent() }}
-<script src="/js/plugins/signature-pad/signature-pad.min.js"></script>
 <script>
     $(document).ready(function () {
 
@@ -81,31 +82,18 @@
         ActivateMenu('docxpresso_home');
         $('#side-menu').metisMenu();
 
-        var canvas = document.querySelector("canvas");
-
-        var signaturePad = new SignaturePad(canvas);
-
-
         $('a[name="guardarRegistro"]').on('click', function () {
+            const firma = document.getElementById("box_password").value;
+            const firmaEstaVacia = (firma === "");
 
-            $("#firma").val(signaturePad.toDataURL()) // save image as PNG
-
-            if(signaturePad.isEmpty()){
+            if(firmaEstaVacia){
                 toastr.error("Debe rellenar una firma, no puede dejar el cuadro en blanco",'aviso');
             }else if(!$('input[name="privacy"]').prop('checked')){
                 toastr.error("Debe aceptar las condiciones de uso",'aviso');
             }else{
                 $("#signForm").submit();
             }
-
-
         });
-        $('#borrarFirmar').on('click', function () {
-            signaturePad.clear();
-        });
-
-
-
     });
 
 </script>

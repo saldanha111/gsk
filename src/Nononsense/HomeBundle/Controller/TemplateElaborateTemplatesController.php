@@ -1,6 +1,7 @@
 <?php
 namespace Nononsense\HomeBundle\Controller;
 
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Nononsense\UtilsBundle\Classes;
@@ -39,24 +40,14 @@ class TemplateElaborateTemplatesController extends Controller
 
         $is_valid = $this->get('app.security')->permissionSeccion('elaborador_gp');
         if(!$is_valid){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                'No tiene permisos suficientes'
-            );
-            $route=$this->container->get('router')->generate('nononsense_home_homepage');
-            return $this->redirect($route);
+            return $this->returnToHomePage("No tiene permisos suficientes");
         }
 
         $user = $this->container->get('security.context')->getToken()->getUser();
 
         $array_item["template"] = $this->getDoctrine()->getRepository(TMTemplates::class)->findOneBy(array("id" => $id));
         if($array_item["template"]->getTmState()->getId()!=2){
-        	$this->get('session')->getFlashBag()->add(
-                'error',
-                'La plantilla indicada no se encuentra en estado de elaboración'
-            );
-            $route=$this->container->get('router')->generate('nononsense_home_homepage');
-            return $this->redirect($route);
+            return $this->returnToHomePage("La plantilla indicada no se encuentra en estado de elaboración");
         }
 
         $action = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 2));
@@ -87,12 +78,7 @@ class TemplateElaborateTemplatesController extends Controller
         }
 
         if($find==0){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                'No tiene permisos para elaborar este documento'
-            );
-            $route=$this->container->get('router')->generate('nononsense_home_homepage');
-            return $this->redirect($route);
+            return $this->returnToHomePage("No tiene permisos para elaborar este documento");
         }
 
         $array_item["type_cumplimentations"] = $this->getDoctrine()->getRepository(TMCumplimentations::class)->findBy(array(),array("id" => "ASC"));
@@ -179,38 +165,31 @@ class TemplateElaborateTemplatesController extends Controller
 
     public function updateAction(Request $request, int $id)
     {
+
+        die($request);
+
         $em = $this->getDoctrine()->getManager();
         $array_item=array();
 
         $is_valid = $this->get('app.security')->permissionSeccion('elaborador_gp');
         if(!$is_valid){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                'No tiene permisos suficientes'
-            );
-            $route=$this->container->get('router')->generate('nononsense_home_homepage');
-            return $this->redirect($route);
+            return $this->returnToHomePage("No tiene permisos suficientes");
+        }
+
+        $password = $request->get('password');
+        if(!$password || !$this->get('utilities')->checkUser($password)){
+            return $this->returnToHomePage("No se pudo firmar el registro, la contraseña es incorrecta");
         }
 
         $user = $this->container->get('security.context')->getToken()->getUser();
 
         $template = $this->getDoctrine()->getRepository(TMTemplates::class)->findOneBy(array("id" => $id));
         if($template->getTmState()->getId()!=2){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                'La plantilla indicada no se encuentra en estado de elaboración'
-            );
-            $route=$this->container->get('router')->generate('nononsense_home_homepage');
-            return $this->redirect($route);
+            return $this->returnToHomePage("La plantilla indicada no se encuentra en estado de elaboración");
         }
 
         if(!$template->getOpenedBy() || $template->getOpenedBy()!=$user){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                'No se puede efectuar la operación'
-            );
-            $route=$this->container->get('router')->generate('nononsense_home_homepage');
-            return $this->redirect($route);
+            return $this->returnToHomePage("No se puede efectuar la operación");
         }
 
         $action = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 2));
@@ -259,12 +238,7 @@ class TemplateElaborateTemplatesController extends Controller
         }
 
         if($find==0){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                'No tiene permisos para elaborar este documento'
-            );
-            $route=$this->container->get('router')->generate('nononsense_home_homepage');
-            return $this->redirect($route);
+            return $this->returnToHomePage("No tiene permisos para elaborar este documento");
         }
 
         if($request->files->get('template')){
@@ -316,12 +290,7 @@ class TemplateElaborateTemplatesController extends Controller
                 $response2 = json_decode($raw_response, true);
 
                 if(!$response2["configuration"]){
-                    $this->get('session')->getFlashBag()->add(
-                        'error',
-                        'Hubo un problema al firmar la configuración realizada. Es posible que la plantilla haya cambiado desde entonces'
-                    );
-                    $route=$this->container->get('router')->generate('nononsense_home_homepage');
-                    return $this->redirect($route);
+                    return $this->returnToHomePage("Hubo un problema al firmar la configuración realizada. Es posible que la plantilla haya cambiado desde entonces");
                 }
 
                 $template->setTmpConfiguration(NULL);
@@ -342,12 +311,7 @@ class TemplateElaborateTemplatesController extends Controller
         }
 
         if(!$response["version"]){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                'Hubo un problema al subir el documento de la nueva plantilla'
-            );
-            $route=$this->container->get('router')->generate('nononsense_home_homepage');
-            return $this->redirect($route);
+            return $this->returnToHomePage("Hubo un problema al subir el documento de la nueva plantilla");
         }
 
         if($request->get("cumplimentation")){
@@ -372,8 +336,14 @@ class TemplateElaborateTemplatesController extends Controller
         $signature->setUserEntiy($user);
         $signature->setCreated(new \DateTime());
         $signature->setModified(new \DateTime());
-        $signature->setSignature($request->get("signature"));
-        $signature->setVersion($response["version"]["id"]);
+        /**
+        * Hay que eliminar toda referencia al guardado de la imagen correspondiente a la firma.
+        * TODO: se ha puesto un guión como medida preventiva. Hay que quitar la línea y desmarcar la casilla de "not null" en la tabla.
+        * @see: https://www.notion.so/oarotech/cf5ea14e748f4fedad342aeb34912ff0?v=243814d2031849f7aaa454fc09c14f5c&p=a14abdce08164343a308de44ea75128e
+        * Tarea: Sustituir todas las cajas del proceso de gestión de plantillas por contraseñas como en el resto de la plataforma → implica adaptar código en el backend y modificar las tablas correspondientes en la bd.
+        **/
+        //        $signature->setSignature($request->get("signature"));
+        $signature->setSignature("-");        $signature->setVersion($response["version"]["id"]);
         $signature->setConfiguration($response["version"]["configuration"]["id"]);
         if($request->get("description")){
             $signature->setDescription($request->get("description"));
@@ -410,9 +380,7 @@ class TemplateElaborateTemplatesController extends Controller
         
         $em->flush();
 
-        $this->get('session')->getFlashBag()->add('message', "La operación se ha ejecutado con éxito");
-        $route = $this->container->get('router')->generate('nononsense_home_homepage');
-        return $this->redirect($route);
+        return $this->returnToHomePage("La operación se ha ejecutado con éxito", "message");
     }
 
     public function configurationAction(Request $request, int $id)
@@ -422,33 +390,18 @@ class TemplateElaborateTemplatesController extends Controller
 
         $is_valid = $this->get('app.security')->permissionSeccion('elaborador_gp');
         if(!$is_valid){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                'No tiene permisos suficientes'
-            );
-            $route=$this->container->get('router')->generate('nononsense_home_homepage');
-            return $this->redirect($route);
+            return $this->returnToHomePage("No tiene permisos suficientes");
         }
 
         $user = $this->container->get('security.context')->getToken()->getUser();
 
         $template = $this->getDoctrine()->getRepository(TMTemplates::class)->findOneBy(array("id" => $id));
         if($template->getTmState()->getId()!=2){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                'La plantilla indicada no se encuentra en estado de elaboración'
-            );
-            $route=$this->container->get('router')->generate('nononsense_home_homepage');
-            return $this->redirect($route);
+            return $this->returnToHomePage("La plantilla indicada no se encuentra en estado de elaboración");
         }
 
         if(!$template->getOpenedBy() || $template->getOpenedBy()!=$user){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                'No se puedo efectuar la operación'
-            );
-            $route=$this->container->get('router')->generate('nononsense_home_homepage');
-            return $this->redirect($route);
+            return $this->returnToHomePage("No se puedo efectuar la operación");
         }
 
         $token_get_data = $this->get('utilities')->generateToken();
@@ -531,24 +484,14 @@ class TemplateElaborateTemplatesController extends Controller
         $array_item=array();
 
         if(!$this->get('app.security')->permissionSeccion('elaborador_gp')){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                'No tiene permisos suficientes'
-            );
-            $route=$this->container->get('router')->generate('nononsense_home_homepage');
-            return $this->redirect($route);
+            return $this->returnToHomePage("No tiene permisos suficientes");
         }
 
         $user = $this->container->get('security.context')->getToken()->getUser();
 
         $array_item["template"] = $this->getDoctrine()->getRepository(TMTemplates::class)->findOneBy(array("id" => $id));
         if($array_item["template"]->getTmState()->getId()!=9){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                'La plantilla indicada no se encuentra en solicitud de cancelación'
-            );
-            $route=$this->container->get('router')->generate('nononsense_home_homepage');
-            return $this->redirect($route);
+            return $this->returnToHomePage("La plantilla indicada no se encuentra en solicitud de cancelación");
         }
 
         $actions = $this->getDoctrine()->getRepository(TMActions::class)->findBy(array("id" => array(2)));
@@ -579,12 +522,7 @@ class TemplateElaborateTemplatesController extends Controller
         }
         
         if($find==0){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                'No tiene permisos para tramitar la cancelación de este documento o ya lo ha firmado previamente'
-            );
-            $route=$this->container->get('router')->generate('nononsense_home_homepage');
-            return $this->redirect($route);
+            return $this->returnToHomePage("No tiene permisos para tramitar la cancelación de este documento o ya lo ha firmado previamente");
         }
 
         $base_url=$this->getParameter('api_docoaro')."/documents/".$array_item["template"]->getPlantillaId();
@@ -630,35 +568,23 @@ class TemplateElaborateTemplatesController extends Controller
         $description="";
 
         if(!$this->get('app.security')->permissionSeccion('elaborador_gp')){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                'No tiene permisos suficientes'
-            );
-            $route=$this->container->get('router')->generate('nononsense_home_homepage');
-            return $this->redirect($route);
+            return $this->returnToHomePage("No tiene permisos suficientes");
+        }
+
+        $password =  $request->get('password');
+        if(!$password || !$this->get('utilities')->checkUser($password)){
+            return $this->returnToHomePage("No se pudo firmar el registro, la contraseña es incorrecta");
         }
 
         $user = $this->container->get('security.context')->getToken()->getUser();
 
         $template = $this->getDoctrine()->getRepository(TMTemplates::class)->findOneBy(array("id" => $id));
         if($template->getTmState()->getId()!=9){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                'La plantilla indicada no se encuentra en solicitud de cancelación para poder realizar el trámite'
-            );
-            $route=$this->container->get('router')->generate('nononsense_home_homepage');
-            return $this->redirect($route);
+            return $this->returnToHomePage("La plantilla indicada no se encuentra en solicitud de cancelación para poder realizar el trámite");
         }
 
-        
-
         if(!$template->getOpenedBy() || $template->getOpenedBy()!=$user){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                'No se puede efectuar la operación'
-            );
-            $route=$this->container->get('router')->generate('nononsense_home_homepage');
-            return $this->redirect($route);
+            return $this->returnToHomePage("No se puede efectuar la operación");
         }
 
         $actions = $this->getDoctrine()->getRepository(TMActions::class)->findBy(array("id" => array(2)));
@@ -691,24 +617,14 @@ class TemplateElaborateTemplatesController extends Controller
         }
 
         if($find==0){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                'No tiene permisos para tramitar la cancelación del documento o ya lo ha firmado previamente'
-            );
-            $route=$this->container->get('router')->generate('nononsense_home_homepage');
-            return $this->redirect($route);
+            return $this->returnToHomePage("No tiene permisos para tramitar la cancelación del documento o ya lo ha firmado previamente");
         }
 
         if($request->get("action") && in_array($request->get("action"), array(16,17))){
             $action_cancel = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => $request->get("action")));
         }
         else{
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                'Hubo un problema al tramitar la firma de solicitud de cancelación'
-            );
-            $route=$this->container->get('router')->generate('nononsense_home_homepage');
-            return $this->redirect($route);
+            return $this->returnToHomePage("Hubo un problema al tramitar la firma de solicitud de cancelación");
         }
 
         
@@ -731,7 +647,14 @@ class TemplateElaborateTemplatesController extends Controller
         $signature->setUserEntiy($user);
         $signature->setCreated(new \DateTime());
         $signature->setModified(new \DateTime());
-        $signature->setSignature($request->get("signature"));
+        /**
+         * Hay que eliminar toda referencia al guardado de la imagen correspondiente a la firma.
+         * TODO: se ha puesto un guión como medida preventiva. Hay que quitar la línea y desmarcar la casilla de "not null" en la tabla.
+         * @see: https://www.notion.so/oarotech/cf5ea14e748f4fedad342aeb34912ff0?v=243814d2031849f7aaa454fc09c14f5c&p=a14abdce08164343a308de44ea75128e
+         * Tarea: Sustituir todas las cajas del proceso de gestión de plantillas por contraseñas como en el resto de la plataforma → implica adaptar código en el backend y modificar las tablas correspondientes en la bd.
+         **/
+        //        $signature->setSignature($request->get("signature"));
+        $signature->setSignature("-");
         $signature->setVersion($response["version"]["id"]);
         $signature->setConfiguration($response["version"]["configuration"]["id"]);
 
@@ -800,10 +723,20 @@ class TemplateElaborateTemplatesController extends Controller
         $em->persist($template);
         $em->flush();
 
-        
-        $route = $this->container->get('router')->generate('nononsense_home_homepage');
-       
 
+        $route = $this->container->get('router')->generate('nononsense_home_homepage');
+
+
+        return $this->redirect($route);
+    }
+
+    private function returnToHomePage(string $msgError, string $type = "error"): RedirectResponse
+    {
+        $this->get('session')->getFlashBag()->add(
+            $type,
+            $msgError
+        );
+        $route=$this->container->get('router')->generate('nononsense_home_homepage');
         return $this->redirect($route);
     }
 }
