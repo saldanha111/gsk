@@ -135,14 +135,9 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <div class="row">
-                                <div class="col-lg-10 col-lg-offset-1 mb-3">
-                                    <div id="signature-pad2" class="input-group">
-                                        <label for="box_password">Introduzca su firma</label><br>
-                                        <input type="password" name="password" id="box_password" class="form-control" required="required"><br>
-                                    </div>
-                                </div>
-
+                            <label class="col-sm-4 control-label" for="firma">Firma</label><br>
+                            <div class="col-sm-7">
+                                <input type="password" name="password" id="firma" class="form-control" required="required"><br>
                             </div>
                         </div>
                     </div>
@@ -208,9 +203,9 @@
         $(document).on('click','.del-category',function(e){
             e.preventDefault();
             let error = false;
-            $("#firma").val(signaturePad.toDataURL()) // save image as PNG
-
-            if (!checkSignature(signaturePad)) {
+            const firma = document.getElementById("firma").value;
+            const firmaEstaVacia = (firma === "");
+            if (firmaEstaVacia) {
                 swal({
                     title: "Atención",
                     text: "Debe rellenar una fima, no puede dejar el cuadro en blanco",
@@ -248,9 +243,9 @@
         $(document).on('click','.edit-category',function(e){
             e.preventDefault();
             let error = false;
-            $("#firma").val(signaturePad.toDataURL()) // save image as PNG
-
-            if (!checkSignature(signaturePad)) {
+            const firma = document.getElementById("firma").value;
+            const firmaEstaVacia = (firma === "");
+            if (firmaEstaVacia) {
                 swal({
                     title: "Atención",
                     text: "Debe rellenar una fima, no puede dejar el cuadro en blanco",
@@ -264,17 +259,7 @@
             }
         });
 
-        $(document).on('click','#borrar-firma', function (e) {
-            e.preventDefault();
-            signaturePad.clear();
-        });
-
     });
-
-    function checkSignature(signaturePad){
-        return !signaturePad.isEmpty();
-    }
-
     </script>
 {% endblock %}
 
