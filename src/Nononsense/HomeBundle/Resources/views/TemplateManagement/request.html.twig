@@ -632,14 +632,17 @@
 
                     }
                     else{
+                        console.log("1");
                         toastr.error(UNABLE_LOAD_CATEGORIES,"", "Error");
                     }
                 }else{
+                    console.log("2");
                     toastr.error(UNABLE_LOAD_CATEGORIES,"", "Error");
                 }
 
             },
             error: function (request, status, error) {
+                console.log("3");
                 toastr.error(UNABLE_LOAD_CATEGORIES,"", "Error");
             }
         });
