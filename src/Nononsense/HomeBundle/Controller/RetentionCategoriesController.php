@@ -169,6 +169,7 @@ class RetentionCategoriesController extends Controller
                 $category->setDestroyGroup($group);
             }
 
+            return new JsonResponse($user);
             if (!$request->get('name') || !$request->get('description') || (!$user && !$group) || !$state || !$type) {
                 throw new Exception('Todos los datos son obligatorios.');
             }
@@ -179,14 +180,13 @@ class RetentionCategoriesController extends Controller
             $em->getConnection()->commit();
             $this->get('session')->getFlashBag()->add(
                 'message',
-                "La categoría de retencioón se ha guardado correctamente"
+                "La categoría de retención se ha guardado correctamente"
             );
             $saved = true;
         } catch (Exception $e) {
             $em->getConnection()->rollback();
             $this->get('session')->getFlashBag()->add(
-                'error',
-                "Error al intentar guardar los datos de la categoría"
+                'error', $e->getMessage()
             );
         }
         return $saved;
