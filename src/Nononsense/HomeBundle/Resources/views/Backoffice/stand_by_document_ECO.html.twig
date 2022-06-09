@@ -309,14 +309,11 @@
                   action="{{path('nononsense_backoffice_standby_document_ECO_accion', {'idRegistro': idregistro})}}"  method="POST" enctype="multipart/form-data">
                 <p>Escriba justificación:</p>
                 <textarea id="comment" name="comment" form="accionform" rows="10" cols="91"></textarea>
-                <div id="signature-pad" class="input-group">
-                    <h2>Introduzca su firma</h2>
-                    <canvas width="300" height="150"
-                            style="touch-action: none; border: 2px solid #eee; box-shadow: 0px 0px 6px 1px rgba(80, 90, 100, 0.5)"></canvas>
+                <div class="input-group">
+                    <label for="box_passwordECO">Introduzca su firma</label><br>
+                    <input type="password" name="passwordECO" id="box_passwordECO" class="form-control" required="required"><br>
                 </div>
-                <input type="hidden" id="firma" name="firma"/>
                 <input type="hidden" id="accion" name="accion"/>
-                <a name="borrarFirmar" class="btn btn-primary" id="borrarFirmar">Limpiar firma</a>
                 <a name="volver" class="btn btn-danger" id="backButton">Volver</a>
                 <a name="autorizarPeticion" class="btn btn-success">Autorizar Petición</a>
                 <a name="cancelarPeticion" class="btn btn-danger">Cancelar Petición</a>
@@ -327,7 +324,6 @@
 {% endblock %}
 {% block scripts %}
 {{ parent() }}
-<script src="/js/plugins/signature-pad/signature-pad.min.js"></script>
 <script>
 
 
@@ -351,27 +347,20 @@
         ActivateMenu('docxpresso_auth');
         $('#side-menu').metisMenu();
 
-        var canvas = document.querySelector("canvas");
-
-        var signaturePad = new SignaturePad(canvas);
-
         $('a[name="cancelarPeticion"]').on('click', function () {
             var valueSelect = $("#motivoSelect").val();
             var text = $("#comment").val();
 
-
-            $("#firma").val(signaturePad.toDataURL()); // save image as PNG
             $("#accion").val('cancelar'); // accion a procesar
 
-            console.log(text);
+            const firmaCancelar = document.getElementById("box_passwordCancelar").value;
+            const firmaCancelarEstaVacia = (firmaCancelar === "");
 
             if (text.trim() == "") {
                 toastr.error("Debe escribir un motivo, no puede dejar el cuadro en blanco", 'aviso');
-            } else if (signaturePad.isEmpty()) {
+            } if(firmaCancelarEstaVacia){
                 toastr.error("Debe rellenar una fima, no puede dejar el cuadro en blanco", 'aviso');
-
             } else {
-                console.log(signaturePad.toDataURL());
                 $("#accionform").submit();
             }
 
@@ -382,18 +371,16 @@
             var text = $("#comment").val();
 
 
-            $("#firma").val(signaturePad.toDataURL()); // save image as PNG
             $("#accion").val('ECO'); // accion a procesar
 
-            console.log(text);
+            const firmaECO = document.getElementById("box_passwordECO").value;
+            const firmaECOEstaVacia = (firmaECO === "");
 
             if (text.trim() == "") {
                 toastr.error("Debe escribir un motivo, no puede dejar el cuadro en blanco", 'aviso');
-            } else if (signaturePad.isEmpty()) {
+            } else if (firmaECOEstaVacia) {
                 toastr.error("Debe rellenar una fima, no puede dejar el cuadro en blanco", 'aviso');
-
             } else {
-                console.log(signaturePad.toDataURL());
                 $("#accionform").submit();
             }
 
@@ -404,28 +391,23 @@
             var valueSelect = $("#motivoSelect").val();
             var text = $("#comment").val();
 
+            const firmaAutorizar = document.getElementById("box_passwordAutorizar").value;
+            const firmaAutorizarEstaVacia = (firmaAutorizar === "");
 
-            $("#firma").val(signaturePad.toDataURL()); // save image as PNG
             $("#accion").val('autorizar'); // accion a procesar
-
-            console.log(text);
 
             if (text.trim() == "") {
                 toastr.error("Debe escribir un motivo, no puede dejar el cuadro en blanco", 'aviso');
-            } else if (signaturePad.isEmpty()) {
+            } else if (firmaAutorizarEstaVacia) {
                 toastr.error("Debe rellenar una fima, no puede dejar el cuadro en blanco", 'aviso');
 
             } else {
-                console.log(signaturePad.toDataURL());
                 $("#accionform").submit();
             }
 
 
         });
 
-        $('#borrarFirmar').on('click', function () {
-            signaturePad.clear();
-        });
         $('#backButton').on('click', function () {
             window.history.back();
         });

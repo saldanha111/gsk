@@ -79,21 +79,18 @@
                     <form class="form-horizontal" id="form_item" action="{{ path('nononsense_tm_elaborate_update_cancel', {'id': template.id}) }}" method="POST"  enctype="multipart/form-data">
                         <div class="form-group">
                             <div class="row">
-                                <div class="col-lg-12">
-                                    <div id="signature-pad" class="input-group">
-                                            <h2>Introduzca su firma</h2>
-                                            <canvas width="300" height="150" style="touch-action: none; border: 2px solid #eee; box-shadow: 0px 0px 6px 1px rgba(80, 90, 100, 0.5)"></canvas>
-                                        </div>
-                                        <input type="hidden" id="signature" name="signature" />
-                                        <a name="borrarFirmar" class="btn btn-secondary" id="borrarFirmar">Limpiar firma</a>
-                                        <button type="submit" class="btn btn-danger" data-action="17">Rechazar</button>
-                                        <button type="submit" class="btn btn-primary" data-action="16"><i class="fa fa-floppy-o" aria-hidden="true"></i> Aceptar</button>
+                                <div class="col-lg-10 col-lg-offset-1 mb-3">
+                                    <div class="input-group">
+                                        <label for="box_password">Introduzca su firma</label><br>
+                                        <input type="password" name="password" id="box_password" class="form-control" required="required"><br>
                                     </div>
                                 </div>
-                                <br><br>
+                                <button type="submit" class="btn btn-danger" data-action="17">Rechazar</button>
+                                <button type="submit" class="btn btn-primary" data-action="16"><i class="fa fa-floppy-o" aria-hidden="true"></i> Aceptar</button>
                             </div>
-                        </div> 
-                        <input type="hidden" name="action" value="16"> 
+                            <br><br>
+                        </div>
+                        <input type="hidden" name="action" value="16">
                     </form>
                 </div>
                 {% if template.openedBy is defined and template.openedBy is not empty and template.openedBy.id!=app.user.id %}
@@ -119,23 +116,18 @@
 {% endblock %}
 {% block scripts %}
 {{ parent() }}
-<script src="/js/plugins/signature-pad/signature-pad.min.js"></script>
 <script>
-
-var canvas = document.querySelector("canvas");
-var signaturePad = new SignaturePad(canvas);
 
 $( document ).ready(function() {
     $('[data-toggle="tooltip"]').tooltip();
-    $('#borrarFirmar').on('click', function () {
-        signaturePad.clear();
-    });
 
     $('#form_item').on('submit', function(e){
-        if (signaturePad.isEmpty()){
+        const firma = document.getElementById("box_password").value;
+        const firmaEstaVacia = (firma === "");
+
+        if(firmaEstaVacia){
             toastr.error("Debe firmar la solicitud",'aviso');
         }else{
-            $("#signature").val(signaturePad.toDataURL());
             $("[name='action']").val($(document.activeElement).data("action"));
             
             return true;  
