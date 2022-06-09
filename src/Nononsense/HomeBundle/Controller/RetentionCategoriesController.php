@@ -12,6 +12,7 @@ use Nononsense\HomeBundle\Entity\RetentionCategories;
 use Nononsense\HomeBundle\Entity\RetentionCategoriesRepository;
 use Nononsense\UserBundle\Entity\Users;
 use Nononsense\UtilsBundle\Classes\Utils;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 
@@ -72,14 +73,19 @@ class RetentionCategoriesController extends Controller
         $groups = $em->getRepository(Groups::class)->findBy(array(),array("name" => "ASC"));
         $used = (count($category->getTemplates()) > 1);
 
-        $data = [
-            'category' => $category,
-            'states' => $states,
-            'types' => $types,
-            'users' => $users,
-            'groups' => $groups,
-            'used' => $used
-        ];
+        if (count($states) === 0 || count($types) === 0 || count($users) === 0 || count($groups) === 0) {
+            $this->addFlash("error", "No hemos podido recuperar los tipos, los estados, los usuarios o los grupos");
+            $data = [];
+        } else {
+            $data = [
+                'category' => $category,
+                'states' => $states,
+                'types' => $types,
+                'users' => $users,
+                'groups' => $groups,
+                'used' => $used
+            ];
+        }
 
         return $this->render('NononsenseHomeBundle:Retention:category_edit.html.twig', $data);
     }

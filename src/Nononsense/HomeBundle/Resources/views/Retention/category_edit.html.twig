@@ -1,11 +1,15 @@
 {% extends '::base.html.twig' %}
-{% block page_title %}Docoaro - GSK |  Retención / {{category.id is not null ? 'Editar' : 'Crear'}} categoría {% endblock %}
+{% block page_title %}Docoaro - GSK |  Retención /
+    {{states is defined and types is defined and category.id is not null ? 'Editar' : 'Crear'}} categoría
+{% endblock %}
 {% block head %}
     <link rel="stylesheet" href="{{ asset('bundles/nononsensehome/css/select2.min.css') }}">
     <link rel="stylesheet" href="{{ asset('/js/plugins/sweetalert/sweetalert.min.css') }}">
     {{ parent() }}
 {% endblock %}
-{% block main_title %} Retención / {{category.id is not null ? 'Editar' : 'Crear'}} categoría{% endblock %}
+{% block main_title %} Retención /
+    {{states is defined and types is defined and category.id is not null ? 'Editar' : 'Crear'}} categoría
+{% endblock %}
 
 {% block content %}
 
@@ -24,150 +28,166 @@
             </div>
             <br>
         {% endfor %}
-        <form class="form-horizontal" id="form_item" method="POST">
-            <div class="row">
-                <div class="col-lg-4 col-lg-offset-1">
-                    <div class="row">
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Nombre</label>
-                            <div class="col-sm-7">
-                                <input type="text" name="name" class="form-control" value="{{category.name is not null ? category.name : ''}}" required="required">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Descripción</label>
-                            <div class="col-sm-7">
-                                <input type="text" name="description" class="form-control" value="{{category.description is not null ? category.description : ''}}" required="required">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Tipo</label>
-                            <div class="col-sm-7">
-                                <select class="form-control" name="type" required="required">
-                                    <option value=""></option>
-                                    {% for type in types %}
-                                        <option value="{{type.id}}" {{ category.type.id is defined and category.type.id is not null and category.type.id==type.id ? 'selected="selected"' : ''}}>{{type.name}}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Estado</label>
-                            <div class="col-sm-7">
-                                <select class="form-control" name="state" required="required">
-                                    <option value=""></option>
-                                    {% for state in states %}
-                                        <option value="{{state.id}}" {{ category.documentState.id is defined and category.documentState.id is not null and category.documentState.id==state.id ? 'selected="selected"' : ''}}>{{state.name}}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Tiempo de retención</label>
-                        </div>
-                        <div class="form-group">
-                            <div class="col-sm-7 col-sm-offset-4">
-                                <label class="control-label text-left">Años</label>
-                                <input type="text" name="years" class="form-control" value="{{category.RetentionDaysFormatted['years'] is not null ? category.RetentionDaysFormatted['years'] : '0'}}" required="required">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="col-sm-7 col-sm-offset-4">
-                                <label class="control-label text-left">Meses</label>
-                                <input type="text" name="months" class="form-control" value="{{category.RetentionDaysFormatted['months'] is not null ? category.RetentionDaysFormatted['months'] : '0'}}" required="required">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="col-sm-7 col-sm-offset-4">
-                                <label class="control-label text-left">Días</label>
-                                <input type="text" name="days" class="form-control" value="{{category.RetentionDaysFormatted['days'] is not null ? category.RetentionDaysFormatted['days'] : '0'}}" required="required">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Confirmación</label>
-                            <div class="col-sm-7">
-                                <input type="radio" id="user" name="confirmationType" value="user" {{category.destroyUser is not null ? 'checked="checked"' : ''}} required="required">
-                                <label for="user">Usuario</label><br>
-                                <input type="radio" id="group" name="confirmationType" value="group" {{category.destroyGroup is not null ? 'checked="checked"' : ''}} required="required">
-                                <label for="group">Grupo</label><br>
-                            </div>
-                        </div>
-                        <div class="form-group div-user" {{category.destroyUser is not null ? '' : 'style="display:none;"'}}>
-                            <label class="col-sm-4 control-label">Usuario de confirmación</label>
-                            <div class="col-sm-7">
-                                <select name="user" id="selectuser" class="form-control search-select">
-                                    <option></option>
-                                    {% for user in users %}
-                                        {% if category.destroyUser is not null and category.destroyUser.id == user.id %}
-                                            <option value="{{user.id}}" selected="selected">{{user.name}}</option>
-                                        {% else %}
-                                            <option value="{{user.id}}">{{user.name}}</option>
-                                        {% endif %}
-                                    {% endfor %}
-                                </select>
-                            </div>
-                        </div>
-                        <div class="form-group div-group"{{category.destroyGroup is not null ? '' : 'style="display:none;"'}}>
-                            <label class="col-sm-4 control-label">Grupo de confirmación</label>
-                            <div class="col-sm-7">
-                                <select name="group" id="selectgroup" class="form-control search-select">
-                                    <option></option>
-                                    {% for group in groups %}
-                                        {% if category.destroyGroup is not null and category.destroyGroup.id == group.id %}
-                                            <option value="{{group.id}}" selected="selected">{{group.name}}</option>
-                                        {% else %}
-                                            <option value="{{group.id}}">{{group.name}}</option>
-                                        {% endif %}
-                                    {% endfor %}
-                                </select>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Activo</label>
-                            <div class="col-sm-7">
-                                <input name="active" value="1" type="checkbox" {% if category.active == true %} checked="checked" {% endif %}>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Comentario</label>
-                            <div class="col-sm-7">
-                                <textarea class="form-control text-comment" rows="4" name="comment"></textarea>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Firma</label>
-                            <div class="col-sm-7">
-                                <div id="signature-pad" class="input-group">
-                                    <canvas width="300" height="150"
-                                            style="touch-action: none; border: 2px solid #eee; box-shadow: 0px 0px 6px 1px rgba(80, 90, 100, 0.5)"></canvas>
+        {% if states is defined and types is defined %}
+            <form class="form-horizontal" id="form_item" method="POST">
+                <div class="row">
+                    <div class="col-lg-4 col-lg-offset-1">
+                        <div class="row">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Nombre</label>
+                                <div class="col-sm-7">
+                                    <input type="text" name="name" class="form-control" value="{{category.name is not null ? category.name : ''}}" required="required">
                                 </div>
-                                <input type="hidden" id="firma" name="signature"/>
-                                <a href="#" class="btn btn-primary" id="borrar-firma">Limpiar firma</a>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Descripción</label>
+                                <div class="col-sm-7">
+                                    <input type="text" name="description" class="form-control" value="{{category.description is not null ? category.description : ''}}" required="required">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Tipo</label>
+                                <div class="col-sm-7">
+                                    <select class="form-control" name="type" required="required" id="tipoCategoria">
+                                        <option value=""></option>
+                                        {% for type in types %}
+                                            <option value="{{type.id}}" {{ category.type.id is defined and category.type.id is not null and category.type.id==type.id ? 'selected="selected"' : ''}}>{{type.name}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Estado</label>
+                                <div class="col-sm-7">
+                                    <select class="form-control" name="state" id="state" required="required">
+                                        <option value="">Seleccione un tipo previamente</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Tiempo de retención</label>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-7 col-sm-offset-3">
+                                    <table>
+                                        <tbody>
+                                            <tr>
+                                                <td>
+                                                    <div class="form-group">
+                                                        <div class="col-sm-8 col-sm-offset-4">
+                                                            <label class="control-label text-center">Años</label>
+                                                            <input type="number" min="0" name="years" id="years"  class="form-control" value="{{category.RetentionDaysFormatted['years'] is not null ? category.RetentionDaysFormatted['years'] : '0'}}" required="required">
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="form-group">
+                                                        <div class="col-sm-8 col-sm-offset-4">
+                                                            <label class="control-label text-center">Meses</label>
+                                                            <input type="number" min="0" name="months" id="months" class="form-control" value="{{category.RetentionDaysFormatted['months'] is not null ? category.RetentionDaysFormatted['months'] : '0'}}" required="required">
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="form-group">
+                                                        <div class="col-sm-8 col-sm-offset-4">
+                                                            <label class="control-label text-center">Días</label>
+                                                            <input type="number" min="0" name="days" id="days" class="form-control" value="{{category.RetentionDaysFormatted['days'] is not null ? category.RetentionDaysFormatted['days'] : '0'}}" required="required">
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Confirmación</label>
+                                <div class="col-sm-7">
+                                    <input type="radio" id="user" name="confirmationType" value="user" {{category.destroyUser is not null ? 'checked="checked"' : ''}} required="required">
+                                    <label for="user">Usuario</label><br>
+                                    <input type="radio" id="group" name="confirmationType" value="group" {{category.destroyGroup is not null ? 'checked="checked"' : ''}} required="required">
+                                    <label for="group">Grupo</label><br>
+                                </div>
+                            </div>
+                            <div class="form-group div-user" {{category.destroyUser is not null ? '' : 'style="display:none;"'}}>
+                                <label class="col-sm-4 control-label">Usuario de confirmación</label>
+                                <div class="col-sm-7">
+                                    <select name="user" id="selectuser" class="form-control search-select">
+                                        <option></option>
+                                        {% for user in users %}
+                                            {% if category.destroyUser is not null and category.destroyUser.id == user.id %}
+                                                <option value="{{user.id}}" selected="selected">{{user.name}}</option>
+                                            {% else %}
+                                                <option value="{{user.id}}">{{user.name}}</option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group div-group"{{category.destroyGroup is not null ? '' : 'style="display:none;"'}}>
+                                <label class="col-sm-4 control-label">Grupo de confirmación</label>
+                                <div class="col-sm-7">
+                                    <select name="group" id="selectgroup" class="form-control search-select">
+                                        <option></option>
+                                        {% for group in groups %}
+                                            {% if category.destroyGroup is not null and category.destroyGroup.id == group.id %}
+                                                <option value="{{group.id}}" selected="selected">{{group.name}}</option>
+                                            {% else %}
+                                                <option value="{{group.id}}">{{group.name}}</option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Activo</label>
+                                <div class="col-sm-7">
+                                    <input name="active" value="1" type="checkbox" {% if category.active == true %} checked="checked" {% endif %}>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Comentario</label>
+                                <div class="col-sm-7">
+                                    <textarea class="form-control text-comment" rows="4" name="comment"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Firma</label>
+                                <div class="col-sm-7">
+                                    <div id="signature-pad" class="input-group">
+                                        <canvas width="300" height="150"
+                                                style="touch-action: none; border: 2px solid #eee; box-shadow: 0px 0px 6px 1px rgba(80, 90, 100, 0.5)"></canvas>
+                                    </div>
+                                    <input type="hidden" id="firma" name="signature"/>
+                                    <a href="#" class="btn btn-primary" id="borrar-firma">Limpiar firma</a>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="row">
-                <div class="col-sm-5 col-sm-offset-1">
-                    {% if not used and category.id is defined and category.id is not null%}
-                        <button type="button" class="btn btn-danger pull-left del-category">
-                            <i class="fa fa-trash-o" aria-hidden="true"></i><span> Eliminar categoría</span>
+                <div class="row">
+                    <div class="col-sm-5 col-sm-offset-1">
+                        {% if not used and category.id is defined and category.id is not null%}
+                            <button type="button" class="btn btn-danger pull-left del-category">
+                                <i class="fa fa-trash-o" aria-hidden="true"></i><span> Eliminar categoría</span>
+                            </button>
+                        {% endif %}
+                    </div>
+                    <div class="col-sm-5">
+                        <button type="button" class="btn btn-primary pull-right edit-category">
+                            <i class="fa fa-floppy-o" aria-hidden="true"></i>
+                            <span> {{category.id is not null ? 'Editar' : 'Registrar'}} categoría</span>
                         </button>
-                    {% endif %}
+                    </div>
                 </div>
-                <div class="col-sm-5">
-                    <button type="button" class="btn btn-primary pull-right edit-category">
-                        <i class="fa fa-floppy-o" aria-hidden="true"></i>
-                        <span> {{category.id is not null ? 'Editar' : 'Registrar'}} categoría</span>
-                    </button>
-                </div>
-            </div>
-        </form>
-        {% if not used and category.id is defined and category.id is not null%}
-            <input type="hidden" name="del-url"  value="{{ path('nononsense_retention_categories_delete',{'id': category.id}) }}">
-        {% endif %}
+            </form>
+            {% if not used and category.id is defined and category.id is not null%}
+                <input type="hidden" name="del-url"  value="{{ path('nononsense_retention_categories_delete',{'id': category.id}) }}">
+            {% endif %}
             <input type="hidden" name="edit-url" value="{{ path('nononsense_retention_categories_edit',{'id': category.id is not null ? category.id : 0}) }}">
+        {% endif %}
     </div>
     
 {% endblock %}
@@ -256,15 +276,33 @@
             if (!checkSignature(signaturePad)) {
                 swal({
                     title: "Atención",
-                    text: "Debe rellenar una fima, no puede dejar el cuadro en blanco",
+                    text: "Debe rellenar una firma, no puede dejar el cuadro en blanco",
                     type: "warning"
                 });
                 error = true;
             }
 
+            if (!error) {
+                // La suma de años + meses + dias no puede ser 0
+                const numYears = parseInt(document.getElementById("years").value);
+                const numMonths = parseInt(document.getElementById("months").value);
+                const numDays = parseInt(document.getElementById("days").value);
+
+                error = (numYears + numMonths + numDays === 0);
+
+                if (error) {
+                    swal({
+                        title: "Atención",
+                        text: "La suma de años, meses y días no puede ser 0",
+                        type: "warning"
+                    });
+                }
+            }
+
             if(!error){
                $('#form_item').attr('action', $('input[name="edit-url"]').val()).submit();
             }
+
         });
 
         $(document).on('click','#borrar-firma', function (e) {
@@ -272,12 +310,48 @@
             signaturePad.clear();
         });
 
+        $("#tipoCategoria").on("change", function() {
+            let estadosPorTipoCategorias = [];
+            {% if states is defined and types is defined %}
+                const GESTION_PLANTILLAS = 1; const CUMPLIMENTACION = 2;
+                const type = parseInt($(this).val());
+                if (GESTION_PLANTILLAS === type) {
+                    {% for i in range(0, states|length-1) %}
+                        {% if states[i].type.id == 1 %}
+                            estadosPorTipoCategorias.push({{ states[i].id }});
+                        {% endif %}
+                    {% endfor %}
+                }
+
+                if (CUMPLIMENTACION === type) {
+                    if ({{ states is defined and states | length > 0 }}) {
+                        {% for i in range(0, states|length-1) %}
+                            {% if states[i].type.id == 2 %}
+                                estadosPorTipoCategorias.push({{ states[i].id }});
+                            {% endif %}
+                        {% endfor %}
+                    }
+                }
+
+                const state = document.getElementById("state");
+                let options = "";
+                for (let i = 0; i < estadosPorTipoCategorias.length; i++) {
+                    {% for state in states %}
+                        if (estadosPorTipoCategorias[i] === {{state.id}}) {
+                            options += '<option value="{{state.id}}">{{state.name}}</option>';
+                        }
+                    {% endfor %}
+                }
+                state.innerHTML = options;
+
+
+            {% endif %}
+        });
     });
 
     function checkSignature(signaturePad){
         return !signaturePad.isEmpty();
     }
-
     </script>
 {% endblock %}
 

@@ -116,7 +116,9 @@
                             {% if item.destroyUser is defined and item.destroyUser is not null %}
                                 {{ item.destroyUser.name }}
                             {% else %}
-                                {{ item.destroyGroup.name }}
+                                {% if item.destroyGroup is defined and item.destroyGroup is not null %}
+                                    {{ item.destroyGroup.name }}
+                                {% endif %}
                             {% endif %}
                         </td>
                         <td>{{ item.active ? 'Activo' : 'Inactivo' }}</td>
