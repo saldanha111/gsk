@@ -1,6 +1,10 @@
 <?php
 namespace Nononsense\HomeBundle\Controller;
 
+use Nononsense\HomeBundle\Entity\CVRecords;
+use Nononsense\HomeBundle\Entity\CVSignatures;
+use Nononsense\HomeBundle\Entity\CVWorkflow;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Nononsense\UtilsBundle\Classes;
@@ -41,24 +45,14 @@ class TemplateTestTemplatesController extends Controller
 
         $is_valid = $this->get('app.security')->permissionSeccion('tester_gp');
         if(!$is_valid){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                'No tiene permisos suficientes'
-            );
-            $route=$this->container->get('router')->generate('nononsense_home_homepage');
-            return $this->redirect($route);
+            return $this->returnToHomePage("No tiene permisos suficientes");
         }
 
         $user = $this->container->get('security.context')->getToken()->getUser();
 
         $array_item["template"] = $this->getDoctrine()->getRepository(TMTemplates::class)->findOneBy(array("id" => $id));
         if($array_item["template"]->getTmState()->getId()!=3){
-        	$this->get('session')->getFlashBag()->add(
-                'error',
-                'La plantilla indicada no se encuentra en fase test'
-            );
-            $route=$this->container->get('router')->generate('nononsense_home_homepage');
-            return $this->redirect($route);
+            return $this->returnToHomePage("La plantilla indicada no se encuentra en fase test");
         }
 
         $action = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 3));
@@ -90,12 +84,7 @@ class TemplateTestTemplatesController extends Controller
         }
 
         if($find==0){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                'No tiene permisos para testear este documento'
-            );
-            $route=$this->container->get('router')->generate('nononsense_home_homepage');
-            return $this->redirect($route);
+            return $this->returnToHomePage("No tiene permisos para testear este documento");
         }
 
         if($request->get("token")){
@@ -173,12 +162,7 @@ class TemplateTestTemplatesController extends Controller
 
         $is_valid = $this->get('app.security')->permissionSeccion('tester_gp');
         if(!$is_valid){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                'No tiene permisos suficientes'
-            );
-            $route=$this->container->get('router')->generate('nononsense_home_homepage');
-            return $this->redirect($route);
+            return $this->returnToHomePage("No tiene permisos suficientes");
         }
 
         $user = $this->container->get('security.context')->getToken()->getUser();
@@ -204,21 +188,11 @@ class TemplateTestTemplatesController extends Controller
 
         if(!$request->get("pdf")){
 	        if($template->getTmState()->getId()!=3){
-	            $this->get('session')->getFlashBag()->add(
-	                'error',
-	                'La plantilla indicada no se encuentra en fase test'
-	            );
-	            $route=$this->container->get('router')->generate('nononsense_home_homepage');
-	            return $this->redirect($route);
+                return $this->returnToHomePage("La plantilla indicada no se encuentra en fase test");
 	        }
 
 	        if(!$template->getOpenedBy() || $template->getOpenedBy()!=$user){
-	            $this->get('session')->getFlashBag()->add(
-	                'error',
-	                'No se puede efectuar la operación'
-	            );
-	            $route=$this->container->get('router')->generate('nononsense_home_homepage');
-	            return $this->redirect($route);
+                return $this->returnToHomePage("No se puede efectuar la operación");
 	        }
 	    
 	        if($request->get("mode")){
@@ -369,53 +343,33 @@ class TemplateTestTemplatesController extends Controller
 
         $is_valid = $this->get('app.security')->permissionSeccion('tester_gp');
         if(!$is_valid){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                'No tiene permisos suficientes'
-            );
-            $route=$this->container->get('router')->generate('nononsense_home_homepage');
-            return $this->redirect($route);
+            return $this->returnToHomePage("No tiene permisos suficientes");
+        }
+
+        $password =  $request->get('password');
+        if(!$password || !$this->get('utilities')->checkUser($password)){
+            return $this->returnToHomePage("No se pudo firmar el registro, la contraseña es incorrecta");
         }
 
         $user = $this->container->get('security.context')->getToken()->getUser();
 
         $template = $this->getDoctrine()->getRepository(TMTemplates::class)->findOneBy(array("id" => $id));
         if($template->getTmState()->getId()!=3){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                'La plantilla indicada no se encuentra en fase Test'
-            );
-            $route=$this->container->get('router')->generate('nononsense_home_homepage');
-            return $this->redirect($route);
+            return $this->returnToHomePage("La plantilla indicada no se encuentra en fase Test");
         }
 
         if(!$template->getOpenedBy() || $template->getOpenedBy()!=$user){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                'No se puedo efectuar la operación'
-            );
-            $route=$this->container->get('router')->generate('nononsense_home_homepage');
-            return $this->redirect($route);
+            return $this->returnToHomePage("No se puedo efectuar la operación");
         }
 
         if($request->get("token")){
         	$last_test = $this->getDoctrine()->getRepository(TMTests::class)->findOneBy(array("token" => $request->get("token")));
         	if(!$last_test){
-        		$this->get('session')->getFlashBag()->add(
-	                'error',
-	                'No se puedo efectuar la operación'
-	            );
-	            $route=$this->container->get('router')->generate('nononsense_home_homepage');
-	            return $this->redirect($route);
+                return $this->returnToHomePage("No se puedo efectuar la operación");
         	}
         }
         else{
-        	$this->get('session')->getFlashBag()->add(
-                'error',
-                'No se puedo efectuar la operación'
-            );
-            $route=$this->container->get('router')->generate('nononsense_home_homepage');
-            return $this->redirect($route);
+            return $this->returnToHomePage("No se puedo efectuar la operación");
         }
 
         $action = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 3));
@@ -485,12 +439,7 @@ class TemplateTestTemplatesController extends Controller
 	    }
 
         if($find==0){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                'No tiene permisos para testear este documento'
-            );
-            $route=$this->container->get('router')->generate('nononsense_home_homepage');
-            return $this->redirect($route);
+            return $this->returnToHomePage("No tiene permisos para testear este documento");
         }
 
         $base_url=$this->getParameter('api_docoaro')."/documents/".$template->getPlantillaId();
@@ -511,7 +460,14 @@ class TemplateTestTemplatesController extends Controller
         $signature->setUserEntiy($user);
         $signature->setCreated(new \DateTime());
         $signature->setModified(new \DateTime());
-        $signature->setSignature($request->get("signature"));
+        /**
+         * Hay que eliminar toda referencia al guardado de la imagen correspondiente a la firma.
+         * TODO: se ha puesto un guión como medida preventiva. Hay que quitar la línea y desmarcar la casilla de "not null" en la tabla.
+         * @see: https://www.notion.so/oarotech/cf5ea14e748f4fedad342aeb34912ff0?v=243814d2031849f7aaa454fc09c14f5c&p=a14abdce08164343a308de44ea75128e
+         * Tarea: Sustituir todas las cajas del proceso de gestión de plantillas por contraseñas como en el resto de la plataforma → implica adaptar código en el backend y modificar las tablas correspondientes en la bd.
+         **/
+        //        $signature->setSignature($request->get("signature"));
+        $signature->setSignature("-");
         $signature->setVersion($response["version"]["id"]);
         $signature->setConfiguration($response["version"]["configuration"]["id"]);
         if($request->get("finish_tests")){
@@ -630,6 +586,16 @@ class TemplateTestTemplatesController extends Controller
         	 $this->get('session')->getFlashBag()->add('message', "El test se ha añadido correctamente");
         	$route = $this->container->get('router')->generate('nononsense_tm_test_detail', array("id" => $template->getId()),TRUE);
         }
+        return $this->redirect($route);
+    }
+
+    private function returnToHomePage(string $msgError, string $type = "error"): RedirectResponse
+    {
+        $this->get('session')->getFlashBag()->add(
+            $type,
+            $msgError
+        );
+        $route=$this->container->get('router')->generate('nononsense_home_homepage');
         return $this->redirect($route);
     }
 }

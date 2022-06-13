@@ -1,6 +1,7 @@
 <?php
 namespace Nononsense\HomeBundle\Controller;
 
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Nononsense\UtilsBundle\Classes;
@@ -42,12 +43,12 @@ class TemplateReviewTemplatesController extends Controller
         $template = $this->getDoctrine()->getRepository(TMTemplates::class)->findOneBy(array("id" => $id));
 
         if(!$this->get('app.security')->permissionSeccion('dueno_gp') && !$this->get('app.security')->permissionSeccion('elaborador_gp')){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                'No tiene permisos suficientes'
-            );
-            $route=$this->container->get('router')->generate('nononsense_home_homepage');
-            return $this->redirect($route);
+            return $this->returnToHomePage("No tiene permisos suficientes");
+        }
+
+        $password =  $request->get('password');
+        if(!$password || !$this->get('utilities')->checkUser($password)){
+            return $this->returnToHomePage("No se pudo firmar el registro, la contraseña es incorrecta");
         }
 
         $action = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 2));
@@ -60,94 +61,79 @@ class TemplateReviewTemplatesController extends Controller
         }
 
         if($user!=$template->getOwner() && $find==0){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                'Solo el dueño o elaborador de esta plantilla puede crear una solicitud de revisión'
-            );
-            $route=$this->container->get('router')->generate('nononsense_home_homepage');
-            return $this->redirect($route);
+            return $this->returnToHomePage("Solo el dueño o elaborador de esta plantilla puede crear una solicitud de revisión");
         }
 
         if($template->getRequestReview()){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                'Ya existe una solicitud de revisión abierta para esta plantilla'
-            );
-            $route=$this->container->get('router')->generate('nononsense_home_homepage');
-            return $this->redirect($route);
+            return $this->returnToHomePage("Ya existe una solicitud de revisión abierta para esta plantilla");
         }
 
         if(!empty($template->getDateReview()) && $template->getDateReview()>date("Y-m-d")){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                'No se puede realizar una solicitud de esta plantilla puesto que aún ha llegado la fecha de su revisión periódica'
-            );
-            $route=$this->container->get('router')->generate('nononsense_home_homepage');
-            return $this->redirect($route);
+            return $this->returnToHomePage("No se puede realizar una solicitud de esta plantilla puesto que aún ha llegado la fecha de su revisión periódica");
         }
 
-        if($request->get("signature")){
-            if($template){
-                $action = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 12));
-                if($action){
-                    $this->get('session')->getFlashBag()->add('message','La solicitud de revisión ha sido tramitada');
-                    $previous_signature = $this->getDoctrine()->getRepository(TMSignatures::class)->findOneBy(array("template"=>$template),array("id" => "ASC"));
-                    if($template->getTmState()->getId()==6){
-                        
+        if($template){
+            $action = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 12));
+            if($action){
+                $this->get('session')->getFlashBag()->add('message','La solicitud de revisión ha sido tramitada');
+                $previous_signature = $this->getDoctrine()->getRepository(TMSignatures::class)->findOneBy(array("template"=>$template),array("id" => "ASC"));
+                if($template->getTmState()->getId()==6){
 
-                        $signature = new TMSignatures();
-                        $signature->setTemplate($template);
-                        $signature->setAction($action);
-                        $signature->setUserEntiy($user);
-                        $signature->setCreated(new \DateTime());
-                        $signature->setModified(new \DateTime());
-                        $signature->setSignature($request->get("signature"));
-                        $signature->setVersion($previous_signature->getVersion());
-                        $signature->setConfiguration($previous_signature->getConfiguration());
-                        if($request->get("description")){
-                            $signature->setDescription($request->get("description"));
-                        }
-                        $em->persist($signature);
-                        $template->setRequestReview($signature);
-                        $em->persist($template);
 
-                        $users_notifications=array();
-                        $action_elab = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 2));
-                        $elabs = $this->getDoctrine()->getRepository(TMWorkflow::class)->findBy(array("template" => $template, "action" => $action_elab));
-                        foreach($elabs as $elab){
-                            if($elab->getUserEntiy()){
-                                $users_notifications[]=$elab->getUserEntiy()->getEmail();
-                            }
-                            else{
-                                foreach($elab->getGroupEntiy()->getUsers() as $user_group){
-                                    $users_notifications[]=$user_group->getUser()->getEmail();
-                                }
-                            }
-                        }
-
-                        $subject="Solicitud de revisión";
-                        $mensaje='Se ha tramitado la solicitud de revisión para la plantilla con Código '.$template->getNumber().' - Título: '.$template->getName().' - Edición: '.$template->getNumEdition().'. Para poder revisar dicha soliciutd puede acceder a "Gestión de plantillas -> Solicitudes de revisiones", buscar la plantilla correspondiente y pulsar en Tramitar';
-                        $baseURL=$this->container->get('router')->generate('nononsense_tm_template_detail_review', array("id" => $id),TRUE);
-                        foreach($users_notifications as $email){
-                            $this->get('utilities')->sendNotification($email, $baseURL, "", "", $subject, $mensaje);
-                        }
-
-                        $em->flush();
-
-                        $route=$this->container->get('router')->generate('nononsense_home_homepage');
-                        return $this->redirect($route);
+                    $signature = new TMSignatures();
+                    $signature->setTemplate($template);
+                    $signature->setAction($action);
+                    $signature->setUserEntiy($user);
+                    $signature->setCreated(new \DateTime());
+                    $signature->setModified(new \DateTime());
+                    /**
+                     * Hay que eliminar toda referencia al guardado de la imagen correspondiente a la firma.
+                     * TODO: se ha puesto un guión como medida preventiva. Hay que quitar la línea y desmarcar la casilla de "not null" en la tabla.
+                     * @see: https://www.notion.so/oarotech/cf5ea14e748f4fedad342aeb34912ff0?v=243814d2031849f7aaa454fc09c14f5c&p=a14abdce08164343a308de44ea75128e
+                     * Tarea: Sustituir todas las cajas del proceso de gestión de plantillas por contraseñas como en el resto de la plataforma → implica adaptar código en el backend y modificar las tablas correspondientes en la bd.
+                     **/
+                    //        $signature->setSignature($request->get("signature"));
+                    $signature->setSignature("-");
+                    $signature->setVersion($previous_signature->getVersion());
+                    $signature->setConfiguration($previous_signature->getConfiguration());
+                    if($request->get("description")){
+                        $signature->setDescription($request->get("description"));
                     }
-                    
+                    $em->persist($signature);
+                    $template->setRequestReview($signature);
+                    $em->persist($template);
+
+                    $users_notifications=array();
+                    $action_elab = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 2));
+                    $elabs = $this->getDoctrine()->getRepository(TMWorkflow::class)->findBy(array("template" => $template, "action" => $action_elab));
+                    foreach($elabs as $elab){
+                        if($elab->getUserEntiy()){
+                            $users_notifications[]=$elab->getUserEntiy()->getEmail();
+                        }
+                        else{
+                            foreach($elab->getGroupEntiy()->getUsers() as $user_group){
+                                $users_notifications[]=$user_group->getUser()->getEmail();
+                            }
+                        }
+                    }
+
+                    $subject="Solicitud de revisión";
+                    $mensaje='Se ha tramitado la solicitud de revisión para la plantilla con Código '.$template->getNumber().' - Título: '.$template->getName().' - Edición: '.$template->getNumEdition().'. Para poder revisar dicha soliciutd puede acceder a "Gestión de plantillas -> Solicitudes de revisiones", buscar la plantilla correspondiente y pulsar en Tramitar';
+                    $baseURL=$this->container->get('router')->generate('nononsense_tm_template_detail_review', array("id" => $id),TRUE);
+                    foreach($users_notifications as $email){
+                        $this->get('utilities')->sendNotification($email, $baseURL, "", "", $subject, $mensaje);
+                    }
+
+                    $em->flush();
+
+                    $route=$this->container->get('router')->generate('nononsense_home_homepage');
+                    return $this->redirect($route);
                 }
+
             }
         }
 
-        $this->get('session')->getFlashBag()->add(
-            'error',
-            'No se ha podido efectuar la operación sobre la plantilla especificada. Es posible que ya se haya realizado una acción sobre ella o que la plantilla ya no exista'
-        );
-        $route=$this->container->get('router')->generate('nononsense_home_homepage');
-        return $this->redirect($route);
+        return $this->returnToHomePage("No se ha podido efectuar la operación sobre la plantilla especificada. Es posible que ya se haya realizado una acción sobre ella o que la plantilla ya no exista");
     }
 
     public function detailAction(Request $request, int $id)
@@ -156,24 +142,14 @@ class TemplateReviewTemplatesController extends Controller
         $array_item=array();
 
         if(!$this->get('app.security')->permissionSeccion('aprobador_gp') && $this->get('app.security')->permissionSeccion('elaborador_gp')){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                'No tiene permisos suficientes'
-            );
-            $route=$this->container->get('router')->generate('nononsense_home_homepage');
-            return $this->redirect($route);
+            return $this->returnToHomePage("No tiene permisos suficientes");
         }
 
         $user = $this->container->get('security.context')->getToken()->getUser();
 
         $array_item["template"] = $this->getDoctrine()->getRepository(TMTemplates::class)->findOneBy(array("id" => $id));
         if($array_item["template"]->getTmState()->getId()!=6){
-        	$this->get('session')->getFlashBag()->add(
-                'error',
-                'La plantilla indicada no se encuentra en vigor para poder realizar una revisión'
-            );
-            $route=$this->container->get('router')->generate('nononsense_home_homepage');
-            return $this->redirect($route);
+            return $this->returnToHomePage("La plantilla indicada no se encuentra en vigor para poder realizar una revisión");
         }
 
         $actions = $this->getDoctrine()->getRepository(TMActions::class)->findBy(array("id" => array(2,4)));
@@ -205,12 +181,7 @@ class TemplateReviewTemplatesController extends Controller
         }
         
         if($find==0){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                'No tiene permisos para revisar este documento o ya lo ha firmado previamente'
-            );
-            $route=$this->container->get('router')->generate('nononsense_home_homepage');
-            return $this->redirect($route);
+            return $this->returnToHomePage("No tiene permisos para revisar este documento o ya lo ha firmado previamente");
         }
 
         $base_url=$this->getParameter('api_docoaro')."/documents/".$array_item["template"]->getPlantillaId();
@@ -273,35 +244,23 @@ class TemplateReviewTemplatesController extends Controller
         $array_item=array();
 
         if(!$this->get('app.security')->permissionSeccion('aprobador_gp') && $this->get('app.security')->permissionSeccion('elaborador_gp')){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                'No tiene permisos suficientes'
-            );
-            $route=$this->container->get('router')->generate('nononsense_home_homepage');
-            return $this->redirect($route);
+            return $this->returnToHomePage("No tiene permisos suficientes");
+        }
+
+        $password =  $request->get('password');
+        if(!$password || !$this->get('utilities')->checkUser($password)){
+            return $this->returnToHomePage("No se pudo firmar el registro, la contraseña es incorrecta");
         }
 
         $user = $this->container->get('security.context')->getToken()->getUser();
 
         $template = $this->getDoctrine()->getRepository(TMTemplates::class)->findOneBy(array("id" => $id));
         if($template->getTmState()->getId()!=6){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                'La plantilla indicada no se encuentra en vigor para poder realizar una revisión'
-            );
-            $route=$this->container->get('router')->generate('nononsense_home_homepage');
-            return $this->redirect($route);
+            return $this->returnToHomePage("La plantilla indicada no se encuentra en vigor para poder realizar una revisión");
         }
 
-        
-
         if(!$template->getOpenedBy() || $template->getOpenedBy()!=$user){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                'No se puede efectuar la operación'
-            );
-            $route=$this->container->get('router')->generate('nononsense_home_homepage');
-            return $this->redirect($route);
+            return $this->returnToHomePage("No se puede efectuar la operación");
         }
 
         $actions = $this->getDoctrine()->getRepository(TMActions::class)->findBy(array("id" => array(2,4)));
@@ -334,12 +293,7 @@ class TemplateReviewTemplatesController extends Controller
         }
 
         if($find==0){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                'No tiene permisos para revisar este documento o ya lo ha firmado previamente'
-            );
-            $route=$this->container->get('router')->generate('nononsense_home_homepage');
-            return $this->redirect($route);
+            return $this->returnToHomePage("No tiene permisos para revisar este documento o ya lo ha firmado previamente");
         }
 
         if($request->get("result") && in_array($request->get("result"), array(13,14,15))){
@@ -350,12 +304,7 @@ class TemplateReviewTemplatesController extends Controller
             }
         }
         else{
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                'Hubo un problema al tramitar la firma de la solicitud de revisión'
-            );
-            $route=$this->container->get('router')->generate('nononsense_home_homepage');
-            return $this->redirect($route);
+            return $this->returnToHomePage("Hubo un problema al tramitar la firma de la solicitud de revisión");
         }
 
         
@@ -378,7 +327,14 @@ class TemplateReviewTemplatesController extends Controller
         $signature->setUserEntiy($user);
         $signature->setCreated(new \DateTime());
         $signature->setModified(new \DateTime());
-        $signature->setSignature($request->get("signature"));
+        /**
+         * Hay que eliminar toda referencia al guardado de la imagen correspondiente a la firma.
+         * TODO: se ha puesto un guión como medida preventiva. Hay que quitar la línea y desmarcar la casilla de "not null" en la tabla.
+         * @see: https://www.notion.so/oarotech/cf5ea14e748f4fedad342aeb34912ff0?v=243814d2031849f7aaa454fc09c14f5c&p=a14abdce08164343a308de44ea75128e
+         * Tarea: Sustituir todas las cajas del proceso de gestión de plantillas por contraseñas como en el resto de la plataforma → implica adaptar código en el backend y modificar las tablas correspondientes en la bd.
+         **/
+        //        $signature->setSignature($request->get("signature"));
+        $signature->setSignature("-");
         $signature->setVersion($response["version"]["id"]);
         $signature->setConfiguration($response["version"]["configuration"]["id"]);
 
@@ -427,10 +383,16 @@ class TemplateReviewTemplatesController extends Controller
         $em->persist($template);
         $em->flush();
 
-        $this->get('session')->getFlashBag()->add('message', "La revisión se ha realizado con éxito");
-        $route = $this->container->get('router')->generate('nononsense_home_homepage');
-       
+        return $this->returnToHomePage("La revisión se ha realizado con éxito", "message");
+    }
 
+    private function returnToHomePage(string $msgError, string $type = "error"): RedirectResponse
+    {
+        $this->get('session')->getFlashBag()->add(
+            $type,
+            $msgError
+        );
+        $route=$this->container->get('router')->generate('nononsense_home_homepage');
         return $this->redirect($route);
     }
 }

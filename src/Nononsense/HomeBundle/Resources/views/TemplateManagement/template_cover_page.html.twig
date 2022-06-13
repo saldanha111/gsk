@@ -35,7 +35,6 @@
                             <th style="font-size:13px">Nombre</th>
                             <th style="font-size:13px">Acción</th>
                             <th style="font-size:13px">Fecha</th>
-                            <th style="font-size:13px">Firma</th>
                         </tr>
                         </thead>
                         {% for key,signature in signatures %}
@@ -45,7 +44,6 @@
                                 <td style="font-size:13px">{{signature.userEntiy.name}}</td>
                                 <td style="font-size:13px">{{signature.action.name}}</td>
                                 <td style="font-size:13px">{{signature.created is defined and signature.created is not null ? signature.created|date("d/m/Y H:i:s")|gskdate : ''}}</td>
-                                <td style="font-size:13px" rowspan="2"><img src="{{signature.signature}}" style="height:100px"></td>
                             </tr>
                             <tr>
                                 <td colspan="4">{{signature.description}}</td>

@@ -97,17 +97,15 @@
                 <br>
                 <div class="row">
                     <div class="col-lg-10 col-lg-offset-1">
-                        <div id="signature-pad" class="input-group">
-                            Introduzca su firma<br>
-                            <canvas id="canvas" width="300" height="150" style="touch-action: none; border: 2px solid #eee; box-shadow: 0px 0px 6px 1px rgba(80, 90, 100, 0.5)"></canvas>
+                        <div class="input-group">
+                            <label for="box_password">Introduzca su firma</label><br>
+                            <input type="password" name="password" id="box_password" class="form-control" required="required"><br>
                         </div>
                     </div>
                 </div>
-                <input type="hidden" id="signature" name="signature" />
                 <input type="hidden" id="id_test" name="test" />
             </div>
             <div class="modal-footer">
-                <a name="borrarFirmar" class="btn btn-secondary" id="borrarFirmar">Limpiar firma</a>
                 <input type="submit" class="btn btn-primary" value="Aprobar test">
             </div>
         </form>
@@ -120,32 +118,23 @@
 {% endblock %}
 {% block scripts %}
 {{ parent() }}
-<script src="/js/plugins/signature-pad/signature-pad.min.js"></script>
 <script>
-
-var canvas = document.querySelector("canvas");
-var signaturePad = new SignaturePad(canvas);
 
 $( document ).ready(function() {
     $('[data-toggle="tooltip"]').tooltip();
-    $('#borrarFirmar').on('click', function () {
-        signaturePad.clear();
-    });
 
     $(document).on('change', '[name="result"]', function() {
-        if($(this).val()>1 || !$(this).val()){
-            $("[name='description']").prop('required',true);
-        }
-        else{
-            $("[name='description']").prop('required',false);
-        }
+        const esRequerido = ($(this).val()>1 || !$(this).val());
+
+        $("[name='description']").prop('required', esRequerido);
     });
 
     $('#form_sign_test').on('submit', function(e){
-        if (signaturePad.isEmpty()){
+        const firma = document.getElementById("box_password").value;
+        const firmaEstaVacia = (firma === "");
+        if (firmaEstaVacia){
             toastr.error("La firma es obligatoria",'aviso');
         }else{
-            $("#signature").val(signaturePad.toDataURL());
             return true;
         }
         return false;
