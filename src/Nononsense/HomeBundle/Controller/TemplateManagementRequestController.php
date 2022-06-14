@@ -179,7 +179,7 @@ class TemplateManagementRequestController extends Controller
             $array_error[]="Administrador";
         }
 
-        if(!$request->get("signature")){
+        if(!$request->get("password")){
             $array_error[]="Firma";
         }
 

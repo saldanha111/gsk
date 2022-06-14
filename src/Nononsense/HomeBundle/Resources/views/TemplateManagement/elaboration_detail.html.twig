@@ -139,9 +139,9 @@
                                             <div class="row">
                                                 <div class="col-lg-10 col-lg-offset-1">
                                                     <div id="signature-pad3" class="input-group">
-                                                        <label for="workflowSign">Introduzca su firma</label>
+                                                        <label for="modalSignWorkflowPassword">Introduzca su firma</label>
                                                         <br>
-                                                        <input type="password" name="password" id="workflowSign" class="form-control" required="required"><br>
+                                                        <input type="password" name="password" id="modalSignWorkflowPassword" class="form-control" required="required"><br>
                                                     </div>
                                                 </div>
                                             </div>
@@ -216,8 +216,8 @@
                     <div class="row">
                         <div class="col-lg-10 col-lg-offset-1 mb-3">
                             <div id="signature-pad2" class="input-group">
-                                <label for="uploadTemplateSign">Introduzca su firma</label><br>
-                                <input type="password" name="password" id="uploadTemplateSign" class="form-control" required="required"><br>
+                                <label for="formUploadDocumentPassword">Introduzca su firma</label><br>
+                                <input type="password" name="password" id="formUploadDocumentPassword" class="form-control" required="required"><br>
                             </div>
                         </div>
                     </div>
@@ -252,8 +252,8 @@
                     <div class="row">
                         <div class="col-lg-10 col-lg-offset-1">
                             <div id="signature-pad" class="input-group">
-                                <label for="configurationTemplateSign">Introduzca su firma</label>
-                                <input type="password" name="password" id="configurationTemplateSign" class="form-control" required="required"><br>
+                                <label for="form_sign_configuration_password">Introduzca su firma</label>
+                                <input type="password" name="password" id="form_sign_configuration_password" class="form-control" required="required"><br>
                             </div>
                         </div>
                     </div>
@@ -304,12 +304,12 @@ $( document ).ready(function() {
 
     // Formulario de subida de documentos
     $('#form_upload_document').on('submit', function(e){
-        const uploadTemplateSign = document.getElementById("uploadTemplateSign").value;
-        const uploadTemplateSignIsEmpty = (uploadTemplateSign === "") ;
-        if (uploadTemplateSignIsEmpty){
+        const formUploadDocumentPassword = document.getElementById("formUploadDocumentPassword").value;
+        const formUploadDocumentPasswordIsEmpty = (formUploadDocumentPassword === "") ;
+        if (formUploadDocumentPasswordIsEmpty){
             toastr.error("La firma es obligatoria",'aviso');
         }else{
-            if($('#form_upload_document').find('[name="finish_elaboration"]').is(':checked') && {{min_cumplimentations}}==0){
+            if({{min_cumplimentations}}==0){
                 toastr.error("Debe haber al menos un cumplimentador o un verificador y haber firmado el workflow",'aviso');
             }
         }
@@ -319,9 +319,9 @@ $( document ).ready(function() {
 
     // Formulario de configuración de la plantilla
     $('#form_sign_configuration').on('submit', function(e){
-        const configurationTemplateSign = document.getElementById("configurationTemplateSign").value;
-        const configurationTemplateSignIsEmpty = (configurationTemplateSign === "") ;
-        if (configurationTemplateSignIsEmpty){
+        const formSignConfigurationPassword = document.getElementById("form_sign_configuration_password").value;
+        const formSignConfigurationPasswordIsEmpty = (formSignConfigurationPassword === "") ;
+        if (formSignConfigurationPasswordIsEmpty){
             toastr.error("La firma es obligatoria",'aviso');
         }else{
             if({{min_cumplimentations}}==0){
@@ -336,9 +336,9 @@ $( document ).ready(function() {
     $('#pre_workflow_sign').on('click', function(e){
         if($("#modalSignWorkflow").is(':visible')){
             if(!$(".justify_workflow").is(':visible') || $.trim($("#description_workflow").val())){
-                const workflowSign = document.getElementById("workflowSign").value;
-                const workflowSignIsEmpty = (workflowSign === "") ;
-                if (workflowSignIsEmpty){
+                const modalSignWorkflowPassword = document.getElementById("modalSignWorkflowPassword").value;
+                const modalSignWorkflowPasswordIsEmpty = (modalSignWorkflowPassword === "") ;
+                if (modalSignWorkflowPasswordIsEmpty){
                     toastr.error("La firma es obligatoria",'aviso');
                 }else{
                     if($(".justify_workflow").is(':visible')){
