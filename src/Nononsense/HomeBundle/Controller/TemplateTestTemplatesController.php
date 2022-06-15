@@ -40,6 +40,7 @@ class TemplateTestTemplatesController extends Controller
 {
     public function detailAction(Request $request, int $id)
     {
+        $this->sendEmail("TemplateTestTemplatesController", "inicio detailAction");
         $em = $this->getDoctrine()->getManager();
         $array_item=array();
 
