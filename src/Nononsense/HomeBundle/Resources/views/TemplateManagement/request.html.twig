@@ -227,7 +227,7 @@
 
             <div class="row">
                 <div class="col-lg-2 col-lg-offset-1">
-                    <div id="signature-pad">
+                    <div>
                         <p>Introduzca su firma</p>
                         <input type="password" name="password" id="box_password" class="form-control" required="required"><br>
                     </div>
@@ -411,6 +411,7 @@
             const NEW_TEMPLATE = 1; const NEW_EDITION = 2;
             switch(selectedOption){
                 case NEW_TEMPLATE:
+                    $("#box_existent_template").hide();
                     $('#retention' ).remove();
                     $("[name='area']").prop('required',true);
                     $("[name='name']").prop('required',true);

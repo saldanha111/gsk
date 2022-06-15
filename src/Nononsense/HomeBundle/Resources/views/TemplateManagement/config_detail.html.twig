@@ -147,8 +147,8 @@
                 <div class="row">
                     <div class="col-lg-10 col-lg-offset-2">
                         <div class="input-group">
-                            <label for="box_password">Introduzca su firma</label><br>
-                            <input type="password" name="password" id="box_password" class="form-control" required="required"><br>
+                            <label for="formItemPassword">Introduzca su firma</label><br>
+                            <input type="password" name="password" id="formItemPassword" class="form-control" required="required"><br>
                         </div>
                         {% if template.tmState.id == 11 %}
                             <button type="submit" class="btn btn-danger" data-action="2">Rechazar</button>
@@ -209,6 +209,7 @@
         }); 
 
         $('#form_item').on('submit', function(e){
+            const PLANTILLA_EN_VIGOR = 6;
             var today = new Date();
             var EnteredDate = $("#public_date").val(); // For JQuery
             var date = EnteredDate.substring(8, 10);
@@ -216,17 +217,21 @@
             var year = EnteredDate.substring(0, 4);
             var myDate = new Date(year, month - 1, date);
 
-            const firma = document.getElementById("box_password").value;
+            const firma = document.getElementById("formItemPassword").value;
             const firmaEstaVacia = (firma === "");
             if (firmaEstaVacia){
                 toastr.error("Debe firmar la solicitud",'aviso');
             }else{
                 $("[name='action']").val($(document.activeElement).data("action"));
+                const estadoPlantilla = {{ template.tmState.id }};
+                const estaEnVigorEstaPlantilla = (PLANTILLA_EN_VIGOR === estadoPlantilla);
                 if($(document.activeElement).data("action")=="2" || formatDate(myDate) >= formatDate(today)){
                     return true;  
                 }
                 else{
-                    toastr.error("La fecha no puede ser inferior a la del día de hoy",'aviso');
+                    if (!estaEnVigorEstaPlantilla) {
+                        toastr.error("La fecha de entrada en vigor no puede ser inferior a la del día de hoy",'aviso');
+                    }
                 }
                 
             }

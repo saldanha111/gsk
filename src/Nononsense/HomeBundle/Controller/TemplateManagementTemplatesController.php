@@ -344,7 +344,7 @@ class TemplateManagementTemplatesController extends Controller
         }
 
         $user = $this->container->get('security.context')->getToken()->getUser();
-        if($request->get("action") && $request->get("signature")){
+        if($request->get("action") && $request->get("password")){
             $template = $this->getDoctrine()->getRepository(TMTemplates::class)->findOneBy(array("id" => $id));
             if($template){
                 $action = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => $request->get("action")));
@@ -377,13 +377,6 @@ class TemplateManagementTemplatesController extends Controller
                             $signature->setUserEntiy($user);
                             $signature->setCreated(new \DateTime());
                             $signature->setModified(new \DateTime());
-                            /**
-                             * Hay que eliminar toda referencia al guardado de la imagen correspondiente a la firma.
-                             * TODO: se ha puesto un guión como medida preventiva. Hay que quitar la línea y desmarcar la casilla de "not null" en la tabla.
-                             * @see: https://www.notion.so/oarotech/cf5ea14e748f4fedad342aeb34912ff0?v=243814d2031849f7aaa454fc09c14f5c&p=a14abdce08164343a308de44ea75128e
-                             * Tarea: Sustituir todas las cajas del proceso de gestión de plantillas por contraseñas como en el resto de la plataforma → implica adaptar código en el backend y modificar las tablas correspondientes en la bd.
-                             **/
-                            //        $signature->setSignature($request->get("signature"));
                             $signature->setSignature("-");
                             $signature->setVersion($previous_signature->getVersion());
                             $signature->setConfiguration($previous_signature->getConfiguration());
@@ -445,13 +438,6 @@ class TemplateManagementTemplatesController extends Controller
                     $signature->setUserEntiy($user);
                     $signature->setCreated(new \DateTime());
                     $signature->setModified(new \DateTime());
-                    /**
-                     * Hay que eliminar toda referencia al guardado de la imagen correspondiente a la firma.
-                     * TODO: se ha puesto un guión como medida preventiva. Hay que quitar la línea y desmarcar la casilla de "not null" en la tabla.
-                     * @see: https://www.notion.so/oarotech/cf5ea14e748f4fedad342aeb34912ff0?v=243814d2031849f7aaa454fc09c14f5c&p=a14abdce08164343a308de44ea75128e
-                     * Tarea: Sustituir todas las cajas del proceso de gestión de plantillas por contraseñas como en el resto de la plataforma → implica adaptar código en el backend y modificar las tablas correspondientes en la bd.
-                     **/
-                    //        $signature->setSignature($request->get("signature"));
                     $signature->setSignature("-");
                     $signature->setVersion($previous_signature->getVersion());
                     $signature->setConfiguration($previous_signature->getConfiguration());
@@ -573,13 +559,6 @@ class TemplateManagementTemplatesController extends Controller
                         $signature->setUserEntiy($user);
                         $signature->setCreated(new \DateTime());
                         $signature->setModified(new \DateTime());
-                        /**
-                         * Hay que eliminar toda referencia al guardado de la imagen correspondiente a la firma.
-                         * TODO: se ha puesto un guión como medida preventiva. Hay que quitar la línea y desmarcar la casilla de "not null" en la tabla.
-                         * @see: https://www.notion.so/oarotech/cf5ea14e748f4fedad342aeb34912ff0?v=243814d2031849f7aaa454fc09c14f5c&p=a14abdce08164343a308de44ea75128e
-                         * Tarea: Sustituir todas las cajas del proceso de gestión de plantillas por contraseñas como en el resto de la plataforma → implica adaptar código en el backend y modificar las tablas correspondientes en la bd.
-                         **/
-                        //        $signature->setSignature($request->get("signature"));
                         $signature->setSignature("-");
                         $signature->setVersion($previous_signature->getVersion());
                         $signature->setConfiguration($previous_signature->getConfiguration());

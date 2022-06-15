@@ -211,7 +211,7 @@ class TemplateConfigTemplatesController extends Controller
             $description="Esta firma significa la puesta en vigor de la plantilla en la fecha indicada y habiendo sido aprobada, marcando la efectividad de la misma desde dicho momento. Declarando que las actividades asociados a la gestión de la plantilla se han realizado de manera satisfactoria";
           
             if($request->get("public_date") && $request->get("action")=="1"){
-                $date_public=\DateTime::createFromFormat('d/m/Y', $request->get("public_date"));
+                $date_public=\DateTime::createFromFormat('Y-m-d', $request->get("public_date"));
                 if(date("Y-m-d")>=$date_public->format("Y-m-d")){
                     $next_state = $this->getDoctrine()->getRepository(TMStates::class)->findOneBy(array("id"=>"6"));
 
@@ -300,13 +300,6 @@ class TemplateConfigTemplatesController extends Controller
         $signature->setUserEntiy($user);
         $signature->setCreated(new \DateTime());
         $signature->setModified(new \DateTime());
-        /**
-         * Hay que eliminar toda referencia al guardado de la imagen correspondiente a la firma.
-         * TODO: se ha puesto un guión como medida preventiva. Hay que quitar la línea y desmarcar la casilla de "not null" en la tabla.
-         * @see: https://www.notion.so/oarotech/cf5ea14e748f4fedad342aeb34912ff0?v=243814d2031849f7aaa454fc09c14f5c&p=a14abdce08164343a308de44ea75128e
-         * Tarea: Sustituir todas las cajas del proceso de gestión de plantillas por contraseñas como en el resto de la plataforma → implica adaptar código en el backend y modificar las tablas correspondientes en la bd.
-         **/
-        //        $signature->setSignature($request->get("signature"));
         $signature->setSignature("-");
 
         $signature->setVersion($response["version"]["id"]);

@@ -1,14 +1,15 @@
+<br>
+<form id="form_action_pending" action="{{path('nononsense_tm_template_action_pending', {'id': template.id}) }}" method="POST"  enctype="multipart/form-data">
 <div class="row">
     <div class="col-lg-12">
         <div class="input-group">
             <p>Introduzca su firma</p>
             <input type="password" name="password" id="form_action_pending_password" class="form-control" required="required"><br>
-            </div>
-            <form id="form_action_pending" action="{{path('nononsense_tm_template_action_pending', {'id': template.id}) }}" method="POST"  enctype="multipart/form-data">
-                <a id="cancelRequest" class="btn btn-danger">Rechazar solicitud</a>
-                <a id="saveRequest" class="btn btn-success">Aprobar solicitud</a>
-                <input type="hidden" name="action" value="">
-            </form>
         </div>
+        <br>
+        <a id="cancelRequest" class="btn btn-danger">Rechazar solicitud</a>
+        <a id="saveRequest" class="btn btn-success">Aprobar solicitud</a>
+        <input type="hidden" name="action" value="">
     </div>
 </div>
+</form>
