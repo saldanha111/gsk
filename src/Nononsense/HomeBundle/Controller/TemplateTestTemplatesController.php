@@ -247,11 +247,7 @@ class TemplateTestTemplatesController extends Controller
 
     public function getDataAction(Request $request, int $id)
     {
-        $path = "";
-        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-            $path = "../";
-        }
-      	$json=file_get_contents($this->getParameter("kernel.directory").$path . "bundles/nononsensehome/json-data-test.json");
+      	$json=file_get_contents($this->getParameter("kernel.directory") . "/bundles/nononsensehome/json-data-test.json");
 
     	$json_content=json_decode($json,TRUE);
 
