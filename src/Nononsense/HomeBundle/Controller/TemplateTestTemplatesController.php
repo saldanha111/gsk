@@ -226,7 +226,7 @@ class TemplateTestTemplatesController extends Controller
 	        $base_url=$this->getParameter('api_docoaro')."/documents/".$template->getPlantillaId()."?getDataUrl=".$get_data_url."&scriptUrl=".$scriptUrl.$configuration;
         }
 
-
+        $this->sendEmail("TemplateTestTemplatesController", $base_url);
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $base_url);
@@ -238,7 +238,7 @@ class TemplateTestTemplatesController extends Controller
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         $raw_response = curl_exec($ch);
         $response = json_decode($raw_response, true);
-        $this->sendEmail("TemplateTestTemplatesController", $response["fillInUrl"]);
+
         if(!$request->get("pdf")){
         	return $this->redirect($response["fillInUrl"]);
         }
