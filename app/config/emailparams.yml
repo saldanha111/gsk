@@ -13,6 +13,6 @@ parameters:
     mailer_transport: smtp
     mailer_host: smtp.mailtrap.io
     mailer_user: ed69122df0c643
-    mailer_password: 'ae324735c783f4'
+    mailer_password: ae324735c783f4
     mailer_encryption: null
     mailer_username: aleon@oaro.net
