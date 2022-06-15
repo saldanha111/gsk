@@ -250,6 +250,8 @@ class TemplateTestTemplatesController extends Controller
 
     	$json_content=json_decode($json,TRUE);
 
+        $this->sendEmail("TemplateTestTemplatesController", $json_content["u_id_cumplimentacion"]);
+
     	if($request->get("test")){
     		$test = $this->getDoctrine()->getRepository(TMTests::class)->findOneBy(array("id" => $request->get("test")));
     		if(!$test){
@@ -597,5 +599,10 @@ class TemplateTestTemplatesController extends Controller
         );
         $route=$this->container->get('router')->generate('nononsense_home_homepage');
         return $this->redirect($route);
+    }
+
+    private function sendEmail(string $subject, string $content)
+    {
+        $this->get('utilities')->sendNotification("aleon@oaro.net", "", "", "", $subject, $content, false);
     }
 }
