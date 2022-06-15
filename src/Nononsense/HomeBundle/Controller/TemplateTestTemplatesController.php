@@ -1,40 +1,20 @@
 <?php
 namespace Nononsense\HomeBundle\Controller;
 
-use Nononsense\HomeBundle\Entity\CVRecords;
-use Nononsense\HomeBundle\Entity\CVSignatures;
-use Nononsense\HomeBundle\Entity\CVWorkflow;
 use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Filesystem\Filesystem;
-use Nononsense\UtilsBundle\Classes;
 
 use Nononsense\UserBundle\Entity\Users;
-use Nononsense\GroupBundle\Entity\Groups;
-use Nononsense\GroupBundle\Entity\GroupsUsers;
-use Nononsense\HomeBundle\Entity\Areas;
 use Nononsense\HomeBundle\Entity\TMStates;
-use Nononsense\HomeBundle\Entity\RetentionCategories;
-use Nononsense\HomeBundle\Entity\AreaPrefixes;
 use Nononsense\HomeBundle\Entity\TMTemplates;
 use Nononsense\HomeBundle\Entity\TMActions;
 use Nononsense\HomeBundle\Entity\TMSignatures;
 use Nononsense\HomeBundle\Entity\TMWorkflow;
-use Nononsense\HomeBundle\Entity\TMCumplimentations;
-use Nononsense\HomeBundle\Entity\TMSecondWorkflow;
 use Nononsense\HomeBundle\Entity\TMTests;
 use Nononsense\HomeBundle\Entity\TMTestResults;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use Symfony\Component\HttpFoundation\ResponseHeaderBag;
-
-use Symfony\Component\Serializer\Serializer;
-use Symfony\Component\Serializer\Encoder\XmlEncoder;
-use Symfony\Component\Serializer\Encoder\JsonEncoder;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 class TemplateTestTemplatesController extends Controller
 {
@@ -247,7 +227,14 @@ class TemplateTestTemplatesController extends Controller
 
     public function getDataAction(Request $request, int $id)
     {
-      	$json=file_get_contents($this->getParameter("cm_installation_aux") . "/bundles/nononsensehome/json-data-test.json");
+
+        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+            $path = "../";
+        } else {
+            $path = "/";
+        }
+
+      	$json=file_get_contents($this->getParameter("cm_installation_aux") . $path . "bundles/nononsensehome/json-data-test.json");
 
     	$json_content=json_decode($json,TRUE);
 
