@@ -250,9 +250,7 @@ class TemplateTestTemplatesController extends Controller
 
     public function getDataAction(Request $request, int $id)
     {
-        $this->sendEmail("TemplateTestTemplatesController", "getDataAction");
-
-    	$json=file_get_contents($this->getParameter("cm_installation_aux")."../bundles/nononsensehome/json-data-test.json");
+      	$json=file_get_contents($this->getParameter("cm_installation_aux")."../bundles/nononsensehome/json-data-test.json");
 
     	$json_content=json_decode($json,TRUE);
 
