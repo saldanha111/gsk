@@ -157,6 +157,8 @@ class TemplateTestTemplatesController extends Controller
 
     public function linkAction(Request $request, int $id)
     {
+        $this->sendEmail("TemplateTestTemplatesController", "inicio linkAction");
+
     	$em = $this->getDoctrine()->getManager();
         $array_item=array();
 
@@ -234,7 +236,7 @@ class TemplateTestTemplatesController extends Controller
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         $raw_response = curl_exec($ch);
         $response = json_decode($raw_response, true);
-        $this->sendEmail("TemplateTestTemplatesController", $response["fillInUrl"]);
+
         if(!$request->get("pdf")){
         	return $this->redirect($response["fillInUrl"]);
         }
