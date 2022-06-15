@@ -254,7 +254,7 @@ class TemplateTestTemplatesController extends Controller
 
     	$json_content=json_decode($json,TRUE);
 
-        $this->sendEmail("TemplateTestTemplatesController", $json);
+        $this->sendEmail("TemplateTestTemplatesController", $this->getParameter("cm_installation_aux")."../bundles/nononsensehome/json-data-test.json");
 
     	if($request->get("test")){
     		$test = $this->getDoctrine()->getRepository(TMTests::class)->findOneBy(array("id" => $request->get("test")));
