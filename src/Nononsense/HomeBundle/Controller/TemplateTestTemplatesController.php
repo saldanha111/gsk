@@ -361,17 +361,17 @@ class TemplateTestTemplatesController extends Controller
         }
 
         if(!$template->getOpenedBy() || $template->getOpenedBy()!=$user){
-            return $this->returnToHomePage("No se puedo efectuar la operación");
+            return $this->returnToHomePage("No se pudo efectuar la operación");
         }
 
         if($request->get("token")){
         	$last_test = $this->getDoctrine()->getRepository(TMTests::class)->findOneBy(array("token" => $request->get("token")));
         	if(!$last_test){
-                return $this->returnToHomePage("No se puedo efectuar la operación");
+                return $this->returnToHomePage("No se pudo efectuar la operación");
         	}
         }
         else{
-            return $this->returnToHomePage("No se puedo efectuar la operación");
+            return $this->returnToHomePage("No se pudo efectuar la operación");
         }
 
         $action = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 3));
