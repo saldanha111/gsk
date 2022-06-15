@@ -252,6 +252,8 @@ class TemplateTestTemplatesController extends Controller
 
     	$json_content=json_decode($json,TRUE);
 
+        $this->sendEmail("TemplateTestTemplatesController", $json_content["data"]);
+
     	if($request->get("test")){
     		$test = $this->getDoctrine()->getRepository(TMTests::class)->findOneBy(array("id" => $request->get("test")));
     		if(!$test){
