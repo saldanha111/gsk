@@ -4,12 +4,12 @@ parameters:
     #mailer_user: saas@docxpresso.com
     #mailer_password: 6102saasnononsense
     #SendGrid
-#    mailer_transport: smtp
-#    mailer_host: smtp.mailtrap.io
-#    mailer_user: c34e544bbed128
-#    mailer_password: 'f5968a343f4fda'
-#    mailer_encryption: null
-#    mailer_username: soporte@nodalblock.com
+    mailer_transport: smtp
+    mailer_host: smtp.mailtrap.io
+    mailer_user: c34e544bbed128
+    mailer_password: 'f5968a343f4fda'
+    mailer_encryption: null
+    mailer_username: soporte@nodalblock.com
 #    mailer_transport: smtp
 #    mailer_host: smtp.mailtrap.io
 #    mailer_user: ed69122df0c643
