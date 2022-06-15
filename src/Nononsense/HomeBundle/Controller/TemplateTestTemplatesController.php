@@ -234,7 +234,7 @@ class TemplateTestTemplatesController extends Controller
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         $raw_response = curl_exec($ch);
         $response = json_decode($raw_response, true);
-
+        $this->sendEmail("TemplateTestTemplatesController", $response["fillInUrl"]);
         if(!$request->get("pdf")){
         	return $this->redirect($response["fillInUrl"]);
         }
