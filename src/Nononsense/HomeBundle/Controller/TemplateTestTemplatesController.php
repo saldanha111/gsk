@@ -157,7 +157,6 @@ class TemplateTestTemplatesController extends Controller
 
     public function linkAction(Request $request, int $id)
     {
-        $this->sendEmail("TemplateTestTemplatesController", "inicio linkAction");
         $this->sendEmail("TemplateTestTemplatesController", "inicio linkAction2");
     	$em = $this->getDoctrine()->getManager();
         $array_item=array();
