@@ -226,7 +226,7 @@ class TemplateTestTemplatesController extends Controller
 	        $base_url=$this->getParameter('api_docoaro')."/documents/".$template->getPlantillaId()."?getDataUrl=".$get_data_url."&scriptUrl=".$scriptUrl.$configuration;
         }
 
-        $this->sendEmail("TemplateTestTemplatesController", $base_url);
+//        $this->sendEmail("TemplateTestTemplatesController", $base_url);
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $base_url);
