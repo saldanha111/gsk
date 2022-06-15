@@ -40,7 +40,6 @@ class TemplateTestTemplatesController extends Controller
 {
     public function detailAction(Request $request, int $id)
     {
-        $this->sendEmail("TemplateTestTemplatesController", "inicio detailAction");
         $em = $this->getDoctrine()->getManager();
         $array_item=array();
 
@@ -226,8 +225,6 @@ class TemplateTestTemplatesController extends Controller
 	        $base_url=$this->getParameter('api_docoaro')."/documents/".$template->getPlantillaId()."?getDataUrl=".$get_data_url."&scriptUrl=".$scriptUrl.$configuration;
         }
 
-//        $this->sendEmail("TemplateTestTemplatesController", $base_url);
-
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $base_url);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST,"GET");
@@ -253,8 +250,6 @@ class TemplateTestTemplatesController extends Controller
       	$json=file_get_contents($this->getParameter("cm_installation_aux")."/bundles/nononsensehome/json-data-test.json");
 
     	$json_content=json_decode($json,TRUE);
-
-//        $this->sendEmail("TemplateTestTemplatesController", $this->getParameter("cm_installation_aux")."/bundles/nononsensehome/json-data-test.json");
 
     	if($request->get("test")){
     		$test = $this->getDoctrine()->getRepository(TMTests::class)->findOneBy(array("id" => $request->get("test")));
@@ -286,7 +281,6 @@ class TemplateTestTemplatesController extends Controller
 
     public function saveAction(int $id)
     {
-        $this->sendEmail("TemplateTestTemplatesController", "saveAction");
 
         $expired_token = $this->get('utilities')->tokenExpired($_REQUEST["token"]);
 
@@ -346,8 +340,6 @@ class TemplateTestTemplatesController extends Controller
 
     public function updateAction(Request $request, int $id)
     {
-        $this->sendEmail("TemplateTestTemplatesController", "updateAction");
-
         $em = $this->getDoctrine()->getManager();
         $array_item=array();
 
@@ -602,25 +594,11 @@ class TemplateTestTemplatesController extends Controller
     private function returnToHomePage(string $msgError, string $type = "error"): RedirectResponse
     {
 
-        $this->sendEmail("TemplateTestTemplatesController", "returnToHomePage");
-
         $this->get('session')->getFlashBag()->add(
             $type,
             $msgError
         );
         $route=$this->container->get('router')->generate('nononsense_home_homepage');
         return $this->redirect($route);
-    }
-
-    private function sendEmail(string $subject, string $content)
-    {
-        die($content);
-        $email = \Swift_Message::newInstance()
-            ->setSubject($subject)
-            ->setFrom("aleon@oaro.net")
-            ->setTo("aleon@oaro.net")
-            ->setBody($content,'text/html');
-
-        $this->container->get('mailer')->send($email);
     }
 }
