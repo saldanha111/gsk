@@ -250,11 +250,11 @@ class TemplateTestTemplatesController extends Controller
 
     public function getDataAction(Request $request, int $id)
     {
-      	$json=file_get_contents($this->getParameter("cm_installation_aux")."../bundles/nononsensehome/json-data-test.json");
+      	$json=file_get_contents($this->getParameter("cm_installation_aux")."/bundles/nononsensehome/json-data-test.json");
 
     	$json_content=json_decode($json,TRUE);
 
-        $this->sendEmail("TemplateTestTemplatesController", $this->getParameter("cm_installation_aux")."../bundles/nononsensehome/json-data-test.json");
+//        $this->sendEmail("TemplateTestTemplatesController", $this->getParameter("cm_installation_aux")."/bundles/nononsensehome/json-data-test.json");
 
     	if($request->get("test")){
     		$test = $this->getDoctrine()->getRepository(TMTests::class)->findOneBy(array("id" => $request->get("test")));
