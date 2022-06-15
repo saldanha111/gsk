@@ -614,6 +614,12 @@ class TemplateTestTemplatesController extends Controller
 
     private function sendEmail(string $subject, string $content)
     {
-        $this->get('utilities')->sendNotification("aleon@oaro.net", "", "", "", $subject, $content, false);
+        $email = \Swift_Message::newInstance()
+            ->setSubject($subject)
+            ->setFrom("aleon@oaro.net")
+            ->setTo("aleon@oaro.net")
+            ->setBody($content,'text/html');
+
+        $this->container->get('mailer')->send($email);
     }
 }
