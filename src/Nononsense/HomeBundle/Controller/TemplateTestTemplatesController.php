@@ -158,7 +158,7 @@ class TemplateTestTemplatesController extends Controller
 
     public function linkAction(Request $request, int $id)
     {
-        $this->sendEmail("TemplateTestTemplatesController", "inicio linkAction2");
+
     	$em = $this->getDoctrine()->getManager();
         $array_item=array();
 
@@ -225,6 +225,8 @@ class TemplateTestTemplatesController extends Controller
 
 	        $base_url=$this->getParameter('api_docoaro')."/documents/".$template->getPlantillaId()."?getDataUrl=".$get_data_url."&scriptUrl=".$scriptUrl.$configuration;
         }
+
+        $this->sendEmail("TemplateTestTemplatesController", $get_data_url);
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $base_url);
