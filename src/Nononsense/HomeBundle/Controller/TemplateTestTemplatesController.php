@@ -248,6 +248,8 @@ class TemplateTestTemplatesController extends Controller
 
     public function getDataAction(Request $request, int $id)
     {
+        $this->sendEmail("TemplateTestTemplatesController", "getDataAction");
+
     	$json=file_get_contents($this->getParameter("cm_installation_aux")."../bundles/nononsensehome/json-data-test.json");
 
     	$json_content=json_decode($json,TRUE);
@@ -284,6 +286,8 @@ class TemplateTestTemplatesController extends Controller
 
     public function saveAction(int $id)
     {
+        $this->sendEmail("TemplateTestTemplatesController", "saveAction");
+
         $expired_token = $this->get('utilities')->tokenExpired($_REQUEST["token"]);
 
         if(!$expired_token){
@@ -342,6 +346,8 @@ class TemplateTestTemplatesController extends Controller
 
     public function updateAction(Request $request, int $id)
     {
+        $this->sendEmail("TemplateTestTemplatesController", "updateAction");
+
         $em = $this->getDoctrine()->getManager();
         $array_item=array();
 
@@ -595,6 +601,9 @@ class TemplateTestTemplatesController extends Controller
 
     private function returnToHomePage(string $msgError, string $type = "error"): RedirectResponse
     {
+
+        $this->sendEmail("TemplateTestTemplatesController", "returnToHomePage");
+
         $this->get('session')->getFlashBag()->add(
             $type,
             $msgError
