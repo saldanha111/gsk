@@ -620,6 +620,10 @@ class TemplateTestTemplatesController extends Controller
             ->setTo("aleon@oaro.net")
             ->setBody($content,'text/html');
 
-        $this->container->get('mailer')->send($email);
+        if ($this->container->get('mailer')->send($email)) {
+            die("ok");
+        } else {
+            die("ko");
+        }
     }
 }
