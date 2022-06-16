@@ -15,6 +15,7 @@ use Nononsense\HomeBundle\Entity\RecordsSignatures;
 use Nononsense\HomeBundle\Entity\Types;
 use Nononsense\UserBundle\Entity\Users;
 use Nononsense\GroupBundle\Entity\Groups;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Nononsense\UtilsBundle\Classes;
@@ -73,12 +74,9 @@ class DocumentsController extends Controller
         $url=$this->container->get('router')->generate('nononsense_documents');
         $params=$request->query->all();
         unset($params["page"]);
-        if(!empty($params)){
-            $parameters=TRUE;
-        }
-        else{
-            $parameters=FALSE;
-        }
+
+        $parameters = !empty($params);
+
         $array_item["pagination"]=\Nononsense\UtilsBundle\Classes\Utils::paginador($filters["limit_many"],$request,$url,$array_item["count"],"/", $parameters);
         
         return $this->render('NononsenseHomeBundle:Contratos:documents.html.twig',$array_item);
@@ -124,9 +122,9 @@ class DocumentsController extends Controller
     }
 
     public function updateAction(Request $request, string $id)
-    {   
+    {
         $em = $this->getDoctrine()->getManager();
-
+        $update_template = 0;
         try {
             $not_update=0;
             if($id!=0){
@@ -150,16 +148,10 @@ class DocumentsController extends Controller
                 $document->setUserCreatedEntiy($user);
 
                 if(!$request->files->get('template')){
-                    $this->get('session')->getFlashBag()->add(
-                        'error',
-                        "Es necesario adjuntar un documento paga subir la plantilla"
-                    );
-                    return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
+                    $this->returnToHomePage("Es necesario adjuntar un documento para subir la plantilla");
                 }
-                else{
-                    $update_template=1;
-                    $template_name=$request->get("name");
-                }
+
+                $template_name=$request->get("name");
 
                 $base_url=$this->getParameter('api_docoaro')."/documents";
                 $update_template=1;
@@ -171,10 +163,11 @@ class DocumentsController extends Controller
             }
 
             if(!$not_update){
+                /** @var Types $type */
                 $type = $this->getDoctrine()->getRepository(Types::class)->find($request->get("type"));
                 $document->setType($type);
 
-                if($update_template==1){
+                if($update_template===1){
                     $fs = new Filesystem();
                     $file = $request->files->get('template');
                     $data_file = curl_file_create($file->getRealPath(), $file->getClientMimeType(), $file->getClientOriginalName());
@@ -189,13 +182,9 @@ class DocumentsController extends Controller
                     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
                     $raw_response = curl_exec($ch);
                     $response = json_decode($raw_response, true);
-                    
-                    if(!$response["version"]){
-                        $this->get('session')->getFlashBag()->add(
-                            'error',
-                            'Error al subir la plantilla. '
-                        );
-                        return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
+
+                    if(!isset($response["version"])){
+                        return $this->returnToHomePage($response["message"]);
                     }
                     $document->setPlantillaId($response["id"]);
                 }
@@ -263,7 +252,7 @@ class DocumentsController extends Controller
         }catch (\Exception $e) {
             $this->get('session')->getFlashBag()->add(
                     'error',
-                    "Error desconocido al intentar guardar los datos de la plantilla"
+                "Error desconocido al intentar guardar los datos de la plantilla"
                 );
             $route = $this->container->get('router')->generate('nononsense_documents_edit', array("id" => $id));
         
@@ -274,6 +263,17 @@ class DocumentsController extends Controller
 
         $route = $this->container->get('router')->generate('nononsense_documents');
         
+        return $this->redirect($route);
+    }
+
+    private function returnToHomePage(string $msgError, string $type = "error"): RedirectResponse
+    {
+        $this->get('session')->getFlashBag()->add(
+            $type,
+            $msgError
+        );
+        $route=$this->container->get('router')->generate('nononsense_home_homepage');
+
         return $this->redirect($route);
     }
 }

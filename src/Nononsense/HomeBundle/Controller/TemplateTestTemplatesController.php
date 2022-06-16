@@ -362,7 +362,7 @@ class TemplateTestTemplatesController extends Controller
         }
 
         $action = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 3));
-        
+
         if($request->get("finish_tests")){
         	$testers = $this->getDoctrine()->getRepository(TMWorkflow::class)->findBy(array("template" => $template, "action" => $action),array("id" => "ASC"));
 	        $find=0;
