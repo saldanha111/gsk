@@ -38,6 +38,13 @@
                         </div>
 
                         <div class="form-group">
+                            <label class="col-sm-2" for="subjectId">Asunto</label>
+                            <div class="col-sm-4 item_filter">
+                                <input type="text" class="form-control" name="subject" id="subjectId" required ></input>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
                             <label class="col-sm-2" for="msg">Mensaje</label>
                             <div class="col-sm-4 item_filter">
                                 <textarea name="msg" id="msg" style="width: 100%; height: 300px;"></textarea>
@@ -188,6 +195,12 @@
             const templateId = $("#templateId").val();
             if (templateId === '') {
                 toastr.error("Debe indicar una plantilla", 'aviso');
+                e.preventDefault();
+            }
+
+            const subject = $("#subjectId").val();
+            if (subject === '') {
+                toastr.error("Debe indicar un asunto", 'aviso');
                 e.preventDefault();
             }
 

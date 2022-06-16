@@ -443,7 +443,9 @@ class TemplateManagementRequestController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $template["selected"]=$em->getRepository('NononsenseHomeBundle:TMTemplates')->listRetentionsByTemplateId($templateId);
+        /** @var TMTemplates $template */
+        $template=$em->getRepository('NononsenseHomeBundle:TMTemplates')->listRetentionsByTemplateId($templateId);
+        $template["selected"] =$template[0]["retentions"];
         $template["allCategories"]=$em->getRepository('NononsenseHomeBundle:RetentionCategories')->listToArray();
 
         $response = new Response(json_encode($template), 200);

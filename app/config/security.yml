@@ -100,6 +100,7 @@ security:
         - { path: ^/backoffice_bloquear_registros , roles: IS_AUTHENTICATED_ANONYMOUSLY}
         - { path: ^/products-output-data/.* , roles: IS_AUTHENTICATED_ANONYMOUSLY}
         - { path: ^/products-dissolution-qr/.* , roles: IS_AUTHENTICATED_ANONYMOUSLY}
+        - { path: ^/qrs-json/[0-9]+ , roles: IS_AUTHENTICATED_ANONYMOUSLY}
         - { path: ^/$ , roles: ROLE_EXTERNAL}
         - { path: ^/ , roles: ROLE_USER}
         # require ROLE_ADMIN

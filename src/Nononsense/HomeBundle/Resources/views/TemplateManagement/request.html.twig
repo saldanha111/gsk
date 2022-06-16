@@ -36,7 +36,7 @@
                             </div>
                         </div>
 
-                        <div class="form-group" id="box_existent_template" style="display:none">
+                        <div class="form-group" id="box_existent_template" style="display:none;">
                             <label class="col-sm-2 control-label">Buscar Plantilla</label>
                             <div class="col-sm-4">
                               <select class="form-control select_template" style="width: 100%;">
@@ -79,6 +79,8 @@
                                 </div>
                             </div>
 
+
+
                             <div id="box_valid_comis" style="display:none">
                                 <div class="form-group">
                                     <label class="col-sm-2 control-label">Num.Proyecto</label>
@@ -98,6 +100,7 @@
                             </div>
                         </div>
 
+
                         <div class="form-group" id="retentionDiv">
                             <label class="col-sm-2 control-label">Cat.Retención</label>
                             <div class="col-sm-7">
@@ -111,12 +114,13 @@
                             </div>
                         </div>
 
+
                         <div class="form-group">
                             <label class="col-sm-2 control-label">Desc. solicitud</label>
                             <div class="col-sm-7">
                                 <textarea name="description" rows="10" cols="40" required="required" style="width:100%"></textarea>
                             </div>
-                        </div> 
+                        </div>
 
                         <div class="form-group">
                             <label class="col-sm-2 control-label">Historia del cambio</label>
@@ -130,9 +134,9 @@
                             <div class="col-sm-4">
                                 <input type="text" name="reference" class="form-control" value="" required="required">
                             </div>
-                        </div> 
+                        </div>
 
-                        
+
                         <div class="form-group">
                             <label class="col-sm-2 control-label">Dueño</label>
                             <div class="col-sm-4">
@@ -140,7 +144,7 @@
                                 <option value=""></option>
                               </select>
                             </div>
-                        </div> 
+                        </div>
 
                         <div class="form-group">
                             <label class="col-sm-2 control-label">Backup</label>
@@ -156,10 +160,10 @@
                             <div class="col-sm-2">
                                 <input type="text" class="form-control pull-right" autocomplete="off" name="public_date" id="public_date" value="" required="required">
                             </div>
-                        </div> 
-                        
-                        
-                    </div>          
+                        </div>
+
+
+                    </div>
                 </div>
             </div>
             <div class="row">
@@ -167,18 +171,18 @@
                     <div id="master_workflow">
                         <h1>Workflow</h1>
                         <div class="row">
-                            
+
                             <div class="col-sm-3 pre_col_workflow" data-bloque-type="elab">
                                 <div class="col_workflow">
                                     <h2>Elaboradores</h2>
                                     <hr>
                                     <div class="row line_workflow">
-                                    
+
                                     </div>
-                                </div> 
+                                </div>
                                 <div class="row">
                                     <button type="button" class="btn btn-default pull-right add_line" data-type="elab"><i class="fa fa-plus"></i> Añadir</button>
-                                </div><br> 
+                                </div><br>
                             </div>
                             <div class="col-sm-3 pre_col_workflow" data-bloque-type="test">
                                 <div class="col_workflow">
@@ -187,40 +191,40 @@
                                     <div class="row line_workflow">
 
                                     </div>
-                                </div> 
+                                </div>
                                 <div class="row">
                                     <button type="button" class="btn btn-default pull-right add_line" data-type="test"><i class="fa fa-plus"></i> Añadir</button>
-                                </div><br> 
+                                </div><br>
                             </div>
                             <div class="col-sm-3 pre_col_workflow" data-bloque-type="aprob">
                                 <div class="col_workflow">
                                     <h2>Aprobadores</h2>
                                     <hr>
                                     <div class="row line_workflow">
-                                        
-                                        
+
+
                                     </div>
-                                </div> 
+                                </div>
                                 <div class="row">
                                     <button type="button" class="btn btn-default pull-right add_line" data-type="aprob"><i class="fa fa-plus"></i> Añadir</button>
-                                </div><br> 
+                                </div><br>
                             </div>
                             <div class="col-sm-3 pre_col_workflow"  data-bloque-type="admin">
                                 <div class="col_workflow">
                                     <h2>Administrador</h2>
                                     <hr>
                                     <div class="row line_workflow">
-                                        
+
                                     </div>
-                                </div> 
+                                </div>
                                 <div class="row">
                                     <input type="hidden" class="add_line" data-type="admin">
-                                </div><br> 
+                                </div><br>
                             </div>
                         </div>
                     </div>
                     <div class="row">
-                        
+
                     </div><br>
                 </div>
             </div>
@@ -425,6 +429,7 @@
                     $("[name='template']").prop('required',true);
                     $("#box_existent_template").show();
                     break;
+                default: break;
             }
 
             clear_workflow();
@@ -593,17 +598,17 @@
     /* New edition: Buscamos el json de categorías para la plantilla seleccionada */
     function load_associated_categories_byTemplateId(templateId){
         const UNABLE_LOAD_CATEGORIES = "No ha sido posible cargar las categorías de esta plantilla";
-        url_template_retentions=get_url_template_retentions(templateId);
+        const url_template_retentions=get_url_template_retentions(templateId);
         $.ajax({
             type: 'GET',
             dataType: "json",
             url: url_template_retentions,
             success: function(data){
-                if (data.selected[0] && data.allCategories) {
+                if (data.selected?.length > 0 && data.allCategories?.length > 0) {
                     const allCategories = data.allCategories;
                     let num_categories = (allCategories) ? allCategories.length : 0;
                     if(0 < num_categories){
-                        const associatedCategories = data.selected[0].retentions;
+                        const associatedCategories = data.selected;
                         let num_associated_categories = (associatedCategories) ? associatedCategories.length : 0;
                         let options = "";
                         for(let i  = 0; i < num_categories; i++) {
