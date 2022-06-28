@@ -4,7 +4,9 @@ namespace Nononsense\HomeBundle\Entity;
 
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Query\QueryException;
+use Doctrine\ORM\Query\ResultSetMapping;
 use Doctrine\ORM\QueryBuilder;
+use PDO;
 
 /**
  * RetentionCategoriesRepository
@@ -114,6 +116,23 @@ class RetentionCategoriesRepository extends EntityRepository
         $query = $list->getQuery();
 
         return $query->getArrayResult();
+    }
+
+    /**
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function getRetentionCategoriesByTemplateId(int $templateId): array
+    {
+        $em = $this->getEntityManager();
+
+        $query = $em->getConnection()->executeQuery("
+            select rc.id, rc.retention_days, rc.name
+            from tm_retentions tr
+            left join retention_categories rc on rc.id = tr.retentioncategories_id
+            where tr.tmtemplates_id = $templateId
+        ");
+
+         return $query->fetchAll();
     }
 
 }

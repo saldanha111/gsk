@@ -621,7 +621,24 @@ nononsense_retention_categories_delete:
     path: /retention_categories/delete/{id}
     defaults: { _controller: NononsenseHomeBundle:RetentionCategories:delete}
 
+nononsense_retention_categories_template_get:
+    path: /retention_categories/getTemplatesList
+    defaults: { _controller: NononsenseHomeBundle:RetentionCategoriesTemplateList:getTemplatesList }
 
+nononsense_retention_categories_template_list:
+    path: /retention_categories/searchTemplatesList
+    methods:    [GET]
+    defaults: { _controller: NononsenseHomeBundle:RetentionCategoriesTemplateList:searchTemplatesList }
+
+nononsense_retention_categories_template_detail:
+        path: /retention_categories/detailTemplate
+        methods: [ GET ]
+        defaults: { _controller: NononsenseHomeBundle:RetentionCategoriesTemplateList:detailTemplate }
+
+nononsense_retention_categories_template_destroy:
+    path: /retention_categories/destroyTemplate
+    methods: [ POST ]
+    defaults: { _controller: NononsenseHomeBundle:RetentionCategoriesTemplateList:destroyTemplate }
 # Docoaro endpoints connect
 
 nononsense_cv_docoaro_new:

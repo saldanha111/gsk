@@ -215,6 +215,7 @@
                                                 {% endif %}
                                             {% endif %}
                                             <li><a href="{{path('nononsense_tm_template_changes_history', {'id': item.id})}}"><i class="fa fa-file-text-o"></i> {{ ' Historial de cambios'|trans }}</a></li>
+
                                             {% if extend %}
                                                 <li><a href="{{path('nononsense_tm_template_audit_trail', {'id': item.id})}}"><i class="fa fa-book"></i> {{ 'Audit Trail'|trans }}</a></li>
                                                 <li><a href="{{path('nononsense_tm_template_cover_page', {'id': item.id})}}"><i class="fa fa-print"></i> {{ 'Imprimir plantilla'|trans }}</a></li>

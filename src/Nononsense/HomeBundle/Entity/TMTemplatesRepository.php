@@ -2,8 +2,15 @@
 
 namespace Nononsense\HomeBundle\Entity;
 
+use DateInterval;
+use DateTime;
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\Query\QueryException;
 use Doctrine\ORM\Query\ResultSetMapping;
+use Doctrine\ORM\Query\ResultSetMappingBuilder;
+use Doctrine\ORM\QueryBuilder;
 
 /**
  * AreasRepository
@@ -275,10 +282,6 @@ class TMTemplatesRepository extends EntityRepository
                     $query->setParameters($parameters);
                 }
 
-                /*$rsm->addScalarResult('name', 'name');
-                $rsm->addScalarResult('id', 'id');*/
-
-
                 $items=$query->getResult();
                 break;
 
@@ -528,5 +531,148 @@ class TMTemplatesRepository extends EntityRepository
 
         return $template->getQuery()->getArrayResult();
 
+    }
+
+    /**
+     * @param array $filters
+     * @param $paginate
+     * @return array|float|int|string
+     */
+    public function listTemplatesByRetention(array $filters, $paginate = 1)
+    {
+
+        $items = [];
+        $conditions = [];
+
+        $query = $this->createQueryBuilder('t')
+            ->select('t', 'a', 's')
+            ->leftJoin("t.retentions", "r")
+            ->leftJoin("t.area", "a")
+            ->leftJoin("t.tmState", "s")
+            ->orderBy("t.destructionDate", "desc")
+        ;
+
+        if(!empty($parameters)){
+            $query->setParameters($parameters);
+        }
+
+        $query = self::fillFilersQuery($filters, $query);
+
+        if ($paginate == 1 && isset($filters["limit_from"])){
+            $query->setFirstResult($filters["limit_from"]*$filters["limit_many"])->setMaxResults($filters["limit_many"]);
+        }
+
+        $items=$query->getQuery()->getArrayResult();
+
+
+        return $items;
+    }
+
+    /**
+     * @param array $filters
+     * @return mixed
+     */
+    public function count($filters = [])
+    {
+        $list = $this->createQueryBuilder('t')
+            ->select('COUNT(t.id) as conta')
+            ->leftJoin("t.retentions", "r")
+            ->leftJoin("t.area", "a")
+            ->leftJoin("t.tmState", "s")
+        ;
+
+        $list = self::fillFilersQuery($filters, $list);
+        $query = $list->getQuery();
+
+        try {
+            $result = $query->getSingleScalarResult();
+        } catch (QueryException $e) {
+            $result = 0;
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param array $filters
+     * @param QueryBuilder $list
+     * @return QueryBuilder
+     * @throws \Exception
+     */
+    private function fillFilersQuery(array $filters, QueryBuilder $list)
+    {
+        if(!empty($filters)){
+
+            if (isset($filters["area"])) {
+                $list->andWhere(" a.id=:area");
+                $list->setParameter('area', $filters["area"]);
+            }
+
+            if (isset($filters["retention_category"])) {
+                $list->andWhere('r.id = :retention_category');
+                $list->setParameter('retention_category', (int)$filters["retention_category"] );
+            }
+
+            if (isset($filters["state"])) {
+                $list->andWhere(" (s.id=:state) ");
+                $list->setParameter('state', $filters["state"]);
+            }
+
+            if (isset($filters["template_title"])) {
+                $list->andWhere('t.name LIKE :template_title');
+                $list->setParameter('template_title', "%" . $filters["template_title"] . "%");
+            }
+
+            if (isset($filters["code"])) {
+                $list->andWhere('t.number LIKE :code');
+                $list->setParameter('code', "%" . $filters["code"] . "%");
+            }
+
+            if (isset($filters["state"])) {
+                $list->andWhere('t.tmState = :state');
+                $list->setParameter('state', $filters["state"] );
+            }
+
+            if (isset($filters["destruction_date_start"])) {
+                $destroyStartDate = \DateTime::createFromFormat('d-m-Y',$filters["destruction_date_start"]);
+                $list->andWhere('t.destructionDate > :destroyStartDate');
+
+                $list->setParameter('destroyStartDate', $destroyStartDate);
+            }
+
+            if (isset($filters["destruction_date_end"])) {
+                $destroyEndDate = \DateTime::createFromFormat('d-m-Y',$filters["destruction_date_end"]);
+                $list->andWhere('t.destructionDate < :destroyEndDate');
+
+                $list->setParameter('destroyEndDate', $destroyEndDate);
+            }
+
+            if (isset($filters["see_destroyed"])) {
+                $list->andWhere('t.destructionDate IS NOT NULL');
+            }
+
+            if (isset($filters["only_expired"])) {
+                $list->andWhere('t.destructionDate < :fechaActual');
+                $list->setParameter('fechaActual', new DateTime());
+            }
+
+            if (isset($filters["annual_review"])) {
+                $DEADLINE_ANNUAL_REVIEW = 6;
+                $DEADLINE_ANNUAL_REVIEW_INTERVAL = "M"; // Months
+                $duration = "P" . $DEADLINE_ANNUAL_REVIEW . $DEADLINE_ANNUAL_REVIEW_INTERVAL;
+                $annualReviewDate = new DateTime();
+                $annualReviewDate->add(new DateInterval($duration));
+                $list->andWhere('t.destructionDate < :annualReviewDate');
+                $list->setParameter('annualReviewDate', $annualReviewDate);
+            }
+
+            if (isset($filters["destruction_period_start"])) {
+                $list->andWhere('t.finishRetention < :destructionPeriodStart');
+                $list->setParameter('destructionPeriodStart', $filters["destruction_period_start"]);
+            }
+
+        }
+
+        return $list;
     }
 }

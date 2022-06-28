@@ -88,7 +88,7 @@ class RetentionCategories
     /**
      * @ORM\ManyToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMTemplates", mappedBy="retentions")
      */
-    protected $templates;
+        protected $templates;
 
     /**
      * @var bool

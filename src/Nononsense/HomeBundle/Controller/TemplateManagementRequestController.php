@@ -299,7 +299,6 @@ class TemplateManagementRequestController extends Controller
                     $route = $this->container->get('router')->generate('nononsense_tm_request');
                     return $this->redirect($route);
                 }
-                $retentions = $templates[0]->getRetentions();
                 $desc_prefix=$templates[0]->getPrefix();
                 $area=$templates[0]->getArea();
                 $retentions=$templates[0]->getRetentions();

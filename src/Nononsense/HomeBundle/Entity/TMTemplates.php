@@ -2,8 +2,11 @@
 
 namespace Nononsense\HomeBundle\Entity;
 
+use DateInterval;
+use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
+use Exception;
 use Nononsense\NotificationsBundle\Entity\NotificationsModels;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
@@ -330,6 +333,20 @@ class TMTemplates
      */
     protected $notificationsModels;
 
+    /**
+     * @ORM\Column(name="start_retention", type="date", nullable=true)
+     */
+    protected $startRetention;
+
+    /**
+     * @ORM\Column(name="finish_retention", type="date", nullable=true)
+     */
+    protected $finishRetention;
+
+    /**
+     * @ORM\Column(name="destruction_date", type="date", nullable=true)
+     */
+    protected $destructionDate;
 
     public function __construct()
     {
@@ -609,12 +626,35 @@ class TMTemplates
     /**
      * Set tmState
      *
-     * @param \Nononsense\HomeBundle\Entity\TMStates $tmState
+     * @param $tmState
      * @return TMTemplates
+     * @throws \Exception
      */
-    public function setTmState(\Nononsense\HomeBundle\Entity\TMStates $tmState = null)
+    public function setTmState(TMStates $tmState = null)
     {
         $this->tmState = $tmState;
+
+        $OBSOLETA = 7; $BAJA = 8;
+        $statesOfRetention = [$OBSOLETA, $BAJA];
+        if (in_array($tmState->getId(), $statesOfRetention, true)) {
+
+            $this->setReviewDate(new DateTime());
+            $this->startRetention = new DateTime();
+
+            if (!is_null($tmState) && count($this->retentions) > 0) {
+                $this->startRetention = new DateTime();
+                $maxRetentionDays = $this->retentions[0]->getRetentionDays();
+                /** @var RetentionCategories $retention */
+                foreach($this->retentions as $retention) {
+                     $maxRetentionDays = $retention->getRetentionDays() > $maxRetentionDays
+                            ? $retention->getRetentionDays()
+                            : $maxRetentionDays
+                    ;
+                }
+
+                $this->setFinishRetention($maxRetentionDays);
+            }
+        }
 
         return $this;
     }
@@ -1528,4 +1568,47 @@ class TMTemplates
         return $this;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getStartRetention()
+    {
+        return $this->startRetention;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getFinishRetention()
+    {
+        return $this->finishRetention;
+    }
+    /**
+     * @param int $maxRetentionDays
+     * @throws Exception
+     */
+    public function setFinishRetention(int $maxRetentionDays)
+    {
+        $duration = "P" . $maxRetentionDays . "D";
+        $this->finishRetention->add(new DateInterval($duration));
+    }
+
+    /**
+     * @return DateTime
+     */
+    public function getDestructionDate()
+    {
+        return $this->destructionDate;
+    }
+
+    /**
+     * @param DateTime $destructionDate
+     * @return TMTemplates
+     */
+    public function setDestructionDate(DateTime $destructionDate)
+    {
+        $this->destructionDate = $destructionDate;
+
+        return $this;
+    }
 }

@@ -290,6 +290,7 @@ class ActivityController extends Controller
 
         $array_item["areas"] = $em->getRepository(Areas::class)->findBy(array(),array("name" => "ASC"));
 
+
         if(!$request->get("export_excel") && !$request->get("export_pdf")){
             switch($request->get("group")){
                 default: return $this->render('NononsenseHomeBundle:Activity:templates.html.twig',$array_item);

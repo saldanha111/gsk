@@ -5,14 +5,15 @@ namespace Nononsense\HomeBundle\Controller;
 use DateTime;
 use Exception;
 use Nononsense\GroupBundle\Entity\Groups;
+use Nononsense\GroupBundle\Entity\GroupUsers;
 use Nononsense\HomeBundle\Entity\RCSignatures;
 use Nononsense\HomeBundle\Entity\RCStates;
 use Nononsense\HomeBundle\Entity\RCTypes;
 use Nononsense\HomeBundle\Entity\RetentionCategories;
 use Nononsense\HomeBundle\Entity\RetentionCategoriesRepository;
+use Nononsense\HomeBundle\Entity\TMTemplates;
 use Nononsense\UserBundle\Entity\Users;
 use Nononsense\UtilsBundle\Classes\Utils;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 
@@ -46,13 +47,13 @@ class RetentionCategoriesController extends Controller
             'pagination' => Utils::getPaginator($request, $filters['limit_many'], $totalItems)
         ];
 
-        return $this->render('NononsenseHomeBundle:Retention:list_retention_categories.html.twig', $data);
+        return $this->render('NononsenseHomeBundle:Retention:retention_categories_management.html.twig', $data);
     }
 
     public function editAction(Request $request, $id)
     {
-        $is_valid = $this->get('app.security')->permissionSeccion('retention_admin');
-        if (!$is_valid) {
+        $hasPermission = $this->get('app.security')->permissionSeccion('retention_admin');
+        if (!$hasPermission) {
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
 
@@ -73,7 +74,7 @@ class RetentionCategoriesController extends Controller
         $groups = $em->getRepository(Groups::class)->findBy(array(),array("name" => "ASC"));
         $used = (count($category->getTemplates()) > 1);
 
-        if (count($states) === 0 || count($types) === 0 || count($users) === 0 || count($groups) === 0) {
+        if (!$this->thereAreData($states, $types, $users, $groups)) {
             $this->addFlash("error", "No hemos podido recuperar los tipos, los estados, los usuarios o los grupos");
             $data = [];
         } else {
@@ -119,7 +120,7 @@ class RetentionCategoriesController extends Controller
             $em->getConnection()->rollback();
             $this->get('session')->getFlashBag()->add(
                 'error',
-                "Error al intentar eliminar la categoría"
+                $e->getMessage()
             );
             return $this->redirect($this->generateUrl('nononsense_retention_categories_edit', ['id' => $id]));
         }
@@ -129,16 +130,30 @@ class RetentionCategoriesController extends Controller
     /**
      * @param Request $request
      * @param RetentionCategories $category
-     * @return bool
+     * @return bool | Exception
      */
     private function saveData(Request $request, retentionCategories $category)
     {
+        if (!$request->get('comment') || !$request->get('signature')) {
+            throw new Exception('Para realizar una acción tienes que escribir un comentario y firmar.');
+        }
+
+//        die($request->getContent());
+        if (
+            !$request->get('name') || !$request->get('description') ||
+            (!$request->get('group') && !$request->get('user')) ||
+            !$request->get('state') || !$request->get('type')
+        ) {
+            throw new Exception('Todos los datos son obligatorios.');
+        }
+
         $em = $this->getDoctrine()->getManager();
         $saved = false;
         $action = 'create';
         if ($category->getId()) {
             $action = 'edit';
         }
+
         $em->getConnection()->beginTransaction();
         try {
             $retentionDays = [
@@ -146,37 +161,38 @@ class RetentionCategoriesController extends Controller
                 'months' => $request->get('months'),
                 'years' => $request->get('years')
             ];
+
             /** @var RCStates $state */
             $state = $em->getRepository(RCStates::class)->find($request->get('state'));
             /** @var RCTypes $type */
             $type = $em->getRepository(RCTypes::class)->find($request->get('type'));
-            /** @var Users $user */
-            $user = $em->getRepository(Users::class)->find($request->get('user'));
-            /** @var Groups $group */
-            $group = $em->getRepository(Groups::class)->find($request->get('group'));
 
             $category->setModified(new DateTime());
             $category->setName($request->get('name'));
             $category->setDescription($request->get('description'));
             $category->setRetentionDaysFormatted($retentionDays);
-            $category->setActive(($request->get('active')) ? true : false);
+            $this->updateFinishRetentionDateTemplates($category->getId(), $category->getRetentionDays());
+            $category->setActive((bool)$request->get('active'));
             $category->setDocumentState($state);
             $category->setType($type);
-            if ($user) {
-                $category->setDestroyUser($user);
-            }
-            if ($group) {
-                $category->setDestroyGroup($group);
-            }
 
-            return new JsonResponse($user);
-            if (!$request->get('name') || !$request->get('description') || (!$user && !$group) || !$state || !$type) {
-                throw new Exception('Todos los datos son obligatorios.');
+            $userId = (int) $request->get('user');
+            if ($userId) {
+                /** @var Users $user */
+                $user = $em->getRepository(Users::class)->find($userId);
+                $category->setDestroyUser($user);
+            } else {
+                $groupId = (int) $request->get('group');
+                /** @var Groups $group */
+                $group = $em->getRepository(Groups::class)->find($groupId);
+                $category->setDestroyGroup($group);
             }
 
             $em->persist($category);
             $em->flush();
+
             $this->saveLog($action, $request->get('comment'), $request->get('signature'), $category);
+
             $em->getConnection()->commit();
             $this->get('session')->getFlashBag()->add(
                 'message',
@@ -189,6 +205,7 @@ class RetentionCategoriesController extends Controller
                 'error', $e->getMessage()
             );
         }
+
         return $saved;
     }
 
@@ -203,9 +220,7 @@ class RetentionCategoriesController extends Controller
     private function saveLog(string $action, string $comment, string $signature, RetentionCategories $retentionCategory)
     {
         $em = $this->getDoctrine()->getManager();
-        if (!$comment || !$signature) {
-            throw new Exception('Para realizar una acción tienes que escribir un comentario y firmar.');
-        }
+
 
         $signatureLog = new RCSignatures();
         $signatureLog->setAction($action)
@@ -216,5 +231,40 @@ class RetentionCategoriesController extends Controller
         $em->persist($signatureLog);
         $em->flush();
         return true;
+    }
+
+    private function thereAreData(array $states, array $types, array $users, array $groups): bool  {
+        return (count($states) > 0 && count($types) > 0 && count($users) > 0 && count($groups) > 0);
+    }
+
+    private function updateFinishRetentionDateTemplates(int $categoryId, int $retentionDays)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $connection = $em->getConnection();
+        $sqlTemplatesWithThisCategory =
+        "
+            select tmtemplates_id
+            from tm_retentions tr
+            where tr.retentioncategories_id = %d
+        ";
+        $sqlTemplatesWithThisCategoryWithValues = sprintf($sqlTemplatesWithThisCategory, $categoryId);
+
+        $templatesWithThisCategorySTMT = $connection->prepare($sqlTemplatesWithThisCategoryWithValues);
+        $templatesWithThisCategorySTMT->execute();
+        $templatesWithThisCategory = $templatesWithThisCategorySTMT->fetchAll();
+        $updateTMTemplatesWithRetentionDays =
+            "
+            update tm_templates
+            set start_retention = DATEADD(day,  %d, start_retention)
+            where tm_templates.id = %d
+            and tm_templates.destruction_date is null or datalength(tm_templates.destruction_date) = 0
+        ";
+        foreach($templatesWithThisCategory as $templateWithThisCategory) {
+            $updateTMTemplatesWithRetentionDaysSQL = sprintf(
+                $updateTMTemplatesWithRetentionDays, $retentionDays, $templateWithThisCategory["tmtemplates_id"]
+            );
+            $connection->executeUpdate($updateTMTemplatesWithRetentionDaysSQL);
+        }
+
     }
 }

@@ -56,8 +56,6 @@
                                     </select>
                                 </div>
                             </div>
-{#                            {{dump(category)}}#}
-{#                            {{dump(states)}}#}
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Estado</label>
                                 <div class="col-sm-7">
@@ -159,27 +157,25 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label class="col-sm-4 control-label" for="firma">Firma</label><br>
+                                <label class="col-sm-4 control-label" for="formItemFirma">Firma</label><br>
                                 <div class="col-sm-7">
-                                    <input type="password" name="signature" id="firma" class="form-control" required="required"><br>
+                                    <input type="password" name="signature" id="formItemFirma" class="form-control" required="required"><br>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-sm-5 col-sm-offset-1">
-                        {% if not used and category.id is defined and category.id is not null%}
-                            <button type="button" class="btn btn-danger pull-left del-category">
-                                <i class="fa fa-trash-o" aria-hidden="true"></i><span> Eliminar categoría</span>
-                            </button>
-                        {% endif %}
-                    </div>
-                    <div class="col-sm-5">
-                        <button type="button" class="btn btn-primary pull-right edit-category">
+                <div class="row  pull-right">
+                    <div class="col-sm-12">
+                        <button type="button" class="btn btn-primary edit-category  ml-3">
                             <i class="fa fa-floppy-o" aria-hidden="true"></i>
                             <span> {{category.id is not null ? 'Editar' : 'Registrar'}} categoría</span>
                         </button>
+                        {% if not used and category.id is defined and category.id is not null%}
+                            <button type="button" class="btn btn-danger del-category md-3">
+                                <i class="fa fa-trash-o" aria-hidden="true"></i><span> Eliminar categoría</span>
+                            </button>
+                        {% endif %}
                     </div>
                 </div>
             </form>
@@ -213,30 +209,21 @@
             let user = $('#selectuser');
             let group = $('#selectgroup');
             if(radioChecked === 'user'){
-                $('.div-user').show();
-                $('.div-group').hide();
-                group.val(null).trigger('change');
-                group.removeAttr('required');
-                user.select2();
-                user.attr('required','required');
+                showUsers(user, group);
             }else{
-                $('.div-group').show();
-                $('.div-user').hide();
-                user.val(null).trigger('change');
-                user.removeAttr('required');
-                group.select2();
-                group.attr('required','required');
+                showGroups(group, user);
             }
         });
 
         $(document).on('click','.del-category',function(e){
             e.preventDefault();
+
             let error = false;
 
-            const firma = document.getElementById("firma").value;
-            const firmaEstaVacia = (firma === "");
+            const formItemFirma = document.getElementById("formItemFirma").value;
+            const formItemFirmaEstaVacia = (formItemFirma === "");
 
-            if (firmaEstaVacia) {
+            if (formItemFirmaEstaVacia) {
                 swal({
                     title: "Atención",
                     text: "Debe rellenar una firma, no puede dejar el cuadro en blanco",
@@ -245,24 +232,27 @@
                 error = true;
             }
 
-            if (!$('.text-comment').val()) {
-                swal({
-                    title: "Atención",
-                    text: "Debe escribir un comentario para realizar la acción",
-                    type: "warning"
-                });
-                error = true;
+            if  (!error) {
+                const elComentarioEstaVacio = (!$('.text-comment').val())
+                if (elComentarioEstaVacio) {
+                    swal({
+                        title: "Atención",
+                        text: "Debe escribir un comentario para realizar la acción",
+                        type: "warning"
+                    });
+                    error = true;
+                }
             }
 
             if(!error){
                 swal({
-                    title: "Estás seguro de que quieres eliminar esta categoría de retención?",
-                    text: "Si se elimina no se podrá recuperar.",
+                    title: "¿Quieres eliminar esta categoría de retención?",
+                    text: "Si se elimina, no se podrá recuperar.",
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#62bbe2',
                     cancelButtonColor: '#ac2925',
-                    confirmButtonText: "Si, borrarlo",
+                    confirmButtonText: "Sí, borradla",
                     cancelButtonText: "Cancelar",
                     closeOnConfirm: false
                 }, function () {
@@ -275,10 +265,10 @@
             e.preventDefault();
             let error = false;
 
-            const firma = document.getElementById("firma").value;
-            const firmaEstaVacia = (firma === "");
+            const formItemFirma = document.getElementById("formItemFirma").value;
+            const formItemFirmaEstaVacia = (formItemFirma === "");
 
-            if (firmaEstaVacia) {
+            if (formItemFirmaEstaVacia) {
                 swal({
                     title: "Atención",
                     text: "Debe rellenar una firma, no puede dejar el cuadro en blanco",
@@ -289,26 +279,27 @@
 
             if (!error) {
                 // La suma de años + meses + dias no puede ser 0
-                const numYears = parseInt(document.getElementById("years").value);
-                const numMonths = parseInt(document.getElementById("months").value);
-                const numDays = parseInt(document.getElementById("days").value);
+                const numTotalYearsMonthsAndDays = parseInt(document.getElementById("years").value)
+                                    + parseInt(document.getElementById("months").value)
+                                    + parseInt(document.getElementById("days").value);
 
-                error = (numYears + numMonths + numDays === 0);
+                const isNotRetentionTimeValid = (numTotalYearsMonthsAndDays === 0);
 
-                if (error) {
+                if (isNotRetentionTimeValid) {
                     swal({
                         title: "Atención",
                         text: "La suma de años, meses y días no puede ser 0",
                         type: "warning"
                     });
+                    error = true;
                 }
             }
 
             if (!error) {
                 const tipoCategoria = document.getElementById("tipoCategoria").value;
                 const state = document.getElementById("state").value;
-                const tipoCategoriaEsVacia = tipoCategoria === "";
-                const stateEsVacia = state === "";
+                const tipoCategoriaEsVacia = (tipoCategoria === "");
+                const stateEsVacia = (state === "");
                 if (tipoCategoriaEsVacia || stateEsVacia) {
                     swal({
                         title: "Atención",
@@ -339,13 +330,13 @@
                 }
 
                 if (CUMPLIMENTACION === type) {
-                    if ({{ states is defined and states | length > 0 }}) {
+                    {% if states is defined and states | length > 0 %}
                         {% for i in range(0, states|length-1) %}
                             {% if states[i].type.id == 2 %}
                                 estadosPorTipoCategorias.push({{ states[i].id }});
                             {% endif %}
                         {% endfor %}
-                    }
+                    {% endif %}
                 }
 
                 const state = document.getElementById("state");
@@ -360,10 +351,26 @@
                     {% endfor %}
                 }
                 state.innerHTML = options;
-
-
             {% endif %}
         });
+
+        function showUsers(user, group) {
+            $('.div-user').show();
+            $('.div-group').hide();
+            group.val(null).trigger('change');
+            group.removeAttr('required');
+            user.select2();
+            user.attr('required','required');
+        }
+
+        function showGroups(group, user) {
+            $('.div-group').show();
+            $('.div-user').hide();
+            user.val(null).trigger('change');
+            user.removeAttr('required');
+            group.select2();
+            group.attr('required','required');
+        }
     });
     </script>
 {% endblock %}
