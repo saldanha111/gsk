@@ -639,6 +639,11 @@ nononsense_retention_categories_template_destroy:
     path: /retention_categories/destroyTemplate
     methods: [ POST ]
     defaults: { _controller: NononsenseHomeBundle:RetentionCategoriesTemplateList:destroyTemplate }
+
+nononsense_retention_categories_template_annual_review:
+    path: /retention_categories/signAnnualReview
+    methods: [ GET ]
+    defaults: { _controller: NononsenseHomeBundle:RetentionCategoriesTemplateList:signAnnualReview }
 # Docoaro endpoints connect
 
 nononsense_cv_docoaro_new:

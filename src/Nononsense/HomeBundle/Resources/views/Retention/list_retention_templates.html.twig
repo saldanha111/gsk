@@ -250,8 +250,7 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-{#                action="{{ path('nononsense_tm_template_annual_review') }}"#}
-                <form id="formSignAnnualReview"  method="POST"  enctype="multipart/form-data">
+                <form id="formSignAnnualReview" action="{{ path('nononsense_retention_categories_template_annual_review') }}">
                     <div class="modal-body">
                         <div class="row">
                             <div class="col-lg-10 col-lg-offset-1">
@@ -269,7 +268,6 @@
                                 </div>
                             </div>
                         </div>
-                        <input type="hidden" id="password" name="password" />
                     </div>
                     <div class="modal-footer">
                         <input type="submit" class="btn btn-primary" id="formAnnualReview" value="Firmar revisión">
@@ -281,6 +279,7 @@
 {% endblock %}
 {% block scripts %}
     {{ parent() }}
+
     <script src="{{ asset('js/plugins/sweetalert/sweetalert.min.js') }}"></script>
     <script>
       $(function () {
@@ -290,12 +289,6 @@
       });
     </script>
     <script>
-        $(document).ready(function() {
-
-        })
-    </script>
-
-    <script>
         $("#form_item").submit(function(e) {
             const fDestructionDateStart = $("#destruction_date_start").val();
             const fDestructionDateEnd = $("#destruction_date_end").val();
@@ -303,15 +296,16 @@
         });
     </script>
     <script>
-        let rowsSelected = new Set();
+        const selectedRows = new Set();
         $('#tabla').on('click', 'tr', function() {
             const selectedRowId = $(this).attr('id');
             if (selectedRowId !== undefined) {
-                $(this).find(':checkbox').prop('checked')
-                    ? rowsSelected.add(parseInt(selectedRowId))
-                    : rowsSelected.delete(parseInt(selectedRowId));
+                ($(this).find(':checkbox').prop('checked'))
+                    ? selectedRows.add(parseInt(selectedRowId))
+                    : selectedRows.delete(parseInt(selectedRowId))
+                ;
             }
-            if (rowsSelected.size > 0) {
+            if (selectedRows.size > 0) {
                 $("#destroySelected, #destroySelected2").prop("disabled", false);
                 $("#revisarSeleccionados, #revisarSeleccionados2").prop("disabled", false);
             } else {
@@ -319,7 +313,7 @@
                 $("#revisarSeleccionados, #revisarSeleccionados2").prop("disabled", true);
             }
 
-            if (rowsSelected.size === 0) {
+            if (selectedRows.size === 0) {
                 $("#toggleAll").prop("checked", false);
             }
         });
@@ -327,7 +321,7 @@
         $("#toggleAll").on("click", function() {
             const isChecked = $(this).is(':checked');
             if (!isChecked) {
-                rowsSelected.clear();
+                selectedRows.clear();
             } else {
                 selectAllIds()
             }
@@ -335,58 +329,63 @@
         });
 
         function selectAllIds() {
-            {% for i in range(0, data.items | length - 1 ) %}
-            console.log('{{ data.items[i].id }}');
-                rowsSelected.add({{ data.items[i].id }});
-            {% endfor %}
+            {% if data is defined and data.items is defined %}
+                {% for i in range(0, data.items | length - 1 ) %}
+                    selectedRows.add({{ data.items[i].id }});
+                {% endfor %}
+            {% endif %}
         }
     </script>
     <script>
         $(function() {
             $("#destroySelected, #destroySelected2").on("click", function() {
-                if (rowsSelected.size > 0) {
-                    const rowsSelectedCSV =[...rowsSelected].join(",");
+                if (selectedRows.size > 0) {
+                    const selectedRowsCSV =[...selectedRows].join(",");
                     $.ajax({
                         url: "{{ path('nononsense_retention_categories_template_destroy') }}",
                         type: 'POST',
                         dataType: 'json',
                         async: false,
-                        data: {ids: rowsSelectedCSV},
+                        data: {ids: selectedRowsCSV},
                         success: function(response) {
+                            if (response.result) {
+                                swal({
+                                    title: "Éxito",
+                                    text: response.message,
+                                    icon: 'success',
+                                    confirmButtonColor: '#62bbe2',
+                                    confirmButtonText: "Ok",
+                                    closeOnConfirm: true
+                                });
+                            } else {
+                                swal({
+                                    title: "Error",
+                                    text: response.message,
+                                    icon: 'error',
+                                    confirmButtonColor: '#62bbe2',
+                                    confirmButtonText: "Ok",
+                                    closeOnConfirm: true
+                                });
+                            }
+                        },
+                        error: function() {
                             swal({
-                                title: "Éxito",
-                                text: response.message,
-                                icon: 'success',
+                                title: "Error",
+                                text: "Algunas plantillas no se marcaron para su destrucción",
+                                icon: 'error',
                                 confirmButtonColor: '#62bbe2',
                                 confirmButtonText: "Ok",
                                 closeOnConfirm: true
                             });
-
-
-                            // if(response.valid){
-                            //     result=true;
-                            // }else{
-                            //     result=false;
-                            // }
-                        },
-                        error: function() {
-                            toastr.error("No pudo confirmarse la destrucción de las plantillas marcadas",'aviso');
                         }
                     });
                 }
-
             });
         });
     </script>
     <script>
         $("#finalizarRevisionAnual, #finalizarRevisionAnual2").on("click", function(){
             $('#modalSignReview').modal('show');
-        });
-    </script>
-
-    <script>
-        $('#formSignAnnualReview').on('submit', function(e){
-
         });
     </script>
 {% endblock %}
