@@ -245,12 +245,13 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Firmar solicitud de finalizar la revisión anual</h5>
+                    <h5 class="modal-title">Firmar solicitud para finalizar la revisión anual</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <form id="form_sign_annual_review" action="{{ path('nononsense_tm_template_annual_review') }}" method="POST"  enctype="multipart/form-data">
+{#                action="{{ path('nononsense_tm_template_annual_review') }}"#}
+                <form id="formSignAnnualReview"  method="POST"  enctype="multipart/form-data">
                     <div class="modal-body">
                         <div class="row">
                             <div class="col-lg-10 col-lg-offset-1">
@@ -263,16 +264,15 @@
                         <div class="row">
                             <div class="col-lg-10 col-lg-offset-1">
                                 <div id="signature-pad" class="input-group">
-                                    <b>Introduzca su firma</b><br>
-                                    <input type="password" id="annualReviewPassword"></input>
+                                    <label id="formAnnualReviewPassword">Introduzca su firma</label><br>
+                                    <input type="password" name="password" class="form-control" required="required"><br>
                                 </div>
                             </div>
                         </div>
-                        <input type="hidden" id="signature" name="signature" />
+                        <input type="hidden" id="password" name="password" />
                     </div>
                     <div class="modal-footer">
-                        <a name="borrarFirmar" class="btn btn-secondary" id="borrarFirmar">Limpiar firma</a>
-                        <input type="submit" class="btn btn-primary" value="Firmar revisión">
+                        <input type="submit" class="btn btn-primary" id="formAnnualReview" value="Firmar revisión">
                     </div>
                 </form>
             </div>
@@ -381,6 +381,12 @@
     <script>
         $("#finalizarRevisionAnual, #finalizarRevisionAnual2").on("click", function(){
             $('#modalSignReview').modal('show');
+        });
+    </script>
+
+    <script>
+        $('#formSignAnnualReview').on('submit', function(e){
+
         });
     </script>
 {% endblock %}
