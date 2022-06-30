@@ -59,7 +59,6 @@ class RetentionCategoriesController extends Controller
 
         $em = $this->getDoctrine()->getManager();
         $category = $em->getRepository(retentionCategories::class)->findOneBy(['id' => $id, 'deletedAt' => null]);
-
         if (!$category) {
             $category = new retentionCategories();
         }
@@ -138,7 +137,6 @@ class RetentionCategoriesController extends Controller
             throw new Exception('Para realizar una acción tienes que escribir un comentario y firmar.');
         }
 
-//        die($request->getContent());
         if (
             !$request->get('name') || !$request->get('description') ||
             (!$request->get('group') && !$request->get('user')) ||

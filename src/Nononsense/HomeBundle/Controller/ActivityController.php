@@ -257,16 +257,6 @@ class ActivityController extends Controller
         $array_item["suser"]["id"]=$user->getId();
         $array_item["filters"]=$filters;
 
-        /*$rsm = new ResultSetMapping();
-        
-        $query = $em->createNativeQuery("SELECT t.name,COUNT(t.id) AS conta FROM tm_templates t LEFT JOIN areas a3 ON t.area_id=a3.id WHERE t.first_edition IS NOT NULL GROUP BY t.first_edition,t.name ORDER BY conta DESC OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY ",$rsm);
-        $rsm->addScalarResult('name', 'name');
-        $rsm->addScalarResult('conta', 'conta');
-
-        $tests=$query->getResult();
-
-        var_dump($tests);die();*/
-
         if($filters["group"]==1){
             $array_item["items"] = $em->getRepository(TMTemplates::class)->activity("list",$filters);
             $array_item["count"] = $em->getRepository(TMTemplates::class)->activity("count",$filters2);
@@ -274,7 +264,6 @@ class ActivityController extends Controller
         else{
             $array_item["items"] = $em->getRepository(TMTemplates::class)->activityAux("list",$filters);
             $array_item["count"] = $em->getRepository(TMTemplates::class)->activityAux("count",$filters2);
-            //var_dump($array_item["count"]);die();
         }
 
         $url=$this->container->get('router')->generate('nononsense_activity_templates');

@@ -673,6 +673,8 @@ class TMTemplatesRepository extends EntityRepository
 
         }
 
+        $list->andWhere('t.isDeleted = 0');
+
         return $list;
     }
 }

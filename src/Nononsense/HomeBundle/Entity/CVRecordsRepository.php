@@ -3,6 +3,8 @@
 namespace Nononsense\HomeBundle\Entity;
 
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\Query\QueryException;
+use Doctrine\ORM\QueryBuilder;
 
 /**
  * CVRecordsRepository
@@ -396,4 +398,5 @@ class CVRecordsRepository extends EntityRepository
                 break;
         }
     }
+
 }

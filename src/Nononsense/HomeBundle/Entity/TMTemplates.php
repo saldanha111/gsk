@@ -5,11 +5,10 @@ namespace Nononsense\HomeBundle\Entity;
 use DateInterval;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\Common\Collections\ArrayCollection;
 use Exception;
+use Nononsense\HomeBundle\Services\TMTemplatesService;
 use Nononsense\NotificationsBundle\Entity\NotificationsModels;
 use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
@@ -348,6 +347,17 @@ class TMTemplates
      */
     protected $destructionDate;
 
+    /**
+     * @ORM\Column(name="state_date", type="date", nullable=true)
+     */
+    protected $stateDate;
+
+    /**
+     * @ORM\Column(name="is_deleted",  type="boolean",  options={"default" = false},  nullable=true)
+     */
+    protected $isDeleted;
+
+
     public function __construct()
     {
 
@@ -633,9 +643,13 @@ class TMTemplates
     public function setTmState(TMStates $tmState = null)
     {
         $this->tmState = $tmState;
+        if (!is_null($tmState)) {
+            $this->state_date = new DateTime();
+        }
 
         $OBSOLETA = 7; $BAJA = 8;
         $statesOfRetention = [$OBSOLETA, $BAJA];
+
         if (in_array($tmState->getId(), $statesOfRetention, true)) {
 
             $this->setReviewDate(new DateTime());
@@ -643,16 +657,10 @@ class TMTemplates
 
             if (!is_null($tmState) && count($this->retentions) > 0) {
                 $this->startRetention = new DateTime();
-                $maxRetentionDays = $this->retentions[0]->getRetentionDays();
-                /** @var RetentionCategories $retention */
-                foreach($this->retentions as $retention) {
-                     $maxRetentionDays = $retention->getRetentionDays() > $maxRetentionDays
-                            ? $retention->getRetentionDays()
-                            : $maxRetentionDays
-                    ;
-                }
 
-                $this->setFinishRetention($maxRetentionDays);
+                $retentionCategory = TMTemplatesService::getTheMostRestrictiveCategoryByTemplateId($this);
+
+                $this->setFinishRetention($retentionCategory->getRetentionDays());
             }
         }
 
@@ -1611,4 +1619,43 @@ class TMTemplates
 
         return $this;
     }
+
+    /**
+     * @return DateTime
+     */
+    public function getStateDate()
+    {
+        return $this->stateDate;
+    }
+
+    /**
+     * @param DateTime $stateDate
+     * @return TMTemplates
+     */
+    public function setStateDate(DateTime $stateDate)
+    {
+        $this->stateDate = $stateDate;
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIsDeleted()
+    {
+        return $this->isDeleted;
+    }
+
+    /**
+     * @param bool $isDeleted
+     * @return TMTemplates
+     */
+    public function setIsDeleted(bool $isDeleted)
+    {
+        $this->isDeleted = $isDeleted;
+
+        return $this;
+    }
+
 }

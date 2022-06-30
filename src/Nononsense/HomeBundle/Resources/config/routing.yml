@@ -631,9 +631,9 @@ nononsense_retention_categories_template_list:
     defaults: { _controller: NononsenseHomeBundle:RetentionCategoriesTemplateList:searchTemplatesList }
 
 nononsense_retention_categories_template_detail:
-        path: /retention_categories/detailTemplate
+        path: /retention_categories/detailTemplate/{id}
         methods: [ GET ]
-        defaults: { _controller: NononsenseHomeBundle:RetentionCategoriesTemplateList:detailTemplate }
+        defaults: { _controller: NononsenseHomeBundle:RetentionCategoriesTemplateList:detailTemplate, id: 0 }
 
 nononsense_retention_categories_template_destroy:
     path: /retention_categories/destroyTemplate
@@ -644,6 +644,15 @@ nononsense_retention_categories_template_annual_review:
     path: /retention_categories/signAnnualReview
     methods: [ GET ]
     defaults: { _controller: NononsenseHomeBundle:RetentionCategoriesTemplateList:signAnnualReview }
+# Cumplimentations
+nononsense_retention_categories_cumplimentation_get:
+    path: /retention_categories/getCumplimentationsList
+    defaults: { _controller: NononsenseHomeBundle:RetentionCategoriesCumplimentationList:getCumplimentationList }
+
+nononsense_retention_categories_cumplimentation_list:
+    path: /retention_categories/searchCumplimentationsList
+    methods:    [GET]
+    defaults: { _controller: NononsenseHomeBundle:RetentionCategoriesCumplimentationList:searchCumplimentationsList }
 # Docoaro endpoints connect
 
 nononsense_cv_docoaro_new:

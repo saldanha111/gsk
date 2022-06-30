@@ -22,4 +22,16 @@ class CVStatesRepository extends EntityRepository
 
         return $query->getResult();
     }
+
+    public function getFinalStates()
+    {
+        $list = $this->createQueryBuilder('c')
+            ->select('c.id, c.name')
+            ->where("c.final = true")
+            ->orderBy('c.id', 'DESC');
+
+        $query = $list->getQuery();
+
+        return $query->getResult();
+    }
 }

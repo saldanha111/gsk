@@ -28,6 +28,7 @@
             </div>
             <br>
         {% endfor %}
+        {{ dump(category.id) }}
         {% if states is defined and types is defined %}
             <form class="form-horizontal" id="form_item" method="POST">
                 <div class="row">
@@ -165,6 +166,7 @@
                         </div>
                     </div>
                 </div>
+                {{category.id is not null ? "is not null" : "is null " ~ category.id }}
                 <div class="row  pull-right">
                     <div class="col-sm-12">
                         <button type="button" class="btn btn-primary edit-category  ml-3">

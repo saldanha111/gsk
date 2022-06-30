@@ -152,7 +152,6 @@ class CVDocoaroController extends Controller
 
             $callback_url=urlencode($baseUrlAux."docoaro/".$id."/save?token=".$token_get_data.$custom_view);
             $get_data_url=urlencode($baseUrlAux."docoaro/".$id."/getdata?token=".$token_get_data."&mode=".$mode.$custom_view);
-            //echo $baseUrlAux."docoaro/".$id."/getdata?token=".$token_get_data."&mode=".$mode.$custom_view;die();
             $redirectUrl = urlencode($this->container->get('router')->generate('nononsense_cv_record', array("id" => $id),TRUE));
             $styleUrl = urlencode($baseUrl . "../css/css_oarodoc/standard.css?v=".uniqid());
 
@@ -164,7 +163,6 @@ class CVDocoaroController extends Controller
         }
         else{
             $get_data_url=urlencode($baseUrlAux."docoaro/".$id."/getdata?token=".$token_get_data."&mode=pdf".$custom_view);
-            //echo $baseUrlAux."docoaro/".$id."/getdata?token=".$token_get_data."&mode=pdf".$custom_view;die();
             $scriptUrl = urlencode($baseUrl . "../js/js_oarodoc/show.js?v=".uniqid());
             $styleUrl = urlencode($baseUrl . "../css/css_oarodoc/standard.css?v=".uniqid());
 

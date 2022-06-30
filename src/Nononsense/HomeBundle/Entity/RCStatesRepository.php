@@ -12,5 +12,14 @@ use Doctrine\ORM\EntityRepository;
  */
 class RCStatesRepository extends EntityRepository
 {
-	
+    public function getRetentionCumplimentationStates()
+    {
+        $ARCHIVADA = 3; $CANCELADA = 4;
+        $rcStatesForCumplimentations = [$ARCHIVADA, $CANCELADA];
+        $em = $this->getEntityManager();
+        $list = $this->createQueryBuilder('rcs')
+            ->select('rcs.id, rcs.name')
+            ->where("rcs.id in (" . implode(",", $rcStatesForCumplimentations) . ")");
+        return $list->getQuery()->getResult();
+    }
 }
