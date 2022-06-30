@@ -1,0 +1,20 @@
+# This file is auto-generated during the composer install
+parameters:
+    database_host: DESKTOP-OULGIN6
+    database_port: 0
+    database_name: docoaro
+    database_user: user2
+    database_password: 123456
+    mailer_transport: smtp
+    mailer_host: 127.0.0.1
+    mailer_user: null
+    mailer_password: null
+    mailer_encryption: null
+    secret: ThisTokenIsNotSoSecretChangeIt
+    api_php_url: 'http://localhost/docoaro/web/app_dev.php/'
+    private_key: ''
+    public_key: ''
+    email_support_nodalblock: soporte@nodalblock.com
+    api_php: 'http://localhost/docoaro/web/app_dev.php'
+    bin_phantom_route: 'C:\\phantomjs\\bin\\phantomjs.exe'
+    zoom_html_phantom_pdf: 1

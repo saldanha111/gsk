@@ -1,0 +1,333 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}Docoaro - GSK |  Retención /
+    {{states is defined and types is defined and category.id is not null ? 'Editar' : 'Crear'}} categoría
+{% endblock %}
+{% block head %}
+    <link rel="stylesheet" href="{{ asset('bundles/nononsensehome/css/select2.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('/js/plugins/sweetalert/sweetalert.min.css') }}">
+    {{ parent() }}
+{% endblock %}
+{% block main_title %} Retención / Detalle de la plantilla
+{% endblock %}
+{% block content %}
+
+    <div class="wrapper wrapper-content animated fadeInUp">
+        {% for flashMessage in app.session.flashbag.get('error') %}
+            <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                {{ flashMessage }}
+            </div>
+            <br>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('message') %}
+            <div class="alert alert-success alert-dismissable" style="margin: 10px 16px 0 16px">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                {{ flashMessage }}
+            </div>
+            <br>
+        {% endfor %}
+
+        <form class="form-horizontal" id="form_item" method="POST">
+            <div class="row">
+                <div class="col-lg-4 col-lg-offset-1">
+                    <div class="row">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Fecha de destrucción</label>
+                            <div class="col-sm-7">
+                                <input type="text" id="destructionDate" class="form-control" value="{{template.destructionDate is not null ? template.destructionDate | date("d/m/Y") | gskdate : ''}}" readonly>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Categoría de Retención más restrictiva</label>
+                            <div class="col-sm-7">
+                                <input type="text" id="mostRestrictiveRetentionCategory" class="form-control" value="{{template.mostRestrictiveRetentionCategory}}" readonly>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Título</label>
+                            <div class="col-sm-7">
+                                <input type="text" class="form-control" value="{{ template.name }}" readonly/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Código</label>
+                            <div class="col-sm-7">
+                                <input type="text" class="form-control" value="{{ template.code }}" readonly/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Edición</label>
+                            <div class="col-sm-7">
+                                <input type="text" class="form-control" value="{{ template.edition }}" readonly/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Área</label>
+                            <div class="col-sm-7">
+                                <input type="text" class="form-control" value="{{ template.area }}" readonly/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Estado</label>
+                            <div class="col-sm-7">
+                                <input type="text" class="form-control" value="{{ template.state }}" readonly/>
+                            </div>
+                        </div>
+{#                        <div class="form-group">#}
+{#                            <label class="col-sm-4 control-label">Representante de retención</label>#}
+{#                            <div class="col-sm-7">#}
+{#                                <input type="text" class="form-control" value="{{ template.retentionUser }}" readonly/>#}
+{#                            </div>#}
+{#                        </div>#}
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Dueño</label>
+                            <div class="col-sm-7">
+                                <input type="text" class="form-control" value="{{ template.owner }}" readonly/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Backup dueño</label>
+                            <div class="col-sm-7">
+                                <input type="text" class="form-control" value="{{ template.backup }}" readonly/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Fecha efectiva</label>
+                            <div class="col-sm-7">
+                                <input type="text" class="form-control" value="{{ template.effectiveDate | date("d/m/Y") | gskdate }}" readonly/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Fecha de pase a obsoleta</label>
+                            <div class="col-sm-7">
+                                <input type="text" class="form-control" value="{{template.obsoleteDate is not null ? template.obsoleteDate | date("d/m/Y") | gskdate : ''}}" readonly>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Fecha de pase a baja</label>
+                            <div class="col-sm-7">
+                                <input type="text" class="form-control" value="{{template.expiredDate is not null ? template.expiredDate | date("d/m/Y") | gskdate : ''}}" readonly>
+                            </div>
+                        </div>
+                        <li><a href="{{path('nononsense_tm_template_audit_trail', {'id': template.id})}}"><i class="fa fa-book"></i> {{ 'Audit Trail'|trans }}</a></li>
+                        <li><a href="{{path('nononsense_tm_template_cover_page', {'id': template.id})}}"><i class="fa fa-print"></i> {{ 'Imprimir plantilla'|trans }}</a></li>
+{#                        <div class="form-group">#}
+{#                            <label class="col-sm-4 control-label">Comentario</label>#}
+{#                            <div class="col-sm-7">#}
+{#                                <textarea class="form-control text-comment" rows="4" name="comment"></textarea>#}
+{#                            </div>#}
+{#                        </div>#}
+{#                        <div class="form-group">#}
+{#                            <label class="col-sm-4 control-label" for="formItemFirma">Firma</label><br>#}
+{#                            <div class="col-sm-7">#}
+{#                                <input type="password" name="signature" id="formItemFirma" class="form-control" required="required"><br>#}
+{#                            </div>#}
+{#                        </div>#}
+                    </div>
+                </div>
+            </div>
+{#            <div class="row  pull-right">#}
+{#                <div class="col-sm-12">#}
+{#                    {% if not used and category.id is defined and category.id is not null%}#}
+{#                        <button type="button" class="btn btn-danger del-category md-3">#}
+{#                            <i class="fa fa-trash-o" aria-hidden="true"></i><span> Eliminar categoría</span>#}
+{#                        </button>#}
+{#                    {% endif %}#}
+{#                </div>#}
+{#            </div>#}
+        </form>
+{#        {% if not used and category.id is defined and category.id is not null%}#}
+{#            <input type="hidden" name="del-url"  value="{{ path('nononsense_retention_categories_delete',{'id': category.id}) }}">#}
+{#        {% endif %}#}
+    </div>
+    
+{% endblock %}
+
+{% block scripts %}
+    {{ parent() }}
+    <script src="{{ asset('bundles/nononsensehome/js/select2.full.min.js') }}"></script>
+    <script src="{{ asset('js/plugins/sweetalert/sweetalert.min.js') }}"></script>
+
+    <script>
+
+    $( document ).ready(function() {
+        $('.div-user').show();
+        $('#selectuser').select2();
+        $('#selectuser').attr('required','required');
+
+        ActivateMenu('retention_admin');
+        $('#side-menu').metisMenu();
+        $('.search-select').select2();
+
+        $(document).on('change','input[name="confirmationType"]',function(){
+            let radioChecked = $('input[name="confirmationType"]:checked').val();
+            let user = $('#selectuser');
+            let group = $('#selectgroup');
+            if(radioChecked === 'user'){
+                showUsers(user, group);
+            }else{
+                showGroups(group, user);
+            }
+        });
+
+        $(document).on('click','.del-category',function(e){
+            e.preventDefault();
+
+            let error = false;
+
+            const formItemFirma = document.getElementById("formItemFirma").value;
+            const formItemFirmaEstaVacia = (formItemFirma === "");
+
+            if (formItemFirmaEstaVacia) {
+                swal({
+                    title: "Atención",
+                    text: "Debe rellenar una firma, no puede dejar el cuadro en blanco",
+                    type: "warning"
+                });
+                error = true;
+            }
+
+            if  (!error) {
+                const elComentarioEstaVacio = (!$('.text-comment').val())
+                if (elComentarioEstaVacio) {
+                    swal({
+                        title: "Atención",
+                        text: "Debe escribir un comentario para realizar la acción",
+                        type: "warning"
+                    });
+                    error = true;
+                }
+            }
+
+            if(!error){
+                swal({
+                    title: "¿Quieres eliminar esta categoría de retención?",
+                    text: "Si se elimina, no se podrá recuperar.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#62bbe2',
+                    cancelButtonColor: '#ac2925',
+                    confirmButtonText: "Sí, borradla",
+                    cancelButtonText: "Cancelar",
+                    closeOnConfirm: false
+                }, function () {
+                    $('#form_item').attr('action', $('input[name="del-url"]').val()).submit();
+                });
+            }
+        });
+
+        $(document).on('click','.edit-category',function(e){
+            e.preventDefault();
+            let error = false;
+
+            const formItemFirma = document.getElementById("formItemFirma").value;
+            const formItemFirmaEstaVacia = (formItemFirma === "");
+
+            if (formItemFirmaEstaVacia) {
+                swal({
+                    title: "Atención",
+                    text: "Debe rellenar una firma, no puede dejar el cuadro en blanco",
+                    type: "warning"
+                });
+                error = true;
+            }
+
+            if (!error) {
+                // La suma de años + meses + dias no puede ser 0
+                const numTotalYearsMonthsAndDays = parseInt(document.getElementById("years").value)
+                                    + parseInt(document.getElementById("months").value)
+                                    + parseInt(document.getElementById("days").value);
+
+                const isNotRetentionTimeValid = (numTotalYearsMonthsAndDays === 0);
+
+                if (isNotRetentionTimeValid) {
+                    swal({
+                        title: "Atención",
+                        text: "La suma de años, meses y días no puede ser 0",
+                        type: "warning"
+                    });
+                    error = true;
+                }
+            }
+
+            if (!error) {
+                const tipoCategoria = document.getElementById("tipoCategoria").value;
+                const state = document.getElementById("state").value;
+                const tipoCategoriaEsVacia = (tipoCategoria === "");
+                const stateEsVacia = (state === "");
+                if (tipoCategoriaEsVacia || stateEsVacia) {
+                    swal({
+                        title: "Atención",
+                        text: "Debe especificar el tipo y el estado de esta categoría",
+                        type: "warning"
+                    });
+                    error = true;
+                }
+            }
+
+            if(!error){
+               $('#form_item').attr('action', $('input[name="edit-url"]').val()).submit();
+            }
+
+        });
+
+        $("#tipoCategoria").on("change", function() {
+            let estadosPorTipoCategorias = [];
+            {% if states is defined and types is defined %}
+                const GESTION_PLANTILLAS = 1; const CUMPLIMENTACION = 2;
+                const type = parseInt($(this).val());
+                if (GESTION_PLANTILLAS === type) {
+                    {% for i in range(0, states|length-1) %}
+                        {% if states[i].type.id == 1 %}
+                            estadosPorTipoCategorias.push({{ states[i].id }});
+                        {% endif %}
+                    {% endfor %}
+                }
+
+                if (CUMPLIMENTACION === type) {
+                    {% if states is defined and states | length > 0 %}
+                        {% for i in range(0, states|length-1) %}
+                            {% if states[i].type.id == 2 %}
+                                estadosPorTipoCategorias.push({{ states[i].id }});
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                }
+
+                const state = document.getElementById("state");
+                let options = "";
+                for (let i = 0; i < estadosPorTipoCategorias.length; i++) {
+                    {% for state in states %}
+                        if (estadosPorTipoCategorias[i] === {{state.id}}) {
+                            options += '<option value="{{state.id}}"' +
+                            '{{ category.documentState.id is defined and category.documentState.id is not null and category.documentState.id==state.id ? 'selected="selected"' : ''}}' +
+                            '>{{state.name}}</option>';
+                        }
+                    {% endfor %}
+                }
+                state.innerHTML = options;
+            {% endif %}
+        });
+
+        function showUsers(user, group) {
+            $('.div-user').show();
+            $('.div-group').hide();
+            group.val(null).trigger('change');
+            group.removeAttr('required');
+            user.select2();
+            user.attr('required','required');
+        }
+
+        function showGroups(group, user) {
+            $('.div-group').show();
+            $('.div-user').hide();
+            user.val(null).trigger('change');
+            user.removeAttr('required');
+            group.select2();
+            group.attr('required','required');
+        }
+    });
+    </script>
+{% endblock %}
+
+

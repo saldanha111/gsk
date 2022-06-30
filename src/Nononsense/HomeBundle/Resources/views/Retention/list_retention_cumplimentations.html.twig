@@ -1,0 +1,396 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}Docoaro - GSK | {{'Categorías de retención'|trans}} {% endblock %}
+{% block head %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('/js/plugins/sweetalert/sweetalert.min.css') }}">
+{% endblock %}
+{% block main_title %} Listado de cumplimentaciones de categoría de retención{% endblock %}
+{% block content %}
+   {% set isAnnualReviewFiltered = filters is defined and filters.annual_review is defined and filters.annual_review is same as ('1') %}
+<div class="wrapper wrapper-content">
+    <div class="row">
+        <div class="col-xs-12">
+            {% for flashMessage in app.session.flashbag.get('error') %}
+                <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+                    <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                    {{ flashMessage }}
+                </div>
+                <br>
+            {% endfor %}
+            {% for flashMessage in app.session.flashbag.get('message') %}
+                <div class="alert alert-success alert-dismissable" style="margin: 10px 16px 0 16px">
+                    <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                    {{ flashMessage }}
+                </div>
+                <br>
+            {% endfor %}
+
+            <form id="form_item" action="{{ path('nononsense_retention_categories_cumplimentation_list') }}" method="GET">
+                <div class="row">
+                    {% if areas is defined %}
+                    <div class="col-md-2 col-sm-5 form-group">
+                        <label class="control-label">Área</label>
+                        <div>
+                            <select class="form-control select_template" name="f_area">
+                                <option value=""></option>
+                                {% for area in areas %}
+                                    <option value="{{area.id}}">{{area.name}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    {% endif %}
+                    <div class="col-md-2 col-sm-5 form-group">
+                        {% if retention_categories is defined %}
+                        <label class="control-label">Categorías de Retención</label>
+                        <div>
+                            <select class="form-control select_template" name="f_retention_category">
+                                <option value=""></option>
+                                {% for retention_category in retention_categories %}
+                                    <option value="{{retention_category.id}}">{{retention_category.name}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-3 col-sm-5 form-group">
+                        <label class="control-label">Fecha de Destrucción</label>
+                        <div class="input-group input-daterange">
+                            <input type="text" name="f_destruction_date_start" id="destruction_date_start" class="form-control" value="{{filters.f_destruction_date_start is defined ? filters.f_destruction_date_start : ''}}">
+                            <div class="input-group-addon">hasta</div>
+                            <input type="text" name="f_destruction_date_end"  id="destruction_date_end" class="form-control" value="{{filters.f_destruction_date_end is defined ? filters.f_destruction_date_end : ''}}">
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-sm-5 form-group">
+                        <label class="control-label">Título</label>
+                        <div>
+                            <input type="text" name="f_template_title" class="form-control" value="{{filters.template_title is defined ? filters.template_title : ''}}">
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-sm-5 form-group">
+                        <label class="control-label">Código</label>
+                        <div>
+                            <input type="text" name="f_code" class="form-control" value="{{filters.f_code is defined ? filters.f_code : ''}}">
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-sm-5 form-group">
+                        <label class="control-label">Estado</label>
+                        <div>
+                            <select class="form-control select_template" name="f_state">
+                                <option value=""></option>
+                                {% for state in states %}
+                                    <option value="{{state.id}}" {{ filters.f_state is defined and filters.f_state is not null and filters.f_state==state.id ? 'selected="selected"' : ''}}>{{state.name}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-sm-5 form-group">
+                        <label class="control-label">Representante de Retención</label>
+                        <div>
+                            <select class="form-control select_template" name="f_retention_representative">
+                                <option value=""></option>
+                                {% for retention_representative in retention_representatives %}
+                                    <option value="{{retention_representative.id}}" {{ filters.f_retention_representative is defined and filters.f_retention_representative is not null and filters.f_retention_representative==state.id ? 'selected="selected"' : ''}}>{{retention_representative.username}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-sm-5 form-group">
+                        <label class="control-label">Ver destruidos</label>
+                        <div>
+                            <input type="checkbox" name="f_see_destroyed" class="i-checks" value="{{filters.f_see_destroyed is defined ? filters.f_see_destroyed : '1'}}">
+                        </div>
+                    </div>
+                    {% if isAnnualReviewFiltered %}
+                    <div class="col-md-2 col-sm-5 form-group">
+                        <label class="control-label">Solo vencidos</label>
+                        <div>
+                            <input type="checkbox" name="f_only_expired" id="f_only_expired" class="i-checks" value="{{filters.only_expired is defined ? filters.only_expired : '1'}}">
+                        </div>
+                    </div>
+                    {% endif %}
+                    <div class="col-md-2 col-sm-5 form-group">
+                        <label class="control-label">Revisión anual</label>
+                        <div>
+                            <input type="checkbox" name="f_annual_review"  class="i-checks" value="{{ isAnnualReviewFiltered ? filters.annual_review : '1'}}" {{ isAnnualReviewFiltered ? "checked" : "" }}>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-sm-5 form-group">
+                        <label class="control-label">Fecha Inicio Periodo de Destrucción</label>
+                        <div>
+                            <input type="text" name="f_destruction_period_start" id="destruction_period_start" class="form-control" value="{{filters.f_destruction_period_start is defined ? filters.f_destruction_period_start : ''}}">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary">Filtrar</button>
+                </div>
+            </form>
+                <div class="row">
+                    {% if data is defined and data is not empty  and data.items is defined and data.items is not empty %}
+                        {% if isAnnualReviewFiltered %}
+                            <div class="row pull-right">
+                                <div class="col-md-12 col-sm-5 form-group">
+                                    <button type="button" class="btn btn-danger ml-3" id="destroySelected" disabled>
+                                        <i class="fa fa-trash-o" aria-hidden="true"></i>
+                                        <span>Destruir seleccionados</span>
+                                    </button>
+                                    <button type="button" class="btn btn-primary ml-3" id="revisarSeleccionados" disabled>
+                                        <i class="fa fa-eye" aria-hidden="true"></i>
+                                        <span>Revisar seleccionados</span>
+                                    </button>
+                                    <button type="button" class="btn btn-success ml-3" id="finalizarRevisionAnual">
+                                        <i class="fa fa-eye" aria-hidden="true"></i>
+                                        <span>Finalizar revisión anual</span>
+                                    </button>
+                                </div>
+                            </div>
+                        {% endif %}
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <table class="table table-striped" id="tabla">
+                                    <thead>
+                                    <tr>
+                                        {% if isAnnualReviewFiltered %}
+                                            <th><input type="checkbox" id="toggleAll"/></th>
+                                        {% endif %}
+                                        <th>Fecha de destrucción</th>
+                                        <th>Categoría de Retención más restrictiva</th>
+                                        <th>Título</th>
+                                        <th>Código</th>
+                                        <th>Edición</th>
+                                        <th>Área</th>
+                                        <th>Estado</th>
+                                        <th>Representante de Retención</th>
+                                        <th>Fecha inicio período de retención</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                    </thead>
+                                    {% for item in data.items %}
+                                        <tr id="{{ item.id }}">
+                                            {% if isAnnualReviewFiltered %}
+                                            <td>
+                                                    <input type="checkbox"/>
+                                            </td>
+                                            {% endif %}
+                                            <td>
+                                                {% if item.destroyDate is not null and item.destroyDate is not empty %}
+                                                    {{ item.destroyDate | date("d/m/Y") | gskdate }}
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <a href="{{ path('nononsense_retention_categories_template_detail', {'id': item.id }) }}">
+                                                    {{ item.mostRestrictiveCategoryName }}
+                                                </a>
+                                            </td>
+                                            <td>{{ item.title }}</td>
+                                            <td>{{ item.code }}</td>
+                                            <td>{{ item.edition }}</td>
+                                            <td>{{ item.area }}</td>
+                                            <td>{{ item.state }}</td>
+                                            <td> Repr. de retención </td>
+                                            <td>{{ item.startDateRetention | date("d/m/Y") | gskdate }}</td>
+                                            <td>
+                                                <div class="btn-group btn-xs">
+                                                    <button type="button" class="btn btn-xs btn-primary" data-toggle="dropdown"><i class="fa fa-ellipsis-h"></i></button>
+                                                    <button type="button" class="btn btn-xs btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                                        <span class="caret"></span>
+                                                        <span class="sr-only">Toggle Dropdown</span>
+                                                    </button>
+                                                    <ul class="dropdown-menu" role="menu">
+                                                        <li><a href="{{path('nononsense_tm_template_audit_trail', {'id': item.id})}}"><i class="fa fa-book"></i> {{ 'Audit Trail'|trans }}</a></li>
+                                                        <li><a href="{{path('nononsense_tm_template_cover_page', {'id': item.id})}}"><i class="fa fa-print"></i> {{ 'Imprimir plantilla'|trans }}</a></li>
+                                                        {% if item.toggleDestructionButton %}
+
+                                                            <li><a href="{{path('nononsense_tm_template_cover_page', {'id': item.id})}}"><i class="fa fa-print"></i> Botón destruir</a></li>
+                                                        {% endif %}
+
+                                                    </ul>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </table>
+                                {% if isAnnualReviewFiltered %}
+                                    <div class="row pull-right">
+                                        <div class="col-md-12 col-sm-5 form-group">
+                                            <button type="button" class="btn btn-danger ml-3" id="destroySelected2" disabled>
+                                                <i class="fa fa-trash-o" aria-hidden="true"></i>
+                                                <span>Destruir seleccionados</span>
+                                            </button>
+                                            <button type="button" class="btn btn-primary ml-3" id="revisarSeleccionados2" disabled>
+                                                <i class="fa fa-eye" aria-hidden="true"></i>
+                                                <span>Revisar seleccionados</span>
+                                            </button>
+                                            <button type="button" class="btn btn-success ml-3" id="finalizarRevisionAnual2">
+                                                <i class="fa fa-eye" aria-hidden="true"></i>
+                                                <span>Finalizar revisión anual</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                                {% if count==0 %}
+                                    <br><b>No se han encontrado datos disponibles</b>
+                                {% else %}
+                                    {% if pagination is defined and pagination.needed %}
+                                        {% include '::pagination2.html.twig' %}
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% else %}
+                        Debe filtrar por al menos un criterio
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" tabindex="-1" role="dialog" id="modalSignReview">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Firmar solicitud para finalizar la revisión anual</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form id="formSignAnnualReview" action="{{ path('nononsense_retention_categories_template_annual_review') }}">
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-lg-10 col-lg-offset-1">
+                                <b>Comentarios</b><br>
+                                <div class="form-group">
+                                    <textarea class="form-control" name="description" rows="10" cols="40" style="width:100%" required="required"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-10 col-lg-offset-1">
+                                <div id="signature-pad" class="input-group">
+                                    <label id="formAnnualReviewPassword">Introduzca su firma</label><br>
+                                    <input type="password" name="password" class="form-control" required="required"><br>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <input type="submit" class="btn btn-primary" id="formAnnualReview" value="Firmar revisión">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block scripts %}
+    {{ parent() }}
+
+    <script src="{{ asset('js/plugins/sweetalert/sweetalert.min.js') }}"></script>
+    <script>
+      $(function () {
+        ActivateMenu('retention_admin');
+        $('#side-menu').metisMenu();
+        $('[data-toggle="tooltip"]').tooltip();
+      });
+    </script>
+    <script>
+        $("#form_item").submit(function(e) {
+            const fDestructionDateStart = $("#destruction_date_start").val();
+            const fDestructionDateEnd = $("#destruction_date_end").val();
+
+        });
+    </script>
+    <script>
+        const selectedRows = new Set();
+        $('#tabla').on('click', 'tr', function() {
+            const selectedRowId = $(this).attr('id');
+            if (selectedRowId !== undefined) {
+                ($(this).find(':checkbox').prop('checked'))
+                    ? selectedRows.add(parseInt(selectedRowId))
+                    : selectedRows.delete(parseInt(selectedRowId))
+                ;
+            }
+            if (selectedRows.size > 0) {
+                $("#destroySelected, #destroySelected2").prop("disabled", false);
+                $("#revisarSeleccionados, #revisarSeleccionados2").prop("disabled", false);
+            } else {
+                $("#destroySelected, #destroySelected2").prop("disabled", true);
+                $("#revisarSeleccionados, #revisarSeleccionados2").prop("disabled", true);
+            }
+
+            if (selectedRows.size === 0) {
+                $("#toggleAll").prop("checked", false);
+            }
+        });
+
+        $("#toggleAll").on("click", function() {
+            const isChecked = $(this).is(':checked');
+            if (!isChecked) {
+                selectedRows.clear();
+            } else {
+                selectAllIds()
+            }
+            $("#tabla tr :checkbox").prop('checked', isChecked);
+        });
+
+        function selectAllIds() {
+            {% if data is defined and data.items is defined %}
+                {% for i in range(0, data.items | length - 1 ) %}
+                    selectedRows.add({{ data.items[i].id }});
+                {% endfor %}
+            {% endif %}
+        }
+    </script>
+    <script>
+        $(function() {
+            $("#destroySelected, #destroySelected2").on("click", function() {
+                if (selectedRows.size > 0) {
+                    const selectedRowsCSV =[...selectedRows].join(",");
+                    $.ajax({
+                        url: "{{ path('nononsense_retention_categories_template_destroy') }}",
+                        type: 'POST',
+                        dataType: 'json',
+                        async: false,
+                        data: {ids: selectedRowsCSV},
+                        success: function(response) {
+                            if (response.result) {
+                                swal({
+                                    title: "Éxito",
+                                    text: response.message,
+                                    icon: 'success',
+                                    confirmButtonColor: '#62bbe2',
+                                    confirmButtonText: "Ok",
+                                    closeOnConfirm: true
+                                });
+                            } else {
+                                swal({
+                                    title: "Error",
+                                    text: response.message,
+                                    icon: 'error',
+                                    confirmButtonColor: '#62bbe2',
+                                    confirmButtonText: "Ok",
+                                    closeOnConfirm: true
+                                });
+                            }
+                        },
+                        error: function() {
+                            swal({
+                                title: "Error",
+                                text: "Algunas plantillas no se marcaron para su destrucción",
+                                icon: 'error',
+                                confirmButtonColor: '#62bbe2',
+                                confirmButtonText: "Ok",
+                                closeOnConfirm: true
+                            });
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+    <script>
+        $("#finalizarRevisionAnual, #finalizarRevisionAnual2").on("click", function(){
+            $('#modalSignReview').modal('show');
+        });
+    </script>
+{% endblock %}
+                        
