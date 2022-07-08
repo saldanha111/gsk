@@ -1,40 +1,20 @@
 <?php
 namespace Nononsense\HomeBundle\Controller;
 
-use Nononsense\HomeBundle\Entity\CVRecords;
-use Nononsense\HomeBundle\Entity\CVSignatures;
-use Nononsense\HomeBundle\Entity\CVWorkflow;
 use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Filesystem\Filesystem;
-use Nononsense\UtilsBundle\Classes;
 
 use Nononsense\UserBundle\Entity\Users;
-use Nononsense\GroupBundle\Entity\Groups;
-use Nononsense\GroupBundle\Entity\GroupsUsers;
-use Nononsense\HomeBundle\Entity\Areas;
 use Nononsense\HomeBundle\Entity\TMStates;
-use Nononsense\HomeBundle\Entity\RetentionCategories;
-use Nononsense\HomeBundle\Entity\AreaPrefixes;
 use Nononsense\HomeBundle\Entity\TMTemplates;
 use Nononsense\HomeBundle\Entity\TMActions;
 use Nononsense\HomeBundle\Entity\TMSignatures;
 use Nononsense\HomeBundle\Entity\TMWorkflow;
-use Nononsense\HomeBundle\Entity\TMCumplimentations;
-use Nononsense\HomeBundle\Entity\TMSecondWorkflow;
 use Nononsense\HomeBundle\Entity\TMTests;
 use Nononsense\HomeBundle\Entity\TMTestResults;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use Symfony\Component\HttpFoundation\ResponseHeaderBag;
-
-use Symfony\Component\Serializer\Serializer;
-use Symfony\Component\Serializer\Encoder\XmlEncoder;
-use Symfony\Component\Serializer\Encoder\JsonEncoder;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 class TemplateTestTemplatesController extends Controller
 {
@@ -157,6 +137,7 @@ class TemplateTestTemplatesController extends Controller
 
     public function linkAction(Request $request, int $id)
     {
+
     	$em = $this->getDoctrine()->getManager();
         $array_item=array();
 
@@ -246,7 +227,14 @@ class TemplateTestTemplatesController extends Controller
 
     public function getDataAction(Request $request, int $id)
     {
-    	$json=file_get_contents($this->getParameter("cm_installation_aux")."../bundles/nononsensehome/json-data-test.json");
+
+        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+            $path = "../";
+        } else {
+            $path = "/";
+        }
+
+      	$json=file_get_contents($this->getParameter("cm_installation_aux") . $path . "bundles/nononsensehome/json-data-test.json");
 
     	$json_content=json_decode($json,TRUE);
 
@@ -280,6 +268,7 @@ class TemplateTestTemplatesController extends Controller
 
     public function saveAction(int $id)
     {
+
         $expired_token = $this->get('utilities')->tokenExpired($_REQUEST["token"]);
 
         if(!$expired_token){
@@ -359,17 +348,17 @@ class TemplateTestTemplatesController extends Controller
         }
 
         if(!$template->getOpenedBy() || $template->getOpenedBy()!=$user){
-            return $this->returnToHomePage("No se puedo efectuar la operación");
+            return $this->returnToHomePage("No se pudo efectuar la operación");
         }
 
         if($request->get("token")){
         	$last_test = $this->getDoctrine()->getRepository(TMTests::class)->findOneBy(array("token" => $request->get("token")));
         	if(!$last_test){
-                return $this->returnToHomePage("No se puedo efectuar la operación");
+                return $this->returnToHomePage("No se pudo efectuar la operación");
         	}
         }
         else{
-            return $this->returnToHomePage("No se puedo efectuar la operación");
+            return $this->returnToHomePage("No se pudo efectuar la operación");
         }
 
         $action = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 3));
@@ -460,13 +449,6 @@ class TemplateTestTemplatesController extends Controller
         $signature->setUserEntiy($user);
         $signature->setCreated(new \DateTime());
         $signature->setModified(new \DateTime());
-        /**
-         * Hay que eliminar toda referencia al guardado de la imagen correspondiente a la firma.
-         * TODO: se ha puesto un guión como medida preventiva. Hay que quitar la línea y desmarcar la casilla de "not null" en la tabla.
-         * @see: https://www.notion.so/oarotech/cf5ea14e748f4fedad342aeb34912ff0?v=243814d2031849f7aaa454fc09c14f5c&p=a14abdce08164343a308de44ea75128e
-         * Tarea: Sustituir todas las cajas del proceso de gestión de plantillas por contraseñas como en el resto de la plataforma → implica adaptar código en el backend y modificar las tablas correspondientes en la bd.
-         **/
-        //        $signature->setSignature($request->get("signature"));
         $signature->setSignature("-");
         $signature->setVersion($response["version"]["id"]);
         $signature->setConfiguration($response["version"]["configuration"]["id"]);
@@ -591,6 +573,7 @@ class TemplateTestTemplatesController extends Controller
 
     private function returnToHomePage(string $msgError, string $type = "error"): RedirectResponse
     {
+
         $this->get('session')->getFlashBag()->add(
             $type,
             $msgError
