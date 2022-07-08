@@ -3,7 +3,7 @@
 {% block head %}
     {{ parent() }}
 {% endblock %}
-{% block main_title %} Listado de plantillas de retención{% endblock %}
+{% block main_title %} Listado de categorías de retención{% endblock %}
 {% block content %}
 
 <div class="wrapper wrapper-content">
@@ -93,7 +93,9 @@
                     <th>Descripción</th>
                     <th>Tipo</th>
                     <th>Estado</th>
+                    <th>Inicio de Período de retención</th>
                     <th>Tiempo</th>
+                    <th>Fin de Período de retención</th>
                     <th>Confirma</th>
                     <th>Activo</th>
                     <th>Editar</th>
@@ -107,11 +109,14 @@
                         <td>{{ item.description }}</td>
                         <td>{{ item.type.name }}</td>
                         <td>{{ item.documentState.name }}</td>
+                        <td>{{ item.retentionPeriodEndDate is not defined or item.retentionPeriodEndDate is null ? "" : item.retentionPeriodStartDate | date("d/m/Y")|gskdate }}
                         <td>
                             <span>{{ item.retentionDaysFormatted['years'] }}a </span>
                             <span>{{ item.retentionDaysFormatted['months'] }}m </span>
                             <span>{{ item.retentionDaysFormatted['days'] }}d </span>
                         </td>
+                        <td>{{ item.retentionPeriodEndDate is null ? "" : item.retentionPeriodEndDate | date("d/m/Y")|gskdate }}
+
                         <td>
                             {% if item.destroyUser is defined and item.destroyUser is not null %}
                                 {{ item.destroyUser.name }}

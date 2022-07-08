@@ -28,7 +28,6 @@
             </div>
             <br>
         {% endfor %}
-        {{ dump(category.id) }}
         {% if states is defined and types is defined %}
             <form class="form-horizontal" id="form_item" method="POST">
                 <div class="row">
@@ -67,6 +66,12 @@
                                             {%endif%}
                                         {% endfor %}
                                     </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Fecha de inicio de Período de Retención</label>
+                                <div class="col-sm-7">
+                                    <input type="text" name="retention_period_start_date" class="form-control" value="{{ category.retentionPeriodStartDate is not null ? category.retentionPeriodStartDate | date("d/m/Y") : ''}}" required="required">
                                 </div>
                             </div>
                             <div class="form-group">
@@ -166,7 +171,6 @@
                         </div>
                     </div>
                 </div>
-                {{category.id is not null ? "is not null" : "is null " ~ category.id }}
                 <div class="row  pull-right">
                     <div class="col-sm-12">
                         <button type="button" class="btn btn-primary edit-category  ml-3">

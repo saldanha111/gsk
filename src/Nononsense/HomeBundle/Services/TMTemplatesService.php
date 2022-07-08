@@ -9,18 +9,24 @@ use Nononsense\HomeBundle\Entity\TMTemplates;
 class TMTemplatesService
 {
 
-    public static function getTheMostRestrictiveCategoryByTemplateId(TMTemplates $template): RetentionCategories
+    public static function getTheMostRestrictiveCategoryByTemplateId(TMTemplates $template)
     {
+        $mostRestrictiveCategory = null;
         $retentions = $template->getRetentions();
-        $maxRetentionDays = $retentions[0]->getRetentionDays();
-        $mostRestrictiveCategory = $retentions[0];
-        /** @var RetentionCategories $retention */
-        foreach($retentions as $retention) {
-            if ($retention->getRetentionDays() > $maxRetentionDays) {
-                $maxRetentionDays = $retention->getRetentionDays();
-                $mostRestrictiveCategory = $retention;
+
+        if(!is_null($retentions) && count($retentions) > 0) {
+            $maxRetentionDays = $retentions[0]->getRetentionDays();
+            $mostRestrictiveCategory = $retentions[0];
+            /** @var RetentionCategories $retention */
+            foreach($retentions as $retention) {
+                if ($retention->getRetentionDays() > $maxRetentionDays) {
+                    $maxRetentionDays = $retention->getRetentionDays();
+                    $mostRestrictiveCategory = $retention;
+                }
             }
+
         }
+
         return $mostRestrictiveCategory;
     }
 }

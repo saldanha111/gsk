@@ -4,9 +4,10 @@
     {{ parent() }}
     <link rel="stylesheet" href="{{ asset('/js/plugins/sweetalert/sweetalert.min.css') }}">
 {% endblock %}
-{% block main_title %} Listado de cumplimentaciones de categoría de retención{% endblock %}
+{% block main_title %} Listado de cumplimentaciones de categoría de retención {% endblock %}
 {% block content %}
-   {% set isAnnualReviewFiltered = filters is defined and filters.annual_review is defined and filters.annual_review is same as ('1') %}
+    {% set _thereAreData = data is defined and data is not empty  and data.items is defined and data.items is not empty %}
+    {% set _isFilteredByAnnualReview = filters is defined and filters.annual_review is defined and filters.annual_review is same as ('1') %}
 <div class="wrapper wrapper-content">
     <div class="row">
         <div class="col-xs-12">
@@ -28,13 +29,14 @@
             <form id="form_item" action="{{ path('nononsense_retention_categories_cumplimentation_list') }}" method="GET">
                 <div class="row">
                     {% if areas is defined %}
+                        {% set _isFilteredByArea = filters.area is defined and filters.area is not null %}
                     <div class="col-md-2 col-sm-5 form-group">
                         <label class="control-label">Área</label>
                         <div>
                             <select class="form-control select_template" name="f_area">
                                 <option value=""></option>
                                 {% for area in areas %}
-                                    <option value="{{area.id}}">{{area.name}}</option>
+                                    <option value="{{area.id}}" {{ _isFilteredByArea and filters.area==area.id ? 'selected="selected"' : ''}}>{{ area.name }}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -42,12 +44,13 @@
                     {% endif %}
                     <div class="col-md-2 col-sm-5 form-group">
                         {% if retention_categories is defined %}
+                            {% set _isFilteredByRetentionCategories = filters.retention_category is defined and filters.retention_category is not null %}
                         <label class="control-label">Categorías de Retención</label>
                         <div>
                             <select class="form-control select_template" name="f_retention_category">
                                 <option value=""></option>
                                 {% for retention_category in retention_categories %}
-                                    <option value="{{retention_category.id}}">{{retention_category.name}}</option>
+                                    <option value="{{retention_category.id}}" {{ _isFilteredByRetentionCategories and filters.retention_category==retention_category.id ? 'selected="selected"' : ''}}>{{retention_category.name}}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -56,9 +59,9 @@
                     <div class="col-md-3 col-sm-5 form-group">
                         <label class="control-label">Fecha de Destrucción</label>
                         <div class="input-group input-daterange">
-                            <input type="text" name="f_destruction_date_start" id="destruction_date_start" class="form-control" value="{{filters.f_destruction_date_start is defined ? filters.f_destruction_date_start : ''}}">
+                            <input type="text" name="f_destruction_date_start" id="destruction_date_start" class="form-control" value="{{filters.destruction_date_start is defined ? filters.destruction_date_start : ''}}">
                             <div class="input-group-addon">hasta</div>
-                            <input type="text" name="f_destruction_date_end"  id="destruction_date_end" class="form-control" value="{{filters.f_destruction_date_end is defined ? filters.f_destruction_date_end : ''}}">
+                            <input type="text" name="f_destruction_date_end"  id="destruction_date_end" class="form-control" value="{{filters.destruction_date_end is defined ? filters.destruction_date_end : ''}}">
                         </div>
                     </div>
                     <div class="col-md-2 col-sm-5 form-group">
@@ -70,27 +73,29 @@
                     <div class="col-md-2 col-sm-5 form-group">
                         <label class="control-label">Código</label>
                         <div>
-                            <input type="text" name="f_code" class="form-control" value="{{filters.f_code is defined ? filters.f_code : ''}}">
+                            <input type="text" name="f_code" class="form-control" value="{{filters.code is defined ? filters.code : ''}}">
                         </div>
                     </div>
                     <div class="col-md-2 col-sm-5 form-group">
+                        {% set _isFilteredByState = filters.state is defined and filters.state is not null %}
                         <label class="control-label">Estado</label>
                         <div>
                             <select class="form-control select_template" name="f_state">
                                 <option value=""></option>
                                 {% for state in states %}
-                                    <option value="{{state.id}}" {{ filters.f_state is defined and filters.f_state is not null and filters.f_state==state.id ? 'selected="selected"' : ''}}>{{state.name}}</option>
+                                    <option value="{{state.id}}" {{ _isFilteredByState and filters.state==state.id ? 'selected="selected"' : ''}}>{{state.name}}</option>
                                 {% endfor %}
                             </select>
                         </div>
                     </div>
                     <div class="col-md-2 col-sm-5 form-group">
+                        {% set _isFilteredByRetentionRepresentative = filters.f_retention_representative is defined and filters.f_retention_representative is not null %}
                         <label class="control-label">Representante de Retención</label>
                         <div>
                             <select class="form-control select_template" name="f_retention_representative">
                                 <option value=""></option>
                                 {% for retention_representative in retention_representatives %}
-                                    <option value="{{retention_representative.id}}" {{ filters.f_retention_representative is defined and filters.f_retention_representative is not null and filters.f_retention_representative==state.id ? 'selected="selected"' : ''}}>{{retention_representative.username}}</option>
+                                    <option value="{{retention_representative.id}}" {{ _isFilteredByRetentionRepresentative and filters.f_retention_representative==state.id ? 'selected="selected"' : ''}}>{{retention_representative.username}}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -101,7 +106,7 @@
                             <input type="checkbox" name="f_see_destroyed" class="i-checks" value="{{filters.f_see_destroyed is defined ? filters.f_see_destroyed : '1'}}">
                         </div>
                     </div>
-                    {% if isAnnualReviewFiltered %}
+                    {% if _isFilteredByAnnualReview %}
                     <div class="col-md-2 col-sm-5 form-group">
                         <label class="control-label">Solo vencidos</label>
                         <div>
@@ -112,13 +117,13 @@
                     <div class="col-md-2 col-sm-5 form-group">
                         <label class="control-label">Revisión anual</label>
                         <div>
-                            <input type="checkbox" name="f_annual_review"  class="i-checks" value="{{ isAnnualReviewFiltered ? filters.annual_review : '1'}}" {{ isAnnualReviewFiltered ? "checked" : "" }}>
+                            <input type="checkbox" name="f_annual_review"  class="i-checks" value="{{ _isFilteredByAnnualReview ? filters.annual_review : '1'}}" {{ _isFilteredByAnnualReview ? "checked" : "" }}>
                         </div>
                     </div>
                     <div class="col-md-2 col-sm-5 form-group">
                         <label class="control-label">Fecha Inicio Periodo de Destrucción</label>
                         <div>
-                            <input type="text" name="f_destruction_period_start" id="destruction_period_start" class="form-control" value="{{filters.f_destruction_period_start is defined ? filters.f_destruction_period_start : ''}}">
+                            <input type="text" name="f_destruction_period_start" id="destruction_period_start" class="form-control" value="{{ filters.f_destruction_period_start is defined ? filters.f_destruction_period_start : ''}}">
                         </div>
                     </div>
                 </div>
@@ -127,8 +132,8 @@
                 </div>
             </form>
                 <div class="row">
-                    {% if data is defined and data is not empty  and data.items is defined and data.items is not empty %}
-                        {% if isAnnualReviewFiltered %}
+                    {% if _thereAreData %}
+                        {% if _isFilteredByAnnualReview %}
                             <div class="row pull-right">
                                 <div class="col-md-12 col-sm-5 form-group">
                                     <button type="button" class="btn btn-danger ml-3" id="destroySelected" disabled>
@@ -151,7 +156,7 @@
                                 <table class="table table-striped" id="tabla">
                                     <thead>
                                     <tr>
-                                        {% if isAnnualReviewFiltered %}
+                                        {% if _isFilteredByAnnualReview %}
                                             <th><input type="checkbox" id="toggleAll"/></th>
                                         {% endif %}
                                         <th>Fecha de destrucción</th>
@@ -168,13 +173,14 @@
                                     </thead>
                                     {% for item in data.items %}
                                         <tr id="{{ item.id }}">
-                                            {% if isAnnualReviewFiltered %}
+                                            {% if _isFilteredByAnnualReview %}
                                             <td>
-                                                    <input type="checkbox"/>
+                                                <input type="checkbox"/>
                                             </td>
                                             {% endif %}
                                             <td>
-                                                {% if item.destroyDate is not null and item.destroyDate is not empty %}
+                                                {% set _thereIsDestroyDate = item.destroyDate is not null and item.destroyDate is not empty %}
+                                                {% if _thereIsDestroyDate %}
                                                     {{ item.destroyDate | date("d/m/Y") | gskdate }}
                                                 {% endif %}
                                             </td>
@@ -201,8 +207,7 @@
                                                         <li><a href="{{path('nononsense_tm_template_audit_trail', {'id': item.id})}}"><i class="fa fa-book"></i> {{ 'Audit Trail'|trans }}</a></li>
                                                         <li><a href="{{path('nononsense_tm_template_cover_page', {'id': item.id})}}"><i class="fa fa-print"></i> {{ 'Imprimir plantilla'|trans }}</a></li>
                                                         {% if item.toggleDestructionButton %}
-
-                                                            <li><a href="{{path('nononsense_tm_template_cover_page', {'id': item.id})}}"><i class="fa fa-print"></i> Botón destruir</a></li>
+                                                            <li><a href="{{ path('nononsense_tm_template_cover_page', {'id': item.id}) }}"><i class="fa fa-print"></i> Botón destruir</a></li>
                                                         {% endif %}
 
                                                     </ul>
@@ -211,7 +216,7 @@
                                         </tr>
                                     {% endfor %}
                                 </table>
-                                {% if isAnnualReviewFiltered %}
+                                {% if _isFilteredByAnnualReview %}
                                     <div class="row pull-right">
                                         <div class="col-md-12 col-sm-5 form-group">
                                             <button type="button" class="btn btn-danger ml-3" id="destroySelected2" disabled>
@@ -232,7 +237,8 @@
                                 {% if count==0 %}
                                     <br><b>No se han encontrado datos disponibles</b>
                                 {% else %}
-                                    {% if pagination is defined and pagination.needed %}
+                                    {% set _thereIsPagination = pagination is defined and pagination.needed %}
+                                    {% if _thereIsPagination %}
                                         {% include '::pagination2.html.twig' %}
                                     {% endif %}
                                 {% endif %}
@@ -334,8 +340,10 @@
 
         function selectAllIds() {
             {% if data is defined and data.items is defined %}
-                {% for i in range(0, data.items | length - 1 ) %}
-                    selectedRows.add({{ data.items[i].id }});
+            {% for item in data.items %}
+{#                {% for i in range(0, data.items | length - 1 ) %}#}
+{#                    selectedRows.add({{ data.items[i].id }});#}
+                    selectedRows.add({{ item.id }});
                 {% endfor %}
             {% endif %}
         }

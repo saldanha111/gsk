@@ -895,6 +895,19 @@ class TMTemplates
     }
 
     /**
+     * Add retentions
+     *
+     * @param array $retentions
+     * @return TMTemplates
+     */
+    public function setRetentions(array $retentions)
+    {
+        $this->retentions = $retentions;
+
+        return $this;
+    }
+
+    /**
      * Remove retentions
      *
      * @param \Nononsense\HomeBundle\Entity\RetentionCategories $retentions
@@ -902,6 +915,18 @@ class TMTemplates
     public function removeRetention(\Nononsense\HomeBundle\Entity\RetentionCategories $retentions)
     {
         $this->retentions->removeElement($retentions);
+    }
+
+    /**
+     * Add retentions
+     *
+     * @return TMTemplates
+     */
+    public function clearRetentions(): TMTemplates
+    {
+        $this->retentions->clear();
+
+        return $this;
     }
 
     /**
@@ -1599,6 +1624,16 @@ class TMTemplates
     {
         $duration = "P" . $maxRetentionDays . "D";
         $this->finishRetention->add(new DateInterval($duration));
+    }
+
+    /**
+     * @param DateTime $anotherFinishRetentionDate
+     */
+    public function setFinishRetentionByDate(DateTime $anotherFinishRetentionDate)
+    {
+        $this->finishRetention = $anotherFinishRetentionDate;
+
+        return $this;
     }
 
     /**

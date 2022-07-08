@@ -621,10 +621,6 @@ nononsense_retention_categories_delete:
     path: /retention_categories/delete/{id}
     defaults: { _controller: NononsenseHomeBundle:RetentionCategories:delete}
 
-nononsense_retention_categories_template_get:
-    path: /retention_categories/getTemplatesList
-    defaults: { _controller: NononsenseHomeBundle:RetentionCategoriesTemplateList:getTemplatesList }
-
 nononsense_retention_categories_template_list:
     path: /retention_categories/searchTemplatesList
     methods:    [GET]
@@ -636,9 +632,9 @@ nononsense_retention_categories_template_detail:
         defaults: { _controller: NononsenseHomeBundle:RetentionCategoriesTemplateList:detailTemplate, id: 0 }
 
 nononsense_retention_categories_template_detailUpdate:
-    path: /retention_categories/detailTemplateUpdate/{id}
+    path: /retention_categories/detailTemplateUpdate
     methods: [ POST ]
-    defaults: { _controller: NononsenseHomeBundle:RetentionCategoriesTemplateList:detailTemplateUpdate, id: 0 }
+    defaults: { _controller: NononsenseHomeBundle:RetentionCategoriesTemplateList:detailTemplateUpdate }
 
 
 nononsense_retention_categories_template_destroy:
@@ -651,10 +647,6 @@ nononsense_retention_categories_template_annual_review:
     methods: [ GET ]
     defaults: { _controller: NononsenseHomeBundle:RetentionCategoriesTemplateList:signAnnualReview }
 # Cumplimentations
-nononsense_retention_categories_cumplimentation_get:
-    path: /retention_categories/getCumplimentationsList
-    defaults: { _controller: NononsenseHomeBundle:RetentionCategoriesCumplimentationList:getCumplimentationList }
-
 nononsense_retention_categories_cumplimentation_list:
     path: /retention_categories/searchCumplimentationsList
     methods:    [GET]

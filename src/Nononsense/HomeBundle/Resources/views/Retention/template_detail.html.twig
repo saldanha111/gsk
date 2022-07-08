@@ -10,6 +10,8 @@
 {% block main_title %} Retención / Detalle de la plantilla
 {% endblock %}
 {% block content %}
+    {% set _thereAreRetentionCategories = retentionCategories is defined and retentionCategories | length > 0 %}
+    {% set _thereAreBoundedRetentionCategories = template.boundedRetentionCategories is defined and template.boundedRetentionCategories | length > 0 %}
     <div class="wrapper wrapper-content animated fadeInUp">
         {% for flashMessage in app.session.flashbag.get('error') %}
             <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
@@ -26,9 +28,8 @@
             <br>
         {% endfor %}
 
-{#        {{ dump( | json_encode) }}#}
-
-        <form class="form-horizontal" action="{{ path("nononsense_retention_categories_template_detailUpdate", {id: template.id}) }}" id="form_item" method="POST">
+        <form id="formTemplate" class="form-horizontal" action="{{ path("nononsense_retention_categories_template_detailUpdate") }}" method="POST">
+            <input type="hidden" value="{{ template.id }}" name="templateId">
             <div class="row">
                 <div class="col-lg-4 col-lg-offset-1">
                     <div class="row">
@@ -98,9 +99,7 @@
                                 <input type="text" class="form-control" value="{{template.stateDate is not null ? template.stateDate | date("d/m/Y") | gskdate : ''}}" readonly>
                             </div>
                         </div>
-                        {%  if retentionCategories is defined and retentionCategories | length > 0  and
-                            template.bindedRetentionCategories is defined and template.bindedRetentionCategories | length > 0
-                        %}
+                        {% if _thereAreRetentionCategories %}
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Categorías de retención</label>
                             <div class="container">
@@ -117,7 +116,12 @@
                                         {% for retentionCategory in retentionCategories %}
                                             <tr id="{{ retentionCategory.id }}">
                                                 <td>
-                                                    <input type="checkbox" {{ retentionCategory.id in template.bindedRetentionCategories ? "checked" : "" }}/>
+                                                    <input type="checkbox"
+                                                            {{ _thereAreBoundedRetentionCategories and retentionCategory.id in template.boundedRetentionCategories
+                                                                    ? "checked"
+                                                                    : ""
+                                                            }}
+                                                    />
                                                 </td>
                                                 <td>
                                                     <a href="{{ path('nononsense_retention_categories_edit',{'id': retentionCategory.id}) }}">
@@ -125,10 +129,10 @@
                                                     </a>
                                                 </td>
                                                 <td>
-                                                    Fecha de inicio de Período de retención - {{ retentionCategory.id }}
+                                                    {{ retentionCategory.retention_period_start_date }}
                                                 </td>
                                                 <td>
-                                                    Fecha calculada de destrucción - {{ retentionCategory.id }}
+                                                    {{ retentionCategory.retention_period_end_date }}
                                                 </td>
                                             </tr>
                                         {% endfor %}
@@ -148,7 +152,8 @@
                                 </div>
                             </div>
                             <div class="modal-footer">
-                                <input type="submit" class="btn btn-primary" value="Firmar revisión">
+                                <input type="submit" class="btn btn-primary" value="Firmar revisión" id="firmarRevision">
+                                <input type="hidden" value="" id="boundedCategories" name="boundedCategories" >
                             </div>
                         </div>
                         {% endif %}
@@ -351,11 +356,14 @@
     </script>
     <script>
         const selectedRetentionCategories = new Set();
-        {% if template.bindedRetentionCategories is defined %}
-            {% for bindedRetentionCategory in range(0,template.bindedRetentionCategories | length - 1)  %}
-                selectedRetentionCategories.add({{ template.bindedRetentionCategories[bindedRetentionCategory] }})
+        {% if template.boundedRetentionCategories is defined %}
+            {% for boundedRetentionCategory in range(0,template.boundedRetentionCategories | length - 1)  %}
+                selectedRetentionCategories.add({{ template.boundedRetentionCategories[boundedRetentionCategory] }})
             {% endfor %}
         {% endif %}
+
+        $("#boundedCategories").val(Array.from(selectedRetentionCategories));
+
         $('#retentionCategoriesTable').on('click', 'tr', function() {
             const selectedRetentionCategoryId = $(this).attr('id');
             if (selectedRetentionCategoryId !== undefined) {
@@ -365,12 +373,13 @@
                 ;
             }
 
+            $("#boundedCategories").val(Array.from(selectedRetentionCategories));
+
             toggleDestroyAndReviewButtons(!(selectedRetentionCategories.size > 0));
 
             if (selectedRetentionCategories.size === 0) {
                 $("#toggleAll").prop("checked", false);
             }
-            console.log(selectedRetentionCategories);
         });
 
         $("#toggleAll").on("click", function() {
@@ -389,6 +398,8 @@
                     selectedRetentionCategories.add({{ retentionCategories[i].id }});
                 {% endfor %}
             {% endif %}
+
+            $("#boundedCategories").val(Array.from(selectedRetentionCategories));
         }
         function toggleDestroyAndReviewButtons(visible) {
             $("#bindRetentionCategories").prop("disabled", visible);

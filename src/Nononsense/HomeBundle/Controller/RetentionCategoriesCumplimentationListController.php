@@ -27,23 +27,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 class RetentionCategoriesCumplimentationListController extends Controller
 {
 
-    public function getCumplimentationListAction(Request $request)
-    {
-
-        $is_valid = $this->get('app.security')->permissionSeccion('retention_admin');
-        if (!$is_valid) {
-            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
-        }
-
-        $array_item=[];
-
-        $this->getData($array_item);
-
-        $this->checkData($array_item);
-
-        return $this->render('NononsenseHomeBundle:Retention:list_retention_cumplimentations.html.twig', $array_item);
-    }
-
     public function searchCumplimentationsListAction(Request $request)
     {
         $em = $this->getDoctrine()->getManager();
@@ -72,7 +55,6 @@ class RetentionCategoriesCumplimentationListController extends Controller
 
         $items = $cvRecordsRepository->listCVRecordsByRetention($filters);
         $cvRecords = $this->parseToView($items);
-
         $totalItems = $cvRecordsRepository->count($filters);
         $data = [
             'items' => $cvRecords,
@@ -129,15 +111,15 @@ class RetentionCategoriesCumplimentationListController extends Controller
         foreach($items as $item) {
             $dataToView[] = [
                 "id" => $item["id"],
-                "destroyDate" => $item["destructionDate"],
-                "mostRestrictiveCategoryName" => $this->getMostRestrictiveCategoryName((int) $item["id"]),
-                "title" => $item["name"],
-                "code" => $item["number"],
-                "edition" => $item["numEdition"],
-                "area" => $item["area"]["name"],
-                "state" => $item["tmState"]["name"],
-                "startDateRetention" => $item["startRetention"],
-                "toggleDestructionButton" => (date("Y-m-d") > $item["finishRetention"])
+                "destroyDate" => $item["template"]["destructionDate"],
+                "mostRestrictiveCategoryName" => $this->getMostRestrictiveCategoryName((int) $item["template"]["id"]),
+                "title" => $item["template"]["name"],
+                "code" => $item["template"]["number"],
+                "edition" => $item["template"]["numEdition"],
+                "area" => $item["template"]["area"]["name"],
+                "state" => $item["state"]["name"],
+                "startDateRetention" => $item["template"]["startRetention"],
+                "toggleDestructionButton" => (date("Y-m-d") > $item["template"]["finishRetention"])
             ];
         }
         return $dataToView;
@@ -293,8 +275,10 @@ class RetentionCategoriesCumplimentationListController extends Controller
         $template = $this->getDoctrine()->getRepository(TMTemplates::class)->find($templateId);
         $mostRestrictiveCategory = TMTemplatesService::getTheMostRestrictiveCategoryByTemplateId($template);
 
-        return $mostRestrictiveCategory->getName();
-
+        return (!is_null($mostRestrictiveCategory))
+            ? $mostRestrictiveCategory->getName()
+            : ""
+        ;
     }
 
     private function hayDatos(array $areas, array $states, array $retention_representatives)  {

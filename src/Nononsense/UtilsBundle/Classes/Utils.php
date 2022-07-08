@@ -716,10 +716,15 @@ class Utils
         $skip = ($page) * $limit;
 
         $data["needed"] = $count > $limit;
+
         $data["count"] = $count;
         $data["page"] = $page;
-        $data["lastpage"] = (ceil($count / $limit) == 0 ? 1 : ceil($count / $limit));
+        $data["lastpage"] = (ceil($count / $limit) == 0)
+            ? 1
+            : ceil($count / $limit)
+        ;
         $data["limit"] = $limit;
+
         if (
             ( ! empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
             || ( ! empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https')
@@ -879,5 +884,10 @@ class Utils
 
         return $path;
     }
+
+    public static function debug($something) {
+        var_dump($something); die();
+    }
+
 
 }

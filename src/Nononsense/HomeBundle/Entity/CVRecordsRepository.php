@@ -2,9 +2,12 @@
 
 namespace Nononsense\HomeBundle\Entity;
 
+use DateInterval;
+use DateTime;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Query\QueryException;
 use Doctrine\ORM\QueryBuilder;
+use Nononsense\UtilsBundle\Classes\Utils;
 
 /**
  * CVRecordsRepository
@@ -397,6 +400,152 @@ class CVRecordsRepository extends EntityRepository
                 return $query->getSingleResult()["conta"];
                 break;
         }
+    }
+
+    /**
+     * @param array $filters
+     * @param $paginate
+     * @return array|float|int|string
+     */
+    public function listCVRecordsByRetention(array $filters, $paginate = 1)
+    {
+
+        $query = $this->createQueryBuilder('cv')
+            ->select('cv', 'cvt', 'a', 's')
+            ->leftJoin("cv.template", "cvt")
+            ->leftJoin("cvt.retentions", "r")
+            ->leftJoin("cvt.area", "a")
+            ->leftJoin("cv.state", "s")
+            ->orderBy("cvt.destructionDate", "desc")
+        ;
+
+        if(!empty($parameters)){
+            $query->setParameters($parameters);
+        }
+
+        $query = self::fillFilersQuery($filters, $query);
+
+        if ($paginate == 1 && isset($filters["limit_from"])){
+            $query->setFirstResult($filters["limit_from"]*$filters["limit_many"])->setMaxResults($filters["limit_many"]);
+        }
+
+        $items=$query->getQuery()->getArrayResult();
+
+
+        return $items;
+    }
+
+    /**
+     * @param array $filters
+     * @return mixed
+     */
+    public function count($filters = [])
+    {
+        $list = $this->createQueryBuilder('cv')
+            ->select('COUNT(cv.id) as conta')
+            ->leftJoin("cv.template", "cvt")
+            ->leftJoin("cvt.retentions", "r")
+            ->leftJoin("cvt.area", "a")
+            ->leftJoin("cv.state", "s")
+        ;
+
+        $list = self::fillFilersQuery($filters, $list);
+        $query = $list->getQuery();
+
+        try {
+            $result = $query->getSingleScalarResult();
+        } catch (QueryException $e) {
+            $result = 0;
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param array $filters
+     * @param QueryBuilder $list
+     * @return QueryBuilder
+     * @throws \Exception
+     */
+    private function fillFilersQuery(array $filters, QueryBuilder $list)
+    {
+        if(!empty($filters)){
+
+            if (isset($filters["area"])) {
+                $list->andWhere("a.id=:area");
+                $list->setParameter('area', intval($filters["area"]));
+            }
+
+            if (isset($filters["retention_category"])) {
+                $list->andWhere('r.id = :retention_category');
+                $list->setParameter('retention_category', (int)$filters["retention_category"] );
+            }
+
+            if (isset($filters["state"])) {
+                $mappedState = [
+                    "3" => ['7'],
+                    "4" => ['3', '6']
+                ];
+
+                if (array_key_exists($filters["state"], $mappedState)) {
+                    $states = $mappedState[$filters["state"]];
+                    $list->andWhere(" (s.id in (:states)) ");
+                    $list->setParameter('states', array_map('intval', $states));
+                }
+            }
+
+            if (isset($filters["template_title"])) {
+                $list->andWhere('cvt.name LIKE :template_title');
+                $list->setParameter('template_title', "%" . $filters["template_title"] . "%");
+            }
+
+            if (isset($filters["code"])) {
+                $list->andWhere('cvt.number LIKE :code');
+                $list->setParameter('code', "%" . $filters["code"] . "%");
+            }
+
+            if (isset($filters["destruction_date_start"])) {
+                $destroyStartDate = \DateTime::createFromFormat('d-m-Y',$filters["destruction_date_start"]);
+                $list->andWhere('cvt.destructionDate > :destructionStartDate');
+                $list->setParameter('destructionStartDate', $destroyStartDate);
+            }
+
+            if (isset($filters["destruction_date_end"])) {
+                $destroyEndDate = \DateTime::createFromFormat('d-m-Y',$filters["destruction_date_end"]);
+                $list->andWhere('cvt.destructionDate < :destructionEndDate');
+
+                $list->setParameter('destructionEndDate', $destroyEndDate);
+            }
+
+            if (isset($filters["see_destroyed"])) {
+                $list->andWhere('cvt.destructionDate IS NOT NULL');
+            }
+
+            if (isset($filters["only_expired"])) {
+                $list->andWhere('cvt.destructionDate < :fechaActual');
+                $list->setParameter('fechaActual', new DateTime());
+            }
+
+            if (isset($filters["annual_review"])) {
+                $DEADLINE_ANNUAL_REVIEW = 6;
+                $DEADLINE_ANNUAL_REVIEW_INTERVAL = "M"; // Months
+                $duration = "P" . $DEADLINE_ANNUAL_REVIEW . $DEADLINE_ANNUAL_REVIEW_INTERVAL;
+                $annualReviewDate = new DateTime();
+                $annualReviewDate->add(new DateInterval($duration));
+                $list->andWhere('cvt.destructionDate < :annualReviewDate');
+                $list->setParameter('annualReviewDate', $annualReviewDate);
+            }
+
+            if (isset($filters["destruction_period_start"])) {
+                $list->andWhere('cvt.finishRetention < :destructionPeriodStart');
+                $list->setParameter('destructionPeriodStart', $filters["destruction_period_start"]);
+            }
+
+        }
+
+        $list->andWhere('cvt.isDeleted = 0');
+
+        return $list;
     }
 
 }

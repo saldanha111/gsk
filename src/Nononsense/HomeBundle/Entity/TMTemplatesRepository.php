@@ -11,6 +11,9 @@ use Doctrine\ORM\Query\QueryException;
 use Doctrine\ORM\Query\ResultSetMapping;
 use Doctrine\ORM\Query\ResultSetMappingBuilder;
 use Doctrine\ORM\QueryBuilder;
+use Doctrine\ORM\Tools\Pagination\Paginator;
+use Nononsense\UtilsBundle\Classes\Utils;
+use function Sodium\add;
 
 /**
  * AreasRepository
@@ -76,9 +79,7 @@ class TMTemplatesRepository extends EntityRepository
             $query->setParameters($parameters);
         }
 
-        $items=$query->getResult();
-
-        return $items;
+        return $query->getResult();
     }
 
     public function list($type,$filters)
@@ -535,14 +536,11 @@ class TMTemplatesRepository extends EntityRepository
 
     /**
      * @param array $filters
-     * @param $paginate
+     * @param int $paginate
      * @return array|float|int|string
      */
-    public function listTemplatesByRetention(array $filters, $paginate = 1)
+    public function listTemplatesByRetention(array $filters, int $paginate = 1)
     {
-
-        $items = [];
-        $conditions = [];
 
         $query = $this->createQueryBuilder('t')
             ->select('t', 'a', 's')
@@ -552,20 +550,14 @@ class TMTemplatesRepository extends EntityRepository
             ->orderBy("t.destructionDate", "desc")
         ;
 
-        if(!empty($parameters)){
-            $query->setParameters($parameters);
-        }
-
         $query = self::fillFilersQuery($filters, $query);
 
         if ($paginate == 1 && isset($filters["limit_from"])){
-            $query->setFirstResult($filters["limit_from"]*$filters["limit_many"])->setMaxResults($filters["limit_many"]);
+            $query->setFirstResult($filters["limit_from"]*$filters["limit_many"]);
+            $query->setMaxResults($filters["limit_many"]);
         }
 
-        $items=$query->getQuery()->getArrayResult();
-
-
-        return $items;
+        return $query->getQuery()->getArrayResult();
     }
 
     /**
@@ -613,11 +605,6 @@ class TMTemplatesRepository extends EntityRepository
                 $list->setParameter('retention_category', (int)$filters["retention_category"] );
             }
 
-            if (isset($filters["state"])) {
-                $list->andWhere(" (s.id=:state) ");
-                $list->setParameter('state', $filters["state"]);
-            }
-
             if (isset($filters["template_title"])) {
                 $list->andWhere('t.name LIKE :template_title');
                 $list->setParameter('template_title', "%" . $filters["template_title"] . "%");
@@ -647,28 +634,41 @@ class TMTemplatesRepository extends EntityRepository
                 $list->setParameter('destroyEndDate', $destroyEndDate);
             }
 
-            if (isset($filters["see_destroyed"])) {
-                $list->andWhere('t.destructionDate IS NOT NULL');
+            if(isset($filters["destruction_option"])) {
+                $destructionOption = $filters["destruction_option"];
+                switch($destructionOption) {
+                    case "only_destroyed":
+                        $list->andWhere('t.destructionDate IS NOT NULL');
+                        break;
+                    case "only_expired":
+                        $list->andWhere('t.destructionDate < :fechaActual');
+                        $list->setParameter('fechaActual', new DateTime());
+                        break;
+                    case "annual_revision":
+                        $DEADLINE_ANNUAL_REVIEW = 6;
+                        $DEADLINE_ANNUAL_REVIEW_INTERVAL = "M"; // Months
+                        $duration = "P" . $DEADLINE_ANNUAL_REVIEW . $DEADLINE_ANNUAL_REVIEW_INTERVAL;
+                        $annualReviewDate = new DateTime();
+                        $annualReviewDate->add(new DateInterval($duration));
+                        $list->andWhere('t.destructionDate < :annualReviewDate');
+                        $list->setParameter('annualReviewDate', $annualReviewDate);
+                        break;
+                    default: break;
+                }
             }
 
-            if (isset($filters["only_expired"])) {
-                $list->andWhere('t.destructionDate < :fechaActual');
-                $list->setParameter('fechaActual', new DateTime());
+            if (isset($filters["destruction_start_period"])) {
+                $destroyStartPeriod = \DateTime::createFromFormat('d-m-Y',$filters["destruction_start_period"]);
+                $list->andWhere('t.startRetention > :destructionStartPeriod');
+
+                $list->setParameter('destructionStartPeriod', $destroyStartPeriod);
             }
 
-            if (isset($filters["annual_review"])) {
-                $DEADLINE_ANNUAL_REVIEW = 6;
-                $DEADLINE_ANNUAL_REVIEW_INTERVAL = "M"; // Months
-                $duration = "P" . $DEADLINE_ANNUAL_REVIEW . $DEADLINE_ANNUAL_REVIEW_INTERVAL;
-                $annualReviewDate = new DateTime();
-                $annualReviewDate->add(new DateInterval($duration));
-                $list->andWhere('t.destructionDate < :annualReviewDate');
-                $list->setParameter('annualReviewDate', $annualReviewDate);
-            }
+            if (isset($filters["destruction_end_period"])) {
+                $destructionEndPeriod = \DateTime::createFromFormat('d-m-Y',$filters["destruction_end_period"]);
+                $list->andWhere('t.startRetention < :destructionEndPeriod');
 
-            if (isset($filters["destruction_period_start"])) {
-                $list->andWhere('t.finishRetention < :destructionPeriodStart');
-                $list->setParameter('destructionPeriodStart', $filters["destruction_period_start"]);
+                $list->setParameter('destructionEndPeriod', $destructionEndPeriod);
             }
 
         }
@@ -676,5 +676,20 @@ class TMTemplatesRepository extends EntityRepository
         $list->andWhere('t.isDeleted = 0');
 
         return $list;
+    }
+
+    public function findTemplatesAfterSixMonthsDestructionDate() {
+        $dateAfterDestructionDate = (new DateTime())->sub(new DateInterval("P6M"));
+        $query = $this->createQueryBuilder('t')
+            ->select('t', 'a', 's')
+            ->leftJoin("t.retentions", "r")
+            ->leftJoin("t.area", "a")
+            ->leftJoin("t.tmState", "s")
+            ->where("t.destructionDate = :dateAfterDestructionDate")
+            ->orderBy("t.destructionDate", "desc")
+        ;
+        $query->setParameter(":dateAfterDestructionDate", $dateAfterDestructionDate);
+
+        return $query->getQuery()->getArrayResult();
     }
 }

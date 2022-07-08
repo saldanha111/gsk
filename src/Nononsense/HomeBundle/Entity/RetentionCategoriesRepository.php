@@ -135,4 +135,20 @@ class RetentionCategoriesRepository extends EntityRepository
          return $query->fetchAll();
     }
 
+    /**
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function getRetentionCategoriesNotDeleted(): array
+    {
+        $em = $this->getEntityManager();
+
+        $query = $em->getConnection()->executeQuery("
+            select rc.id, rc.name, rc.retention_period_start_date, rc.retention_period_end_date
+            from retention_categories rc
+            where rc.deletedAt is null
+        ");
+
+        return $query->fetchAll();
+    }
+
 }

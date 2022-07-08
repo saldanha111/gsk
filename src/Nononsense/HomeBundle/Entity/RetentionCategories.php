@@ -8,12 +8,15 @@
 
 namespace Nononsense\HomeBundle\Entity;
 
+use DateInterval;
 use DateTime;
+use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Nononsense\GroupBundle\Entity\Groups;
 use Nononsense\UserBundle\Entity\Users;
+use Nononsense\UtilsBundle\Classes\Utils;
 
 /**
  * @ORM\Entity
@@ -43,6 +46,20 @@ class RetentionCategories
      * @ORM\Column(name="description", type="string", length=255)
      */
     protected $description;
+
+    /**
+     * @var DateTime
+     *
+     * @ORM\Column(name="retention_period_start_date", type="date")
+     */
+    protected $retentionPeriodStartDate;
+
+    /**
+     * @var DateTime
+     *
+     * @ORM\Column(name="retention_period_end_date", type="date")
+     */
+    protected $retentionPeriodEndDate;
 
     /**
      * @var string
@@ -175,15 +192,68 @@ class RetentionCategories
     /**
      * Set retentionDays
      *
+     * @param DateTime $retentionPeriodStartDate
+     * @return RetentionCategories
+     * @throws \Exception
+     */
+    public function setRetentionPeriodStartDate(DateTime $retentionPeriodStartDate): RetentionCategories
+    {
+        $this->retentionPeriodStartDate = $retentionPeriodStartDate;
+
+        return $this;
+    }
+
+    /**
+     * Get retention period start date
+     *
+     * @return DateTime |null
+     */
+    public function getRetentionPeriodStartDate()
+    {
+        return $this->retentionPeriodStartDate;
+    }
+
+    /**
+     * Get retention period end date
+     *
+     * @return DateTime |null
+     */
+    public function getRetentionPeriodEndDate()
+    {
+        return $this->retentionPeriodEndDate;
+    }
+
+    /**
+     * Set retention period end date
+     *
+     * @return RetentionCategories
+     * @throws \Exception
+     */
+    public function setRetentionPeriodEndDate(DateTime $startDate): RetentionCategories
+    {
+        $duration = "P" . $this->getRetentionDays() . "D";
+
+        $this->retentionPeriodEndDate =  $startDate->add(new DateInterval($duration));
+
+        return $this;
+    }
+
+
+
+    /**
+     * Set retention period start date
+     *
      * @param int $retentionDays
      * @return RetentionCategories
      */
-    public function setRetentionDays(int $retentionDays)
+    public function setRetentionDays(int $retentionDays): RetentionCategories
     {
         $this->retentionDays = $retentionDays;
 
         return $this;
     }
+
+
 
     /**
      * Get retentionDays

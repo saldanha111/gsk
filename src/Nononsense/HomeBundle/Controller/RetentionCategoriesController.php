@@ -2,6 +2,7 @@
 
 namespace Nononsense\HomeBundle\Controller;
 
+use DateInterval;
 use DateTime;
 use Exception;
 use Nononsense\GroupBundle\Entity\Groups;
@@ -21,15 +22,17 @@ class RetentionCategoriesController extends Controller
 {
     public function listAction(Request $request)
     {
-        $is_valid = $this->get('app.security')->permissionSeccion('retention_admin');
-        if (!$is_valid) {
+        $DEFAULT_LIMIT = 15;
+
+        $hasPermission = $this->get('app.security')->permissionSeccion('retention_admin');
+        if (!$hasPermission) {
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
 
         $em = $this->getDoctrine()->getManager();
-        $defaultLimit = 15;
+
         $filters = Utils::getListFilters($request);
-        $filters['limit_many'] = ($request->get('limit_many')) ?: $defaultLimit;
+        $filters['limit_many'] = ($request->get('limit_many')) ?: $DEFAULT_LIMIT;
 
         /** @var retentionCategoriesRepository $retentionCategoriesRepository */
         $retentionCategoriesRepository = $em->getRepository(retentionCategories::class);
@@ -63,8 +66,10 @@ class RetentionCategoriesController extends Controller
             $category = new retentionCategories();
         }
 
-        if ($request->getMethod() == 'POST' && $this->saveData($request, $category)) {
-            return $this->redirect($this->generateUrl('nononsense_retention_categories_list'));
+        if ($request->getMethod() == 'POST') {
+            if ($this->saveData($request, $category)) {
+                return $this->redirect($this->generateUrl('nononsense_retention_categories_list'));
+            }
         }
 
         $states = $em->getRepository(RCStates::class)->findAll();
@@ -140,7 +145,8 @@ class RetentionCategoriesController extends Controller
         if (
             !$request->get('name') || !$request->get('description') ||
             (!$request->get('group') && !$request->get('user')) ||
-            !$request->get('state') || !$request->get('type')
+            !$request->get('state') || !$request->get('type') ||
+            !$request->get('retention_period_start_date')
         ) {
             throw new Exception('Todos los datos son obligatorios.');
         }
@@ -168,7 +174,9 @@ class RetentionCategoriesController extends Controller
             $category->setModified(new DateTime());
             $category->setName($request->get('name'));
             $category->setDescription($request->get('description'));
+            $category->setRetentionPeriodStartDate(DateTime::createFromFormat('d-m-Y',$request->get('retention_period_start_date')));
             $category->setRetentionDaysFormatted($retentionDays);
+            $category->setRetentionPeriodEndDate(DateTime::createFromFormat('d-m-Y',$request->get('retention_period_start_date'))); // It is automatically computed
             $this->updateFinishRetentionDateTemplates($category->getId(), $category->getRetentionDays());
             $category->setActive((bool)$request->get('active'));
             $category->setDocumentState($state);
