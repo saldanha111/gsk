@@ -104,7 +104,7 @@
                         <div class="col-lg-8 col-lg-offset-4">
                             <div id="signature-pad">
                                 <p>Introduzca su firma</p>
-                                <input type="password" name="password" id="box_password" class="form-control" required="required"><br>
+                                <input type="password" name="password" id="form-item-password" class="form-control" required="required"><br>
                             </div>
                         </div>
                     </div>
@@ -138,12 +138,12 @@
         $('#side-menu').metisMenu();
 
         $('#form_item').on('submit', function(e){
-            if(password_valid($("#box_password").val())){
+            if(password_valid($("#form-item-password").val())){
                 $("[name='action']").val($(document.activeElement).data("action"));
                 return true;
             }
             else{
-                toastr.error("La contraseña es incorecta", 'aviso');
+                toastr.error("La contraseña es incorrecta", 'aviso');
             }
 
             return false;
@@ -153,7 +153,7 @@
 
 
     function password_valid(password){
-        var result;
+        let result;
         $.ajax({
             url: "{{ path('nononsense_mclean_get_sign_valid') }}",
             type: 'POST',
@@ -162,11 +162,7 @@
             data: {password: password},
             success: function(response) {
                 console.log(response);
-                if(response.valid){
-                    result=true;
-                }else{
-                    result=false;
-                }
+                result = response.valid;
             },
             error: function() {
                 result=false;

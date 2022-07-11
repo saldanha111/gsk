@@ -98,13 +98,14 @@
                 <div class="row">
                     <div class="col-lg-10 col-lg-offset-1 mb-3">
                         <div class="input-group">
-                            <label for="box_password">Introduzca su firma</label><br>
-                            <input type="password" name="password" id="box_password" class="form-control" required="required"><br>
+                            <label for="formSignTestPassword">Introduzca su firma</label><br>
+                            <input type="password" name="password" id="formSignTestPassword" class="form-control" required="required"><br>
                         </div>
                     </div>
 
                 </div>
                 <input type="hidden" name="token" value="{{app.request.query.get('token') is defined  ? app.request.query.get('token') : ''}}" />
+                <input type="hidden" name="finish_tests" id="finish_tests" value="" />
             </div>
             <div class="modal-footer">
                 <input type="submit" class="btn btn-primary" value="Firmar test">
@@ -137,14 +138,15 @@ $( document ).ready(function() {
     });
 
     $('#form_sign_test').on('submit', function(e){
-        const firma = document.getElementById("box_password").value;
-        const firmaEstaVacia = (firma === "");
-        if (firmaEstaVacia){
+        const formSignTestPassword = document.getElementById("formSignTestPassword").value;
+        const formSignTestPasswordEstaVacia = (formSignTestPassword === "");
+        if (formSignTestPasswordEstaVacia){
             toastr.error("La firma es obligatoria",'aviso');
         }else{
+            $("#finish_tests").val("1");
             return true;
         }
-        return false;
+        e.preventDefault();
     });
 
 });

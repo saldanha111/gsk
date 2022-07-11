@@ -71,17 +71,17 @@
                         {% endif %}
                     </div>
 
-
-                    {% set fechaEntradaEnVigor = template.effectiveDate is defined and template.effectiveDate is not null
-                                                 ? template.effectiveDate|date("d/m/Y")
-                                                 : template.estimatedEffectiveDate is defined and template.estimatedEffectiveDate is not null
-                                                        ? template.estimatedEffectiveDate|date("d/m/Y")
-                                                        : ''
-                    %}
                     <div class="form-group">
+                        {% set fechaEntradaEnVigor = template.effectiveDate is defined and template.effectiveDate is not null
+                            ? template.effectiveDate|date("Y-m-d")
+                            : (template.estimatedEffectiveDate is defined and template.estimatedEffectiveDate is not null)
+                            ? template.estimatedEffectiveDate|date("Y-m-d")
+                            : ''
+
+                        %}
                         <label class="col-sm-2 control-label">Fecha entrada en vigor<br><span style="font-weight: normal">(Estimada:{{template.estimatedEffectiveDate is defined and template.estimatedEffectiveDate is not null ? template.estimatedEffectiveDate|date("d/m/Y")|gskdate : ''}})</span></label>
                         <div class="col-sm-2">
-                            <input type="text" name="public_date" id="public_date" class="form-control"  {{template.tmState.id == 6 ? 'readonly="readonly"' : ''}} value="{{ fechaEntradaEnVigor }}">
+                            <input type="date" name="public_date" id="public_date" class="form-control" {{template.tmState.id == 6 ? 'readonly="readonly"' : ''}} value="{{ fechaEntradaEnVigor }}" required="required">
                         </div>
                     </div>
 
@@ -146,16 +146,14 @@
                 </div>
                 <div class="row">
                     <div class="col-lg-10 col-lg-offset-2">
-                        <div id="signature-pad" class="input-group">
-                                <h2>Introduzca su firma</h2>
-                                <canvas width="300" height="150" style="touch-action: none; border: 2px solid #eee; box-shadow: 0px 0px 6px 1px rgba(80, 90, 100, 0.5)"></canvas>
-                            </div>
-                            <input type="hidden" id="signature" name="signature" />
-                            <a name="borrarFirmar" class="btn btn-secondary" id="borrarFirmar">Limpiar firma</a>
-                            {% if template.tmState.id == 11 %}
-                                <button type="submit" class="btn btn-danger" data-action="2">Rechazar</button>
-                            {% endif %}
-                            <button type="submit" class="btn btn-primary" data-action="1"><i class="fa fa-floppy-o" aria-hidden="true"></i> Aceptar</button>
+                        <div class="input-group">
+                            <label for="formItemPassword">Introduzca su firma</label><br>
+                            <input type="password" name="password" id="formItemPassword" class="form-control" required="required"><br>
+                        </div>
+                        {% if template.tmState.id == 11 %}
+                            <button type="submit" class="btn btn-danger" data-action="2">Rechazar</button>
+                        {% endif %}
+                        <button type="submit" class="btn btn-primary" data-action="1"><i class="fa fa-floppy-o" aria-hidden="true"></i> Aceptar</button>
                         </div>
                     </div>
                     <br><br>
@@ -187,7 +185,6 @@
 {% endblock %}
 {% block scripts %}
 {{ parent() }}
-<script src="/js/plugins/signature-pad/signature-pad.min.js"></script>
 <script src="/js/plugins/datapicker/bootstrap-datepicker.js"></script>
 <script src="/js/plugins/datapicker/locales/bootstrap-datepicker.es.js" charset="UTF-8"></script>
 <script src="/plugins/select2/dist/js/select2.full.min.js"></script>
@@ -195,13 +192,6 @@
 <script>
 
     $( document ).ready(function() {
-        $('#public_date').datepicker({
-          autoclose: true,
-          orientation: 'bottom auto',
-          format: 'dd/mm/yyyy',
-          language: 'es',
-          startDate: '+0d'
-        });
 
         $(document).on('click', '.add_template', function() {
             add_template();
@@ -211,32 +201,30 @@
             $(this).closest(".child_template").remove();
         }); 
 
-        var canvas = document.querySelector("canvas");
-
-        var signaturePad = new SignaturePad(canvas);
-
-
-        $('#borrarFirmar').on('click', function () {
-            signaturePad.clear();
-        });
-
         $('#form_item').on('submit', function(e){
+            const PLANTILLA_EN_VIGOR = 6;
             var today = new Date();
             var EnteredDate = $("#public_date").val(); // For JQuery
-            var date = EnteredDate.substring(0, 2);
-            var month = EnteredDate.substring(3, 5);
-            var year = EnteredDate.substring(6, 10);
+            var date = EnteredDate.substring(8, 10);
+            var month = EnteredDate.substring(5, 7);
+            var year = EnteredDate.substring(0, 4);
             var myDate = new Date(year, month - 1, date);
-            if (signaturePad.isEmpty()){
+
+            const firma = document.getElementById("formItemPassword").value;
+            const firmaEstaVacia = (firma === "");
+            if (firmaEstaVacia){
                 toastr.error("Debe firmar la solicitud",'aviso');
             }else{
-                $("#signature").val(signaturePad.toDataURL());
                 $("[name='action']").val($(document.activeElement).data("action"));
+                const estadoPlantilla = {{ template.tmState.id }};
+                const estaEnVigorEstaPlantilla = (PLANTILLA_EN_VIGOR === estadoPlantilla);
                 if($(document.activeElement).data("action")=="2" || formatDate(myDate) >= formatDate(today)){
                     return true;  
                 }
                 else{
-                    toastr.error("La fecha no puede ser inferior a la del día de hoy",'aviso');
+                    if (!estaEnVigorEstaPlantilla) {
+                        toastr.error("La fecha de entrada en vigor no puede ser inferior a la del día de hoy",'aviso');
+                    }
                 }
                 
             }

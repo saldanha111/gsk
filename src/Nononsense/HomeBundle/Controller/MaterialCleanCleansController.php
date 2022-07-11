@@ -195,12 +195,10 @@ class MaterialCleanCleansController extends Controller
 
     public function checkPassAction(Request $request)
     {
-        $valid = false;
         $password = $request->get('password');
-        if($this->get('utilities')->checkUser($password)){
-            $valid = true;
-        }
 
-        return new JsonResponse(['valid' => $valid]);
+        $isValidPassword = ($this->get('utilities')->checkUser($password));
+
+        return new JsonResponse(['valid' => $isValidPassword]);
     }
 }
