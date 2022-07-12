@@ -14,9 +14,9 @@ $( document ).ready(function() {
 		$(this).html(custom_date);
 	});
 
-	$('#form_fill').html($('#form_fill').html().replace("GSKNOCUMPLE", ""));
-	$('#form_fill').html($('#form_fill').html().replace("GSKCUMPLE", ""));
-	$('#form_fill').html($('#form_fill').html().replace("GSKNOAPLICA", ""));
+	$('#form_fill').html($('#form_fill').html().replace("GSKNOCUMPLE", "1"));
+	/*$('#form_fill').html($('#form_fill').html().replace("GSKCUMPLE", "2"));
+	$('#form_fill').html($('#form_fill').html().replace("GSKNOAPLICA", "3"));*/
 	
 	//$('input[name ="gsk_comment"]').remove();
 	$('#form_fill').on('keyup change paste', 'input:not(:disabled):not([readonly]), select:not(:disabled):not([readonly]), textarea:not(:disabled):not([readonly])', function(){
