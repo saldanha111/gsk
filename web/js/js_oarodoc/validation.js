@@ -4,6 +4,9 @@ var comment_field = new Array();
 var gsk_comment_description="";
 var no_cumple_field = new Array();
 var gsk_no_cumple_description="";
+$('#fill_html').html($('#fill_html').html().replace(/GSKNOCUMPLE/g, "NO CUMPLE"));
+$('#fill_html').html($('#fill_html').html().replace(/GSKCUMPLE/g, "CUMPLE"));
+$('#fill_html').html($('#fill_html').html().replace(/GSKNOAPLICA/g, "NO APLICA"));
 $( document ).ready(function() {
 	//$("#btn_save").html('<i class="fa fa-send-o"></i> Verificación total');
 	$("#btn_save_partial").html('<i class="fa fa-save"></i> Verificar');

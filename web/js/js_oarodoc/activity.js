@@ -4,6 +4,9 @@ var comment_field = new Array();
 var gsk_comment_description="";
 var manual_field = new Array();
 var gsk_manual_description="";
+$('#fill_html').html($('#fill_html').html().replace(/GSKNOCUMPLE/g, ""));
+$('#fill_html').html($('#fill_html').html().replace(/GSKCUMPLE/g, ""));
+$('#fill_html').html($('#fill_html').html().replace(/GSKNOAPLICA/g, ""));
 $( document ).ready(function() {
 	$("#btn_save").html('<i class="fa fa-send-o"></i> Enviar y firmar');
 	$("#btn_save_partial").html('<i class="fa fa-save"></i> Guardar y firmar');

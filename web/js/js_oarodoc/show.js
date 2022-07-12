@@ -1,4 +1,7 @@
 var gsk_comment=0;
+$('#fill_html').html($('#fill_html').html().replace(/GSKNOCUMPLE/g, "NO CUMPLE"));
+$('#fill_html').html($('#fill_html').html().replace(/GSKCUMPLE/g, "CUMPLE"));
+$('#fill_html').html($('#fill_html').html().replace(/GSKNOAPLICA/g, "NO APLICA"));
 $( document ).ready(function() {
 	$("#btn_save").hide();
 	$("#btn_save_partial").hide();
