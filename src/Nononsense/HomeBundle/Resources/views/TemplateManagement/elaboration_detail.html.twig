@@ -1,465 +1,465 @@
 {% extends '::base.html.twig' %}
 {% block page_title %}Docoaro - GSK | {{'Homepage'|trans}} {% endblock %}
 {% block head %}
-{{ parent() }}
-<link rel="stylesheet" type="text/css" href="{{ asset('bundles/nononsensehome/css/adminlte.css') }}">
+    {{ parent() }}
+    <link rel="stylesheet" type="text/css" href="{{ asset('bundles/nononsensehome/css/adminlte.css') }}">
 {% endblock %}
 {% block main_title %} {{'Elaboración de la plantilla'|trans}}{% endblock %}
 {% block content %}
 
 
-<div class="wrapper wrapper-content">
-    <h3>{{template.name}} {{template.number}}</h3>
-    {% if downloadUrl is defined %}
-        <a  href="{{downloadUrl}}" class="btn btn-xs btn-primary" target="_blank"><i class="fa fa-download"></i> Descargar plantilla</a><br><br>
-    {% endif %}
-    <div class="row">
-        <div class="col-lg-4">
-            {% if template.openedBy is defined and template.openedBy is not empty and template.openedBy.id!=app.user.id %}
-                <div class="callout callout-warning">
-                    <h4>¡Atención!</h4>
-                    <p>La plantilla está abierta por {{template.openedBy.name}}</p>
-                </div>
-            {% endif %}
-            <div class="box box-default">
-                <div class="box-header with-border">
-                  <h3 class="box-title">Workflow</h3>
-                </div>
-                <!-- /.box-header -->
-                <div class="box-body">
-                    {% for wfitem in elab %}
-                        {% if not wfitem.signed %}<div class="box box-danger">{% else %}<div class="box box-success">{% endif %}
-                            <div class="box-header">
-                                <h3 class="box-title">{{wfitem.userEntiy is defined and wfitem.userEntiy is not null ? ('<i class="fa fa-user"></i> '~wfitem.userEntiy.name)|escape_tags|raw : ('<i class="fa fa-users"></i> '~wfitem.groupEntiy.name)|escape_tags|raw}}</h3>
-
-                                {% if not wfitem.signed %}<small class="label pull-right bg-red">Pendiente</small>{% else %}<small class="label pull-right bg-green">Elaborado</small>{% endif %}
-                            </div>
-                        </div>
-                    {% endfor %}
-                </div>
-                <!-- /.box-body -->
-            </div>   
-        </div>
-
-        <div class="col-lg-4">
-            <div class="box box-default">
-                <div class="box-header with-border">
-                    <h3 class="box-title">Sobreescribir plantilla.</h3>
-                </div>
-                <!-- /.box-header -->
-                <div class="box-body">
-                    <div class="form-group">
-                        <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalUploadFile"><i class="fa fa-upload"></i> Subir documento</button>
-                    </div>
-                </div>
+    <div class="wrapper wrapper-content">
+        <h3>{{template.name}} {{template.number}}</h3>
+        {% if downloadUrl is defined %}
+            <a  href="{{downloadUrl}}" class="btn btn-xs btn-primary" target="_blank"><i class="fa fa-download"></i> Descargar plantilla</a><br><br>
+        {% endif %}
+        <div class="row">
+            <div class="col-lg-4">
                 {% if template.openedBy is defined and template.openedBy is not empty and template.openedBy.id!=app.user.id %}
-                    <div class="overlay">
-                        <i class="fa fa-cog fa-spin"></i>
+                    <div class="callout callout-warning">
+                        <h4>¡Atención!</h4>
+                        <p>La plantilla está abierta por {{template.openedBy.name}}</p>
                     </div>
                 {% endif %}
-                <!-- /.box-body -->
-            </div>
-            {% if downloadUrl is defined %}
                 <div class="box box-default">
                     <div class="box-header with-border">
-                      <h3 class="box-title">Configurar</h3>
+                        <h3 class="box-title">Workflow</h3>
                     </div>
                     <!-- /.box-header -->
                     <div class="box-body">
-                        <div class="form-group">
-                            <a href="{{path('nononsense_tm_elaborate_configuration', {'id': template.id}) }}" class="btn btn-primary pull-right"><i class="fa fa-magic"></i> Configurar</a>
-                        </div>
-                    </div>
-                    {% if template.openedBy is defined and template.openedBy is not empty and template.openedBy.id!=app.user.id %}
-                        <div class="overlay">
-                          <i class="fa fa-cog fa-spin"></i>
-                        </div>
-                    {% endif %}
-                    <!-- /.box-body -->
-                </div>
-<!--                Cumplimentación Workflow -->
-                <div class="box box-default">
-                    <div class="box-header with-border">
-                        <h3 class="box-title">Workflow cumplimentación</h3>
-                    </div>
-                    <div class="box-body">
-                        <form id="form_sign_workflow" action="{{path('nononsense_tm_elaborate_update', {'id': template.id}) }}" method="POST"  enctype="multipart/form-data">
-                            <div class="box_workflow">
-                                {% for cumplimentation in cumplimentations %}
-                                    <div class="row line_workflow" style="margin-bottom:10px">
-                                        <div class="form-group">
-                                            <div class="col-sm-7 box_cumplimentation">
-                                                {% if type_cumplimentations is defined %}
-                                                    <select class="form-control field_cumplimentation field_cumpl" name="cumplimentation[]" style="width: 100%;" id="cumplimentations" required="required">
-                                                        <option value=""></option>
-                                                        {% for type in type_cumplimentations %}
-                                                            <option value="{{ type.id }}" class="{{type.tmType.name}}" {{ cumplimentation is not null and cumplimentation.tmCumplimentation is not null and cumplimentation.tmCumplimentation is defined and cumplimentation.tmCumplimentation.id==type.id ? 'selected="selected"' : ''}}>{{type.name}}</option>
-                                                        {% endfor %}
-                                                    </select>
-                                                {% endif %}
-                                            </div>
-                                            <div class="col-sm-3 box_signatures">
-                                                <input type="number" min="1" name="signatures[]" id="signatures" class="form-control field_cumplimentation" value="{{cumplimentation.signaturesNumber is defined ? cumplimentation.signaturesNumber : ''}}" required="required">
-                                            </div>
-                                            <div class="col-sm-1">
-                                                <a href="javascript:void(0)" class="btn btn-xs btn-danger remove_line"><i class="fa fa-times" aria-hidden="true"></i></a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                {% endfor %}
-                            </div>
-                            <br>
-                            <div class="row">
-                                <div class="col-lg-12">
-                                    <button id="pre_workflow_sign" class="btn btn-primary pull-right" {{ cumplimentations is not defined or cumplimentations is empty ? 'disabled="disabled"' : ''}} >Firmar</button>
-                                    <button type="button" class="btn btn-default pull-right add_line" style="margin-right:4px"><i class="fa fa-plus"></i> Añadir</button>
-                                </div>
-                            </div><br>
-<!--                        Modal firmar workflow -->
-                            <div class="modal fade" tabindex="-1" role="dialog" id="modalSignWorkflow">
-                                <div class="modal-dialog" role="document">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title">Firmar elaboración</h5>
-                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                <span aria-hidden="true">&times;</span>
-                                            </button>
-                                        </div>
+                        {% for wfitem in elab %}
+                        {% if not wfitem.signed %}<div class="box box-danger">{% else %}<div class="box box-success">{% endif %}
+                                <div class="box-header">
+                                    <h3 class="box-title">{{wfitem.userEntiy is defined and wfitem.userEntiy is not null ? ('<i class="fa fa-user"></i> '~wfitem.userEntiy.name)|escape_tags|raw : ('<i class="fa fa-users"></i> '~wfitem.groupEntiy.name)|escape_tags|raw}}</h3>
 
-                                        <div class="modal-body">
-                                            <div class="row justify_workflow" style="display: none">
-                                                <div class="col-lg-10 col-lg-offset-1">
-                                                    <label for="description_workflow">Comentarios</label>
-                                                    <br>
-                                                    <div class="form-group">
-                                                        <textarea class="form-control" id="description_workflow" rows="10" cols="40"  style="width:100%" required="required"></textarea>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-lg-10 col-lg-offset-1">
-                                                    <div id="signature-pad3" class="input-group">
-                                                        <label for="modalSignWorkflowPassword">Introduzca su firma</label>
-                                                        <br>
-                                                        <input type="password" name="password" id="modalSignWorkflowPassword" class="form-control" required="required"><br>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <input type="button" class="btn btn-primary" id="sign_workflow" value="Firmar">
-                                        </div>
-                                    </div>
+                                    {% if not wfitem.signed %}<small class="label pull-right bg-red">Pendiente</small>{% else %}<small class="label pull-right bg-green">Elaborado</small>{% endif %}
                                 </div>
                             </div>
-<!--                        /Modal firmar workflow -->
-                            <textarea name="description" style="display: none"></textarea>
-                            <div class="row">
-                                <div class="col-lg-12">
-                                    <input  type="submit" class="btn btn-primary pull-right"
-                                            id="finalizarElaboracion"
-                                            value="Finalizar elaboración"
-                                            disabled
-                                    >
-                                </div>
-                            </div>
-                            <input type="hidden" name="password" id="finalizarElaboracionPassword" value="">
-                            <input id="finish_elaboration" name="finish_elaboration" value="" type="hidden">
-                        </form>
-<!--                        /Modal firmar elaboración -->
-                    </div>
-                    {% if template.openedBy is defined and template.openedBy is not empty and template.openedBy.id!=app.user.id %}
-                        <div class="overlay">
-                            <i class="fa fa-cog fa-spin"></i>
-                        </div>
-                    {% endif %}
-                    <!-- /.box-body -->
-                </div>
-
-<!--                /Cumplimentación Workflow -->
-            {% endif %}
-        </div>
-    </div>
-    <div class="col-lg-12">
-        {% include 'NononsenseHomeBundle:TemplateManagement:list_tests.html.twig' %}
-    </div>
-
-    {% if template is defined %}
-        {% include 'NononsenseHomeBundle:TemplateManagement:action_template.html.twig' %}
-    {% endif %}
-
-    <div class="modal fade" tabindex="-1" role="dialog" id="modalUploadFile">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Sobreescribir plantilla</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-            <form id="form_upload_document" action="{{path('nononsense_tm_elaborate_update', {'id': template.id}) }}" method="POST"  enctype="multipart/form-data">
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-lg-10 col-lg-offset-1">
-                            Comentarios<br>
-                            <div class="form-group">
-                                <textarea class="form-control" name="description" rows="10" cols="40" required="required" style="width:100%" required="required"></textarea>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-lg-10 col-lg-offset-1">
-                            Adjunte la plantilla<br>
-                            <div class="form-group">
-                                <input type='file' name="template" id="template" required="required" />
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-lg-10 col-lg-offset-1 mb-3">
-                            <div id="signature-pad2" class="input-group">
-                                <label for="formUploadDocumentPassword">Introduzca su firma</label><br>
-                                <input type="password" name="password" id="formUploadDocumentPassword" class="form-control" required="required"><br>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <input type="submit" class="btn btn-primary" value="Subir">
-                </div>
-            </form>
-        </div>
-      </div>
-    </div>
-
-    <div class="modal fade" tabindex="-1" role="dialog" id="modalSignConfiguration">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Firmar configuración de plantilla</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <form id="form_sign_configuration" action="{{path('nononsense_tm_elaborate_update', {'id': template.id}) }}" method="POST"  enctype="multipart/form-data">
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-lg-10 col-lg-offset-1">
-                            Comentarios<br>
-                            <div class="form-group">
-                                <textarea class="form-control" name="description" rows="10" cols="40" required="required" style="width:100%" required="required"></textarea>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-lg-10 col-lg-offset-1">
-                            <div id="signature-pad" class="input-group">
-                                <label for="formSignConfigurationPassword">Introduzca su firma</label>
-                                <input type="password" name="password" id="formSignConfigurationPassword" class="form-control" required="required"><br>
-                            </div>
-                        </div>
-                    </div>
-                    <input type="hidden" name="activate_configuration" value="1">
-                </div>
-                <div class="modal-footer">
-                    <input type="submit" class="btn btn-primary" value="Firmar configuración">
-                </div>
-            </form>
-        </div>
-      </div>
-    </div>
-
-    <did style="display:none" id="new_line">
-        <div class="row line_workflow" style="margin-bottom:10px">
-            <div class="form-group">
-                <div class="col-sm-7 box_cumplimentation">
-                    {% if type_cumplimentations is defined %}
-                        <select class="form-control field_cumplimentation field_cumpl" name="cumplimentation[]" style="width: 100%;" required="required">
-                            <option value=""></option>
-                            {% for type in type_cumplimentations %}
-                                <option value="{{type.id}}" class="{{type.tmType.name}}">{{type.name}}</option>
                             {% endfor %}
-                        </select>
+                        </div>
+                        <!-- /.box-body -->
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <div class="box box-default">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Sobreescribir plantilla</h3>
+                        </div>
+                        <!-- /.box-header -->
+                        <div class="box-body">
+                            <div class="form-group">
+                                <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#modalUploadFile"><i class="fa fa-upload"></i> Subir documento</button>
+                            </div>
+                        </div>
+                        {% if template.openedBy is defined and template.openedBy is not empty and template.openedBy.id!=app.user.id %}
+                            <div class="overlay">
+                                <i class="fa fa-cog fa-spin"></i>
+                            </div>
+                        {% endif %}
+                        <!-- /.box-body -->
+                    </div>
+                    {% if downloadUrl is defined %}
+                        <div class="box box-default">
+                            <div class="box-header with-border">
+                                <h3 class="box-title">Configurar</h3>
+                            </div>
+                            <!-- /.box-header -->
+                            <div class="box-body">
+                                <div class="form-group">
+                                    <a href="{{path('nononsense_tm_elaborate_configuration', {'id': template.id}) }}" class="btn btn-primary pull-right"><i class="fa fa-magic"></i> Configurar</a>
+                                </div>
+                            </div>
+                            {% if template.openedBy is defined and template.openedBy is not empty and template.openedBy.id!=app.user.id %}
+                                <div class="overlay">
+                                    <i class="fa fa-cog fa-spin"></i>
+                                </div>
+                            {% endif %}
+                            <!-- /.box-body -->
+                        </div>
+                        <!--                Cumplimentación Workflow -->
+                        <div class="box box-default">
+                            <div class="box-header with-border">
+                                <h3 class="box-title">Workflow cumplimentación</h3>
+                            </div>
+                            <div class="box-body">
+                                <form id="form_sign_workflow" action="{{path('nononsense_tm_elaborate_update', {'id': template.id}) }}" method="POST"  enctype="multipart/form-data">
+                                    <div class="box_workflow">
+                                        {% for cumplimentation in cumplimentations %}
+                                            <div class="row line_workflow" style="margin-bottom:10px">
+                                                <div class="form-group">
+                                                    <div class="col-sm-7 box_cumplimentation">
+                                                        {% if type_cumplimentations is defined %}
+                                                            <select class="form-control field_cumplimentation field_cumpl" name="cumplimentation[]" style="width: 100%;" id="cumplimentations" required="required">
+                                                                <option value=""></option>
+                                                                {% for type in type_cumplimentations %}
+                                                                    <option value="{{ type.id }}" class="{{type.tmType.name}}" {{ cumplimentation is not null and cumplimentation.tmCumplimentation is not null and cumplimentation.tmCumplimentation is defined and cumplimentation.tmCumplimentation.id==type.id ? 'selected="selected"' : ''}}>{{type.name}}</option>
+                                                                {% endfor %}
+                                                            </select>
+                                                        {% endif %}
+                                                    </div>
+                                                    <div class="col-sm-3 box_signatures">
+                                                        <input type="number" min="1" name="signatures[]" id="signatures" class="form-control field_cumplimentation" value="{{cumplimentation.signaturesNumber is defined ? cumplimentation.signaturesNumber : ''}}" required="required">
+                                                    </div>
+                                                    <div class="col-sm-1">
+                                                        <a href="javascript:void(0)" class="btn btn-xs btn-danger remove_line"><i class="fa fa-times" aria-hidden="true"></i></a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                    <br>
+                                    <div class="row">
+                                        <div class="col-lg-12">
+                                            <button id="pre_workflow_sign" class="btn btn-primary pull-right" {{ cumplimentations is not defined or cumplimentations is empty ? 'disabled="disabled"' : ''}} >Firmar</button>
+                                            <button type="button" class="btn btn-default pull-right add_line" style="margin-right:4px"><i class="fa fa-plus"></i> Añadir</button>
+                                        </div>
+                                    </div><br>
+                                    <!--                        Modal firmar workflow -->
+                                    <div class="modal fade" tabindex="-1" role="dialog" id="modalSignWorkflow">
+                                        <div class="modal-dialog" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">Firmar elaboración</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+
+                                                <div class="modal-body">
+                                                    <div class="row justify_workflow" style="display: none">
+                                                        <div class="col-lg-10 col-lg-offset-1">
+                                                            <label for="description_workflow">Comentarios</label>
+                                                            <br>
+                                                            <div class="form-group">
+                                                                <textarea class="form-control" id="description_workflow" rows="10" cols="40"  style="width:100%" required="required"></textarea>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-lg-10 col-lg-offset-1">
+                                                            <div id="signature-pad3" class="input-group">
+                                                                <label for="modalSignWorkflowPassword">Introduzca su firma</label>
+                                                                <br>
+                                                                <input type="password" name="password" id="modalSignWorkflowPassword" class="form-control" required="required"><br>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <input type="button" class="btn btn-primary" id="sign_workflow" value="Firmar">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!--                        /Modal firmar workflow -->
+                                    <textarea name="description" style="display: none"></textarea>
+                                    <div class="row">
+                                        <div class="col-lg-12">
+                                            <input  type="submit" class="btn btn-primary pull-right"
+                                                    id="finalizarElaboracion"
+                                                    value="Finalizar elaboración"
+                                                    disabled
+                                            >
+                                        </div>
+                                    </div>
+                                    <input type="hidden" name="password" id="finalizarElaboracionPassword" value="">
+                                    <input id="finish_elaboration" name="finish_elaboration" value="" type="hidden">
+                                </form>
+                                <!--                        /Modal firmar elaboración -->
+                            </div>
+                            {% if template.openedBy is defined and template.openedBy is not empty and template.openedBy.id!=app.user.id %}
+                                <div class="overlay">
+                                    <i class="fa fa-cog fa-spin"></i>
+                                </div>
+                            {% endif %}
+                            <!-- /.box-body -->
+                        </div>
+
+                        <!--                /Cumplimentación Workflow -->
                     {% endif %}
                 </div>
-                <div class="col-sm-3 box_signatures">
-                    <input type="number" name="signatures[]" id="signatures" min="1" class="form-control field_cumplimentation" value="" required="required">
-                </div>
-                <div class="col-sm-1">
-                    <a href="javascript:void(0)" class="btn btn-xs btn-danger remove_line"><i class="fa fa-times" aria-hidden="true"></i></a>
+            </div>
+            <div class="col-lg-12">
+                {% include 'NononsenseHomeBundle:TemplateManagement:list_tests.html.twig' %}
+            </div>
+
+            {% if template is defined %}
+                {% include 'NononsenseHomeBundle:TemplateManagement:action_template.html.twig' %}
+            {% endif %}
+
+            <div class="modal fade" tabindex="-1" role="dialog" id="modalUploadFile">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Sobreescribir plantilla</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <form id="form_upload_document" action="{{path('nononsense_tm_elaborate_update', {'id': template.id}) }}" method="POST"  enctype="multipart/form-data">
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-lg-10 col-lg-offset-1">
+                                        Comentarios<br>
+                                        <div class="form-group">
+                                            <textarea class="form-control" name="description" rows="10" cols="40" required="required" style="width:100%" required="required"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-10 col-lg-offset-1">
+                                        Adjunte la plantilla<br>
+                                        <div class="form-group">
+                                            <input type='file' name="template" id="template" required="required" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-10 col-lg-offset-1 mb-3">
+                                        <div id="signature-pad2" class="input-group">
+                                            <label for="formUploadDocumentPassword">Introduzca su firma</label><br>
+                                            <input type="password" name="password" id="formUploadDocumentPassword" class="form-control" required="required"><br>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <input type="submit" class="btn btn-primary" value="Subir">
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
+
+            <div class="modal fade" tabindex="-1" role="dialog" id="modalSignConfiguration">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Firmar configuración de plantilla</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <form id="form_sign_configuration" action="{{path('nononsense_tm_elaborate_update', {'id': template.id}) }}" method="POST"  enctype="multipart/form-data">
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-lg-10 col-lg-offset-1">
+                                        Comentarios<br>
+                                        <div class="form-group">
+                                            <textarea class="form-control" name="description" rows="10" cols="40" required="required" style="width:100%" required="required"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-10 col-lg-offset-1">
+                                        <div id="signature-pad" class="input-group">
+                                            <label for="formSignConfigurationPassword">Introduzca su firma</label>
+                                            <input type="password" name="password" id="formSignConfigurationPassword" class="form-control" required="required"><br>
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="hidden" name="activate_configuration" value="1">
+                            </div>
+                            <div class="modal-footer">
+                                <input type="submit" class="btn btn-primary" value="Firmar configuración">
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <did style="display:none" id="new_line">
+                <div class="row line_workflow" style="margin-bottom:10px">
+                    <div class="form-group">
+                        <div class="col-sm-7 box_cumplimentation">
+                            {% if type_cumplimentations is defined %}
+                                <select class="form-control field_cumplimentation field_cumpl" name="cumplimentation[]" style="width: 100%;" required="required">
+                                    <option value=""></option>
+                                    {% for type in type_cumplimentations %}
+                                        <option value="{{type.id}}" class="{{type.tmType.name}}">{{type.name}}</option>
+                                    {% endfor %}
+                                </select>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-3 box_signatures">
+                            <input type="number" name="signatures[]" id="signatures" min="1" class="form-control field_cumplimentation" value="" required="required">
+                        </div>
+                        <div class="col-sm-1">
+                            <a href="javascript:void(0)" class="btn btn-xs btn-danger remove_line"><i class="fa fa-times" aria-hidden="true"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </did>
         </div>
-    </did>
     </div>
-</div>
 {% endblock %}
 {% block scripts %}
-{{ parent() }}
-<script>
-    let numCumplimentations = 0;
-    $( document ).ready(function() {
-        $('[data-toggle="tooltip"]').tooltip();
+    {{ parent() }}
+    <script>
+        let numCumplimentations = 0;
+        $( document ).ready(function() {
+            $('[data-toggle="tooltip"]').tooltip();
 
-        {% if app.request.query.get('sign') is defined and app.request.query.get('sign') is not empty and template.tmpConfiguration is not empty %}
+            {% if app.request.query.get('sign') is defined and app.request.query.get('sign') is not empty and template.tmpConfiguration is not empty %}
             $('#modalSignConfiguration').modal('show');
-        {% endif %}
+            {% endif %}
 
-        // Formulario de subida de documentos
-        $('#form_upload_document').on('submit', function(e){
-            const formUploadDocumentPassword = document.getElementById("formUploadDocumentPassword").value;
-            const formUploadDocumentPasswordIsEmpty = (formUploadDocumentPassword === "") ;
-            if (formUploadDocumentPasswordIsEmpty){
-                toastr.error("La firma es obligatoria",'aviso');
+            // Formulario de subida de documentos
+            $('#form_upload_document').on('submit', function(e){
+                const formUploadDocumentPassword = document.getElementById("formUploadDocumentPassword").value;
+                const formUploadDocumentPasswordIsEmpty = (formUploadDocumentPassword === "") ;
+                if (formUploadDocumentPasswordIsEmpty){
+                    toastr.error("La firma es obligatoria",'aviso');
+                    return false;
+                }
+            });
+            // /Formulario de subida de documentos
+
+            // Formulario de configuración de la plantilla
+            $('#form_sign_configuration').on('submit', function(e){
+                const formSignConfigurationPassword = document.getElementById("formSignConfigurationPassword").value;
+                const formSignConfigurationPasswordIsEmpty = (formSignConfigurationPassword === "") ;
+                if (formSignConfigurationPasswordIsEmpty){
+                    toastr.error("La firma es obligatoria",'aviso');
+                } else {
+                    return true;
+                }
                 return false;
-            }
-        });
-        // /Formulario de subida de documentos
+            });
+            // /Formulario de configuración de la plantilla
 
-        // Formulario de configuración de la plantilla
-        $('#form_sign_configuration').on('submit', function(e){
-            const formSignConfigurationPassword = document.getElementById("formSignConfigurationPassword").value;
-            const formSignConfigurationPasswordIsEmpty = (formSignConfigurationPassword === "") ;
-            if (formSignConfigurationPasswordIsEmpty){
-                toastr.error("La firma es obligatoria",'aviso');
-            } else {
-                return true;
-            }
-            return false;
-        });
-        // /Formulario de configuración de la plantilla
-
-        // Formulario de flujo de trabajo
-        $('#pre_workflow_sign').on('click', function(e){
-            const justifyWorkflow = $(".justify_workflow");
-            const descriptionWorkflow = $("#description_workflow");
-            const modalSignWorkflow = $("#modalSignWorkflow");
-            if(modalSignWorkflow.is(':visible')){
-                if(!justifyWorkflow.is(':visible') || $.trim(descriptionWorkflow.val())){
-                    const modalSignWorkflowPassword = document.getElementById("modalSignWorkflowPassword").value;
-                    const modalSignWorkflowPasswordIsEmpty = (modalSignWorkflowPassword === "") ;
-                    if (modalSignWorkflowPasswordIsEmpty){
-                        toastr.error("La firma es obligatoria",'aviso');
-                    }else{
-                        if(justifyWorkflow.is(':visible')){
-                            $('#form_sign_workflow').find('[name="description"]').val($.trim(descriptionWorkflow.val()));
+            // Formulario de flujo de trabajo
+            $('#pre_workflow_sign').on('click', function(e){
+                const justifyWorkflow = $(".justify_workflow");
+                const descriptionWorkflow = $("#description_workflow");
+                const modalSignWorkflow = $("#modalSignWorkflow");
+                if(modalSignWorkflow.is(':visible')){
+                    if(!justifyWorkflow.is(':visible') || $.trim(descriptionWorkflow.val())){
+                        const modalSignWorkflowPassword = document.getElementById("modalSignWorkflowPassword").value;
+                        const modalSignWorkflowPasswordIsEmpty = (modalSignWorkflowPassword === "") ;
+                        if (modalSignWorkflowPasswordIsEmpty){
+                            toastr.error("La firma es obligatoria",'aviso');
+                        }else{
+                            if(justifyWorkflow.is(':visible')){
+                                $('#form_sign_workflow').find('[name="description"]').val($.trim(descriptionWorkflow.val()));
+                            }
                         }
+                    }
+                    else{
+                        toastr.error("Debe justificar los cambios realizados en el workflow",'aviso');
                     }
                 }
                 else{
+                    modalSignWorkflow.modal('show');
+                }
+                return false;
+            });
+            // /Formulario de flujo de trabajo
+
+            /* Añadimos linea en ese paso del workflow */
+            $(document).on('click', '.add_line', function() {
+                numCumplimentations++;
+                add_line();
+                check_sign();
+            });
+
+            /* Eliminamos linea en ese paso del workflow */
+            $(document).on('click', '.remove_line', function() {
+
+                numCumplimentations--;
+                console.log(numCumplimentations);
+                $(this).closest(".line_workflow").remove();
+                if (numCumplimentations < 1) $("#pre_workflow_sign").prop("disabled", true);
+                add_justification();
+                check_sign();
+            });
+
+            $(document).on('change', '.field_cumplimentation', function() {
+                add_justification();
+            });
+
+            $(document).on('change', '.field_cumpl', function() {
+                if($('option:selected', this).hasClass('Cumplimentador')){
+                    if($(this).closest(".line_workflow").prevAll().find(".Verificador:selected").length){
+                        $(this).val("");
+                        toastr.error("No se puede añadir un Cumplimentador tras un verificador",'aviso');
+                    } else {
+                        numCumplimentations++;
+                    }
+                }
+                else{
+                    if($(this).closest(".line_workflow").nextAll().find(".Cumplimentador:selected").length){
+                        $(this).val("");
+                        toastr.error("No se puede añadir un Verificador antes de un cumplimentador",'aviso');
+                    } else {
+                        numCumplimentations++;
+                    }
+                }
+            });
+
+            $(document).on('click', '#sign_workflow', function() {
+                const comentarioWorkflowVacio = ($('#description_workflow').val() === "");
+                if (comentarioWorkflowVacio) {
                     toastr.error("Debe justificar los cambios realizados en el workflow",'aviso');
+                } else {
+                    // Se cierra el modal solo en el caso de haber cumplimentado la firma y haber aportado la explicación de esta modificación.
+                    $("#modalSignWorkflow").modal("hide");
                 }
-            }
-            else{
-                modalSignWorkflow.modal('show');
-            }
-            return false;
-        });
-        // /Formulario de flujo de trabajo
+            });
 
-        /* Añadimos linea en ese paso del workflow */
-        $(document).on('click', '.add_line', function() {
-            numCumplimentations++;
-            add_line();
-            check_sign();
         });
 
-        /* Eliminamos linea en ese paso del workflow */
-        $(document).on('click', '.remove_line', function() {
+        /* Añadimos una nueva linea */
+        function add_line(){
+            $(".box_workflow").append($("#new_line").html());
+            $("#pre_workflow_sign").prop("disabled", false);
+            add_justification();
+        }
 
-            numCumplimentations--;
+        function add_justification(){
+            $(".justify_workflow").show();
+        }
+
+        function check_sign() {
             console.log(numCumplimentations);
-            $(this).closest(".line_workflow").remove();
-            if (numCumplimentations < 1) $("#pre_workflow_sign").prop("disabled", true);
-            add_justification();
-            check_sign();
-        });
-
-        $(document).on('change', '.field_cumplimentation', function() {
-            add_justification();
-        });
-
-        $(document).on('change', '.field_cumpl', function() {
-            if($('option:selected', this).hasClass('Cumplimentador')){
-                if($(this).closest(".line_workflow").prevAll().find(".Verificador:selected").length){
-                    $(this).val("");
-                    toastr.error("No se puede añadir un Cumplimentador tras un verificador",'aviso');
-                } else {
-                    numCumplimentations++;
-                }
-            }
-            else{
-                if($(this).closest(".line_workflow").nextAll().find(".Cumplimentador:selected").length){
-                    $(this).val("");
-                    toastr.error("No se puede añadir un Verificador antes de un cumplimentador",'aviso');
-                } else {
-                    numCumplimentations++;
-                }
-            }
-        });
-
-        $(document).on('click', '#sign_workflow', function() {
-            const comentarioWorkflowVacio = ($('#description_workflow').val() === "");
-            if (comentarioWorkflowVacio) {
-                toastr.error("Debe justificar los cambios realizados en el workflow",'aviso');
+            if (numCumplimentations < 1) {
+                $("#pre_workflow_sign").prop('disabled', true);
+                $("#finalizarElaboracion").prop("disabled", true);
             } else {
-                // Se cierra el modal solo en el caso de haber cumplimentado la firma y haber aportado la explicación de esta modificación.
-                $("#modalSignWorkflow").modal("hide");
+                $("#pre_workflow_sign").prop('disabled', false);
+                $("#finalizarElaboracion").prop("disabled", false);
+            }
+        }
+    </script>
+    <script>
+        $("#finalizarElaboracion").on('click', function(e) {
+            let numSignatures = 0;
+            const formSignWorkflow = $('#form_sign_workflow');
+            document.getElementById("finalizarElaboracionPassword").value = $('#modalSignWorkflow').find('[name="password"]').val();
+            formSignWorkflow.find('[name="description"]').val($.trim($("#description_workflow").val()));
+            const signatures = $("#signatures");
+            if (signatures.val()) {
+                numSignatures = parseInt(signatures.val());
+            }
+            console.log("abelardo", numCumplimentations);
+            console.log("abelardo", numSignatures);
+            if (numCumplimentations > 0 && numSignatures > 0) {
+                $("#finish_elaboration").val(1);
+                formSignWorkflow.submit();
+            } else {
+                toastr.error("Debe haber al menos 1 cumplimentación con un número de firmas válido", 'aviso');
+                e.preventDefault();
             }
         });
-    
-    });
-
-    /* Añadimos una nueva linea */
-    function add_line(){
-        $(".box_workflow").append($("#new_line").html());
-        $("#pre_workflow_sign").prop("disabled", false);
-        add_justification();
-    }
-
-    function add_justification(){
-    $(".justify_workflow").show();
-}
-
-    function check_sign() {
-        console.log(numCumplimentations);
-    if (numCumplimentations < 1) {
-        $("#pre_workflow_sign").prop('disabled', true);
-        $("#finalizarElaboracion").prop("disabled", true);
-    } else {
-        $("#pre_workflow_sign").prop('disabled', false);
-        $("#finalizarElaboracion").prop("disabled", false);
-    }
-}
-</script>
-<script>
-    $("#finalizarElaboracion").on('click', function(e) {
-        let numSignatures = 0;
-        const formSignWorkflow = $('#form_sign_workflow');
-        document.getElementById("finalizarElaboracionPassword").value = $('#modalSignWorkflow').find('[name="password"]').val();
-        formSignWorkflow.find('[name="description"]').val($.trim($("#description_workflow").val()));
-        const signatures = $("#signatures");
-        if (signatures.val()) {
-            numSignatures = parseInt(signatures.val());
-        }
-        console.log("abelardo", numCumplimentations);
-        console.log("abelardo", numSignatures);
-        if (numCumplimentations > 0 && numSignatures > 0) {
-            $("#finish_elaboration").val(1);
-            formSignWorkflow.submit();
-        } else {
-            toastr.error("Debe haber al menos 1 cumplimentación con un número de firmas válido", 'aviso');
-            e.preventDefault();
-        }
-    });
-</script>
-{#<script>#}
-{#    const preWorkflowSign = $("#pre_workflow_sign");#}
-{#    preWorkflowSign.on('click', function(e) {#}
-{#        if (numCumplimentations > 0) {#}
-{#            preWorkflowSign.prop("disabled", false);#}
-{#        }#}
-{#    });#}
-{#</script>#}
+    </script>
+    {#<script>#}
+    {#    const preWorkflowSign = $("#pre_workflow_sign");#}
+    {#    preWorkflowSign.on('click', function(e) {#}
+    {#        if (numCumplimentations > 0) {#}
+    {#            preWorkflowSign.prop("disabled", false);#}
+    {#        }#}
+    {#    });#}
+    {#</script>#}
 
 {% endblock %}
