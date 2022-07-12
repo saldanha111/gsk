@@ -9,6 +9,10 @@ $( document ).ready(function() {
 		custom_date=custom_date.replace(/\.\//,"/");
 		$(this).html(custom_date);
 	});
+
+	$('#form_fill').html($('#form_fill').html().replace("GSKNOCUMPLE", "NO CUMPLE"));
+	$('#form_fill').html($('#form_fill').html().replace("GSKCUMPLE", "CUMPLE"));
+	$('#form_fill').html($('#form_fill').html().replace("GSKNOAPLICA", "NO APLICA"));
 	
 	//$("#form_fill").append('<input type="hidden" name="gsk_percent" value="'+$(".progress_document").html()+'" />');
 

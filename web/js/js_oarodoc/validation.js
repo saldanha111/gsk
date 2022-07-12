@@ -17,6 +17,10 @@ $( document ).ready(function() {
 		$(this).html(custom_date);
 	});
 
+	$('#form_fill').html($('#form_fill').html().replace("GSKNOCUMPLE", "NO CUMPLE"));
+	$('#form_fill').html($('#form_fill').html().replace("GSKCUMPLE", "CUMPLE"));
+	$('#form_fill').html($('#form_fill').html().replace("GSKNOAPLICA", "NO APLICA"));
+
 	$('#form_fill').on('keyup change paste', 'input:not(:disabled):not([readonly]), select:not(:disabled):not([readonly]), textarea:not(:disabled):not([readonly])', function(){
 		$("#btn_custom_close").addClass("disabled");
 		$("#btn_cancel").removeClass("disabled");
