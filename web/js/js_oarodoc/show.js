@@ -9,9 +9,9 @@ $( document ).ready(function() {
 		$(this).html(custom_date);
 	});
 
-	$('#form_fill').html($('#form_fill').html().replace("GSKNOCUMPLE", "NO CUMPLE"));
-	$('#form_fill').html($('#form_fill').html().replace("GSKCUMPLE", "CUMPLE"));
-	$('#form_fill').html($('#form_fill').html().replace("GSKNOAPLICA", "NO APLICA"));
+	/*$('#form_fill').html($('#form_fill').html().replace(/GSKNOCUMPLE/g, "NO CUMPLE"));
+	$('#form_fill').html($('#form_fill').html().replace(/GSKCUMPLE/g, "CUMPLE"));
+	$('#form_fill').html($('#form_fill').html().replace(/GSKNOAPLICA/g, "NO APLICA"));*/
 	
 	/* Ocultamos los input pertenecientes a los ids de las firmas de la imputaciones */
 	$("input[class*='var_in_']").each(function( index ) {
