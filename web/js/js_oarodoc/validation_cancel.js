@@ -1,4 +1,7 @@
 var gsk_comment=0;
+$('#form_fill').html($('#form_fill').html().replace(/GSKNOCUMPLE/g, "NO CUMPLE"));
+$('#form_fill').html($('#form_fill').html().replace(/GSKCUMPLE/g, "CUMPLE"));
+$('#form_fill').html($('#form_fill').html().replace(/GSKNOAPLICA/g, "NO APLICA"));
 $( document ).ready(function() {
 	$("#btn_save").hide();
 	$("#btn_save_partial").html('<i class="fa fa-send-o"></i> Aprobar cancelación');
@@ -9,10 +12,6 @@ $( document ).ready(function() {
 		custom_date=custom_date.replace(/\.\//,"/");
 		$(this).html(custom_date);
 	});
-
-	$('#fill_html').html($('#fill_html').outerHTML().replace(/GSKNOCUMPLE/g, "NO CUMPLE"));
-	$('#fill_html').html($('#fill_html').outerHTML().replace(/GSKCUMPLE/g, "CUMPLE"));
-	$('#fill_html').html($('#fill_html').outerHTML().replace(/GSKNOAPLICA/g, "NO APLICA"));
 	
 	//$("#form_fill").append('<input type="hidden" name="gsk_percent" value="'+$(".progress_document").html()+'" />');
 
