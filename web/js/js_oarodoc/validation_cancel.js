@@ -10,9 +10,9 @@ $( document ).ready(function() {
 		$(this).html(custom_date);
 	});
 
-	$('#form_fill').html($('#form_fill').html().replace(/GSKNOCUMPLE/g, "NO CUMPLE"));
-	$('#form_fill').html($('#form_fill').html().replace(/GSKCUMPLE/g, "CUMPLE"));
-	$('#form_fill').html($('#form_fill').html().replace(/GSKNOAPLICA/g, "NO APLICA"));
+	$('#fill_html').html($('#fill_html').outerHTML().replace(/GSKNOCUMPLE/g, "NO CUMPLE"));
+	$('#fill_html').html($('#fill_html').outerHTML().replace(/GSKCUMPLE/g, "CUMPLE"));
+	$('#fill_html').html($('#fill_html').outerHTML().replace(/GSKNOAPLICA/g, "NO APLICA"));
 	
 	//$("#form_fill").append('<input type="hidden" name="gsk_percent" value="'+$(".progress_document").html()+'" />');
 
