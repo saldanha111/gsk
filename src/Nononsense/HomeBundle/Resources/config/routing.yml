@@ -622,33 +622,38 @@ nononsense_retention_categories_delete:
     defaults: { _controller: NononsenseHomeBundle:RetentionCategories:delete}
 
 nononsense_retention_categories_template_list:
-    path: /retention_categories/searchTemplatesList
+    path: /retention_and_destruction/searchTemplatesList
     methods:    [GET]
-    defaults: { _controller: NononsenseHomeBundle:RetentionCategoriesTemplateList:searchTemplatesList }
+    defaults: { _controller: NononsenseHomeBundle:RetentionCategoriesTemplate:searchTemplatesList }
 
 nononsense_retention_categories_template_detail:
-        path: /retention_categories/detailTemplate/{id}
+        path: /retention_and_destruction/detailTemplate/{id}
         methods: [ GET ]
-        defaults: { _controller: NononsenseHomeBundle:RetentionCategoriesTemplateList:detailTemplate, id: 0 }
+        defaults: { _controller: NononsenseHomeBundle:RetentionCategoriesTemplate:detailTemplate, id: 0 }
 
 nononsense_retention_categories_template_detailUpdate:
-    path: /retention_categories/detailTemplateUpdate
+    path: /retention_and_destruction/detailTemplateUpdate
     methods: [ POST ]
-    defaults: { _controller: NononsenseHomeBundle:RetentionCategoriesTemplateList:detailTemplateUpdate }
+    defaults: { _controller: NononsenseHomeBundle:RetentionCategoriesTemplate:detailTemplateUpdate }
 
 
 nononsense_retention_categories_template_destroy:
-    path: /retention_categories/destroyTemplate
+    path: /retention_and_destruction/destroyTemplate
     methods: [ POST ]
-    defaults: { _controller: NononsenseHomeBundle:RetentionCategoriesTemplateList:destroyTemplate }
+    defaults: { _controller: NononsenseHomeBundle:RetentionCategoriesTemplate:destroyTemplate }
+
+nononsense_retention_categories_template_review:
+    path: /retention_and_destruction/reviewTemplates
+    methods: [ GET ]
+    defaults: { _controller: NononsenseHomeBundle:RetentionCategoriesTemplate:reviewTemplates }
 
 nononsense_retention_categories_template_annual_review:
-    path: /retention_categories/signAnnualReview
+    path: /retention_and_destruction/signAnnualReview
     methods: [ GET ]
-    defaults: { _controller: NononsenseHomeBundle:RetentionCategoriesTemplateList:signAnnualReview }
+    defaults: { _controller: NononsenseHomeBundle:RetentionCategoriesTemplate:signAnnualReview }
 # Cumplimentations
 nononsense_retention_categories_cumplimentation_list:
-    path: /retention_categories/searchCumplimentationsList
+    path: /retention_and_destruction/searchCumplimentationsList
     methods:    [GET]
     defaults: { _controller: NononsenseHomeBundle:RetentionCategoriesCumplimentationList:searchCumplimentationsList }
 # Docoaro endpoints connect

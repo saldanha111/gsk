@@ -12,6 +12,7 @@ use Doctrine\ORM\Query\ResultSetMapping;
 use Doctrine\ORM\Query\ResultSetMappingBuilder;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\Tools\Pagination\Paginator;
+use Exception;
 use Nononsense\UtilsBundle\Classes\Utils;
 use function Sodium\add;
 
@@ -250,7 +251,7 @@ class TMTemplatesRepository extends EntityRepository
                     }
                 }
     
-                $query = $em->createNativeQuery("SELECT t.logbook,t.uniqid,t.id,t.name,a.name nameArea,t.number,t.num_edition numEdition,s.id status,t.inactive,s.name stateName,t.created,t.reference,ua.name applicantName,uo.name ownerName,ub.name backupName,t.effectiveDate,t.reviewDate,t.history_change historyChange,uo.id ownerId,ub.id backupId,t.date_review dateReview,t.need_new_edition needNewEdition,t.not_fillable_itself notFillableItSelf,q.id qr".$case.$fields_extra.$sintax." ".$orderby.$limit,$rsm);
+                $query = $em->createNativeQuery("SELECT t.logbook,t.uniqid,t.id,t.name,a.name nameArea,t.number,t.num_edition numEdition,s.id status,t.inactive,s.name stateName,t.created,t.reference,ua.name applicantName,uo.name ownerName,ub.name backupName,t.effectiveDate,t.reviewDateRetention,t.history_change historyChange,uo.id ownerId,ub.id backupId,t.date_review dateReview,t.need_new_edition needNewEdition,t.not_fillable_itself notFillableItSelf,q.id qr".$case.$fields_extra.$sintax." ".$orderby.$limit,$rsm);
 
 
 
@@ -270,7 +271,7 @@ class TMTemplatesRepository extends EntityRepository
                 $rsm->addScalarResult('ownerName', 'ownerName');
                 $rsm->addScalarResult('backupName', 'backupName');
                 $rsm->addScalarResult('effectiveDate', 'effectiveDate');
-                $rsm->addScalarResult('reviewDate', 'reviewDate');
+                $rsm->addScalarResult('reviewDateRevision', 'reviewDateRevision');
                 $rsm->addScalarResult('historyChange', 'historyChange');
                 $rsm->addScalarResult('ownerId', 'ownerId');
                 $rsm->addScalarResult('backupId', 'backupId');
@@ -589,7 +590,7 @@ class TMTemplatesRepository extends EntityRepository
      * @param array $filters
      * @param QueryBuilder $list
      * @return QueryBuilder
-     * @throws \Exception
+     * @throws Exception
      */
     private function fillFilersQuery(array $filters, QueryBuilder $list)
     {
@@ -678,8 +679,11 @@ class TMTemplatesRepository extends EntityRepository
         return $list;
     }
 
-    public function findTemplatesAfterSixMonthsDestructionDate() {
-        $dateAfterDestructionDate = (new DateTime())->sub(new DateInterval("P6M"));
+    /**
+     * @throws Exception
+     */
+    public function findTemplatesWithDestructionDateBeforeThisInterval(string $interval) {
+        $dateAfterDestructionDate = (new DateTime())->sub(new DateInterval("P" . $interval));
         $query = $this->createQueryBuilder('t')
             ->select('t', 'a', 's')
             ->leftJoin("t.retentions", "r")

@@ -4,6 +4,8 @@ namespace Nononsense\HomeBundle\Controller;
 
 use DateTime;
 use Exception;
+use Nononsense\GroupBundle\Entity\Groups;
+use Nononsense\GroupBundle\Entity\GroupUsers;
 use Nononsense\HomeBundle\Entity\Areas;
 use Nononsense\HomeBundle\Entity\RetentionCategories;
 use Nononsense\HomeBundle\Entity\TMActions;
@@ -20,7 +22,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 
-class RetentionCategoriesTemplateListController extends Controller
+class RetentionCategoriesTemplateController extends Controller
 {
     public function searchTemplatesListAction(Request $request)
     {
@@ -152,6 +154,21 @@ class RetentionCategoriesTemplateListController extends Controller
         $route=$this->container->get('router')->generate('nononsense_home_homepage');
         return $this->redirect($route);
 
+    }
+
+    public function reviewTemplatesAction(Request $request) {
+        return $this->render('NononsenseHomeBundle:Retention:list_review_retention_templates.html.twig',
+            [
+                "areas" => $array_item["areas"],
+                "retention_categories" => $array_item["retention_categories"],
+                "states" => $array_item["states"],
+                "retention_representatives" => $array_item["retention_representatives"],
+                "filters" => $filters,
+                "data" => $data,
+                'hasData' => $hasData,
+                "pagination" =>  Utils::getPaginator($request, $filters['limit_many'], $totalItems)
+            ]
+        );
     }
 
     public function signAnnualReviewAction(Request $request) {
@@ -405,10 +422,4 @@ class RetentionCategoriesTemplateListController extends Controller
             $em->flush();
         }
     }
-
-    private function getPhysicalDestroyedTemplates(float $items)
-    {
-
-    }
-
 }

@@ -65,5 +65,19 @@ class GroupUsersRepository extends EntityRepository
 
       return $is_member;
     }
-    
+
+    /**
+     * Gets the list of users associated with a group
+     *
+     * @return array
+     */
+    public function findUsersByGroupId(int $groupId)
+    {
+        $groups = $this->createQueryBuilder('g')
+            ->where("g.group = :groupId")
+            ->setParameter('groupId', $groupId);
+
+        return $groups->getQuery()->getArrayResult();
+    }
+
 }
