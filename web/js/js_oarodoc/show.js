@@ -1,7 +1,7 @@
 var gsk_comment=0;
-$('#form_fill').html($('#form_fill').html().replace(/GSKNOCUMPLE/g, "NO CUMPLE"));
-$('#form_fill').html($('#form_fill').html().replace(/GSKCUMPLE/g, "CUMPLE"));
-$('#form_fill').html($('#form_fill').html().replace(/GSKNOAPLICA/g, "NO APLICA"));
+$('#fill_html').html($('#fill_html').html().replace(/GSKNOCUMPLE/g, "NO CUMPLE"));
+$('#fill_html').html($('#fill_html').html().replace(/GSKCUMPLE/g, "CUMPLE"));
+$('#fill_html').html($('#fill_html').html().replace(/GSKNOAPLICA/g, "NO APLICA"));
 $( document ).ready(function() {
 	$("#btn_save").hide();
 	$("#btn_save_partial").hide();
