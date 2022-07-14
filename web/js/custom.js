@@ -1,3 +1,29 @@
+var navigation=false;
+$( document ).ready(function() {
+    $(document).on('click','a:not([target="_blank"]):not([href="#"]):not([data-toggle]),button:not(.dropdown-toggle):not([data-toggle]),input[type="submit"],input[type="button"]:not(.dropdown-toggle):not([data-toggle])',function() {
+        click_button=$(this)
+        var imgloading = $('<img id="dynamic_loading">');
+        imgloading.attr('src', '/img/loadinggsk.svg');
+        imgloading.height(click_button.height()+20);
+        click_button.after(imgloading);
+        click_button.hide();
+        intervalId = setInterval(isRunning, 200, click_button, imgloading);
+    });
+});
+
+$(window).on('beforeunload', function () {
+    navigation=true;
+});
+
+var isRunning = function(click_button,imgloading){
+    console.log($.active+"**"+navigation);
+    if ($.active == 0 && !navigation) {
+        click_button.show();
+        imgloading.hide();
+        clearInterval(intervalId);
+    }
+};
+
 //Logout when user is AFK
 var timerID, ms = 1200000;
 $(window).bind( "mousemove keypress mousedown scroll touchmove touchstart", function() {
