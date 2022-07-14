@@ -7,6 +7,7 @@ use Exception;
 use Nononsense\HomeBundle\Entity\MaterialCleanCenters;
 use Nononsense\HomeBundle\Entity\MaterialCleanCleans;
 use Nononsense\HomeBundle\Entity\MaterialCleanCodes;
+use Nononsense\HomeBundle\Entity\MaterialCleanDepartments;
 use Nononsense\HomeBundle\Entity\MaterialCleanMaterials;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -45,6 +46,13 @@ class MaterialCleanCleansController extends Controller
         }
 
         $em = $this->getDoctrine()->getManager();
+
+        $cleanExist = $em->getRepository(MaterialCleanCleans::class)->findOneBy(['code' => $barcode]);
+        if($cleanExist){
+            $this->addFlash('error','El código ya ha sido utilizado');
+            return $this->redirect($this->generateUrl('nononsense_mclean_cleans_scan'));
+        }
+
         $materialCleanCode = $em->getRepository(MaterialCleanCodes::class)->findOneBy(['code' => $barcode]);
 
         if (!$materialCleanCode || !$materialCleanCode->getIdMaterial()->getActive()) {
@@ -63,11 +71,16 @@ class MaterialCleanCleansController extends Controller
             ['active' => true],
             ['name' => 'ASC']
         );
+        $array_item["departments"] = $this->getDoctrine()->getRepository(MaterialCleanDepartments::class)->findBy(
+            ['active' => true],
+            ['name' => 'ASC']
+        );
         $array_item['code'] = $barcode;
         $array_item['materialCleanCode'] = $materialCleanCode;
         $array_item['cleanDate'] = $cleanDate->format('d-m-Y H:i:s');
         $array_item['expirationDate'] = ($expirationDate instanceof DateTime) ? $expirationDate->format('d-m-Y H:i:s') : '';
         $array_item['materialsUrl'] = $this->generateUrl('nononsense_mclean_get_material_by_center_json', ['id' => 'xxx']);
+        $array_item['centersUrl'] = $this->generateUrl('nononsense_mclean_get_center_by_department_json', ['id' => 'xxx']);
 
         return $this->render('NononsenseHomeBundle:MaterialClean:cleans_view.html.twig', $array_item);
     }
@@ -148,11 +161,15 @@ class MaterialCleanCleansController extends Controller
                     $em->persist($materialClean);
                     $em->flush();
 
+                    $department = $center->getDepartment() ? $center->getDepartment()->getName() : '';
+
                     $html = '
                         <p>Limpieza de material</p>
                         <ul>
+                            <li>Id trazabilidad: '.$materialClean->getId().'</li>
                             <li>Material: '.$material->getName().'</li>
                             <li>Código: '.$request->get('code').'</li>
+                            <li>Departamento: '.$department.'</li>
                             <li>Centro: '.$center->getName().'</li>
                             <li>Usuario: '.$this->getUser()->getUsername().'</li>
                             <li>Fecha: '.$now->format('d-m-Y H:i:s').'</li>

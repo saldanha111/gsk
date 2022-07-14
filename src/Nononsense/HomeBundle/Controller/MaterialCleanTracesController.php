@@ -59,21 +59,25 @@ class MaterialCleanTracesController extends Controller
 
                 $phpExcelObject->getProperties();
                 $phpExcelObject->setActiveSheetIndex(0)
-                 ->setCellValue('A1', 'P.order')
-                 ->setCellValue('B1', 'Material')
-                 ->setCellValue('C1', 'Estado')
-                 ->setCellValue('D1', 'Identificador')
-                 ->setCellValue('E1', 'Usuario limpieza')
-                 ->setCellValue('F1', 'Fecha limpieza')
-                 ->setCellValue('G1', 'Fecha caducidad')
-                 ->setCellValue('H1', 'Usuario verificación')
-                 ->setCellValue('I1', 'Fecha verificación')
-                 ->setCellValue('J1', 'Comentario verificación')
-                 ->setCellValue('K1', 'Usuario limpieza vencida')
-                 ->setCellValue('L1', 'Fecha limpieza vencida')
-                 ->setCellValue('M1', 'Usuario revisión')
-                 ->setCellValue('N1', 'Fecha revisión')
-                 ->setCellValue('O1', 'Comentario revisión');
+                    ->setCellValue('A1', 'Id')
+                    ->setCellValue('B1', 'P.order')
+                    ->setCellValue('C1', 'Material')
+                    ->setCellValue('D1', 'Estado')
+                    ->setCellValue('E1', 'Identificador')
+                    ->setCellValue('F1', 'Usuario limpieza')
+                    ->setCellValue('G1', 'Fecha limpieza')
+                    ->setCellValue('H1', 'Fecha caducidad')
+                    ->setCellValue('I1', 'Usuario verificación')
+                    ->setCellValue('J1', 'Fecha verificación')
+                    ->setCellValue('K1', 'Comentario verificación')
+                    ->setCellValue('L1', 'Usuario limpieza vencida')
+                    ->setCellValue('M1', 'Fecha limpieza vencida')
+                    ->setCellValue('N1', 'Usuario revisión')
+                    ->setCellValue('O1', 'Fecha revisión')
+                    ->setCellValue('P1', 'Comentario revisión')
+                    ->setCellValue('Q1', 'Usuario cancelación')
+                    ->setCellValue('R1', 'Fecha cancelación')
+                    ->setCellValue('S1', 'Comentario cancelación');
             }
 
             if($request->get("export_pdf")){
@@ -95,12 +99,18 @@ class MaterialCleanTracesController extends Controller
                     $sintax_head_f="";
                 }
 
+                if($request->get("identifier")){
+                    $html.=$sintax_head_f."Identificador => ".$request->get("identifier")."<br>";
+                    $sintax_head_f="";
+                }
+
                 if($request->get("state")){
                     switch($request->get("state")){
                         case 1: $hstate="Material limpio";break;
                         case 2: $hstate="Verificado limpieza";break;
                         case 3: $hstate="Limpieza vencida";break;
                         case 4: $hstate="Revisado";break;
+                        case 4: $hstate="Limpieza cancelada";break;
                     }
                     $html.=$sintax_head_f."Estado => ".$hstate."<br>";
                     $sintax_head_f="";
@@ -127,8 +137,10 @@ class MaterialCleanTracesController extends Controller
                 }
 
                 $html.='<br><table autosize="1" style="overflow:wrap;width:100%"><tr style="font-size:8px;width:100%">
+                <th style="font-size:8px;">Id</th>
                 <th style="font-size:8px;">P.order</th>
                 <th style="font-size:8px;">Material</th>
+                <th style="font-size:8px;">Dpt</th>
                 <th style="font-size:8px;">Estado</th>
                 <th style="font-size:8px;">Ident.</th>
                 <th style="font-size:8px;">Usu. limpieza</th>
@@ -142,6 +154,9 @@ class MaterialCleanTracesController extends Controller
                 <th style="font-size:8px;">Usuario rev.</th>
                 <th style="font-size:8px;">Fecha rev.</th>
                 <th style="font-size:8px;">Coment. rev.</th>
+                <th style="font-size:8px;">Usuario canc.</th>
+                <th style="font-size:8px;">Fecha canc.</th>
+                <th style="font-size:8px;">Coment. canc.</th>
                 </tr>';
             }
 
@@ -152,6 +167,7 @@ class MaterialCleanTracesController extends Controller
                     case 2: $status="Verificado limpieza";break;
                     case 3: $status="Limpieza vencida";break;
                     case 4: $status="Revisado";break;
+                    case 4: $status="Limpieza cancelada";break;
                     default: $status="Desconocido";
                 }
 
@@ -165,25 +181,29 @@ class MaterialCleanTracesController extends Controller
 
                 if($request->get("export_excel")){
                     $phpExcelObject->getActiveSheet()
-                    ->setCellValue('A'.$i, $item->getLotNumber())
-                    ->setCellValue('B'.$i, $item->getMaterial()->getName().$other_material)
-                    ->setCellValue('C'.$i, $status)
-                    ->setCellValue('D'.$i, $item->getCode())
-                    ->setCellValue('E'.$i, $item->getCleanUser()->getName())
-                    ->setCellValue('F'.$i, ($item->getCleanDate() ? $item->getCleanDate()->format('Y-m-d H:i:s') : ''))
-                    ->setCellValue('G'.$i, ($item->getCleanExpiredDate() ? $item->getCleanExpiredDate()->format('Y-m-d H:i:s') : ''))
-                    ->setCellValue('H'.$i, ($item->getVerificationUser() ? $item->getVerificationUser()->getName() : ''))
-                    ->setCellValue('I'.$i, ($item->getVerificationDate() ? $item->getVerificationDate()->format('Y-m-d H:i:s') : ''))
-                    ->setCellValue('J'.$i, substr($item->getUseInformation(), 0, 45))
-                    ->setCellValue('K'.$i, ($item->getDirtyMaterialUser() ? $item->getDirtyMaterialUser()->getName() : ''))
-                    ->setCellValue('L'.$i, ($item->getDirtyMaterialDate() ? $item->getDirtyMaterialDate()->format('Y-m-d H:i:s') : ''))
-                    ->setCellValue('M'.$i, ($item->getReviewUser() ? $item->getReviewUser()->getName() : ''))
-                    ->setCellValue('N'.$i, ($item->getReviewDate() ? $item->getReviewDate()->format('Y-m-d H:i:s') : ''))
-                    ->setCellValue('O'.$i, substr($item->getReviewInformation(), 0, 45));
+                        ->setCellValue('A'.$i, $item->getId())
+                        ->setCellValue('B'.$i, $item->getLotNumber())
+                        ->setCellValue('C'.$i, $item->getMaterial()->getName().$other_material)
+                        ->setCellValue('D'.$i, $status)
+                        ->setCellValue('E'.$i, $item->getCode())
+                        ->setCellValue('F'.$i, $item->getCleanUser()->getName())
+                        ->setCellValue('G'.$i, ($item->getCleanDate() ? $item->getCleanDate()->format('Y-m-d H:i:s') : ''))
+                        ->setCellValue('H'.$i, ($item->getCleanExpiredDate() ? $item->getCleanExpiredDate()->format('Y-m-d H:i:s') : ''))
+                        ->setCellValue('I'.$i, ($item->getVerificationUser() ? $item->getVerificationUser()->getName() : ''))
+                        ->setCellValue('J'.$i, ($item->getVerificationDate() ? $item->getVerificationDate()->format('Y-m-d H:i:s') : ''))
+                        ->setCellValue('K'.$i, substr($item->getUseInformation(), 0, 45))
+                        ->setCellValue('L'.$i, ($item->getDirtyMaterialUser() ? $item->getDirtyMaterialUser()->getName() : ''))
+                        ->setCellValue('M'.$i, ($item->getDirtyMaterialDate() ? $item->getDirtyMaterialDate()->format('Y-m-d H:i:s') : ''))
+                        ->setCellValue('N'.$i, ($item->getReviewUser() ? $item->getReviewUser()->getName() : ''))
+                        ->setCellValue('O'.$i, ($item->getReviewDate() ? $item->getReviewDate()->format('Y-m-d H:i:s') : ''))
+                        ->setCellValue('P'.$i, substr($item->getReviewInformation(), 0, 45))
+                        ->setCellValue('Q'.$i, ($item->getCancelUser() ? $item->getCancelUser()->getName() : ''))
+                        ->setCellValue('R'.$i, ($item->getCancelDate() ? $item->getCancelDate()->format('Y-m-d H:i:s') : ''))
+                        ->setCellValue('S'.$i, substr($item->getCancelInformation(), 0, 45));
                 }
 
                 if($request->get("export_pdf")){
-                    $html.='<tr style="font-size:8px"><td>'.$item->getLotNumber().'</td><td>'.$item->getMaterial()->getName().$other_material.'</td><td>'.$status.'</td><td>'.$item->getCode().'</td><td>'.$item->getCleanUser()->getName().'</td><td>'.($item->getCleanDate() ? $item->getCleanDate()->format('Y-m-d H:i:s') : '').'</td><td>'.($item->getCleanExpiredDate() ? $item->getCleanExpiredDate()->format('Y-m-d H:i:s') : '').'</td><td>'. ($item->getVerificationUser() ? $item->getVerificationUser()->getName() : '').'</td><td>'.($item->getVerificationDate() ? $item->getVerificationDate()->format('Y-m-d H:i:s') : '').'</td><td>'.substr($item->getUseInformation(), 0, 45).'</td><td>'.($item->getDirtyMaterialUser() ? $item->getDirtyMaterialUser()->getName() : '').'</td><td>'.($item->getDirtyMaterialDate() ? $item->getDirtyMaterialDate()->format('Y-m-d H:i:s') : '').'</td><td>'.($item->getReviewUser() ? $item->getReviewUser()->getName() : '').'</td><td>'.($item->getReviewDate() ? $item->getReviewDate()->format('Y-m-d H:i:s') : '').'</td><td>'.substr($item->getReviewInformation(), 0, 45).'</td></tr>';
+                    $html.='<tr style="font-size:8px"><td>'.$item->getId().'</td><td>'.$item->getLotNumber().'</td><td>'.$item->getMaterial()->getName().$other_material.'</td><td>'.$status.'</td><td>'.$item->getCode().'</td><td>'.$item->getCleanUser()->getName().'</td><td>'.($item->getCleanDate() ? $item->getCleanDate()->format('Y-m-d H:i:s') : '').'</td><td>'.($item->getCleanExpiredDate() ? $item->getCleanExpiredDate()->format('Y-m-d H:i:s') : '').'</td><td>'. ($item->getVerificationUser() ? $item->getVerificationUser()->getName() : '').'</td><td>'.($item->getVerificationDate() ? $item->getVerificationDate()->format('Y-m-d H:i:s') : '').'</td><td>'.substr($item->getUseInformation(), 0, 45).'</td><td>'.($item->getDirtyMaterialUser() ? $item->getDirtyMaterialUser()->getName() : '').'</td><td>'.($item->getDirtyMaterialDate() ? $item->getDirtyMaterialDate()->format('Y-m-d H:i:s') : '').'</td><td>'.($item->getReviewUser() ? $item->getReviewUser()->getName() : '').'</td><td>'.($item->getReviewDate() ? $item->getReviewDate()->format('Y-m-d H:i:s') : '').'</td><td>'.substr($item->getReviewInformation(), 0, 45).'</td><td>'.($item->getCancelUser() ? $item->getCancelUser()->getName() : '').'</td><td>'.($item->getCancelDate() ? $item->getCancelDate()->format('Y-m-d H:i:s') : '').'</td><td>'.substr($item->getCancelInformation(), 0, 45).'</td></tr>';
                 }
 
                 $i++;
@@ -271,6 +291,9 @@ class MaterialCleanTracesController extends Controller
         if($request->get("state")){
             $filters["state"]=$request->get("state");
         }
+        if($request->get("identifier")){
+            $filters["identifier"]=$request->get("identifier");
+        }
         return $filters;
     }
 
@@ -335,15 +358,16 @@ class MaterialCleanTracesController extends Controller
                 'type' => ($totalNeed != $materialUsed) ? 'danger' : 'success',
                 'message' => 'Se necesitaba'.$nNeed.' '.$totalNeed.' material'.$esNeed.', se ha'.$nUsed.' utilizado '.$materialUsed.' material'.$esUsed.' no vencido'.$sUsed
             ];
-        }elseif ($materialUsed){
-            $es = ($materialUsed == 1) ? '' : 'es';
-            $n = ($materialUsed == 1) ? '' : 'n';
-            $sUsed = ($materialUsed == 1) ? '' : 's';
-            $message[] = [
-                'type' => 'success',
-                'message' => 'Se ha'.$n.' usado '.$materialUsed.' material'.$es.' no vencido'.$sUsed
-            ];
         }
+//        elseif ($materialUsed){
+//            $es = ($materialUsed == 1) ? '' : 'es';
+//            $n = ($materialUsed == 1) ? '' : 'n';
+//            $sUsed = ($materialUsed == 1) ? '' : 's';
+//            $message[] = [
+//                'type' => 'success',
+//                'message' => 'Se ha'.$n.' usado '.$materialUsed.' material'.$es.' no vencido'.$sUsed
+//            ];
+//        }
         return $message;
     }
 
@@ -411,11 +435,14 @@ class MaterialCleanTracesController extends Controller
             try{
                 /** @var MaterialCleanCleans $trace */
                 foreach($traces as $trace){
+                    $department = $trace->getCenter()->getDepartment() ? $trace->getCenter()->getDepartment()->getName() : '';
                     $html = '
                         <p>Material limpieza caducada</p>
                         <ul>
+                            <li>Id trazabilidad:'.$trace->getId().'</li>
                             <li>Material:'.$trace->getMaterial()->getName().'</li>
                             <li>Código:'.$trace->getCode().'</li>
+                            <li>Departamento: '.$department.'</li>
                             <li>Centro:'.$trace->getCenter()->getName().'</li>
                             <li>Usuario:'.$this->getUser()->getUsername().'</li>
                             <li>Fecha: '.$now->format('d-m-Y H:i:s').'</li>
@@ -473,32 +500,110 @@ class MaterialCleanTracesController extends Controller
             try{
                 /** @var MaterialCleanCleans $trace */
                 foreach($traces as $trace){
-                    $html = '
+                    if($trace->getStatus() != 4){
+                        $department = $trace->getCenter()->getDepartment() ? $trace->getCenter()->getDepartment()->getName() : '';
+                        $html = '
                         <p>Revisión de material</p>
                         <ul>
+                            <li>Id trazabilidad:'.$trace->getId().'</li>
                             <li>Material:'.$trace->getMaterial()->getName().'</li>
                             <li>Código:'.$trace->getCode().'</li>
+                            <li>Departamento: '.$department.'</li>
                             <li>Centro:'.$trace->getCenter()->getName().'</li>
                             <li>Usuario:'.$this->getUser()->getUsername().'</li>
                             <li>Fecha: '.$now->format('d-m-Y H:i:s').'</li>
                         </ul>';
 
-                    $file = Utils::generatePdf($this->container, 'GSK - Material limpio', 'Revisión de material', $html, 'material', $this->getParameter('crt.root_dir'));
-                    Utils::setCertification($this->container, $file, 'material revision', $trace->getId());
+                        $file = Utils::generatePdf($this->container, 'GSK - Material limpio', 'Revisión de material', $html, 'material', $this->getParameter('crt.root_dir'));
+                        Utils::setCertification($this->container, $file, 'material revision', $trace->getId());
 
-                    $trace->setStatus(4)
-                        ->setReviewUser($this->getUser())
-                        ->setReviewDate(new DateTime())
-                        ->setReviewSignature($firma)
-                        ->setReviewInformation($request->get('comment-box'));
+                        $trace->setStatus(4)
+                            ->setReviewUser($this->getUser())
+                            ->setReviewDate(new DateTime())
+                            ->setReviewSignature($firma)
+                            ->setReviewInformation($request->get('comment-box'));
 
-                    $em->persist($trace);
-                    $em->flush();
+                        $em->persist($trace);
+                        $em->flush();
+                    }
                 }
                 $this->get('session')->getFlashBag()->add('message',"El material se ha marcado correctamente");
             }
             catch(\Exception $e){
                 $this->get('session')->getFlashBag()->add('error', "Error al intentar marcar el material como Revisado");
+            }
+        }
+        return $this->redirect($this->generateUrl('nononsense_mclean_traces_list'));
+    }
+
+    public function markCancelAction(Request $request, $id)
+    {
+        $is_valid = $this->get('app.security')->permissionSeccion('mc_traces_list');
+        if(!$is_valid){
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+        }
+
+        $error = false;
+
+        $em = $this->getDoctrine()->getManager();
+        /** @var MaterialCleanCleansRepository $trace */
+        $cleansRepository = $em->getRepository(MaterialCleanCleans::class);
+        $trace = $cleansRepository->find($id);
+
+        if (!$trace) {
+            $this->get('session')->getFlashBag()->add('error', "No se ha encontrado la limpieza.");
+            $error = true;
+        }
+
+        $password = $request->get('password');
+        if(!$this->get('utilities')->checkUser($password)){
+            $this->get('session')->getFlashBag()->add('error', "La contraseña no es correcta.");
+            $error = true;
+        }
+        $userId = $this->getUser()->getId();
+
+        if($trace->getStatus() !== 1 || $userId === $trace->getCleanUser()->getId()){
+            $this->get('session')->getFlashBag()->add('error', "No puedes cancelar esa limpieza");
+            $error = true;
+        }
+
+        if(!$request->get('comment-box') || trim($request->get('comment-box')) == ''){
+            $this->get('session')->getFlashBag()->add('error', "Para cancelar la limpieza es obligatorio escribir un comentario");
+            $error = true;
+        }
+
+        if(!$error){
+            $now = new DateTime();
+            $firma = 'Cancelación de limpieza registrada con contraseña de usuario el día ' . $now->format('d-m-Y H:i:s');
+            try{
+                $department = $trace->getCenter()->getDepartment() ? $trace->getCenter()->getDepartment()->getName() : '';
+                $html = '
+                <p>Cancelación de limpieza de material</p>
+                <ul>
+                    <li>Id trazabilidad:'.$trace->getId().'</li>
+                    <li>Material:'.$trace->getMaterial()->getName().'</li>
+                    <li>Código:'.$trace->getCode().'</li>
+                    <li>Departamento: '.$department.'</li>
+                    <li>Centro:'.$trace->getCenter()->getName().'</li>
+                    <li>Usuario:'.$this->getUser()->getUsername().'</li>
+                    <li>Fecha: '.$now->format('d-m-Y H:i:s').'</li>
+                </ul>';
+
+                $file = Utils::generatePdf($this->container, 'GSK - Material limpio', 'Cancelación de limpieza', $html, 'material', $this->getParameter('crt.root_dir'));
+                Utils::setCertification($this->container, $file, 'material-cancelacion', $trace->getId());
+
+                $trace->setStatus(5)
+                    ->setCancelUser($this->getUser())
+                    ->setCancelDate(new DateTime())
+                    ->setCancelSignature($firma)
+                    ->setCancelInformation($request->get('comment-box'));
+
+                $em->persist($trace);
+                $em->flush();
+                $this->get('session')->getFlashBag()->add('message',"La limpieza se ha cancelado correctamente");
+            }
+            catch(\Exception $e){
+                $this->get('session')->getFlashBag()->add('error', "Error al intentar cancelar la limpieza");
             }
         }
         return $this->redirect($this->generateUrl('nononsense_mclean_traces_list'));
@@ -521,7 +626,12 @@ class MaterialCleanTracesController extends Controller
             return $this->redirect($this->generateUrl('nononsense_mclean_traces_list'));
         }
 
+        $userId = $this->getUser()->getId();
+
+        $canCancel = $trace->getStatus() === 1 && $userId !== $trace->getCleanUser()->getId();
+
         $result = [
+            'canCancel' => $canCancel,
             'trace' => $trace,
             'status' => MaterialCleanCleansRepository::status
         ];

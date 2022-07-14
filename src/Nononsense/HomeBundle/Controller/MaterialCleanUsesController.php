@@ -56,6 +56,11 @@ class MaterialCleanUsesController extends Controller
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
 
+        if(preg_match('/^\d{8,}$/', $po) !== 1){
+            $this->get('session')->getFlashBag()->add('error', "El código del PO tiene que ser numérico y de mínimo 8 caracteres");
+            return $this->redirect($this->generateUrl('nononsense_mclean_uses_scan'));
+        }
+
         $em = $this->getDoctrine()->getManager();
         $materialCleanCode = null;
 
@@ -104,6 +109,10 @@ class MaterialCleanUsesController extends Controller
 
         try {
             $po = $request->get('lot-code');
+            if(preg_match('/^\d{8,}$/', $po) !== 1){
+                $this->get('session')->getFlashBag()->add('error', "El código del PO tiene que ser numérico y de mínimo 8 caracteres");
+                return $this->redirect($this->generateUrl('nononsense_mclean_uses_scan'));
+            }
             $password = $request->get('password');
             if(!$this->get('utilities')->checkUser($password)){
                 $this->get('session')->getFlashBag()->add('error', "La contraseña no es correcta.");
@@ -133,14 +142,17 @@ class MaterialCleanUsesController extends Controller
             if (!$error) {
                 $now = new DateTime();
                 $firma = 'Utilización de material registrada con contraseña de usuario el día ' . $now->format('d-m-Y H:i:s');
-
+                $department = $materialCleanClean->getCenter()->getDepartment() ? $materialCleanClean->getCenter()->getDepartment()->getName() : '';
                 $html = '
                     <p>Utilización del material</p>
                     <ul>
+                        <li>Id trazabilidad:'.$materialCleanClean->getId().'</li>
                         <li>Material:'.$materialCleanClean->getMaterial()->getName().'</li>
                         <li>Código:'.$materialCleanClean->getCode().'</li>
+                        <li>Departamento: '.$department.'</li>
                         <li>Centro:'.$materialCleanClean->getCenter()->getName().'</li>
                         <li>Usuario:'.$this->getUser()->getUsername().'</li>
+                        <li>Fecha: '.$now->format('d-m-Y H:i:s').'</li>
                     </ul>';
 
                     $file = Utils::generatePdf($this->container, 'GSK - Material limpio', 'Utilización del material', $html, 'material', $this->getParameter('crt.root_dir'));

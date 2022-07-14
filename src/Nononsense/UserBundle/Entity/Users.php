@@ -315,6 +315,11 @@ class Users implements AdvancedUserInterface, \Serializable
     protected $materialReview;
 
     /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\MaterialCleanCleans", mappedBy="cancelUser")
+     */
+    protected $materialCancel;
+
+    /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\ProductsInputs", mappedBy="user")
      */
     protected $productsInput;

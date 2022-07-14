@@ -4,6 +4,7 @@ namespace Nononsense\HomeBundle\Controller;
 
 use Exception;
 use Nononsense\HomeBundle\Entity\MaterialCleanCenters;
+use Nononsense\HomeBundle\Entity\MaterialCleanDepartments;
 use Nononsense\UtilsBundle\Classes\Utils;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -30,6 +31,7 @@ class MaterialCleanCentersController extends Controller
             $filters["name"] = $request->get("name");
         }
 
+        $array_item["canCreate"] = $this->get('app.security')->permissionSeccion('mc_centers_new');
         $array_item["filters"] = $filters;
         $array_item["items"] = $this->getDoctrine()->getRepository(MaterialCleanCenters::class)->list($filters);
         $array_item["count"] = $this->getDoctrine()->getRepository(MaterialCleanCenters::class)->count($filters);
@@ -54,8 +56,19 @@ class MaterialCleanCentersController extends Controller
         $center = $em->getRepository(MaterialCleanCenters::class)->find($id);
 
         if (!$center) {
+            $is_valid = $this->get('app.security')->permissionSeccion('mc_centers_new');
+            if (!$is_valid) {
+                return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+            }
             $center = new MaterialCleanCenters();
+        }else{
+            $is_valid = $this->get('app.security')->permissionSeccion('mc_centers_edit');
+            if (!$is_valid) {
+                return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+            }
         }
+
+        $departments = $em->getRepository(MaterialCleanDepartments::class)->findBy(['active' => true]);
 
         if ($request->getMethod() == 'POST') {
             try {
@@ -70,6 +83,19 @@ class MaterialCleanCentersController extends Controller
                     ['name' => $request->get("name")]
                 );
                 if ($centerName && $centerName->getId() != $center->getId()) {
+                    $this->get('session')->getFlashBag()->add('error', "Ese centro ya está registrado.");
+                    $error = 1;
+                }
+                if(!$center->getDepartment()) {
+                    $department = $em->getRepository(MaterialCleanDepartments::class)->find($request->get("department"));
+                    if(!$department){
+                        $this->get('session')->getFlashBag()->add('error', "El departamento no es correcto.");
+                        $error = 1;
+                    }else{
+                        $center->setDepartment($department);
+                    }
+                }
+                if ($request->get("depar") && $centerName->getId() != $center->getId()) {
                     $this->get('session')->getFlashBag()->add('error', "Ese centro ya está registrado.");
                     $error = 1;
                 }
@@ -90,6 +116,7 @@ class MaterialCleanCentersController extends Controller
 
         $array_item = array();
         $array_item['center'] = $center;
+        $array_item['departments'] = $departments;
 
         return $this->render('NononsenseHomeBundle:MaterialClean:center_edit.html.twig', $array_item);
     }
