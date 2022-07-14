@@ -98,19 +98,24 @@
             ActivateMenu('admin_uses');
             $('#side-menu').metisMenu();
 
+            const reg = new RegExp('^([0-9]{8,})$');
+
             $(document).on('click', '.btn-use', function (e) {
                 e.preventDefault();
                 const poContainer = $('input[name="po"]');
                 poContainer.val('');
                 const code = $('.code-input.active').val();
                 if(code !== undefined && code !== ''){
-                    poContainer.val(code);
-                    $('#form_item').submit();
+                    if(reg.test(code)){
+                        poContainer.val(code);
+                        $('#form_item').submit();
+                    }else{
+                        toastr.error("El código tiene que ser numérico y de mínimo 8 caracteres", 'aviso');
+                    }
                 }else{
                     toastr.error("El código no se ha leído correctamente", 'aviso');
                 }
             });
-
         });
 
         window.addEventListener('load', function () {

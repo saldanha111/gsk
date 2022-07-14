@@ -69,9 +69,11 @@
                 </div>
                 <div class="row">
                     <div class="col-xs-12">
+                        {% if canCreate %}
                         <div>
                             <a href="{{ path('nononsense_mclean_materials_edit',{'id': '0'}) }}" target="_self" class="btn btn-primary pull-right"><i class="fa fa-plus"></i> Nuevo Material</a>
                         </div>
+                        {% endif %}
                         <br/>
                         <table id="inProcessParcial" class="table table-striped">
                             <thead>
