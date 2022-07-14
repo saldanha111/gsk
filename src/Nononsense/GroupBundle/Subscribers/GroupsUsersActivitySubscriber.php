@@ -66,7 +66,6 @@ class GroupsUsersActivitySubscriber implements EventSubscriber
             /** @var LogsTypes $logType */
             $logType = $args->getEntityManager()->getRepository(LogsTypes::class)->findOneBy(['id' => 2]); //Adding or removing user into a group
             /** @var Users $userLogged */
-//            $userLogged = $this->container->get('security.context')->getToken()->getUser();
             $userLogged = $this->context->getToken()->getUser();
             $description = '';
             $affectedUser = $entity->getUser()->getName();
@@ -76,19 +75,14 @@ class GroupsUsersActivitySubscriber implements EventSubscriber
             switch($action) {
                 case self::PERSIST:
                     $description = "Usuario añadido: " . $affectedUser . " al grupo: " . $groupName ."(" . $groupId . ")  IP:" . $ip;
-//
                     break;
                 case self::REMOVE:
                     $description = "Usuario eliminado: " . $affectedUser . " del grupo: " . $groupName ."(" . $groupId . ") IP:" . $ip;
-//                    $description = $this->translator->trans('The group named: "') . $entity->getName() . $this->translator->trans('" has been edited.');
                     break;
                 default:
                     break;
             }
 
-//            $description = $this->get('translator')->trans('The group named: "') . $group->getName() . $this->get('translator')->trans('" has been edited.');
-
-//            $this->log($logType, $userLogged, $description);
             $log = new Logs();
             $log->setType($logType);
             $log->setDate(new \DateTime());
