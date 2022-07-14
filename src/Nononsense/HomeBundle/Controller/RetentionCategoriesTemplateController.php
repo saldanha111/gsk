@@ -46,7 +46,6 @@ class RetentionCategoriesTemplateController extends Controller
         $tmTemplatesRepository = $em->getRepository(TMTemplates::class);
 
         $items = $tmTemplatesRepository->listTemplatesByRetention($filters);
-
         if (isset($filters["f_destruction_option"]) && ("only_destroyed" === $filters["f_destruction_option"])) {
             $this->getPhysicalDestroyedTemplates($items);
         }
@@ -136,8 +135,8 @@ class RetentionCategoriesTemplateController extends Controller
         try {
             $this->updateBindingTemplateRetentionCategories($templateId, $boundedCategories);
         } catch(Exception $exception) {
-//            return $this->returnToHomePage($exception->"No se pudieron actualizar las categorías de retención asociadas a la plantilla");
-            return $this->returnToHomePage($exception->getMessage());
+            return $this->returnToHomePage("No se pudieron actualizar las categorías de retención asociadas a la plantilla");
+//            return $this->returnToHomePage($exception->getMessage());
         }
 //        $is_valid = $this->get('app.security')->permissionSeccion('admin_gp');
 //        if(!$is_valid){

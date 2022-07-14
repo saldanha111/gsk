@@ -251,7 +251,7 @@ class TMTemplatesRepository extends EntityRepository
                     }
                 }
     
-                $query = $em->createNativeQuery("SELECT t.logbook,t.uniqid,t.id,t.name,a.name nameArea,t.number,t.num_edition numEdition,s.id status,t.inactive,s.name stateName,t.created,t.reference,ua.name applicantName,uo.name ownerName,ub.name backupName,t.effectiveDate,t.reviewDateRetention,t.history_change historyChange,uo.id ownerId,ub.id backupId,t.date_review dateReview,t.need_new_edition needNewEdition,t.not_fillable_itself notFillableItSelf,q.id qr".$case.$fields_extra.$sintax." ".$orderby.$limit,$rsm);
+                $query = $em->createNativeQuery("SELECT t.logbook,t.uniqid,t.id,t.name,a.name nameArea,t.number,t.num_edition numEdition,s.id status,t.inactive,s.name stateName,t.created,t.reference,ua.name applicantName,uo.name ownerName,ub.name backupName,t.effectiveDate,t.review_date_retention,t.history_change historyChange,uo.id ownerId,ub.id backupId,t.date_review dateReview,t.need_new_edition needNewEdition,t.not_fillable_itself notFillableItSelf,q.id qr".$case.$fields_extra.$sintax." ".$orderby.$limit,$rsm);
 
 
 
@@ -538,34 +538,42 @@ class TMTemplatesRepository extends EntityRepository
     /**
      * @param array $filters
      * @param int $paginate
-     * @return array|float|int|string
+     * @return array|int|string
+     * @throws Exception
      */
     public function listTemplatesByRetention(array $filters, int $paginate = 1)
     {
+//        return $this->paraBorrar($paginate);
 
-        $query = $this->createQueryBuilder('t')
-            ->select('t', 'a', 's')
-            ->leftJoin("t.retentions", "r")
+        $list = $this->createQueryBuilder('t')
+            ->select('t', 'r', 'a', 's')
             ->leftJoin("t.area", "a")
             ->leftJoin("t.tmState", "s")
+            ->leftJoin("t.retentions", "r")
             ->orderBy("t.destructionDate", "desc")
         ;
 
-        $query = self::fillFilersQuery($filters, $query);
+        $list = self::fillFilersQuery($filters, $list);
 
-        if ($paginate == 1 && isset($filters["limit_from"])){
-            $query->setFirstResult($filters["limit_from"]*$filters["limit_many"]);
-            $query->setMaxResults($filters["limit_many"]);
+        if (1 === $paginate && isset($filters["limit_from"])){
+            $to = (int)$filters["limit_many"];
+            $from = (int)$filters["limit_from"]*$to;
+            $list->setFirstResult($from)->setMaxResults($to);
         }
 
-        return $query->getQuery()->getArrayResult();
+        $paginator = new Paginator($list, true);
+        $totalRecords = $paginator->count();
+
+        Utils::debug($paginator);
+
+        return $paginator->getQuery()->getArrayResult();
     }
 
     /**
      * @param array $filters
      * @return mixed
      */
-    public function count($filters = [])
+    public function count(array $filters = [])
     {
         $list = $this->createQueryBuilder('t')
             ->select('COUNT(t.id) as conta')
@@ -695,5 +703,34 @@ class TMTemplatesRepository extends EntityRepository
         $query->setParameter(":dateAfterDestructionDate", $dateAfterDestructionDate);
 
         return $query->getQuery()->getArrayResult();
+    }
+
+    private function paraBorrar(int $paginate) {
+
+        $list = $this->createQueryBuilder('t')
+            ->select('t', 'r', 'a', 's')
+            ->leftJoin("t.area", "a")
+            ->leftJoin("t.tmState", "s")
+            ->leftJoin("t.retentions", "r")
+            ->orderBy("t.destructionDate", "desc")
+        ;
+
+        $dql = "SELECT t, r, a, s 
+                FROM Nononsense\HomeBundle\Entity\TMTemplates t 
+                JOIN t.area a
+                JOIN t.tmState s
+                JOIN t.retentions r"
+        ;
+        $query = $this->getEntityManager()->createQuery($dql)
+            ->setFirstResult(0)
+            ->setMaxResults(15);
+        $paginator = new Paginator($query, $fetchJoinCollection = true);
+        $c = count($paginator);
+        $i = 0;
+        foreach ($paginator as $post) {
+            $i++;
+//            Utils::debug($post->getName());
+        }
+        Utils::debug($i);
     }
 }

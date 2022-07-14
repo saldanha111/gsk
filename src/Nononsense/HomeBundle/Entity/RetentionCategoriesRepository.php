@@ -22,7 +22,7 @@ class RetentionCategoriesRepository extends EntityRepository
      * @param int $paginate
      * @return array|int|string
      */
-    public function list(array $filters, $paginate = 1)
+    public function list(array $filters, int $paginate = 1)
     {
         $list = $this->createQueryBuilder('rc')
             ->select('rc')

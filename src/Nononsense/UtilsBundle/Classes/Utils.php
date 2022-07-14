@@ -503,7 +503,7 @@ class Utils
      * Makes a remote call via CURL
      * 
      * @param string $url remote addrees to connect
-     * @return string
+     * @return array
      * @access public
      */
     static public function plainCurlRequest ($url) {
@@ -886,8 +886,7 @@ class Utils
     }
 
     public static function debug($something) {
-        var_dump($something); die();
+        dump($something); die();
     }
-
 
 }
