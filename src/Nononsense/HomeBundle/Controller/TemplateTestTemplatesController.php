@@ -229,9 +229,9 @@ class TemplateTestTemplatesController extends Controller
     {
 
         if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-            $path = "../";
+            $path = "../../app/data/";
         } else {
-            $path = "/";
+            $path = "/../app/data/";
         }
 
       	$json=file_get_contents($this->getParameter("cm_installation_aux") . $path . "bundles/nononsensehome/json-data-test.json");
