@@ -116,4 +116,19 @@ services:
         class: Nononsense\UserBundle\Security\Events\ExceptionListenerExit
         arguments: ['@doctrine.orm.entity_manager', '@request_stack']
 
+    doctrine.groupuser_subscriber:
+        class: Nononsense\GroupBundle\Subscribers\GroupsUsersActivitySubscriber
+        arguments: ['@security.context', '@request_stack']
+        tags:
+            - { name: doctrine.event_subscriber, connection: default }
 
+    doctrine.group_subscriber:
+            class: Nononsense\GroupBundle\Subscribers\GroupActivitySubscriber
+            arguments: [ '@security.context', '@translator', '@request_stack' ]
+            tags:
+                - { name: doctrine.event_subscriber, connection: default }
+    doctrine.user_subscriber:
+            class: Nononsense\UserBundle\Subscribers\UserActivitySubscriber
+            arguments: [ '@security.context', '@request_stack' ]
+            tags:
+                - { name: doctrine.event_subscriber, connection: default }

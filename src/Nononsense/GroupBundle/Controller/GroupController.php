@@ -2,6 +2,8 @@
 
 namespace Nononsense\GroupBundle\Controller;
 
+use Nononsense\HomeBundle\Entity\Logs;
+use Nononsense\HomeBundle\Entity\LogsTypes;
 use Nononsense\UserBundle\Entity\Users;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Nononsense\GroupBundle\Entity\Groups;
@@ -331,6 +333,7 @@ class GroupController extends Controller
                 $new->setUser($user);
                 $new->setType($type);
                 $em->persist($new);
+
             }
         }
         $em->flush();
@@ -344,7 +347,7 @@ class GroupController extends Controller
         return $this->redirect($this->generateUrl('nononsense_group_show', array('id' => $groupId)));
     }
     
-    public function removeuserAction($id, $type = 'member', $userid)
+    public function removeuserAction(Request $request, $id, $type = 'member', $userid)
     {
         
         $groupAdmin = $this->isGroupAdmin($id);

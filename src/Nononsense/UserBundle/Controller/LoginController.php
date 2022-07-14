@@ -260,8 +260,6 @@ class LoginController extends Controller
                 ]));
             }
 
-            die();
-
             //$response = new JsonResponse($message);
 
             //return $response;
