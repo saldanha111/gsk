@@ -242,7 +242,7 @@ class TMTemplatesRepository extends EntityRepository
                     }
                 }
     
-                $query = $em->createNativeQuery("SELECT t.logbook,t.uniqid,t.id,t.name,a.name nameArea,t.number,t.num_edition numEdition,s.id status,t.inactive,s.name stateName,t.created,t.reference,ua.name applicantName,uo.name ownerName,ub.name backupName,t.effectiveDate,t.review_date_retention,t.history_change historyChange,uo.id ownerId,ub.id backupId,t.date_review dateReview,t.need_new_edition needNewEdition,t.not_fillable_itself notFillableItSelf,q.id qr".$case.$fields_extra.$sintax." ".$orderby.$limit,$rsm);
+                $query = $em->createNativeQuery("SELECT t.logbook,t.uniqid,t.id,t.name,a.name nameArea,t.number,t.num_edition numEdition,s.id status,t.inactive,s.name stateName,t.created,t.reference,ua.name applicantName,uo.name ownerName,ub.name backupName,t.effectiveDate,t.reviewDate,t.history_change historyChange,uo.id ownerId,ub.id backupId,t.date_review dateReview,t.need_new_edition needNewEdition,t.not_fillable_itself notFillableItSelf,q.id qr".$case.$fields_extra.$sintax." ".$orderby.$limit,$rsm);
 
 
 
