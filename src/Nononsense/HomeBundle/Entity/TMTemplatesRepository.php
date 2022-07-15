@@ -543,10 +543,8 @@ class TMTemplatesRepository extends EntityRepository
      */
     public function listTemplatesByRetention(array $filters, int $paginate = 1)
     {
-//        return $this->paraBorrar($paginate);
-
         $list = $this->createQueryBuilder('t')
-            ->select('t', 'r', 'a', 's')
+            ->select('r', 'a', 't', 's')
             ->leftJoin("t.area", "a")
             ->leftJoin("t.tmState", "s")
             ->leftJoin("t.retentions", "r")
@@ -563,8 +561,6 @@ class TMTemplatesRepository extends EntityRepository
 
         $paginator = new Paginator($list, true);
         $totalRecords = $paginator->count();
-
-        Utils::debug($paginator);
 
         return $paginator->getQuery()->getArrayResult();
     }
@@ -602,7 +598,7 @@ class TMTemplatesRepository extends EntityRepository
      */
     private function fillFilersQuery(array $filters, QueryBuilder $list)
     {
-        if(!empty($filters)){
+        if(!empty($filters)) {
 
             if (isset($filters["area"])) {
                 $list->andWhere(" a.id=:area");
@@ -705,32 +701,32 @@ class TMTemplatesRepository extends EntityRepository
         return $query->getQuery()->getArrayResult();
     }
 
-    private function paraBorrar(int $paginate) {
-
-        $list = $this->createQueryBuilder('t')
-            ->select('t', 'r', 'a', 's')
-            ->leftJoin("t.area", "a")
-            ->leftJoin("t.tmState", "s")
-            ->leftJoin("t.retentions", "r")
-            ->orderBy("t.destructionDate", "desc")
-        ;
-
-        $dql = "SELECT t, r, a, s 
-                FROM Nononsense\HomeBundle\Entity\TMTemplates t 
-                JOIN t.area a
-                JOIN t.tmState s
-                JOIN t.retentions r"
-        ;
-        $query = $this->getEntityManager()->createQuery($dql)
-            ->setFirstResult(0)
-            ->setMaxResults(15);
-        $paginator = new Paginator($query, $fetchJoinCollection = true);
-        $c = count($paginator);
-        $i = 0;
-        foreach ($paginator as $post) {
-            $i++;
-//            Utils::debug($post->getName());
-        }
-        Utils::debug($i);
-    }
+//    private function paraBorrar(int $paginate) {
+//
+//        $list = $this->createQueryBuilder('t')
+//            ->select('t', 'r', 'a', 's')
+//            ->leftJoin("t.area", "a")
+//            ->leftJoin("t.tmState", "s")
+//            ->leftJoin("t.retentions", "r")
+//            ->orderBy("t.destructionDate", "desc")
+//        ;
+//
+//        $dql = "SELECT t, r, a, s
+//                FROM Nononsense\HomeBundle\Entity\TMTemplates t
+//                JOIN t.area a
+//                JOIN t.tmState s
+//                JOIN t.retentions r"
+//        ;
+//        $query = $this->getEntityManager()->createQuery($dql)
+//            ->setFirstResult(0)
+//            ->setMaxResults(15);
+//        $paginator = new Paginator($query, $fetchJoinCollection = true);
+//        $c = count($paginator);
+//        $i = 0;
+//        foreach ($paginator as $post) {
+//            $i++;
+////            Utils::debug($post->getName());
+//        }
+//        Utils::debug($i);
+//    }
 }

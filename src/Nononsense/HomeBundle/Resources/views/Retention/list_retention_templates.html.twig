@@ -147,7 +147,7 @@
                                             <i class="fa fa-trash-o" aria-hidden="true"></i>
                                             <span>Destruir seleccionados</span>
                                         </button>
-                                        <button type="button" class="btn btn-primary ml-3" id="revisarSeleccionados" disabled>
+                                        <button type="button" class="btn btn-primary ml-3" id="revisarSeleccionados">
                                             <i class="fa fa-eye" aria-hidden="true"></i>
                                             <span>Revisar seleccionados</span>
                                         </button>
@@ -180,6 +180,7 @@
                                         <th>Acciones</th>
                                     </tr>
                                     </thead>
+                                    <tbody>
                                     {% for item in data.items %}
                                         <tr id="{{ item.id }}">
                                             {% if _isAnnualReviewFiltered %}
@@ -224,6 +225,7 @@
                                             </td>
                                         </tr>
                                     {% endfor %}
+                                    </tbody>
                                 </table>
                             </div>
 {#                          /Listado#}
@@ -231,15 +233,15 @@
                                 {% if _isAnnualReviewFiltered %}
                                     <div class="row pull-right">
                                         <div class="col-md-12 col-sm-5 form-group">
-                                            <button type="button" class="btn btn-danger ml-3" id="destroySelected" disabled>
+                                            <button type="button" class="btn btn-danger ml-3" id="destroySelected2" disabled>
                                                 <i class="fa fa-trash-o" aria-hidden="true"></i>
                                                 <span>Destruir seleccionados</span>
                                             </button>
-                                            <button type="button" class="btn btn-primary ml-3" id="revisarSeleccionados" disabled>
+                                            <button type="button" class="btn btn-primary ml-3" id="revisarSeleccionados2" disabled>
                                                 <i class="fa fa-eye" aria-hidden="true"></i>
                                                 <span>Revisar seleccionados</span>
                                             </button>
-                                            <button type="button" class="btn btn-success ml-3" id="finalizarRevisionAnual">
+                                            <button type="button" class="btn btn-success ml-3" id="finalizarRevisionAnual2">
                                                 <i class="fa fa-eye" aria-hidden="true"></i>
                                                 <span>Finalizar revisión anual</span>
                                             </button>
@@ -260,41 +262,6 @@
                         </div>
                     {% endif %}
                 </div>
-            </div>
-        </div>
-    </div>
-    <div class="modal fade" tabindex="-1" role="dialog" id="modalSignReview">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Firmar solicitud para finalizar la revisión anual</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <form id="formSignAnnualReview" action="{{ path('nononsense_retention_categories_template_annual_review') }}">
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-lg-10 col-lg-offset-1">
-                                <b>Comentarios</b><br>
-                                <div class="form-group mt-3">
-                                    <textarea class="form-control" name="description" rows="10" cols="40" style="width:100%" required="required"></textarea>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-lg-10 col-lg-offset-1">
-                                <div id="signature-pad" class="input-group">
-                                    <label id="formAnnualReviewPassword">Introduzca su firma</label><br>
-                                    <input type="password" name="password" class="form-control" required="required"><br>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <input type="submit" class="btn btn-primary" id="formAnnualReview" value="Firmar revisión">
-                    </div>
-                </form>
             </div>
         </div>
     </div>
@@ -388,6 +355,58 @@
                             });
                         }
                     });
+                }
+            });
+
+            $("#revisarSeleccionados, #revisarSeleccionados2").on("click", function() {
+                if (selectedRows.size > 0) {
+                    console.log("hola");
+                    const selectedRowsCSV =[...selectedRows].join(",");
+                    {#$.ajax({#}
+                    {#    url: "{{ path('nononsense_retention_categories_template_review') }}",#}
+                    {#    type: 'GET',#}
+                    {#    async: false,#}
+                    {#    data: {ids: selectedRowsCSV},#}
+                    {#    success: function(response) {#}
+
+                    {#    }#}
+                    {#});#}
+                    window.location = "{{ path('nononsense_retention_categories_template_review') }}" + "?ids=" + selectedRowsCSV;
+                    {#$.ajax({#}
+                    {#    url: "{{ path('nononsense_retention_categories_template_destroy') }}",#}
+                    {#    type: 'POST',#}
+                    {#    dataType: 'json',#}
+                    {#    async: false,#}
+                    {#    data: {ids: selectedRowsCSV},#}
+                    {#    success: function(response) {#}
+                    {#        let title; let icon;#}
+                    {#        if (response.result) {#}
+                    {#            title = "Éxito";#}
+                    {#            icon = "success";#}
+                    {#        } else {#}
+                    {#            title = "Error";#}
+                    {#            icon = "error";#}
+                    {#        }#}
+                    {#        swal({#}
+                    {#            title,#}
+                    {#            text: response.message,#}
+                    {#            icon,#}
+                    {#            confirmButtonColor: '#62bbe2',#}
+                    {#            confirmButtonText: "Ok",#}
+                    {#            closeOnConfirm: true#}
+                    {#        });#}
+                    {#    },#}
+                    {#    error: function() {#}
+                    {#        swal({#}
+                    {#            title: "Error",#}
+                    {#            text: "Algunas plantillas no se marcaron para su destrucción",#}
+                    {#            icon: 'error',#}
+                    {#            confirmButtonColor: '#62bbe2',#}
+                    {#            confirmButtonText: "Ok",#}
+                    {#            closeOnConfirm: true#}
+                    {#        });#}
+                    {#    }#}
+                    {#});#}
                 }
             });
         });

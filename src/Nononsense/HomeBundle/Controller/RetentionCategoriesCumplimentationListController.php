@@ -29,36 +29,43 @@ class RetentionCategoriesCumplimentationListController extends Controller
 
     public function searchCumplimentationsListAction(Request $request)
     {
+        $hasPermission = $this->checkPermission();
+        if (!$hasPermission) return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+
+        $DEFAULT_LIMIT = 15;
+
+        $filters["limit_from"]=0;
+
         $em = $this->getDoctrine()->getManager();
 
-        $is_valid = $this->get('app.security')->permissionSeccion('retention_admin');
-        if (!$is_valid) {
-            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
-        }
-
-        $defaultLimit = 15;
-        $filters = Utils::getListFilters($request);
-
-        $filters['limit_many'] = $request->get('limit_many') ?? $defaultLimit;
-
-        $array_item=[];
+        $array_item = [];
         $this->getData($array_item);
         $this->checkData($array_item);
 
+        $filters = Utils::getListFilters($request);
+        $filters['limit_many'] = $request->get('limit_many') ?? $DEFAULT_LIMIT;
+
         /** @var CVRecordsRepository $cvRecordsRepository */
         $cvRecordsRepository = $em->getRepository(CVRecords::class);
-        $cumplimentations = $cvRecordsRepository->findAll();
-        /** @var CVRecords $cumplimentation */
-        forEach($cumplimentations as $cumplimentation) {
-            $template = $cumplimentation->getTemplate();
-        }
 
         $items = $cvRecordsRepository->listCVRecordsByRetention($filters);
+        if (isset($filters["f_destruction_option"]) && ("only_destroyed" === $filters["f_destruction_option"])) {
+            $this->getPhysicalDestroyedTemplates($items);
+        }
+
         $cvRecords = $this->parseToView($items);
+
         $totalItems = $cvRecordsRepository->count($filters);
-        $data = [
-            'items' => $cvRecords,
-        ];
+        $data = [];
+        $hasData = count($items) > 0;
+
+        if ($hasData)
+        {
+            $data = [
+                'items' => $cvRecords,
+            ];
+        }
+
         return $this->render('NononsenseHomeBundle:Retention:list_retention_cumplimentations.html.twig',
             [
                 "areas" => $array_item["areas"],
@@ -67,77 +74,21 @@ class RetentionCategoriesCumplimentationListController extends Controller
                 "retention_representatives" => $array_item["retention_representatives"],
                 "filters" => $filters,
                 "data" => $data,
-                "pagination" =>  Utils::getPaginator($request, $filters['limit_many'], $totalItems),
-                'count' => $totalItems
+                'hasData' => $hasData,
+                "pagination" =>  Utils::getPaginator($request, $filters['limit_many'], $totalItems)
             ]
         );
     }
 
-    /**
-     * @param array $array_item
-     */
-    public function getData(array &$array_item)
+    public function destroyTemplateAction(Request $request): JsonResponse
     {
-        $areas = $this->getDoctrine()->getRepository(Areas::class)->findBy(
-            [],
-            ["name" => "ASC"]
-        );
-        /** @var Areas $area */
-        foreach($areas as $area) {
-            $array_item["areas"][] = [
-                 "id" => $area->getId(),
-                 "name" => $area->getName()
-            ];
-         }
-
-        $retentionCatgories = $this->getDoctrine()->getRepository(RetentionCategories::class)->findBy(
-            ["active" => true]
-        );
-        /** @var RetentionCategories $retentionCatgory */
-        foreach($retentionCatgories as $retentionCategory) {
-            $array_item["retention_categories"][] = [
-                "id" => $retentionCategory->getId(),
-                "name" => $retentionCategory->getName()
-            ];
-        }
-        $array_item["states"] =  $this->getDoctrine()->getRepository(RCStates::class)->getRetentionCumplimentationStates();
-        $array_item["retention_representatives"] = $this->getDoctrine()->getRepository(Users::class)->findAll();
-
-    }
-
-    private function parseToView(array $items): array
-    {
-        $dataToView = [];
-        foreach($items as $item) {
-            $dataToView[] = [
-                "id" => $item["id"],
-                "destroyDate" => $item["template"]["destructionDate"],
-                "mostRestrictiveCategoryName" => $this->getMostRestrictiveCategoryName((int) $item["template"]["id"]),
-                "title" => $item["template"]["name"],
-                "code" => $item["template"]["number"],
-                "edition" => $item["template"]["numEdition"],
-                "area" => $item["template"]["area"]["name"],
-                "state" => $item["state"]["name"],
-                "startDateRetention" => $item["template"]["startRetention"],
-                "toggleDestructionButton" => (date("Y-m-d") > $item["template"]["finishRetention"])
-            ];
-        }
-        return $dataToView;
-    }
-
-
-
-
-
-    public function destroyTemplateAction(Request $request) {
         $em = $this->getDoctrine()->getManager();
 
         $idsToBeMarkedAsDestroyed = array_map('intval', explode(',', $request->get('ids')));
 
         $templates = $this->getDoctrine()->getRepository(TMTemplates::class)->findBy(["id" => $idsToBeMarkedAsDestroyed]);
 
-        $thereWasErrors = false;
-        $msg = "Todas las plantillas fueron marcadas para su destrucción";
+        $thereWasError = false;
         /**
          * @var TMTemplates $template
          */
@@ -147,18 +98,79 @@ class RetentionCategoriesCumplimentationListController extends Controller
                 $em->persist($template);
                 $em->flush();
             } catch(Exception $exc) {
-                $thereWasErrors = true;
+                $thereWasError = true;
             }
         }
 
-        if ($thereWasErrors) {
-            $msg = "Algunas plantillas no se marcaron para su destrucción";
+        $msg = ($thereWasError)
+            ? "Algunas plantillas no se marcaron para su destrucción"
+            : "Todas las plantillas fueron marcadas para su destrucción";
 
-        }
         return new JsonResponse([
-            "result" => (!$thereWasErrors),
+            "result" => (!$thereWasError),
             "message" => $msg
         ]);
+    }
+
+    public function detailTemplateAction (int $id)
+    {
+        $hasPermission = $this->checkPermission();
+        if (!$hasPermission) return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+
+        $data = $this->getDataFromTemplate($id);
+
+        return $this->render('NononsenseHomeBundle:Retention:template_detail.html.twig',
+            [
+                "template" => $data["template"],
+                "retentionCategories" => $data["retentionCategories"] ?? []
+            ]
+        );
+
+    }
+
+    public function detailTemplateUpdateAction (Request $request): RedirectResponse
+    {
+        $hasPermission = $this->checkPermission();
+        if (!$hasPermission) return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+
+        $boundedCategories = array_map('intval', explode(",", $request->get("boundedCategories")));
+        $templateId = (int)$request->get("templateId");
+        try {
+            $this->updateBindingTemplateRetentionCategories($templateId, $boundedCategories);
+        } catch(Exception $exception) {
+            return $this->returnToHomePage("No se pudieron actualizar las categorías de retención asociadas a la plantilla");
+//            return $this->returnToHomePage($exception->getMessage());
+        }
+//        $is_valid = $this->get('app.security')->permissionSeccion('admin_gp');
+//        if(!$is_valid){
+//            $this->get('session')->getFlashBag()->add(
+//                'error',
+//                'No tiene permisos suficientes'
+//            );
+//            $route=$this->container->get('router')->generate('nononsense_home_homepage');
+//            return $this->redirect($route);
+//        }
+//
+//        $data = $this->getDataFromTemplate($id);
+
+        $route=$this->container->get('router')->generate('nononsense_home_homepage');
+        return $this->redirect($route);
+
+    }
+
+    public function reviewTemplatesAction(Request $request) {
+        return $this->render('NononsenseHomeBundle:Retention:list_review_retention_templates.html.twig',
+            [
+                "areas" => $array_item["areas"],
+                "retention_categories" => $array_item["retention_categories"],
+                "states" => $array_item["states"],
+                "retention_representatives" => $array_item["retention_representatives"],
+                "filters" => $filters,
+                "data" => $data,
+                'hasData' => $hasData,
+                "pagination" =>  Utils::getPaginator($request, $filters['limit_many'], $totalItems)
+            ]
+        );
     }
 
     public function signAnnualReviewAction(Request $request) {
@@ -235,26 +247,65 @@ class RetentionCategoriesCumplimentationListController extends Controller
 //        return $this->returnToHomePage("No se ha podido efectuar la operación sobre la plantilla especificada. Es posible que ya se haya realizado una acción sobre ella o que la plantilla ya no exista");
     }
 
-
-
-    public function detailTemplateAction (int $id)
+    private function getData(array &$array_item)
     {
-        $is_valid = $this->get('app.security')->permissionSeccion('admin_gp');
-        if(!$is_valid){
+        $areas = $this->getDoctrine()->getRepository(Areas::class)->findBy(
+            [],
+            ["name" => "ASC"]
+        );
+        /** @var Areas $area */
+        foreach($areas as $area) {
+            $array_item["areas"][] = [
+                 "id" => $area->getId(),
+                 "name" => $area->getName()
+            ];
+         }
+
+        $retentionCatgories = $this->getDoctrine()->getRepository(RetentionCategories::class)->findBy(
+            ["active" => true]
+        );
+        /** @var RetentionCategories $retentionCatgory */
+        foreach($retentionCatgories as $retentionCategory) {
+            $array_item["retention_categories"][] = [
+                "id" => $retentionCategory->getId(),
+                "name" => $retentionCategory->getName()
+            ];
+        }
+        $array_item["states"] =  $this->getDoctrine()->getRepository(RCStates::class)->getRetentionCumplimentationStates();
+
+        $array_item["retention_representatives"] = $this->getDoctrine()->getRepository(Users::class)->findAll();
+    }
+
+    private function parseToView(array $items): array
+    {
+        $dataToView = [];
+        foreach($items as $item) {
+            $dataToView[] = [
+                "id" => $item["id"],
+                "destroyDate" => $item["template"]["destructionDate"],
+                "mostRestrictiveCategoryName" => $this->getMostRestrictiveCategoryName((int) $item["template"]["id"]),
+                "title" => $item["template"]["name"],
+                "code" => $item["template"]["number"],
+                "edition" => $item["template"]["numEdition"],
+                "area" => $item["template"]["area"]["name"],
+                "state" => $item["state"]["name"],
+                "startDateRetention" => $item["template"]["startRetention"],
+                "toggleDestructionButton" => (date("Y-m-d") > $item["template"]["finishRetention"])
+            ];
+        }
+        return $dataToView;
+    }
+
+    private function checkPermission()
+    {
+        $is_valid = $this->get('app.security')->permissionSeccion('retention_admin');
+        if (!$is_valid) {
             $this->get('session')->getFlashBag()->add(
                 'error',
                 'No tiene permisos suficientes'
             );
-            $route=$this->container->get('router')->generate('nononsense_home_homepage');
-            return $this->redirect($route);
         }
-
-        $data = $this->getDataFromTemplate($id);
-
-        return $this->render('NononsenseHomeBundle:Retention:template_detail.html.twig',
-            ["template" => $data["template"]]
-        );
-
+        return $is_valid;
     }
 
     private function returnToHomePage(string $msgError, string $type = "error"): RedirectResponse
@@ -278,26 +329,17 @@ class RetentionCategoriesCumplimentationListController extends Controller
         return (!is_null($mostRestrictiveCategory))
             ? $mostRestrictiveCategory->getName()
             : ""
-        ;
+            ;
     }
 
-    private function hayDatos(array $areas, array $states, array $retention_representatives)  {
-        return (count($areas) > 0 && count($states) > 0 && count($retention_representatives) > 0);
-    }
-
-//    private function getRetentionCategoriesByTemplateId(int $templateId): array
-//    {
-//        return $this->getDoctrine()->getRepository(RetentionCategories::class)
-//            ->getRetentionCategoriesByTemplateId($templateId);
-//    }
-
-    /**
-     * @param array $array_item
-     * @return void
-     */
-    private function checkData(array $array_item): void
+    private function hasData(array $areas, array $retentionCategories, array $states, array $retention_representatives): bool
     {
-        if (!$this->hayDatos($array_item["areas"], $array_item["states"], $array_item["retention_representatives"])) {
+        return (count($areas) > 0 && count($retentionCategories) > 0 && count($states) > 0 && count($retention_representatives) > 0);
+    }
+
+    private function checkData(array $array_item)
+    {
+        if (!$this->hasData($array_item["areas"], $array_item["retention_categories"], $array_item["states"], $array_item["retention_representatives"])) {
             $this->addFlash("error", "No se pudieron cargar los datos para la búsqueda");
             $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
@@ -318,12 +360,42 @@ class RetentionCategoriesCumplimentationListController extends Controller
         $data["template"]["edition"] = $template->getNumEdition();
         $data["template"]["area"] = $template->getArea()->getName();
         $data["template"]["state"] = $template->getTmState()->getName();
-//        $data["template"]["retentionUser"] = $template->getRetentionUser()->getName()
         $data["template"]["owner"] = $template->getOwner()->getName();
         $data["template"]["backup"] = $template->getBackup()->getName();
         $data["template"]["effectiveDate"] = $template->getEffectiveDate();
         $data["template"]["stateDate"] = $template->getStartRetention();
 
         return $data;
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function updateBindingTemplateRetentionCategories(int $templateID, array $boundedRetentionCategories)
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        /** @var TMTemplates $template */
+        $template = $this->getDoctrine()->getRepository(TMTemplates::class)->find($templateID);
+        $template->clearRetentions();
+        if (!empty($boundedRetentionCategories)) {
+            /** @var RetentionCategories  $boundedRetentionCategoryID*/
+            forEach($boundedRetentionCategories as $boundedRetentionCategoryID) {
+                /** @var RetentionCategories $boundedRetentionCategory */
+                $boundedRetentionCategory = $this->getDoctrine()->getRepository(RetentionCategories::class)->find($boundedRetentionCategoryID);
+                $template->addRetention($boundedRetentionCategory);
+            }
+
+            // Once I have re-assigned new retention categories to this template, I have to recalculate
+            // what its new retention start date is. This date is obtained from the most restrictive
+            // retention category from their new ones.
+
+            $theMostRestrictiveBoundedCategory = TMTemplatesService::getTheMostRestrictiveCategoryByTemplateId($template);
+
+            $template->setFinishRetentionByDate($theMostRestrictiveBoundedCategory->getRetentionPeriodEndDate());
+
+            $em->persist($template);
+            $em->flush();
+        }
     }
 }

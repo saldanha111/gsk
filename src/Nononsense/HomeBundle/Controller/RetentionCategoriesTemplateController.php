@@ -63,8 +63,8 @@ class RetentionCategoriesTemplateController extends Controller
             ];
         }
 
-        return $this->render('NononsenseHomeBundle:Retention:list_retention_templates.html.twig',
-            [
+        return $this->render('NononsenseHomeBundle:Retention:list_retention_templates.html.twig'
+            , [
                 "areas" => $array_item["areas"],
                 "retention_categories" => $array_item["retention_categories"],
                 "states" => $array_item["states"],
@@ -155,20 +155,20 @@ class RetentionCategoriesTemplateController extends Controller
 
     }
 
-    public function reviewTemplatesAction(Request $request) {
-        return $this->render('NononsenseHomeBundle:Retention:list_review_retention_templates.html.twig',
-            [
-                "areas" => $array_item["areas"],
-                "retention_categories" => $array_item["retention_categories"],
-                "states" => $array_item["states"],
-                "retention_representatives" => $array_item["retention_representatives"],
-                "filters" => $filters,
-                "data" => $data,
-                'hasData' => $hasData,
-                "pagination" =>  Utils::getPaginator($request, $filters['limit_many'], $totalItems)
-            ]
-        );
-    }
+//    public function reviewTemplatesAction(Request $request) {
+//        return $this->render('NononsenseHomeBundle:Retention:list_review_retention_templates.html.twig',
+//            [
+//                "areas" => $array_item["areas"],
+//                "retention_categories" => $array_item["retention_categories"],
+//                "states" => $array_item["states"],
+//                "retention_representatives" => $array_item["retention_representatives"],
+//                "filters" => $filters,
+//                "data" => $data,
+//                'hasData' => $hasData,
+//                "pagination" =>  Utils::getPaginator($request, $filters['limit_many'], $totalItems)
+//            ]
+//        );
+//    }
 
     public function signAnnualReviewAction(Request $request) {
 //
@@ -243,6 +243,32 @@ class RetentionCategoriesTemplateController extends Controller
 //        }
 //        return $this->returnToHomePage("No se ha podido efectuar la operación sobre la plantilla especificada. Es posible que ya se haya realizado una acción sobre ella o que la plantilla ya no exista");
     }
+
+    public function reviewTemplatesAction(Request $request)
+    {
+        $templateIDs = array_map('intval', explode(',', $request->get('ids')));
+        $hasPermission = $this->checkPermission();
+        if (!$hasPermission) return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+
+        $DEFAULT_LIMIT = 15;
+
+        $filters["limit_from"]=0;
+
+        $filters['limit_many'] = $request->get('limit_many') ?? $DEFAULT_LIMIT;
+
+        /** @var TMTemplatesRepository $tmTemplatesRepository */
+        $em = $this->getDoctrine()->getManager();
+        $tmTemplatesRepository = $em->getRepository(TMTemplates::class);
+
+        $items = $tmTemplatesRepository->findBy(["id" => $templateIDs]);
+
+        return $this->render('NononsenseHomeBundle:Retention:list_retention_review_templates.html.twig'
+            , [
+                "items" => $items
+            ]
+        );
+    }
+
 
     private function getData(array &$array_item)
     {
