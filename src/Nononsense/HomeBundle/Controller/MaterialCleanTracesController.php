@@ -62,22 +62,23 @@ class MaterialCleanTracesController extends Controller
                     ->setCellValue('A1', 'Id')
                     ->setCellValue('B1', 'P.order')
                     ->setCellValue('C1', 'Material')
-                    ->setCellValue('D1', 'Estado')
-                    ->setCellValue('E1', 'Identificador')
-                    ->setCellValue('F1', 'Usuario limpieza')
-                    ->setCellValue('G1', 'Fecha limpieza')
-                    ->setCellValue('H1', 'Fecha caducidad')
-                    ->setCellValue('I1', 'Usuario verificación')
-                    ->setCellValue('J1', 'Fecha verificación')
-                    ->setCellValue('K1', 'Comentario verificación')
-                    ->setCellValue('L1', 'Usuario limpieza vencida')
-                    ->setCellValue('M1', 'Fecha limpieza vencida')
-                    ->setCellValue('N1', 'Usuario revisión')
-                    ->setCellValue('O1', 'Fecha revisión')
-                    ->setCellValue('P1', 'Comentario revisión')
-                    ->setCellValue('Q1', 'Usuario cancelación')
-                    ->setCellValue('R1', 'Fecha cancelación')
-                    ->setCellValue('S1', 'Comentario cancelación');
+                    ->setCellValue('D1', 'Departamento')
+                    ->setCellValue('E1', 'Estado')
+                    ->setCellValue('F1', 'Identificador')
+                    ->setCellValue('G1', 'Usuario limpieza')
+                    ->setCellValue('H1', 'Fecha limpieza')
+                    ->setCellValue('I1', 'Fecha caducidad')
+                    ->setCellValue('J1', 'Usuario verificación')
+                    ->setCellValue('K1', 'Fecha verificación')
+                    ->setCellValue('L1', 'Comentario verificación')
+                    ->setCellValue('M1', 'Usuario limpieza vencida')
+                    ->setCellValue('N1', 'Fecha limpieza vencida')
+                    ->setCellValue('O1', 'Usuario revisión')
+                    ->setCellValue('P1', 'Fecha revisión')
+                    ->setCellValue('Q1', 'Comentario revisión')
+                    ->setCellValue('R1', 'Usuario cancelación')
+                    ->setCellValue('S1', 'Fecha cancelación')
+                    ->setCellValue('T1', 'Comentario cancelación');
             }
 
             if($request->get("export_pdf")){
@@ -110,7 +111,7 @@ class MaterialCleanTracesController extends Controller
                         case 2: $hstate="Verificado limpieza";break;
                         case 3: $hstate="Limpieza vencida";break;
                         case 4: $hstate="Revisado";break;
-                        case 4: $hstate="Limpieza cancelada";break;
+                        case 5: $hstate="Limpieza cancelada";break;
                     }
                     $html.=$sintax_head_f."Estado => ".$hstate."<br>";
                     $sintax_head_f="";
@@ -167,7 +168,7 @@ class MaterialCleanTracesController extends Controller
                     case 2: $status="Verificado limpieza";break;
                     case 3: $status="Limpieza vencida";break;
                     case 4: $status="Revisado";break;
-                    case 4: $status="Limpieza cancelada";break;
+                    case 5: $status="Limpieza cancelada";break;
                     default: $status="Desconocido";
                 }
 
@@ -178,32 +179,34 @@ class MaterialCleanTracesController extends Controller
                     $other_material="";
                 }
 
+                $department = $item->getCenter()->getDepartment() ? $item->getCenter()->getDepartment()->getName() : '';
 
                 if($request->get("export_excel")){
                     $phpExcelObject->getActiveSheet()
                         ->setCellValue('A'.$i, $item->getId())
                         ->setCellValue('B'.$i, $item->getLotNumber())
                         ->setCellValue('C'.$i, $item->getMaterial()->getName().$other_material)
-                        ->setCellValue('D'.$i, $status)
-                        ->setCellValue('E'.$i, $item->getCode())
-                        ->setCellValue('F'.$i, $item->getCleanUser()->getName())
-                        ->setCellValue('G'.$i, ($item->getCleanDate() ? $item->getCleanDate()->format('Y-m-d H:i:s') : ''))
-                        ->setCellValue('H'.$i, ($item->getCleanExpiredDate() ? $item->getCleanExpiredDate()->format('Y-m-d H:i:s') : ''))
-                        ->setCellValue('I'.$i, ($item->getVerificationUser() ? $item->getVerificationUser()->getName() : ''))
-                        ->setCellValue('J'.$i, ($item->getVerificationDate() ? $item->getVerificationDate()->format('Y-m-d H:i:s') : ''))
-                        ->setCellValue('K'.$i, substr($item->getUseInformation(), 0, 45))
-                        ->setCellValue('L'.$i, ($item->getDirtyMaterialUser() ? $item->getDirtyMaterialUser()->getName() : ''))
-                        ->setCellValue('M'.$i, ($item->getDirtyMaterialDate() ? $item->getDirtyMaterialDate()->format('Y-m-d H:i:s') : ''))
-                        ->setCellValue('N'.$i, ($item->getReviewUser() ? $item->getReviewUser()->getName() : ''))
-                        ->setCellValue('O'.$i, ($item->getReviewDate() ? $item->getReviewDate()->format('Y-m-d H:i:s') : ''))
-                        ->setCellValue('P'.$i, substr($item->getReviewInformation(), 0, 45))
-                        ->setCellValue('Q'.$i, ($item->getCancelUser() ? $item->getCancelUser()->getName() : ''))
-                        ->setCellValue('R'.$i, ($item->getCancelDate() ? $item->getCancelDate()->format('Y-m-d H:i:s') : ''))
-                        ->setCellValue('S'.$i, substr($item->getCancelInformation(), 0, 45));
+                        ->setCellValue('D'.$i, $department)
+                        ->setCellValue('E'.$i, $status)
+                        ->setCellValue('F'.$i, $item->getCode())
+                        ->setCellValue('G'.$i, $item->getCleanUser()->getName())
+                        ->setCellValue('H'.$i, ($item->getCleanDate() ? $item->getCleanDate()->format('Y-m-d H:i:s') : ''))
+                        ->setCellValue('I'.$i, ($item->getCleanExpiredDate() ? $item->getCleanExpiredDate()->format('Y-m-d H:i:s') : ''))
+                        ->setCellValue('J'.$i, ($item->getVerificationUser() ? $item->getVerificationUser()->getName() : ''))
+                        ->setCellValue('K'.$i, ($item->getVerificationDate() ? $item->getVerificationDate()->format('Y-m-d H:i:s') : ''))
+                        ->setCellValue('L'.$i, substr($item->getUseInformation(), 0, 45))
+                        ->setCellValue('M'.$i, ($item->getDirtyMaterialUser() ? $item->getDirtyMaterialUser()->getName() : ''))
+                        ->setCellValue('N'.$i, ($item->getDirtyMaterialDate() ? $item->getDirtyMaterialDate()->format('Y-m-d H:i:s') : ''))
+                        ->setCellValue('O'.$i, ($item->getReviewUser() ? $item->getReviewUser()->getName() : ''))
+                        ->setCellValue('P'.$i, ($item->getReviewDate() ? $item->getReviewDate()->format('Y-m-d H:i:s') : ''))
+                        ->setCellValue('Q'.$i, substr($item->getReviewInformation(), 0, 45))
+                        ->setCellValue('R'.$i, ($item->getCancelUser() ? $item->getCancelUser()->getName() : ''))
+                        ->setCellValue('S'.$i, ($item->getCancelDate() ? $item->getCancelDate()->format('Y-m-d H:i:s') : ''))
+                        ->setCellValue('T'.$i, substr($item->getCancelInformation(), 0, 45));
                 }
 
                 if($request->get("export_pdf")){
-                    $html.='<tr style="font-size:8px"><td>'.$item->getId().'</td><td>'.$item->getLotNumber().'</td><td>'.$item->getMaterial()->getName().$other_material.'</td><td>'.$status.'</td><td>'.$item->getCode().'</td><td>'.$item->getCleanUser()->getName().'</td><td>'.($item->getCleanDate() ? $item->getCleanDate()->format('Y-m-d H:i:s') : '').'</td><td>'.($item->getCleanExpiredDate() ? $item->getCleanExpiredDate()->format('Y-m-d H:i:s') : '').'</td><td>'. ($item->getVerificationUser() ? $item->getVerificationUser()->getName() : '').'</td><td>'.($item->getVerificationDate() ? $item->getVerificationDate()->format('Y-m-d H:i:s') : '').'</td><td>'.substr($item->getUseInformation(), 0, 45).'</td><td>'.($item->getDirtyMaterialUser() ? $item->getDirtyMaterialUser()->getName() : '').'</td><td>'.($item->getDirtyMaterialDate() ? $item->getDirtyMaterialDate()->format('Y-m-d H:i:s') : '').'</td><td>'.($item->getReviewUser() ? $item->getReviewUser()->getName() : '').'</td><td>'.($item->getReviewDate() ? $item->getReviewDate()->format('Y-m-d H:i:s') : '').'</td><td>'.substr($item->getReviewInformation(), 0, 45).'</td><td>'.($item->getCancelUser() ? $item->getCancelUser()->getName() : '').'</td><td>'.($item->getCancelDate() ? $item->getCancelDate()->format('Y-m-d H:i:s') : '').'</td><td>'.substr($item->getCancelInformation(), 0, 45).'</td></tr>';
+                    $html.='<tr style="font-size:8px"><td>'.$item->getId().'</td><td>'.$item->getLotNumber().'</td><td>'.$item->getMaterial()->getName().$other_material.'</td><td>'.$department.'</td><td>'.$status.'</td><td>'.$item->getCode().'</td><td>'.$item->getCleanUser()->getName().'</td><td>'.($item->getCleanDate() ? $item->getCleanDate()->format('Y-m-d H:i:s') : '').'</td><td>'.($item->getCleanExpiredDate() ? $item->getCleanExpiredDate()->format('Y-m-d H:i:s') : '').'</td><td>'. ($item->getVerificationUser() ? $item->getVerificationUser()->getName() : '').'</td><td>'.($item->getVerificationDate() ? $item->getVerificationDate()->format('Y-m-d H:i:s') : '').'</td><td>'.substr($item->getUseInformation(), 0, 45).'</td><td>'.($item->getDirtyMaterialUser() ? $item->getDirtyMaterialUser()->getName() : '').'</td><td>'.($item->getDirtyMaterialDate() ? $item->getDirtyMaterialDate()->format('Y-m-d H:i:s') : '').'</td><td>'.($item->getReviewUser() ? $item->getReviewUser()->getName() : '').'</td><td>'.($item->getReviewDate() ? $item->getReviewDate()->format('Y-m-d H:i:s') : '').'</td><td>'.substr($item->getReviewInformation(), 0, 45).'</td><td>'.($item->getCancelUser() ? $item->getCancelUser()->getName() : '').'</td><td>'.($item->getCancelDate() ? $item->getCancelDate()->format('Y-m-d H:i:s') : '').'</td><td>'.substr($item->getCancelInformation(), 0, 45).'</td></tr>';
                 }
 
                 $i++;
