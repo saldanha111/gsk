@@ -63,7 +63,8 @@
                             </div>
                         </div>
                         {% endif %}
-                        {% if user.id == app.user.id %}
+                        {% set _thisUserBelongToAnyGroup = user.groups | length > 0 %}
+                        {% if _thisUserBelongToAnyGroup %}
                             <hr>
                             <h4>Mis grupos</h4>
                             <ul>
