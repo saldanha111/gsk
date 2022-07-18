@@ -655,7 +655,12 @@ nononsense_retention_categories_template_annual_review:
 nononsense_retention_categories_cumplimentation_list:
     path: /retention_and_destruction/searchCumplimentationsList
     methods:    [GET]
-    defaults: { _controller: NononsenseHomeBundle:RetentionCategoriesCumplimentationList:searchCumplimentationsList }
+    defaults: { _controller: NononsenseHomeBundle:RetentionCategoriesCumplimentation:searchCumplimentationsList }
+
+nononsense_retention_categories_cumplimentation_review:
+    path: /retention_and_destruction/reviewCumplimentations
+    methods:    [GET]
+    defaults: { _controller: NononsenseHomeBundle:RetentionCategoriesCumplimentation:reviewCumplimentations }
 # Docoaro endpoints connect
 
 nononsense_cv_docoaro_new:

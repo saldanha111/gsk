@@ -357,6 +357,14 @@
                     });
                 }
             });
+
+            $("#revisarSeleccionados, #revisarSeleccionados2").on("click", function() {
+                if (selectedRows.size > 0) {
+                    const selectedRowsCSV =[...selectedRows].join(",");
+
+                    window.location = "{{ path('nononsense_retention_categories_template_review') }}" + "?ids=" + selectedRowsCSV;
+                }
+            });
         });
     </script>
     <script>

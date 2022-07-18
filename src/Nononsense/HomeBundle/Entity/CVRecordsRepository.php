@@ -481,17 +481,23 @@ class CVRecordsRepository extends EntityRepository
                 $list->setParameter('retention_category', (int)$filters["retention_category"] );
             }
 
+            $ARCHIVADA_OPT = 3; $ARCHIVADA = 7;
+            $CANCELADA_OPT = 4; $CANCELADA_EDICION = 3; $CANCELADA_VERIFICACION = 6;
             if (isset($filters["state"])) {
                 $mappedState = [
-                    "3" => ['7'],
-                    "4" => ['3', '6']
+                    $ARCHIVADA_OPT => [$ARCHIVADA],
+                    $CANCELADA_OPT => [$CANCELADA_EDICION, $CANCELADA_VERIFICACION]
                 ];
 
                 if (array_key_exists($filters["state"], $mappedState)) {
-                    $states = $mappedState[$filters["state"]];
+                    $states = $mappedState[(int)$filters["state"]];
                     $list->andWhere(" (s.id in (:states)) ");
                     $list->setParameter('states', array_map('intval', $states));
                 }
+            } else {
+                $states = [$ARCHIVADA, $CANCELADA_EDICION, $CANCELADA_VERIFICACION];
+                $list->andWhere(" (s.id in (:states)) ");
+                $list->setParameter('states', array_map('intval', $states));
             }
 
             if (isset($filters["template_title"])) {

@@ -143,11 +143,11 @@
                             {% if _isAnnualReviewFiltered %}
                                 <div class="row pull-right">
                                     <div class="col-md-12 col-sm-5 form-group">
-                                        <button type="button" class="btn btn-danger ml-3" id="destroySelected" disabled>
+                                        <button type="button" class="btn btn-danger ml-3" name="destroySelected" disabled>
                                             <i class="fa fa-trash-o" aria-hidden="true"></i>
                                             <span>Destruir seleccionados</span>
                                         </button>
-                                        <button type="button" class="btn btn-primary ml-3" id="revisarSeleccionados">
+                                        <button type="button" class="btn btn-primary ml-3" name="revisarSeleccionados" disabled>
                                             <i class="fa fa-eye" aria-hidden="true"></i>
                                             <span>Revisar seleccionados</span>
                                         </button>
@@ -233,11 +233,11 @@
                                 {% if _isAnnualReviewFiltered %}
                                     <div class="row pull-right">
                                         <div class="col-md-12 col-sm-5 form-group">
-                                            <button type="button" class="btn btn-danger ml-3" id="destroySelected2" disabled>
+                                            <button type="button" class="btn btn-danger ml-3" name="destroySelected" disabled>
                                                 <i class="fa fa-trash-o" aria-hidden="true"></i>
                                                 <span>Destruir seleccionados</span>
                                             </button>
-                                            <button type="button" class="btn btn-primary ml-3" id="revisarSeleccionados2" disabled>
+                                            <button type="button" class="btn btn-primary ml-3" name="revisarSeleccionados" disabled>
                                                 <i class="fa fa-eye" aria-hidden="true"></i>
                                                 <span>Revisar seleccionados</span>
                                             </button>
@@ -265,6 +265,27 @@
             </div>
         </div>
     </div>
+{#    Modal para exigir la introducción del comentario y de la firma después de marcar las plantillas como destruidas#}
+    <div class="modal fade" id="commentAndSignature"  tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Modal title</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Modal body text goes here.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary">Save changes</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{#    /Modal para exigir la introducción del comentario y de la firma después de marcar las plantillas como destruidas#}
 {% endblock %}
 {% block scripts %}
 
@@ -317,7 +338,7 @@
     </script>
     <script>
         $(function() {
-            $("#destroySelected, #destroySelected2").on("click", function() {
+            $('button[name|=destroySelected]').on("click", function() {
                 if (selectedRows.size > 0) {
                     const selectedRowsCSV =[...selectedRows].join(",");
                     $.ajax({
@@ -335,13 +356,20 @@
                                 title = "Error";
                                 icon = "error";
                             }
-                            swal({
+
+                            swal.fire({
                                 title,
                                 text: response.message,
                                 icon,
                                 confirmButtonColor: '#62bbe2',
                                 confirmButtonText: "Ok",
-                                closeOnConfirm: true
+                                closeOnConfirm: true,
+                            }).then((result) => {
+                                console.log(result);
+                                // if (result.isConfirmed) {
+                                //     // Modal para introducir comentario y password
+                                //     $('#commentAndSignature').modal('show')
+                                // }
                             });
                         },
                         error: function() {
@@ -358,55 +386,10 @@
                 }
             });
 
-            $("#revisarSeleccionados, #revisarSeleccionados2").on("click", function() {
+            $('button[name|=revisarSeleccionados]').on("click", function() {
                 if (selectedRows.size > 0) {
-                    console.log("hola");
                     const selectedRowsCSV =[...selectedRows].join(",");
-                    {#$.ajax({#}
-                    {#    url: "{{ path('nononsense_retention_categories_template_review') }}",#}
-                    {#    type: 'GET',#}
-                    {#    async: false,#}
-                    {#    data: {ids: selectedRowsCSV},#}
-                    {#    success: function(response) {#}
-
-                    {#    }#}
-                    {#});#}
                     window.location = "{{ path('nononsense_retention_categories_template_review') }}" + "?ids=" + selectedRowsCSV;
-                    {#$.ajax({#}
-                    {#    url: "{{ path('nononsense_retention_categories_template_destroy') }}",#}
-                    {#    type: 'POST',#}
-                    {#    dataType: 'json',#}
-                    {#    async: false,#}
-                    {#    data: {ids: selectedRowsCSV},#}
-                    {#    success: function(response) {#}
-                    {#        let title; let icon;#}
-                    {#        if (response.result) {#}
-                    {#            title = "Éxito";#}
-                    {#            icon = "success";#}
-                    {#        } else {#}
-                    {#            title = "Error";#}
-                    {#            icon = "error";#}
-                    {#        }#}
-                    {#        swal({#}
-                    {#            title,#}
-                    {#            text: response.message,#}
-                    {#            icon,#}
-                    {#            confirmButtonColor: '#62bbe2',#}
-                    {#            confirmButtonText: "Ok",#}
-                    {#            closeOnConfirm: true#}
-                    {#        });#}
-                    {#    },#}
-                    {#    error: function() {#}
-                    {#        swal({#}
-                    {#            title: "Error",#}
-                    {#            text: "Algunas plantillas no se marcaron para su destrucción",#}
-                    {#            icon: 'error',#}
-                    {#            confirmButtonColor: '#62bbe2',#}
-                    {#            confirmButtonText: "Ok",#}
-                    {#            closeOnConfirm: true#}
-                    {#        });#}
-                    {#    }#}
-                    {#});#}
                 }
             });
         });
@@ -418,8 +401,8 @@
     </script>
     <script>
         function toggleDestroyAndReviewButtons(visible) {
-            $("#destroySelected, #destroySelected2").prop("disabled", visible);
-            $("#revisarSeleccionados, #revisarSeleccionados2").prop("disabled", visible);
+            $('button[name|=destroySelected]').prop("disabled", visible);
+            $('button[name|=revisarSeleccionados]').prop("disabled", visible);
         }
     </script>
 {% endblock %}

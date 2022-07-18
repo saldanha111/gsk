@@ -71,7 +71,7 @@ class RetentionCategoriesTemplateController extends Controller
                 "retention_representatives" => $array_item["retention_representatives"],
                 "filters" => $filters,
                 "data" => $data,
-                'hasData' => $hasData,
+                "hasData" => $hasData,
                 "pagination" =>  Utils::getPaginator($request, $filters['limit_many'], $totalItems)
             ]
         );
@@ -254,21 +254,26 @@ class RetentionCategoriesTemplateController extends Controller
 
         $filters["limit_from"]=0;
 
+        $filters = Utils::getListFilters($request);
         $filters['limit_many'] = $request->get('limit_many') ?? $DEFAULT_LIMIT;
 
         /** @var TMTemplatesRepository $tmTemplatesRepository */
         $em = $this->getDoctrine()->getManager();
         $tmTemplatesRepository = $em->getRepository(TMTemplates::class);
 
-        $items = $tmTemplatesRepository->findBy(["id" => $templateIDs]);
+        $items = $tmTemplatesRepository->listTemplatesToReview($filters, $templateIDs);
+        $templates = $this->parseToReview($items);
 
+        $totalItems = count($items);
+        $hasData = $totalItems > 0;
         return $this->render('NononsenseHomeBundle:Retention:list_retention_review_templates.html.twig'
             , [
-                "items" => $items
+                "items" => $templates
+                , "hasData" => $hasData
+                , "pagination" =>  Utils::getPaginator($request, $filters['limit_many'], $totalItems)
             ]
         );
     }
-
 
     private function getData(array &$array_item)
     {
@@ -329,6 +334,20 @@ class RetentionCategoriesTemplateController extends Controller
         return $dataToView;
     }
 
+    private function parseToReview(array $items): array
+    {
+        $dataToReview = [];
+        /** @var TMTemplates $item */
+        foreach($items as $item) {
+            /** @var Users $owner */
+            $id = $item["id"];
+
+            $dataToReview[] = $this->getDataFromTemplate($id);
+
+        }
+        return $dataToReview;
+    }
+
     private function checkPermission()
     {
         $is_valid = $this->get('app.security')->permissionSeccion('retention_admin');
@@ -381,6 +400,8 @@ class RetentionCategoriesTemplateController extends Controller
 
     private function getDataFromTemplate(int $templateId): array
     {
+        $today = date("Y-m-d");
+
         /**
          * @var TMTemplates $template
          */
@@ -388,17 +409,16 @@ class RetentionCategoriesTemplateController extends Controller
         $mostRestrictiveRetentionCategory = TMTemplatesService::getTheMostRestrictiveCategoryByTemplateId($template);
         $data["template"]["id"] = $template->getId();
         $data["template"]["destructionDate"] = $template->getDestructionDate();
-        $data["template"]["mostRestrictiveRetentionCategory"] = $mostRestrictiveRetentionCategory
+        $data["template"]["mostRestrictiveRetentionCategory"] = !is_null($mostRestrictiveRetentionCategory)
             ? $mostRestrictiveRetentionCategory->getName()
             : ""
         ;
         $data["template"]["name"] = $template->getName();
-
         $data["template"]["code"] = $template->getNumber();
         $data["template"]["edition"] = $template->getNumEdition();
         $data["template"]["area"] = $template->getArea()->getName();
         $data["template"]["state"] = $template->getTmState()->getName();
-//        $data["template"]["retentionUser"] = $template->getRetentionUser()->getName()
+//        $data["template"]["retentionUser"] = $template->getRetentionUser()->getName();
         $data["template"]["owner"] = $template->getOwner()->getName();
         $data["template"]["backup"] = $template->getBackup()->getName();
         $data["template"]["effectiveDate"] = $template->getEffectiveDate();
@@ -410,9 +430,16 @@ class RetentionCategoriesTemplateController extends Controller
         /** @var RetentionCategories $retention */
         forEach($retentions as $retention) {
             if (is_null($retention->getDeletedAt())) {
-                $data["template"]["boundedRetentionCategories"][] = $retention->getId();
+                $data["template"]["boundedRetentionCategories"][] = [
+                    "id" => $retention->getId(),
+                    "name" => $retention->getName(),
+                    "retentionPeriodStartDate" => $retention->getRetentionPeriodStartDate(),
+                    "retentionPeriodEndDate" => $retention->getRetentionPeriodEndDate()
+                ];
             }
         }
+
+        $data["template"]["toggleDestructionButton"] = is_null($template->getDestructionDate()) && ($today > $template->getFinishRetention());
 
         return $data;
     }

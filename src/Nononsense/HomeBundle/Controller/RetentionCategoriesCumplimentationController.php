@@ -24,7 +24,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 
-class RetentionCategoriesCumplimentationListController extends Controller
+class RetentionCategoriesCumplimentationController extends Controller
 {
 
     public function searchCumplimentationsListAction(Request $request)
@@ -158,17 +158,33 @@ class RetentionCategoriesCumplimentationListController extends Controller
 
     }
 
-    public function reviewTemplatesAction(Request $request) {
-        return $this->render('NononsenseHomeBundle:Retention:list_review_retention_templates.html.twig',
-            [
-                "areas" => $array_item["areas"],
-                "retention_categories" => $array_item["retention_categories"],
-                "states" => $array_item["states"],
-                "retention_representatives" => $array_item["retention_representatives"],
-                "filters" => $filters,
-                "data" => $data,
-                'hasData' => $hasData,
-                "pagination" =>  Utils::getPaginator($request, $filters['limit_many'], $totalItems)
+    public function reviewCumplimentationsAction(Request $request)
+    {
+        $templateIDs = array_map('intval', explode(',', $request->get('ids')));
+        $hasPermission = $this->checkPermission();
+        if (!$hasPermission) return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+
+        $DEFAULT_LIMIT = 15;
+
+        $filters["limit_from"]=0;
+
+        $filters = Utils::getListFilters($request);
+        $filters['limit_many'] = $request->get('limit_many') ?? $DEFAULT_LIMIT;
+
+        /** @var TMTemplatesRepository $tmTemplatesRepository */
+        $em = $this->getDoctrine()->getManager();
+        $tmTemplatesRepository = $em->getRepository(TMTemplates::class);
+
+        $items = $tmTemplatesRepository->listTemplatesToReview($filters, $templateIDs);
+        $templates = $this->parseToReview($items);
+
+        $totalItems = count($items);
+        $hasData = $totalItems > 0;
+        return $this->render('NononsenseHomeBundle:Retention:list_retention_review_templates.html.twig'
+            , [
+                "items" => $templates
+                , "hasData" => $hasData
+                , "pagination" =>  Utils::getPaginator($request, $filters['limit_many'], $totalItems)
             ]
         );
     }
@@ -294,6 +310,20 @@ class RetentionCategoriesCumplimentationListController extends Controller
             ];
         }
         return $dataToView;
+    }
+
+    private function parseToReview(array $items): array
+    {
+        $dataToReview = [];
+        /** @var TMTemplates $item */
+        foreach($items as $item) {
+            /** @var Users $owner */
+            $id = $item["id"];
+
+            $dataToReview[] = $this->getDataFromTemplate($id);
+
+        }
+        return $dataToReview;
     }
 
     private function checkPermission()

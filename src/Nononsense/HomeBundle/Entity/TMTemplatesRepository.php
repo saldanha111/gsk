@@ -623,6 +623,11 @@ class TMTemplatesRepository extends EntityRepository
             if (isset($filters["state"])) {
                 $list->andWhere('t.tmState = :state');
                 $list->setParameter('state', $filters["state"] );
+            } else {
+                $OBSOLETA = 7; $BAJA = 8;
+                $states = [$OBSOLETA, $BAJA];
+                $statesCSV = implode(",", $states);
+                $list->andWhere('t.tmState in (' . $statesCSV . ')');
             }
 
             if (isset($filters["destruction_date_start"])) {
@@ -729,4 +734,21 @@ class TMTemplatesRepository extends EntityRepository
 //        }
 //        Utils::debug($i);
 //    }
+
+    public function listTemplatesToReview(array $filters, array $idTemplates, int $paginate = 1) {
+        $list = $this->createQueryBuilder('t')
+            ->select('t')
+            ->where("t.id in (" . implode(",", $idTemplates) . ")")
+        ;
+
+        if (1 === $paginate && isset($filters["limit_from"])){
+            $to = (int)$filters["limit_many"];
+            $from = (int)$filters["limit_from"]*$to;
+            $list->setFirstResult($from)->setMaxResults($to);
+        }
+
+        $paginator = new Paginator($list, true);
+
+        return $paginator->getQuery()->getArrayResult();
+    }
 }
