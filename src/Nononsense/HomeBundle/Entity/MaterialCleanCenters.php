@@ -2,6 +2,8 @@
 
 namespace Nononsense\HomeBundle\Entity;
 
+use DateTime;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -60,9 +62,15 @@ class MaterialCleanCenters
      */
     protected $material;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\MaterialCleanDepartments", inversedBy="center")
+     * @ORM\JoinColumn(name="department", referencedColumnName="id")
+     */
+    protected $department;
+
     public function __construct()
     {
-        $this->created = new \DateTime();
+        $this->created = new DateTime();
         $this->active = 1;
     }
 
@@ -125,7 +133,7 @@ class MaterialCleanCenters
     /**
      * Set created
      *
-     * @param \DateTime $created
+     * @param DateTime $created
      * @return MaterialCleanCenters
      */
     public function setCreated($created)
@@ -138,7 +146,7 @@ class MaterialCleanCenters
     /**
      * Get created
      *
-     * @return \DateTime 
+     * @return DateTime
      */
     public function getCreated()
     {
@@ -171,10 +179,10 @@ class MaterialCleanCenters
     /**
      * Add barcode
      *
-     * @param \Nononsense\HomeBundle\Entity\MaterialCleanCodes $barcode
+     * @param MaterialCleanCodes $barcode
      * @return MaterialCleanCenters
      */
-    public function addBarcode(\Nononsense\HomeBundle\Entity\MaterialCleanCodes $barcode)
+    public function addBarcode(MaterialCleanCodes $barcode)
     {
         $this->barcode[] = $barcode;
 
@@ -184,9 +192,9 @@ class MaterialCleanCenters
     /**
      * Remove barcode
      *
-     * @param \Nononsense\HomeBundle\Entity\MaterialCleanCodes $barcode
+     * @param MaterialCleanCodes $barcode
      */
-    public function removeBarcode(\Nononsense\HomeBundle\Entity\MaterialCleanCodes $barcode)
+    public function removeBarcode(MaterialCleanCodes $barcode)
     {
         $this->barcode->removeElement($barcode);
     }
@@ -194,7 +202,7 @@ class MaterialCleanCenters
     /**
      * Get barcode
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return Collection
      */
     public function getBarcode()
     {
@@ -204,10 +212,10 @@ class MaterialCleanCenters
     /**
      * Add cleans
      *
-     * @param \Nononsense\HomeBundle\Entity\MaterialCleanCleans $cleans
+     * @param MaterialCleanCleans $cleans
      * @return MaterialCleanCenters
      */
-    public function addClean(\Nononsense\HomeBundle\Entity\MaterialCleanCleans $cleans)
+    public function addClean(MaterialCleanCleans $cleans)
     {
         $this->cleans[] = $cleans;
 
@@ -217,9 +225,9 @@ class MaterialCleanCenters
     /**
      * Remove cleans
      *
-     * @param \Nononsense\HomeBundle\Entity\MaterialCleanCleans $cleans
+     * @param MaterialCleanCleans $cleans
      */
-    public function removeClean(\Nononsense\HomeBundle\Entity\MaterialCleanCleans $cleans)
+    public function removeClean(MaterialCleanCleans $cleans)
     {
         $this->cleans->removeElement($cleans);
     }
@@ -227,7 +235,7 @@ class MaterialCleanCenters
     /**
      * Get cleans
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return Collection
      */
     public function getCleans()
     {
@@ -237,10 +245,10 @@ class MaterialCleanCenters
     /**
      * Add material
      *
-     * @param \Nononsense\HomeBundle\Entity\MaterialCleanMaterials $material
+     * @param MaterialCleanMaterials $material
      * @return MaterialCleanCenters
      */
-    public function addMaterial(\Nononsense\HomeBundle\Entity\MaterialCleanMaterials $material)
+    public function addMaterial(MaterialCleanMaterials $material)
     {
         $this->material[] = $material;
 
@@ -250,9 +258,9 @@ class MaterialCleanCenters
     /**
      * Remove material
      *
-     * @param \Nononsense\HomeBundle\Entity\MaterialCleanMaterials $material
+     * @param MaterialCleanMaterials $material
      */
-    public function removeMaterial(\Nononsense\HomeBundle\Entity\MaterialCleanMaterials $material)
+    public function removeMaterial(MaterialCleanMaterials $material)
     {
         $this->material->removeElement($material);
     }
@@ -260,10 +268,34 @@ class MaterialCleanCenters
     /**
      * Get material
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return Collection
      */
     public function getMaterial()
     {
         return $this->material;
+    }
+
+
+    /**
+     * Set department
+     *
+     * @param MaterialCleanDepartments|null $department
+     * @return MaterialCleanCenters
+     */
+    public function setDepartment(?MaterialCleanDepartments $department = null): MaterialCleanCenters
+    {
+        $this->department = $department;
+
+        return $this;
+    }
+
+    /**
+     * Get department
+     *
+     * @return MaterialCleanDepartments
+     */
+    public function getDepartment(): ?MaterialCleanDepartments
+    {
+        return $this->department;
     }
 }

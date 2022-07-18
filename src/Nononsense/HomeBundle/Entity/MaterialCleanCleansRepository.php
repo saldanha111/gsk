@@ -20,7 +20,8 @@ class MaterialCleanCleansRepository extends EntityRepository
         1 => 'Material limpio',
         2 => 'Verificado limpieza',
         3 => 'Limpieza vencida',
-        4 => 'Revisado'
+        4 => 'Revisado',
+        5 => 'Limpieza cancelada'
     ];
 
     /**
@@ -137,6 +138,10 @@ class MaterialCleanCleansRepository extends EntityRepository
                 $validateEndDate = \DateTime::createFromFormat('d-m-Y H:i:s',$filters["verification_date_end"] . ' 23:59:59');
                 $list->andWhere('cle.verificationDate < :validateEndDate');
                 $list->setParameter('validateEndDate', $validateEndDate);
+            }
+            if(isset($filters["identifier"])){
+                $list->andWhere('cle.code like :identifier');
+                $list->setParameter('identifier', '%' . $filters["identifier"] . '%');
             }
         }
 

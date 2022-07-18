@@ -658,6 +658,10 @@ nononsense_mclean_traces_review:
     path: /mclean/traces/review/{lot}
     defaults: { _controller: NononsenseHomeBundle:MaterialCleanTraces:markReview}
 
+nononsense_mclean_traces_cancel:
+    path: /mclean/traces/cancel/{id}
+    defaults: { _controller: NononsenseHomeBundle:MaterialCleanTraces:markCancel}
+
 nononsense_mclean_trace_view:
     path: /mclean/traces/view/{id}
     defaults: { _controller: NononsenseHomeBundle:MaterialCleanTraces:showTrace}
@@ -681,6 +685,10 @@ nononsense_mclean_get_sign_valid:
 nononsense_mclean_get_material_by_center_json:
     path: /mclean/cleans/material/center/{id}
     defaults: { _controller: NononsenseHomeBundle:MaterialCleanCodes:ajaxGetMaterialData, id: 0}
+
+nononsense_mclean_get_center_by_department_json:
+    path: /mclean/cleans/material/department/{id}
+    defaults: { _controller: NononsenseHomeBundle:MaterialCleanCodes:ajaxGetCenterData, id: 0}
 
 nononsense_mclean_get_material_by_center_for_code_json:
     path: /mclean/cleans/material_code/center/{id}

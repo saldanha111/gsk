@@ -28,6 +28,8 @@ class MaterialCleanMaterialsController extends Controller
         $filters = [];
         $filters2 = [];
 
+        $array_item["canCreate"] = $this->get('app.security')->permissionSeccion('mc_materials_new');
+
         if ($request->get("page")) {
             $filters["limit_from"] = $request->get("page") - 1;
         } else {
@@ -87,26 +89,30 @@ class MaterialCleanMaterialsController extends Controller
 
     public function editAction(Request $request, $id)
     {
-        $is_valid = $this->get('app.security')->permissionSeccion('mc_materials_edit');
-        if (!$is_valid) {
-            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
-        }
-
         $em = $this->getDoctrine()->getManager();
 
         /** @var MaterialCleanMaterialsRepository $materialRepository */
         $materialRepository = $em->getRepository(materialCleanMaterials::class);
         $material = $materialRepository->find($id);
 
+        if (!$material) {
+            $is_valid = $this->get('app.security')->permissionSeccion('mc_materials_new');
+            if (!$is_valid) {
+                return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+            }
+            $material = new MaterialCleanMaterials();
+        }else{
+            $is_valid = $this->get('app.security')->permissionSeccion('mc_materials_edit');
+            if (!$is_valid) {
+                return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+            }
+        }
+
         /** @var MaterialCleanProductsRepository $productsRepository */
         $productsRepository = $em->getRepository(MaterialCleanProducts::class);
 
         /** @var MaterialCleanCentersRepository $centersRepository */
         $centersRepository = $em->getRepository(MaterialCleanCenters::class);
-
-        if (!$material) {
-            $material = new MaterialCleanMaterials();
-        }
 
         if ($request->getMethod() == 'POST') {
             try {

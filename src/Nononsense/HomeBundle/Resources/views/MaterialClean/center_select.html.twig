@@ -1,0 +1,7 @@
+<select class="form-control select-center" name="center">
+    <option value="0">Selecciona un centro</option>
+{% for center in centers %}
+    <option value="{{ center.id }}">{{ center.name }}</option>
+{% endfor %}
+</select>
+

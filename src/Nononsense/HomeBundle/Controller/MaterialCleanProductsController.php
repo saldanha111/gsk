@@ -6,14 +6,16 @@ use Exception;
 use Nononsense\HomeBundle\Entity\MaterialCleanProducts;
 use Nononsense\HomeBundle\Entity\MaterialCleanProductsRepository;
 use Nononsense\UtilsBundle\Classes\Utils;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\Response;
 
 class MaterialCleanProductsController extends Controller
 {
     /**
      * @param Request $request
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
+     * @return RedirectResponse|Response
      */
     public function listAction(Request $request)
     {
@@ -21,6 +23,8 @@ class MaterialCleanProductsController extends Controller
         if (!$is_valid) {
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
+
+        $array_item["canCreate"] = $this->get('app.security')->permissionSeccion('mc_products_new');
 
         $filters = [];
         $filters2 = [];
@@ -66,15 +70,10 @@ class MaterialCleanProductsController extends Controller
     /**
      * @param Request $request
      * @param int $id
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
+     * @return RedirectResponse|Response
      */
     public function editAction(Request $request, $id)
     {
-        $is_valid = $this->get('app.security')->permissionSeccion('mc_products_edit');
-        if (!$is_valid) {
-            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
-        }
-
         $em = $this->getDoctrine()->getManager();
 
         /** @var MaterialCleanProductsRepository $productRepository */
@@ -82,7 +81,16 @@ class MaterialCleanProductsController extends Controller
         $product = $productRepository->find($id);
 
         if (!$product) {
+            $is_valid = $this->get('app.security')->permissionSeccion('mc_products_new');
+            if (!$is_valid) {
+                return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+            }
             $product = new MaterialCleanProducts();
+        }else{
+            $is_valid = $this->get('app.security')->permissionSeccion('mc_products_edit');
+            if (!$is_valid) {
+                return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+            }
         }
 
         if ($request->getMethod() == 'POST') {
@@ -120,7 +128,7 @@ class MaterialCleanProductsController extends Controller
 
     /**
      * @param int $id
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     * @return RedirectResponse
      */
     public function deleteAction($id)
     {
