@@ -496,7 +496,7 @@ class TemplateManagementTemplatesController extends Controller
         }
 
         $user = $this->container->get('security.context')->getToken()->getUser();
-        if($request->get("signature") && $request->get("action")){
+        if($request->get("action")){
             $template = $this->getDoctrine()->getRepository(TMTemplates::class)->findOneBy(array("id" => $id));
             if($template){
                 $action = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 8));
