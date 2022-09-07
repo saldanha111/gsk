@@ -311,8 +311,12 @@
                 const formUploadDocumentPasswordIsEmpty = (formUploadDocumentPassword === "") ;
                 if (formUploadDocumentPasswordIsEmpty){
                     toastr.error("La firma es obligatoria",'aviso');
-                    return false;
+                }else{
+                    if({{min_cumplimentations}}==0){
+                        toastr.error("Debe haber al menos un cumplimentador o un verificador y haber firmado el workflow",'aviso');
+                    }
                 }
+                return false;
             });
             // /Formulario de subida de documentos
 
@@ -322,10 +326,15 @@
                 const formSignConfigurationPasswordIsEmpty = (formSignConfigurationPassword === "") ;
                 if (formSignConfigurationPasswordIsEmpty){
                     toastr.error("La firma es obligatoria",'aviso');
-                } else {
-                    return true;
+                    return false;
                 }
-                return false;
+
+                if({{min_cumplimentations}}==0){
+                    toastr.error("Debe haber al menos un cumplimentador o un verificador y haber firmado el workflow",'aviso');
+                    return false;
+                }
+
+                return true;
             });
             // /Formulario de configuración de la plantilla
 
