@@ -1,0 +1,323 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}Docoaro - GSK | {{'Categorías de retención'|trans}} {% endblock %}
+{% block head %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('/js/plugins/sweetalert/sweetalert.min.css') }}">
+{% endblock %}
+{% block main_title %} Revisión de plantillas de categoría de retención  {% endblock %}
+{% block content %}
+    <div class="wrapper wrapper-content">
+        <div class="row">
+            <div >
+                <div>
+                    <div>
+                        {% for flashMessage in app.session.flashbag.get('error') %}
+                            <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+                                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                                {{ flashMessage }}
+                            </div>
+                            <br>
+                        {% endfor %}
+                        {% for flashMessage in app.session.flashbag.get('message') %}
+                            <div class="alert alert-success alert-dismissable" style="margin: 10px 16px 0 16px">
+                                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                                {{ flashMessage }}
+                            </div>
+                            <br>
+                        {% endfor %}
+{#                        Filtro#}
+                            <form id="reviewTemplatesForm" action="{{ path('nononsense_retention_categories_template_sign_annual_review') }}" class="form-horizontal">
+                            <input type="hidden" name="ids" id="ids" value="">
+                            <div class="row">
+                                <div class="col-lg-4 col-lg-offset-1">
+                                    <div class="row">
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Elija una de las acciones siguientes</label>
+                                            <ul style="list-style-type: none; margin:0; padding: 0;">
+                                                <li><input type="radio" name="accion" id="destroyAction" value="destroy" checked> Marcar para su destrucción</li>
+                                                <li><input type="radio" name="accion" value="reviewNotDestroy"> Marcar como revisadas, no destruirlas</li>
+                                            </ul>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Elija el conjunto de plantillas destino de la acción</label>
+                                            <ul style="list-style-type: none; margin:0; padding: 0;">
+                                                <li><input type="radio" name="seleccion" id="selected" value="selected" disabled>Aplicar solo a las plantillas seleccionadas</li>
+                                                <li><input type="radio" name="seleccion" id="seleccionAll" value="all" checked> Aplicar a todas las plantillas</li>
+                                            </ul>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Comentario</label>
+                                            <textarea class="col-sm-8" name="description" id="description" cols="40" required style="height: 150px"></textarea>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label">Introduzca la firma</label>
+                                            <input class="col-sm-8 mb-6 mt-3" type="password" name="password" id="password" required="required">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-4 control-label"></label>
+                                            <button type="button" id="sign" class="btn btn-danger"> Comentar, firmar y aplicar la acción </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+{#                        /Filtro#}
+                    </div>
+                    <div  class="text-right">
+                        <a href="{{ path('nononsense_retention_categories_template_list') }}" class="btn btn-danger">Finalizar revisión anual</a>
+                    </div>
+                    {% set _numItems = items | length - 1 %}
+                    {% if _numItems >= 0 %}
+{#                      Listado#}
+                            <table class="table table-striped" id="tabla" style="width: 100%;display: block;" >
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <input type="checkbox" id="toggleAll"/></th>
+                                    </th>
+                                    <th style="white-space: nowrap;">Fecha de Destrucción</th>
+                                    <th style="white-space: nowrap;">Título</th>
+                                    <th style="white-space: nowrap;">Categorías de Retención</th>
+                                    <th style="white-space: nowrap;">Categoría de Retención más restrictiva</th>
+                                    <th style="white-space: nowrap;">Código</th>
+                                    <th style="white-space: nowrap;">Edición</th>
+                                    <th style="white-space: nowrap;">Área</th>
+                                    <th style="white-space: nowrap;">Estado</th>
+                                    <th style="white-space: nowrap;">Dueño</th>
+                                    <th style="white-space: nowrap;">Backup Dueño</th>
+                                    <th style="white-space: nowrap;">Representante de Retención</th>
+                                    <th style="white-space: nowrap;">Fecha Efectiva</th>
+                                    <th style="white-space: nowrap;">Fecha del Estado</th>
+                                    <th style="white-space: nowrap;">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for item in range(0, _numItems) %}
+                                {% set _itemId = items[item]["template"]["id"] %}
+                                {% set _template = items[item]["template"] %}
+                                <tr id="{{ _itemId }}" >
+                                    <td style="white-space: nowrap;">
+                                        {% if _template["annuallyReviewed"] is same as (false) %}
+                                            <input type="checkbox" id="{{ _itemId }}"> {{ _itemId }}
+                                        {% endif %}
+                                    </td>
+                                    <td style="white-space: nowrap;"> {{ _template["destructionDate"] | date("d/m/Y") | gskdate }} </td>
+                                    <td style="white-space: nowrap;"> {{ _template["name"] }} </td>
+                                    <td style="white-space: nowrap;">
+                                        <table class="table table-striped mt-3" id="retentionCategoriesTable">
+                                            <thead>
+                                            <tr>
+                                                <th>
+                                                    {% set _thereAreRetentionCategories =  _template["boundedRetentionCategories"] is defined
+                                                        ? _template["boundedRetentionCategories"] | length > 0
+                                                        : 0
+                                                    %}
+                                                    {% if _thereAreRetentionCategories %}
+                                                        Nombre
+                                                    {% else %}
+                                                        Sin categorías de retención
+                                                    {% endif %}
+                                                </th>
+                                            </tr>
+                                            </thead>
+                                            {% if _thereAreRetentionCategories %}
+                                                <tbody>
+                                                {% for retentionCategory in _template["boundedRetentionCategories"] %}
+                                                    <tr id="{{ retentionCategory["id"] }}">
+                                                    <tr>
+                                                        <td> {{ retentionCategory["name"] }}</td>
+                                                        <td> {{ retentionCategory["retentionTime"] }} días </td>
+                                                    </tr>
+                                                {% endfor %}
+                                                </tbody>
+                                            {% endif %}
+                                        </table>
+                                    </td>
+                                    <td style="white-space: nowrap;"> {{ _template["mostRestrictiveRetentionCategory"]}} </td>
+                                    <td style="white-space: nowrap;"> {{ _template["code"] }} </td>
+                                    <td style="white-space: nowrap;"> {{ _template["edition"] }} </td>
+                                    <td style="white-space: nowrap;"> {{ _template["area"] }} </td>
+                                    <td style="white-space: nowrap;"> {{ _template["state"] }} </td>
+                                    <td style="white-space: nowrap;"> {{ _template["owner"] }} </td>
+                                    <td style="white-space: nowrap;"> {{ _template["backup"] }} </td>
+                                    <td style="white-space: nowrap;"> {{ _template["retentionRepresentative"] }} </td>
+                                    <td style="white-space: nowrap;"> {{ _template["effectiveDate"] | date("d/m/Y") | gskdate }}  </td>
+                                    <td style="white-space: nowrap;"> {{ _template["stateDate"] | date("d/m/Y") | gskdate }} </td>
+                                    <td>
+                                        <div class="btn-group btn-xs">
+                                            <button type="button" class="btn btn-xs btn-primary" data-toggle="dropdown"><i class="fa fa-ellipsis-h"></i></button>
+                                            <button type="button" class="btn btn-xs btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                                <span class="caret"></span>
+                                                <span class="sr-only">Opciones del menú</span>
+                                            </button>
+                                            <ul class="dropdown-menu" role="menu">
+                                                {% set _options = {'id': _itemId } %}
+                                                <li><a href="{{ path('nononsense_tm_template_audit_trail', _options) }}"><i class="fa fa-book"></i> {{ 'Audit Trail'|trans }}</a></li>
+                                                <li><a href="{{ path('nononsense_tm_template_cover_page', _options) }}"><i class="fa fa-print"></i> {{ 'Imprimir plantilla' |trans }}</a></li>
+                                                {% if _template["annuallyReviewed"] is same as (false) %}
+                                                    <li><a name="" href="{{ path('nononsense_tm_template_cover_page', _options) }}"><i class="fa fa-trash"></i> {{ 'Destruir' |trans }}</a></li>
+                                                    <li><a name="" href="{{ path('nononsense_tm_template_cover_page', _options) }}"><i class="fa fa-eye"></i> {{ 'Revisado, no destruir' |trans }}</a></li>
+                                                {% endif %}
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                            </table>
+{#                      /Listado#}
+{#                      Paginación#}
+                            {% set _hasPagination = pagination is defined and pagination.needed %}
+                            {% if _hasPagination %}
+                                {% include '::pagination2.html.twig' %}
+                            {% endif %}
+{#                      /Paginación#}
+                    {% endif %}
+                    <div  class="text-right">
+                        <a href="{{ path('nononsense_retention_categories_template_list') }}" class="btn btn-danger">Finalizar revisión anual</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block scripts %}
+
+    {{ parent() }}
+
+    <script src="{{ asset('js/plugins/sweetalert/sweetalert.min.js') }}"></script>
+    <script>
+      $(function () {
+        ActivateMenu('retention_admin');
+        $('#side-menu').metisMenu();
+        $('[data-toggle="tooltip"]').tooltip();
+        selectAllIds(); enabledSelectTemplatesChoice();
+        $("#tabla tr :checkbox").prop('checked', true);
+      });
+    </script>
+    <script>
+        const selectedRows = new Set();
+        $('#tabla, #seleccionarAll').on('click', 'tr', function() {
+            const selectedRowId = $(this).attr('id');
+            if (selectedRowId !== undefined) {
+                ($(this).find(':checkbox').prop('checked'))
+                    ? selectedRows.add(parseInt(selectedRowId))
+                    : selectedRows.delete(parseInt(selectedRowId))
+                ;
+            }
+
+            enabledSelectTemplatesChoice();
+        });
+    </script>
+    <script>
+        $("#toggleAll").on("click", function() {
+            const isChecked = $(this).is(':checked');
+            if (!isChecked) {
+                selectedRows.clear();
+            } else {
+                selectAllIds()
+            }
+           $("#tabla tr :checkbox").prop('checked', isChecked);
+
+            enabledSelectTemplatesChoice();
+        });
+
+        $("#seleccionAll").on("click", function() {
+
+            selectAllIds();
+
+            $("#tabla tr :checkbox").prop('checked', true);
+
+            enabledSelectTemplatesChoice();
+        });
+
+        function selectAllIds() {
+            {% set _hasData = items is defined and items | length > 0 %}
+            {% set _numItems = _hasData ? items | length : 0 %}
+            {% if _hasData %}
+                {% for i in range(0, _numItems - 1 ) %}
+                    selectedRows.add({{ items[i].template.id }});
+                {% endfor %}
+            {% endif %}
+        }
+    </script>
+    <script>
+        $(function() {
+            $("#destroySelected, #destroySelected2").on("click", function() {
+                if (selectedRows.size > 0) {
+                    const selectedRowsCSV =[...selectedRows].join(",");
+
+                }
+            });
+        });
+    </script>
+    <script>
+        $("#finalizarRevisionAnual, #finalizarRevisionAnual2").on("click", function(){
+            $('#modalSignReview').modal('show');
+        });
+    </script>
+    <script>
+        function toggleDestroyAndReviewButtons(visible) {
+            $("#destroySelected, #destroySelected2").prop("disabled", visible);
+            $("#revisarSeleccionados, #revisarSeleccionados2").prop("disabled", visible);
+        }
+    </script>
+    <script>
+        function enabledSelectTemplatesChoice() {
+            const numSelectedRows = selectedRows.size;
+            $("input[type=radio][value='selected']").prop("disabled", (numSelectedRows === 0));
+        }
+    </script>
+    <script>
+
+        $("#sign").on('click', function(e){
+            const isDestroyAction = document.getElementById("destroyAction").checked;
+            const action = (isDestroyAction) ? "destroy" : "review";
+            const password = document.getElementById("password").value;
+            const description = document.getElementById("description").value;
+            $.ajax({
+                url: "{{ path('nononsense_retention_categories_template_sign_annual_review') }}",
+                type: 'POST',
+                dataType: 'json',
+                async: false,
+                data: {ids: [...selectedRows].join(","), action, password, description},
+                success: function (response) {
+                    if (response.result) {
+                        swal({
+                            title: "Éxito",
+                            text: response.msg,
+                            icon: "success",
+                            confirmButtonColor: '#62bbe2',
+                            confirmButtonText: "Ok",
+                            closeOnConfirm: true,
+                        });
+                        location.reload();
+                    } else {
+                        swal({
+                            title: "Error",
+                            text: response.msg,
+                            icon: "error",
+                            confirmButtonColor: '#62bbe2',
+                            confirmButtonText: "Ok",
+                            closeOnConfirm: true,
+                        });
+                        location.reload();
+                    }
+                },
+                error: function () {
+                    swal({
+                        title: "Error",
+                        text: "Algunas plantillas no se marcaron para su destrucción",
+                        icon: 'error',
+                        confirmButtonColor: '#62bbe2',
+                        confirmButtonText: "Ok",
+                        closeOnConfirm: true
+                    });
+                    location.reload();
+                }
+
+            });
+            // document.getElementById("ids").value = ;
+        });
+    </script>
+{% endblock %}

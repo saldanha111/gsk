@@ -47,21 +47,7 @@ class RetentionCategories
      */
     protected $description;
 
-    /**
-     * @var DateTime
-     *
-     * @ORM\Column(name="retention_period_start_date", type="date")
-     */
-    protected $retentionPeriodStartDate;
-
-    /**
-     * @var DateTime
-     *
-     * @ORM\Column(name="retention_period_end_date", type="date")
-     */
-    protected $retentionPeriodEndDate;
-
-    /**
+   /**
      * @var string
      *
      * @ORM\Column(name="retention_days", type="integer")
@@ -112,12 +98,6 @@ class RetentionCategories
      * @ORM\Column(name="active", type="boolean", options={"default" : 1})
      */
     protected $active;
-
-    /**
-     * @var dateTime
-     * @ORM\Column(name="deletedAt", type="datetime", nullable=true)
-     */
-    protected $deletedAt;
 
     /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\RCSignatures", mappedBy="retentionCategory")
@@ -188,57 +168,6 @@ class RetentionCategories
     {
         return $this->description;
     }
-
-    /**
-     * Set retentionDays
-     *
-     * @param DateTime $retentionPeriodStartDate
-     * @return RetentionCategories
-     * @throws \Exception
-     */
-    public function setRetentionPeriodStartDate(DateTime $retentionPeriodStartDate): RetentionCategories
-    {
-        $this->retentionPeriodStartDate = $retentionPeriodStartDate;
-
-        return $this;
-    }
-
-    /**
-     * Get retention period start date
-     *
-     * @return DateTime |null
-     */
-    public function getRetentionPeriodStartDate()
-    {
-        return $this->retentionPeriodStartDate;
-    }
-
-    /**
-     * Get retention period end date
-     *
-     * @return DateTime |null
-     */
-    public function getRetentionPeriodEndDate()
-    {
-        return $this->retentionPeriodEndDate;
-    }
-
-    /**
-     * Set retention period end date
-     *
-     * @return RetentionCategories
-     * @throws \Exception
-     */
-    public function setRetentionPeriodEndDate(DateTime $startDate): RetentionCategories
-    {
-        $duration = "P" . $this->getRetentionDays() . "D";
-
-        $this->retentionPeriodEndDate =  $startDate->add(new DateInterval($duration));
-
-        return $this;
-    }
-
-
 
     /**
      * Set retention period start date
@@ -490,29 +419,6 @@ class RetentionCategories
         $years = ($dmy['years']) ?: 0;
 
         return $this->setRetentionDays($days + ($months * 30) + ($years * 365));
-    }
-
-    /**
-     * Set deletedAt
-     *
-     * @param DateTime $deletedAt
-     * @return RetentionCategories
-     */
-    public function setDeletedAt(DateTime $deletedAt)
-    {
-        $this->deletedAt = $deletedAt;
-
-        return $this;
-    }
-
-    /**
-     * Get deletedAt
-     *
-     * @return DateTime
-     */
-    public function getDeletedAt()
-    {
-        return $this->deletedAt;
     }
 
     /**

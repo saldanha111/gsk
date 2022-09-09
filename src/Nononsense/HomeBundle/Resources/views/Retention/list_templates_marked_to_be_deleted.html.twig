@@ -1,0 +1,297 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}Docoaro - GSK | {{'Categorías de retención'|trans}} {% endblock %}
+{% block head %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('/js/plugins/sweetalert/sweetalert.min.css') }}">
+{% endblock %}
+{% block main_title %} Listado de plantillas destruidas lógicamente{% endblock %}
+
+{% block content %}
+    <div class="wrapper wrapper-content">
+        <div class="row">
+            <div class="col-sm-12">
+                <div>
+                    <div>
+                        {% for flashMessage in app.session.flashbag.get('error') %}
+                            <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+                                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                                {{ flashMessage }}
+                            </div>
+                            <br>
+                        {% endfor %}
+                        {% for flashMessage in app.session.flashbag.get('message') %}
+                            <div class="alert alert-success alert-dismissable" style="margin: 10px 16px 0 16px">
+                                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                                {{ flashMessage }}
+                            </div>
+                            <br>
+                        {% endfor %}
+                    </div>
+                    {% set _hasData = hasData is defined and hasData%}
+                    {% if _hasData %}
+                        <div>
+{#                          Listado#}
+                            <div class="row col-12">
+                                <table class="table table-striped ml-auto mr-auto" id="tabla" style="width:90%;margin-left:15px;">
+                                    <thead>
+                                    <tr>
+                                        <th>id</th>
+                                        <th>Fecha de Destrucción</th>
+                                        <th>Título</th>
+                                        <th>Categoría de Retención más restrictiva</th>
+                                        <th>Código</th>
+                                        <th>Edición</th>
+                                        <th>Área</th>
+                                        <th>Estado</th>
+                                        <th>Representante de Retención</th>
+                                        <th>Fecha inicio período de retención</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for template in data.items %}
+                                        {% set _templateId = template.id %}
+                                        {% set _optionsTemplateId = {"id": _templateId} %}
+                                        <tr id="{{ _templateId }}">
+                                            <td>{{ _templateId }}</td>
+                                            <td>
+                                                {% set _hasDestroyDate = template.destroyDate is not null and template.destroyDate is not empty %}
+
+                                                {% if _hasDestroyDate %}
+                                                    {{ template.destroyDate | date("d/m/Y") | gskdate }}
+                                                {% endif %}
+                                            </td>
+                                            <td> {{ template.title }} </td>
+                                            <td> {{ template.mostRestrictiveCategoryName }}  </td>
+                                            <td> {{ template.code }} </td>
+                                            <td> {{ template.edition }}  </td>
+                                            <td> {{ template.area }} </td>
+                                            <td> {{ template.state }}    </td>
+                                            <td> {{ template.retentionRepresentative }} </td>
+                                            <td> {{ template.startDateRetention | date("d/m/Y") | gskdate }} </td>
+                                            <td>
+                                                <div class="btn-group btn-xs">
+                                                    <button type="button" class="btn btn-xs btn-primary" data-toggle="dropdown"><i class="fa fa-ellipsis-h"></i></button>
+                                                    <button type="button" class="btn btn-xs btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                                        <span class="caret"></span>
+                                                        <span class="sr-only">Opciones del menú</span>
+                                                    </button>
+                                                    <ul class="dropdown-menu" role="menu">
+                                                        <li><a href="{{ path('nononsense_retention_categories_template_detail', _optionsTemplateId) }}"><i class="fa fa-trash"></i> {{ 'Destruir'|trans }}</a></li>
+                                                        <li><a href="{{ path('nononsense_tm_template_audit_trail', _optionsTemplateId) }}"><i class="fa fa-book"></i> {{ 'Audit Trail'|trans }}</a></li>
+                                                        <li><a href="{{ path('nononsense_tm_template_cover_page', _optionsTemplateId) }}"><i class="fa fa-print"></i> {{ 'Imprimir plantilla' |trans }}</a></li>
+                                                    </ul>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+{#                          /Listado#}
+{#                          Paginación#}
+                            {% set _hasPagination = pagination is defined and pagination.needed %}
+                            {% if _hasPagination %}
+                                {% include '::pagination2.html.twig' %}
+                            {% endif %}
+{#                          /Paginación#}
+                        </div>
+                    {% else %}
+                        <div>
+                            No se encontraron plantillas para destruir físicamente
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{#    Modal para exigir la introducción del comentario y de la firma después de marcar las plantillas como destruidas#}
+    <div class="modal fade" id="commentAndSignature"  tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirme la destrucción de las plantillas seleccionadas</h5>
+                </div>
+                <div class="modal-body">
+                    <form id="commentAndPasswordForm" method="POST" action="{{ path("nononsense_retention_categories_template_sign_and_destroy") }}" enctype="multipart/form-data">
+                        <input type="hidden" name="ids" id="ids" value="">
+                        <div class="row">
+                            <div class="col-lg-10 col-lg-offset-1">
+                                <b>Comentarios</b><br>
+                                <div class="form-group">
+                                    <textarea class="form-control" name="description" rows="10" cols="40" style="width:100%" required="required"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-10 col-lg-offset-1 mb-3">
+                                <div class="input-group">
+                                    <label for="formSignTestPassword">Introduzca su firma</label><br>
+                                    <input type="password" name="password" id="formSignTestPassword" class="form-control" required="required"><br>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary">Confirmar la destrucción de las plantillas seleccionadas</button>
+                        </div>
+                    </form>
+{#                    <form id="commentAndSignForm" method="POST"  enctype="multipart/form-data">#}
+{#                        <div class="row">#}
+{#                            <div class="col-lg-10 col-lg-offset-1">#}
+{#                                <b>Comentarios</b><br>#}
+{#                                <div class="form-group">#}
+{#                                    <textarea class="form-control" name="description" id="description" rows="10" cols="40" style="width:100%"></textarea>#}
+{#                                </div>#}
+{#                            </div>#}
+{#                        </div>#}
+{#                        <div class="row">#}
+{#                            <div class="col-lg-10 col-lg-offset-1 mb-3">#}
+{#                                <div class="input-group">#}
+{#                                    <label for="formPassword">Introduzca su firma</label><br>#}
+{#                                    <input type="password" name="password" id="formPassword" class="form-control" required="required"><br>#}
+{#                                </div>#}
+{#                            </div>#}
+{#                        </div>#}
+{#                    </form>#}
+                </div>
+
+            </div>
+        </div>
+    </div>
+{#    /Modal para exigir la introducción del comentario y de la firma después de marcar las plantillas como destruidas#}
+{% endblock %}
+{% block scripts %}
+
+    {{ parent() }}
+
+    <script src="{{ asset('js/plugins/sweetalert/sweetalert.min.js') }}"></script>
+    <script>
+      $(function () {
+        ActivateMenu('retention_admin');
+        $('#side-menu').metisMenu();
+        $('[data-toggle="tooltip"]').tooltip();
+      });
+    </script>
+    <script>
+        const selectedRows = new Set();
+        $('#tabla').on('click', 'tr', function() {
+            const selectedRowId = $(this).attr('id');
+            if (selectedRowId !== undefined) {
+                ($(this).find(':checkbox').prop('checked'))
+                    ? selectedRows.add(parseInt(selectedRowId))
+                    : selectedRows.delete(parseInt(selectedRowId))
+                ;
+            }
+
+            toggleButtons(!(selectedRows.size > 0));
+
+            if (selectedRows.size === 0) {
+                $("#toggleAll").prop("checked", false);
+            }
+        });
+
+        $("#toggleAll").on("click", function() {
+            const isChecked = $(this).is(':checked');
+            if (!isChecked) {
+                selectedRows.clear();
+            } else {
+                selectAllIds()
+            }
+            $("#tabla tr :checkbox").prop('checked', isChecked);
+        });
+
+        function selectAllIds() {
+            {% set _hasData = data is defined and data.items is defined and data.items | length > 0 %}
+            {% set _numItems = _hasData ? data.items | length : 0 %}
+            {% if _hasData %}
+                {% for i in range(0, _numItems - 1 ) %}
+                    selectedRows.add({{ data.items[i].id }});
+                {% endfor %}
+            {% endif %}
+        }
+    </script>
+    <script>
+        $(function() {
+            $('button[name|=selectedDestruction]').on("click", function() {
+                if (selectedRows.size > 0) {
+                    const selectedRowsCSV =[...selectedRows].join(",");
+                    destroy(selectedRowsCSV);
+                }
+            });
+
+            $('button[name|=selectedReview], [name|=annualReview]').on("click", function() {
+                if (selectedRows.size > 0) {
+                    const selectedRowsCSV =[...selectedRows].join(",");
+                    window.location = "{{ path('nononsense_retention_categories_template_review') }}" + "?ids=" + selectedRowsCSV;
+                }
+            });
+        });
+    </script>
+    <script>
+        function toggleButtons(isDisabled) {
+            $('button[name|=selectedDestruction]').prop("disabled", isDisabled);
+            $('button[name|=selectedReview]').prop("disabled", isDisabled);
+            $('button[name|=annualReview]').prop("disabled", isDisabled);
+        }
+    </script>
+    <script>
+        $("#selectedDestruction").on("click", function() {
+            destroy(
+        });
+    </script>
+    <script>
+        $('#commentAndPasswordForm').on('submit', function(e){
+            document.getElementById("ids").value = [...selectedRows].join(",");
+        });
+    </script>
+    <script>
+        function destroy(templatesToBeDestroyed) {
+            $.ajax({
+                url: "{{ path('nononsense_retention_categories_template_destroy') }}",
+                type: 'POST',
+                dataType: 'json',
+                async: false,
+                data: {ids: templatesToBeDestroyed},
+                success: function (response) {
+                    let title;
+                    let icon;
+                    if (response.result) {
+                        title = "Éxito";
+                        icon = "success";
+                    } else {
+                        title = "Error";
+                        icon = "error";
+                    }
+
+                    swal({
+                        title,
+                        text: response.message,
+                        icon,
+                        confirmButtonColor: '#62bbe2',
+                        confirmButtonText: "Ok",
+                        closeOnConfirm: true,
+                    }, function (result) {
+                        if (result) {
+                            // Modal para introducir comentario y password
+                            $('#commentAndSignature').modal({
+                                backdrop: "static",
+                                keyboard: false
+                            });
+                        }
+                    });
+                },
+                error: function () {
+                    swal({
+                        title: "Error",
+                        text: "Algunas plantillas no se marcaron para su destrucción",
+                        icon: 'error',
+                        confirmButtonColor: '#62bbe2',
+                        confirmButtonText: "Ok",
+                        closeOnConfirm: true
+                    });
+                }
+            });
+        }
+    </script>
+{% endblock %}
+                        

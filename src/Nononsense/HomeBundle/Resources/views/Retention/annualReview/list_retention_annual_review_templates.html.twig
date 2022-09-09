@@ -11,9 +11,6 @@
 {% endblock %}
 
 {% block content %}
-    {% set _isOnlyDestroyedFiltered = filters.destruction_option is defined and filters.destruction_option is same as ('only_destroyed') %}
-    {% set _isOnlyExpiredFiltered = filters.destruction_option is defined and filters.destruction_option is same as ('only_expired') %}
-    {% set _isAnnualReviewFiltered = filters.destruction_option is defined and filters.destruction_option is same as ('annual_review') %}
     <div class="wrapper wrapper-content">
         <div class="row">
             <div class="col-sm-12">
@@ -34,127 +31,26 @@
                             <br>
                         {% endfor %}
                     </div>
-{#                    Filtros de búsqueda#}
-                    <form id="form_item" action="{{ path('nononsense_retention_categories_template_list') }}" method="GET">
-                        <div class="row">
-                            <div class="col-md-2 col-sm-5 form-group">
-                                <label class="control-label">Área</label>
-                                <div>
-                                    <select class="form-control select_template" name="f_area">
-                                        <option value=""></option>
-                                        {% for area in areas %}
-                                            <option value="{{area.id}}">{{area.name}}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-2 col-sm-5 form-group">
-                                <label class="control-label">Categorías de Retención</label>
-                                <div>
-                                    <select class="form-control select_template" name="f_retention_category">
-                                        <option value=""></option>
-                                        {% for retention_category in retention_categories %}
-                                            <option value="{{retention_category.id}}">{{retention_category.name}}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-3 col-sm-5 form-group">
-                                <label class="control-label">Fecha de Destrucción</label>
-                                <div class="input-group input-daterange">
-                                    <input type="text" name="f_destruction_date_start" id="destruction_date_start" class="form-control" value="{{ filters.destruction_date_start is defined ? filters.destruction_date_start : ''}}">
-                                    <div class="input-group-addon">hasta</div>
-                                    <input type="text" name="f_destruction_date_end"  id="destruction_date_end" class="form-control" value="{{filters.destruction_date_end is defined ? filters.destruction_date_end : ''}}">
-                                </div>
-                            </div>
-                            <div class="col-md-2 col-sm-5 form-group">
-                                <label class="control-label">Título</label>
-                                <div>
-                                    <input type="text" name="f_template_title" class="form-control" value="{{filters.template_title is defined ? filters.template_title : ''}}">
-                                </div>
-                            </div>
-                            <div class="col-md-2 col-sm-5 form-group">
-                                <label class="control-label">Código</label>
-                                <div>
-                                    <input type="text" name="f_code" class="form-control" value="{{filters.code is defined ? filters.code : ''}}">
-                                </div>
-                            </div>
-                            <div class="col-md-2 col-sm-5 form-group">
-                                <label class="control-label">Estado</label>
-                                <div>
-                                    <select class="form-control select_template" name="f_state">
-                                        <option value=""></option>
-                                        {% for state in states %}
-                                            <option value="{{state.id}}" {{ filters.state is defined and filters.state is not null and filters.state==state.id ? 'selected="selected"' : ''}}>{{state.name}}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-2 col-sm-5 form-group">
-                                <label class="control-label">Representante de Retención</label>
-                                <div>
-                                    <select class="form-control select_template" name="f_retention_representative">
-                                        <option value=""></option>
-                                        {% for retention_representative in retention_representatives %}
-                                            <option value="{{retention_representative.id }}" {{ filters.retention_representative is defined and filters.retention_representative is not null and filters.retention_representative==retention_representative.id ? 'selected="selected"' : ''}}>{{retention_representative.username}}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-3 col-sm-3 form-group">
-                                <label class="control-label">Fecha Inicio Periodo de Destrucción</label>
-                                <div class="input-group input-daterange">
-                                    <input type="text" name="f_destruction_start_period" class="form-control" value="{{ filters.destruction_start_period is defined ? filters.destruction_start_period : '' }}">
-                                    <div class="input-group-addon">hasta</div>
-                                    <input type="text" name="f_destruction_end_period" class="form-control" value="{{   filters.destruction_end_period is defined ? filters.destruction_end_period : '' }}">
-                                </div>
-                            </div>
-                            <div class="col-md-1 col-sm-5 form-group">
-                                <label class="control-label">Ver destruidos</label>
-                                <div>
-                                    <input type="radio" name="f_destruction_option" class="i-checks" value="only_destroyed" {{ _isOnlyDestroyedFiltered ? "checked" : "" }}>
-                                </div>
-                            </div>
-                            <div class="col-md-1 col-sm-5 form-group">
-                                <label class="control-label">Solo vencidos</label>
-                                <div>
-                                    <input type="radio" name="f_destruction_option" class="i-checks" value="only_expired" {{ _isOnlyExpiredFiltered ? "checked" : "" }}>
-                                </div>
-                            </div>
-                            <div class="col-md-1 col-sm-5 form-group">
-                                <label class="control-label">Revisión anual</label>
-                                <div>
-                                    <input type="radio" name="f_destruction_option"  class="i-checks" value="annual_review" {{ _isAnnualReviewFiltered ? "checked" : "" }}>
-                                </div>
-                            </div>
-                            <div class="col-md-1 col-sm-5 form-group">
-                                <button type="submit" class="btn btn-primary">Filtrar</button>
-                            </div>
-                        </div>
-                    </form>
-{#                    /Filtros de búsqueda#}
                     {% set _hasData = hasData is defined and hasData%}
                     {% if _hasData %}
                         <div>
 {#                          Botones de destrucción, revisión y firma (revisión anual)#}
-                            {% if _isAnnualReviewFiltered %}
-                                <div class="row pull-right">
-                                    <div class="col-md-12 col-sm-5 form-group">
-                                        <button type="button" class="btn btn-danger ml-3" name="selectedDestruction" disabled>
-                                            <i class="fa fa-trash-o" aria-hidden="true"></i>
-                                            <span>Destruir seleccionados</span>
-                                        </button>
-                                        <button type="button" class="btn btn-primary ml-3" name="selectedReview" disabled>
-                                            <i class="fa fa-eye" aria-hidden="true"></i>
-                                            <span>Revisar seleccionados</span>
-                                        </button>
-                                        <button type="button" class="btn btn-success ml-3" name="annualReview" disabled>
-                                            <i class="fa fa-eye" aria-hidden="true"></i>
-                                            <span>Revisión anual</span>
-                                        </button>
-                                    </div>
+                            <div class="row pull-right">
+                                <div class="col-md-12 col-sm-5 form-group">
+                                    <button type="button" class="btn btn-danger ml-3" name="selectedDestruction" disabled>
+                                        <i class="fa fa-trash-o" aria-hidden="true"></i>
+                                        <span>Destruir seleccionados</span>
+                                    </button>
+                                    <button type="button" class="btn btn-primary ml-3" name="selectedReview" disabled>
+                                        <i class="fa fa-eye" aria-hidden="true"></i>
+                                        <span>Revisar seleccionados</span>
+                                    </button>
+                                    <button type="button" class="btn btn-success ml-3" name="annualReview" disabled>
+                                        <i class="fa fa-eye" aria-hidden="true"></i>
+                                        <span>Revisión anual</span>
+                                    </button>
                                 </div>
-                            {% endif %}
+                            </div>
 {#                          /Botones de destrucción, revisión y firma (revisión anual)#}
 
 {#                          Listado#}
@@ -176,7 +72,6 @@
                                         <th>Estado</th>
                                         <th>Representante de Retención</th>
                                         <th>Fecha inicio período de retención</th>
-                                        <th>Fecha de revisión anual</th>
                                         <th>Acciones</th>
                                     </tr>
                                     </thead>
@@ -188,7 +83,6 @@
                                             {% if _isAnnualReviewFiltered and template.wasReviewed == false %}
                                                 <td>
                                                     <input type="checkbox"/>
-                                                    {{ _templateId }}
                                                 </td>
                                             {% else %}
                                                 <td>{{ _templateId }}</td>
@@ -208,7 +102,6 @@
                                             <td> {{ template.state }}    </td>
                                             <td> {{ template.retentionRepresentative }} </td>
                                             <td> {{ template.startDateRetention | date("d/m/Y") | gskdate }} </td>
-                                            <td> {{ template.annualReviewDate | date("d/m/Y") | gskdate }} </td>
                                             <td>
                                                 <div class="btn-group btn-xs">
                                                     <button type="button" class="btn btn-xs btn-primary" data-toggle="dropdown"><i class="fa fa-ellipsis-h"></i></button>
@@ -221,9 +114,9 @@
                                                         <li><a href="{{ path('nononsense_tm_template_audit_trail', _optionsTemplateId) }}"><i class="fa fa-book"></i> {{ 'Audit Trail'|trans }}</a></li>
                                                         <li><a href="{{ path('nononsense_tm_template_cover_page', _optionsTemplateId) }}"><i class="fa fa-print"></i> {{ 'Imprimir plantilla' |trans }}</a></li>
                                                         {% if template.toBeDestroyed %}
-                                                            <li><a href="#" id="selectedDestruction" onclick="prepareAndDestroy('{{ _templateId }}')"><i class="fa fa-trash"></i> {{ 'Destruir' |trans }}</a></li>
+                                                            <li><a href="#" id="selectedDestruction" onclick="destroy('{{ _templateId }}')"><i class="fa fa-trash"></i> {{ 'Destruir' |trans }}</a></li>
                                                         {% endif %}
-                                                        {% if template.wasReviewed is same as (false) %}
+                                                        {% if template.wasReviewed %}
                                                             <li><a href="{{ path('nononsense_retention_categories_template_mark_reviewed', _optionsTemplateId) }}"><i class="fa fa-eye"></i> {{ 'Revisado, no destruir' |trans }}</a></li>
                                                         {% endif %}
                                                     </ul>
@@ -235,26 +128,26 @@
                                 </table>
                             </div>
 {#                          /Listado#}
+
 {#                          Botones de destrucción, revisión y firma (revisión anual)#}
-                                {% if _isAnnualReviewFiltered %}
-                                    <div class="row pull-right">
-                                        <div class="col-md-12 col-sm-5 form-group">
-                                            <button type="button" class="btn btn-danger ml-3" name="selectedDestruction" disabled>
-                                                <i class="fa fa-trash-o" aria-hidden="true"></i>
-                                                <span>Destruir seleccionados</span>
-                                            </button>
-                                            <button type="button" class="btn btn-primary ml-3" name="selectedReview" disabled>
-                                                <i class="fa fa-eye" aria-hidden="true"></i>
-                                                <span>Revisar seleccionados</span>
-                                            </button>
-                                            <button type="button" class="btn btn-success ml-3" name="annualReview" disabled>
-                                                <i class="fa fa-eye" aria-hidden="true"></i>
-                                                <span>Revisión anual</span>
-                                            </button>
-                                        </div>
-                                    </div>
-                                {% endif %}
+                            <div class="row pull-right">
+                                <div class="col-md-12 col-sm-5 form-group">
+                                    <button type="button" class="btn btn-danger ml-3" name="selectedDestruction" disabled>
+                                        <i class="fa fa-trash-o" aria-hidden="true"></i>
+                                        <span>Destruir seleccionados</span>
+                                    </button>
+                                    <button type="button" class="btn btn-primary ml-3" name="selectedReview" disabled>
+                                        <i class="fa fa-eye" aria-hidden="true"></i>
+                                        <span>Revisar seleccionados</span>
+                                    </button>
+                                    <button type="button" class="btn btn-success ml-3" name="annualReview" disabled>
+                                        <i class="fa fa-eye" aria-hidden="true"></i>
+                                        <span>Revisión anual</span>
+                                    </button>
+                                </div>
+                            </div>
 {#                          /Botones de destrucción, revisión y firma (revisión anual)#}
+
 {#                          Paginación#}
                             {% set _hasPagination = pagination is defined and pagination.needed %}
                             {% if _hasPagination %}
@@ -264,11 +157,7 @@
                         </div>
                     {% else %}
                         <div>
-                            {% if filters is defined %}
-                                No se encontraron plantillas con los criterios especificados
-                            {% else %}
-                                No hay datos. Debe filtrar por al menos un criterio
-                            {% endif %}
+                            No se encontraron plantillas para ser revisadas
                         </div>
                     {% endif %}
                 </div>
@@ -305,6 +194,24 @@
                             <button type="submit" class="btn btn-primary">Confirmar la destrucción de las plantillas seleccionadas</button>
                         </div>
                     </form>
+{#                    <form id="commentAndSignForm" method="POST"  enctype="multipart/form-data">#}
+{#                        <div class="row">#}
+{#                            <div class="col-lg-10 col-lg-offset-1">#}
+{#                                <b>Comentarios</b><br>#}
+{#                                <div class="form-group">#}
+{#                                    <textarea class="form-control" name="description" id="description" rows="10" cols="40" style="width:100%"></textarea>#}
+{#                                </div>#}
+{#                            </div>#}
+{#                        </div>#}
+{#                        <div class="row">#}
+{#                            <div class="col-lg-10 col-lg-offset-1 mb-3">#}
+{#                                <div class="input-group">#}
+{#                                    <label for="formPassword">Introduzca su firma</label><br>#}
+{#                                    <input type="password" name="password" id="formPassword" class="form-control" required="required"><br>#}
+{#                                </div>#}
+{#                            </div>#}
+{#                        </div>#}
+{#                    </form>#}
                 </div>
 
             </div>
@@ -397,17 +304,55 @@
         });
     </script>
     <script>
-        function prepareAndDestroy(templatesToBeDestroyed) {
-            selectedRows.add(templatesToBeDestroyed);
-            destroy();
-        }
-        function destroy() {
+        function destroy(templatesToBeDestroyed) {
             // Modal para introducir comentario y password
             $('#commentAndSignature').modal({
                 backdrop: "static",
                 keyboard: false
             });
-
+            {#$.ajax({#}
+            {#    url: "{{ path('nononsense_retention_categories_template_destroy') }}",#}
+            {#    type: 'POST',#}
+            {#    dataType: 'json',#}
+            {#    async: false,#}
+            {#    data: {ids: templatesToBeDestroyed},#}
+            {#    success: function (response) {#}
+            {#        if (response.result) {#}
+            {#            selectedRows.add(templatesToBeDestroyed);#}
+            {#            swal({#}
+            {#                title: "Éxito",#}
+            {#                text: response.message,#}
+            {#                icon: "success",#}
+            {#                confirmButtonColor: '#62bbe2',#}
+            {#                confirmButtonText: "Ok",#}
+            {#                closeOnConfirm: true,#}
+            {#            }, function (result) {#}
+            {#                if (result) {#}
+            {#                    #}
+            {#                }#}
+            {#            });#}
+            {#        } else {#}
+            {#            swal({#}
+            {#                title: "Error",#}
+            {#                text: response.message,#}
+            {#                icon: "error",#}
+            {#                confirmButtonColor: '#62bbe2',#}
+            {#                confirmButtonText: "Ok",#}
+            {#                closeOnConfirm: true,#}
+            {#            });#}
+            {#        }#}
+            {#    },#}
+            {#    error: function () {#}
+            {#        swal({#}
+            {#            title: "Error",#}
+            {#            text: "Algunas plantillas no se marcaron para su destrucción",#}
+            {#            icon: 'error',#}
+            {#            confirmButtonColor: '#62bbe2',#}
+            {#            confirmButtonText: "Ok",#}
+            {#            closeOnConfirm: true#}
+            {#        });#}
+            {#    }#}
+            {#});#}
         }
     </script>
 {% endblock %}

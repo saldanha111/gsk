@@ -8,6 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Exception;
 use Nononsense\HomeBundle\Services\TMTemplatesService;
 use Nononsense\NotificationsBundle\Entity\NotificationsModels;
+use Nononsense\UserBundle\Entity\Users;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Serializer\Annotation\Groups;
 
@@ -176,9 +177,9 @@ class TMTemplates
     protected $effectiveDate;
 
     /**
-     * @ORM\Column(name="review_date_retention", type="date", nullable=true)
+     * @ORM\Column(name="retention_review_date", type="date", nullable=true)
      */
-    protected $reviewDateRetention;
+    protected $retentionReviewDate;
 
     /**
      * @ORM\ManyToMany(targetEntity="\Nononsense\HomeBundle\Entity\RetentionCategories", inversedBy="templates")
@@ -356,6 +357,28 @@ class TMTemplates
      * @ORM\Column(name="is_deleted",  type="boolean",  options={"default" = false},  nullable=true)
      */
     protected $isDeleted;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="retentionRepresentativeTemplates")
+     * @ORM\JoinColumn(name="retention_representative_id", referencedColumnName="id")
+     */
+    protected $retentionRepresentative;
+
+
+    /**
+     * @ORM\Column(name="reviewed_dont_destroy",  type="boolean",  options={"default" = false})
+     */
+    protected $reviewedDontDestroy;
+
+    /**
+     * @ORM\Column(name="request_to_be_destroyed",  type="integer",  options={"default" = false})
+     */
+    protected $requestedToBeDestroyed;
+
+    /**
+     * @ORM\Column(name="annual_review_date",  type="date", nullable=true)
+     */
+    protected $annualReviewDate;
 
 
     public function __construct()
@@ -644,7 +667,7 @@ class TMTemplates
     {
         $this->tmState = $tmState;
         if (!is_null($tmState)) {
-            $this->state_date = new DateTime();
+            $this->stateDate = new DateTime();
         }
 
         $OBSOLETA = 7; $BAJA = 8;
@@ -652,15 +675,18 @@ class TMTemplates
 
         if (in_array($tmState->getId(), $statesOfRetention, true)) {
 
-            $this->setReviewDate(new DateTime());
             $this->startRetention = new DateTime();
 
             if (!is_null($tmState) && count($this->retentions) > 0) {
                 $this->startRetention = new DateTime();
 
                 $retentionCategory = TMTemplatesService::getTheMostRestrictiveCategoryByTemplateId($this);
+                if (!is_null($retentionCategory)) {
+                    $this->setFinishRetention($retentionCategory->getRetentionDays());
+                } else {
+                    $this->setFinishRetention(0);
+                }
 
-                $this->setFinishRetention($retentionCategory->getRetentionDays());
             }
         }
 
@@ -1147,26 +1173,26 @@ class TMTemplates
     }
 
     /**
-     * Set reviewDateRetention
+     * Set retentionReviewDate
      *
-     * @param \DateTime $reviewDateRetention
+     * @param \DateTime $retentionReviewDate
      * @return TMTemplates
      */
-    public function setReviewDateRetention($reviewDateRetention)
+    public function setRetentionReviewDate($retentionReviewDate)
     {
-        $this->reviewDateRetention = $reviewDateRetention;
+        $this->retentionReviewDate = $retentionReviewDate;
 
         return $this;
     }
 
     /**
-     * Get reviewDateRetention
+     * Get retentionReviewDate
      *
      * @return \DateTime 
      */
-    public function getReviewDateRetention()
+    public function getRetentionReviewDate()
     {
-        return $this->reviewDateRetention;
+        return $this->retentionReviewDate;
     }
 
     /**
@@ -1620,10 +1646,14 @@ class TMTemplates
      * @param int $maxRetentionDays
      * @throws Exception
      */
-    public function setFinishRetention(int $maxRetentionDays)
+    public function setFinishRetention(int $maxRetentionDays = -1)
     {
-        $duration = "P" . $maxRetentionDays . "D";
-        $this->finishRetention->add(new DateInterval($duration));
+        if ($maxRetentionDays > -1) {
+            $duration = "P" . $maxRetentionDays . "D";
+            $this->finishRetention->add(new DateInterval($duration));
+        } else {
+            $this->finishRetention = null;
+        }
     }
 
     /**
@@ -1645,14 +1675,30 @@ class TMTemplates
     }
 
     /**
-     * @param DateTime $destructionDate
+     * @param DateTime | null $destructionDate
      * @return TMTemplates
      */
     public function setDestructionDate(DateTime $destructionDate)
     {
         $this->destructionDate = $destructionDate;
-
+        if (!is_null($destructionDate)) {
+            $this->isDeleted = true;
+        }
         return $this;
+    }
+
+    /**
+     * @param int $maxRetentionDays
+     * @throws Exception
+     */
+    public function setDestructionDateByDays(int $retentionDays = -1)
+    {
+        if ($retentionDays > -1) {
+            $duration = "P" . $retentionDays . "D";
+            $this->destructionDate->add(new DateInterval($duration));
+        } else {
+            $this->destructionDate = null;
+        }
     }
 
     /**
@@ -1692,5 +1738,86 @@ class TMTemplates
 
         return $this;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getNotificationsModels()
+    {
+        return $this->notificationsModels;
+    }
+
+    /**
+     * @return Users
+     */
+    public function getRetentionRepresentative()
+    {
+        return $this->retentionRepresentative;
+    }
+
+    /**
+     * @param Users $retentionRepresentative
+     */
+    public function setRetentionRepresentative(Users $retentionRepresentative = null)
+    {
+        $this->retentionRepresentative = $retentionRepresentative;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getReviewedDontDestroy()
+    {
+        return $this->reviewedDontDestroy;
+    }
+
+    /**
+     * @return TMTemplates
+     */
+    public function setReviewedDontDestroy(bool $reviewedDontDestroy = true)
+    {
+        $this->reviewedDontDestroy = $reviewedDontDestroy;
+
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getRequestedToBeDestroyed()
+    {
+        return $this->requestedToBeDestroyed;
+    }
+
+    /**
+     * @param mixed $requestedToBeDestroyed
+     * @return TMTemplates
+     */
+    public function setRequestedToBeDestroyed($requestedToBeDestroyed)
+    {
+        $this->requestedToBeDestroyed = $requestedToBeDestroyed;
+
+        return $this;
+    }
+
+    /**
+     * @return DateTime | null
+     */
+    public function getAnnualReviewDate()
+    {
+        return $this->annualReviewDate;
+    }
+
+    /**
+     * @param DateTime | null $annualReviewDate
+     * @return TMTemplates
+     */
+    public function setAnnualReviewDate($annualReviewDate)
+    {
+        $this->annualReviewDate = $annualReviewDate;
+
+        return $this;
+    }
+
 
 }

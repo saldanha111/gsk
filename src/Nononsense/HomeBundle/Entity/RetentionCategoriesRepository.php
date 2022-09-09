@@ -6,6 +6,7 @@ use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Query\QueryException;
 use Doctrine\ORM\Query\ResultSetMapping;
 use Doctrine\ORM\QueryBuilder;
+use Nononsense\UtilsBundle\Classes\Utils;
 use PDO;
 
 /**
@@ -77,8 +78,6 @@ class RetentionCategoriesRepository extends EntityRepository
      */
     private function fillFilersQuery(array $filters, QueryBuilder $list)
     {
-        $list->andWhere('rc.deletedAt is null');
-
         if (isset($filters["name"])) {
             $list->andWhere('rc.name = :name');
             $list->setParameter('name', $filters["name"]);
@@ -138,14 +137,14 @@ class RetentionCategoriesRepository extends EntityRepository
     /**
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function getRetentionCategoriesNotDeleted(): array
+    public function getActiveRetentionCategories(): array
     {
         $em = $this->getEntityManager();
 
         $query = $em->getConnection()->executeQuery("
-            select rc.id, rc.name, rc.retention_period_start_date, rc.retention_period_end_date
+            select rc.id, rc.name, rc.retention_days
             from retention_categories rc
-            where rc.deletedAt is null
+            where rc.active = 'true'
         ");
 
         return $query->fetchAll();

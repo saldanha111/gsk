@@ -334,6 +334,11 @@ class Users implements AdvancedUserInterface, \Serializable
     protected $notificationsModels;
 
     /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMTemplates", mappedBy="retentionRepresentative")
+     */
+    protected $retentionRepresentativeTemplates;
+
+    /**
      * Users constructor.
      */
     
@@ -2134,4 +2139,39 @@ class Users implements AdvancedUserInterface, \Serializable
     {
         return $this->delegationssustitutes;
     }
+
+    /**
+     * Add retentionRepresentativeTemplates
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMTemplates $retentionRepresentativeTemplates
+     * @return Users
+     */
+    public function addRetentionRepresentativeTemplate(\Nononsense\HomeBundle\Entity\TMTemplates $retentionRepresentativeTemplate)
+    {
+        $this->retentionRepresentativeTemplates[] = $retentionRepresentativeTemplate;
+
+        return $this;
+    }
+
+    /**
+     * Remove retentionRepresentativeTemplate
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMTemplates $retentionRepresentativeTemplate
+     */
+    public function removeRetentionRepresentativeTemplate(\Nononsense\HomeBundle\Entity\TMTemplates $retentionRepresentativeTemplate)
+    {
+        $this->retentionRepresentativeTemplates->removeElement($retentionRepresentativeTemplate);
+    }
+
+
+    /**
+     * Get retentionRepresentativeTemplates
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getRetentionRepresentativeTemplates()
+    {
+        return $this->retentionRepresentativeTemplates;
+    }
+
 }

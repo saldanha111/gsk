@@ -851,9 +851,9 @@ class Utils
     /*
     *
     */
-    public static function generatePdf($container, string $title = 'GSK', string $subject = 'GSK', string $html = '', string $type, string $path){
+    public static function generatePdf($container, string $title = 'GSK', string $subject = 'GSK', string $html = '', string $type, string $path, string $orientation = 'vertical'){
 
-        $pdf = $container->get("white_october.tcpdf")->create('vertical', PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+        $pdf = $container->get("white_october.tcpdf")->create($orientation, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
 
         $pdf->SetAuthor('GSK');
         $pdf->SetTitle($title);

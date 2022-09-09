@@ -139,26 +139,13 @@ class RetentionCategoriesCumplimentationController extends Controller
             $this->updateBindingTemplateRetentionCategories($templateId, $boundedCategories);
         } catch(Exception $exception) {
             return $this->returnToHomePage("No se pudieron actualizar las categorías de retención asociadas a la plantilla");
-//            return $this->returnToHomePage($exception->getMessage());
         }
-//        $is_valid = $this->get('app.security')->permissionSeccion('admin_gp');
-//        if(!$is_valid){
-//            $this->get('session')->getFlashBag()->add(
-//                'error',
-//                'No tiene permisos suficientes'
-//            );
-//            $route=$this->container->get('router')->generate('nononsense_home_homepage');
-//            return $this->redirect($route);
-//        }
-//
-//        $data = $this->getDataFromTemplate($id);
-
         $route=$this->container->get('router')->generate('nononsense_home_homepage');
         return $this->redirect($route);
 
     }
 
-    public function reviewCumplimentationsAction(Request $request)
+    public function annualReviewCumplimentationAction(Request $request)
     {
         $templateIDs = array_map('intval', explode(',', $request->get('ids')));
         $hasPermission = $this->checkPermission();
@@ -377,14 +364,19 @@ class RetentionCategoriesCumplimentationController extends Controller
 
     private function getDataFromTemplate(int $templateId): array
     {
+        $today = date("Y-m-d");
+
         /**
          * @var TMTemplates $template
          */
         $template = $this->getDoctrine()->getRepository(TMTemplates::class)->findOneBy(array("id" => $templateId));
-
+        $mostRestrictiveRetentionCategory = TMTemplatesService::getTheMostRestrictiveCategoryByTemplateId($template);
         $data["template"]["id"] = $template->getId();
         $data["template"]["destructionDate"] = $template->getDestructionDate();
-        $data["template"]["mostRestrictiveRetentionCategory"] = TMTemplatesService::getTheMostRestrictiveCategoryByTemplateId($template)->getName();
+        $data["template"]["mostRestrictiveRetentionCategory"] = !is_null($mostRestrictiveRetentionCategory)
+            ? $mostRestrictiveRetentionCategory->getName()
+            : ""
+        ;
         $data["template"]["name"] = $template->getName();
         $data["template"]["code"] = $template->getNumber();
         $data["template"]["edition"] = $template->getNumEdition();
@@ -394,6 +386,23 @@ class RetentionCategoriesCumplimentationController extends Controller
         $data["template"]["backup"] = $template->getBackup()->getName();
         $data["template"]["effectiveDate"] = $template->getEffectiveDate();
         $data["template"]["stateDate"] = $template->getStartRetention();
+
+        $data["retentionCategories"] = $this->getDoctrine()->getRepository(RetentionCategories::class)->getRetentionCategoriesNotDeleted();
+
+        $retentions = $template->getRetentions();
+        /** @var RetentionCategories $retention */
+        forEach($retentions as $retention) {
+            if (is_null($retention->getDeletedAt())) {
+                $data["template"]["boundedRetentionCategories"][] = [
+                    "id" => $retention->getId(),
+                    "name" => $retention->getName(),
+                    "retentionPeriodStartDate" => $retention->getRetentionPeriodStartDate(),
+                    "retentionPeriodEndDate" => $retention->getRetentionPeriodEndDate()
+                ];
+            }
+        }
+
+        $data["template"]["toggleDestructionButton"] = is_null($template->getDestructionDate()) && ($today > $template->getFinishRetention());
 
         return $data;
     }
@@ -421,8 +430,11 @@ class RetentionCategoriesCumplimentationController extends Controller
             // retention category from their new ones.
 
             $theMostRestrictiveBoundedCategory = TMTemplatesService::getTheMostRestrictiveCategoryByTemplateId($template);
-
-            $template->setFinishRetentionByDate($theMostRestrictiveBoundedCategory->getRetentionPeriodEndDate());
+            if (!is_null($theMostRestrictiveBoundedCategory)) {
+                $template->setFinishRetentionByDate($theMostRestrictiveBoundedCategory->getRetentionPeriodEndDate());
+            } else {
+                $template->setFinishRetentionByDate(null);
+            }
 
             $em->persist($template);
             $em->flush();

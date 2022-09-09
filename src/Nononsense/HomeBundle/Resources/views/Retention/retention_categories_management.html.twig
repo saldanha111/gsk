@@ -40,7 +40,7 @@
                     <div class="col-md-2 col-sm-5 form-group">
                         <label class="control-label">Tipo</label>
                         <div>
-                            <select class="form-control" name="f_type">
+                            <select class="form-control" name="f_type" id="f_type">
                                 <option value=""></option>
                                 {% for type in types %}
                                     <option value="{{type.id}}" {{ filters.type is defined and filters.type is not null and filters.type==type.id ? 'selected="selected"' : ''}}>{{type.name}}</option>
@@ -51,7 +51,7 @@
                     <div class="col-md-2 col-sm-5 form-group">
                         <label class="control-label">Estado</label>
                         <div>
-                            <select class="form-control" name="f_state">
+                            <select class="form-control" name="f_state" id="f_state">
                                 <option value=""></option>
                                 {% for state in states %}
                                     <option value="{{state.id}}" {{ filters.state is defined and filters.state is not null and filters.state==state.id ? 'selected="selected"' : ''}}>{{state.name}}</option>
@@ -93,12 +93,10 @@
                     <th>Descripción</th>
                     <th>Tipo</th>
                     <th>Estado</th>
-                    <th>Inicio de Período de retención</th>
                     <th>Tiempo</th>
-                    <th>Fin de Período de retención</th>
                     <th>Confirma</th>
                     <th>Activo</th>
-                    <th>Editar</th>
+                    <th>Acciones</th>
                 </tr>
                 </thead>
                 {% if items is defined %}
@@ -109,14 +107,11 @@
                         <td>{{ item.description }}</td>
                         <td>{{ item.type.name }}</td>
                         <td>{{ item.documentState.name }}</td>
-                        <td>{{ item.retentionPeriodEndDate is not defined or item.retentionPeriodEndDate is null ? "" : item.retentionPeriodStartDate | date("d/m/Y")|gskdate }}
                         <td>
                             <span>{{ item.retentionDaysFormatted['years'] }}a </span>
                             <span>{{ item.retentionDaysFormatted['months'] }}m </span>
                             <span>{{ item.retentionDaysFormatted['days'] }}d </span>
                         </td>
-                        <td>{{ item.retentionPeriodEndDate is null ? "" : item.retentionPeriodEndDate | date("d/m/Y")|gskdate }}
-
                         <td>
                             {% if item.destroyUser is defined and item.destroyUser is not null %}
                                 {{ item.destroyUser.name }}
@@ -128,10 +123,17 @@
                         </td>
                         <td>{{ item.active ? 'Activo' : 'Inactivo' }}</td>
                         <td>
-                            <a href="{{ path('nononsense_retention_categories_edit', {'id' : item.id}) }}" class="btn btn-xs">
-                                <i class="fa fa-pencil" aria-hidden="true"></i>
-                                <span> Editar</span>
-                            </a>
+                            {% if item.active %}
+                                <a href="{{ path('nononsense_retention_categories_edit', {'id' : item.id}) }}" class="btn btn-xs">
+                                    <i class="fa fa-pencil" aria-hidden="true"></i>
+                                    <span> Editar</span>
+                                </a>
+                            {% else %}
+                                <a href="{{ path('nononsense_retention_categories_setActive', {'id' : item.id}) }}" class="btn btn-xs">
+                                    <i class="fa fa-dot-circle-o" aria-hidden="true"></i>
+                                    <span>Activar</span>
+                                </a>
+                            {% endif %}
                         </td>
                     </tr>
                     {% endfor %}
@@ -156,5 +158,44 @@
     $('[data-toggle="tooltip"]').tooltip();
   });
 </script>
+    <script>
+        $("#f_type").on("change", function() {
+            let estadosPorTipoCategorias = [];
+            {% if states is defined and types is defined %}
+                const GESTION_PLANTILLAS = 1; const CUMPLIMENTACION = 2;
+                const type = parseInt($(this).val());
+                if (GESTION_PLANTILLAS === type) {
+                    {% for i in range(0, states|length-1) %}
+                        {% if states[i].type == 1 %}
+                            estadosPorTipoCategorias.push({{ states[i].id }});
+                        {% endif %}
+                    {% endfor %}
+                }
+
+                if (CUMPLIMENTACION === type) {
+                    {% if states is defined and states | length > 0 %}
+                        {% for i in range(0, states|length-1) %}
+                            {% if states[i].type == 2 %}
+                                estadosPorTipoCategorias.push({{ states[i].id }});
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                }
+
+                const state = document.getElementById("f_state");
+                let options = "";
+                for (let i = 0; i < estadosPorTipoCategorias.length; i++) {
+                    {% for state in states %}
+                    if (estadosPorTipoCategorias[i] === {{state.id}}) {
+                        options += '<option value="{{state.id}}"' +
+                            '{{ category.documentState.id is defined and category.documentState.id is not null and category.documentState.id==state.id ? 'selected="selected"' : ''}}' +
+                            '>{{state.name}}</option>';
+                    }
+                    {% endfor %}
+                }
+                state.innerHTML = options;
+            {% endif %}
+        });
+    </script>
 {% endblock %}
                         

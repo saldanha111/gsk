@@ -3,9 +3,9 @@
     {{states is defined and types is defined and category.id is not null ? 'Editar' : 'Crear'}} categoría
 {% endblock %}
 {% block head %}
+    {{ parent() }}
     <link rel="stylesheet" href="{{ asset('bundles/nononsensehome/css/select2.min.css') }}">
     <link rel="stylesheet" href="{{ asset('/js/plugins/sweetalert/sweetalert.min.css') }}">
-    {{ parent() }}
 {% endblock %}
 {% block main_title %} Retención /
     {{states is defined and types is defined and category.id is not null ? 'Editar' : 'Crear'}} categoría
@@ -66,12 +66,6 @@
                                             {%endif%}
                                         {% endfor %}
                                     </select>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="col-sm-4 control-label">Fecha de inicio de Período de Retención</label>
-                                <div class="col-sm-7">
-                                    <input type="text" name="retention_period_start_date" class="form-control" value="{{ category.retentionPeriodStartDate is not null ? category.retentionPeriodStartDate | date("d/m/Y") : ''}}" required="required">
                                 </div>
                             </div>
                             <div class="form-group">
@@ -151,7 +145,7 @@
                             <div class="form-group">
                                 <label class="col-sm-4 control-label">Activo</label>
                                 <div class="col-sm-7">
-                                    <input name="active" value="1" type="checkbox" {% if category.active == true %} checked="checked" {% endif %}>
+                                    <input name="active" id="active" value="1" type="checkbox" {% if category.active == true %} checked="checked" {% endif %}>
                                 </div>
                             </div>
                             <div class="form-group">
@@ -175,17 +169,14 @@
                             <i class="fa fa-floppy-o" aria-hidden="true"></i>
                             <span> {{category.id is not null ? 'Editar' : 'Registrar'}} categoría</span>
                         </button>
-                        {% if not used and category.id is defined and category.id is not null%}
-                            <button type="button" class="btn btn-danger del-category md-3">
-                                <i class="fa fa-trash-o" aria-hidden="true"></i><span> Eliminar categoría</span>
-                            </button>
-                        {% endif %}
+{#                        {% if not used and category.id is defined and category.id is not null%}#}
+{#                            <button type="button" class="btn btn-danger del-category md-3">#}
+{#                                <i class="fa fa-trash-o" aria-hidden="true"></i><span> Eliminar categoría</span>#}
+{#                            </button>#}
+{#                        {% endif %}#}
                     </div>
                 </div>
             </form>
-            {% if not used and category.id is defined and category.id is not null%}
-                <input type="hidden" name="del-url"  value="{{ path('nononsense_retention_categories_delete',{'id': category.id}) }}">
-            {% endif %}
             <input type="hidden" name="edit-url" value="{{ path('nononsense_retention_categories_edit',{'id': category.id is not null ? category.id : 0}) }}">
         {% endif %}
     </div>
@@ -196,7 +187,7 @@
     {{ parent() }}
     <script src="{{ asset('bundles/nononsensehome/js/select2.full.min.js') }}"></script>
     <script src="{{ asset('js/plugins/sweetalert/sweetalert.min.js') }}"></script>
-
+{#    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>#}
     <script>
 
     $( document ).ready(function() {
@@ -219,51 +210,51 @@
             }
         });
 
-        $(document).on('click','.del-category',function(e){
-            e.preventDefault();
-
-            let error = false;
-
-            const formItemFirma = document.getElementById("formItemFirma").value;
-            const formItemFirmaEstaVacia = (formItemFirma === "");
-
-            if (formItemFirmaEstaVacia) {
-                swal({
-                    title: "Atención",
-                    text: "Debe rellenar una firma, no puede dejar el cuadro en blanco",
-                    type: "warning"
-                });
-                error = true;
-            }
-
-            if  (!error) {
-                const elComentarioEstaVacio = (!$('.text-comment').val())
-                if (elComentarioEstaVacio) {
-                    swal({
-                        title: "Atención",
-                        text: "Debe escribir un comentario para realizar la acción",
-                        type: "warning"
-                    });
-                    error = true;
-                }
-            }
-
-            if(!error){
-                swal({
-                    title: "¿Quieres eliminar esta categoría de retención?",
-                    text: "Si se elimina, no se podrá recuperar.",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#62bbe2',
-                    cancelButtonColor: '#ac2925',
-                    confirmButtonText: "Sí, borradla",
-                    cancelButtonText: "Cancelar",
-                    closeOnConfirm: false
-                }, function () {
-                    $('#form_item').attr('action', $('input[name="del-url"]').val()).submit();
-                });
-            }
-        });
+        // $(document).on('click','.del-category',function(e){
+        //     e.preventDefault();
+        //
+        //     let error = false;
+        //
+        //     const formItemFirma = document.getElementById("formItemFirma").value;
+        //     const formItemFirmaEstaVacia = (formItemFirma === "");
+        //
+        //     if (formItemFirmaEstaVacia) {
+        //         swal({
+        //             title: "Atención",
+        //             text: "Debe rellenar una firma, no puede dejar el cuadro en blanco",
+        //             type: "warning"
+        //         });
+        //         error = true;
+        //     }
+        //
+        //     if  (!error) {
+        //         const elComentarioEstaVacio = (!$('.text-comment').val())
+        //         if (elComentarioEstaVacio) {
+        //             swal({
+        //                 title: "Atención",
+        //                 text: "Debe escribir un comentario para realizar la acción",
+        //                 type: "warning"
+        //             });
+        //             error = true;
+        //         }
+        //     }
+        //
+        //     if(!error){
+        //         swal({
+        //             title: "¿Quieres eliminar esta categoría de retención?",
+        //             text: "Si se elimina, no se podrá recuperar.",
+        //             icon: 'warning',
+        //             showCancelButton: true,
+        //             confirmButtonColor: '#62bbe2',
+        //             cancelButtonColor: '#ac2925',
+        //             confirmButtonText: "Sí, borradla",
+        //             cancelButtonText: "Cancelar",
+        //             closeOnConfirm: false
+        //         }, function () {
+        //             $('#form_item').attr('action', $('input[name="del-url"]').val()).submit();
+        //         });
+        //     }
+        // });
 
         $(document).on('click','.edit-category',function(e){
             e.preventDefault();
@@ -376,6 +367,61 @@
             group.attr('required','required');
         }
     });
+    </script>
+    <script>
+        $("#active").on("change", function() {
+            const isActive = $("#active").is(":checked");
+            if (!isActive) {
+                swal({
+                    title: "Comprobación",
+                    text: "Comprobamos si esta categoría está asociada a una plantilla.\n Por favor, espere.",
+                    icon: "warning",
+                    confirmButtonColor: '#62bbe2',
+                    confirmButtonText: "Ok",
+                    closeOnConfirm: true,
+                });
+                $.ajax({
+                    url: "{{ path('nononsense_retention_categories_check_isLinked') }}",
+                    type: 'POST',
+                    dataType: 'json',
+                    async: true,
+                    data: {id: '{{ category.id }}'},
+                    success: function (response) {
+                        let title; let icon;
+                        if (response.status) {
+                            swal({
+                                title: "Aviso",
+                                icon: "warning",
+                                text: response.message,
+                                confirmButtonColor: '#62bbe2',
+                                confirmButtonText: "Ok",
+                                closeOnConfirm: true,
+                            });
+                        } else {
+                            swal({
+                                title: "Comprobación finalizada",
+                                icon: "success",
+                                text: "Esta categoría se puede desactivar sin problemas.",
+                                confirmButtonColor: '#62bbe2',
+                                confirmButtonText: "Ok",
+                                closeOnConfirm: true,
+                            });
+                        }
+
+                    },
+                    error: function () {
+                        swal({
+                            title: "Error",
+                            text: "Hubo un problema en el servidor. Por favor, inténtelo más tarde",
+                            icon: 'error',
+                            confirmButtonColor: '#62bbe2',
+                            confirmButtonText: "Ok",
+                            closeOnConfirm: true
+                        });
+                    }
+                });
+            }
+        });
     </script>
 {% endblock %}
 

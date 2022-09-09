@@ -15,6 +15,7 @@ use Nononsense\HomeBundle\Entity\RetentionCategoriesRepository;
 use Nononsense\HomeBundle\Entity\TMTemplates;
 use Nononsense\UserBundle\Entity\Users;
 use Nononsense\UtilsBundle\Classes\Utils;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 
@@ -36,7 +37,8 @@ class RetentionCategoriesController extends Controller
 
         /** @var retentionCategoriesRepository $retentionCategoriesRepository */
         $retentionCategoriesRepository = $em->getRepository(retentionCategories::class);
-        $states = $em->getRepository(RCStates::class)->findAll();
+        $statesRepository = $em->getRepository(RCStates::class)->findAll();
+        $states = $this->parseStates($statesRepository);
         $types = $em->getRepository(RCTypes::class)->findAll();
         $items = $retentionCategoriesRepository->list($filters);
         $totalItems = $retentionCategoriesRepository->count($filters);
@@ -61,7 +63,7 @@ class RetentionCategoriesController extends Controller
         }
 
         $em = $this->getDoctrine()->getManager();
-        $category = $em->getRepository(retentionCategories::class)->findOneBy(['id' => $id, 'deletedAt' => null]);
+        $category = $em->getRepository(retentionCategories::class)->findOneBy(['id' => $id, 'active' => true]);
         if (!$category) {
             $category = new retentionCategories();
         }
@@ -79,7 +81,7 @@ class RetentionCategoriesController extends Controller
         $used = (count($category->getTemplates()) > 1);
 
         if (!$this->thereAreData($states, $types, $users, $groups)) {
-            $this->addFlash("error", "No hemos podido recuperar los tipos, los estados, los usuarios o los grupos");
+            $this->addFlash("error", "No hemos podido recuperar algunos datos para los filtros.");
             $data = [];
         } else {
             $data = [
@@ -95,40 +97,50 @@ class RetentionCategoriesController extends Controller
         return $this->render('NononsenseHomeBundle:Retention:category_edit.html.twig', $data);
     }
 
-    public function deleteAction(Request $request, $id)
+    public function activeAction(Request $request, $id)
     {
-        $is_valid = $this->get('app.security')->permissionSeccion('retention_admin');
-        if (!$is_valid) {
+        $hasPermission = $this->get('app.security')->permissionSeccion('retention_admin');
+        if (!$hasPermission) {
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
 
         $em = $this->getDoctrine()->getManager();
-        $em->getConnection()->beginTransaction();
-        try {
-            /** @var RetentionCategories $retentionCategory */
-            $retentionCategory = $em->getRepository(retentionCategories::class)->findOneBy(
-                ['id' => $id, 'deletedAt' => null]
-            );
+        /** @var RetentionCategories $category **/
+        $category = $em->getRepository(retentionCategories::class)->findOneBy(['id' => $id]);
 
-            if ($retentionCategory) {
-                $retentionCategory->setDeletedAt(new DateTime());
-                $em->persist($retentionCategory);
+        if ($category) {
+            try {
+                $category->setActive(true);
+                $category->setDeletedAt(null);
+                $em->persist($category);
                 $em->flush();
-                $this->saveLog('delete', $request->get('comment'), $request->get('signature'), $retentionCategory);
-                $em->getConnection()->commit();
-                $this->get('session')->getFlashBag()->add('message', "La categoría se ha eliminado correctamente");
-            } else {
-                $this->get('session')->getFlashBag()->add('error', "La categoría no existe");
+            } catch(Exception $exc) {
+                $this->addFlash("error", "No hemos podido actualizar esta categoría de retención");
+
             }
-        } catch (Exception $e) {
-            $em->getConnection()->rollback();
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                $e->getMessage()
-            );
-            return $this->redirect($this->generateUrl('nononsense_retention_categories_edit', ['id' => $id]));
+        } else {
+            $this->addFlash("error", "No hemos podido actualizar esta categoría de retención");
         }
-        return $this->redirect($this->generateUrl('nononsense_retention_categories_list'));
+
+        return $this->redirectToRoute("nononsense_retention_categories_list");
+    }
+
+    public function checkIsLinkedAction(Request $request): JsonResponse {
+
+
+        $hasPermission = $this->get('app.security')->permissionSeccion('retention_admin');
+        if (!$hasPermission) {
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+        }
+
+        $em = $this->getDoctrine()->getManager();
+
+        $retentionCategoryId = (int)$request->get("id");
+        $retentionCategories = $em->getRepository(RetentionCategories::class)->getRetentionCategoriesFromTMRetentions($retentionCategoryId);
+        return new JsonResponse([
+            "status" => count($retentionCategories) > 0,
+            "message" => "Esta categoría de retención está asociada a plantillas"
+        ]);
     }
 
     /**
@@ -145,19 +157,19 @@ class RetentionCategoriesController extends Controller
         if (
             !$request->get('name') || !$request->get('description') ||
             (!$request->get('group') && !$request->get('user')) ||
-            !$request->get('state') || !$request->get('type') ||
-            !$request->get('retention_period_start_date')
+            !$request->get('state') || !$request->get('type')
         ) {
-            throw new Exception('Todos los datos son obligatorios.');
+            throw new Exception("Todos los datos son obligatorios.");
         }
 
         $em = $this->getDoctrine()->getManager();
         $saved = false;
         $action = 'create';
+        $id = 0;
         if ($category->getId()) {
             $action = 'edit';
+            $id = $category->getId();
         }
-
         $em->getConnection()->beginTransaction();
         try {
             $retentionDays = [
@@ -165,7 +177,10 @@ class RetentionCategoriesController extends Controller
                 'months' => $request->get('months'),
                 'years' => $request->get('years')
             ];
-
+            $category->setRetentionDaysFormatted($retentionDays);
+            if ($category->getId()) {
+                $this->updateFinishRetentionDateTemplates($category->getId(), $category->getRetentionDays());
+            }
             /** @var RCStates $state */
             $state = $em->getRepository(RCStates::class)->find($request->get('state'));
             /** @var RCTypes $type */
@@ -174,11 +189,15 @@ class RetentionCategoriesController extends Controller
             $category->setModified(new DateTime());
             $category->setName($request->get('name'));
             $category->setDescription($request->get('description'));
-            $category->setRetentionPeriodStartDate(DateTime::createFromFormat('d-m-Y',$request->get('retention_period_start_date')));
-            $category->setRetentionDaysFormatted($retentionDays);
-            $category->setRetentionPeriodEndDate(DateTime::createFromFormat('d-m-Y',$request->get('retention_period_start_date'))); // It is automatically computed
-            $this->updateFinishRetentionDateTemplates($category->getId(), $category->getRetentionDays());
-            $category->setActive((bool)$request->get('active'));
+
+            $isActive = (bool)$request->get('active');
+            $category->setActive($isActive);
+            // desvincular esta categoría de retención
+            if (!$isActive && (0 != $id)) { // Si el $id NO es = 0, entonces se edita una categoría y, por lo tanto,
+                // procede a desvincularla de las plantillas solo en el caso de que haya sido marcada como inactiva.
+                $this->unlinkRetentionCategories($id);
+            }
+
             $category->setDocumentState($state);
             $category->setType($type);
 
@@ -205,6 +224,9 @@ class RetentionCategoriesController extends Controller
                 "La categoría de retención se ha guardado correctamente"
             );
             $saved = true;
+
+
+
         } catch (Exception $e) {
             $em->getConnection()->rollback();
             $this->get('session')->getFlashBag()->add(
@@ -248,11 +270,12 @@ class RetentionCategoriesController extends Controller
         $em = $this->getDoctrine()->getManager();
         $connection = $em->getConnection();
         $sqlTemplatesWithThisCategory =
-        "
-            select tmtemplates_id
-            from tm_retentions tr
-            where tr.retentioncategories_id = %d
-        ";
+            "
+                select tmtemplates_id
+                from tm_retentions tr
+                where tr.retentioncategories_id = %d
+            "
+        ;
         $sqlTemplatesWithThisCategoryWithValues = sprintf($sqlTemplatesWithThisCategory, $categoryId);
 
         $templatesWithThisCategorySTMT = $connection->prepare($sqlTemplatesWithThisCategoryWithValues);
@@ -260,11 +283,12 @@ class RetentionCategoriesController extends Controller
         $templatesWithThisCategory = $templatesWithThisCategorySTMT->fetchAll();
         $updateTMTemplatesWithRetentionDays =
             "
-            update tm_templates
-            set start_retention = DATEADD(day,  %d, start_retention)
-            where tm_templates.id = %d
-            and tm_templates.destruction_date is null or datalength(tm_templates.destruction_date) = 0
-        ";
+                update tm_templates
+                set start_retention = DATEADD(day,  %d, start_retention)
+                where tm_templates.id = %d
+                and tm_templates.destruction_date is null or datalength(tm_templates.destruction_date) = 0
+            "
+        ;
         foreach($templatesWithThisCategory as $templateWithThisCategory) {
             $updateTMTemplatesWithRetentionDaysSQL = sprintf(
                 $updateTMTemplatesWithRetentionDays, $retentionDays, $templateWithThisCategory["tmtemplates_id"]
@@ -272,5 +296,27 @@ class RetentionCategoriesController extends Controller
             $connection->executeUpdate($updateTMTemplatesWithRetentionDaysSQL);
         }
 
+    }
+
+    private function parseStates(array $statesRepository): array
+    {
+        $states = [];
+        /** @var RCStates $stateRepository */
+        foreach ($statesRepository as $stateRepository) {
+            $states[] = [
+                "id" => $stateRepository->getId(),
+                "name" => $stateRepository->getName(),
+                "type" => $stateRepository->getType()->getId()
+            ];
+        }
+
+        return $states;
+    }
+
+    private function unlinkRetentionCategories(int $retentionCategoryId)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $connection = $em->getConnection();
+        $connection->delete("tm_retentions", ['retentioncategories_id' => $retentionCategoryId]);
     }
 }

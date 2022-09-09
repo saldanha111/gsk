@@ -113,6 +113,11 @@ class TMSignatures
      */
     protected $modified;
 
+    /**
+     * @ORM\Column(name="user_text", type="string", nullable=true)
+     */
+    protected $userText;
+
     
     public function __construct()
     {
@@ -513,4 +518,25 @@ class TMSignatures
     {
         return $this->templateReviews;
     }
+
+    /**
+     * @return string
+     */
+    public function getUserText()
+    {
+        return $this->userText;
+    }
+
+    /**
+     * @param mixed $userText
+     * @return TMSignatures
+     */
+    public function setUserText($userText)
+    {
+        $this->userText = $userText;
+
+        return $this;
+    }
+
+
 }

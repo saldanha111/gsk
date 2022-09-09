@@ -251,7 +251,7 @@ class TMTemplatesRepository extends EntityRepository
                     }
                 }
     
-                $query = $em->createNativeQuery("SELECT t.logbook,t.uniqid,t.id,t.name,a.name nameArea,t.number,t.num_edition numEdition,s.id status,t.inactive,s.name stateName,t.created,t.reference,ua.name applicantName,uo.name ownerName,ub.name backupName,t.effectiveDate,t.review_date_retention,t.history_change historyChange,uo.id ownerId,ub.id backupId,t.date_review dateReview,t.need_new_edition needNewEdition,t.not_fillable_itself notFillableItSelf,q.id qr".$case.$fields_extra.$sintax." ".$orderby.$limit,$rsm);
+                $query = $em->createNativeQuery("SELECT t.logbook,t.uniqid,t.id,t.name,a.name nameArea,t.number,t.num_edition numEdition,s.id status,t.inactive,s.name stateName,t.created,t.reference,ua.name applicantName,uo.name ownerName,ub.name backupName,t.effectiveDate,t.retention_review_date,t.history_change historyChange,uo.id ownerId,ub.id backupId,t.date_review dateReview,t.need_new_edition needNewEdition,t.not_fillable_itself notFillableItSelf,q.id qr".$case.$fields_extra.$sintax." ".$orderby.$limit,$rsm);
 
 
 
@@ -544,10 +544,11 @@ class TMTemplatesRepository extends EntityRepository
     public function listTemplatesByRetention(array $filters, int $paginate = 1)
     {
         $list = $this->createQueryBuilder('t')
-            ->select('r', 'a', 't', 's')
+            ->select('a', 't', 's', 'u')
+            ->leftJoin("t.retentionRepresentative", "u")
             ->leftJoin("t.area", "a")
             ->leftJoin("t.tmState", "s")
-            ->leftJoin("t.retentions", "r")
+//            ->leftJoin("t.retentions", "r")
             ->orderBy("t.destructionDate", "desc")
         ;
 
@@ -560,8 +561,6 @@ class TMTemplatesRepository extends EntityRepository
         }
 
         $paginator = new Paginator($list, true);
-        $totalRecords = $paginator->count();
-
         return $paginator->getQuery()->getArrayResult();
     }
 
@@ -624,10 +623,15 @@ class TMTemplatesRepository extends EntityRepository
                 $list->andWhere('t.tmState = :state');
                 $list->setParameter('state', $filters["state"] );
             } else {
-                $OBSOLETA = 7; $BAJA = 8;
-                $states = [$OBSOLETA, $BAJA];
-                $statesCSV = implode(",", $states);
+                $APROBADA = 5; $EN_VIGOR = 6; $OBSOLETA = 7; $BAJA = 8;
+                $statesToBeRetrieved = [$APROBADA, $EN_VIGOR, $OBSOLETA, $BAJA];
+                $statesCSV = implode(",", $statesToBeRetrieved);
                 $list->andWhere('t.tmState in (' . $statesCSV . ')');
+            }
+
+            if (isset($filters["retention_representative"])) {
+                $list->andWhere('t.retentionRepresentative = :retentionRepresentative');
+                $list->setParameter('retentionRepresentative', (int)$filters["retention_representative"]);
             }
 
             if (isset($filters["destruction_date_start"])) {
@@ -648,20 +652,26 @@ class TMTemplatesRepository extends EntityRepository
                 $destructionOption = $filters["destruction_option"];
                 switch($destructionOption) {
                     case "only_destroyed":
-                        $list->andWhere('t.destructionDate IS NOT NULL');
+                        $list->andWhere('t.isDeleted = true ');
+                        $list->orWhere('t.requestedToBeDestroyed = true ');
                         break;
                     case "only_expired":
                         $list->andWhere('t.destructionDate < :fechaActual');
-                        $list->setParameter('fechaActual', new DateTime());
+                        $today = date("Y-m-d");
+                        $list->setParameter('fechaActual', $today);
                         break;
-                    case "annual_revision":
+                    case "annual_review":
                         $DEADLINE_ANNUAL_REVIEW = 6;
                         $DEADLINE_ANNUAL_REVIEW_INTERVAL = "M"; // Months
                         $duration = "P" . $DEADLINE_ANNUAL_REVIEW . $DEADLINE_ANNUAL_REVIEW_INTERVAL;
                         $annualReviewDate = new DateTime();
                         $annualReviewDate->add(new DateInterval($duration));
-                        $list->andWhere('t.destructionDate < :annualReviewDate');
+                        $list->andWhere('
+                            t.destructionDate between :currentDate and :annualReviewDate  
+                            and t.retentionReviewDate is null
+                        ');
                         $list->setParameter('annualReviewDate', $annualReviewDate);
+                        $list->setParameter('currentDate', date("Y-m-d"));
                         break;
                     default: break;
                 }
@@ -682,8 +692,6 @@ class TMTemplatesRepository extends EntityRepository
             }
 
         }
-
-        $list->andWhere('t.isDeleted = 0');
 
         return $list;
     }
@@ -739,6 +747,27 @@ class TMTemplatesRepository extends EntityRepository
         $list = $this->createQueryBuilder('t')
             ->select('t')
             ->where("t.id in (" . implode(",", $idTemplates) . ")")
+        ;
+
+        if (1 === $paginate && isset($filters["limit_from"])){
+            $to = (int)$filters["limit_many"];
+            $from = (int)$filters["limit_from"]*$to;
+            $list->setFirstResult($from)->setMaxResults($to);
+        }
+
+        $paginator = new Paginator($list, true);
+
+        return $paginator->getQuery()->getArrayResult();
+    }
+
+    public function listTemplatesToBeDeleted(array $filters, int $paginate = 1) {
+        $list = $this->createQueryBuilder('t')
+            ->select('r', 'a', 't', 's', 'u')
+            ->leftJoin("t.retentionRepresentative", "u")
+            ->leftJoin("t.retentions", "r")
+            ->leftJoin("t.area", "a")
+            ->leftJoin("t.tmState", "s")
+            ->where("t.isDeleted = true")
         ;
 
         if (1 === $paginate && isset($filters["limit_from"])){

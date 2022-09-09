@@ -617,9 +617,13 @@ nononsense_retention_categories_edit:
     path: /retention-categories/{id}
     defaults: { _controller: NononsenseHomeBundle:RetentionCategories:edit}
 
-nononsense_retention_categories_delete:
-    path: /retention_categories/delete/{id}
-    defaults: { _controller: NononsenseHomeBundle:RetentionCategories:delete}
+nononsense_retention_categories_check_isLinked:
+    path: /retention-categories/check_isLinked/
+    defaults: { _controller: NononsenseHomeBundle:RetentionCategories:checkIsLinked}
+
+nononsense_retention_categories_setActive:
+    path: /retention-categories/active/{id}
+    defaults: { _controller: NononsenseHomeBundle:RetentionCategories:active}
 
 nononsense_retention_categories_template_list:
     path: /retention_and_destruction/searchTemplatesList
@@ -642,15 +646,32 @@ nononsense_retention_categories_template_destroy:
     methods: [ POST ]
     defaults: { _controller: NononsenseHomeBundle:RetentionCategoriesTemplate:destroyTemplate }
 
+nononsense_retention_categories_template_sign_and_destroy:
+    path: /retention_and_destruction/destroyTemplateCommentAndSign
+    methods: [ POST ]
+    defaults: { _controller: NononsenseHomeBundle:RetentionCategoriesTemplate:signAndDestroy }
+
 nononsense_retention_categories_template_review:
     path: /retention_and_destruction/reviewTemplates
     methods: [ GET ]
-    defaults: { _controller: NononsenseHomeBundle:RetentionCategoriesTemplate:reviewTemplates }
+    defaults: { _controller: NononsenseHomeBundle:RetentionCategoriesTemplate:annualReviewTemplates }
 
-nononsense_retention_categories_template_annual_review:
+nononsense_retention_categories_template_sign_annual_review:
     path: /retention_and_destruction/signAnnualReview
-    methods: [ GET ]
+    methods: [ POST ]
     defaults: { _controller: NononsenseHomeBundle:RetentionCategoriesTemplate:signAnnualReview }
+
+nononsense_retention_categories_template_mark_reviewed:
+    path: /retention_and_destruction/markReviewedDontDelete
+    methods: [ GET ]
+    defaults: { _controller: NononsenseHomeBundle:RetentionCategoriesTemplate:markThisTemplateAsReviewedDontDelete }
+
+nononsense_retention_categories_template_get_marked_to_be_destroyed:
+    path: /retention_and_destruction/getMarkedToBeDestroyed
+    methods: [ GET ]
+    defaults: { _controller: NononsenseHomeBundle:RetentionCategoriesTemplate:getTemplatesMarkedToBeDestroyed }
+
+
 # Cumplimentations
 nononsense_retention_categories_cumplimentation_list:
     path: /retention_and_destruction/searchCumplimentationsList
