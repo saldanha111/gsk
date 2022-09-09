@@ -53,8 +53,9 @@ class NotificationsModelsController extends Controller
             , "createdBy" => (int)$userid
             , "subject" => $request->get("subject")
         ];
-        $notificationModel = $this->createNotification($data);
 
+        $notificationModel = $this->createNotification($data);
+        die($notificationModel);
         $em = $this->getDoctrine()->getManager();
         $em->persist($notificationModel);
         $em->flush();
