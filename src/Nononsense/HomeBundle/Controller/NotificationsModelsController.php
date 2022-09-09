@@ -199,7 +199,7 @@ class NotificationsModelsController extends Controller
         return new JsonResponse(["data" =>$groupsRepository->listGroupsForSelect()]);
     }
 
-    private function createNotification(array $data)
+    private function createNotification($data)
     {
         $notificationModel = new NotificationsModels();
 
