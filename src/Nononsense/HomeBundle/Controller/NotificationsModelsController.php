@@ -53,7 +53,6 @@ class NotificationsModelsController extends Controller
             , "createdBy" => (int)$userid
             , "subject" => $request->get("subject")
         ];
-        die("antes");
         $notificationModel = $this->createNotification($data);
         die($notificationModel);
         $em = $this->getDoctrine()->getManager();
@@ -207,6 +206,7 @@ class NotificationsModelsController extends Controller
 
         /** @var TMTemplates $tmTemplate */
         $tmTemplate = $this->getDoctrine()->getRepository(TMTemplates::class)->find($data["templateId"]);
+        die($tmTemplate);
         $notificationModel->setTemplateId($tmTemplate);
 
         /** @var CVStates $cvState */
