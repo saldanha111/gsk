@@ -119,8 +119,7 @@
                 escapeMarkup: function(m) { return m; }
             });
             $('.select_template').on("select2:select", function(e) {
-                console.log(e.params.data);
-                $('input[name ="templateId"]').val(e.params.data.templateId);
+                $('input[name ="templateId"]').val(e.params.data.id);
             });
         });
 
