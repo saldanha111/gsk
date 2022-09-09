@@ -204,7 +204,7 @@ class NotificationsModelsController extends Controller
         $notificationModel = new NotificationsModels();
 
         /** @var TMTemplates $tmTemplate */
-        die($data);
+        die(json_encode($data));
         $tmTemplate = $this->getDoctrine()->getRepository(TMTemplates::class)->find($data["templateId"]);
 
         $notificationModel->setTemplateId($tmTemplate);
