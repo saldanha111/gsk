@@ -64,10 +64,7 @@ class TemplateManagementTemplatesController extends Controller
         try {
 
             $items = $em->getRepository('NononsenseHomeBundle:TMTemplates')->listActiveForRequest($filters);
-            $response = new Response(json_encode($items), 200);
-            $response->headers->set('Content-Type', 'application/json');
 
-            return $response;
         } catch(Exception $exception)
         {
             $response = new Response(json_encode($exception->getMessage()), 500);
