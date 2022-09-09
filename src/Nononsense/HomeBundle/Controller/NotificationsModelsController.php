@@ -214,7 +214,9 @@ class NotificationsModelsController extends Controller
         /** @var TMTemplates $tmTemplate */
 
         $id = (int)$data["templateId"];
-
+        if ($id === 0) {
+            return null;
+        }
         $tmTemplate = $this->getDoctrine()->getRepository(TMTemplates::class)->find($id);
         if (!$tmTemplate) {
             return null;
