@@ -173,10 +173,10 @@ class TMTemplates
      */
     protected $effectiveDate;
 
-//    /**
-//     * @ORM\Column(type="date", nullable=true)
-//     */
-//    protected $reviewDate;
+    /**
+     * @ORM\Column(type="date", nullable=true)
+     */
+    protected $reviewDate;
 
     /**
      * @ORM\ManyToMany(targetEntity="\Nononsense\HomeBundle\Entity\RetentionCategories", inversedBy="templates")
@@ -1073,28 +1073,28 @@ class TMTemplates
         return $this->effectiveDate;
     }
 
-//    /**
-//     * Set reviewDate
-//     *
-//     * @param \DateTime $reviewDate
-//     * @return TMTemplates
-//     */
-//    public function setReviewDate($reviewDate)
-//    {
-//        $this->reviewDate = $reviewDate;
-//
-//        return $this;
-//    }
+    /**
+     * Set reviewDate
+     *
+     * @param \DateTime $reviewDate
+     * @return TMTemplates
+     */
+    public function setReviewDate($reviewDate)
+    {
+        $this->reviewDate = $reviewDate;
 
-//    /**
-//     * Get reviewDate
-//     *
-//     * @return \DateTime
-//     */
-//    public function getReviewDate()
-//    {
-//        return $this->reviewDate;
-//    }
+        return $this;
+    }
+
+    /**
+     * Get reviewDate
+     *
+     * @return \DateTime
+     */
+    public function getReviewDate()
+    {
+        return $this->reviewDate;
+    }
 
     /**
      * Set token
