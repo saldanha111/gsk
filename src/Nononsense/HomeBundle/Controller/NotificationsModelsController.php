@@ -54,14 +54,22 @@ class NotificationsModelsController extends Controller
             , "subject" => $request->get("subject")
         ];
         $notificationModel = $this->createNotification($data);
-        $em = $this->getDoctrine()->getManager();
-        $em->persist($notificationModel);
-        $em->flush();
+        if ($notificationModel) {
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($notificationModel);
+            $em->flush();
 
-        $this->get('session')->getFlashBag()->add(
-            'sentMessage',
-            'The notification model associated to this template: "' . $data["templateId"] . '" has been saved.'
-        );
+            $this->get('session')->getFlashBag()->add(
+                'sentMessage',
+                'The notification model associated to this template: "' . $data["templateId"] . '" has been saved.'
+            );
+        } else {
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                'The notification model associated to this template: "' . $data["templateId"] . '" has not been saved.'
+            );
+        }
+
 
         return $this->redirectToRoute('nononsense_notifications_templates_notification_list');
     }
@@ -208,6 +216,9 @@ class NotificationsModelsController extends Controller
         $id = (int)$data["templateId"];
 
         $tmTemplate = $this->getDoctrine()->getRepository(TMTemplates::class)->find($id);
+        if (!$tmTemplate) {
+            return null;
+        }
 
         $notificationModel->setTemplateId($tmTemplate);
 
