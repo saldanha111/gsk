@@ -43,7 +43,6 @@ class NotificationsModelsController extends Controller
     public function addNotificationAction(Request $request)
     {
         $userid = $this->getUser()->getId();
-        die($request->get("templateId"));
         $data = [
             "templateId" => (int)$request->get("templateId")
             , "stateId" => (int)$request->get("state")
