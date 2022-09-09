@@ -193,12 +193,10 @@
     <script>
         $('#notification_creation_form').submit(function(e) {
             const templateId = $("#templateId").val();
-            if (templateId === '') {
-                toastr.error("Debe indicar una plantilla", 'aviso');
+            if (templateId === '' || templateId === null) {
+                toastr.error("Debe indicar una plantilla o esta plantilla no tiene un id válido", 'aviso');
                 e.preventDefault();
             }
-            console.log('templateId');
-
             const subject = $("#subjectId").val();
             if (subject === '') {
                 toastr.error("Debe indicar un asunto", 'aviso');
