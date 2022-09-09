@@ -1,6 +1,7 @@
 <?php
 namespace Nononsense\HomeBundle\Controller;
 
+use Exception;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Filesystem\Filesystem;
@@ -33,33 +34,47 @@ class TemplateManagementTemplatesController extends Controller
     /* Listado de plantillas que están disponibles para crear una nueva edición */
     public function listActiveJsonAction(Request $request)
     {
-    	$em = $this->getDoctrine()->getManager();
-        $array=array();
 
-        $filters["limit_from"]=0;
-        $filters["limit_many"]=10;
 
-        if($request->get("no_request_in_proccess")){
-            $filters["no_request_in_proccess"]=1;
+        $em = $this->getDoctrine()->getManager();
+        $array = array();
+
+        $filters["limit_from"] = 0;
+        $filters["limit_many"] = 10;
+
+        if ($request->get("no_request_in_proccess")) {
+            $filters["no_request_in_proccess"] = 1;
         }
 
-        if($request->get("nest")){
-            $filters["nest"]=1;
-            if($request->get("parent")){
-                $filters["parent"]=$request->get("parent");
+        if ($request->get("nest")) {
+            $filters["nest"] = 1;
+            if ($request->get("parent")) {
+                $filters["parent"] = $request->get("parent");
             }
         }
 
-        if($request->get("name")){
-            $filters["name"]=$request->get("name");
+        if ($request->get("name")) {
+            $filters["name"] = $request->get("name");
         }
 
-        if($request->get("operative")){
-            $filters["operative"]=$request->get("operative");
+        if ($request->get("operative")) {
+            $filters["operative"] = $request->get("operative");
         }
 
+        try {
 
-        $items=$em->getRepository('NononsenseHomeBundle:TMTemplates')->listActiveForRequest($filters);
+            $items = $em->getRepository('NononsenseHomeBundle:TMTemplates')->listActiveForRequest($filters);
+            $response = new Response(json_encode($items), 200);
+            $response->headers->set('Content-Type', 'application/json');
+
+            return $response;
+        } catch(Exception $exception)
+        {
+            $response = new Response(json_encode($exception->getMessage()), 500);
+            $response->headers->set('Content-Type', 'application/json');
+
+            return $response;
+        }
         $serializer = $this->get('serializer');
         $array_items = json_decode($serializer->serialize($items,'json',array('groups' => array('json'))),true);
         foreach($array_items as $key => $item){
