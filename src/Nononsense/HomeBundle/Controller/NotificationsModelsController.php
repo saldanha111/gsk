@@ -221,18 +221,17 @@ class NotificationsModelsController extends Controller
         }
         try {
             $tmTemplate = $this->getDoctrine()->getRepository(TMTemplates::class)->findOneBy(["id" => $data["templateId"]]);
-            var_dump($tmTemplate); die();
+//            var_dump($tmTemplate); die();
         } catch(Exception $exc) {
             return null;
         }
 
         if (is_null($tmTemplate) || empty($tmTemplate)) {
             return null;
-        } else {
-            die(json_encode($tmTemplate));
         }
 
         $notificationModel->setTemplateId($tmTemplate);
+        var_dump("sí"); die();
 
         /** @var CVStates $cvState */
         $cvState = $this->getDoctrine()->getRepository(CVStates::class)->find($data["stateId"]);
