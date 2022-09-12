@@ -231,8 +231,8 @@ class NotificationsModelsController extends Controller
         }
 
         $notificationModel->setTemplateId($tmTemplate);
-        var_dump("sí"); die();
 
+        var_dump($data["stateId"]); die();
         /** @var CVStates $cvState */
         $cvState = $this->getDoctrine()->getRepository(CVStates::class)->find($data["stateId"]);
         $notificationModel->setState($cvState);
