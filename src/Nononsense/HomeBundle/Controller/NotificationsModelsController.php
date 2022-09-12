@@ -43,6 +43,7 @@ class NotificationsModelsController extends Controller
     public function addNotificationAction(Request $request)
     {
         $userid = $this->getUser()->getId();
+
         $data = [
             "templateId" => (int)$request->get("templateId")
             , "stateId" => (int)$request->get("state")
@@ -53,6 +54,7 @@ class NotificationsModelsController extends Controller
             , "createdBy" => (int)$userid
             , "subject" => $request->get("subject")
         ];
+        die(json_encode($data["templateId"]));
         $notificationModel = $this->createNotification($data);
         if ($notificationModel) {
             $em = $this->getDoctrine()->getManager();
@@ -217,7 +219,6 @@ class NotificationsModelsController extends Controller
         if ($id === 0) {
             return null;
         }
-        die($id);
         $tmTemplate = $this->getDoctrine()->getRepository(TMTemplates::class)->find($id);
         if (!$tmTemplate) {
             return null;
