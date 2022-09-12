@@ -235,7 +235,7 @@ class TemplateTestTemplatesController extends Controller
         }
 
       	$json=file_get_contents($this->getParameter("cm_installation_aux") . $path . "bundles/nononsensehome/json-data-test.json");
-
+        var_dump(json_encode($json)); die();
     	$json_content=json_decode($json,TRUE);
 
     	if($request->get("test")){
