@@ -56,7 +56,7 @@ class NotificationsModelsController extends Controller
             , "subject" => $request->get("subject")
         ];
         $notificationModel = $this->createNotification($data);
-        if ($notificationModel) {
+        try{
             $em = $this->getDoctrine()->getManager();
             $em->persist($notificationModel);
             $em->flush();
@@ -65,7 +65,8 @@ class NotificationsModelsController extends Controller
                 'sentMessage',
                 'The notification model associated to this template: "' . $data["templateId"] . '" has been saved.'
             );
-        } else {
+        } catch(Exception $exception) {
+            var_dump($exception->getMessage()); die();
             $this->get('session')->getFlashBag()->add(
                 'error',
                 'The notification model associated to this template: "' . $data["templateId"] . '" has not been saved.'
@@ -267,7 +268,7 @@ class NotificationsModelsController extends Controller
         $createdBy = $this->getDoctrine()->getRepository(Users::class)->find($data["createdBy"]);
         $notificationModel->setCreatedBy($createdBy);
         $notificationModel->setCreatedAt(new DateTime());
-        var_dump("antes del return"); die();
+
         return $notificationModel ;
     }
 
