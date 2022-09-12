@@ -225,7 +225,7 @@ class NotificationsModelsController extends Controller
             return null;
         }
 
-        if (!$tmTemplate || empty($tmTemplate)) {
+        if (is_null($tmTemplate) || empty($tmTemplate)) {
             return null;
         } else {
             die(json_encode($tmTemplate));
