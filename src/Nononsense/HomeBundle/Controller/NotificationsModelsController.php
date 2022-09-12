@@ -235,14 +235,14 @@ class NotificationsModelsController extends Controller
 
         /** @var CVStates $cvState */
         $cvState = $this->getDoctrine()->getRepository(CVStates::class)->find($data["stateId"]);
-        var_dump($cvState); die();
+
         $notificationModel->setState($cvState);
 
         $notificationModel->setBody($data["msg"]);
         $notificationModel->setSubject($data["subject"]);
 
         $type = $data["type"];
-
+        var_dump($notificationModel); die();
         switch($type) {
             case self::USER:
                 /** @var Users $user */
