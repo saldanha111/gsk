@@ -222,16 +222,15 @@ class NotificationsModelsController extends Controller
         try {
             $tmTemplate = $this->getDoctrine()->getRepository(TMTemplates::class)->find($data["templateId"]);
         } catch(Exception $exc) {
-            die($exc->getMessage());
+            return null;
         }
 
         if (!$tmTemplate) {
-            die("hola");
             return null;
         } else {
-            die("sí");
+            die($tmTemplate);
         }
-        die($tmTemplate);
+
         $notificationModel->setTemplateId($tmTemplate);
 
         /** @var CVStates $cvState */
