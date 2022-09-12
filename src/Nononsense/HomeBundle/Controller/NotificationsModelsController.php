@@ -249,7 +249,7 @@ class NotificationsModelsController extends Controller
                 $user = $this->getDoctrine()->getRepository(Users::class)->find($data["collectionId"]);
 
                 $notificationModel->setUser($user);
-                var_dump("antes del break"); die();
+
                 break;
             case self::GROUP:
                 /** @var Groups $group */
@@ -267,7 +267,7 @@ class NotificationsModelsController extends Controller
         $createdBy = $this->getDoctrine()->getRepository(Users::class)->find($data["createdBy"]);
         $notificationModel->setCreatedBy($createdBy);
         $notificationModel->setCreatedAt(new DateTime());
-
+        var_dump("antes del return"); die();
         return $notificationModel ;
     }
 
