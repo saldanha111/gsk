@@ -245,10 +245,9 @@ class NotificationsModelsController extends Controller
 
         switch($type) {
             case self::USER:
-                var_dump($data["collectionId"]); die();
                 /** @var Users $user */
                 $user = $this->getDoctrine()->getRepository(Users::class)->find($data["collectionId"]);
-                var_dump($type); die();
+                var_dump($user); die();
                 $notificationModel->setUser($user);
                 break;
             case self::GROUP:
