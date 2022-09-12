@@ -218,12 +218,11 @@ class NotificationsModelsController extends Controller
         if ($id === 0) {
             return null;
         }
-        die($data["templateId"]);
-        $tmTemplate = $this->getDoctrine()->getRepository(TMTemplates::class)->find($id);
+        $tmTemplate = $this->getDoctrine()->getRepository(TMTemplates::class)->find($data["templateId"]);
         if (!$tmTemplate) {
             return null;
         }
-
+        die($tmTemplate);
         $notificationModel->setTemplateId($tmTemplate);
 
         /** @var CVStates $cvState */
