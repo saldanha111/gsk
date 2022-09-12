@@ -228,15 +228,13 @@ class TemplateTestTemplatesController extends Controller
     public function getDataAction(Request $request, int $id)
     {
 
-        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-            $path = "../../app/data/";
-        } else {
-            $path = "/../app/data/";
-        }
+        $path = (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN')
+            ? "../"
+            : "/"
+        ;
+        $json=file_get_contents($this->getParameter("cm_installation_aux") . $path . "bundles/nononsensehome/json-data-test.json");
 
-      	$json=file_get_contents($this->getParameter("cm_installation_aux") . $path . "bundles/nononsensehome/json-data-test.json");
-        var_dump(json_encode($json)); die();
-    	$json_content=json_decode($json,TRUE);
+        $json_content=json_decode($json,TRUE);
 
     	if($request->get("test")){
     		$test = $this->getDoctrine()->getRepository(TMTests::class)->findOneBy(array("id" => $request->get("test")));
