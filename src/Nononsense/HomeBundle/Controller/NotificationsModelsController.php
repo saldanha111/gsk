@@ -221,7 +221,7 @@ class NotificationsModelsController extends Controller
         }
         try {
             $tmTemplate = $this->getDoctrine()->getRepository(TMTemplates::class)->findOneBy(["id" => $data["templateId"]]);
-            die($tmTemplate->getId());
+            die($tmTemplate->getName());
         } catch(Exception $exc) {
             return null;
         }
