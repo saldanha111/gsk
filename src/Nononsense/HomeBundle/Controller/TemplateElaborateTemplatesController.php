@@ -164,7 +164,7 @@ class TemplateElaborateTemplatesController extends Controller
         return $this->render('NononsenseHomeBundle:TemplateManagement:elaboration_detail.html.twig',$array_item);
     }
 
-    public function updateAction(Request $request, int $id)
+    public function signAndSaveAction(Request $request, int $id)
     {
 
         $em = $this->getDoctrine()->getManager();
@@ -370,6 +370,217 @@ class TemplateElaborateTemplatesController extends Controller
 
         $em->persist($template);
         
+        $em->flush();
+
+        return $this->returnToHomePage("La operación se ha ejecutado con éxito", "message");
+    }
+
+    public function signSaveAndChangeStateAction(Request $request, int $id)
+    {
+
+        $em = $this->getDoctrine()->getManager();
+        $array_item=array();
+
+        $is_valid = $this->get('app.security')->permissionSeccion('elaborador_gp');
+        if(!$is_valid){
+            return $this->returnToHomePage("No tiene permisos suficientes");
+        }
+
+        $password = $request->get('password');
+        if(!$password || !$this->get('utilities')->checkUser($password)){
+            return $this->returnToHomePage("No se pudo firmar el registro, la contraseña es incorrecta");
+        }
+
+        $user = $this->container->get('security.context')->getToken()->getUser();
+
+        $template = $this->getDoctrine()->getRepository(TMTemplates::class)->findOneBy(array("id" => $id));
+        if($template->getTmState()->getId()!=2){
+            return $this->returnToHomePage("La plantilla indicada no se encuentra en estado de elaboración");
+        }
+
+        if(!$template->getOpenedBy() || $template->getOpenedBy()!=$user){
+            return $this->returnToHomePage("No se puede efectuar la operación");
+        }
+
+        $action = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 2));
+        $action_test = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 3));
+        $elaborators = $this->getDoctrine()->getRepository(TMWorkflow::class)->findBy(array("template" => $template, "action" => $action),array("id" => "ASC"));
+        $testers = $this->getDoctrine()->getRepository(TMWorkflow::class)->findBy(array("template" => $template, "action" => $action_test),array("id" => "ASC"));
+        $find=0;
+        foreach($elaborators as $elaborator){
+            if($elaborator->getUserEntiy() && $elaborator->getUserEntiy()==$user){
+                if($request->get("finish_elaboration")){
+                    $elaborator->setSigned(TRUE);
+                    $em->persist($elaborator);
+                }
+                $find=1;
+            }
+            else{
+                if($request->get("description")){
+                    $elaborator->setSigned(FALSE);
+                    $em->persist($elaborator);
+                }
+            }
+        }
+        if($find==0){
+            foreach($elaborators as $elaborator){
+
+                if($elaborator->getGroupEntiy() && !$elaborator->getSigned()){
+                    $in_group=0;
+                    foreach($user->getGroups() as $uniq_group){
+
+                        if($uniq_group->getGroup()==$elaborator->getGroupEntiy()){
+                            $in_group=1;
+                            break;
+                        }
+                    }
+                    if($in_group==1){
+                        $find=1;
+                        if($request->get("finish_elaboration")){
+                            $elaborator->setSigned(TRUE);
+                            $em->persist($elaborator);
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+
+        if($find==0){
+            return $this->returnToHomePage("No tiene permisos para elaborar este documento");
+        }
+
+        if($request->files->get('template')){
+            if($template->getPlantillaId()){
+                $base_url=$this->getParameter('api_docoaro')."/documents/".$template->getPlantillaId();
+            }
+            else{
+                $base_url=$this->getParameter('api_docoaro')."/documents";
+            }
+            $fs = new Filesystem();
+            $file = $request->files->get('template');
+            $data_file = curl_file_create($file->getRealPath(), $file->getClientMimeType(), $file->getClientOriginalName());
+            $post = array('name' => uniqid(),'file'=> $data_file);
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $base_url);
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST,"POST");
+            curl_setopt($ch, CURLOPT_HTTPHEADER,array("Content-Type: multipart/form-data","Api-Key: ".$this->getParameter('api_key_docoaro')));
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            $raw_response = curl_exec($ch);
+            $response = json_decode($raw_response, true);
+
+            if(!$template->getPlantillaId() && isset($response["id"])){
+                preg_match_all('/token=(.*?)$/s',$response["configurationUrl"],$var_token);
+                $token=$var_token[1][0];
+
+                $template->setToken($token);
+                $template->setPlantillaId($response["id"]);
+                $em->persist($template);
+            }
+
+        }
+        else{
+            if($request->get('activate_configuration')){
+
+                $base_url=$this->getParameter('api_docoaro')."/configurations/".$template->getTmpConfiguration();
+                $post = array();
+                $ch = curl_init();
+                curl_setopt($ch, CURLOPT_URL, $base_url);
+                curl_setopt($ch, CURLOPT_CUSTOMREQUEST,"PATCH");
+                curl_setopt($ch, CURLOPT_HTTPHEADER,array("Content-Type: multipart/form-data","Api-Key: ".$this->getParameter('api_key_docoaro')));
+                curl_setopt($ch, CURLOPT_POST, 1);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+                $raw_response = curl_exec($ch);
+                $response2 = json_decode($raw_response, true);
+
+                if(!$response2["configuration"]){
+                    return $this->returnToHomePage("Hubo un problema al firmar la configuración realizada. Es posible que la plantilla haya cambiado desde entonces");
+                }
+
+                $template->setTmpConfiguration(NULL);
+            }
+
+            $base_url=$this->getParameter('api_docoaro')."/documents/".$template->getPlantillaId();
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $base_url);
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST,"GET");
+            curl_setopt($ch, CURLOPT_HTTPHEADER,array("Api-Key: ".$this->getParameter('api_key_docoaro')));
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, array());
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            $raw_response = curl_exec($ch);
+            $response = json_decode($raw_response, true);
+
+        }
+
+        if(!isset($response["version"])){
+            return $this->returnToHomePage("Hubo un problema al subir el documento de la nueva plantilla");
+        }
+
+        if($request->get("cumplimentation")){
+            $swfs = $this->getDoctrine()->getRepository(TMSecondWorkflow::class)->findBy(array("template" => $template));
+            foreach($swfs as $swf){
+                $em->remove($swf);
+            }
+
+            foreach($request->get("cumplimentation") as $key => $cumpl){
+                $swf = new TMSecondWorkflow();
+                $swf->setTemplate($template);
+                $cumplimentation = $this->getDoctrine()->getRepository(TMCumplimentations::class)->findOneBy(array("id" => $cumpl));
+                $swf->setTmCumplimentation($cumplimentation);
+                $swf->setSignaturesNumber($request->get("signatures")[$key]);
+                $em->persist($swf);
+            }
+        }
+
+        $signature = new TMSignatures();
+        $signature->setTemplate($template);
+        $signature->setAction($action);
+        $signature->setUserEntiy($user);
+        $signature->setCreated(new \DateTime());
+        $signature->setModified(new \DateTime());
+        $signature->setSignature("-");
+        $signature->setVersion($response["version"]["id"]);
+        $signature->setConfiguration($response["version"]["configuration"]["id"]);
+        if($request->get("description")){
+            $signature->setDescription($request->get("description"));
+        }
+        $em->persist($signature);
+
+        $template->setOpenedBy(NULL);
+        $template->setToken(NULL);
+
+        $next_step=1;
+        foreach($elaborators as $elaborator){
+            if(!$elaborator->getSigned()){
+                $next_step=0;
+            }
+        }
+
+        if($next_step==1){
+
+            foreach($elaborators as $elaborator){
+                $elaborator->setSigned(0);
+                $em->persist($elaborator);
+            }
+
+            if(($template->getArea()->getId()==10 || $template->getArea()->getId()==11) && !$testers){
+                $state = $this->getDoctrine()->getRepository(TMStates::class)->findOneBy(array("id"=> 4));
+            }
+            else{
+                $state = $this->getDoctrine()->getRepository(TMStates::class)->findOneBy(array("id"=> 3));
+            }
+            $template->setTmState($state);
+        }
+
+        $em->persist($template);
+
         $em->flush();
 
         return $this->returnToHomePage("La operación se ha ejecutado con éxito", "message");

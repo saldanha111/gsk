@@ -486,10 +486,15 @@ nononsense_tm_elaborate_detail:
     methods:    [GET]
     defaults: { _controller: NononsenseHomeBundle:TemplateElaborateTemplates:detail,id: 0}
 
-nononsense_tm_elaborate_update:
+nononsense_tm_elaborate_signAndSave:
     path: /mt/elaborate/{id}
-    methods:    [POST]
-    defaults: { _controller: NononsenseHomeBundle:TemplateElaborateTemplates:update,id: 0}
+    methods: [POST]
+    defaults: { _controller: NononsenseHomeBundle:TemplateElaborateTemplates:signAndSave,id: 0}
+
+nononsense_tm_elaborate_signSaveAndChangeState:
+    path: /mt/elaborate/{id}
+    methods: [ POST ]
+    defaults: { _controller: NononsenseHomeBundle:TemplateElaborateTemplates:signSaveAndChangeState,id: 0 }
 
 nononsense_tm_elaborate_detail_cancel:
     path: /mt/elaborate/{id}/cancel
@@ -794,3 +799,8 @@ nononsense_notifications_templates_notification_remove:
 nononsense_notifications_templates_notification_detail:
     path:     /notifications/templates/creator/notification/detail
     defaults: { _controller: NononsenseHomeBundle:NotificationsModels:detailNotification}
+
+nononsense_abelardo_test:
+    path:     /abelardo/test
+    methods:    [GET]
+    defaults: { _controller: NononsenseHomeBundle:Abelardo:testJson}
