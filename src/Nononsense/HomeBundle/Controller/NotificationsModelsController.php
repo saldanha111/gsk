@@ -220,6 +220,7 @@ class NotificationsModelsController extends Controller
         }
         $tmTemplate = $this->getDoctrine()->getRepository(TMTemplates::class)->find($data["templateId"]);
         if (!$tmTemplate) {
+            die("hola");
             return null;
         }
         die($tmTemplate);
