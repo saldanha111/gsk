@@ -215,6 +215,7 @@
             if (firmaEstaVacia){
                 toastr.error("Debe firmar la solicitud",'aviso');
             }else{
+                console.log(document.activeElement);
                 $("[name='action']").val($(document.activeElement).data("action"));
                 console.log($("[name='action']").val());
                 const estadoPlantilla = {{ template.tmState.id }};
