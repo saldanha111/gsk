@@ -208,27 +208,19 @@
             var date = EnteredDate.substring(8, 10);
             var month = EnteredDate.substring(5, 7);
             var year = EnteredDate.substring(0, 4);
-            var myDate = new Date(year, month - 1, date);
+            var effectDate = new Date(year, month - 1, date);
 
             const firma = document.getElementById("formItemPassword").value;
             const firmaEstaVacia = (firma === "");
             if (firmaEstaVacia){
                 toastr.error("Debe firmar la solicitud",'aviso');
             }else{
-                console.log(document.activeElement);
-                $("[name='action']").val($(document.activeElement).data("action"));
-                console.log($("[name='action']").val());
                 const estadoPlantilla = {{ template.tmState.id }};
                 const estaEnVigorEstaPlantilla = (PLANTILLA_EN_VIGOR === estadoPlantilla);
-                if($(document.activeElement).data("action")=="2" || formatDate(myDate) >= formatDate(today)){
-                    console.log("return true");
-                    return true;  
+                if($(document.activeElement).data("action")=="1" || formatDate(effectDate) >= formatDate(today)){
+                    return true;
                 }
                 else{
-                    console.log(formatDate(myDate) >= formatDate(today));
-                    console.log(formatDate(myDate));
-                    console.log(formatDate(today));
-                    console.log(estadoPlantilla);
                     if (!estaEnVigorEstaPlantilla) {
                         toastr.error("La fecha de entrada en vigor no puede ser inferior a la del día de hoy",'aviso');
                     }
