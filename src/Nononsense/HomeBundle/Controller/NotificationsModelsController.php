@@ -249,8 +249,7 @@ class NotificationsModelsController extends Controller
                 $user = $this->getDoctrine()->getRepository(Users::class)->find($data["collectionId"]);
 
                 $notificationModel->setUser($user);
-                var_dump($data["email"]); die();
-                $notificationModel->setEmail($data["email"]);
+                $notificationModel->setEmail($user->getEmail());
                 break;
             case self::GROUP:
                 /** @var Groups $group */
