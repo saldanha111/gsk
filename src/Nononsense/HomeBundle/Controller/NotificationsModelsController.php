@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Nononsense\HomeBundle\Controller;
 
 use DateTime;
+use Exception;
 use Nononsense\GroupBundle\Entity\Groups;
 use Nononsense\GroupBundle\Entity\GroupsRepository;
 use Nononsense\HomeBundle\Entity\CVStates;
@@ -43,8 +44,9 @@ class NotificationsModelsController extends Controller
     public function addNotificationAction(Request $request)
     {
         $userid = $this->getUser()->getId();
+
         $data = [
-            "templateId" => (int)$request->get("templateId")
+            "templateId" => json_encode((int)$request->get("templateId"))
             , "stateId" => (int)$request->get("state")
             , "msg" => $request->get("msg")
             , "type" => (int)$request->get("type")
@@ -54,7 +56,7 @@ class NotificationsModelsController extends Controller
             , "subject" => $request->get("subject")
         ];
         $notificationModel = $this->createNotification($data);
-        if ($notificationModel) {
+        try{
             $em = $this->getDoctrine()->getManager();
             $em->persist($notificationModel);
             $em->flush();
@@ -63,7 +65,7 @@ class NotificationsModelsController extends Controller
                 'sentMessage',
                 'The notification model associated to this template: "' . $data["templateId"] . '" has been saved.'
             );
-        } else {
+        } catch(Exception $exception) {
             $this->get('session')->getFlashBag()->add(
                 'error',
                 'The notification model associated to this template: "' . $data["templateId"] . '" has not been saved.'
@@ -217,15 +219,22 @@ class NotificationsModelsController extends Controller
         if ($id === 0) {
             return null;
         }
-        $tmTemplate = $this->getDoctrine()->getRepository(TMTemplates::class)->find($id);
-        if (!$tmTemplate) {
+        try {
+            $tmTemplate = $this->getDoctrine()->getRepository(TMTemplates::class)->findOneBy(["id" => $data["templateId"]]);
+        } catch(Exception $exc) {
+            return null;
+        }
+
+        if (is_null($tmTemplate) || empty($tmTemplate)) {
             return null;
         }
 
         $notificationModel->setTemplateId($tmTemplate);
 
+
         /** @var CVStates $cvState */
         $cvState = $this->getDoctrine()->getRepository(CVStates::class)->find($data["stateId"]);
+
         $notificationModel->setState($cvState);
 
         $notificationModel->setBody($data["msg"]);
@@ -237,7 +246,9 @@ class NotificationsModelsController extends Controller
             case self::USER:
                 /** @var Users $user */
                 $user = $this->getDoctrine()->getRepository(Users::class)->find($data["collectionId"]);
+
                 $notificationModel->setUser($user);
+                $notificationModel->setEmail($user->getEmail());
                 break;
             case self::GROUP:
                 /** @var Groups $group */
