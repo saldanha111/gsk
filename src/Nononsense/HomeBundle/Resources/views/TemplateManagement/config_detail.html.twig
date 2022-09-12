@@ -220,6 +220,7 @@
                 const estadoPlantilla = {{ template.tmState.id }};
                 const estaEnVigorEstaPlantilla = (PLANTILLA_EN_VIGOR === estadoPlantilla);
                 if($(document.activeElement).data("action")=="2" || formatDate(myDate) >= formatDate(today)){
+                    console.log("return true");
                     return true;  
                 }
                 else{
