@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Nononsense\HomeBundle\Controller;
 
 use DateTime;
+use Exception;
 use Nononsense\GroupBundle\Entity\Groups;
 use Nononsense\GroupBundle\Entity\GroupsRepository;
 use Nononsense\HomeBundle\Entity\CVStates;
@@ -218,10 +219,17 @@ class NotificationsModelsController extends Controller
         if ($id === 0) {
             return null;
         }
-        $tmTemplate = $this->getDoctrine()->getRepository(TMTemplates::class)->find($data["templateId"]);
+        try {
+            $tmTemplate = $this->getDoctrine()->getRepository(TMTemplates::class)->find($data["templateId"]);
+        } catch(Exception $exc) {
+            die($exc->getMessage());
+        }
+
         if (!$tmTemplate) {
             die("hola");
             return null;
+        } else {
+            die("sí");
         }
         die($tmTemplate);
         $notificationModel->setTemplateId($tmTemplate);
