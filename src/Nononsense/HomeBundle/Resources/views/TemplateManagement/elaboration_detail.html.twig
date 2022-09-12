@@ -153,6 +153,7 @@
                                         </div>
                                     </div>
                                     <!--                        /Modal firmar workflow -->
+                                    <!--    Botón firmar -->
                                     <textarea name="description" style="display: none"></textarea>
                                     <div class="row">
                                         <div class="col-lg-12">
@@ -163,6 +164,7 @@
                                             >
                                         </div>
                                     </div>
+                                    <!--    /Botón firmar -->
                                     <input type="hidden" name="password" id="finalizarElaboracionPassword" value="">
                                     <input id="finish_elaboration" name="finish_elaboration" value="" type="hidden">
                                 </form>
@@ -340,6 +342,7 @@
 
             // Formulario de flujo de trabajo
             $('#pre_workflow_sign').on('click', function(e){
+                alert("botón firmar");
                 const justifyWorkflow = $(".justify_workflow");
                 const descriptionWorkflow = $("#description_workflow");
                 const modalSignWorkflow = $("#modalSignWorkflow");
@@ -431,7 +434,6 @@
         }
 
         function check_sign() {
-            console.log(numCumplimentations);
             if (numCumplimentations < 1) {
                 $("#pre_workflow_sign").prop('disabled', true);
                 $("#finalizarElaboracion").prop("disabled", true);
@@ -451,8 +453,6 @@
             if (signatures.val()) {
                 numSignatures = parseInt(signatures.val());
             }
-            console.log("abelardo", numCumplimentations);
-            console.log("abelardo", numSignatures);
             if (numCumplimentations > 0 && numSignatures > 0) {
                 $("#finish_elaboration").val(1);
                 formSignWorkflow.submit();
