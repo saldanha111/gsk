@@ -222,7 +222,6 @@ class NotificationsModelsController extends Controller
         }
         try {
             $tmTemplate = $this->getDoctrine()->getRepository(TMTemplates::class)->findOneBy(["id" => $data["templateId"]]);
-//            var_dump($tmTemplate); die();
         } catch(Exception $exc) {
             return null;
         }
@@ -250,7 +249,8 @@ class NotificationsModelsController extends Controller
                 $user = $this->getDoctrine()->getRepository(Users::class)->find($data["collectionId"]);
 
                 $notificationModel->setUser($user);
-
+                var_dump($data["email"]); die();
+                $notificationModel->setEmail($data["email"]);
                 break;
             case self::GROUP:
                 /** @var Groups $group */
