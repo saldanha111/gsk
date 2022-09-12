@@ -216,6 +216,7 @@
                 toastr.error("Debe firmar la solicitud",'aviso');
             }else{
                 $("[name='action']").val($(document.activeElement).data("action"));
+                console.log($("[name='action']").val());
                 const estadoPlantilla = {{ template.tmState.id }};
                 const estaEnVigorEstaPlantilla = (PLANTILLA_EN_VIGOR === estadoPlantilla);
                 if($(document.activeElement).data("action")=="2" || formatDate(myDate) >= formatDate(today)){
