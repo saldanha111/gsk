@@ -228,7 +228,7 @@ class NotificationsModelsController extends Controller
         if (!$tmTemplate) {
             return null;
         } else {
-            die($tmTemplate);
+            die(json_encode($tmTemplate));
         }
 
         $notificationModel->setTemplateId($tmTemplate);
