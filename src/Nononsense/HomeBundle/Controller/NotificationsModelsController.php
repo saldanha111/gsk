@@ -247,8 +247,9 @@ class NotificationsModelsController extends Controller
             case self::USER:
                 /** @var Users $user */
                 $user = $this->getDoctrine()->getRepository(Users::class)->find($data["collectionId"]);
-                var_dump($user); die();
+
                 $notificationModel->setUser($user);
+                var_dump("antes del break"); die();
                 break;
             case self::GROUP:
                 /** @var Groups $group */
