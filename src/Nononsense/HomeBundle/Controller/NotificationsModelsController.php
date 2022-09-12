@@ -242,7 +242,7 @@ class NotificationsModelsController extends Controller
         $notificationModel->setSubject($data["subject"]);
 
         $type = $data["type"];
-        var_dump($notificationModel); die();
+        var_dump($type); die();
         switch($type) {
             case self::USER:
                 /** @var Users $user */
