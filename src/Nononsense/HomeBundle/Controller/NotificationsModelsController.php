@@ -242,11 +242,13 @@ class NotificationsModelsController extends Controller
         $notificationModel->setSubject($data["subject"]);
 
         $type = $data["type"];
-        var_dump($type); die();
+
         switch($type) {
             case self::USER:
+                var_dump($data["collectionId"]); die();
                 /** @var Users $user */
                 $user = $this->getDoctrine()->getRepository(Users::class)->find($data["collectionId"]);
+                var_dump($type); die();
                 $notificationModel->setUser($user);
                 break;
             case self::GROUP:
