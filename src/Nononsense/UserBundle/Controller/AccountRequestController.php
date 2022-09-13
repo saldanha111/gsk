@@ -214,7 +214,7 @@ class AccountRequestController extends Controller
 				);
 
 				$this->get('utilities')->logger(
-	         		'Solicitud', 
+	         		'apply', 
 	         		$message['message'].' - Grupo: '.$accountRequest->getGroupId()->getName().'- Usuario: '.$accountRequest->getRequestId()->getMudId(), 
 	         		$this->getUser()->getUsername()
 	         	);

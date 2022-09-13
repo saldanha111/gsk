@@ -68,6 +68,13 @@ class GroupController extends Controller
             'createdGroup',
             $this->get('translator')->trans('The group named: "') . $group->getName() . $this->get('translator')->trans('" has been created.')
             );
+
+            $this->get('utilities')->logger(
+                'group', 
+                'El grupo '.$group->getName().' ha sido creado', 
+                $this->getUser()->getUsername()
+            );
+
             return $this->redirect($this->generateUrl('nononsense_groups_homepage'));
         }
 
@@ -118,6 +125,13 @@ class GroupController extends Controller
             'createdGroup',
             $this->get('translator')->trans('The group named: "') . $group->getName() . $this->get('translator')->trans('" has been edited.')
             );
+
+            $this->get('utilities')->logger(
+                'group', 
+                'El grupo '.$group->getName().' ha sido editado', 
+                $this->getUser()->getUsername()
+            );
+
             return $this->redirect($this->generateUrl('nononsense_groups_homepage'));
         }
 
@@ -334,6 +348,11 @@ class GroupController extends Controller
                 $new->setType($type);
                 $em->persist($new);
 
+                $this->get('utilities')->logger(
+                    'group', 
+                    'El usuario '.$user->getUsername().' de tipo '.$type.' ha sido añadido al grupo '.$group->getName().' manualmente', 
+                    $this->getUser()->getUsername()
+                );
             }
         }
         $em->flush();
@@ -371,6 +390,16 @@ class GroupController extends Controller
         } else {
             $em->remove($row);
             $em->flush();
+
+            $user = $em->getRepository(Users::class)->find($userid);
+            $group = $em->getRepository(Groups::class)->find($id);
+
+            $this->get('utilities')->logger(
+                'group', 
+                'El usuario '.$user->getUsername().' de tipo '.$type.' ha sido eliminado del grupo '.$group->getName().' manualmente', 
+                $this->getUser()->getUsername()
+            );
+
             $this->get('session')->getFlashBag()->add(
             'deletedUser',
             'The user membership was revoked.'
