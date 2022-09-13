@@ -191,11 +191,16 @@ class TemplateElaborateTemplatesController extends Controller
             return $this->returnToHomePage("No se puede efectuar la operación");
         }
 
-        $action = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 2));
-        $action_test = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 3));
+        $ELABORAR_PLANTILLA = 2;
+        $action = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => $ELABORAR_PLANTILLA));
+        $TESTEAR_PLANTILLA = 3;
+        $action_test = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => $TESTEAR_PLANTILLA));
+
         $elaborators = $this->getDoctrine()->getRepository(TMWorkflow::class)->findBy(array("template" => $template, "action" => $action),array("id" => "ASC"));
         $testers = $this->getDoctrine()->getRepository(TMWorkflow::class)->findBy(array("template" => $template, "action" => $action_test),array("id" => "ASC"));
+
         $find=0;
+
         foreach($elaborators as $elaborator){
             if($elaborator->getUserEntiy() && $elaborator->getUserEntiy()==$user){
                 if($request->get("finish_elaboration")){
@@ -358,12 +363,11 @@ class TemplateElaborateTemplatesController extends Controller
                 $elaborator->setSigned(0);
                 $em->persist($elaborator);
             }
-                
-            if(($template->getArea()->getId()==10 || $template->getArea()->getId()==11) && !$testers){
-                $state = $this->getDoctrine()->getRepository(TMStates::class)->findOneBy(array("id"=> 4));
-            }
-            else{
-                $state = $this->getDoctrine()->getRepository(TMStates::class)->findOneBy(array("id"=> 3));
+
+            $AREA_VALIDACIONES = 10; $AREA_COMISIONADO = 11;
+            $ESTADO_ELABORADA = 3;
+            if(!(($template->getArea()->getId()==$AREA_VALIDACIONES || $template->getArea()->getId()==$AREA_COMISIONADO) || !$testers)){
+                $state = $this->getDoctrine()->getRepository(TMStates::class)->findOneBy(array("id"=> $ESTADO_ELABORADA));
             }
             $template->setTmState($state);
         }
@@ -394,7 +398,8 @@ class TemplateElaborateTemplatesController extends Controller
         $user = $this->container->get('security.context')->getToken()->getUser();
 
         $template = $this->getDoctrine()->getRepository(TMTemplates::class)->findOneBy(array("id" => $id));
-        if($template->getTmState()->getId()!=2){
+        $ESTADO_EN_ELABORACION = 2;
+        if($template->getTmState()->getId()!=$ESTADO_EN_ELABORACION){
             return $this->returnToHomePage("La plantilla indicada no se encuentra en estado de elaboración");
         }
 
@@ -402,8 +407,10 @@ class TemplateElaborateTemplatesController extends Controller
             return $this->returnToHomePage("No se puede efectuar la operación");
         }
 
-        $action = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 2));
-        $action_test = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 3));
+        $ACCION_ELABORAR_PLANTILLA = 2;
+        $ACCION_TESTEAR_PLANTILLA = 3;
+        $action = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => $ACCION_ELABORAR_PLANTILLA));
+        $action_test = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => $ACCION_TESTEAR_PLANTILLA));
         $elaborators = $this->getDoctrine()->getRepository(TMWorkflow::class)->findBy(array("template" => $template, "action" => $action),array("id" => "ASC"));
         $testers = $this->getDoctrine()->getRepository(TMWorkflow::class)->findBy(array("template" => $template, "action" => $action_test),array("id" => "ASC"));
         $find=0;
@@ -570,11 +577,15 @@ class TemplateElaborateTemplatesController extends Controller
                 $em->persist($elaborator);
             }
 
-            if(($template->getArea()->getId()==10 || $template->getArea()->getId()==11) && !$testers){
-                $state = $this->getDoctrine()->getRepository(TMStates::class)->findOneBy(array("id"=> 4));
+            $AREA_VALIDACIONES = 10;
+            $AREA_COMISIONADO = 11;
+            $ESTADO_ELABORADA = 3;
+            $ESTADO_TESTADA = 4;
+            if(($template->getArea()->getId()==$AREA_VALIDACIONES || $template->getArea()->getId()==$AREA_COMISIONADO) && !$testers){
+                $state = $this->getDoctrine()->getRepository(TMStates::class)->findOneBy(array("id"=> $ESTADO_TESTADA));
             }
             else{
-                $state = $this->getDoctrine()->getRepository(TMStates::class)->findOneBy(array("id"=> 3));
+                $state = $this->getDoctrine()->getRepository(TMStates::class)->findOneBy(array("id"=> $ESTADO_ELABORADA));
             }
             $template->setTmState($state);
         }
