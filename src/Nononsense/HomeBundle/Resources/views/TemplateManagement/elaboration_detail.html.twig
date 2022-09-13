@@ -430,10 +430,13 @@
                 const comentarioWorkflowVacio = ($('#description_workflow').val() === "");
                 if (comentarioWorkflowVacio) {
                     toastr.error("Debe justificar los cambios realizados en el workflow",'aviso');
+                    return false;
                 } else {
                     // Se cierra el modal solo en el caso de haber cumplimentado la firma y haber aportado la explicación de esta modificación.
                     $("#modalSignWorkflow").modal("hide");
+                    return true;
                 }
+
             });
 
         });
