@@ -171,4 +171,33 @@ class Utilities{
 
         return false;   
     }
+
+    public function logger(string $type, string $description, string $username){
+        $logType = $this->em->getRepository(LogsTypes::class)->findOneBy(['name' => $type]);
+
+        if (!$logType) {
+            $logType = new LogsTypes();
+            $logType->setStringId($type);
+            $logType->setName($type);
+            $logType->setVisible(1);
+            
+            $this->em->persist($logType);
+        }
+
+        $log = new Logs();
+        $log->setType($logType);
+        $log->setDate(new \DateTime());
+        $log->setDescription($description);
+
+        $user = $this->em->getRepository(Users::class)->findOneBy(['username' => $username]);
+
+        if ($user) {
+            $log->setUser($user);
+        }
+
+        $this->em->persist($log);
+        $this->em->flush();
+
+        return $log;
+    }
 }

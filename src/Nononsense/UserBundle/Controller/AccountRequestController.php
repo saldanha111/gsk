@@ -13,6 +13,8 @@ use Nononsense\GroupBundle\Entity\GroupUsers;
 use Nononsense\GroupBundle\Entity\Groups;
 use Nononsense\UserBundle\Entity\AccountRequests;
 use Nononsense\UserBundle\Entity\AccountRequestsGroups;
+use Nononsense\GroupBundle\Entity\LogsTypes;
+use Nononsense\GroupBundle\Entity\Logs;
 use Nononsense\UserBundle\Form\Type as Form;
 use Nononsense\UtilsBundle\Classes\Utils;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -93,7 +95,23 @@ class AccountRequestController extends Controller
 			            	$bulkGroupRequest->setGroupId($group);
 
 			            	$bulkRequest->addRequest($bulkGroupRequest);
+
+			            	$logType = $em->getRepository(LogsTypes::class)->findOneBy(['name' => 'apply']);
+
+			            	$log = new Logs();
+					        $log->setType($logType);
+					        $log->setDate(new \DateTime());
+					        $log->setDescription($accountRequest->getMudId().' ha solicitado acceso al grupo '.$group->getName().' para el MUDID '.$bulkMudId);
+
+					        $user = $em->getRepository(Users::class)->findOneBy(['username' => $accountRequest->getMudId()]);
+
+					        if ($user) {
+					            $log->setUser($user);
+					        }
+
+					        $em->persist($log);
 			            }
+
 			            $em->persist($bulkRequest);
 	            	}
             	}
@@ -194,6 +212,12 @@ class AccountRequestController extends Controller
 					</ul>
 					<p>'.$accountRequest->getObservation().'</p>'
 				);
+
+				$this->get('utilities')->logger(
+	         		'Solicitud', 
+	         		$message['message'].' - Grupo: '.$accountRequest->getGroupId()->getName().'- Usuario: '.$accountRequest->getRequestId()->getMudId(), 
+	         		$this->getUser()->getUsername()
+	         	);
 
 			} catch (\Exception $e) {
 				$message = ['type' => 'error', 'message' => $e->getMessage()];
