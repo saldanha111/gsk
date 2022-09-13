@@ -166,7 +166,7 @@ class TemplateElaborateTemplatesController extends Controller
 
     public function signAndSaveAction(Request $request, int $id)
     {
-
+        $this->getContainer()->get('utilities')->debug("hola");
         $em = $this->getDoctrine()->getManager();
         $array_item=array();
 
