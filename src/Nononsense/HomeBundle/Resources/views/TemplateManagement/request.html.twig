@@ -411,6 +411,7 @@
 
         /* Si cambiamos el tipo de solicitud, limpiamos workflow y cambiamos los campos visibles según el tipo de solicitud */
         $(document).on('change', '[name="request_type"]', function() {
+            load_owner_backup();
             const selectedOption = parseInt($(this).val());
             const NEW_TEMPLATE = 1; const NEW_EDITION = 2;
             switch(selectedOption){
@@ -459,7 +460,6 @@
                       
                   },
                   processResults: function (data, page) { // parse the results into the format expected by Select2.
-                    console.log(data);
                     return {results: data.items};
                   },
                   cache: false
@@ -472,6 +472,7 @@
             load_users_to_area(e.params.data.area);
             load_prefixes_to_area(e.params.data.area);
             load_associated_categories_byTemplateId(e.params.data.id);
+            get_data_template(e.params.data.id);
         });
 
         $('#form_item').on('submit', function(e){
@@ -489,7 +490,6 @@
                 }
             }
             else{
-                console.log($('[name="request_type"]').val());
                 toastr.error("Debe añadir alguna categoría de retención",'aviso');
             }
             return false;
@@ -552,7 +552,6 @@
             dataType: "json",
             url: url_users,
             success: function(data){
-                console.log(data);
                 if(data.users || data.groups){
                     dataworkflow=data;
                     reset_workflow();
@@ -563,7 +562,6 @@
 
             },
             error: function (request, status, error) {
-                console.log(request);
                 toastr.error("No ha sido posible cargar los usuarios para definir el workflow','", 'Error');
             }
         });
@@ -579,7 +577,6 @@
             dataType: "json",
             url: url_prefixes,
             success: function(data){
-                console.log(data);
                 if(data.prefixes){
                     load_prefixes(data);
                 }
@@ -589,8 +586,30 @@
 
             },
             error: function (request, status, error) {
-                console.log(request);
                 toastr.error("No ha sido posible cargar los prefijos correspondiente al area','", 'Error');
+            }
+        });
+    }
+
+    function get_data_template(templateId){
+        url_prefixes=url_get_template_old_edition(templateId);
+        $.ajax({
+            type: 'GET',
+            dataType: "json",
+            url: url_prefixes,
+            success: function(data){
+                console.log(data);
+                if(data.id){
+                    load_owner_backup(data);
+                }
+                else{
+                    toastr.error("No ha sido posible cargar los datos de la edición actual de la plantilla','", 'Error');
+                }
+
+            },
+            error: function (request, status, error) {
+                console.log(request);
+                toastr.error("No ha sido posible cargar los datos de la edición actual de la plantilla','", 'Error');
             }
         });
     }
@@ -736,10 +755,27 @@
        return url;
     }
 
+    function url_get_template_old_edition(templateId){
+        url="{{ path('nononsense_templates_old_edition_json', {'templateId': 'value_id'}) }}";
+        url=url.replace("value_id", templateId);
+        return url;
+    }
+
     function get_url_template_retentions(templateId){
         url="{{ path('nononsense_templates_retentions_json', {'templateId': 'template_id'}) }}";
         url=url.replace("template_id", templateId);
         return url;
+    }
+
+    function load_owner_backup(data){
+        if(data){
+            $("[name='onwer']").val(data.owner.id);
+            $("[name='backup']").val(data.backup.id);
+        }
+        else{
+            $("[name='onwer']").val();
+            $("[name='backup']").val();
+        }
     }
 </script>
 {% endblock %}

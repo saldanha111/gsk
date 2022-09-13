@@ -607,6 +607,10 @@ nononsense_templates_retentions_json:
     path:     /templates/retentions/json/{templateId}
     defaults: { _controller: NononsenseHomeBundle:TemplateManagementRequest:retrieveRetentionsByTemplateId}
 
+nononsense_templates_old_edition_json:
+    path:     /templates/old-edition/json/{templateId}
+    defaults: { _controller: NononsenseHomeBundle:TemplateManagementRequest:retrieveDataOldEdition, templateId: 0}
+
 # Retención
 
 nononsense_retention_categories_list:

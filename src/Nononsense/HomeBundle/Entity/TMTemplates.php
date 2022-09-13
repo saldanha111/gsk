@@ -21,7 +21,7 @@ class TMTemplates
      * @ORM\Column(type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
-     * @Groups({"detail_document","json","detail","detail_area"})
+     * @Groups({"detail_document","json","detail","detail_area","data_new_edition"})
      */
     protected $id;
     
@@ -236,12 +236,14 @@ class TMTemplates
     /**
      * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="ownerTemplates")
      * @ORM\JoinColumn(name="owner_id", referencedColumnName="id")
+     * @Groups({"data_new_edition"})
      */
     protected $owner;
 
     /**
      * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="backupTeamplates")
      * @ORM\JoinColumn(name="backup_id", referencedColumnName="id")
+     * @Groups({"data_new_edition"})
      */
     protected $backup;
 

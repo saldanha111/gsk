@@ -454,6 +454,20 @@ class TemplateManagementRequestController extends Controller
         return $response;
     }
 
+    public function retrieveDataOldEditionAction(Request $request, int $templateId): Response
+    {
+        $em = $this->getDoctrine()->getManager();
+        $serializer = $this->get('serializer');
+
+        /** @var TMTemplates $template */
+        $template=$em->getRepository('NononsenseHomeBundle:TMTemplates')->findOneBy(array("id" => $templateId));
+        $item = json_decode($serializer->serialize($template,'json',array('groups' => array('data_new_edition'))),true);
+        $response = new Response(json_encode($item), 200);
+        $response->headers->set('Content-Type', 'application/json');
+
+        return $response;
+    }
+
     private function returnToTmRequest(string $msgError,string $type = "error"): RedirectResponse
     {
         $this->get('session')->getFlashBag()->add(

@@ -111,7 +111,7 @@
                                     <br>
                                     <div class="row">
                                         <div class="col-lg-12">
-                                            <button id="pre_workflow_sign" class="btn btn-primary pull-right" {{ cumplimentations is not defined or cumplimentations is empty ? 'disabled="disabled"' : ''}} >Firmar</button>
+                                            <a href="javascript:void(0)" id="save_elaboration" class="btn btn-primary pull-right"><i class="fa fa-save" aria-hidden="true"></i> Guardar</a>
                                             <button type="button" class="btn btn-default pull-right add_line" style="margin-right:4px"><i class="fa fa-plus"></i> Añadir</button>
                                         </div>
                                     </div><br>
@@ -141,7 +141,7 @@
                                                             <div id="signature-pad3" class="input-group">
                                                                 <label for="modalSignWorkflowPassword">Introduzca su firma</label>
                                                                 <br>
-                                                                <input type="password" name="password" id="modalSignWorkflowPassword" class="form-control" required="required"><br>
+                                                                <input type="password" id="modalSignWorkflowPassword" class="form-control" required="required"><br>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -154,16 +154,12 @@
                                     </div>
                                     <!--                        /Modal firmar workflow -->
                                     <textarea name="description" style="display: none"></textarea>
+                                    <input type="hidden" name="password">
                                     <div class="row">
                                         <div class="col-lg-12">
-                                            <input  type="submit" class="btn btn-primary pull-right"
-                                                    id="finalizarElaboracion"
-                                                    value="Finalizar elaboración"
-                                                    disabled
-                                            >
+                                            <input type="button" class="btn btn-primary pull-right" id="finishElaboration" value="Finalizar elaboración">
                                         </div>
                                     </div>
-                                    <input type="hidden" name="password" id="finalizarElaboracionPassword" value="">
                                     <input id="finish_elaboration" name="finish_elaboration" value="" type="hidden">
                                 </form>
                                 <!--                        /Modal firmar elaboración -->
@@ -307,81 +303,82 @@
 
             // Formulario de subida de documentos
             $('#form_upload_document').on('submit', function(e){
-                const formUploadDocumentPassword = document.getElementById("formUploadDocumentPassword").value;
-                const formUploadDocumentPasswordIsEmpty = (formUploadDocumentPassword === "") ;
-                if (formUploadDocumentPasswordIsEmpty){
+                if (!$("#formUploadDocumentPassword").val()){
                     toastr.error("La firma es obligatoria",'aviso');
-                }else{
-                    if({{min_cumplimentations}}==0){
-                        toastr.error("Debe haber al menos un cumplimentador o un verificador y haber firmado el workflow",'aviso');
-                    }
+                    return false;
                 }
-                return false;
+
+                if (!password_valid($("#formUploadDocumentPassword").val())){
+                    toastr.error("La firma no es correcta",'aviso');
+                    return false;
+                }
+
+                return true;
+                
             });
             // /Formulario de subida de documentos
 
             // Formulario de configuración de la plantilla
             $('#form_sign_configuration').on('submit', function(e){
-                const formSignConfigurationPassword = document.getElementById("formSignConfigurationPassword").value;
-                const formSignConfigurationPasswordIsEmpty = (formSignConfigurationPassword === "") ;
-                if (formSignConfigurationPasswordIsEmpty){
+                if (!$("#formSignConfigurationPassword").val()){
                     toastr.error("La firma es obligatoria",'aviso');
                     return false;
                 }
 
-                if({{min_cumplimentations}}==0){
-                    toastr.error("Debe haber al menos un cumplimentador o un verificador y haber firmado el workflow",'aviso');
+                if (!password_valid($("#formSignConfigurationPassword").val())){
+                    toastr.error("La firma no es correcta",'aviso');
                     return false;
                 }
+                
 
                 return true;
             });
             // /Formulario de configuración de la plantilla
 
             // Formulario de flujo de trabajo
-            $('#pre_workflow_sign').on('click', function(e){
-                const justifyWorkflow = $(".justify_workflow");
-                const descriptionWorkflow = $("#description_workflow");
-                const modalSignWorkflow = $("#modalSignWorkflow");
-                if(modalSignWorkflow.is(':visible')){
-                    if(!justifyWorkflow.is(':visible') || $.trim(descriptionWorkflow.val())){
-                        const modalSignWorkflowPassword = document.getElementById("modalSignWorkflowPassword").value;
-                        const modalSignWorkflowPasswordIsEmpty = (modalSignWorkflowPassword === "") ;
-                        if (modalSignWorkflowPasswordIsEmpty){
-                            toastr.error("La firma es obligatoria",'aviso');
-                        }else{
-                            if(justifyWorkflow.is(':visible')){
-                                $('#form_sign_workflow').find('[name="description"]').val($.trim(descriptionWorkflow.val()));
-                            }
-                        }
-                    }
-                    else{
-                        toastr.error("Debe justificar los cambios realizados en el workflow",'aviso');
-                    }
+            $(document).on('click', '#sign_workflow', function() {
+                if ($("#description_workflow").is(":visible") && !$("#description_workflow").val()){
+                    toastr.error("La descripcion es obligatoria",'aviso');
+                    return false;
                 }
-                else{
-                    modalSignWorkflow.modal('show');
+
+                if (!$("#modalSignWorkflowPassword").val()){
+                    toastr.error("La firma es obligatoria",'aviso');
+                    return false;
                 }
-                return false;
+
+                if (!password_valid($("#modalSignWorkflowPassword").val())){
+                    toastr.error("La firma no es correcta",'aviso');
+                    return false;
+                }
+
+                $("#form_sign_workflow").find('textarea[name="description"]').val($("#description_workflow").val());
+                $("#form_sign_workflow").find('input[name="password"]').val($("#modalSignWorkflowPassword").val());
+                $("#form_sign_workflow").submit();
             });
             // /Formulario de flujo de trabajo
 
+            
+            $(document).on('click', '#save_elaboration', function() {
+                $("#finish_elaboration").val("");
+                $("#modalSignWorkflow").modal('show');
+            });
+
+            $(document).on('click', '#finishElaboration', function() {
+                $("#finish_elaboration").val(1);
+                $("#modalSignWorkflow").modal('show');
+            });
+
             /* Añadimos linea en ese paso del workflow */
             $(document).on('click', '.add_line', function() {
-                numCumplimentations++;
-                add_line();
-                check_sign();
+                $(".box_workflow").append($("#new_line").html());
+                add_justification();
             });
 
             /* Eliminamos linea en ese paso del workflow */
             $(document).on('click', '.remove_line', function() {
-
-                numCumplimentations--;
-                console.log(numCumplimentations);
                 $(this).closest(".line_workflow").remove();
-                if (numCumplimentations < 1) $("#pre_workflow_sign").prop("disabled", true);
                 add_justification();
-                check_sign();
             });
 
             $(document).on('change', '.field_cumplimentation', function() {
@@ -400,75 +397,42 @@
                 else{
                     if($(this).closest(".line_workflow").nextAll().find(".Cumplimentador:selected").length){
                         $(this).val("");
-                        toastr.error("No se puede añadir un Verificador antes de un cumplimentador",'aviso');
                     } else {
                         numCumplimentations++;
                     }
                 }
             });
 
-            $(document).on('click', '#sign_workflow', function() {
-                const comentarioWorkflowVacio = ($('#description_workflow').val() === "");
-                if (comentarioWorkflowVacio) {
-                    toastr.error("Debe justificar los cambios realizados en el workflow",'aviso');
-                } else {
-                    // Se cierra el modal solo en el caso de haber cumplimentado la firma y haber aportado la explicación de esta modificación.
-                    $("#modalSignWorkflow").modal("hide");
-                }
-            });
-
         });
 
-        /* Añadimos una nueva linea */
-        function add_line(){
-            $(".box_workflow").append($("#new_line").html());
-            $("#pre_workflow_sign").prop("disabled", false);
-            add_justification();
-        }
 
         function add_justification(){
             $(".justify_workflow").show();
         }
 
-        function check_sign() {
-            console.log(numCumplimentations);
-            if (numCumplimentations < 1) {
-                $("#pre_workflow_sign").prop('disabled', true);
-                $("#finalizarElaboracion").prop("disabled", true);
-            } else {
-                $("#pre_workflow_sign").prop('disabled', false);
-                $("#finalizarElaboracion").prop("disabled", false);
-            }
-        }
-    </script>
-    <script>
-        $("#finalizarElaboracion").on('click', function(e) {
-            let numSignatures = 0;
-            const formSignWorkflow = $('#form_sign_workflow');
-            document.getElementById("finalizarElaboracionPassword").value = $('#modalSignWorkflow').find('[name="password"]').val();
-            formSignWorkflow.find('[name="description"]').val($.trim($("#description_workflow").val()));
-            const signatures = $("#signatures");
-            if (signatures.val()) {
-                numSignatures = parseInt(signatures.val());
-            }
-            console.log("abelardo", numCumplimentations);
-            console.log("abelardo", numSignatures);
-            if (numCumplimentations > 0 && numSignatures > 0) {
-                $("#finish_elaboration").val(1);
-                formSignWorkflow.submit();
-            } else {
-                toastr.error("Debe haber al menos 1 cumplimentación con un número de firmas válido", 'aviso');
-                e.preventDefault();
-            }
-        });
-    </script>
-    {#<script>#}
-    {#    const preWorkflowSign = $("#pre_workflow_sign");#}
-    {#    preWorkflowSign.on('click', function(e) {#}
-    {#        if (numCumplimentations > 0) {#}
-    {#            preWorkflowSign.prop("disabled", false);#}
-    {#        }#}
-    {#    });#}
-    {#</script>#}
+        function password_valid(password){
+            var result;
+            $.ajax({
+                url: "{{ path('nononsense_mclean_get_sign_valid') }}",
+                type: 'POST',
+                dataType: 'json',
+                async: false,
+                data: {password: password},
+                success: function(response) {
+                    console.log(response);
+                    if(response.valid){
+                        result=true;
+                    }else{
+                        result=false;
+                    }
+                },
+                error: function() {
+                    result=false;
+                }
+            });
 
+            return result;
+        }
+
+    </script>
 {% endblock %}
