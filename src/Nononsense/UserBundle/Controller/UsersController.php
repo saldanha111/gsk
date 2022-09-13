@@ -123,6 +123,13 @@ class UsersController extends Controller
             'createdUser',
             $this->get('translator')->trans('The user with username: "') . $user->getUsername() . $this->get('translator')->trans('" has been created.')
             );
+
+            $this->get('utilities')->logger(
+                'group', 
+                'El usuario '.$user->getUsername().' ha sido creado', 
+                $this->getUser()->getUsername()
+            );
+
             return $this->redirect($this->generateUrl('nononsense_users_homepage'));
         }
 
@@ -161,6 +168,13 @@ class UsersController extends Controller
             'deletedUser',
             $this->get('translator')->trans('The user with username: "') . $user->getUsername() . $this->get('translator')->trans('" has been removed.')
             );
+
+            $this->get('utilities')->logger(
+                'group', 
+                'El usuario '.$user->getUsername().' ha sido eliminado', 
+                $this->getUser()->getUsername()
+            );
+
             return $this->redirect($this->generateUrl('nononsense_users_homepage'));
         }
 
@@ -217,6 +231,13 @@ class UsersController extends Controller
             $em = $this->getDoctrine()->getManager();
             $em->persist($user);
             $em->flush();
+
+            $this->get('utilities')->logger(
+                'group', 
+                'El usuario '.$user->getUsername().' ha sido editado', 
+                $this->getUser()->getUsername()
+            );
+
             return $this->redirect($this->generateUrl('nononsense_user_profile', array('id' => $id)));
         }
 
