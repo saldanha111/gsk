@@ -162,33 +162,32 @@
                                             <span aria-hidden="true">&times;</span>
                                         </button>
                                     </div>
-
-                                    <div class="modal-body">
-                                        <form id="form_signAndSave_workflow" action="{{path('nononsense_tm_elaborate_signAndSave', {'id': template.id}) }}" method="POST"  enctype="multipart/form-data">
-                                            <input type="hidden" value="" name="action" id="form_signAndSave_workflow_action">
-                                            <div class="row justify_workflow" style="display: none">
-                                                <div class="col-lg-10 col-lg-offset-1">
-                                                    <label for="description_workflow">Comentarios</label>
-                                                    <br>
-                                                    <div class="form-group">
-                                                        <textarea class="form-control" id="description_workflow" rows="10" cols="40"  style="width:100%" required="required"></textarea>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-lg-10 col-lg-offset-1">
-                                                    <div id="signature-pad3" class="input-group">
-                                                        <label for="modalSignWorkflowPassword">Introduzca su firma</label>
+                                    <form id="form_signAndSave_workflow" action="{{path('nononsense_tm_elaborate_signAndSave', {'id': template.id}) }}" method="POST"  enctype="multipart/form-data">
+                                        <div class="modal-body">
+                                                <input type="hidden" value="" name="action" id="form_signAndSave_workflow_action">
+                                                <div class="row justify_workflow" style="display: none">
+                                                    <div class="col-lg-10 col-lg-offset-1">
+                                                        <label for="description_workflow">Comentarios</label>
                                                         <br>
-                                                        <input type="password" name="password" id="modalSignWorkflowPassword" class="form-control" required="required"><br>
+                                                        <div class="form-group">
+                                                            <textarea class="form-control" id="description_workflow" rows="10" cols="40"  style="width:100%" required="required"></textarea>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </form>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <input type="submit" class="btn btn-primary" id="sign_workflow" value="Firmar">
-                                    </div>
+                                                <div class="row">
+                                                    <div class="col-lg-10 col-lg-offset-1">
+                                                        <div id="signature-pad3" class="input-group">
+                                                            <label for="modalSignWorkflowPassword">Introduzca su firma</label>
+                                                            <br>
+                                                            <input type="password" name="password" id="modalSignWorkflowPassword" class="form-control" required="required"><br>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <input type="submit" class="btn btn-primary" id="sign_workflow" value="Firmar">
+                                        </div>
+                                    </form>
                                 </div>
                             </div>
                         </div>
