@@ -611,4 +611,8 @@ class Utilities{
 
         return $users;
     }
+
+    public function debug($data) {
+        die(json_encode($data));
+    }
 }
