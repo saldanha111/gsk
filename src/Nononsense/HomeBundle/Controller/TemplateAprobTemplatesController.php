@@ -310,7 +310,7 @@ class TemplateAprobTemplatesController extends Controller
 	        		if($us->getAction()->getId()!=4){
 	        			$next_state=5;
 	        			//Metemos aquellos usuarios que sean elaboradores para que estos sean notificados en caso de que la plantilla vuelva hacia atrás
-	        			if($us->getAction()->getId()==2){
+	        			if($us->getAction()->getId()==2 || $us->getAction()->getId()==10 || $us->getAction()->getId()==9){
 	        				$users_elaborations[]=$us->getUserEntiy()->getEmail();
 	        			}
 
@@ -382,7 +382,7 @@ class TemplateAprobTemplatesController extends Controller
                     case 9:
                         $subject="Plantilla cancelada";
                         $mensaje='La plantilla Código: '.$template->getNumber().' - Título: '.$template->getName().' - Edición: '.$template->getNumEdition().' está pendiente de revisión por su parte por haberse solicitado su cancelación. Para poder revisarlo puede acceder a "Gestión de plantillas -> En elaboración", buscar la plantilla correspondiente y pulsar en Gestionar cancelación';
-                        $baseURL=$this->container->get('router')->generate('nononsense_tm_elaborate_detail', array("id" => $id),TRUE);
+                        $baseURL=$this->container->get('router')->generate('nononsense_tm_elaborate_detail_cancel', array("id" => $id),TRUE);
                         break;
                 }
 
