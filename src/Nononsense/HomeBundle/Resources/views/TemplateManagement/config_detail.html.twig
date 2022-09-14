@@ -210,24 +210,29 @@
             var year = EnteredDate.substring(0, 4);
             var effectDate = new Date(year, month - 1, date);
 
-            const firma = document.getElementById("formItemPassword").value;
-            const firmaEstaVacia = (firma === "");
-            if (firmaEstaVacia){
-                toastr.error("Debe firmar la solicitud",'aviso');
-            }else{
-                const estadoPlantilla = {{ template.tmState.id }};
-                const estaEnVigorEstaPlantilla = (PLANTILLA_EN_VIGOR === estadoPlantilla);
-                if($(document.activeElement).data("action")=="1" || formatDate(effectDate) >= formatDate(today)){
-                    return true;
-                }
-                else{
-                    if (!estaEnVigorEstaPlantilla) {
-                        toastr.error("La fecha de entrada en vigor no puede ser inferior a la del día de hoy",'aviso');
-                    }
-                }
-                
+            if (!$("#formItemPassword").val()){
+                toastr.error("La firma es obligatoria",'aviso');
+                return false;
             }
-            return false;
+
+            if (!gpassword_valid($("#formItemPassword").val())){
+                toastr.error("La firma no es correcta",'aviso');
+                return false;
+            }
+
+
+            const estadoPlantilla = {{ template.tmState.id }};
+            const estaEnVigorEstaPlantilla = (PLANTILLA_EN_VIGOR === estadoPlantilla);
+            if($(document.activeElement).data("action")=="1" || formatDate(effectDate) >= formatDate(today)){
+                return true;
+            }
+            else{
+                if (!estaEnVigorEstaPlantilla) {
+                    toastr.error("La fecha de entrada en vigor no puede ser inferior a la del día de hoy",'aviso');
+                    return false;
+                }
+                return true;
+            }
         });
     });
 
