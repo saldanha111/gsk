@@ -386,6 +386,7 @@ class TemplateAprobTemplatesController extends Controller
                         break;
                 }
 
+                $users_notifications = array_unique($users_notifications);
 	            foreach($users_notifications as $email){
                     $this->get('utilities')->sendNotification($email, $baseURL, "", "", $subject, $mensaje);
                 }
