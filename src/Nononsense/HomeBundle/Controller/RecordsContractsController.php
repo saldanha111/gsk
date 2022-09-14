@@ -800,7 +800,6 @@ class RecordsContractsController extends Controller
 
                         if($this->sendBySMS($concatphone, $textMessage)){
                             $sended++;
-                            $this->get('Utilities')->saveLog('sms', 'contrato enviado por sms');
                         }else{
                             $errors++;
                         }
@@ -986,7 +985,6 @@ class RecordsContractsController extends Controller
                 switch($type){
                     case 'email':
                         if($this->sendByEmail($email_email, $signLink1, $signLink2, $pin)){
-                            $this->get('Utilities')->saveLog('mail', 'contrato enviado por mail');
                             $sended = true;
                         }
                         break;
@@ -995,7 +993,6 @@ class RecordsContractsController extends Controller
                         $textMessage .= ' (1/2) | ' . $signLink2 . ' (2/2)';
                         if($this->sendBySMS($phonePrefix.$phoneNumber, $textMessage)){
                             $sended = true;
-                            $this->get('Utilities')->saveLog('sms', 'contrato enviado por sms');
                         }
                         break;
                 }

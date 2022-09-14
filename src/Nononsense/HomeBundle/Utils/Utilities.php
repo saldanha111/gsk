@@ -132,27 +132,6 @@ class Utilities{
         return true;
     }
 
-    public function saveLog(string $type, string $description)
-    {
-        /** @var LogsTypesRepository $logsTypesRepository */
-        $logsTypesRepository = $this->em->getRepository(LogsTypes::class);
-        /** @var LogsTypes $logType */
-        $logType = $logsTypesRepository->findOneBy(['stringId' => $type]);
-        if(!$logType){
-            $logType = $logsTypesRepository->findOneBy(['stringId' => 'unknown']);
-        }
-
-        $log = new Logs();
-        $log->setType($logType);
-        $log->setDate(new DAteTime());
-        $log->setDescription($description);
-        $this->em->persist($log);
-        try {
-            $this->em->flush();
-        } catch (OptimisticLockException $e) {
-        }
-    }
-
     public function checkUser($password, $username=''){
 
         if (!$username) $username = $this->container->get('security.context')->getToken()->getUsername();
