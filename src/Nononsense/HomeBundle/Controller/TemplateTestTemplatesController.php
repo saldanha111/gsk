@@ -499,9 +499,11 @@ class TemplateTestTemplatesController extends Controller
 	        	$userssignatures = $this->getDoctrine()->getRepository(TMSignatures::class)->findBy(array("template" => $template),array("id" => "ASC"));
                 $userssignatures[]=$signature;
 	        	//Comprobamos los test realizados para saber a que estado debemos pasar la plantilla
+                $desc_email="";
 	        	foreach($userssignatures as $us){
 	        		//Tenemos en cuenta solo las pruebas desde la última firma que no sea de test
 	        		if($us->getAction()->getId()!=3){
+                        $desc_email="";
 	        			$next_state=4;
 	        			//Metemos aquellos usuarios que sean elaboradores para que estos sean notificados en caso de que la plantilla vuelva hacia atrás
 	        			if($us->getAction()->getId()==2){
@@ -514,6 +516,9 @@ class TemplateTestTemplatesController extends Controller
 	        				$next_state=2;
 	        			}
 	        		}
+                    if($us->getAction()->getId()==3){
+                        $desc_email.=$us->getUserEntiy()->getName()." -> ".$us->getTmTests()[0]->getResult()->getName()." (".$us->getDescription().")<br>";
+                    }
 	        	}
 
 	        	//Si el resultado es que la plantilla pasa a aprobación, se vacía los usuarios a notificar (elaboradores) y metemos los aprobadores
@@ -543,10 +548,11 @@ class TemplateTestTemplatesController extends Controller
                 }
                 else{
                     $subject="La plantilla no ha pasado los tests";
-                    $mensaje='La plantilla con Código '.$template->getNumber().' - Título: '.$template->getName().' - Edición: '.$template->getNumEdition().' no ha pasado los tests realizados y require de nuevo de su elaboración. Para poder realizar las correcciones pertinentes, puede acceder a "Gestión de plantillas -> En elaboración", buscar la plantilla correspondiente y pulsar en Elaborar. Podrá ver los tests y comentarios de cada uno de llos pulsando en el Audit Trail';
+                    $mensaje='La plantilla con Código '.$template->getNumber().' - Título: '.$template->getName().' - Edición: '.$template->getNumEdition().' no ha pasado los tests realizados y require de nuevo de su elaboración. Para poder realizar las correcciones pertinentes, puede acceder a "Gestión de plantillas -> En elaboración", buscar la plantilla correspondiente y pulsar en Elaborar. Podrá ver los tests y comentarios de cada uno de llos pulsando en el Audit Trail<br><br>'.$desc_email;
                     $baseURL=$this->container->get('router')->generate('nononsense_tm_elaborate_detail', array("id" => $id),TRUE);
                 }
-
+                
+                $users_notifications = array_unique($users_notifications);
                 foreach($users_notifications as $email){
                     $this->get('utilities')->sendNotification($email, $baseURL, "", "", $subject, $mensaje);
                 }

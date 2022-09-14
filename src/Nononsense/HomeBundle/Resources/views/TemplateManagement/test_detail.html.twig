@@ -94,6 +94,19 @@
                         </div>
                     </div> 
                 {% endif %}
+                <div class="row" id="attached_box" style="display: none;">
+                    <div class="col-lg-10 col-lg-offset-1">
+                        Adjuntar PDF<br>
+                        <div class="form-group">
+                            <input id="attached" type="file" name="attached" accept="application/pdf">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-10 col-lg-offset-1">
+                        <input name="finish_tests" value="1" type="checkbox"> Finalizar tests
+                    </div>
+                </div>
                 <br>
                 <div class="row">
                     <div class="col-lg-10 col-lg-offset-1 mb-3">
@@ -105,7 +118,6 @@
 
                 </div>
                 <input type="hidden" name="token" value="{{app.request.query.get('token') is defined  ? app.request.query.get('token') : ''}}" />
-                <input type="hidden" name="finish_tests" id="finish_tests" value="" />
             </div>
             <div class="modal-footer">
                 <input type="submit" class="btn btn-primary" value="Firmar test">
@@ -131,22 +143,28 @@ $( document ).ready(function() {
     $(document).on('change', '[name="result"]', function() {
         if($(this).val()>1 || !$(this).val()){
             $("[name='description']").prop('required',true);
+            //$("#attached").prop('required',true);
+            //$("#attached_box").show();
         }
         else{
             $("[name='description']").prop('required',false);
+            //$("#attached").prop('required',false);
+            //$("#attached_box").hide();
         }
     });
 
     $('#form_sign_test').on('submit', function(e){
-        const formSignTestPassword = document.getElementById("formSignTestPassword").value;
-        const formSignTestPasswordEstaVacia = (formSignTestPassword === "");
-        if (formSignTestPasswordEstaVacia){
+        
+        if (!$("#formSignTestPassword").val()){
             toastr.error("La firma es obligatoria",'aviso');
-        }else{
-            $("#finish_tests").val("1");
-            return true;
+            return false;
         }
-        e.preventDefault();
+
+        if (!gpassword_valid($("#formSignTestPassword").val())){
+            toastr.error("La firma no es correcta",'aviso');
+            return false;
+        }
+        return true;
     });
 
 });

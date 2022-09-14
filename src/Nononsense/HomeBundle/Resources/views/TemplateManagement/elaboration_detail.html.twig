@@ -308,7 +308,7 @@
                     return false;
                 }
 
-                if (!password_valid($("#formUploadDocumentPassword").val())){
+                if (!gpassword_valid($("#formUploadDocumentPassword").val())){
                     toastr.error("La firma no es correcta",'aviso');
                     return false;
                 }
@@ -325,7 +325,7 @@
                     return false;
                 }
 
-                if (!password_valid($("#formSignConfigurationPassword").val())){
+                if (!gpassword_valid($("#formSignConfigurationPassword").val())){
                     toastr.error("La firma no es correcta",'aviso');
                     return false;
                 }
@@ -347,7 +347,7 @@
                     return false;
                 }
 
-                if (!password_valid($("#modalSignWorkflowPassword").val())){
+                if (!gpassword_valid($("#modalSignWorkflowPassword").val())){
                     toastr.error("La firma no es correcta",'aviso');
                     return false;
                 }
@@ -409,30 +409,5 @@
         function add_justification(){
             $(".justify_workflow").show();
         }
-
-        function password_valid(password){
-            var result;
-            $.ajax({
-                url: "{{ path('nononsense_mclean_get_sign_valid') }}",
-                type: 'POST',
-                dataType: 'json',
-                async: false,
-                data: {password: password},
-                success: function(response) {
-                    console.log(response);
-                    if(response.valid){
-                        result=true;
-                    }else{
-                        result=false;
-                    }
-                },
-                error: function() {
-                    result=false;
-                }
-            });
-
-            return result;
-        }
-
     </script>
 {% endblock %}
