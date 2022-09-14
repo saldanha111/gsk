@@ -151,7 +151,7 @@
                             <input type="password" name="password" id="formItemPassword" class="form-control" required="required"><br>
                         </div>
                         {% if template.tmState.id == 11 %}
-                            <button type="submit" class="btn btn-danger" data-action="2">Rechazar</button>
+                            <button type="submit" class="btn btn-danger" data-action="2">Cancelar puesta en vigor</button>
                         {% endif %}
                         <button type="submit" class="btn btn-primary" data-action="1"><i class="fa fa-floppy-o" aria-hidden="true"></i> Aceptar</button>
                         </div>
@@ -219,6 +219,8 @@
                 toastr.error("La firma no es correcta",'aviso');
                 return false;
             }
+
+            $("[name='action']").val($(document.activeElement).data("action"));
 
 
             const estadoPlantilla = {{ template.tmState.id }};
