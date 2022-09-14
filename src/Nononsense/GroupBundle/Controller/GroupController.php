@@ -65,12 +65,12 @@ class GroupController extends Controller
             $em->persist($group);
             $em->flush();
             $this->get('session')->getFlashBag()->add(
-            'createdGroup',
-            $this->get('translator')->trans('The group named: "') . $group->getName() . $this->get('translator')->trans('" has been created.')
+                'createdGroup',
+                'El grupo '.$group->getName().' ha sido creado'
             );
 
             $this->get('utilities')->logger(
-                'group', 
+                'GROUP', 
                 'El grupo '.$group->getName().' ha sido creado', 
                 $this->getUser()->getUsername()
             );
@@ -122,12 +122,12 @@ class GroupController extends Controller
             $em->persist($group);
             $em->flush();
             $this->get('session')->getFlashBag()->add(
-            'createdGroup',
-            $this->get('translator')->trans('The group named: "') . $group->getName() . $this->get('translator')->trans('" has been edited.')
+                'createdGroup',
+                'El grupo '.$group->getName().' ha sido editado'
             );
 
             $this->get('utilities')->logger(
-                'group', 
+                'GROUP', 
                 'El grupo '.$group->getName().' ha sido editado', 
                 $this->getUser()->getUsername()
             );
@@ -192,8 +192,8 @@ class GroupController extends Controller
             $em->flush();
             
             $this->get('session')->getFlashBag()->add(
-            'createdGroup',
-            'The group named: "' . $data['name'] . '" has been cloned with the name "' . $group->getName() . '".'
+                'createdGroup',
+                'El grupo '.$data['name'].' ha sido clonado con el nombre de '.$group->getName()
             );
             return $this->redirect($this->generateUrl('nononsense_groups_homepage'));
         }
@@ -349,7 +349,7 @@ class GroupController extends Controller
                 $em->persist($new);
 
                 $this->get('utilities')->logger(
-                    'group', 
+                    'GROUP', 
                     'El usuario '.$user->getUsername().' de tipo '.$type.' ha sido añadido al grupo '.$group->getName().' manualmente', 
                     $this->getUser()->getUsername()
                 );
@@ -360,7 +360,7 @@ class GroupController extends Controller
         if(!$error){
             $this->get('session')->getFlashBag()->add(
                 'addedUsers',
-                'The new members have been added.'
+                'Los nuevos miembros han sido añadidos'
             );
         }
         return $this->redirect($this->generateUrl('nononsense_group_show', array('id' => $groupId)));
@@ -384,25 +384,22 @@ class GroupController extends Controller
                         );
         if (empty($row)) {
             $this->get('session')->getFlashBag()->add(
-            'errorDeletingUser',
-            'It was not possible to remove the user. Please, try again later. If the errror persists contact the platform administrators.'
+                'errorDeletingUser',
+                'No fue posible eliminar al usuario. Por favor, inténtelo de nuevo más tarde. Si el error persiste comuníquese con los administradores de la plataforma.'
             );
         } else {
             $em->remove($row);
             $em->flush();
 
-            $user = $em->getRepository(Users::class)->find($userid);
-            $group = $em->getRepository(Groups::class)->find($id);
-
             $this->get('utilities')->logger(
-                'group', 
-                'El usuario '.$user->getUsername().' de tipo '.$type.' ha sido eliminado del grupo '.$group->getName().' manualmente', 
+                'GROUP', 
+                'El usuario '.$row->getUser()->getUsername().' de tipo '.$type.' ha sido eliminado del grupo '.$row->getGroup()->getName().' manualmente', 
                 $this->getUser()->getUsername()
             );
 
             $this->get('session')->getFlashBag()->add(
-            'deletedUser',
-            'The user membership was revoked.'
+                'deletedUser',
+                'Usuario eliminado del grupo con éxito'
             );
         }
         

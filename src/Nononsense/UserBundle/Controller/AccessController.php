@@ -70,9 +70,10 @@ class AccessController extends Controller
            ->setCellValue('B1', 'TIPO')
            ->setCellValue('C1', 'USUARIO')
            ->setCellValue('D1', 'DESCRIPCIÓN')
-           ->setCellValue('E1', 'FECHA');
+           ->setCellValue('E1', 'IP')
+           ->setCellValue('F1', 'FECHA');
 
-        for ($i='A'; $i <= 'E'; $i++) { 
+        for ($i='A'; $i <= 'F'; $i++) { 
             $phpExcelObject->getActiveSheet()
                 ->getColumnDimension($i)
                 ->setAutoSize(true);
@@ -85,7 +86,8 @@ class AccessController extends Controller
                 ->setCellValue('B'.$i, ($log->getType()) ? $log->getType()->getName() : 'Sin definir')
                 ->setCellValue('C'.$i, ($log->getUser()) ? $log->getUser()->getUsername() : '')
                 ->setCellValue('D'.$i, $log->getDescription())
-                ->setCellValue('E'.$i, $log->getDate()->format('Y-m-d H:i'));
+                ->setCellValue('E'.$i, $log->getIp())
+                ->setCellValue('F'.$i, $log->getDate()->format('Y-m-d H:i'));
             $i++;
         }
 

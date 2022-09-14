@@ -61,20 +61,20 @@
                     <h3 style="font-weight: normal"><button class="btn btn-default " style="background-color: {{group.color}}; border-color: {{group.color}}; margin-right: 10px" type="button"><i class="fa fa-users"></i></button> 
                         {{ group.name }}</h3>
                     <address style="line-height: 18px">
-                        <i class="fa fa-calendar"> </i> <strong>{{'Created'|trans}}:</strong> {{ group.created|localizeddate('medium', 'medium', app.request.locale)}}<br />
+                        <i class="fa fa-calendar"> </i> <strong>Creado:</strong> {{ group.created|localizeddate('medium', 'medium', app.request.locale)}}<br />
                     </address>
-                    <h4>{{'Description'|trans}}</h4>
+                    <h4>Descripción</h4>
                     {{group.description|escape_tags|raw}}
                     
                     <div class="row">
                         {% if editable %}
                         <div class="col-xs-6">
-                            <a href="{{ path('nononsense_group_edit', {"id" : group.id})}}" class="btn btn-primary btn-xs btn-block"><i class="fa fa-edit"></i> {{'Edit'|trans}}</a>
+                            <a href="{{ path('nononsense_group_edit', {"id" : group.id})}}" class="btn btn-primary btn-xs btn-block"><i class="fa fa-edit"></i> Editar</a>
                         </div>
                         {% endif %}
                         {% if clonable %}
                         <div class="col-xs-6">
-                            <a href="{{ path('nononsense_group_clone', {"id" : group.id})}}" class="btn btn-success btn-xs btn-block"><i class="fa fa-copy"></i> {{'Clone'|trans}}</a>
+                            <a href="{{ path('nononsense_group_clone', {"id" : group.id})}}" class="btn btn-success btn-xs btn-block"><i class="fa fa-copy"></i> Clonar</a>
                         </div>
                         {% endif %}
                     </div>
@@ -107,9 +107,9 @@
                     
                     <div class="ibox">
                         <div class="ibox-title">
-                            <h5>{{'Administrators'|trans}}
+                            <h5>Administrador
                                 {% if editable %}
-                                   &nbsp; <span  class="btn btn-primary btn-xs " id="addAdmin"><i class="fa fa-user"> </i> &nbsp;{{'Add administrators'|trans}}</span>
+                                   &nbsp; <span  class="btn btn-primary btn-xs " id="addAdmin"><i class="fa fa-user"> </i> &nbsp;Añadir administradores</span>
                                 {% endif %}
                             </h5>
                             <div class="ibox-tools">
@@ -127,9 +127,9 @@
                     
                     <div class="ibox">
                         <div class="ibox-title">
-                            <h5>{{'Members'|trans}}
+                            <h5>Miembros
                                 {% if editable %}
-                                    &nbsp; <span  class="btn btn-primary btn-xs " id="addMember"><i class="fa fa-user"> </i> &nbsp;{{'Add members'|trans}}</span>
+                                    &nbsp; <span  class="btn btn-primary btn-xs " id="addMember"><i class="fa fa-user"> </i> &nbsp;Añadir miembros</span>
                                 {% endif %}
                             </h5>
                             <div class="ibox-tools">
@@ -153,15 +153,15 @@
             <div class="modal-dialog modal-sm">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">{{'Close'|trans}}</span></button>
-                        <h4 class="modal-title">{{'Remove'|trans}}</h4>
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Cerrar</span></button>
+                        <h4 class="modal-title">Eliminar del grupo</h4>
                     </div>
                     <div class="modal-body" id="modal-data">
                         <p></p>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-white" data-dismiss="modal">{{'Close'|trans}}</button>
-                        <button type="button" class="btn btn-primary" id="deleteUser">{{'Remove'|trans}}</button>
+                        <button type="button" class="btn btn-white" data-dismiss="modal">Cerrar</button>
+                        <button type="button" class="btn btn-primary" id="deleteUser">Eliminar</button>
                     </div>
                 </div>
             </div>
@@ -236,10 +236,10 @@
                 $('#addMember').hide();
                 $('#addAdmin').hide();
                 if (type == 'admin') {
-                    h5 = '{{'Add administrators'|trans}}';
+                    h5 = 'Añadir administradores';
                     $('#loadusers').load('{{ url('nononsense_group_addusers', {"id" : group.id, "type": "admin"})}}');
                 } else {
-                    h5 = '{{'Add members'|trans}}';
+                    h5 = 'Añadir miembros';
                     $('#loadusers').load('{{ url('nononsense_group_addusers', {"id" : group.id, "type": "member"})}}');
                 }
                 $('#addusers h5').html(h5);

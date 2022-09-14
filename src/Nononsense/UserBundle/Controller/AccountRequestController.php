@@ -96,7 +96,7 @@ class AccountRequestController extends Controller
 
 			            	$bulkRequest->addRequest($bulkGroupRequest);
 
-			            	$logType = $em->getRepository(LogsTypes::class)->findOneBy(['name' => 'apply']);
+			            	$logType = $em->getRepository(LogsTypes::class)->findOneBy(['stringId' => 'APPLY']);
 
 			            	$log = new Logs();
 					        $log->setType($logType);
@@ -214,7 +214,7 @@ class AccountRequestController extends Controller
 				);
 
 				$this->get('utilities')->logger(
-	         		'apply', 
+	         		'APPLY', 
 	         		$message['message'].' - Grupo: '.$accountRequest->getGroupId()->getName().'- Usuario: '.$accountRequest->getRequestId()->getMudId(), 
 	         		$this->getUser()->getUsername()
 	         	);

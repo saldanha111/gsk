@@ -24,7 +24,8 @@ class ExceptionListenerFail
         $log = new Logs();
         $log->setType($logType);
     	$log->setDate(new \DateTime());
-    	$log->setDescription('Inicio de sesión fallido. Usuario: '.$event->getAuthenticationToken()->getUsername().' IP:'.$request->getClientIp());
+    	$log->setDescription('Inicio de sesión fallido. Usuario: '.$event->getAuthenticationToken()->getUsername());
+        $log->setIp($request->getClientIp());
 
         $this->em->persist($log);
         $this->em->flush();

@@ -1,5 +1,5 @@
 {% extends '::base.html.twig' %}
-{% block page_title %}Docoaro - GSK | {{'Modify user data'|trans}} {% endblock %}
+{% block page_title %}Docoaro - GSK | Modificar datos de usuario {% endblock %}
 {% block head %}
     <link href="/css/plugins/summernote/summernote.css" rel="stylesheet">
     <link href="/css/plugins/summernote/summernote-bs3.css" rel="stylesheet">
@@ -8,17 +8,17 @@
 
     {{ parent() }}
 {% endblock %}
-{% block main_title %} {{'Modify user data'|trans}} {% endblock %}
+{% block main_title %} Modificar datos de usuario {% endblock %}
 {% block breadcrumb %}
 <ol class="breadcrumb">
     <li>
-        <a href="{{ path('nononsense_home_homepage')}}">{{'Home'|trans}}</a>
+        <a href="{{ path('nononsense_home_homepage')}}">Home</a>
     </li>
     <li>
-        <a href="{{ path('nononsense_users_homepage')}}">{{'Users'|trans}}</a>
+        <a href="{{ path('nononsense_users_homepage')}}">Usuarios</a>
     </li>
     <li class="active">
-        <strong>{{'Modify user data'|trans}}</strong>
+        <strong>Modificar datos de usuario</strong>
     </li>
 </ol>
 {% endblock %}
@@ -76,17 +76,16 @@
             $('#user_save').click(function(e){
                 $('#user_description').val($(".summernote").code());
                 if ( $('#user_description').val() == ''){
-                    toastr.error('{{'You need to include a short description of the user role.'|trans}}', '{{'Warning'|trans}}');
+                    toastr.error('Debe incluir una breve descripción de la función del usuario', '{{'Warning'|trans}}');
                     return false;
                 }
                 $('form').submit();
             });
             $( "form" ).submit(function( event ) {
-                $('#user_description').val($(".summernote").code());
-                if ( $('#user_description').val() == ''){
-                    toastr.error('{{'You need to include a short description of the user role.'|trans}}', '{{'Warning'|trans}}');
+                if (this.checkValidity() == false) {
                     return false;
                 }
+                
                 return;
               });
              

@@ -28,20 +28,20 @@ class UserType extends AbstractType
             $builder 
             ->add('username', 'text', array('required' => true, 'trim' => true))
             ->add('name', 'text', array('required' => true, 'trim' => true))
-            ->add('phone', 'text', array('trim' => true))
-            ->add('position', 'text', array('trim' => true))            
+            ->add('phone', 'text', array('trim' => true, 'required' => false))
+            ->add('position', 'text', array('trim' => true, 'required' => false))            
             ->add('description', 'textarea', array('required' => true, 'trim' => true))
-            ->add('save', 'submit', array('label' => 'Save User', 'translation_domain' => 'messages'));
+            ->add('save', 'submit', array('label' => 'Guardar', 'translation_domain' => 'messages'));
             
             
             if ($this->_admin) {
                 $builder->add('isActive', 'checkbox', array('required' => false))
                 ->add('email', 'repeated', array(
                                  'type' => 'email',
-                                 'invalid_message' => 'The email fields must match.',
+                                 'invalid_message' => 'Los campos de email deben coincidir.',
                                  'required' => true,
                                  'first_options'  => array('label' => 'Email', 'translation_domain' => 'messages'),
-                                 'second_options' => array('label' => 'Confirm email', 'translation_domain' => 'messages')
+                                 'second_options' => array('label' => 'Confirmar email', 'translation_domain' => 'messages')
                              )
                 );
             }
@@ -53,10 +53,10 @@ class UserType extends AbstractType
                 if (!$user || null === $user->getId()) {
                     $form->add('password', 'repeated', array(
                         'type' => 'password',
-                        'invalid_message' => 'The password fields must match.',
+                        'invalid_message' => 'Los campos de contraseña deben coincidir',
                         'required' => true,
-                        'first_options'  => array('label' => 'Password', 'translation_domain' => 'messages'),
-                        'second_options' => array('label' => 'Confirm password', 'translation_domain' => 'messages'),
+                        'first_options'  => array('label' => 'Contraseña', 'translation_domain' => 'messages'),
+                        'second_options' => array('label' => 'Confirmar contraseña', 'translation_domain' => 'messages'),
                         )
                     );
                     $form->add('photo', 'textarea', array('required' => true, 'trim' => true));

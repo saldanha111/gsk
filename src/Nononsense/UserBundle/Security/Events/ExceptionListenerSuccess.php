@@ -25,7 +25,8 @@ class ExceptionListenerSuccess
         $log->setType($logType);
     	$log->setDate(new \DateTime());
         $log->setUser($event->getAuthenticationToken()->getUser());
-    	$log->setDescription('Inicio de sesión correcto. Usuario: '.$event->getAuthenticationToken()->getUsername().' IP:'.$request->getClientIp());
+    	$log->setDescription('Inicio de sesión correcto. Usuario: '.$event->getAuthenticationToken()->getUsername());
+        $log->setIp($request->getClientIp());
 
         $this->em->persist($log);
         $this->em->flush();

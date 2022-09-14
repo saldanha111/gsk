@@ -8,7 +8,7 @@
         <a href="{{ path('nononsense_home_homepage')}}">{{'Home'|trans}}</a>
     </li>
     <li class="active">
-        <strong>{{'Groups'|trans}}</strong>
+        <strong>Grupos</strong>
     </li>
 </ol>
 {% endblock %}
@@ -40,17 +40,17 @@
                     <div class="ibox-content">
                         {% if query == 'q' %}
                         <p>
-                            {{'Introduce a query term if you wish to filter your results'|trans}}:
+                            Introduzca un término de consulta si desea filtrar sus resultados:
                         </p>
                         {% else %}
                         <p>
                             {{paging.results}} 
                             {% if paging.results == 1 %}
-                                {{'result'|trans}}
+                                resultado
                             {% else %}
-                                {{'results'|trans}}
-                                {% endif %}
-                            {{'found for'|trans}}: <span class="text-navy">“{{query}}”</span>
+                                resultados
+                            {% endif %}
+                            para: <span class="text-navy">“{{query}}”</span>
                         </p>
                         {% endif %}
 
@@ -95,7 +95,7 @@
                     path = "{{ path(paging.path)}}";
                     window.location.href = path;
                 }else if ($("#search").val().length < 3) {
-                    toastr.error('{{'The search term needs to include at least three characters.'|trans}}','{{'Warning'|trans}}');
+                    toastr.error('El término de búsqueda debe incluir al menos tres caracteres','{{'Warning'|trans}}');
                 }else {
                     path = "{{ path(paging.path)}}" + "/1/" + $("#search").val();
                     window.location.href = path;

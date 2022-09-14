@@ -9,6 +9,7 @@ use Nononsense\HomeBundle\Entity\LogsTypes;
 use Nononsense\HomeBundle\Entity\LogsTypesRepository;
 use Nononsense\HomeBundle\Entity\Tokens;
 use Nononsense\UserBundle\Entity\Users;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 class Utilities{
     
@@ -152,7 +153,7 @@ class Utilities{
     }
 
     public function logger(string $type, string $description, string $username){
-        $logType = $this->em->getRepository(LogsTypes::class)->findOneBy(['name' => $type]);
+        $logType = $this->em->getRepository(LogsTypes::class)->findOneBy(['stringId' => $type]);
 
         if (!$logType) {
             $logType = new LogsTypes();
@@ -167,6 +168,7 @@ class Utilities{
         $log->setType($logType);
         $log->setDate(new \DateTime());
         $log->setDescription($description);
+        $log->setIp($this->container->get('request')->getClientIp());
 
         $user = $this->em->getRepository(Users::class)->findOneBy(['username' => $username]);
 

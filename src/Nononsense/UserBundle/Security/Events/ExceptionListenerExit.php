@@ -29,7 +29,8 @@ class ExceptionListenerExit implements LogoutHandlerInterface
 	        $log->setType($logType);
 	        $log->setDate(new \DateTime());
 	        $log->setUser($authToken->getUser());
-	        $log->setDescription('Sesión finalizada. Usuario: '.$authToken->getUser()->getUsername().' IP:'.$request->getClientIp());
+	        $log->setDescription('Sesión finalizada. Usuario: '.$authToken->getUser()->getUsername());
+	        $log->setIp($request->getClientIp());
 
 	        $this->em->persist($log);
 	        $this->em->flush();

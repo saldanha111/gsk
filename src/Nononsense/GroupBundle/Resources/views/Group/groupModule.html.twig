@@ -5,7 +5,7 @@
             <div class="col-lg-12">
                 <div class="ibox">
                     <div class="ibox-title">
-                        <h5>Metadata <small>{{'All fields are mandatory'|trans}}.</small></h5>
+                        <h5>Metadata <small>Todos los campos son obligatorios</small></h5>
                         <div class="ibox-tools">
                             <a class="collapse-link">
                                 <i class="fa fa-chevron-up"></i>
@@ -20,7 +20,7 @@
                             </div>
                         {% endif %}
                         <div class="form-group">
-                            <label class="col-sm-2 control-label">{{'Name'|trans}}</label>
+                            <label class="col-sm-2 control-label">Nombre</label>
                             <div class="input-group m-b">
                                 <span class="input-group-addon"><i class="fa fa-tag"></i></span>
                                     {{ form_widget(
@@ -28,7 +28,7 @@
                                         {
                                         'attr': {
                                             'class': 'form-control',
-                                            'placeholder': 'Insert group name'|trans
+                                            'placeholder': 'Insertar nombre de grupo'
                                                 }
                                         }
                                     ) 
@@ -43,7 +43,7 @@
                             </div>
                         {% endif %}
                         <div class="form-group">
-                            <label class="col-sm-2 control-label">{{'Group color'|trans}}</label>
+                            <label class="col-sm-2 control-label">Color del grupo</label>
                             <div class="input-group m-b color">
                                 <span class="input-group-addon"><i></i></span>
                                     {{ form_widget(
@@ -51,7 +51,7 @@
                                         {
                                         'attr': {
                                             'class': 'form-control',
-                                            'placeholder': 'Choose a unique color to identify the group'|trans
+                                            'placeholder': 'Elige un color único para identificar al grupo'
                                                 }
                                         }
                                     ) 
@@ -60,7 +60,7 @@
                         </div>
                         <div class="hr-line-dashed"></div>
                         <div class="form-group">
-                            <label class="col-sm-2 control-label">{{'Active'|trans}}</label>
+                            <label class="col-sm-2 control-label">Activo</label>
                             <div class="col-sm-10">
                                 <div class="checkbox i-checks">
                                     <label>{{ form_widget(createGroup.isActive)}}</label>
@@ -83,10 +83,10 @@
                             <div class="col-lg-12">
                                 <div class="ibox float-e-margins">
                                     <div class="ibox-title">
-                                        <h5>{{'Description'|trans}}</h5>
+                                        <h5>Descripción</h5>
                                     </div>
                                     <div class="ibox-content no-padding">
-                                        <div class="summernote">{{'<p>Insert <strong>here</strong> the group description.</p>'|trans}}</div>
+                                        <div class="summernote"><p>Inserte <strong>aquí</strong> la descripción del grupo.</p></div>
                                     </div>
                                 </div>
                             </div>

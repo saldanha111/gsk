@@ -125,7 +125,7 @@ class UsersController extends Controller
             );
 
             $this->get('utilities')->logger(
-                'group', 
+                'USER', 
                 'El usuario '.$user->getUsername().' ha sido creado', 
                 $this->getUser()->getUsername()
             );
@@ -170,7 +170,7 @@ class UsersController extends Controller
             );
 
             $this->get('utilities')->logger(
-                'group', 
+                'USER', 
                 'El usuario '.$user->getUsername().' ha sido eliminado', 
                 $this->getUser()->getUsername()
             );
@@ -233,7 +233,7 @@ class UsersController extends Controller
             $em->flush();
 
             $this->get('utilities')->logger(
-                'group', 
+                'USER', 
                 'El usuario '.$user->getUsername().' ha sido editado', 
                 $this->getUser()->getUsername()
             );

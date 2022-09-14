@@ -21,11 +21,11 @@ class ResetPassType extends AbstractType
                 'type' => 'password',
                 'invalid_message' => 'The password fields must match.',
                 'required' => true,
-                'first_options'  => array('label' => 'Password', 'translation_domain' => 'messages'),
-                'second_options' => array('label' => 'Confirm password', 'translation_domain' => 'messages'),
+                'first_options'  => array('label' => 'Contraseña', 'translation_domain' => 'messages'),
+                'second_options' => array('label' => 'Confirmar contraseña', 'translation_domain' => 'messages'),
                 )
             )
-            ->add('save', 'submit', array('label' => 'Save new password', 'translation_domain' => 'messages'));
+            ->add('save', 'submit', array('label' => 'Restablecer contraseña', 'translation_domain' => 'messages'));
 
     }
 

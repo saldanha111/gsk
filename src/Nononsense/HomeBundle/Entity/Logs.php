@@ -52,6 +52,13 @@ class Logs
     private $user;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="ip", type="string", length=32, nullable=true)
+     */
+    protected $ip;
+
+    /**
      * Constructor
      */
     public function __construct()
@@ -192,5 +199,28 @@ class Logs
     public function getUser()
     {
         return $this->user;
+    }
+
+    /**
+     * Set ip
+     *
+     * @param string $ip
+     * @return Logs
+     */
+    public function setIp($ip)
+    {
+        $this->ip = $ip;
+
+        return $this;
+    }
+
+    /**
+     * Get ip
+     *
+     * @return string 
+     */
+    public function getIp()
+    {
+        return $this->ip;
     }
 }

@@ -21,7 +21,7 @@
         <div class="col-md-5">
             <div class="ibox float-e-margins">
                 <div class="ibox-title" style="border-bottom: none">
-                    <h5>{{'Profile Details'|trans}}</h5>
+                    <h5>Detalles del perfil</h5>
                     <div class="ibox-tools">
                         <a class="collapse-link">
                             <i class="fa fa-chevron-up"></i>
@@ -38,7 +38,7 @@
                                 {% endif %}
                                 {% if editable %}
                                     <div class="editImage">
-                                        <a href="{{ path('nononsense_user_edit_image', {"id" : user.id})}}" class="btn btn-primary btn-xs"><i class="fa fa-image"></i> {{'Change image'|trans}}</a>
+                                        <a href="{{ path('nononsense_user_edit_image', {"id" : user.id})}}" class="btn btn-primary btn-xs"><i class="fa fa-image"></i> Cambiar imágen</a>
                                     </div>
                                 {% endif %}
                             </div>
@@ -47,22 +47,22 @@
                     <div class="ibox-content profile-content">
                         <h4 style="padding-top: 20px"><strong>{{ user.name }}</strong></h4>
                         <address style="line-height: 18px">
-                            <i class="fa fa-calendar"> </i> <strong>{{'User since'|trans}}:</strong> {{ user.created|localizeddate('medium', 'none', app.request.locale)}}<br />
+                            <i class="fa fa-calendar"> </i> <strong>Fecha de creación:</strong> {{ user.created|localizeddate('medium', 'none', app.request.locale)}}<br />
                             <i class="fa fa-envelope"> </i> &nbsp;<a href="mailto:{{user.email}}" style="text-decoration: underline">{{user.email}}</a><br>
                             {% if user.phone %}
                                 <i class="fa fa-phone"> </i> &nbsp;{{ user.phone }}
                             {% endif %}
                         </address>
-                        <h4>{{'About me'|trans}}</h4>
+                        <h4>Información</h4>
                         {{user.description|escape_tags|raw}}
                         {% if editable %}
                         {% if user.activeDirectory == false %}
                         <div class="row m-t">
                             <div class="col-xs-6">
-                                <a href="{{ path('nononsense_user_edit', {"id" : user.id})}}" class="btn btn-primary btn-xs btn-block "><i class="fa fa-edit"></i> {{'Edit data'|trans}}</a>
+                                <a href="{{ path('nononsense_user_edit', {"id" : user.id})}}" class="btn btn-primary btn-xs btn-block "><i class="fa fa-edit"></i> Editar perfil</a>
                             </div>
                             <div class="col-xs-6">
-                                <a href="{{path('nononsense_user_modify_password', {'id': user.id}) }}" class="btn btn-danger btn-xs btn-block"><i class="fa fa-lock"></i> {{'New pass.'|trans}}</a>
+                                <a href="{{path('nononsense_user_modify_password', {'id': user.id}) }}" class="btn btn-danger btn-xs btn-block"><i class="fa fa-lock"></i> Restablecer contraseña</a>
                             </div>
                         </div>
                         {% else %}
@@ -86,7 +86,7 @@
                 <div class="col-md-7">
                     <div class="ibox float-e-margins">
                         <div class="ibox-title">
-                            <h5>{{'Templates'|trans}}</h5>
+                            <h5>Plantilla</h5>
                             <div class="ibox-tools">
                                 <a class="collapse-link">
                                     <i class="fa fa-chevron-up"></i>
@@ -94,10 +94,10 @@
                             </div>
                         </div>
                         <div class="ibox-content">
-                            {{'Templates uploaded by this user'|trans}}:
+                            Plantillas subidas por esta usuario:
                             <br/><br />
                             {% if templates|length == 0 %}
-                                <p>{{'This user has not uploaded any template yet.'|trans}}</p>
+                                <p>Esta usuario no ha subido ninguna plantilla todavía.</p>
                             {% endif %}
                             <ol>
                                 {% for template in templates %}
