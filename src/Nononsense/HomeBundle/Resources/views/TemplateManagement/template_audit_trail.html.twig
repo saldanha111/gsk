@@ -97,12 +97,12 @@
                               {{signature.description is defined and signature.description is not null ? (signature.description~"<br>")|escape_tags|raw : ''}}
                               {% if signature.action.id == 3 %}
                                 <br>
-                                <a href="{{path('nononsense_tm_test_new', {'id': item.id}) }}?pdf=1&test={{signature.tmTests[0].id}}&configuration={{signature.configuration}}" class="btn btn-xs btn-danger"  target="_blank"><i class="fa fa-file-pdf-o"></i> Descargar test</a>
+                                <a href="{{path('nononsense_tm_test_new', {'id': item.id}) }}?pdf=1&test={{signature.tmTests[0].id}}&configuration={{signature.configuration}}" class="btn btn-xs btn-danger"  target="_blank"><i class="fa fa-file-pdf-o"></i> Descargar test</a> {{ signature.tmTests[0].result.description }}
                               {% endif %}
 
                               {% if signature.action.id == 4 %}
                                 <br>
-                                <a href="{{path('nononsense_tm_test_new', {'id': item.id}) }}?pdf=1&test={{signature.tmTest.id}}&configuration={{signature.configuration}}" class="btn btn-xs btn-danger"  target="_blank"><i class="fa fa-file-pdf-o"></i> Descargar test</a>
+                                <a href="{{path('nononsense_tm_test_new', {'id': item.id}) }}?pdf=1&test={{signature.tmTest.id}}&configuration={{signature.configuration}}" class="btn btn-xs btn-danger"  target="_blank"><i class="fa fa-file-pdf-o"></i> Descargar test</a> {{ signature.tmAprobAction.description }}
                               {% endif %}
                             </div>
                           </div>

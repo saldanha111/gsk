@@ -536,6 +536,10 @@ class TemplateTestTemplatesController extends Controller
 	        				}
 	        			}
 	        		}
+
+                    $description=$signature->getDescription()." - Con esta firma declaro la verificación del contenido de la plantilla estando de acuerdo a los procedimientos vigentes y a la aprobación de la plantilla.";
+                    $signature->setDescription($description);
+                    $em->persist($signature);
 	        	}
 
 	            $state = $this->getDoctrine()->getRepository(TMStates::class)->findOneBy(array("id"=> $next_state));

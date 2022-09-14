@@ -366,6 +366,11 @@ class TemplateElaborateTemplatesController extends Controller
                 $state = $this->getDoctrine()->getRepository(TMStates::class)->findOneBy(array("id"=> 3));
             }
             $template->setTmState($state);
+
+            $description=$signature->getDescription()." - Esta firma significa la declaración de que la elaboración se ha hecho siguiendo lo establecido en los procedimientos";
+            $signature->setDescription($description);
+            $em->persist($signature);
+
         }
 
         $em->persist($template);

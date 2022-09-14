@@ -859,4 +859,37 @@ class Groups
     {
         return $this->specificGroups;
     }
+
+    /**
+     * Add notificationsModels
+     *
+     * @param \Nononsense\NotificationsBundle\Entity\NotificationsModels $notificationsModels
+     * @return Groups
+     */
+    public function addNotificationsModel(\Nononsense\NotificationsBundle\Entity\NotificationsModels $notificationsModels)
+    {
+        $this->notificationsModels[] = $notificationsModels;
+
+        return $this;
+    }
+
+    /**
+     * Remove notificationsModels
+     *
+     * @param \Nononsense\NotificationsBundle\Entity\NotificationsModels $notificationsModels
+     */
+    public function removeNotificationsModel(\Nononsense\NotificationsBundle\Entity\NotificationsModels $notificationsModels)
+    {
+        $this->notificationsModels->removeElement($notificationsModels);
+    }
+
+    /**
+     * Get notificationsModels
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getNotificationsModels()
+    {
+        return $this->notificationsModels;
+    }
 }

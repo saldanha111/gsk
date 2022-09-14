@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Security\Core\User\AdvancedUserInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * User
@@ -24,6 +25,7 @@ class Users implements AdvancedUserInterface, \Serializable
      * @ORM\Column(type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @Groups({"data_new_edition"})
      */
     protected $id;
     
@@ -327,6 +329,11 @@ class Users implements AdvancedUserInterface, \Serializable
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\Delegations", mappedBy="sustitute")
      */
     protected $delegationssustitutes;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\NotificationsBundle\Entity\NotificationsModels", mappedBy="user")
+     */
+    protected $notificationsModels;
 
     /**
      * Users constructor.
@@ -2128,5 +2135,38 @@ class Users implements AdvancedUserInterface, \Serializable
     public function getDelegationssustitutes()
     {
         return $this->delegationssustitutes;
+    }
+
+    /**
+     * Add notificationsModels
+     *
+     * @param \Nononsense\NotificationsBundle\Entity\NotificationsModels $notificationsModels
+     * @return Users
+     */
+    public function addNotificationsModel(\Nononsense\NotificationsBundle\Entity\NotificationsModels $notificationsModels)
+    {
+        $this->notificationsModels[] = $notificationsModels;
+
+        return $this;
+    }
+
+    /**
+     * Remove notificationsModels
+     *
+     * @param \Nononsense\NotificationsBundle\Entity\NotificationsModels $notificationsModels
+     */
+    public function removeNotificationsModel(\Nononsense\NotificationsBundle\Entity\NotificationsModels $notificationsModels)
+    {
+        $this->notificationsModels->removeElement($notificationsModels);
+    }
+
+    /**
+     * Get notificationsModels
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getNotificationsModels()
+    {
+        return $this->notificationsModels;
     }
 }

@@ -31,6 +31,13 @@ class TMTestResults
     protected $name;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="description", type="text", nullable=true)
+     */
+    protected $description;
+
+    /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMTests", mappedBy="result")
      */
     protected $tmTests;
@@ -106,5 +113,28 @@ class TMTestResults
     public function getTmTests()
     {
         return $this->tmTests;
+    }
+
+    /**
+     * Set description
+     *
+     * @param string $description
+     * @return TMTestResults
+     */
+    public function setDescription($description)
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    /**
+     * Get description
+     *
+     * @return string 
+     */
+    public function getDescription()
+    {
+        return $this->description;
     }
 }

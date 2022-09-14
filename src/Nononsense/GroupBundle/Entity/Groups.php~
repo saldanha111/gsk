@@ -137,7 +137,12 @@ class Groups
     /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\SpecificGroups", mappedBy="group")
      */
-    protected $specificGroups;  
+    protected $specificGroups;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\NotificationsBundle\Entity\NotificationsModels", mappedBy="group")
+     */
+    protected $notificationsModels;
 
     /**
      * Get id
@@ -853,5 +858,38 @@ class Groups
     public function getSpecificGroups()
     {
         return $this->specificGroups;
+    }
+
+    /**
+     * Add notificationsModels
+     *
+     * @param \Nononsense\NotificationsBundle\Entity\NotificationsModels $notificationsModels
+     * @return Groups
+     */
+    public function addNotificationsModel(\Nononsense\NotificationsBundle\Entity\NotificationsModels $notificationsModels)
+    {
+        $this->notificationsModels[] = $notificationsModels;
+
+        return $this;
+    }
+
+    /**
+     * Remove notificationsModels
+     *
+     * @param \Nononsense\NotificationsBundle\Entity\NotificationsModels $notificationsModels
+     */
+    public function removeNotificationsModel(\Nononsense\NotificationsBundle\Entity\NotificationsModels $notificationsModels)
+    {
+        $this->notificationsModels->removeElement($notificationsModels);
+    }
+
+    /**
+     * Get notificationsModels
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getNotificationsModels()
+    {
+        return $this->notificationsModels;
     }
 }
