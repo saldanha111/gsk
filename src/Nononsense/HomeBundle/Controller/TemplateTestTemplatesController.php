@@ -537,7 +537,7 @@ class TemplateTestTemplatesController extends Controller
 	        			}
 	        		}
 
-                    $description=$signature->getDescription()." - Con esta firma declaro la verificación del contenido de la plantilla estando de acuerdo a los procedimientos vigentes y a la aprobación de la plantilla.";
+                    $description=$signature->getDescription()." - Esta firma significa la declaración de que se han realizado los test de verificación según los procedimientos vigentes y el resultado es satisfactorio.";
                     $signature->setDescription($description);
                     $em->persist($signature);
 	        	}

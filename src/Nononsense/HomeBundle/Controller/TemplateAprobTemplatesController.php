@@ -368,6 +368,10 @@ class TemplateAprobTemplatesController extends Controller
                         $subject="Plantilla aprobada";
                         $mensaje='La plantilla Código: '.$template->getNumber().' - Título: '.$template->getName().' - Edición: '.$template->getNumEdition().' está pendiente de configuración por su parte. Para poder revisarlo puede acceder a "Gestión de plantillas -> Pdt. configuración", buscar la plantilla correspondiente y pulsar en Configurar';
                         $baseURL=$this->container->get('router')->generate('nononsense_tm_config_detail', array("id" => $id),TRUE);
+                        
+                        $description=$signature->getDescription()." - Con esta firma declaro la verificación del contenido de la plantilla estando de acuerdo a los procedimientos vigentes y a la aprobación de la plantilla.";
+                        $signature->setDescription($description);
+                        $em->persist($signature);
                         break;
                     case 3:
                         $subject="Test rechazados";
