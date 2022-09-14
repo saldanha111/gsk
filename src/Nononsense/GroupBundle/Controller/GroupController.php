@@ -195,6 +195,13 @@ class GroupController extends Controller
                 'createdGroup',
                 'El grupo '.$data['name'].' ha sido clonado con el nombre de '.$group->getName()
             );
+
+            $this->get('utilities')->logger(
+                'GROUP', 
+                'El grupo '.$data['name'].' ha sido clonado con el nombre de '.$group->getName(), 
+                $this->getUser()->getUsername()
+            );
+                        
             return $this->redirect($this->generateUrl('nononsense_groups_homepage'));
         }
 
