@@ -13,8 +13,8 @@ use Nononsense\GroupBundle\Entity\GroupUsers;
 use Nononsense\GroupBundle\Entity\Groups;
 use Nononsense\UserBundle\Entity\AccountRequests;
 use Nononsense\UserBundle\Entity\AccountRequestsGroups;
-use Nononsense\GroupBundle\Entity\LogsTypes;
-use Nononsense\GroupBundle\Entity\Logs;
+use Nononsense\HomeBundle\Entity\LogsTypes;
+use Nononsense\HomeBundle\Entity\Logs;
 use Nononsense\UserBundle\Form\Type as Form;
 use Nononsense\UtilsBundle\Classes\Utils;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -49,8 +49,6 @@ class AccountRequestController extends Controller
 				}
 			}
 		}
-
-		//$accountRequests     	= $this->getDoctrine()->getRepository(AccountRequestsGroups::class)->listBy($filters, $limit);
 
 		$params    = $request->query->all();
 		unset($params["page"]);
@@ -116,17 +114,9 @@ class AccountRequestController extends Controller
 	            	}
             	}
 
-	            // foreach ($groups as $key => $group) {
-	            // 	$groupRequest = new AccountRequestsGroups();
-	            // 	$groupRequest->setRequestId($accountRequest);
-	            // 	$groupRequest->setGroupId($group);
-	            // 	$accountRequest->addRequest($groupRequest);
-	            // }
-
 	            try {
 		           	$this->signForm($accountRequest->getMudId(), $password); //Sign form with AD sAMAccountName and password.
 
-		            //$em->persist($accountRequest);
 		            $em->flush();
 
 		            //Application submitted successfully
@@ -142,8 +132,6 @@ class AccountRequestController extends Controller
 	}
 
 	public function ajaxUpdateAction(Request $request){
-
-			//$id = 'p_1014';
 			$id = trim($request->get('id'), 'p_');
 			$em = $this->getDoctrine()->getManager();
 
@@ -242,18 +230,13 @@ class AccountRequestController extends Controller
         	$user->setPhoto($image);
         	$user->setActiveDirectory(1);
 
-            //Start Block Password DEV ONLY. TO DO GET AZURE ACTIVE DIRECTORY TOKEN
-	            $generator = new SecureRandom();
-	            $user->setSalt(base64_encode($generator->nextBytes(10)));
+            $generator = new SecureRandom();
+            $user->setSalt(base64_encode($generator->nextBytes(10)));
 
-	            $factory 	= $this->get('security.encoder_factory');
-	            $encoder 	= $factory->getEncoder($user);
-	            $password 	= $encoder->encodePassword(uniqid(), $user->getSalt());
-	            $user->setPassword($password);
-            //End Block Password
-
-            //$user->setMudId($accountRequest->getMudId()); 
-            //$user->setEmail($accountRequest->getEmail()); // TO DO GET AZURE ACTIVE DIRECTORY EMAIL.
+            $factory 	= $this->get('security.encoder_factory');
+            $encoder 	= $factory->getEncoder($user);
+            $password 	= $encoder->encodePassword(uniqid(), $user->getSalt());
+            $user->setPassword($password);
 
 		    $validator 	= $this->get('validator');
 		    $errors 	= $validator->validate($user);
@@ -273,10 +256,6 @@ class AccountRequestController extends Controller
 
             $em->persist($user);
             $em->flush();
-
-            //$this->get('session')->getFlashBag()->add('success', 'Usuario creado con exito.');
-            //$message = ['type' => 'error', 'message' => 'Usuario creado con exito.'];
-            //$this->addUserGroupAction($accountRequest->getRequestId()->getGroups(), $user);
 
             return $user;
 	}
@@ -349,16 +328,10 @@ class AccountRequestController extends Controller
 	}
 
 	public function getMudIdAction(Request $request){
-
 		$em 	= $this->getDoctrine()->getManager();
-		
-		//error_reporting(0);
 
 		$mudid = preg_replace('/[^a-z0-9]/i', '', $request->get('mudid'));
 
-		// if (isset($mudid) && $mudid) {
-		// 	# code...
-		// }
 		$ldapdn   = $this->container->getParameter('ldap.search_dn'); //'cn=admin,cn=users,dc=demo,dc=local'; $this->container->getParameter('ldap.search_dn');
 		$ldappass = $this->container->getParameter('ldap.search_password');; //$this->container->getParameter('ldap.search_password');
 
@@ -395,49 +368,4 @@ class AccountRequestController extends Controller
 
 		return $response;
 	}
-
-	public function removeAction(Request $request)
-	{
-		//if (!$this->getUser()) return $this->redirect($this->generateUrl('nononsense_user_login'));
-
-		$em = $this->getDoctrine()->getManager();
-		$user = $em->getRepository(Users::class)->findOneBy(['id' => $this->getUser()]);
-
-		$form = $this->createForm(new Form\RemoveRequestAccountType(), $user);
-        $form->handleRequest($request);
-
-		if ($form->isSubmitted() && $form->isValid()) {
-
-			try {
-
-				$factory = $this->container->get('security.encoder_factory');
-            	$encoder = $factory->getEncoder($user);
-
-				if (!$encoder->isPasswordValid($user->getPassword(), $form->get('_password')->getData(), $user->getSalt())) {
-					throw new \Exception("La firma no es válida.", 0);
-				}
-				
-				$groups = $form->get('groups')->getData(); 
-
-				if ($groups) {
-
-					foreach ($groups as $key => $group) {
-						$groupUser = $em->getRepository(GroupUsers::class)->findOneBy(['id' => $group]);
-						$em->remove($groupUser);
-					}
-
-				}
-
-				$this->get('session')->getFlashBag()->add('success', 'Solicitud enviada con éxito');
-				$em->flush();
-			} catch (\Exception $e) {
-				$this->get('session')->getFlashBag()->add('errors', "error");
-			}
-
-		}
-
-		return $this->render('NononsenseUserBundle:Default:requestAccountRemove.html.twig', array('form' => $form->createView()));
-		
-	}
-
 }

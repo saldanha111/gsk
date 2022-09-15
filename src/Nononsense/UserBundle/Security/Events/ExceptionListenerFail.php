@@ -19,7 +19,7 @@ class ExceptionListenerFail
     public function onAuthenticationFailureLogin(AuthenticationFailureEvent $event)
     {
     	$request = $this->requestStack->getCurrentRequest();
-    	$logType = $this->em->getRepository(LogsTypes::class)->findOneBy(['id' => 1]); //Access Type
+    	$logType = $this->em->getRepository(LogsTypes::class)->findOneBy(['stringId' => 'ACCESS']); //Access Type
         
         $log = new Logs();
         $log->setType($logType);

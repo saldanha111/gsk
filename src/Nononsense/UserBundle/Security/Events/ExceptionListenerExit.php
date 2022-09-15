@@ -23,7 +23,7 @@ class ExceptionListenerExit implements LogoutHandlerInterface
     {
         $request = $this->requestStack->getCurrentRequest();
         if (is_object($authToken->getUser())) {
-        	$logType = $this->em->getRepository(LogsTypes::class)->findOneBy(['id' => 1]); //Access Type
+        	$logType = $this->em->getRepository(LogsTypes::class)->findOneBy(['stringId' => 'ACCESS']); //Access Type
 
 	        $log = new Logs();
 	        $log->setType($logType);
