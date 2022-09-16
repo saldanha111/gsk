@@ -188,15 +188,17 @@ $( document ).ready(function() {
     });
 
     $('#form_sign_review').on('submit', function(e){
-        const firma = document.getElementById("box_password").value;
-        const firmaEstaVacia = (firma === "");
-
-        if (firmaEstaVacia){
+        if (!$("#box_password").val()){
             toastr.error("La firma es obligatoria",'aviso');
-        }else{
-            return true;
+            return false;
         }
-        return false;
+
+        if (!gpassword_valid($("#box_password").val())){
+            toastr.error("La firma no es correcta",'aviso');
+            return false;
+        }
+
+        return true;
     });
 
 });

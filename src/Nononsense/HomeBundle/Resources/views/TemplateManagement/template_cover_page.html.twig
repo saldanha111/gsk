@@ -26,7 +26,7 @@
                 MudID: <b>{{app.user.id}}</b><br>
                 Fecha impresión:<b>{{ "now"|date("d/m/Y H:i:s")|gskdate }}</b><br>
                 {{template.effectiveDate is defined and template.effectiveDate is not null ? ('Fecha efectiva: <b>'~template.effectiveDate|date("d/m/Y")|gskdate~'</b><br>')|escape_tags|raw : ''}}
-                {{template.reviewDate is defined and template.reviewDate is not null ? ('Fecha de revisión periódica: <b>'~template.reviewDate|date("d/m/Y")|gskdate~'</b><br>')|escape_tags|raw : ''}}
+                {{template.dateReview is defined and template.dateReview is not null ? ('Fecha de revisión periódica: <b>'~template.dateReview|date("d/m/Y")|gskdate~'</b><br>')|escape_tags|raw : ''}}
                 {% if signatures is defined and signatures|length > 0 %}
                     <br><br><table id="inProcess" class="table" style="font-size:13px">
                         <thead>

@@ -214,7 +214,8 @@ class TemplateConfigTemplatesController extends Controller
                 $date_public=\DateTime::createFromFormat('Y-m-d', $request->get("public_date"));
                 if(date("Y-m-d")>=$date_public->format("Y-m-d")){
                     $next_state = $this->getDoctrine()->getRepository(TMStates::class)->findOneBy(array("id"=>"6"));
-
+                    $template->setDateReview(new \DateTime('+3 year'));
+                    
                     if($template->getTemplateId()){
                         $obsolete = $this->getDoctrine()->getRepository(TMStates::class)->findOneBy(array("id"=>"7"));
                         $last_edition = $this->getDoctrine()->getRepository(TMTemplates::class)->findOneBy(array("id" => $template->getTemplateId()));
@@ -251,6 +252,7 @@ class TemplateConfigTemplatesController extends Controller
                             }
                         }
                     }
+
                 }
 
                 $template->setEffectiveDate($date_public); 

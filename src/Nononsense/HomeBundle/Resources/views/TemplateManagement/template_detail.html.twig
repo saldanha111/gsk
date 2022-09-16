@@ -282,14 +282,17 @@
         $('#modalSignReview').modal('show');
 
         $('#form_sign_review').on('submit', function(e){
-            const firma = document.getElementById("form_sign_review_password").value;
-            const firmaEstaVacia = (firma === "");
-            if (firmaEstaVacia){
+            if (!$("#form_sign_review_password").val()){
                 toastr.error("La firma es obligatoria",'aviso');
-            }else{
-                return true;
+                return false;
             }
-            return false;
+
+            if (!gpassword_valid($("#form_sign_review_password").val())){
+                toastr.error("La firma no es correcta",'aviso');
+                return false;
+            }
+
+            return true;
         });
     });
 {% endif %}

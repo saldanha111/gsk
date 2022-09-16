@@ -174,11 +174,6 @@ class TMTemplates
     protected $effectiveDate;
 
     /**
-     * @ORM\Column(type="date", nullable=true)
-     */
-    protected $reviewDate;
-
-    /**
      * @ORM\ManyToMany(targetEntity="\Nononsense\HomeBundle\Entity\RetentionCategories", inversedBy="templates")
      * @ORM\JoinTable(name="tm_retentions")
      */
@@ -1073,29 +1068,6 @@ class TMTemplates
     public function getEffectiveDate()
     {
         return $this->effectiveDate;
-    }
-
-    /**
-     * Set reviewDate
-     *
-     * @param \DateTime $reviewDate
-     * @return TMTemplates
-     */
-    public function setReviewDate($reviewDate)
-    {
-        $this->reviewDate = $reviewDate;
-
-        return $this;
-    }
-
-    /**
-     * Get reviewDate
-     *
-     * @return \DateTime
-     */
-    public function getReviewDate()
-    {
-        return $this->reviewDate;
     }
 
     /**

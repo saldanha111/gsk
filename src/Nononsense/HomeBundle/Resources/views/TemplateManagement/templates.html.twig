@@ -222,7 +222,7 @@
                                                     <li><a href="{{path('nononsense_tm_template_detail', {'id': item.id})}}?request_drop=1"><i class="fa fa-thumbs-o-down"></i> {{ 'Solicitar baja'|trans }}</a></li>
                                                 {% endif %}
 
-                                                {% if item is defined and item.status==6 and (item.dateReview is empty or item.dateReview|date > date()) %}
+                                                {% if item is defined and item.status==6 and (item.dateReview is empty or item.dateReview|date <= date()) %}
                                                     <li><a href="{{path('nononsense_tm_template_detail', {'id': item.id})}}?request_review=1"><i class="fa fa-eye"></i> {{ 'Solicitar revisión'|trans }}</a></li>
                                                 {% endif %}
                                             {% endif %}

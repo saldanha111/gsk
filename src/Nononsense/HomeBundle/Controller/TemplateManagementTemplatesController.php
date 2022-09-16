@@ -333,8 +333,12 @@ class TemplateManagementTemplatesController extends Controller
                 return $this->returnToHomePage("Ya existe una solicitud de revisión abierta para esta plantilla");
             }
 
-            if(!empty($array_item["template"]->getDateReview()) && $array_item["template"]->getDateReview()>date("Y-m-d")){
+            if(!empty($array_item["template"]->getDateReview()) && $array_item["template"]->getDateReview()<=date("Y-m-d")){
                 return $this->returnToHomePage("No se puede realizar una solicitud de esta plantilla puesto que aún ha llegado la fecha de su revisión periódica");
+            }
+
+            if($array_item["template"]->getNeedNewEdition()){
+                return $this->returnToHomePage("Ya se ha realizado una revisión para esta plantilla previamente y se ha determinado que es necesario crear una edición de esta plantilla");
             }
 
             $array_item["can_review"]=1;

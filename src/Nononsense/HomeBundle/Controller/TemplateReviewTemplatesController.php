@@ -68,9 +68,14 @@ class TemplateReviewTemplatesController extends Controller
             return $this->returnToHomePage("Ya existe una solicitud de revisión abierta para esta plantilla");
         }
 
-        if(!empty($template->getDateReview()) && $template->getDateReview()>date("Y-m-d")){
+        if(!empty($template->getDateReview()) && $template->getDateReview()<=date("Y-m-d")){
             return $this->returnToHomePage("No se puede realizar una solicitud de esta plantilla puesto que aún ha llegado la fecha de su revisión periódica");
         }
+
+        if($template->getNeedNewEdition()){
+            return $this->returnToHomePage("Ya se ha realizado una revisión para esta plantilla previamente y se ha determinado que es necesario crear una edición de esta plantilla");
+        }
+
 
         if($template){
             $action = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 12));
@@ -110,9 +115,23 @@ class TemplateReviewTemplatesController extends Controller
                         }
                     }
 
+                    $action_aprob = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 4));
+                    $aprobs = $this->getDoctrine()->getRepository(TMWorkflow::class)->findBy(array("template" => $template, "action" => $action_aprob));
+                    foreach($aprobs as $aprob){
+                        if($aprob->getUserEntiy()){
+                            $users_notifications[]=$aprob->getUserEntiy()->getEmail();
+                        }
+                        else{
+                            foreach($aprob->getGroupEntiy()->getUsers() as $user_group){
+                                $users_notifications[]=$user_group->getUser()->getEmail();
+                            }
+                        }
+                    }
+
                     $subject="Solicitud de revisión";
                     $mensaje='Se ha tramitado la solicitud de revisión para la plantilla con Código '.$template->getNumber().' - Título: '.$template->getName().' - Edición: '.$template->getNumEdition().'. Para poder revisar dicha soliciutd puede acceder a "Gestión de plantillas -> Solicitudes de revisiones", buscar la plantilla correspondiente y pulsar en Tramitar';
                     $baseURL=$this->container->get('router')->generate('nononsense_tm_template_detail_review', array("id" => $id),TRUE);
+                    $users_notifications = array_unique($users_notifications);
                     foreach($users_notifications as $email){
                         $this->get('utilities')->sendNotification($email, $baseURL, "", "", $subject, $mensaje);
                     }
@@ -348,12 +367,12 @@ class TemplateReviewTemplatesController extends Controller
 
             if($user_workflow_finish){
                 $template->setDateReview(new \DateTime('+3 year'));
+                $template->setEffectiveDate(new \DateTime());
                 $template->setNeedNewEdition(FALSE);
             }
         }
         else{
             $template->setNeedNewEdition(TRUE);
-            $template->setDateReview(NULL);
         }
 
         if($user_workflow_finish){
