@@ -51,7 +51,7 @@ class NotificationsModels
     /**
      * @var string
      *
-     * @ORM\Column(name="email", type="string", length=20)
+     * @ORM\Column(name="email", type="string", length=20, nullable=true)
      */
     protected $email;
     
@@ -85,7 +85,7 @@ class NotificationsModels
     protected $removedBy;
 
     /**
-     * @ORM\Column(name="removed_at", type="datetime")
+     * @ORM\Column(name="removed_at", type="datetime", nullable=true)
      */
     protected $removedAt;
 

@@ -56,7 +56,7 @@ class NotificationsModelsController extends Controller
             , "subject" => $request->get("subject")
         ];
         $notificationModel = $this->createNotification($data);
-        try{
+        //try{
             $em = $this->getDoctrine()->getManager();
             $em->persist($notificationModel);
             $em->flush();
@@ -65,12 +65,12 @@ class NotificationsModelsController extends Controller
                 'sentMessage',
                 'The notification model associated to this template: "' . $data["templateId"] . '" has been saved.'
             );
-        } catch(Exception $exception) {
+        /*} catch(\Exception $e) {
             $this->get('session')->getFlashBag()->add(
                 'error',
-                'The notification model associated to this template: "' . $data["templateId"] . '" has not been saved.'
+                'The notification model associated to this template: "' . $data["templateId"] . '" has not been saved.'.$e->getMessage()
             );
-        }
+        }*/
 
 
         return $this->redirectToRoute('nononsense_notifications_templates_notification_list');
@@ -78,7 +78,7 @@ class NotificationsModelsController extends Controller
 
     public function listNotificationAction(Request $request) {
 
-        if (!$this->isAllowed('crt_gestion')) return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+        if (!$this->isAllowed('notifications_gestion')) return $this->redirect($this->generateUrl('nononsense_home_homepage'));
 
         $filters = [];
         FiltersUtils::paginationFilters($filters, (int) $request->get("page"), self::LIMIT_MANY);
