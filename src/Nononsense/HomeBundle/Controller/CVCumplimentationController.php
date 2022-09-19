@@ -137,6 +137,7 @@ class CVCumplimentationController extends Controller
             $record->setInEdition(FALSE);
             $record->setEnabled(TRUE);
             $record->setState($state);
+            $this->get('utilities')->checkModelNotification($item,$state);
         }
         else{
             $record = $em->getRepository(CVRecords::class)->findOneBy(array("id" => $request->get("nest")));
@@ -690,6 +691,7 @@ class CVCumplimentationController extends Controller
                     }
                     
                     $record->setState($next_state);
+                    $this->get('utilities')->checkModelNotification($record->getTemplate(),$next_state);
                 }
             }
 

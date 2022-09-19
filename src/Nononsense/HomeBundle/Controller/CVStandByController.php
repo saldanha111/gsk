@@ -238,6 +238,7 @@ class CVStandByController extends Controller
             $slug="record-cancel-standby";
 
             $record->setState($action->getNextState());
+            $this->get('utilities')->checkModelNotification($record->getTemplate(),$action->getNextState());
             $em->persist($record);
 
             $em->flush();

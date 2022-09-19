@@ -68,7 +68,7 @@ class NotificationsModelsController extends Controller
         } catch(\Exception $e) {
             $this->get('session')->getFlashBag()->add(
                 'error',
-                'The notification model associated to this template: "' . $data["templateId"] . '" has not been saved.'.$e->getMessage()
+                'The notification model associated to this template: "' . $data["templateId"] . '" has not been saved.'
             );
         }
 

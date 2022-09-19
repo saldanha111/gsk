@@ -10,6 +10,7 @@ use Nononsense\HomeBundle\Entity\CVSecondWorkflowStates;
 use Nononsense\HomeBundle\Entity\SpecificGroups;
 use Nononsense\HomeBundle\Entity\CVSecondWorkflow;
 use Nononsense\GroupBundle\Entity\GroupUsers;
+use Nononsense\GroupBundle\Entity\Groups;
 
 /**
 * 
@@ -53,9 +54,10 @@ class ReviewRecordsCommand extends ContainerAwareCommand
 	    		$typesw = $em->getRepository(CVSecondWorkflowStates::class)->findOneBy(array("id" => "2"));
 		    	$specific = $em->getRepository(SpecificGroups::class)->findOneBy(array("name" => "ECO"));
             		$other_group = $specific->getGroup();
-
+            		$blocked_state = $em->getRepository(Groups::class)->findOneBy(array("id" => 9));
 		    	foreach ($records as $key => $record) {
 		    		$record->setBlocked(1);
+		    		$this->getContainer()->get('utilities')->checkModelNotification($record->getTemplate(),$blocked_state);
 		    		$em->persist($record);
 		    		$ids[] = $record->getId();
 		    		$aux_message.=$record->getId()." - Código: ".$record->getTemplate()->getNumber()." - Título: ".$record->getTemplate()->getName()." - Edición: ".$record->getTemplate()->getNumEdition()."<br>";

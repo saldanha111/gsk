@@ -11,6 +11,7 @@ use Nononsense\HomeBundle\Entity\Tokens;
 use Nononsense\HomeBundle\Entity\CVRecordsHistory;
 use Nononsense\HomeBundle\Entity\TMCumplimentations;
 use Nononsense\UserBundle\Entity\Users;
+use Nononsense\NotificationsBundle\Entity\NotificationsModels;
 use Nononsense\NotificationsBundle\Entity\Notifications;
 use Nononsense\GroupBundle\Entity\GroupUsers;
 use Nononsense\HomeBundle\Utils\GskPdf;
@@ -89,6 +90,28 @@ class Utilities{
         }
 
         return false;
+    }
+
+    public function checkModelNotification($template,$state)
+    {
+        $models=$this->em->getRepository('NononsenseNotificationsBundle:NotificationsModels')->findBy(array("templateId" => $template, "isRemoved" => FALSE, "state" => $state));
+        foreach($models as $model){
+            unset($emails);
+            if($model->getEmail()){
+                $emails[]=$model->getEmail();
+            }
+            else{
+                $aux_users = $this->em->getRepository(GroupUsers::class)->findBy(["group" => $model->getGroup()]);
+                foreach ($aux_users as $aux_user) {
+                    $emails[]=$aux_user->getUser()->getEmail();
+                }
+            }
+
+            foreach($emails as $email){
+                $this->sendNotification($email, "", "", "", $model->getSubject(), $model->getBody());
+            }
+        }
+
     }
 
     public function sendNotification($mailTo, $link, $logo, $accion, $subject, $message, $useTemplate = true)
