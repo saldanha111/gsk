@@ -20,6 +20,7 @@ use Nononsense\HomeBundle\Entity\TMWorkflow;
 use Nononsense\HomeBundle\Entity\TMCumplimentations;
 use Nononsense\HomeBundle\Entity\TMSecondWorkflow;
 use Nononsense\HomeBundle\Entity\TMTests;
+use Nononsense\HomeBundle\Entity\Tokens;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
@@ -96,7 +97,7 @@ class TemplateElaborateTemplatesController extends Controller
         $raw_response = curl_exec($ch);
         $response = json_decode($raw_response, true);
 
-        if($response["configurationUrl"]){
+        if(array_key_exists("configurationUrl", $response) && $response["configurationUrl"]){
             $url_edit_documento=$response["configurationUrl"];
             $array_item["downloadUrl"]=$response["downloadUrl"];
         
@@ -426,11 +427,13 @@ class TemplateElaborateTemplatesController extends Controller
 
     public function restoreLastConfigurationAction(Request $request, int $id)
     {
-        $expired_token = $this->get('utilities')->tokenExpired($_REQUEST["token"]);
+        //$expired_token = $this->get('utilities')->tokenExpired($_REQUEST["token"]);
 
-        if(!$expired_token){
-            $id_usuario = $this->get('utilities')->getUserByToken($_REQUEST["token"]);
-            $this->get('utilities')->tokenRemove($_REQUEST["token"]);
+        //if(!$expired_token){
+            $tokenObj = $this->getDoctrine()->getRepository(Tokens::class)->findOneByToken($_REQUEST["token"]);
+            $id_usuario = $tokenObj->getUser()->getId();
+
+            //$this->get('utilities')->tokenRemove($_REQUEST["token"]);
             
             $em = $this->getDoctrine()->getManager();
             $array_item=array();
@@ -472,7 +475,7 @@ class TemplateElaborateTemplatesController extends Controller
             $responseAction->setContent("OK");
             return $responseAction;
 
-        }
+        //}
     }
 
     public function detailCancelAction(Request $request, int $id)
