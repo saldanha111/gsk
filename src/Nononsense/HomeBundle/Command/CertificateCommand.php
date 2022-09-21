@@ -27,18 +27,35 @@ class CertificateCommand extends ContainerAwareCommand
 
 		if ($certifications) {
 			
-			$url 	= $this->getContainer()->getParameter('api3.url').'/hash';
+			
 			$header = ['apiKey:'.$this->getContainer()->getParameter('api3.key')];
 
 			foreach ($certifications as $key => $certification) {
 				try {
 					if ($certification->getHash()) {
+						$url 	= $this->getContainer()->getParameter('api3.url').'/hash';
 						$crt = Utils::api3($url, $header, 'POST', ['hash' => $certification->getHash()]);
-						$certification->setTxHash(json_decode($crt)->tx_hash);
-						$certification->setModified(new \DateTime());
-						$em->persist($certification);
-						$em->flush();
-						$output->writeln([$certification->getHash().'->'.json_decode($crt)->tx_hash]);
+						if(property_exists(json_decode($crt), "tx_hash")){
+							$certification->setTxHash(json_decode($crt)->tx_hash);
+							$certification->setModified(new \DateTime());
+							$em->persist($certification);
+							$em->flush();
+							$output->writeln([$certification->getHash().'->'.json_decode($crt)->tx_hash]);
+						}
+						else{
+							$url 	= $this->getContainer()->getParameter('api3.url').'/hash/'.$certification->getHash().'/infocertificate';
+							$crt2 = Utils::api3($url, $header, 'GET', []);
+							if(property_exists(json_decode($crt2), "data") && property_exists(json_decode($crt2)->data, "tx_hash")){
+								$certification->setTxHash(json_decode($crt2)->data->tx_hash);
+								$certification->setModified(new \DateTime());
+								$em->persist($certification);
+								$em->flush();
+								$output->writeln([$certification->getHash().'->'.json_decode($crt2)->data->tx_hash]);
+							}
+							else{
+								throw new \Exception(json_encode($crt).json_encode($crt2), 1);
+							}
+						}
 					}
 				} catch (\Exception $e) {
 					$subject = 'Error de certificación';
