@@ -26,11 +26,12 @@ class CertificateCommand extends ContainerAwareCommand
 		$em = $this->getContainer()->get('doctrine')->getManager();
 
 		if ($certifications) {
-			try {
-				$url 	= $this->getContainer()->getParameter('api3.url').'/hash';
-				$header = ['apiKey:'.$this->getContainer()->getParameter('api3.key')];
+			
+			$url 	= $this->getContainer()->getParameter('api3.url').'/hash';
+			$header = ['apiKey:'.$this->getContainer()->getParameter('api3.key')];
 
-				foreach ($certifications as $key => $certification) {
+			foreach ($certifications as $key => $certification) {
+				try {
 					if ($certification->getHash()) {
 						$crt = Utils::api3($url, $header, 'POST', ['hash' => $certification->getHash()]);
 						$certification->setTxHash(json_decode($crt)->tx_hash);
@@ -39,14 +40,13 @@ class CertificateCommand extends ContainerAwareCommand
 						$em->flush();
 						$output->writeln([$certification->getHash().'->'.json_decode($crt)->tx_hash]);
 					}
+				} catch (\Exception $e) {
+					$subject = 'Error de certificación';
+					$message = 'Error durante la certificación de un documento: '.$e->getMessage();
+					$this->getContainer()->get('utilities')->sendNotification('asantos@oaro.net', false, false, false, $subject, $message);
+					$output->writeln(['<error>'.$e->getMessage().'</error>']);
 				}
-
-			} catch (\Exception $e) {
-				$subject = 'Error de certificación';
-				$message = 'Error durante la certificación de un documento: '.$e->getMessage();
-				$this->getContainer()->get('utilities')->sendNotification('asantos@oaro.net', false, false, false, $subject, $message);
-				$output->writeln(['<error>'.$e->getMessage().'</error>']);
-			}
+			}	
 		}
 	}
 
