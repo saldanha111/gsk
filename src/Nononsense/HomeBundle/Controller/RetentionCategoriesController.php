@@ -167,9 +167,14 @@ class RetentionCategoriesController extends Controller
                 throw new Exception('Todos los datos son obligatorios.');
             }
 
+            $comment="";
+            if($request->get("comment")){
+                $comment=$request->get("comment");
+            }
+
             $em->persist($category);
             $em->flush();
-            $this->saveLog($action, $request->get('comment'), $request->get('signature'), $category);
+            $this->saveLog($action, $comment, $request->get('signature'), $category);
             $em->getConnection()->commit();
             $this->get('session')->getFlashBag()->add(
                 'message',
@@ -197,7 +202,7 @@ class RetentionCategoriesController extends Controller
     private function saveLog(string $action, string $comment, string $signature, RetentionCategories $retentionCategory)
     {
         $em = $this->getDoctrine()->getManager();
-        if (!$comment || !$signature) {
+        if (!$signature) {
             throw new Exception('Para realizar una acción tienes que escribir un comentario y firmar.');
         }
 

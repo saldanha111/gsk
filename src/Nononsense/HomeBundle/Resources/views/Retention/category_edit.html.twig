@@ -57,7 +57,7 @@
                                 <select class="form-control" name="state" required="required">
                                     <option value=""></option>
                                     {% for state in states %}
-                                        <option value="{{state.id}}" {{ category.documentState.id is defined and category.documentState.id is not null and category.documentState.id==state.id ? 'selected="selected"' : ''}}>{{state.name}}</option>
+                                        <option value="{{state.id}}" class="opt_{{state.type.id}} opt_type" {{ category.documentState.id is defined and category.documentState.id is not null and category.documentState.id==state.id ? 'selected="selected"' : ''}}>{{state.name}}</option>
                                     {% endfor %}
                                 </select>
                             </div>
@@ -125,39 +125,60 @@
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Activo</label>
                             <div class="col-sm-7">
-                                <input name="active" value="1" type="checkbox" {% if category.active == true %} checked="checked" {% endif %}>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Comentario</label>
-                            <div class="col-sm-7">
-                                <textarea class="form-control text-comment" rows="4" name="comment"></textarea>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label" for="firma">Firma</label><br>
-                            <div class="col-sm-7">
-                                <input type="password" name="password" id="firma" class="form-control" required="required"><br>
+                                <input name="active" value="1" type="checkbox" {% if category.active == true or category is not empty %} checked="checked" {% endif %}>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="row">
-                <div class="col-sm-5 col-sm-offset-1">
+                <div class="col-sm-11 col-sm-offset-1">
                     {% if not used and category.id is defined and category.id is not null%}
-                        <button type="button" class="btn btn-danger pull-left del-category">
-                            <i class="fa fa-trash-o" aria-hidden="true"></i><span> Eliminar categoría</span>
-                        </button>
+                        <a class="btn btn-danger submit-category" data-action="remove">Eliminar categoría</a>
                     {% endif %}
-                </div>
-                <div class="col-sm-5">
-                    <button type="button" class="btn btn-primary pull-right edit-category">
-                        <i class="fa fa-floppy-o" aria-hidden="true"></i>
-                        <span> {{category.id is not null ? 'Editar' : 'Registrar'}} categoría</span>
-                    </button>
+                    <a class="btn btn-primary submit-category" data-action="save">{{category.id is not null ? 'Editar' : 'Registrar'}} categoría</a>
                 </div>
             </div>
+            <div class="modal fade" tabindex="-1" role="dialog" id="modalSign">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Firmar</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+
+                        <div class="modal-body">
+                            <div class="row box-text-comment" style="display: none">
+                                <div class="col-lg-10 col-lg-offset-1">
+                                    <label for="description_workflow">Comentarios</label>
+                                    <br>
+                                    <div class="form-group">
+                                        <textarea class="form-control text-comment" id="modal_comment" rows="10" cols="40"  style="width:100%" required="required"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-10 col-lg-offset-1">
+                                    <div id="signature-pad3" class="input-group">
+                                        <label for="firma">Introduzca su firma</label>
+                                        <br>
+                                        <input type="password" id="modal_password" class="form-control" required="required"><br>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <input type="button" class="btn btn-primary" id="sign_category" value="Firmar">
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <input type="hidden" name="signature">
+            <textarea name="comment" style="display: none"></textarea>
+            <input type="hidden" id="action" value="">
         </form>
         {% if not used and category.id is defined and category.id is not null%}
             <input type="hidden" name="del-url"  value="{{ path('nononsense_retention_categories_delete',{'id': category.id}) }}">
@@ -200,30 +221,57 @@
             }
         });
 
-        $(document).on('click','.del-category',function(e){
-            e.preventDefault();
-            let error = false;
-            const firma = document.getElementById("firma").value;
-            const firmaEstaVacia = (firma === "");
-            if (firmaEstaVacia) {
+        $(document).on('change','select[name="type"]',function(){
+            $('select[name="state"]').val("");
+            $(".opt_type").prop('disabled',true);
+            $(".opt_"+$(this).val()).prop('disabled',false);
+        });
+
+
+        $(document).on('click','.submit-category',function(e){
+            if($(this).data("action")=="remove"){
+                $('.box-text-comment').show();
+                $('.text-comment').prop('required',true);
+            }
+            else{
+                $('.box-text-comment').hide();
+                $('.text-comment').prop('required',false);
+            }
+            $("#action").val($(this).data("action"));
+            $("#modalSign").modal('show');
+        });
+
+        $(document).on('click', '#sign_category', function() {
+            if ($('#modal_comment').is(":visible") && !$('#modal_comment').val()){
                 swal({
                     title: "Atención",
-                    text: "Debe rellenar una fima, no puede dejar el cuadro en blanco",
+                    text: "La descripcion es obligatoria",
                     type: "warning"
                 });
-                error = true;
+                return false;
             }
 
-            if (!$('.text-comment').val()) {
+            if (!$("#modal_password").val()){
                 swal({
                     title: "Atención",
-                    text: "Debe escribir un comentario para realizar la acción",
+                    text: "La firma es obligatoria",
                     type: "warning"
                 });
-                error = true;
+                return false;
             }
 
-            if(!error){
+            if (!gpassword_valid($("#modal_password").val())){
+                swal({
+                    title: "Atención",
+                    text: "La firma no es correcta",
+                    type: "warning"
+                });
+                return false;
+            }
+            $('textarea[name="comment"]').val($("#modal_comment").val());
+            $('input[name="signature"]').val($("#modal_password").val());
+
+            if($("#action").val()=="remove"){
                 swal({
                     title: "Estás seguro de que quieres eliminar esta categoría de retención?",
                     text: "Si se elimina no se podrá recuperar.",
@@ -235,27 +283,14 @@
                     cancelButtonText: "Cancelar",
                     closeOnConfirm: false
                 }, function () {
-                    $('#form_item').attr('action', $('input[name="del-url"]').val()).submit();
+                    $('#form_item').attr('action', $('input[name="del-url"]').val());
+                    $('#form_item').submit();
                 });
+                
             }
-        });
-
-        $(document).on('click','.edit-category',function(e){
-            e.preventDefault();
-            let error = false;
-            const firma = document.getElementById("firma").value;
-            const firmaEstaVacia = (firma === "");
-            if (firmaEstaVacia) {
-                swal({
-                    title: "Atención",
-                    text: "Debe rellenar una fima, no puede dejar el cuadro en blanco",
-                    type: "warning"
-                });
-                error = true;
-            }
-
-            if(!error){
-               $('#form_item').attr('action', $('input[name="edit-url"]').val()).submit();
+            else{
+                $('#form_item').attr('action', $('input[name="edit-url"]').val());
+                $('#form_item').submit();
             }
         });
 
