@@ -1,0 +1,229 @@
+{% extends '::base.html.twig' %}
+{% if filters.gxp is defined and filters.gxp=="1" %}
+    {% set title_search = 'Listado de modificaciones de un dato GxP' %}
+{% elseif filters.blocked is defined and filters.blocked=="1" %}
+    {% set title_search = 'Listado de registros bloqueados' %}
+{% else %}
+    {% set title_search = 'Listado de registros' %}
+{% endif %}
+
+
+{% block page_title %}Docoaro - GSK | {{title_search}} {% endblock %}
+{% block head %}
+{{ parent() }}
+<link rel="stylesheet" href="/css/plugins/datapicker/datepicker3.css">
+{% endblock %}
+{% block main_title %} {{title_search}}{% endblock %}
+{% block content %}
+
+<div class="wrapper wrapper-content">
+    {% for flashMessage in app.session.flashbag.get('error') %}
+    <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+        <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+        {{ flashMessage }}
+    </div><br>
+    {% endfor %}
+    {% for flashMessage in app.session.flashbag.get('success') %}
+    <div class="alert alert-success alert-dismissable" style="margin: 10px 16px 0 16px">
+        <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+        {{ flashMessage }}
+    </div><br>
+    {% endfor %}
+    <div class="row">
+        <div class="col-sm-12">
+            <div>
+                <div class="row">
+                    <form class="form-horizontal" id="form_item" action="{{ path('nononsense_retention_list')}}" method="GET">
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">Tipo de registros</label>
+                            <div class="col-sm-2 item_filter">
+                                <select class="form-control" name="retention_type" required="required">
+                                    {% for type in types %}
+                                        <option value="{{type.id}}" {{ filters.retention_type is defined and filters.retention_type==type.id ? 'selected="selected"' : ''}}>{{type.name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-sm-2">
+                              <div class="checkbox">
+                                <label>
+                                  <input name="revision" value="1" type="checkbox" {% if filters.revision is defined and  filters.revision == true %} checked="checked" {% endif %}> En revisión
+                                </label>
+                              </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">Área</label>
+                            <div class="col-sm-2 item_filter">
+                                <select class="form-control" name="area" style="width: 100%;">
+                                    <option value=""></option>
+                                    {% for area in areas %}
+                                        <option value="{{area.id}}" {{filters.area is defined and filters.area==area.id ? 'selected="selected"'}}>{{area.name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <label class="col-sm-1 control-label">Categoría</label>
+                            <div class="col-sm-2 item_filter">
+                                <input type="text" name="category" class="form-control" value="{{filters.category is defined ? filters.category : ''}}">
+                            </div>
+
+                            <label class="col-sm-1 control-label">Fecha destrucción</label>
+                            <div class="col-sm-1 item_filter">
+                                <input type="text" class="form-control pull-right from" autocomplete="off" name="destruction_from" value="{{filters.destruction_from is defined ? filters.destruction_from|date("Y-m-d") : ''}}">
+                            </div>
+
+                            <div class="col-sm-1">
+                                <input type="text" class="form-control pull-right until" autocomplete="off" name="destruction_until" value="{{filters.destruction_until is defined ? filters.destruction_until|date("Y-m-d") : ''}}">
+                            </div>
+
+                            <label class="col-sm-1 control-label">Fecha retención</label>
+                            <div class="col-sm-1 item_filter">
+                                <input type="text" class="form-control pull-right from" autocomplete="off" name="retention_from" value="{{filters.retention_from is defined ? filters.retention_from|date("Y-m-d") : ''}}">
+                            </div>
+
+                            <div class="col-sm-1">
+                                <input type="text" class="form-control pull-right until" autocomplete="off" name="retention_until" value="{{filters.retention_until is defined ? filters.retention_until|date("Y-m-d") : ''}}">
+                            </div>
+
+                            
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label item_filter">Título</label>
+                            <div class="col-sm-2 item_filter">
+                                <input type="text" name="name" class="form-control" value="{{filters.name is defined ? filters.name : ''}}">
+                            </div>
+
+                            <label class="col-sm-1 control-label item_filter">Código</label>
+                            <div class="col-sm-2 item_filter">
+                                <input type="text" name="number" class="form-control" value="{{filters.number is defined ? filters.number : ''}}">
+                            </div>
+
+                            <label class="col-sm-1 control-label">Estado</label>
+                            <div class="col-sm-2 item_filter">
+                                <select class="form-control" style="width: 100%;" name="status">
+                                    <option value=""></option>
+                                    {% for state in states %}
+                                        <option value="{{state.id}}" {{filters.status is defined and filters.status == state.id ? 'selected="selected"' : ''}}>{{state.name}}</option>
+                                    {% endfor %}
+                                  </select>
+                            </div>
+
+                            <label class="col-sm-1 control-label">Representante</label>
+                            <div class="col-sm-2 item_filter">
+                                <select class="form-control" style="width: 100%;" name="agent">
+                                    <option value=""></option>
+                                    {% for agent in agents %}
+                                      <option value="{{agent.id}}" {{ filters.agent is defined and filters.agent==agent.id ? 'selected="selected"' : ''}}>{{agent.name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-offset-1 col-sm-2">
+                              <div class="checkbox">
+                                <label>
+                                  <input name="destroyed" value="1" type="checkbox" {% if filters.destroyed is defined and  filters.destroyed == true %} checked="checked" {% endif %}> Ver destruidos
+                                </label>
+                              </div>
+                            </div>
+
+                            <div class="col-sm-1">
+                                <button type="submit" class="btn btn-primary pull-right">Filtrar</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="row">
+                    <table id="inProcessParcial" class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Fecha destrucción</th>
+                            <th>Categoría retención</th>
+                            <th>Título</th>
+                            <th>Código</th>
+                            <th>Edición</th>
+                            <th>Área</th>
+                            <th>Estado</th>
+                            <th>Representante</th>
+                            <th>Fecha retención</th>
+                            <th>Acción</th>
+                            <th>Audit Trail</th>
+                        </tr>
+                        </thead>
+                        {% if items is defined %}
+                            {% for item in items %}
+                                {% if filters.retention_type=="1" %}
+                                    {% set audittrail = 'nononsense_tm_template_audit_trail' %}
+                                {% else %}
+                                    {% set audittrail = 'nononsense_cv_record_audittrail' %}
+                                {% endif %}
+                                <tr>
+                                    <td>{{item.id}}</td>
+                                    <td>{{item.DestructionDate is defined and item.DestructionDate is not null ? item.DestructionDate|date("d/m/Y")|gskdate : ''}}</td>
+                                    <td></td>
+                                    <td>{{item.name}}</td>
+                                    <td>{{item.number}}</td>
+                                    <td>{{item.numEdition}}</td>
+                                    <td>{{item.area}}</td>
+                                    <td>{{item.state}}</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td><a class="btn btn-xs btn-info" href="{{path(audittrail, {'id': item.id})}}" target="_self"><i class="fa fa-book" aria-hidden="true"></i> Audit Trail</a></td>
+                                </tr>
+                                
+                            {% endfor %}
+                        {% endif %}
+                    </table>
+
+                    
+                    {% if pagination is defined and pagination.needed %}
+                        {% include '::pagination2.html.twig' %}
+                    {% endif %}
+                    <a href="{{pagination.url}}{{pagination.character}}export_excel=1" target="_blank" class="btn btn-primary pull-right"><i class="fa fa-file-excel-o" aria-hidden="true"></i> Excel</a> 
+                    <a href="{{pagination.url}}{{pagination.character}}export_pdf=1" target="_blank" class="btn btn-primary pull-right" style="margin-right:1px"><i class="fa fa-file-pdf-o" aria-hidden="true"></i> PDF</a> 
+                    
+                    {% if count==0 %}
+                        <br><b>No se han encontrado datos disponibles</b>
+                    {% endif %}
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+{{ parent() }}
+<script src="/js/plugins/datapicker/bootstrap-datepicker.js"></script>
+<script src="/js/plugins/datapicker/locales/bootstrap-datepicker.es.js" charset="UTF-8"></script>
+<script>
+  $(function () {
+    $('.from').datepicker({
+      autoclose: true,
+      orientation: 'bottom auto',
+      format: 'yyyy-mm-dd',
+      language: 'es'
+    });
+    $('.until').datepicker({
+      autoclose: true,
+      orientation: 'bottom auto',
+      format: 'yyyy-mm-dd',
+      language: 'es'
+    });
+
+    {% if filters.retention_type is defined and filters.retention_type=="1" and filters.revision is not defined %}
+        ActivateMenu('retention_templ');
+    {% elseif filters.retention_type is defined and filters.retention_type=="1" and filters.revision is defined %}
+        ActivateMenu('retention_templ_review');
+    {% elseif filters.retention_type is defined and filters.retention_type=="2" and filters.revision is not defined %}
+        ActivateMenu('retention_cumpl');
+    {% else %}
+        ActivateMenu('retention_cumpl_review');
+    {% endif %}
+    
+    $('#side-menu').metisMenu();
+  });
+</script>
+{% endblock %}

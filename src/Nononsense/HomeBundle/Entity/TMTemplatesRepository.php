@@ -253,11 +253,13 @@ class TMTemplatesRepository extends EntityRepository
                 $rsm->addScalarResult('id', 'id');
                 $rsm->addScalarResult('name', 'name');
                 $rsm->addScalarResult('nameArea', 'nameArea');
+                $rsm->addScalarResult('nameArea', 'area');
                 $rsm->addScalarResult('number', 'number');
                 $rsm->addScalarResult('numEdition', 'numEdition');
                 $rsm->addScalarResult('status', 'status');
                 $rsm->addScalarResult('inactive', 'inactive');
                 $rsm->addScalarResult('stateName', 'stateName');
+                $rsm->addScalarResult('stateName', 'state');
                 $rsm->addScalarResult('created', 'created');
                 $rsm->addScalarResult('reference', 'reference');
                 $rsm->addScalarResult('applicantName', 'applicantName');
