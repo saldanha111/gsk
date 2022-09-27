@@ -134,6 +134,21 @@ class GroupsRepository extends EntityRepository
 
     }
 
+    public function listGroupsByPermission($permission)
+    {
+        $groups = $this->createQueryBuilder('g')
+            ->select('g.name', 'g.id')
+            ->join('g.groupsSubsecciones', 'gs')
+            ->join('gs.subseccion', 's')
+            ->andWhere('s.nameId = :permission')
+            ->andWhere('g.isActive = true')
+            ->setParameter('permission', $permission)
+            ->orderBy('g.name', 'ASC');
+
+        return $groups->getQuery()->getArrayResult();
+
+    }
+
     /**
      * List of groups for selects
      *

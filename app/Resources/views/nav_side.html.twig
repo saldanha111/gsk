@@ -108,7 +108,7 @@
                 <a href="{{path('nononsense_cv_search')}}?blocked=1"><i class="fa fa-exclamation-triangle"></i> <span class="nav-label">{{'En revisión'|trans}}</span></a>
             </li>
 
-            {% if 'retention_admin' in array_subsecciones or 'retention_agent' in array_subsecciones or 'retention_review' in array_subsecciones %}
+            {% if 'retention_admin' in array_subsecciones or 'retention_agent' in array_subsecciones %}
                 <li>
                     <a href="#">
                         <i class="fa fa-trash" aria-hidden="true"></i>
@@ -125,18 +125,34 @@
                             </li>
                         {% endif %}
                         {% if 'retention_agent' in array_subsecciones %}
-                            <li id="retention_agent">
-                                <a href="{{path('nononsense_search')}}?destruction=1">
-                                    <i class="fa fa-search" aria-hidden="true"></i>
-                                    <span class="nav-label"> Buscador</span>
+                            <li id="retention_templ">
+                                <a href="{{path('nononsense_tm_templates')}}">
+                                    <i class="fa fa-file-word-o"></i>
+                                    <span class="nav-label"> Plantillas</span>
                                 </a>
                             </li>
                         {% endif %}
-                        {% if 'retention_review' in array_subsecciones %}
-                            <li id="retention_review">
-                                <a href="{{path('nononsense_search')}}?destruction=1">
-                                    <i class="fa fa-book" aria-hidden="true"></i>
-                                    <span class="nav-label"> Revisión</span>
+                        {% if 'retention_agent' in array_subsecciones %}
+                            <li id="retention_templ_review">
+                                <a href="{{path('nononsense_tm_templates')}}">
+                                    <i class="fa fa-eye" aria-hidden="true"></i>
+                                    <span class="nav-label"> Rev. plant.</span>
+                                </a>
+                            </li>
+                        {% endif %}
+                        {% if 'retention_agent' in array_subsecciones %}
+                            <li id="retention_cumpl">
+                                <a href="{{path('nononsense_cv_search')}}">
+                                    <i class="fa fa-pencil-square"></i>
+                                    <span class="nav-label"> Cumplimentaciones</span>
+                                </a>
+                            </li>
+                        {% endif %}
+                        {% if 'retention_agent' in array_subsecciones %}
+                            <li id="retention_cumpl_review">
+                                <a href="{{path('nononsense_cv_search')}}">
+                                    <i class="fa fa-eye" aria-hidden="true"></i>
+                                    <span class="nav-label"> Rev. cumpl.</span>
                                 </a>
                             </li>
                         {% endif %}
