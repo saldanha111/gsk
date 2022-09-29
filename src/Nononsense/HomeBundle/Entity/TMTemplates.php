@@ -327,6 +327,18 @@ class TMTemplates
      */
     protected $notificationsModels;
 
+    /**
+     * @var boolean
+     *
+     * @ORM\Column(name="retention_on_review", type="boolean",  options={"default" = false}, nullable=true)
+     */
+    protected $retentionOnReview;
+
+    /**
+     * @ORM\Column(name="retention_removed_at", type="date", nullable=true)
+     */
+    protected $retentionRemovedAt;
+
 
     public function __construct()
     {
@@ -1534,5 +1546,52 @@ class TMTemplates
     public function getNotificationsModels()
     {
         return $this->notificationsModels;
+    }
+
+
+    /**
+     * Set retentionOnReview
+     *
+     * @param boolean $retentionOnReview
+     * @return TMTemplates
+     */
+    public function setRetentionOnReview($retentionOnReview)
+    {
+        $this->retentionOnReview = $retentionOnReview;
+
+        return $this;
+    }
+
+    /**
+     * Get retentionOnReview
+     *
+     * @return boolean 
+     */
+    public function getRetentionOnReview()
+    {
+        return $this->retentionOnReview;
+    }
+
+    /**
+     * Set retentionRemovedAt
+     *
+     * @param \DateTime $retentionRemovedAt
+     * @return TMTemplates
+     */
+    public function setRetentionRemovedAt($retentionRemovedAt)
+    {
+        $this->retentionRemovedAt = $retentionRemovedAt;
+
+        return $this;
+    }
+
+    /**
+     * Get retentionRemovedAt
+     *
+     * @return \DateTime 
+     */
+    public function getRetentionRemovedAt()
+    {
+        return $this->retentionRemovedAt;
     }
 }

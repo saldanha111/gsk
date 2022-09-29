@@ -161,6 +161,18 @@ class CVRecords
      */
     protected $ecoNextOnStandBy;
 
+    /**
+     * @var boolean
+     *
+     * @ORM\Column(name="retention_on_review", type="boolean",  options={"default" = false}, nullable=true)
+     */
+    protected $retentionOnReview;
+
+    /**
+     * @ORM\Column(name="retention_removed_at", type="date", nullable=true)
+     */
+    protected $retentionRemovedAt;
+
     
     public function __construct()
     {
@@ -753,5 +765,51 @@ class CVRecords
     public function getEcoNextOnStandBy()
     {
         return $this->ecoNextOnStandBy;
+    }
+
+    /**
+     * Set retentionOnReview
+     *
+     * @param boolean $retentionOnReview
+     * @return CVRecords
+     */
+    public function setRetentionOnReview($retentionOnReview)
+    {
+        $this->retentionOnReview = $retentionOnReview;
+
+        return $this;
+    }
+
+    /**
+     * Get retentionOnReview
+     *
+     * @return boolean 
+     */
+    public function getRetentionOnReview()
+    {
+        return $this->retentionOnReview;
+    }
+
+    /**
+     * Set retentionRemovedAt
+     *
+     * @param \DateTime $retentionRemovedAt
+     * @return CVRecords
+     */
+    public function setRetentionRemovedAt($retentionRemovedAt)
+    {
+        $this->retentionRemovedAt = $retentionRemovedAt;
+
+        return $this;
+    }
+
+    /**
+     * Get retentionRemovedAt
+     *
+     * @return \DateTime 
+     */
+    public function getRetentionRemovedAt()
+    {
+        return $this->retentionRemovedAt;
     }
 }

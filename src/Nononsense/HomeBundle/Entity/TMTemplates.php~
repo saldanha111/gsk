@@ -174,11 +174,6 @@ class TMTemplates
     protected $effectiveDate;
 
     /**
-     * @ORM\Column(type="date", nullable=true)
-     */
-    protected $reviewDate;
-
-    /**
      * @ORM\ManyToMany(targetEntity="\Nononsense\HomeBundle\Entity\RetentionCategories", inversedBy="templates")
      * @ORM\JoinTable(name="tm_retentions")
      */
@@ -331,6 +326,18 @@ class TMTemplates
      * @ORM\OneToMany(targetEntity="\Nononsense\NotificationsBundle\Entity\NotificationsModels", mappedBy="templateId")
      */
     protected $notificationsModels;
+
+    /**
+     * @var boolean
+     *
+     * @ORM\Column(name="retention_on_review", type="boolean",  options={"default" = false}, nullable=true)
+     */
+    protected $retentionOnReview;
+
+    /**
+     * @ORM\Column(name="retention_removed_at", type="date", nullable=true)
+     */
+    protected $retentionRemovedAt;
 
 
     public function __construct()
@@ -1076,29 +1083,6 @@ class TMTemplates
     }
 
     /**
-     * Set reviewDate
-     *
-     * @param \DateTime $reviewDate
-     * @return TMTemplates
-     */
-    public function setReviewDate($reviewDate)
-    {
-        $this->reviewDate = $reviewDate;
-
-        return $this;
-    }
-
-    /**
-     * Get reviewDate
-     *
-     * @return \DateTime
-     */
-    public function getReviewDate()
-    {
-        return $this->reviewDate;
-    }
-
-    /**
      * Set token
      *
      * @param string $token
@@ -1563,4 +1547,5 @@ class TMTemplates
     {
         return $this->notificationsModels;
     }
+
 }

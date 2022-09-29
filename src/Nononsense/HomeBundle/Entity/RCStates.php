@@ -38,6 +38,13 @@ class RCStates
     protected $type;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="relational_id", type="string", length=60,  nullable=true)
+     */
+    protected $relationalId;
+
+    /**
      * Constructor
      */
     public function __construct()
@@ -132,5 +139,28 @@ class RCStates
     public function getType()
     {
         return $this->type;
+    }
+
+    /**
+     * Set relationalId
+     *
+     * @param string $relationalId
+     * @return RCStates
+     */
+    public function setRelationalId($relationalId)
+    {
+        $this->relationalId = $relationalId;
+
+        return $this;
+    }
+
+    /**
+     * Get relationalId
+     *
+     * @return string 
+     */
+    public function getRelationalId()
+    {
+        return $this->relationalId;
     }
 }

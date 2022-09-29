@@ -192,11 +192,16 @@ class CVRecordsRepository extends EntityRepository
             ->leftJoin("sig.user", "sigu");
             
 
-        if($type=="list"){
+        if($type=="list" && !isset($filters["retention_type"])){
             $list->orderBy('i.id', 'DESC');
         }
 
-
+        if(empty($filters) || !isset($filters["retention_action"]) || $filters["retention_action"]!="4"){
+            $list->andWhere('t.retentionRemovedAt IS NULL');
+        }
+        else{
+            $list->andWhere('t.retentionRemovedAt IS NOT NULL');
+        }
 
         if(!empty($filters)){
 
@@ -377,7 +382,76 @@ class CVRecordsRepository extends EntityRepository
                 $list->setParameter('nested_history', $filters["nested_history"]);
             }
 
+            if(isset($filters["retention_type"])){
+                $list->andWhere('s.id IN (3,6,7)');
+                $list->leftJoin("t.retentions", "tmr", "WITH", "tmr.id=
+                    (SELECT rc2.id FROM Nononsense\HomeBundle\Entity\RetentionCategories rc2 LEFT JOIN Nononsense\HomeBundle\Entity\RCStates rcs2 WITH rc2.documentState=rcs2.id WHERE 
 
+                        s.id IN (SELECT value FROM STRING_SPLIT(rcs2.relationalId,',')) AND
+
+                        rc2.id IN 
+                            (SELECT tmr2.retentioncategories_id FROM tm_retentions tmr2 WHERE tmr2.tmtemplates_id=t.id) 
+                        ORDER BY rc2.retentionDays DESC OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY
+                    )");
+
+                
+
+                /*
+
+                $tables_extra.=" LEFT JOIN tm_retentions tmr ON tmr.tmtemplates_id=t.id AND tmr.retentioncategories_id = 
+                (SELECT TOP 1 rc2.id FROM retention_categories rc2 LEFT JOIN rc_states rcs2 ON rc2.document_state=rcs2.id WHERE s.id IN 
+                    (SELECT value FROM STRING_SPLIT(rcs2.relational_id,',')) 
+                AND rc2.id IN (SELECT tmr2.retentioncategories_id FROM tm_retentions tmr2) ORDER BY rc2.retention_days DESC)
+
+                LEFT JOIN retention_categories rc ON tmr.retentioncategories_id=rc.id LEFT JOIN rc_states rcs ON rc.document_state=rcs.id LEFT JOIN tm_signatures accret ON accret.template_id=t.id AND accret.action_id=9 LEFT JOIN tm_templates newt ON newt.template_id=t.id";
+
+                */
+
+                /*$list->addSelect("rc.name AS mostRestrictiveCategory");
+                $list->addSelect("accret.modified AS retentionDate");
+                $list->addSelect("DATE_ADD(day,rc.retention_days,accret.modified) AS DestructionDate");
+                $list->orderBy('DestructionDate', 'DESC');
+
+                if(isset($filters["category"])){
+                    $terms = explode(" ", $filters["category"]);
+                    foreach($terms as $key => $term){
+                        $list->andWhere('rc.name LIKE :category'.$key);
+                        $list->setParameter('category'.$key, '%' . $term. '%');
+                    }
+                }
+
+                if(isset($filters["destruction_from"])){
+                    $list->andWhere('DATE_ADD(day,rc.retentionDays,accret.modified)>=:destruction_from');
+                    $list->setParameter('destruction_from', $filters["destruction_from"]);
+                }
+
+                if(isset($filters["destruction_until"])){
+                    $list->andWhere('DATE_ADD(day,rc.retentionDays,accret.modified)>=:destruction_until');
+                    $list->setParameter('destruction_until', $filters["destruction_until"]);
+                }
+
+                if(isset($filters["retention_from"])){
+                    $list->andWhere('accret.modified>=:retention_from');
+                    $list->setParameter('retention_from', $filters["retention_from"]);
+                }
+
+                if(isset($filters["retention_until"])){
+                    $list->andWhere('accret.modified<=:retention_until');
+                    $list->setParameter('retention_until', $filters["retention_until"]);
+                }
+
+                if(isset($filters["retention_action"])){
+                    switch($filters["retention_action"]){
+                        case "1":   $list->andWhere('t.retentionOnReview IS NOT NULL');
+                            break;
+                        case "2":   $list->andWhere('t.retentionOnReview IS NULL AND DATE_ADD(day,rc.retentionDays,accret.modified)<=DATEADD(month,6,GETDATE())');
+                            break;
+                        case "3":   $list->andWhere('t.retentionOnReview IS NULL AND DATE_ADD(day,rc.retentionDays,accret.modified)<=GETDATE()');
+                            break;
+                    }
+                    
+                }*/
+            }
         }
 
 

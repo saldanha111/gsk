@@ -1,11 +1,6 @@
 {% extends '::base.html.twig' %}
-{% if filters.gxp is defined and filters.gxp=="1" %}
-    {% set title_search = 'Listado de modificaciones de un dato GxP' %}
-{% elseif filters.blocked is defined and filters.blocked=="1" %}
-    {% set title_search = 'Listado de registros bloqueados' %}
-{% else %}
-    {% set title_search = 'Listado de registros' %}
-{% endif %}
+{% set title_search = 'Listado de retención' %}
+
 
 
 {% block page_title %}Docoaro - GSK | {{title_search}} {% endblock %}
@@ -35,20 +30,13 @@
                 <div class="row">
                     <form class="form-horizontal" id="form_item" action="{{ path('nononsense_retention_list')}}" method="GET">
                         <div class="form-group">
-                            <label class="col-sm-1 control-label">Tipo de registros</label>
+                            <label class="col-sm-1 control-label">Listado de retención</label>
                             <div class="col-sm-2 item_filter">
                                 <select class="form-control" name="retention_type" required="required">
                                     {% for type in types %}
                                         <option value="{{type.id}}" {{ filters.retention_type is defined and filters.retention_type==type.id ? 'selected="selected"' : ''}}>{{type.name}}</option>
                                     {% endfor %}
                                 </select>
-                            </div>
-                            <div class="col-sm-2">
-                              <div class="checkbox">
-                                <label>
-                                  <input name="revision" value="1" type="checkbox" {% if filters.revision is defined and  filters.revision == true %} checked="checked" {% endif %}> En revisión
-                                </label>
-                              </div>
                             </div>
                         </div>
                         <div class="form-group">
@@ -100,10 +88,10 @@
 
                             <label class="col-sm-1 control-label">Estado</label>
                             <div class="col-sm-2 item_filter">
-                                <select class="form-control" style="width: 100%;" name="status">
+                                <select class="form-control" style="width: 100%;" name="state">
                                     <option value=""></option>
                                     {% for state in states %}
-                                        <option value="{{state.id}}" {{filters.status is defined and filters.status == state.id ? 'selected="selected"' : ''}}>{{state.name}}</option>
+                                        <option value="{{state.relationalId}}" {{filters.state is defined and filters.state == state.relationalId ? 'selected="selected"' : ''}}>{{state.name}}</option>
                                     {% endfor %}
                                   </select>
                             </div>
@@ -119,12 +107,15 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <div class="col-sm-offset-1 col-sm-2">
-                              <div class="checkbox">
-                                <label>
-                                  <input name="destroyed" value="1" type="checkbox" {% if filters.destroyed is defined and  filters.destroyed == true %} checked="checked" {% endif %}> Ver destruidos
-                                </label>
-                              </div>
+                            <label class="col-sm-1 control-label">Acción</label>
+                            <div class="col-sm-2 item_filter">
+                                <select class="form-control" style="width: 100%;" name="retention_action">
+                                    <option value=""></option>
+                                    <option value="1" {{ filters.retention_action is defined and filters.retention_action=="1" ? 'selected="selected"' : ''}}>En revisión</option>
+                                    <option value="2" {{ filters.retention_action is defined and filters.retention_action=="2" ? 'selected="selected"' : ''}}>Revisión anual</option>
+                                    <option value="3" {{ filters.retention_action is defined and filters.retention_action=="3" ? 'selected="selected"' : ''}}>Solo vencidos</option>
+                                    <option value="4" {{ filters.retention_action is defined and filters.retention_action=="4" ? 'selected="selected"' : ''}}>Ver destruidos</option>
+                                </select>
                             </div>
 
                             <div class="col-sm-1">
@@ -161,14 +152,14 @@
                                 <tr>
                                     <td>{{item.id}}</td>
                                     <td>{{item.DestructionDate is defined and item.DestructionDate is not null ? item.DestructionDate|date("d/m/Y")|gskdate : ''}}</td>
-                                    <td></td>
+                                    <td>{{item.mostRestrictiveCategory}}</td>
                                     <td>{{item.name}}</td>
                                     <td>{{item.number}}</td>
                                     <td>{{item.numEdition}}</td>
                                     <td>{{item.area}}</td>
                                     <td>{{item.state}}</td>
                                     <td></td>
-                                    <td></td>
+                                    <td>{{item.retentionDate is defined and item.retentionDate is not null ? item.retentionDate|date("d/m/Y")|gskdate : ''}}</td>
                                     <td></td>
                                     <td><a class="btn btn-xs btn-info" href="{{path(audittrail, {'id': item.id})}}" target="_self"><i class="fa fa-book" aria-hidden="true"></i> Audit Trail</a></td>
                                 </tr>
@@ -213,11 +204,11 @@
       language: 'es'
     });
 
-    {% if filters.retention_type is defined and filters.retention_type=="1" and filters.revision is not defined %}
+    {% if filters.retention_type is defined and filters.retention_type=="1" and (filters.retention_action is not defined or filters.retention_action!="1") %}
         ActivateMenu('retention_templ');
-    {% elseif filters.retention_type is defined and filters.retention_type=="1" and filters.revision is defined %}
+    {% elseif filters.retention_type is defined and filters.retention_type=="1" and filters.retention_action=="1" %}
         ActivateMenu('retention_templ_review');
-    {% elseif filters.retention_type is defined and filters.retention_type=="2" and filters.revision is not defined %}
+    {% elseif filters.retention_type is defined and filters.retention_type=="2" and (filters.retention_action is not defined or filters.retention_action!="1") %}
         ActivateMenu('retention_cumpl');
     {% else %}
         ActivateMenu('retention_cumpl_review');

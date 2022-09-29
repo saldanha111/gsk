@@ -113,9 +113,7 @@
                                       <select class="form-control" style="width: 100%;" name="state">
                                         <option value=""></option>
                                         {% for state in states %}
-                                            {% if state.id != 9 %}
-                                                <option value="{{state.id}}" {{ filters.state is defined and filters.state==state.id ? 'selected="selected"' : ''}}>{{state.name}}</option>
-                                            {% endif %}
+                                            <option value="{{state.id}}" {{ filters.state is defined and filters.state==state.id ? 'selected="selected"' : ''}}>{{state.name}}</option>
                                         {% endfor %}
                                       </select>
                                     </div>

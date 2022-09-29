@@ -17,6 +17,7 @@ use Nononsense\UserBundle\Entity\Users;
 use Nononsense\UtilsBundle\Classes\Utils;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
 class RetentionRecordsController extends Controller
 {
@@ -32,7 +33,7 @@ class RetentionRecordsController extends Controller
         $filters2=array_filter($request->query->all());
 
         $retention_type = $this->getDoctrine()->getRepository(RCTypes::class)->findOneBy(array("id" => $filters["retention_type"]));
-        $desc_pdf=$retention_type->getName();
+        $desc_pdf="Listado de retención - ".$retention_type->getName();
 
         if(!$request->get("export_excel") && !$request->get("export_pdf")){
             if($request->get("page")){
@@ -50,7 +51,7 @@ class RetentionRecordsController extends Controller
 
         $array_item["suser"]["id"]=$user->getId();
         $array_item["filters"]=$filters;
-        if($request->get("retention_type")){
+        if($request->get("retention_type") &&  $request->get("retention_type")=="1"){
             $array_item["items"] = $this->getDoctrine()->getRepository(TMTemplates::class)->list("list",$filters);
             $array_item["count"] = $this->getDoctrine()->getRepository(TMTemplates::class)->list("count",$filters2);
         }
@@ -90,24 +91,30 @@ class RetentionRecordsController extends Controller
                 $phpExcelObject->setActiveSheetIndex(0)
                  ->setCellValue('A1', $desc_pdf." - ".$user->getUsername()." - ".$this->get('utilities')->sp_date(date("d/m/Y H:i:s")));
                 $phpExcelObject->setActiveSheetIndex()
-                 ->setCellValue('A2', 'Nº')
-                 ->setCellValue('B2', 'Plantilla')
-                 ->setCellValue('C2', 'Área')
-                 ->setCellValue('D2', 'Iniciado por')
-                 ->setCellValue('E2', 'Fecha inicio')
-                 ->setCellValue('F2', 'Última modificación')
-                 ->setCellValue('G2', 'Estado');
+                 ->setCellValue('A2', 'ID')
+                 ->setCellValue('B2', 'Fecha de destrucción')
+                 ->setCellValue('C2', 'Categoría retención')
+                 ->setCellValue('D2', 'Título')
+                 ->setCellValue('E2', 'Código')
+                 ->setCellValue('F2', 'Edición')
+                 ->setCellValue('G2', 'Área')
+                 ->setCellValue('H2', 'Estado')
+                 ->setCellValue('I2', 'Representante')
+                 ->setCellValue('J2', 'Fecha retención');
             }
 
             if($request->get("export_pdf")){
                 $html='<html><body style="font-size:8px;width:100%"><table autosize="1" style="overflow:wrap;width:100%"><tr style="font-size:8px;width:100%">
-                        <th style="font-size:8px;width:6%">Nº</th>
-                        <th style="font-size:8px;width:45%">Plantilla</th>
-                        <th style="font-size:8px;width:9%">Área</th>
-                        <th style="font-size:8px;width:10%">Iniciado por</th>
-                        <th style="font-size:8px;width:10%">Fecha inicio</th>
-                        <th style="font-size:8px;width:10%">Última modificación</th>
-                        <th style="font-size:8px;width:10%">Estado</th>
+                        <th style="font-size:8px;width:5%">Nº</th>
+                        <th>Fecha de destrucción</th>
+                        <th>Categoría retención</th>
+                        <th>Título</th>
+                        <th>Código</th>
+                        <th>Edición</th>
+                        <th>Área</th>
+                        <th>Estado</th>
+                        <th>Representante</th>
+                        <th>Fecha retención</th>
                     </tr>';
             }
 
@@ -117,23 +124,29 @@ class RetentionRecordsController extends Controller
                 if($request->get("export_excel")){
                     $phpExcelObject->getActiveSheet()
                     ->setCellValue('A'.$i, $item["id"])
-                    ->setCellValue('B'.$i, $item["name"])
-                    ->setCellValue('C'.$i, $item["area"])
-                    ->setCellValue('D'.$i, $item["creator"])
-                    ->setCellValue('E'.$i, ($item["created"]) ? $this->get('utilities')->sp_date($item["created"]->format('d/M/Y H:i:s')) : '')
-                    ->setCellValue('F'.$i, ($item["modified"]) ? $this->get('utilities')->sp_date($item["modified"]->format('d/m/Y H:i:s')) : '')
-                    ->setCellValue('G'.$i, $item["state"]);
+                    ->setCellValue('B'.$i, ($item["DestructionDate"]) ? $this->get('utilities')->sp_date($item["DestructionDate"]) : '')
+                    ->setCellValue('C'.$i, $item["mostRestrictiveCategory"])
+                    ->setCellValue('D'.$i, $item["name"])
+                    ->setCellValue('E'.$i, $item["number"])
+                    ->setCellValue('F'.$i, $item["numEdition"])
+                    ->setCellValue('G'.$i, $item["area"])
+                    ->setCellValue('H'.$i, $item["state"])
+                    ->setCellValue('I'.$i, ($item["retentionDate"]) ? $this->get('utilities')->sp_date($item["retentionDate"]) : '')
+                    ->setCellValue('J'.$i, '');
                 }
 
                 if($request->get("export_pdf")){
                     $html.='<tr style="font-size:8px">
                         <td>'.$item["id"].'</td>
+                        <td>'.(($item["DestructionDate"]) ? $item["DestructionDate"] : '').'</td>
+                        <td>'.$item["mostRestrictiveCategory"].'</td>
                         <td>'.$item["name"].'</td>
+                        <td>'.$item["number"].'</td>
+                        <td>'.$item["numEdition"].'</td>
                         <td>'.$item["area"].'</td>
-                        <td>'.$item["creator"].'</td>
-                        <td>'.(($item["created"]) ? $this->get('utilities')->sp_date($item["created"]->format('d/m/Y H:i:s')) : '').'</td>
-                        <td>'.(($item["modified"]) ? $this->get('utilities')->sp_date($item["modified"]->format('d/m/Y H:i:s')) : '').'</td>
                         <td>'.$item["state"].'</td>
+                        <td>'.(($item["retentionDate"]) ? $item["retentionDate"] : '').'</td>
+                        <td></td>
                     </tr>';
                 }
 
@@ -141,7 +154,7 @@ class RetentionRecordsController extends Controller
             }
 
             if($request->get("export_excel")){
-                $phpExcelObject->getActiveSheet()->setTitle('Listado de registros');
+                $phpExcelObject->getActiveSheet()->setTitle('Listado de retención');
                 // Set active sheet index to the first sheet, so Excel opens this as the first sheet
                 $phpExcelObject->setActiveSheetIndex(0);
 
@@ -152,7 +165,7 @@ class RetentionRecordsController extends Controller
                 // adding headers
                 $dispositionHeader = $response->headers->makeDisposition(
                   ResponseHeaderBag::DISPOSITION_ATTACHMENT,
-                  'list_records.xlsx'
+                  'list_retentions.xlsx'
                 );
                 $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
                 $response->headers->set('Pragma', 'public');
