@@ -498,13 +498,13 @@ class CVRecordsRepository extends EntityRepository
 
                 if(isset($filters["retention_action"])){
                     switch($filters["retention_action"]){
-                        case "1":   $sintax.=$logical." t.retention_on_review IS NOT NULL";
+                        case "1":   $sintax.=$logical." cv.retention_on_review IS NOT NULL";
                                     $logical=" AND ";
                             break;
-                        case "2":   $sintax.=$logical." t.retention_on_review IS NULL AND DATEADD(day,rc.retention_days,accret.modified)<=DATEADD(month,6,GETDATE())";
+                        case "2":   $sintax.=$logical." cv.retention_on_review IS NULL AND DATEADD(day,rc.retention_days,accret.modified)<=DATEADD(month,6,GETDATE())";
                                     $logical=" AND ";
                             break;
-                        case "3":   $sintax.=$logical." t.retention_on_review IS NULL AND DATEADD(day,rc.retention_days,accret.modified)<=GETDATE()";
+                        case "3":   $sintax.=$logical." cv.retention_on_review IS NULL AND DATEADD(day,rc.retention_days,accret.modified)<=GETDATE()";
                                     $logical=" AND ";
                             break;
                     }
