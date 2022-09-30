@@ -49,15 +49,14 @@ class RetentionRecordsController extends Controller
             $filters["limit_many"]=99999999999;
         }
 
-        $array_item["suser"]["id"]=$user->getId();
         $array_item["filters"]=$filters;
         if($request->get("retention_type") &&  $request->get("retention_type")=="1"){
             $array_item["items"] = $this->getDoctrine()->getRepository(TMTemplates::class)->list("list",$filters);
             $array_item["count"] = $this->getDoctrine()->getRepository(TMTemplates::class)->list("count",$filters2);
         }
         else{
-            $array_item["items"] = $this->getDoctrine()->getRepository(CVRecords::class)->search("list",$filters);
-            $array_item["count"] = $this->getDoctrine()->getRepository(CVRecords::class)->search("count",$filters2);
+            $array_item["items"] = $this->getDoctrine()->getRepository(CVRecords::class)->list("list",$filters);
+            $array_item["count"] = $this->getDoctrine()->getRepository(CVRecords::class)->list("count",$filters2);
         }
         
         $array_item["states"]= $this->getDoctrine()->getRepository(RCStates::class)->findBy(array("type" => $retention_type));
@@ -129,8 +128,8 @@ class RetentionRecordsController extends Controller
                     ->setCellValue('D'.$i, $item["name"])
                     ->setCellValue('E'.$i, $item["number"])
                     ->setCellValue('F'.$i, $item["numEdition"])
-                    ->setCellValue('G'.$i, $item["area"])
-                    ->setCellValue('H'.$i, $item["state"])
+                    ->setCellValue('G'.$i, $item["nameArea"])
+                    ->setCellValue('H'.$i, $item["stateName"])
                     ->setCellValue('I'.$i, ($item["retentionDate"]) ? $this->get('utilities')->sp_date($item["retentionDate"]) : '')
                     ->setCellValue('J'.$i, '');
                 }
@@ -143,8 +142,8 @@ class RetentionRecordsController extends Controller
                         <td>'.$item["name"].'</td>
                         <td>'.$item["number"].'</td>
                         <td>'.$item["numEdition"].'</td>
-                        <td>'.$item["area"].'</td>
-                        <td>'.$item["state"].'</td>
+                        <td>'.$item["nameArea"].'</td>
+                        <td>'.$item["stateName"].'</td>
                         <td>'.(($item["retentionDate"]) ? $item["retentionDate"] : '').'</td>
                         <td></td>
                     </tr>';

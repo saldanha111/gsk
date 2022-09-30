@@ -219,7 +219,7 @@ class TMTemplatesRepository extends EntityRepository
                 $sintax.=$logical." s.id IN (7,8)";
                 $logical=" AND ";
 
-                $tables_extra.=" LEFT JOIN tm_retentions tmr ON tmr.tmtemplates_id=t.id AND tmr.retentioncategories_id = (SELECT TOP 1 rc2.id FROM retention_categories rc2 LEFT JOIN rc_states rcs2 ON rc2.document_state=rcs2.id WHERE s.id IN (SELECT value FROM STRING_SPLIT(rcs2.relational_id,',')) AND rc2.id IN (SELECT tmr2.retentioncategories_id FROM tm_retentions tmr2 WHERE tmr2.tmtemplates_id=t.id) ORDER BY rc2.retention_days DESC) LEFT JOIN retention_categories rc ON tmr.retentioncategories_id=rc.id LEFT JOIN rc_states rcs ON rc.document_state=rcs.id LEFT JOIN tm_signatures accret ON accret.template_id=t.id AND accret.action_id=9 LEFT JOIN tm_templates newt ON newt.template_id=t.id";
+                $tables_extra.=" LEFT JOIN tm_retentions tmr ON tmr.tmtemplates_id=t.id AND tmr.retentioncategories_id = (SELECT TOP 1 rc2.id FROM retention_categories rc2 LEFT JOIN rc_states rcs2 ON rc2.document_state=rcs2.id AND rcs2.type=1 WHERE s.id IN (SELECT value FROM STRING_SPLIT(rcs2.relational_id,',')) AND rc2.id IN (SELECT tmr2.retentioncategories_id FROM tm_retentions tmr2 WHERE tmr2.tmtemplates_id=t.id) ORDER BY rc2.retention_days DESC) LEFT JOIN retention_categories rc ON tmr.retentioncategories_id=rc.id LEFT JOIN rc_states rcs ON rc.document_state=rcs.id LEFT JOIN tm_signatures accret ON accret.template_id=t.id AND accret.action_id=9 LEFT JOIN tm_templates newt ON newt.template_id=t.id";
                 $fields_extra.=",rc.name mostRestrictiveCategory, CASE WHEN t.state_id=8 THEN accret.modified ELSE newt.effectiveDate END retentionDate, DATEADD(day,rc.retention_days,CASE WHEN t.state_id=8 THEN accret.modified ELSE newt.effectiveDate END) DestructionDate";
                 $rsm->addScalarResult('mostRestrictiveCategory', 'mostRestrictiveCategory');
                 $rsm->addScalarResult('DestructionDate', 'DestructionDate');
@@ -339,10 +339,6 @@ class TMTemplatesRepository extends EntityRepository
                 $rsm->addScalarResult('needNewEdition', 'needNewEdition');
                 $rsm->addScalarResult('notFillableItSelf', 'notFillableItSelf');
                 $rsm->addScalarResult('qr', 'qr');
-                if(isset($filters["retention_type"])){
-                    $rsm->addScalarResult('nameArea', 'area');
-                    $rsm->addScalarResult('stateName', 'state');
-                }
 
                 if(!empty($parameters)){
                     $query->setParameters($parameters);

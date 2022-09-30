@@ -32,7 +32,7 @@
                         <div class="form-group">
                             <label class="col-sm-1 control-label">Listado de retención</label>
                             <div class="col-sm-2 item_filter">
-                                <select class="form-control" name="retention_type" required="required">
+                                <select class="form-control" name="retention_type" id="retention_type" required="required">
                                     {% for type in types %}
                                         <option value="{{type.id}}" {{ filters.retention_type is defined and filters.retention_type==type.id ? 'selected="selected"' : ''}}>{{type.name}}</option>
                                     {% endfor %}
@@ -88,7 +88,7 @@
 
                             <label class="col-sm-1 control-label">Estado</label>
                             <div class="col-sm-2 item_filter">
-                                <select class="form-control" style="width: 100%;" name="state">
+                                <select class="form-control" style="width: 100%;" name="state" id="state">
                                     <option value=""></option>
                                     {% for state in states %}
                                         <option value="{{state.relationalId}}" {{filters.state is defined and filters.state == state.relationalId ? 'selected="selected"' : ''}}>{{state.name}}</option>
@@ -156,8 +156,8 @@
                                     <td>{{item.name}}</td>
                                     <td>{{item.number}}</td>
                                     <td>{{item.numEdition}}</td>
-                                    <td>{{item.area}}</td>
-                                    <td>{{item.state}}</td>
+                                    <td>{{item.nameArea}}</td>
+                                    <td>{{item.stateName}}</td>
                                     <td></td>
                                     <td>{{item.retentionDate is defined and item.retentionDate is not null ? item.retentionDate|date("d/m/Y")|gskdate : ''}}</td>
                                     <td></td>
@@ -203,6 +203,13 @@
       format: 'yyyy-mm-dd',
       language: 'es'
     });
+
+    $(document).on('change', '[name="retention_type"]', function() {
+        $("#state").val("");
+        $('#form_item').submit();
+    });
+
+    
 
     {% if filters.retention_type is defined and filters.retention_type=="1" and (filters.retention_action is not defined or filters.retention_action!="1") %}
         ActivateMenu('retention_templ');
