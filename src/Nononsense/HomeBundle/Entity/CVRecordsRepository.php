@@ -451,6 +451,12 @@ class CVRecordsRepository extends EntityRepository
                 $parameters["id"]=$filters["id"];
                 $logical=" AND ";
             }
+
+            if(isset($filters["retentions"])){
+                $sintax.=$logical." cv.id IN (:retentions)";
+                $parameters["retentions"]=$filters["retentions"];
+                $logical=" AND ";
+            }
             
             if(isset($filters["retention_type"])){
                 $sintax.=$logical." s.id IN (3,6,7)";

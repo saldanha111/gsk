@@ -7,6 +7,7 @@
 {% block head %}
 {{ parent() }}
 <link rel="stylesheet" href="/css/plugins/datapicker/datepicker3.css">
+<link rel="stylesheet" href="{{ asset('/js/plugins/sweetalert/sweetalert.min.css') }}">
 {% endblock %}
 {% block main_title %} {{title_search}}{% endblock %}
 {% block content %}
@@ -162,32 +163,38 @@
                                     <td></td>
                                     <td>{{item.retentionDate is defined and item.retentionDate is not null ? item.retentionDate|date("d/m/Y")|gskdate : ''}}</td>
                                     <td>
-                                        <a class="btn btn-xs btn-danger btn-retention" href="javascript:void(0)" data-action="Eliminar" data-info="registro {{item.name}} (ID {{item.id}})"><i class="fa fa-trash" aria-hidden="true"></i> Eliminar</a>
-                                        <a class="btn btn-xs btn-primary btn-retention"  href="javascript:void(0)" data-action="Revisar" data-info="registro {{item.name}} (ID {{item.id}})"><i class="fa fa-check" aria-hidden="true"></i> Revisar</a>
+                                        {# {% if filters.retention_action is defined and (filters.retention_action=="2" or filters.retention_action=="3") %} #}
+                                            <a class="btn btn-xs btn-danger btn-retention" href="javascript:void(0)" data-action="2" data-info="Eliminar registro {{item.name}} (ID {{item.id}})" data-id="{{item.id}}" data-unique="1"><i class="fa fa-trash" aria-hidden="true"></i> Eliminar</a>
+                                            <a class="btn btn-xs btn-primary btn-retention"  href="javascript:void(0)" data-action="1" data-info="Revisar registro {{item.name}} (ID {{item.id}})" data-id="{{item.id}}" data-unique="1"><i class="fa fa-check" aria-hidden="true"></i> Revisar</a>
+                                        {# {% endif %} #}
                                     </td>
                                     <td><a class="btn btn-xs btn-info" href="{{path(audittrail, {'id': item.id})}}" target="_self"><i class="fa fa-book" aria-hidden="true"></i> Audit Trail</a></td>
-                                    <td><input class="checkpem" name="record[]" value="{{item.id}}" type="checkbox"></td>
+                                    <td><input class="checkpem" name="retentions[]" value="{{item.id}}" type="checkbox"></td>
                                 </tr>
                                 
                             {% endfor %}
                         {% endif %}
-                        <tr>
-                            <th colspan="12">
-                                <a class="btn btn-primary pull-right bnt-separator2 btn-retention" href="javascript:void(0)" data-action="Revisar"><i class="fa fa-check" aria-hidden="true"></i> Revisar</a>
-                                <a class="btn btn-danger pull-right btn-retention" href="javascript:void(0)" data-action="Eliminar"><i class="fa fa-trash" aria-hidden="true"></i> Eliminar</a> 
-                            </th>
-                            <th><input id="record_masive" class="supcheck" type="checkbox"></th>
-                        </tr>
+                        {# {% if filters.retention_action is defined and count>0 and (filters.retention_action=="1" or filters.retention_action=="2" or filters.retention_action=="3") %} #}
+                            <tr>
+                                <th colspan="12">
+                                    {# {% if filters.retention_action=="2" or filters.retention_action=="3" %} #}
+                                        <a class="btn btn-primary pull-right bnt-separator2 btn-retention" href="javascript:void(0)" data-action="1" data-info="Revisar"><i class="fa fa-check" aria-hidden="true"></i> Revisar</a>
+                                        <a class="btn btn-danger pull-right btn-retention" href="javascript:void(0)" data-action="2" data-info="Eliminar"><i class="fa fa-trash" aria-hidden="true"></i> Eliminar</a>
+                                    {# {% endif %} #}
+                                </th>
+                                <th><input id="record_masive" class="supcheck" type="checkbox"></th>
+                            </tr>
+                        {# {% endif %} #}
                     </table>
 
                     
                     {% if pagination is defined and pagination.needed %}
                         {% include '::pagination2.html.twig' %}
                     {% endif %}
-                    <a href="{{pagination.url}}{{pagination.character}}export_excel=1" target="_blank" class="btn btn-primary pull-right"><i class="fa fa-file-excel-o" aria-hidden="true"></i> Excel</a> 
-                    <a href="{{pagination.url}}{{pagination.character}}export_pdf=1" target="_blank" class="btn btn-primary pull-right" style="margin-right:1px"><i class="fa fa-file-pdf-o" aria-hidden="true"></i> PDF</a> 
-                    
-                    {% if count==0 %}
+                    {% if count>0 %}
+                        <a href="{{pagination.url}}{{pagination.character}}export_excel=1" target="_blank" class="btn btn-primary pull-right"><i class="fa fa-file-excel-o" aria-hidden="true"></i> Excel</a> 
+                        <a href="{{pagination.url}}{{pagination.character}}export_pdf=1" target="_blank" class="btn btn-primary pull-right" style="margin-right:1px"><i class="fa fa-file-pdf-o" aria-hidden="true"></i> PDF</a> 
+                    {% else %}
                         <br><b>No se han encontrado datos disponibles</b>
                     {% endif %}
                     
@@ -200,48 +207,54 @@
 <div class="modal fade" tabindex="-1" role="dialog" id="modalRetention">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Firmar</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
+            <form class="form-horizontal" id="formModalRetention" action="{{pagination.url}}" method="POST">
+                <div class="modal-header">
+                    <h5 class="modal-title">Firmar</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
 
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-lg-10 col-lg-offset-1">
-                        Va a efectuar la siguiente acción sobre el listado de registros en retención: 
-                    </div>
-                </div>
-                <br>
-                <div class="row">
-                    <div class="col-lg-10 col-lg-offset-1 error" id="retention_message">
-                         
-                    </div>
-                </div>
-                <br>
-                <div class="row box-text-comment">
-                    <div class="col-lg-10 col-lg-offset-1">
-                        <label for="description_workflow">Comentarios</label>
-                        <br>
-                        <div class="form-group">
-                            <textarea class="form-control text-comment" name="comment" rows="10" cols="40"  style="width:100%" required="required"></textarea>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-10 col-lg-offset-1">
+                            Va a efectuar la siguiente acción sobre el listado de registros en retención: 
                         </div>
                     </div>
-                </div>
-                <div class="row">
-                    <div class="col-lg-10 col-lg-offset-1">
-                        <div id="signature-pad3" class="input-group">
-                            <label for="firma">Introduzca su firma</label>
+                    <br>
+                    <div class="row">
+                        <div class="col-lg-10 col-lg-offset-1 error" id="retention_message">
+                             
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row box-text-comment">
+                        <div class="col-lg-10 col-lg-offset-1">
+                            <label for="description_workflow">Comentarios</label>
                             <br>
-                            <input type="password" name="password" class="form-control" required="required"><br>
+                            <div class="form-group">
+                                <textarea class="form-control text-comment" name="comment" rows="10" cols="40" id="modal_comment"  style="width:100%" required="required"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-10 col-lg-offset-1">
+                            <div id="signature-pad3" class="input-group">
+                                <label for="firma">Introduzca su firma</label>
+                                <br>
+                                <input type="password" name="password" id="modal_password" class="form-control" required="required"><br>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <input type="button" class="btn btn-primary" id="sign_category" value="Firmar">
-            </div>
+                <div id="dynamic_retention_elements" style="display:none">
+
+                </div>
+                <div class="modal-footer">
+                    <input type="button" class="btn btn-primary" id="sign_modal_retention" value="Firmar">
+                </div>
+                <input type="hidden" name="action" value="" required="required">
+            </form>
         </div>
     </div>
 </div>
@@ -250,7 +263,9 @@
 {{ parent() }}
 <script src="/js/plugins/datapicker/bootstrap-datepicker.js"></script>
 <script src="/js/plugins/datapicker/locales/bootstrap-datepicker.es.js" charset="UTF-8"></script>
+<script src="{{ asset('js/plugins/sweetalert/sweetalert.min.js') }}"></script>
 <script>
+    var retention_btn;
   $( document ).ready(function() {
     $('.from').datepicker({
       autoclose: true,
@@ -294,11 +309,9 @@
     });
 
     $(document).on('click','.btn-retention',function(e){
-        title=$('[name="retention_type"] option:selected').text()+" - "+$(this).data("action")+" ";
-        if($(this).data("info")){
-            title+=$(this).data("info");
-        }
-        else{
+        retention_btn=$(this);
+        title=$('[name="retention_type"] option:selected').text()+" - "+$(this).data("info")+" ";
+        if(!$(this).data("unique")){
             if($('.checkpem:checked').length>0){
                 count=$('.checkpem:checked').length;
             }
@@ -310,6 +323,57 @@
         }
         $("#retention_message").html(title);
         $("#modalRetention").modal('show');
+    });
+
+    $(document).on('click','#sign_modal_retention',function(e){
+        $('[name="action"]').val(retention_btn.data("action"));
+        if ($('#modal_comment').is(":visible") && !$('#modal_comment').val()){
+            swal({
+                title: "Atención",
+                text: "La descripcion es obligatoria",
+                type: "warning"
+            });
+            return false;
+        }
+
+        if (!$("#modal_password").val()){
+            swal({
+                title: "Atención",
+                text: "La firma es obligatoria",
+                type: "warning"
+            });
+            return false;
+        }
+
+        if (!gpassword_valid($("#modal_password").val())){
+            swal({
+                title: "Atención",
+                text: "La firma no es correcta",
+                type: "warning"
+            });
+            return false;
+        }
+        $('#dynamic_retention_elements').find(".checkpem").each(function() {
+            $(this).remove();
+        });
+
+
+
+        
+        if(retention_btn.data("unique")){
+            $('#dynamic_retention_elements').append(retention_btn.closest("tr").find(".checkpem").clone());
+            $('#dynamic_retention_elements').find(".checkpem").prop('checked',true);
+        }
+        else{
+            if($('.checkpem:checked').length>0){
+                $(".checkpem:checked").each(function() {
+                    $('#dynamic_retention_elements').append($(this).clone());
+                });
+            }
+        }
+
+        $("#formModalRetention").submit();
+
     });
   });
 

@@ -214,6 +214,12 @@ class TMTemplatesRepository extends EntityRepository
                 $sintax.=$logical." s.id=6 AND (t.inactive!=1 OR t.inactive IS NULL)";
                 $logical=" AND ";
             }
+
+            if(isset($filters["retentions"])){
+                $sintax.=$logical." t.id IN (:retentions)";
+                $parameters["retentions"]=$filters["retentions"];
+                $logical=" AND ";
+            }
             
             if(isset($filters["retention_type"])){
                 $sintax.=$logical." s.id IN (7,8)";

@@ -25,6 +25,11 @@ class RetentionRecordsController extends Controller
 
         $user = $this->container->get('security.context')->getToken()->getUser();
 
+        $is_valid = $this->get('app.security')->permissionSeccion('retention_agent');
+        if (!$is_valid) {
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+        }
+
         $filters=Array();
         $filters2=Array();
         $types=array();
@@ -51,13 +56,14 @@ class RetentionRecordsController extends Controller
 
         $array_item["filters"]=$filters;
         if($request->get("retention_type") &&  $request->get("retention_type")=="1"){
-            $array_item["items"] = $this->getDoctrine()->getRepository(TMTemplates::class)->list("list",$filters);
-            $array_item["count"] = $this->getDoctrine()->getRepository(TMTemplates::class)->list("count",$filters2);
+            $class=TMTemplates::class;
         }
         else{
-            $array_item["items"] = $this->getDoctrine()->getRepository(CVRecords::class)->list("list",$filters);
-            $array_item["count"] = $this->getDoctrine()->getRepository(CVRecords::class)->list("count",$filters2);
+            $class=CVRecords::class;
         }
+
+        $array_item["items"] = $this->getDoctrine()->getRepository($class)->list("list",$filters);
+        $array_item["count"] = $this->getDoctrine()->getRepository($class)->list("count",$filters2);
         
         $array_item["states"]= $this->getDoctrine()->getRepository(RCStates::class)->findBy(array("type" => $retention_type));
         $array_item["areas"] = $this->getDoctrine()->getRepository(Areas::class)->findBy(array(),array("name" => "ASC"));
@@ -179,5 +185,69 @@ class RetentionRecordsController extends Controller
                 $this->get('utilities')->returnPDFResponseFromHTML($html,$desc_pdf);
             }
         }
+    }
+
+    public function updateAction(Request $request){
+
+        $em = $this->getDoctrine()->getManager();
+        $user = $this->container->get('security.context')->getToken()->getUser();
+
+        $is_valid = $this->get('app.security')->permissionSeccion('retention_agent');
+        if (!$is_valid) {
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+        }
+
+        if(!$request->get("password")){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                    'La firma es incorrecta'
+            );
+            $route = $this->container->get('router')->generate('nononsense_home_homepage');
+            return $this->redirect($route);
+        }
+
+        $filters=Array();
+        $filters2=Array();
+        $types=array();
+
+        $filters=array_filter($request->query->all());
+        $filters2=array_filter($request->query->all());
+
+        $retention_type = $this->getDoctrine()->getRepository(RCTypes::class)->findOneBy(array("id" => $filters["retention_type"]));
+
+        if($request->get("retentions")){
+            $filters["retentions"]=$request->get("retentions");
+            $filters2["retentions"]=$request->get("retentions");
+        }
+
+        //Ver el parametro action para ver que hay que hacer con uno y otro cuando conteste Rebeca
+
+        if($request->get("retention_type") &&  $request->get("retention_type")=="1"){
+            $class=TMTemplates::class;
+        }
+        else{
+            $class=CVRecords::class;
+        }
+
+        $items = $this->getDoctrine()->getRepository($class)->list("list",$filters);
+        $count = $this->getDoctrine()->getRepository($class)->list("count",$filters2);
+
+        $ids=array();
+        foreach($items as $item){
+            $ids[]=intval($item["id"]);
+        }
+        
+        $records=$this->getDoctrine()->getRepository($class)->findBy(array("id" => $ids));
+        foreach($records as $record){
+            $record->setRetentionOnReview(TRUE);
+            $em->persist($record);
+        }
+
+        
+        $em->flush();
+
+        $this->get('session')->getFlashBag()->add('success', "La acción de retención ha finalizado satisfactoriamente");
+
+        return $this->redirect($this->generateUrl('nononsense_retention_list')."?retention_type=".$request->get("retention_type"));
     }
 }

@@ -614,7 +614,13 @@ nononsense_templates_old_edition_json:
 # Retención
 nononsense_retention_list:
     path: /retentions/
+    methods:    [GET]
     defaults: { _controller: NononsenseHomeBundle:RetentionRecords:list}
+
+nononsense_retention_update:
+    path: /retentions/
+    methods:    [POST]
+    defaults: { _controller: NononsenseHomeBundle:RetentionRecords:update}
 
 nononsense_retention_categories_list:
     path: /retention-categories
