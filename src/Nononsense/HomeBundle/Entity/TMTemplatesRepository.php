@@ -224,7 +224,7 @@ class TMTemplatesRepository extends EntityRepository
                 $rsm->addScalarResult('mostRestrictiveCategory', 'mostRestrictiveCategory');
                 $rsm->addScalarResult('DestructionDate', 'DestructionDate');
                 $rsm->addScalarResult('retentionDate', 'retentionDate');
-                $orderby.=",DestructionDate DESC";
+                $orderby=" ORDER BY DestructionDate DESC";
 
                 if(isset($filters["category"])){
                     $terms = explode(" ", $filters["category"]);

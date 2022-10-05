@@ -140,6 +140,7 @@
                             <th>Fecha retención</th>
                             <th>Acción</th>
                             <th>Audit Trail</th>
+                            <th><input id="record_masive" class="supcheck" type="checkbox"></th>
                         </tr>
                         </thead>
                         {% if items is defined %}
@@ -160,12 +161,23 @@
                                     <td>{{item.stateName}}</td>
                                     <td></td>
                                     <td>{{item.retentionDate is defined and item.retentionDate is not null ? item.retentionDate|date("d/m/Y")|gskdate : ''}}</td>
-                                    <td></td>
+                                    <td>
+                                        <a class="btn btn-xs btn-danger btn-retention" href="javascript:void(0)" data-action="Eliminar" data-info="registro {{item.name}} (ID {{item.id}})"><i class="fa fa-trash" aria-hidden="true"></i> Eliminar</a>
+                                        <a class="btn btn-xs btn-primary btn-retention"  href="javascript:void(0)" data-action="Revisar" data-info="registro {{item.name}} (ID {{item.id}})"><i class="fa fa-check" aria-hidden="true"></i> Revisar</a>
+                                    </td>
                                     <td><a class="btn btn-xs btn-info" href="{{path(audittrail, {'id': item.id})}}" target="_self"><i class="fa fa-book" aria-hidden="true"></i> Audit Trail</a></td>
+                                    <td><input class="checkpem" name="record[]" value="{{item.id}}" type="checkbox"></td>
                                 </tr>
                                 
                             {% endfor %}
                         {% endif %}
+                        <tr>
+                            <th colspan="12">
+                                <a class="btn btn-primary pull-right bnt-separator2 btn-retention" href="javascript:void(0)" data-action="Revisar"><i class="fa fa-check" aria-hidden="true"></i> Revisar</a>
+                                <a class="btn btn-danger pull-right btn-retention" href="javascript:void(0)" data-action="Eliminar"><i class="fa fa-trash" aria-hidden="true"></i> Eliminar</a> 
+                            </th>
+                            <th><input id="record_masive" class="supcheck" type="checkbox"></th>
+                        </tr>
                     </table>
 
                     
@@ -184,13 +196,62 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="modalRetention">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Firmar</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-10 col-lg-offset-1">
+                        Va a efectuar la siguiente acción sobre el listado de registros en retención: 
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <div class="col-lg-10 col-lg-offset-1 error" id="retention_message">
+                         
+                    </div>
+                </div>
+                <br>
+                <div class="row box-text-comment">
+                    <div class="col-lg-10 col-lg-offset-1">
+                        <label for="description_workflow">Comentarios</label>
+                        <br>
+                        <div class="form-group">
+                            <textarea class="form-control text-comment" name="comment" rows="10" cols="40"  style="width:100%" required="required"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-10 col-lg-offset-1">
+                        <div id="signature-pad3" class="input-group">
+                            <label for="firma">Introduzca su firma</label>
+                            <br>
+                            <input type="password" name="password" class="form-control" required="required"><br>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <input type="button" class="btn btn-primary" id="sign_category" value="Firmar">
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 {% block scripts %}
 {{ parent() }}
 <script src="/js/plugins/datapicker/bootstrap-datepicker.js"></script>
 <script src="/js/plugins/datapicker/locales/bootstrap-datepicker.es.js" charset="UTF-8"></script>
 <script>
-  $(function () {
+  $( document ).ready(function() {
     $('.from').datepicker({
       autoclose: true,
       orientation: 'bottom auto',
@@ -222,6 +283,45 @@
     {% endif %}
     
     $('#side-menu').metisMenu();
+
+    $('.supcheck').change(function() {
+        if($(this).is(":checked")) {state=true;}else{state=false;}
+        $(":checkbox").prop('checked', state);        
+    });
+
+    $('.checkpem').change(function() {
+      check_superiores();
+    });
+
+    $(document).on('click','.btn-retention',function(e){
+        title=$('[name="retention_type"] option:selected').text()+" - "+$(this).data("action")+" ";
+        if($(this).data("info")){
+            title+=$(this).data("info");
+        }
+        else{
+            if($('.checkpem:checked').length>0){
+                count=$('.checkpem:checked').length;
+            }
+            else{
+                count={{count}};
+            }
+
+            title+=count+" registros";
+        }
+        $("#retention_message").html(title);
+        $("#modalRetention").modal('show');
+    });
   });
+
+  function check_superiores(){
+    $( ".supcheck" ).each(function() {
+      if($(".checkpem").is(":not(:checked)")){
+        $(this).prop('checked', false);  
+      }
+      else{
+        $(this).prop('checked', true); 
+      }
+    });
+  }
 </script>
 {% endblock %}
