@@ -5,7 +5,7 @@ namespace Nononsense\HomeBundle\Controller;
 use DateTime;
 use Exception;
 use Nononsense\GroupBundle\Entity\Groups;
-use Nononsense\HomeBundle\Entity\RCSignatures;
+use Nononsense\HomeBundle\Entity\RetentionSignatures;
 use Nononsense\HomeBundle\Entity\RCStates;
 use Nononsense\HomeBundle\Entity\RCTypes;
 use Nononsense\HomeBundle\Entity\RetentionCategories;
@@ -103,7 +103,7 @@ class RetentionCategoriesController extends Controller
                 $retentionCategory->setDeletedAt(new DateTime());
                 $em->persist($retentionCategory);
                 $em->flush();
-                $this->saveLog('delete', $request->get('comment'), $request->get('signature'), $retentionCategory);
+                $this->get('utilities')->saveLogRetention($this->getUser(),1,$request->get('comment'),"category",$retentionCategory->getId());
                 $em->getConnection()->commit();
                 $this->get('session')->getFlashBag()->add('message', "La categoría se ha eliminado correctamente");
             } else {
@@ -174,7 +174,7 @@ class RetentionCategoriesController extends Controller
 
             $em->persist($category);
             $em->flush();
-            $this->saveLog($action, $comment, $request->get('signature'), $category);
+            $this->get('utilities')->saveLogRetention($this->getUser(),2,$comment,"category",$category->getId());
             $em->getConnection()->commit();
             $this->get('session')->getFlashBag()->add(
                 'message',
@@ -189,31 +189,5 @@ class RetentionCategoriesController extends Controller
             );
         }
         return $saved;
-    }
-
-    /**
-     * @param string $comment
-     * @param string $signature
-     * @param RetentionCategories $retentionCategory
-     * @param string $action
-     * @return bool
-     * @throws Exception
-     */
-    private function saveLog(string $action, string $comment, string $signature, RetentionCategories $retentionCategory)
-    {
-        $em = $this->getDoctrine()->getManager();
-        if (!$signature) {
-            throw new Exception('Para realizar una acción tienes que escribir un comentario y firmar.');
-        }
-
-        $signatureLog = new RCSignatures();
-        $signatureLog->setAction($action)
-            ->setDescription($comment)
-            ->setRetentionCategory($retentionCategory)
-            ->setSignature($signature)
-            ->setUserEntiy($this->getUser());
-        $em->persist($signatureLog);
-        $em->flush();
-        return true;
     }
 }

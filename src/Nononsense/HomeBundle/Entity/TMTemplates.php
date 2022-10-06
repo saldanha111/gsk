@@ -1594,4 +1594,5 @@ class TMTemplates
     {
         return $this->retentionRemovedAt;
     }
+
 }

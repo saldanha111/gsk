@@ -6,11 +6,11 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="rc_signatures")
- * @ORM\Entity(repositoryClass="Nononsense\HomeBundle\Entity\RCSignaturesRepository")
+ * @ORM\Table(name="retention_signatures")
+ * @ORM\Entity(repositoryClass="Nononsense\HomeBundle\Entity\RetentionSignaturesRepository")
  * @ORM\HasLifecycleCallbacks
  */
-class RCSignatures
+class RetentionSignatures
 {
     /**
      * @ORM\Column(type="integer")
@@ -20,18 +20,33 @@ class RCSignatures
     protected $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\RetentionCategories", inversedBy="rcSignatures")
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\RetentionActions", inversedBy="retentionSignatures")
+     * @ORM\JoinColumn(name="action_id", referencedColumnName="id")
+     */
+    protected $retentionAction;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\RetentionCategories", inversedBy="retentionSignatures")
      * @ORM\JoinColumn(name="rc_id", referencedColumnName="id")
      */
     protected $retentionCategory;
 
     /**
-     * @ORM\Column(name="action", type="string", length=255)
+     * @var integer
+     *
+     * @ORM\Column(name="template_id", type="integer", nullable=true)
      */
-    protected $action;
+    protected $retentionTemplate;
 
     /**
-     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="rcSignatures")
+     * @var integer
+     *
+     * @ORM\Column(name="record_id", type="integer", nullable=true)
+     */
+    protected $retentionRecord;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="retentionSignatures")
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
      */
     protected $userEntiy;
@@ -44,13 +59,6 @@ class RCSignatures
     protected $description;
 
     /**
-     * @var string
-     *
-     * @ORM\Column(name="signature", type="text")
-     */
-    protected $signature;
-
-    /**
      * @ORM\Column(type="datetime")
      */
     protected $modified;
@@ -59,7 +67,6 @@ class RCSignatures
     {
         $this->modified = new DateTime();
     }
-
 
     /**
      * Get id
@@ -72,33 +79,10 @@ class RCSignatures
     }
 
     /**
-     * Set action
-     *
-     * @param string $action
-     * @return RCSignatures
-     */
-    public function setAction($action)
-    {
-        $this->action = $action;
-
-        return $this;
-    }
-
-    /**
-     * Get action
-     *
-     * @return string 
-     */
-    public function getAction()
-    {
-        return $this->action;
-    }
-
-    /**
      * Set description
      *
      * @param string $description
-     * @return RCSignatures
+     * @return RetentionSignatures
      */
     public function setDescription($description)
     {
@@ -118,33 +102,10 @@ class RCSignatures
     }
 
     /**
-     * Set signature
-     *
-     * @param string $signature
-     * @return RCSignatures
-     */
-    public function setSignature($signature)
-    {
-        $this->signature = $signature;
-
-        return $this;
-    }
-
-    /**
-     * Get signature
-     *
-     * @return string 
-     */
-    public function getSignature()
-    {
-        return $this->signature;
-    }
-
-    /**
      * Set modified
      *
      * @param \DateTime $modified
-     * @return RCSignatures
+     * @return RetentionSignatures
      */
     public function setModified($modified)
     {
@@ -167,7 +128,7 @@ class RCSignatures
      * Set retentionCategory
      *
      * @param \Nononsense\HomeBundle\Entity\RetentionCategories $retentionCategory
-     * @return RCSignatures
+     * @return RetentionSignatures
      */
     public function setRetentionCategory(\Nononsense\HomeBundle\Entity\RetentionCategories $retentionCategory = null)
     {
@@ -190,7 +151,7 @@ class RCSignatures
      * Set userEntiy
      *
      * @param \Nononsense\UserBundle\Entity\Users $userEntiy
-     * @return RCSignatures
+     * @return RetentionSignatures
      */
     public function setUserEntiy(\Nononsense\UserBundle\Entity\Users $userEntiy = null)
     {
@@ -207,5 +168,74 @@ class RCSignatures
     public function getUserEntiy()
     {
         return $this->userEntiy;
+    }
+
+    /**
+     * Set retentionAction
+     *
+     * @param \Nononsense\HomeBundle\Entity\RetentionActions $retentionAction
+     * @return RetentionSignatures
+     */
+    public function setRetentionAction(\Nononsense\HomeBundle\Entity\RetentionActions $retentionAction = null)
+    {
+        $this->retentionAction = $retentionAction;
+
+        return $this;
+    }
+
+    /**
+     * Get retentionAction
+     *
+     * @return \Nononsense\HomeBundle\Entity\RetentionActions 
+     */
+    public function getRetentionAction()
+    {
+        return $this->retentionAction;
+    }
+
+    /**
+     * Set retentionTemplate
+     *
+     * @param integer $retentionTemplate
+     * @return RetentionSignatures
+     */
+    public function setRetentionTemplate($retentionTemplate)
+    {
+        $this->retentionTemplate = $retentionTemplate;
+
+        return $this;
+    }
+
+    /**
+     * Get retentionTemplate
+     *
+     * @return integer 
+     */
+    public function getRetentionTemplate()
+    {
+        return $this->retentionTemplate;
+    }
+
+    /**
+     * Set retentionRecord
+     *
+     * @param integer $retentionRecord
+     * @return RetentionSignatures
+     */
+    public function setRetentionRecord($retentionRecord)
+    {
+        $this->retentionRecord = $retentionRecord;
+
+        return $this;
+    }
+
+    /**
+     * Get retentionRecord
+     *
+     * @return integer 
+     */
+    public function getRetentionRecord()
+    {
+        return $this->retentionRecord;
     }
 }

@@ -11,6 +11,11 @@ use Nononsense\HomeBundle\Entity\Tokens;
 use Nononsense\HomeBundle\Entity\CVRecordsHistory;
 use Nononsense\HomeBundle\Entity\TMCumplimentations;
 use Nononsense\UserBundle\Entity\Users;
+use Nononsense\HomeBundle\Entity\RetentionCategories;
+use Nononsense\HomeBundle\Entity\RetentionActions;
+use Nononsense\HomeBundle\Entity\CVRecords;
+use Nononsense\HomeBundle\Entity\TMTemplates;
+use Nononsense\HomeBundle\Entity\RetentionSignatures;
 use Nononsense\NotificationsBundle\Entity\NotificationsModels;
 use Nononsense\NotificationsBundle\Entity\Notifications;
 use Nononsense\GroupBundle\Entity\GroupUsers;
@@ -633,5 +638,32 @@ class Utilities{
         }
 
         return $users;
+    }
+
+
+    public function saveLogRetention(Users $user, int $action, string $comment, string $type, int $id)
+    {
+        $action=$this->em->getRepository('NononsenseHomeBundle:RetentionActions')->findOneBy(array('id' => $action));
+
+        $signatureLog = new RetentionSignatures();
+        $signatureLog->setRetentionAction($action)
+            ->setDescription($comment)
+            ->setUserEntiy($user);
+
+        switch($type){
+            case "category":
+                $category=$this->em->getRepository('NononsenseHomeBundle:RetentionCategories')->findOneBy(array('id' => $id));
+                $signatureLog->setRetentionCategory($category);
+                break;
+            case "template":
+                $signatureLog->setRetentionTemplate($id);
+                break;
+            case "record":
+                $signatureLog->setRetentionRecord($id);
+                break;
+        }
+        $this->em->persist($signatureLog);
+        $this->em->flush();
+        return true;
     }
 }

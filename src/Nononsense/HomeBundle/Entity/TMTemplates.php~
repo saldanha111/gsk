@@ -1548,4 +1548,51 @@ class TMTemplates
         return $this->notificationsModels;
     }
 
+
+    /**
+     * Set retentionOnReview
+     *
+     * @param boolean $retentionOnReview
+     * @return TMTemplates
+     */
+    public function setRetentionOnReview($retentionOnReview)
+    {
+        $this->retentionOnReview = $retentionOnReview;
+
+        return $this;
+    }
+
+    /**
+     * Get retentionOnReview
+     *
+     * @return boolean 
+     */
+    public function getRetentionOnReview()
+    {
+        return $this->retentionOnReview;
+    }
+
+    /**
+     * Set retentionRemovedAt
+     *
+     * @param \DateTime $retentionRemovedAt
+     * @return TMTemplates
+     */
+    public function setRetentionRemovedAt($retentionRemovedAt)
+    {
+        $this->retentionRemovedAt = $retentionRemovedAt;
+
+        return $this;
+    }
+
+    /**
+     * Get retentionRemovedAt
+     *
+     * @return \DateTime 
+     */
+    public function getRetentionRemovedAt()
+    {
+        return $this->retentionRemovedAt;
+    }
+
 }

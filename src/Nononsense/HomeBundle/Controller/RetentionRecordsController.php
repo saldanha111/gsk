@@ -5,7 +5,7 @@ namespace Nononsense\HomeBundle\Controller;
 use DateTime;
 use Exception;
 use Nononsense\GroupBundle\Entity\Groups;
-use Nononsense\HomeBundle\Entity\RCSignatures;
+use Nononsense\HomeBundle\Entity\RetentionSignatures;
 use Nononsense\HomeBundle\Entity\RCStates;
 use Nononsense\HomeBundle\Entity\RCTypes;
 use Nononsense\HomeBundle\Entity\RetentionCategories;

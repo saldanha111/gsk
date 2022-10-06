@@ -1,0 +1,108 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}Docoaro - GSK | {{'Homepage'|trans}} {% endblock %}
+{% block head %}
+{{ parent() }}
+<link rel="stylesheet" href="/css/plugins/datapicker/datepicker3.css">
+{% endblock %}
+{% block main_title %} Audittrail retentions{% endblock %}
+{% block content %}
+
+<div class="wrapper wrapper-content">
+    <div class="row">
+        <div class="col-sm-12">
+            <div>
+                <div class="row">
+                    <form class="form-horizontal" id="form_item" action="{{ path('nononsense_retention_log')}}" method="GET">
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label item_filter">ID</label>
+                            <div class="col-sm-2 item_filter">
+                                <input type="number" name="id" class="form-control" value="{{filters.id is defined ? filters.id : ''}}">
+                            </div>
+                            <label class="col-sm-1 control-label item_filter">Tipo</label>
+                            <div class="col-sm-2 item_filter">
+                                <select class="form-control" name="type" style="width: 100%;">
+                                    <option value=""></option>
+                                    <option value="template" {{filters.type is defined and filters.type=="template" ? 'selected="selected"'}}>Gestión Plantillas</option>
+                                    <option value="record" {{filters.type is defined and filters.type=="record" ? 'selected="selected"'}}>Cumplimentación</option>
+                                    <option value="category" {{filters.type is defined and filters.type=="category" ? 'selected="selected"'}}>Categoría retención</option>
+                                </select>
+                            </div>
+                            <label class="col-sm-1 control-label">Acción</label>
+                            <div class="col-sm-2 item_filter">
+                                <select class="form-control" name="action" style="width: 100%;">
+                                    <option value=""></option>
+                                    {% for action in actions %}
+                                        <option value="{{action.id}}" {{filters.action is defined and filters.action==action.id ? 'selected="selected"'}}>{{action.name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-sm-1 item_filter">
+                                <button type="submit" class="btn btn-primary pull-right">Filtrar</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="row">
+                    <table id="inProcessParcial" class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Tipo</th>
+                            <th>ID</th>
+                            <th>Ácción</th>
+                            <th>Comentario</th>
+                        </tr>
+                        </thead>
+                        {% if items is defined %}
+                            {% for item in items %}
+                            <tr>
+                                <td>{{ item.modified is defined and item.modified is not empty ? item.modified|date("d/m/Y H:i:s")|gskdate : '' }}</td>
+                                <td>
+                                    {% if item.template is not empty %}
+                                        Plantilla
+                                    {% elseif item.record is not empty %}
+                                        Cumplimentación
+                                    {% else %} 
+                                        Categoría retención
+                                    {% endif %} 
+                                </td>
+                                <td>
+                                    {% if item.template is not empty %}
+                                        {{ item.template }}
+                                    {% elseif item.record is not empty %}
+                                        {{ item.record }}
+                                    {% else %} 
+                                        {{ item.category }}
+                                    {% endif %} 
+                                </td>
+                                <td>{{item.action}}</td>
+                                <td>{{item.description}}</td>
+                            </tr>
+                            {% endfor %}
+                        {% endif %}
+                    </table>
+
+                    {% if count==0 %}
+                        <br><b>No se han encontrado datos disponibles</b>
+                    {% endif %}
+                    {% if pagination is defined and pagination.needed %}
+                        {% include '::pagination2.html.twig' %}
+                    {% endif %}
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+{{ parent() }}
+<script>
+  $(function () {
+
+    ActivateMenu('retention_log');
+    $('#side-menu').metisMenu();
+  });
+</script>
+{% endblock %}
+                        

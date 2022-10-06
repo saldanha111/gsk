@@ -103,9 +103,9 @@ class RetentionCategories
     protected $deletedAt;
 
     /**
-     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\RCSignatures", mappedBy="retentionCategory")
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\RetentionSignatures", mappedBy="retentionCategory")
      */
-    protected $rcSignatures;
+    protected $retentionSignatures;
 
     /**
      * Constructor
@@ -446,35 +446,35 @@ class RetentionCategories
     }
 
     /**
-     * Add rcSignatures
+     * Add retentionSignatures
      *
-     * @param \Nononsense\HomeBundle\Entity\RCSignatures $rcSignatures
+     * @param \Nononsense\HomeBundle\Entity\RetentionSignatures $retentionSignatures
      * @return RetentionCategories
      */
-    public function addRcSignature(\Nononsense\HomeBundle\Entity\RCSignatures $rcSignatures)
+    public function addRetentionSignature(\Nononsense\HomeBundle\Entity\RetentionSignatures $retentionSignatures)
     {
-        $this->rcSignatures[] = $rcSignatures;
+        $this->retentionSignatures[] = $retentionSignatures;
 
         return $this;
     }
 
     /**
-     * Remove rcSignatures
+     * Remove retentionSignatures
      *
-     * @param \Nononsense\HomeBundle\Entity\RCSignatures $rcSignatures
+     * @param \Nononsense\HomeBundle\Entity\RetentionSignatures $retentionSignatures
      */
-    public function removeRcSignature(\Nononsense\HomeBundle\Entity\RCSignatures $rcSignatures)
+    public function removeRetentionSignature(\Nononsense\HomeBundle\Entity\RetentionSignatures $retentionSignatures)
     {
-        $this->rcSignatures->removeElement($rcSignatures);
+        $this->retentionSignatures->removeElement($retentionSignatures);
     }
 
     /**
-     * Get rcSignatures
+     * Get retentionSignatures
      *
      * @return \Doctrine\Common\Collections\Collection 
      */
-    public function getRcSignatures()
+    public function getRetentionSignatures()
     {
-        return $this->rcSignatures;
+        return $this->retentionSignatures;
     }
 }

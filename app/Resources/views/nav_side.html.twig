@@ -156,6 +156,14 @@
                                 </a>
                             </li>
                         {% endif %}
+                        {% if 'retention_admin' in array_subsecciones %}
+                            <li id="retention_log">
+                                <a href="{{path('nononsense_retention_log')}}">
+                                    <i class="fa fa-book" aria-hidden="true"></i>
+                                    <span class="nav-label"> Audittrail</span>
+                                </a>
+                            </li>
+                        {% endif %}
                     </ul>
                 </li>
             {% endif %}
