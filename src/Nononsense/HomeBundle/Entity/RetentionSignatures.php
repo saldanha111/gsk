@@ -63,6 +63,13 @@ class RetentionSignatures
      */
     protected $modified;
 
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="group_id", type="string", length=90, nullable=true)
+     */
+    protected $groupId;
+
     public function __construct()
     {
         $this->modified = new DateTime();
@@ -237,5 +244,28 @@ class RetentionSignatures
     public function getRetentionRecord()
     {
         return $this->retentionRecord;
+    }
+
+    /**
+     * Set groupId
+     *
+     * @param string $groupId
+     * @return RetentionSignatures
+     */
+    public function setGroupId($groupId)
+    {
+        $this->groupId = $groupId;
+
+        return $this;
+    }
+
+    /**
+     * Get groupId
+     *
+     * @return string 
+     */
+    public function getGroupId()
+    {
+        return $this->groupId;
     }
 }
