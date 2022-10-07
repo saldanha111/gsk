@@ -25,7 +25,6 @@ class GroupRetentionsCommand extends ContainerAwareCommand
 		$retentions = $this->getPendingRetentions();
 
 		$em2 = $this->getContainer()->get('doctrine')->getManager();
-
 		if ($retentions) {
 			
 			$url 	= $this->getContainer()->getParameter('api3.url').'/hash';
@@ -35,7 +34,8 @@ class GroupRetentionsCommand extends ContainerAwareCommand
 			            font-size: 10px;
 			        }
         </style><table style='font-size:11px'><tr><th>Fecha</th><th>Tipo</th><th>ID</th><th>Ácción</th><th>Comentario</th></tr>";
-			$group=uniqid();
+        	
+			$group=$this->getNewGroupId();
 			foreach ($retentions as $key => $retention) {
 				if($retention->getRetentionTemplate()){
 					$type="Plantilla";
@@ -82,13 +82,31 @@ class GroupRetentionsCommand extends ContainerAwareCommand
 
 		$em2 = $this->getContainer()->get('doctrine')->getManager();
 
-	    $qb 			= $em2->createQueryBuilder();
+	    $qb = $em2->createQueryBuilder();
 	    $retentions = $qb->select('rts')
-	    					->from('NononsenseHomeBundle:RetentionSignatures', 'rts')
-	    					->where('rts.groupId is NULL')
-	    					->getQuery()
-	    					->getResult();
+			->from('NononsenseHomeBundle:RetentionSignatures', 'rts')
+			->where('rts.groupId is NULL')
+			->getQuery()
+			->getResult();
 
 		return $retentions;
+	}
+
+	protected function getNewGroupId(){
+
+		$em2 = $this->getContainer()->get('doctrine')->getManager();
+
+	    $qb = $em2->createQueryBuilder('rts');
+	    $qb->select('MAX(rts.groupId) AS maxGroupId');
+	    $qb->from('NononsenseHomeBundle:RetentionSignatures', 'rts');
+	    $max=$qb->getQuery()->getSingleScalarResult();
+	    if(!$max){
+	    	$return=1;
+	    }
+	    else{
+	    	$return=$qb->getQuery()->getSingleScalarResult()+1;
+	    }
+
+    	return $return;
 	}
 }
