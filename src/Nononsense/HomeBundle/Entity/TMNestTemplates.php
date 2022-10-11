@@ -23,7 +23,7 @@ class TMNestTemplates
     protected $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\TMTemplates", inversedBy="tmNestTemplates")
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\TMTemplates", inversedBy="tmNestMasterTemplates")
      * @ORM\JoinColumn(name="template_id", referencedColumnName="id")
      */
     protected $template;
@@ -57,6 +57,7 @@ class TMNestTemplates
     {
         return $this->id;
     }
+
 
     /**
      * Set nestNumber

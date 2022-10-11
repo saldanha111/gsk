@@ -583,39 +583,6 @@ class TMTemplates
     }
 
     /**
-     * Add tmSignatures
-     *
-     * @param \Nononsense\HomeBundle\Entity\TMSignatures $tmSignatures
-     * @return TMTemplates
-     */
-    public function addTmSignature(\Nononsense\HomeBundle\Entity\TMSignatures $tmSignatures)
-    {
-        $this->tmSignatures[] = $tmSignatures;
-
-        return $this;
-    }
-
-    /**
-     * Remove tmSignatures
-     *
-     * @param \Nononsense\HomeBundle\Entity\TMSignatures $tmSignatures
-     */
-    public function removeTmSignature(\Nononsense\HomeBundle\Entity\TMSignatures $tmSignatures)
-    {
-        $this->tmSignatures->removeElement($tmSignatures);
-    }
-
-    /**
-     * Get tmSignatures
-     *
-     * @return \Doctrine\Common\Collections\Collection 
-     */
-    public function getTmSignatures()
-    {
-        return $this->tmSignatures;
-    }
-
-    /**
      * Set tmState
      *
      * @param \Nononsense\HomeBundle\Entity\TMStates $tmState
@@ -1595,4 +1562,37 @@ class TMTemplates
         return $this->retentionRemovedAt;
     }
 
+
+    /**
+     * Add tmSignatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMSignatures $tmSignatures
+     * @return TMTemplates
+     */
+    public function addTmSignature(\Nononsense\HomeBundle\Entity\TMSignatures $tmSignatures)
+    {
+        $this->tmSignatures[] = $tmSignatures;
+
+        return $this;
+    }
+
+    /**
+     * Remove tmSignatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMSignatures $tmSignatures
+     */
+    public function removeTmSignature(\Nononsense\HomeBundle\Entity\TMSignatures $tmSignatures)
+    {
+        $this->tmSignatures->removeElement($tmSignatures);
+    }
+
+    /**
+     * Get tmSignatures
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getTmSignatures()
+    {
+        return $this->tmSignatures;
+    }
 }
