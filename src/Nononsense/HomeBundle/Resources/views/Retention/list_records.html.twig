@@ -148,14 +148,18 @@
                             {% for item in items %}
                                 {% if filters.retention_type=="1" %}
                                     {% set audittrail = 'nononsense_tm_template_audit_trail' %}
+                                    {% set template = item.id %}
+                                    {% set type = 'template' %}
                                 {% else %}
                                     {% set audittrail = 'nononsense_cv_record_audittrail' %}
+                                    {% set template = templateId %}
+                                    {% set type = 'record' %}
                                 {% endif %}
                                 <tr>
                                     <td>{{item.id}}</td>
                                     <td>{{item.DestructionDate is defined and item.DestructionDate is not null ? item.DestructionDate|date("d/m/Y")|gskdate : ''}}</td>
                                     <td>{{item.mostRestrictiveCategory}}</td>
-                                    <td>{{item.name}}</td>
+                                    <td><a href="{{ path("nononsense_retention_edit", {'id' : template,'type' : type}) }}">{{item.name}}</a></td>
                                     <td>{{item.number}}</td>
                                     <td>{{item.numEdition}}</td>
                                     <td>{{item.nameArea}}</td>

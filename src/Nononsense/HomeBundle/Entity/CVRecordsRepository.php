@@ -522,7 +522,7 @@ class CVRecordsRepository extends EntityRepository
 
 
 
-        $sintax = " FROM cv_records cv LEFT JOIN tm_templates t ON cv.template_id=t.id LEFT JOIN areas a ON t.area_id=a.id LEFT JOIN cv_states s ON cv.state_id=s.id ".$tables_extra.$sintax;
+        $sintax = " FROM cv_records cv LEFT JOIN tm_templates t ON cv.template_id=t.id LEFT JOIN areas a ON t.area_id=a.id LEFT JOIN cv_states s ON cv.state_id=s.id LEFT JOIN users uo ON t.owner_id=uo.id LEFT JOIN users ub ON t.backup_id=ub.id ".$tables_extra.$sintax;
 
         switch($type){
             case "list": 
@@ -535,17 +535,21 @@ class CVRecordsRepository extends EntityRepository
                     $limit=" OFFSET 0 ROWS FETCH NEXT 999999999 ROWS ONLY";
                 }
                 
-                $query = $em->createNativeQuery("SELECT cv.id,t.name,a.name nameArea,t.number,t.num_edition numEdition,s.name stateName".$fields_extra.$sintax." ".$orderby.$limit,$rsm);
+                $query = $em->createNativeQuery("SELECT cv.id,t.name,a.name nameArea,t.number,t.num_edition numEdition,s.name stateName,t.id templateId,uo.name ownerName,ub.name backupName,t.effectiveDate".$fields_extra.$sintax." ".$orderby.$limit,$rsm);
 
 
 
                 $rsm->addScalarResult('id', 'id');
                 $rsm->addScalarResult('name', 'name');
+                $rsm->addScalarResult('templateId', 'templateId');
                 $rsm->addScalarResult('nameArea', 'nameArea');
                 $rsm->addScalarResult('number', 'number');
                 $rsm->addScalarResult('numEdition', 'numEdition');
                 $rsm->addScalarResult('reviewDateRetention', 'reviewDateRetention');
                 $rsm->addScalarResult('stateName', 'stateName');
+                $rsm->addScalarResult('ownerName', 'ownerName');
+                $rsm->addScalarResult('backupName', 'backupName');
+                $rsm->addScalarResult('effectiveDate', 'effectiveDate');
 
                 if(!empty($parameters)){
                     $query->setParameters($parameters);

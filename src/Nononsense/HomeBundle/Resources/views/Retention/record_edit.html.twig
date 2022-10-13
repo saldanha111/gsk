@@ -1,0 +1,253 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}Docoaro - GSK | Edición retención {% endblock %}
+{% block head %}
+{{ parent() }}
+<link rel="stylesheet" href="/css/plugins/datapicker/datepicker3.css">
+<link rel="stylesheet" href="{{ asset('/js/plugins/sweetalert/sweetalert.min.css') }}">
+{% endblock %}
+{% block main_title %} Edición retención {{desc_type}}{% endblock %}
+{% block content %}
+
+<div class="wrapper wrapper-content">
+    {% for flashMessage in app.session.flashbag.get('error') %}
+    <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+        <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+        {{ flashMessage }}
+    </div><br>
+    {% endfor %}
+    {% for flashMessage in app.session.flashbag.get('success') %}
+    <div class="alert alert-success alert-dismissable" style="margin: 10px 16px 0 16px">
+        <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+        {{ flashMessage }}
+    </div><br>
+    {% endfor %}
+    <div class="row">
+        <div class="col-sm-12">
+            <div>
+                <div class="row">
+                    <table id="inProcessParcial" class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Fecha destrucción</th>
+                            <th>Categoría retención</th>
+                            <th>Título</th>
+                            <th>Código</th>
+                            <th>Edición</th>
+                            <th>Área</th>
+                            <th>Estado</th>
+                            <th>Representante</th>
+                            <th>Fecha retención</th>
+                            <th>Dueño</th>
+                            <th>Backup</th>
+                            <th>Fecha efectiva</th>
+                            <th>Audit Trail</th>
+                            <th>Imprimir</th>
+                            <th>Destruir</th>
+                            <th>Revisado, no destruir</th>
+                        </tr>
+                        </thead>
+                            <tr>
+                                {% if type=="template" %}
+                                    {% set audittrail = 'nononsense_tm_template_audit_trail' %}
+                                    {% set print = 'nononsense_tm_template_cover_page' %}
+                                    {% set template = item.id %}
+                                    {% set type = 'template' %}
+                                {% else %}
+                                    {% set audittrail = 'nononsense_cv_record_audittrail' %}
+                                    {% set print = 'nononsense_cv_docoaro_new' %}
+                                    {% set template = templateId %}
+                                    {% set type = 'record' %}
+                                {% endif %}
+                                <td>{{item.id}}</td>
+                                <td class="destruction-record">{{item.DestructionDate is defined and item.DestructionDate is not null ? item.DestructionDate|date("d/m/Y")|gskdate : ''}}</td>
+                                <td>{{item.mostRestrictiveCategory}}</td>
+                                <td>{{item.name}}</td>
+                                <td>{{item.number}}</td>
+                                <td>{{item.numEdition}}</td>
+                                <td>{{item.nameArea}}</td>
+                                <td>{{item.stateName}}</td>
+                                <td></td>
+                                <td>{{item.retentionDate is defined and item.retentionDate is not null ? item.retentionDate|date("d/m/Y")|gskdate : ''}}</td>
+                                <td>{{item.ownerName}}</td>
+                                <td>{{item.backupName}}</td>
+                                <td>{{item.effectiveDate is defined and item.effectiveDate is not null ? item.effectiveDate|date("d/m/Y")|gskdate : ''}}</td>
+                                <td><a class="btn btn-xs btn-info" href="{{path(audittrail, {'id': item.id})}}" target="_self"><i class="fa fa-book" aria-hidden="true"></i> Audit Trail</a></td>
+                                <td><a class="btn btn-xs btn-danger" href="{{path(print, {'id': item.id})}}" target="_self"><i class="fa fa-print" aria-hidden="true"></i> Imprimir</a></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                    </table>
+
+                    <table id="inProcessParcial" class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th></th>
+                            <th>ID</th>
+                            <th>Categoría</th>
+                            <th>Estado</th>
+                            <th>Inicio Retención</th>
+                            <th>Fecha destrucción</th>
+                        </tr>
+                        </thead>
+
+
+                            {% if categories is defined %}
+                                {% for category in categories %}
+                                    {% set checked = "" %}
+                                    {% for tempaux in category.templates if checked=="" %}
+                                        {% if tempaux.id == template %}
+                                            {% set checked = "checked='checked" %}   
+                                        {% endif %}
+                                    {% endfor %}
+                                    
+                                    {% if state in category.documentState.relationalId %}
+                                        {% set retentionDate = item.retentionDate|date("d/m/Y")|gskdate %}
+                                        {% set destructionDate = item.retentionDate|date_modify("+"~category.retentionDays~" day")|date("d/m/Y")|gskdate %}
+                                        {% set destructionDate2 = item.retentionDate|date_modify("+"~category.retentionDays~" day")|date("Y-m-d") %}
+                                    {% else %}
+                                        {% set retentionDate = "" %}
+                                        {% set destructionDate = "" %}
+                                        {% set destructionDate2 = "" %}
+                                    {% endif %}    
+                                    {% if (category.active and category.deletedAt is empty) or checked!=""  %}
+                                        <tr>
+                                            <td><input class="checkcategories" name="categories[]" value="{{category.id}}" type="checkbox" {{checked}}></td>
+                                            <td>{{category.id}}</td>
+                                            <td>{{category.name}}</td>
+                                            <td>{{category.documentState.name}}</td>
+                                            <td>{{retentionDate}}</td>
+                                            <td class="destructionDate" data-destruction_date="{{destructionDate2}}">{{destructionDate}}</td>
+                                        </tr>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                    </table>
+
+                    <a class="btn btn-primary pull-right btn-retention" href="javascript:void(0)"><i class="fa fa-save" aria-hidden="true"></i> Guardar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="modalRetention">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form class="form-horizontal" id="formModalRetention" action="" method="POST">
+                <div class="modal-header">
+                    <h5 class="modal-title">Firmar</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-10 col-lg-offset-1">
+                            Va a cambiar las categorías asociadas a este {{desc_type}}
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row box-text-comment">
+                        <div class="col-lg-10 col-lg-offset-1">
+                            <label for="description_workflow">Comentarios</label>
+                            <br>
+                            <div class="form-group">
+                                <textarea class="form-control text-comment" name="comment" rows="10" cols="40" id="modal_comment"  style="width:100%" required="required"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-10 col-lg-offset-1">
+                            <div id="signature-pad3" class="input-group">
+                                <label for="firma">Introduzca su firma</label>
+                                <br>
+                                <input type="password" name="password" id="modal_password" class="form-control" required="required"><br>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="dynamic_retention_categories" style="display:none">
+
+                </div>
+                <div class="modal-footer">
+                    <input type="button" class="btn btn-primary" id="sign_modal_retention" value="Firmar">
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+{{ parent() }}
+<script src="/js/plugins/datapicker/bootstrap-datepicker.js"></script>
+<script src="/js/plugins/datapicker/locales/bootstrap-datepicker.es.js" charset="UTF-8"></script>
+<script src="{{ asset('js/plugins/sweetalert/sweetalert.min.js') }}"></script>
+<script>
+  $( document ).ready(function() {
+
+    $(document).on('click','.btn-retention',function(e){
+        $("#modalRetention").modal('show');
+    });
+
+    $(document).on('change','.checkcategories',function(e){
+        var maxRetentionDate="";
+        $(".checkcategories:checked").each(function() {
+            retentionCategory=$(this).closest("tr").find(".destructionDate").data("destruction_date");
+            console.log(retentionCategory);
+            if(retentionCategory>=maxRetentionDate){
+                maxRetentionDate=retentionCategory;
+                $(".destruction-record").html($(this).closest("tr").find(".destructionDate").html());
+            }
+        });
+    });
+
+    $(document).on('click','#sign_modal_retention',function(e){
+        if ($('#modal_comment').is(":visible") && !$('#modal_comment').val()){
+            swal({
+                title: "Atención",
+                text: "La descripcion es obligatoria",
+                type: "warning"
+            });
+            return false;
+        }
+
+        if (!$("#modal_password").val()){
+            swal({
+                title: "Atención",
+                text: "La firma es obligatoria",
+                type: "warning"
+            });
+            return false;
+        }
+
+        if (!gpassword_valid($("#modal_password").val())){
+            swal({
+                title: "Atención",
+                text: "La firma no es correcta",
+                type: "warning"
+            });
+            return false;
+        }
+
+        $('#dynamic_retention_categories').find(".checkcategories").each(function() {
+            $(this).remove();
+        });
+
+
+        if($('.checkcategories:checked').length>0){
+            console.log($(this).closest("tr").find(".destructionDate").html());
+            $(".checkcategories:checked").each(function() {
+                $('#dynamic_retention_categories').append($(this).clone());
+            });
+        }
+    
+        $("#formModalRetention").submit();
+
+    });
+  });
+
+</script>
+{% endblock %}

@@ -250,4 +250,48 @@ class RetentionRecordsController extends Controller
 
         return $this->redirect($this->generateUrl('nononsense_retention_list')."?retention_type=".$request->get("retention_type"));
     }
+
+    public function editAction(Request $request, $type, $id)
+    {
+        $is_valid = $this->get('app.security')->permissionSeccion('retention_agent');
+        if (!$is_valid) {
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                    'Debe tener permisos como representante de retención'
+            );
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+        }
+
+        switch($type){
+            case "template": $class=TMTemplates::class;$desc_type="plantilla";break;
+            case "record": $class=CVRecords::class;$desc_type="registro";break;
+            default: $this->get('session')->getFlashBag()->add(
+                        'error',
+                            'Error al intentar editar el registro'
+                    );
+                    return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+        }
+
+
+        $em = $this->getDoctrine()->getManager();
+        $item = $this->getDoctrine()->getRepository($class)->list("list",array("id" => $id, "retention_type" => 1))[0];
+        $retentionCategories = $em->getRepository(retentionCategories::class)->findAll();
+
+        /*$states = $em->getRepository(RCStates::class)->findAll();
+        $types = $em->getRepository(RCTypes::class)->findAll();
+        $users = $em->getRepository(Users::class)->listUsersByPermission("retention_agent");
+        $groups = $em->getRepository(Groups::class)->listGroupsByPermission("retention_agent");
+        $used = (count($category->getTemplates()) > 1);*/
+
+        $data = [
+            'item' => $item,
+            'desc_type' => $desc_type,
+            'type' => $type,
+            'categories' => $retentionCategories,
+            'state' => $item['status']
+        ];
+
+        return $this->render('NononsenseHomeBundle:Retention:record_edit.html.twig', $data);
+    }
+
 }

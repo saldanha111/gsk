@@ -617,6 +617,10 @@ nononsense_retention_list:
     methods:    [GET]
     defaults: { _controller: NononsenseHomeBundle:RetentionRecords:list}
 
+nononsense_retention_edit:
+    path: /retentions/{type}/{id}
+    defaults: { _controller: NononsenseHomeBundle:RetentionRecords:edit}
+
 nononsense_retention_log:
     path: /retentions-logs/
     methods:    [GET]
