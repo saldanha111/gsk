@@ -294,4 +294,59 @@ class RetentionRecordsController extends Controller
         return $this->render('NononsenseHomeBundle:Retention:record_edit.html.twig', $data);
     }
 
+    public function updateRecordAction(Request $request, $type, $id)
+    {
+        $is_valid = $this->get('app.security')->permissionSeccion('retention_agent');
+        if (!$is_valid) {
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                    'Debe tener permisos como representante de retención'
+            );
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+        }
+
+        switch($type){
+            case "template": $class=TMTemplates::class;break;
+            case "record": $class=CVRecords::class;break;
+            default: $this->get('session')->getFlashBag()->add(
+                        'error',
+                            'Error al intentar editar el registro'
+                    );
+                    return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+        }
+
+
+        $em = $this->getDoctrine()->getManager();
+        $item = $em->getRepository($class)->findOneBy(array("id" => $id));
+        if(!$item){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                    'Error al intentar editar el registro'
+            );
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+        }
+
+        foreach($item->getRetentions() as $category){
+            $item->removeRetention($category);
+            $em->persist($item);
+        }
+
+        if($request->get("categories")){
+            $categories=$em->getRepository(retentionCategories::class)->findBy(array("id" => $request->get("categories")));
+            foreach($categories as $category){
+                $item->addRetention($category);
+                $em->persist($item);
+            }
+        }
+
+        $this->get('utilities')->saveLogRetention($this->getUser(),2,$request->get('comment'),$type,$id);
+
+        $em->flush();
+
+        $this->get('session')->getFlashBag()->add('success', "Las categorías se han actualizado satisfactoriamente");
+
+        return $this->redirect($this->generateUrl('nononsense_retention_edit',array("type" => $type, "id" => $id)));
+
+    }
+
 }

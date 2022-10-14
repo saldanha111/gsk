@@ -238,7 +238,6 @@
 
 
         if($('.checkcategories:checked').length>0){
-            console.log($(this).closest("tr").find(".destructionDate").html());
             $(".checkcategories:checked").each(function() {
                 $('#dynamic_retention_categories').append($(this).clone());
             });
