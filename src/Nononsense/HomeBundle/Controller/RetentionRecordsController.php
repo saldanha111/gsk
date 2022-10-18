@@ -77,6 +77,7 @@ class RetentionRecordsController extends Controller
         $array_item["areas"] = $this->getDoctrine()->getRepository(Areas::class)->findBy(array(),array("name" => "ASC"));
         $array_item["types"] = $this->getDoctrine()->getRepository(RCTypes::class)->findAll();
         $array_item["agents"] = $this->getDoctrine()->getRepository(Users::class)->listUsersByPermission("retention_agent");
+        $array_item["groups_agents"] = $this->getDoctrine()->getRepository(Groups::class)->listGroupsByPermission("retention_agent");
         
 
         $url=$this->container->get('router')->generate('nononsense_cv_search');
@@ -240,53 +241,27 @@ class RetentionRecordsController extends Controller
 
         if($request->get("retention_type") &&  $request->get("retention_type")=="1"){
             $class=TMTemplates::class;
-            $subject="Plantillas eliminadas";
-            $mensaje='Se han eliminado una o varias plantillas en retención que requieren de su confirmación. Para poder confirmar dicha acción puede acceder a "Retención y destrucción -> Confirmar plantillas"';
         }
         else{
             $class=CVRecords::class;
-            $subject="Cumplimentaciones eliminadas";
-            $mensaje='Se han eliminado una o varias cumplimentaciones en retención que requieren de su confirmación. Para poder confirmar dicha acción puede acceder a "Retención y destrucción -> Confirmar cumplimentaciones"';
         }
 
         $items = $this->getDoctrine()->getRepository($class)->list("list",$filters);
         $count = $this->getDoctrine()->getRepository($class)->list("count",$filters2);
 
         $ids=array();
-        $users_confirm=array();
         foreach($items as $item){
             $ids[]=intval($item["id"]);
-            if(array_key_exists("confirmEmail", $item)){
-                $users_confirm[]=$item["confirmEmail"];
-            }
-            if(array_key_exists("confirmGroup", $item)){
-                $users_groups = $em->getRepository(GroupUsers::class)->findBy(["group" => $item["confirmGroup"]]);
-                foreach ($users_groups as $user_group) {
-                    $users_confirm[]=$user_group->getUser()->getEmail();
-                }
-            }
         }
         
         $records=$this->getDoctrine()->getRepository($class)->findBy(array("id" => $ids));
         foreach($records as $record){
-            switch($request->get("action")){
-                case "2":   $record->setRetentionOnReview(TRUE);break;
-                case "1":   $record->setRetentionRemovedAt(new DateTime());break;
-            }
-            
+            $record->setRetentionRemovedAt(new DateTime());break;
             $em->persist($record);
         }
 
         
         $em->flush();
-
-        if($request->get("action") && $request->get("action")=="1" && !empty($users_confirm)){
-            $users_confirm = array_unique($users_confirm);
-            foreach($users_confirm as $email){
-                $this->get('utilities')->sendNotification($email, NULL, "", "", $subject, $mensaje);
-            }
-        }
-
         $this->get('session')->getFlashBag()->add('success', "La acción de retención ha finalizado satisfactoriamente");
 
         return $this->redirect($this->generateUrl('nononsense_retention_list')."?retention_type=".$request->get("retention_type"));

@@ -97,6 +97,9 @@
                                   </select>
                             </div>
 
+                            
+                        </div>
+                        <div class="form-group">
                             <label class="col-sm-1 control-label">Representante</label>
                             <div class="col-sm-2 item_filter">
                                 <select class="form-control" style="width: 100%;" name="agent">
@@ -106,13 +109,19 @@
                                     {% endfor %}
                                 </select>
                             </div>
-                        </div>
-                        <div class="form-group">
+                            <label class="col-sm-1 control-label">Grupo representante</label>
+                            <div class="col-sm-2 item_filter">
+                                <select class="form-control" style="width: 100%;" name="group_agent">
+                                    <option value=""></option>
+                                    {% for group in groups_agents %}
+                                      <option value="{{group.id}}" {{ filters.group_agent is defined and filters.group_agent==group.id ? 'selected="selected"' : ''}}>{{group.name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
                             <label class="col-sm-1 control-label">Acción</label>
                             <div class="col-sm-2 item_filter">
                                 <select class="form-control" style="width: 100%;" name="retention_action">
                                     <option value=""></option>
-                                    <option value="1" {{ filters.retention_action is defined and filters.retention_action=="1" ? 'selected="selected"' : ''}}>Confirmar borrado</option>
                                     <option value="2" {{ filters.retention_action is defined and filters.retention_action=="2" ? 'selected="selected"' : ''}}>Revisión anual</option>
                                     <option value="3" {{ filters.retention_action is defined and filters.retention_action=="3" ? 'selected="selected"' : ''}}>Solo vencidos</option>
                                     <option value="4" {{ filters.retention_action is defined and filters.retention_action=="4" ? 'selected="selected"' : ''}}>Ver destruidos</option>
@@ -152,7 +161,7 @@
                                     {% set type = 'template' %}
                                 {% else %}
                                     {% set audittrail = 'nononsense_cv_record_audittrail' %}
-                                    {% set template = templateId %}
+                                    {% set template = item.templateId %}
                                     {% set type = 'record' %}
                                 {% endif %}
                                 <tr>
@@ -164,15 +173,19 @@
                                     <td>{{item.numEdition}}</td>
                                     <td>{{item.nameArea}}</td>
                                     <td>{{item.stateName}}</td>
-                                    <td></td>
+                                    <td>
+                                        {% if item.confirmUserName is defined and item.confirmUserName is not empty %}
+                                            {{ item.confirmUserName }}
+                                        {% else %}
+                                            {% if item.confirmGroupName is defined and item.confirmGroupName is not empty %}
+                                                {{ item.confirmGroupName }}
+                                            {% endif %}
+                                        {% endif %}
+                                    </td>
                                     <td>{{item.retentionDate is defined and item.retentionDate is not null ? item.retentionDate|date("d/m/Y")|gskdate : ''}}</td>
                                     <td>
                                         {% if filters.retention_action is defined and (filters.retention_action=="2" or filters.retention_action=="3") %}
-                                            <a class="btn btn-xs btn-danger btn-retention" href="javascript:void(0)" data-action="2" data-info="Eliminar registro {{item.name}} (ID {{item.id}})" data-id="{{item.id}}" data-unique="1"><i class="fa fa-trash" aria-hidden="true"></i> Eliminar</a>
-                                        {% endif %}
-
-                                        {% if filters.retention_action is defined and filters.retention_action=="1" %}
-                                            <a class="btn btn-xs btn-danger btn-retention" href="javascript:void(0)" data-action="1" data-info="Confirmar borrado registro {{item.name}} (ID {{item.id}})" data-id="{{item.id}}" data-unique="1"><i class="fa fa-trash" aria-hidden="true"></i> Confirmar borrado</a>
+                                            <a class="btn btn-xs btn-danger btn-retention" href="javascript:void(0)" data-info="Eliminar registro {{item.name}} (ID {{item.id}})" data-id="{{item.id}}" data-unique="1"><i class="fa fa-trash" aria-hidden="true"></i> Eliminar</a>
                                         {% endif %}
                                     </td>
                                     <td><a class="btn btn-xs btn-info" href="{{path(audittrail, {'id': item.id})}}" target="_self"><i class="fa fa-book" aria-hidden="true"></i> Audit Trail</a></td>
@@ -181,15 +194,11 @@
                                 
                             {% endfor %}
                         {% endif %}
-                        {% if filters.retention_action is defined and count>0 and (filters.retention_action=="1" or filters.retention_action=="2" or filters.retention_action=="3") %}
+                        {% if filters.retention_action is defined and count>0 and (filters.retention_action=="2" or filters.retention_action=="3") %}
                             <tr>
                                 <th colspan="12">
                                     {% if filters.retention_action=="2" or filters.retention_action=="3" %}
-                                        <a class="btn btn-danger pull-right btn-retention" href="javascript:void(0)" data-action="2" data-info="Eliminar"><i class="fa fa-trash" aria-hidden="true"></i> Eliminar</a>
-                                    {% endif %}
-
-                                    {% if filters.retention_action=="1" %}
-                                        <a class="btn btn-danger pull-right btn-retention" href="javascript:void(0)" data-action="1" data-info="Confirmar borrado"><i class="fa fa-trash" aria-hidden="true"></i> Confirmar borrado</a>
+                                        <a class="btn btn-danger pull-right btn-retention" href="javascript:void(0)" data-info="Eliminar"><i class="fa fa-trash" aria-hidden="true"></i> Eliminar</a>
                                     {% endif %}
                                 </th>
                                 <th><input id="record_masive" class="supcheck" type="checkbox"></th>
@@ -336,7 +345,6 @@
     });
 
     $(document).on('click','#sign_modal_retention',function(e){
-        $('[name="action"]').val(retention_btn.data("action"));
         if ($('#modal_comment').is(":visible") && !$('#modal_comment').val()){
             swal({
                 title: "Atención",

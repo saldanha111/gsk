@@ -463,12 +463,14 @@ class CVRecordsRepository extends EntityRepository
                 $logical=" AND ";
 
                 $tables_extra.=" LEFT JOIN tm_retentions tmr ON tmr.tmtemplates_id=t.id AND tmr.retentioncategories_id = (SELECT TOP 1 rc2.id FROM retention_categories rc2 LEFT JOIN rc_states rcs2 ON rc2.document_state=rcs2.id AND rcs2.type=2 WHERE s.id IN (SELECT value FROM STRING_SPLIT(rcs2.relational_id,',')) AND rc2.id IN (SELECT tmr2.retentioncategories_id FROM tm_retentions tmr2 WHERE tmr2.tmtemplates_id=t.id) ORDER BY rc2.retention_days DESC) LEFT JOIN retention_categories rc ON tmr.retentioncategories_id=rc.id LEFT JOIN users cu ON rc.destroy_user=cu.id LEFT JOIN groups cg ON rc.destroy_group=cg.id LEFT JOIN rc_states rcs ON rc.document_state=rcs.id LEFT JOIN cv_signatures accret ON accret.record_id=cv.id AND accret.id = (SELECT MAX(accret2.id) FROM cv_signatures accret2 LEFT JOIN cv_actions cva ON accret2.action_id=cva.id WHERE cva.next_state=s.id AND accret2.record_id=cv.id)";
-                $fields_extra.=",rc.name mostRestrictiveCategory, accret.modified retentionDate, DATEADD(day,rc.retention_days,accret.modified) DestructionDate,cu.email confirmEmail,cg.id confirmGroup";
+                $fields_extra.=",rc.name mostRestrictiveCategory, accret.modified retentionDate, DATEADD(day,rc.retention_days,accret.modified) DestructionDate,cu.id confirmUser,cg.id confirmGroup,cu.name confirmUserName,cg.name confirmGroupName";
                 $rsm->addScalarResult('mostRestrictiveCategory', 'mostRestrictiveCategory');
                 $rsm->addScalarResult('DestructionDate', 'DestructionDate');
                 $rsm->addScalarResult('retentionDate', 'retentionDate');
-                $rsm->addScalarResult('confirmEmail', 'confirmEmail');
+                $rsm->addScalarResult('confirmUser', 'confirmUser');
                 $rsm->addScalarResult('confirmGroup', 'confirmGroup');
+                $rsm->addScalarResult('confirmUserName', 'confirmUserName');
+                $rsm->addScalarResult('confirmGroupName', 'confirmGroupName');
                 $orderby=" ORDER BY DestructionDate DESC";
 
                 if(isset($filters["category"])){
@@ -504,18 +506,29 @@ class CVRecordsRepository extends EntityRepository
                     $logical=" AND ";
                 }
 
+                if(isset($filters["agent"])){
+                    $sintax.=$logical." cu.id=:agent";
+                    $parameters["agent"]=$filters["agent"];
+                    $logical=" AND ";
+                }
+
+                if(isset($filters["group_agent"])){
+                    $sintax.=$logical." cg.id=:group_agent";
+                    $parameters["group_agent"]=$filters["group_agent"];
+                    $logical=" AND ";
+                }
+
                 if(isset($filters["retention_action"])){
                     switch($filters["retention_action"]){
-                        case "1":   $sintax.=$logical." cv.retention_on_review IS NOT NULL AND cv.retention_removed_at IS NULL AND (rc.destroy_user=:confirm_user_retention OR rc.destroy_group IN (:confirm_groups_retention))";
+                        case "2":   $sintax.=$logical." DATEADD(day,rc.retention_days,accret.modified)<=DATEADD(month,6,GETDATE()) AND (rc.destroy_user=:confirm_user_retention OR rc.destroy_group IN (:confirm_groups_retention))";
                                     $logical=" AND ";
                                     $parameters["confirm_user_retention"]=$filters["user_retention"];
                                     $parameters["confirm_groups_retention"]=$filters["groups_retention"];
                             break;
-                        case "2":   $sintax.=$logical." cv.retention_on_review IS NULL AND DATEADD(day,rc.retention_days,accret.modified)<=DATEADD(month,6,GETDATE())";
+                        case "3":   $sintax.=$logical." DATEADD(day,rc.retention_days,accret.modified)<=GETDATE() AND (rc.destroy_user=:confirm_user_retention OR rc.destroy_group IN (:confirm_groups_retention))";
                                     $logical=" AND ";
-                            break;
-                        case "3":   $sintax.=$logical." cv.retention_on_review IS NULL AND DATEADD(day,rc.retention_days,accret.modified)<=GETDATE()";
-                                    $logical=" AND ";
+                                    $parameters["confirm_user_retention"]=$filters["user_retention"];
+                                    $parameters["confirm_groups_retention"]=$filters["groups_retention"];
                             break;
                     }
                     
