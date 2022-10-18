@@ -622,7 +622,7 @@ nononsense_retention_edit:
     methods:    [GET]
     defaults: { _controller: NononsenseHomeBundle:RetentionRecords:edit}
 
-nononsense_retention_update:
+nononsense_retention_edit_update:
     path: /retentions/{type}/{id}
     methods:    [POST]
     defaults: { _controller: NononsenseHomeBundle:RetentionRecords:updateRecord}

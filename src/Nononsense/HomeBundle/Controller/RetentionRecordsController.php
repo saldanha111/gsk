@@ -14,6 +14,7 @@ use Nononsense\HomeBundle\Entity\CVRecords;
 use Nononsense\HomeBundle\Entity\TMTemplates;
 use Nononsense\HomeBundle\Entity\Areas;
 use Nononsense\UserBundle\Entity\Users;
+use Nononsense\GroupBundle\Entity\GroupUsers;
 use Nononsense\UtilsBundle\Classes\Utils;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -30,12 +31,19 @@ class RetentionRecordsController extends Controller
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
 
-        $filters=Array();
-        $filters2=Array();
         $types=array();
 
         $filters=array_filter($request->query->all());
         $filters2=array_filter($request->query->all());
+        $groupsRetention = [];
+        foreach ($user->getGroups() as $group) {
+            $groupsRetention[] = $group->getGroup()->getId();
+        }
+
+        $filters["user_retention"]=$user;
+        $filters["groups_retention"]=$groupsRetention;
+        $filters2["user_retention"]=$user;
+        $filters2["groups_retention"]=$groupsRetention;
 
         $retention_type = $this->getDoctrine()->getRepository(RCTypes::class)->findOneBy(array("id" => $filters["retention_type"]));
         $desc_pdf="Listado de retención - ".$retention_type->getName();
@@ -206,12 +214,20 @@ class RetentionRecordsController extends Controller
             return $this->redirect($route);
         }
 
-        $filters=Array();
-        $filters2=Array();
+        
         $types=array();
 
         $filters=array_filter($request->query->all());
         $filters2=array_filter($request->query->all());
+        $groupsRetention = [];
+        foreach ($user->getGroups() as $group) {
+            $groupsRetention[] = $group->getGroup()->getId();
+        }
+        $filters["user_retention"]=$user;
+        $filters["groups_retention"]=$groupsRetention;
+        $filters2["user_retention"]=$user;
+        $filters2["groups_retention"]=$groupsRetention;
+        
 
         $retention_type = $this->getDoctrine()->getRepository(RCTypes::class)->findOneBy(array("id" => $filters["retention_type"]));
 
@@ -224,27 +240,52 @@ class RetentionRecordsController extends Controller
 
         if($request->get("retention_type") &&  $request->get("retention_type")=="1"){
             $class=TMTemplates::class;
+            $subject="Plantillas eliminadas";
+            $mensaje='Se han eliminado una o varias plantillas en retención que requieren de su confirmación. Para poder confirmar dicha acción puede acceder a "Retención y destrucción -> Confirmar plantillas"';
         }
         else{
             $class=CVRecords::class;
+            $subject="Cumplimentaciones eliminadas";
+            $mensaje='Se han eliminado una o varias cumplimentaciones en retención que requieren de su confirmación. Para poder confirmar dicha acción puede acceder a "Retención y destrucción -> Confirmar cumplimentaciones"';
         }
 
         $items = $this->getDoctrine()->getRepository($class)->list("list",$filters);
         $count = $this->getDoctrine()->getRepository($class)->list("count",$filters2);
 
         $ids=array();
+        $users_confirm=array();
         foreach($items as $item){
             $ids[]=intval($item["id"]);
+            if(array_key_exists("confirmEmail", $item)){
+                $users_confirm[]=$item["confirmEmail"];
+            }
+            if(array_key_exists("confirmGroup", $item)){
+                $users_groups = $em->getRepository(GroupUsers::class)->findBy(["group" => $item["confirmGroup"]]);
+                foreach ($users_groups as $user_group) {
+                    $users_confirm[]=$user_group->getUser()->getEmail();
+                }
+            }
         }
         
         $records=$this->getDoctrine()->getRepository($class)->findBy(array("id" => $ids));
         foreach($records as $record){
-            $record->setRetentionOnReview(TRUE);
+            switch($request->get("action")){
+                case "2":   $record->setRetentionOnReview(TRUE);break;
+                case "1":   $record->setRetentionRemovedAt(new DateTime());break;
+            }
+            
             $em->persist($record);
         }
 
         
         $em->flush();
+
+        if($request->get("action") && $request->get("action")=="1" && !empty($users_confirm)){
+            $users_confirm = array_unique($users_confirm);
+            foreach($users_confirm as $email){
+                $this->get('utilities')->sendNotification($email, NULL, "", "", $subject, $mensaje);
+            }
+        }
 
         $this->get('session')->getFlashBag()->add('success', "La acción de retención ha finalizado satisfactoriamente");
 
