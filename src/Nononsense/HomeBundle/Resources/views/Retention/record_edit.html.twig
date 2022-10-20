@@ -209,9 +209,10 @@
 
     $(document).on('change','.checkcategories',function(e){
         var maxRetentionDate="";
+        $(".destruction-record").html("");
         $(".checkcategories:checked").each(function() {
             retentionCategory=$(this).closest("tr").find(".destructionDate").data("destruction_date");
-            if(retentionCategory>=maxRetentionDate){
+            if(retentionCategory!="" && retentionCategory>=maxRetentionDate){
                 maxRetentionDate=retentionCategory;
                 $(".destruction-record").html($(this).closest("tr").find(".destructionDate").html());
             }
@@ -272,7 +273,6 @@ function update_states(){
             retentionDays=parseInt($(this).data("retention_days"));
             if(retentionDays>=maxRetentionDays){
                 maxRetentionDays=retentionDays;
-                $(".destruction-record").html($(this).closest("tr").find(".destructionDate").html());
             }
         });
 
