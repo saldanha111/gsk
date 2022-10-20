@@ -48,17 +48,11 @@
                         </tr>
                         </thead>
                             <tr>
-                                {% if type=="template" %}
-                                    {% set audittrail = 'nononsense_tm_template_audit_trail' %}
-                                    {% set print = 'nononsense_tm_template_cover_page' %}
-                                    {% set template = item.id %}
-                                    {% set type = 'template' %}
-                                {% else %}
-                                    {% set audittrail = 'nononsense_cv_record_audittrail' %}
-                                    {% set print = 'nononsense_cv_docoaro_new' %}
-                                    {% set template = templateId %}
-                                    {% set type = 'record' %}
-                                {% endif %}
+                                {% set audittrail = 'nononsense_tm_template_audit_trail' %}
+                                {% set print = 'nononsense_tm_template_cover_page' %}
+                                {% set template = item.id %}
+                                {% set type = 'template' %}
+  
                                 <td>{{item.id}}</td>
                                 <td class="destruction-record">{{item.DestructionDate is defined and item.DestructionDate is not null ? item.DestructionDate|date("d/m/Y")|gskdate : ''}}</td>
                                 <td>{{item.mostRestrictiveCategory}}</td>
@@ -79,7 +73,26 @@
                             </tr>
                     </table>
 
-                    <table id="inProcessParcial" class="table table-striped">
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>Registros con estado</th>
+                            <th>Dias de retención</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                            {% if states is defined and states is not empty %}
+                                {% for state in states %}
+                                    <tr>
+                                        <td>{{state.name}}</td>
+                                        <td class="base_states" data-id="{{state.id}}"></td>
+                                        <td><a class="btn btn-xs btn-primary" href="{{path('nononsense_retention_list')}}?retention_type=2&state={{state.relationalId}}&template={{item.id}}" target="_blank">Ver registros de esta plantilla</a></td>
+                                    </tr>
+                                {% endfor %}
+                            {% endif %}
+                    </table>
+
+                    <table class="table table-striped">
                         <thead>
                         <tr>
                             <th></th>
@@ -88,6 +101,7 @@
                             <th>Estado</th>
                             <th>Inicio Retención</th>
                             <th>Fecha destrucción</th>
+                            <th>Días de retención</th>
                         </tr>
                         </thead>
 
@@ -112,12 +126,13 @@
                                     {% endif %}    
                                     {% if (category.active and category.deletedAt is empty) or checked!=""  %}
                                         <tr>
-                                            <td><input class="checkcategories" name="categories[]" value="{{category.id}}" type="checkbox" {{checked}}></td>
+                                            <td><input class="checkcategories category_state_{{category.documentState.id}}" name="categories[]" value="{{category.id}}" type="checkbox" {{checked}} data-retention_days="{{category.retentionDays}}"></td>
                                             <td>{{category.id}}</td>
                                             <td>{{category.name}}</td>
                                             <td>{{category.documentState.name}}</td>
                                             <td>{{retentionDate}}</td>
                                             <td class="destructionDate" data-destruction_date="{{destructionDate2}}">{{destructionDate}}</td>
+                                            <td>{{category.retentionDays}}</td>
                                         </tr>
                                     {% endif %}
                                 {% endfor %}
@@ -196,12 +211,12 @@
         var maxRetentionDate="";
         $(".checkcategories:checked").each(function() {
             retentionCategory=$(this).closest("tr").find(".destructionDate").data("destruction_date");
-            console.log(retentionCategory);
             if(retentionCategory>=maxRetentionDate){
                 maxRetentionDate=retentionCategory;
                 $(".destruction-record").html($(this).closest("tr").find(".destructionDate").html());
             }
         });
+        update_states();
     });
 
     $(document).on('click','#sign_modal_retention',function(e){
@@ -246,7 +261,24 @@
         $("#formModalRetention").submit();
 
     });
+    update_states();
   });
+
+function update_states(){
+    $(".base_states").each(function() {
+        base_id=$(this).data("id");
+        maxRetentionDays=0;
+        $(".category_state_"+base_id+":checked").each(function() {
+            retentionDays=parseInt($(this).data("retention_days"));
+            if(retentionDays>=maxRetentionDays){
+                maxRetentionDays=retentionDays;
+                $(".destruction-record").html($(this).closest("tr").find(".destructionDate").html());
+            }
+        });
+
+        $(this).html(maxRetentionDays);
+    });
+}
 
 </script>
 {% endblock %}

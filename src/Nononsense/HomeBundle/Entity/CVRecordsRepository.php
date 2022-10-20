@@ -434,6 +434,12 @@ class CVRecordsRepository extends EntityRepository
                 $logical=" AND ";
             }
 
+            if(isset($filters["template"])){
+                $sintax.=$logical." t.id=:template";
+                $parameters["template"]=$filters["template"];
+                $logical=" AND ";
+            }
+
             if(isset($filters["area"])){
                 $sintax.=$logical." a.id=:area";
                 $parameters["area"]=$filters["area"];

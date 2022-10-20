@@ -618,12 +618,12 @@ nononsense_retention_list:
     defaults: { _controller: NononsenseHomeBundle:RetentionRecords:list}
 
 nononsense_retention_edit:
-    path: /retentions/{type}/{id}
+    path: /retentions/{id}
     methods:    [GET]
     defaults: { _controller: NononsenseHomeBundle:RetentionRecords:edit}
 
 nononsense_retention_edit_update:
-    path: /retentions/{type}/{id}
+    path: /retentions/{id}
     methods:    [POST]
     defaults: { _controller: NononsenseHomeBundle:RetentionRecords:updateRecord}
 
