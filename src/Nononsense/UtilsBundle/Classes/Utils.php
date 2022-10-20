@@ -807,9 +807,10 @@ class Utils
         return $output;
     }
 
-    public static function setCertification($container, string $file, string $type, int $recordId)
+    public function setCertification($container, string $file, string $type, string $recordId)
     {
         $em = $container->get('doctrine.orm.entity_manager');
+
 
         $certificationsType = $em->getRepository(CertificationsType::class)->findOneBy(['name' => $type]);
 

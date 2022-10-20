@@ -161,6 +161,11 @@ class CVRecords
      */
     protected $ecoNextOnStandBy;
 
+    /**
+     * @ORM\Column(name="retention_removed_at", type="date", nullable=true)
+     */
+    protected $retentionRemovedAt;
+
     
     public function __construct()
     {
@@ -753,5 +758,28 @@ class CVRecords
     public function getEcoNextOnStandBy()
     {
         return $this->ecoNextOnStandBy;
+    }
+
+    /**
+     * Set retentionRemovedAt
+     *
+     * @param \DateTime $retentionRemovedAt
+     * @return CVRecords
+     */
+    public function setRetentionRemovedAt($retentionRemovedAt)
+    {
+        $this->retentionRemovedAt = $retentionRemovedAt;
+
+        return $this;
+    }
+
+    /**
+     * Get retentionRemovedAt
+     *
+     * @return \DateTime 
+     */
+    public function getRetentionRemovedAt()
+    {
+        return $this->retentionRemovedAt;
     }
 }

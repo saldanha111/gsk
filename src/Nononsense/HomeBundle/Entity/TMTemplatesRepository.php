@@ -89,8 +89,16 @@ class TMTemplatesRepository extends EntityRepository
         $tables_extra="";
         $fields_extra="";
 
-        if(!empty($filters)){
+        if(empty($filters) || !isset($filters["retention_action"]) || $filters["retention_action"]!="4"){
+            $sintax.=$logical." t.retention_removed_at IS NULL";
+            $logical=" AND ";
+        }
+        else{
+            $sintax.=$logical." t.retention_removed_at IS NOT NULL";
+            $logical=" AND ";
+        }
 
+        if(!empty($filters)){
             if(isset($filters["name"])){
                 $terms = explode(" ", $filters["name"]);
                 foreach($terms as $key => $term){
@@ -153,8 +161,8 @@ class TMTemplatesRepository extends EntityRepository
                 $sintax.=$logical." sg.action_id=8 AND sg.drop_action IS NULL";
                 $logical=" AND ";
 
-                $tables_extra="LEFT JOIN tm_signatures sg ON t.id=sg.template_id LEFT JOIN users ud ON sg.userid=ud.id";
-                $fields_extra=",ud.name applicantDropRequestName,sg.created dropRequestDate";
+                $tables_extra.="LEFT JOIN tm_signatures sg ON t.id=sg.template_id LEFT JOIN users ud ON sg.userid=ud.id";
+                $fields_extra.=",ud.name applicantDropRequestName,sg.created dropRequestDate";
                 $rsm->addScalarResult('applicantDropRequestName', 'applicantDropRequestName');
                 $rsm->addScalarResult('dropRequestDate', 'dropRequestDate');
             }
@@ -176,8 +184,8 @@ class TMTemplatesRepository extends EntityRepository
                 $sintax.=$logical." s.id=6 AND sg.action_id=12";
                 $logical=" AND ";
 
-                $tables_extra="LEFT JOIN tm_signatures sg ON t.request_review=sg.id LEFT JOIN users ud ON sg.userid=ud.id";
-                $fields_extra=",ud.name ReviewRequestName,sg.created ReviewRequestDate";
+                $tables_extra.="LEFT JOIN tm_signatures sg ON t.request_review=sg.id LEFT JOIN users ud ON sg.userid=ud.id";
+                $fields_extra.=",ud.name ReviewRequestName,sg.created ReviewRequestDate";
                 $rsm->addScalarResult('ReviewRequestName', 'ReviewRequestName');
                 $rsm->addScalarResult('ReviewRequestDate', 'ReviewRequestDate');
             }
@@ -206,7 +214,94 @@ class TMTemplatesRepository extends EntityRepository
                 $sintax.=$logical." s.id=6 AND (t.inactive!=1 OR t.inactive IS NULL)";
                 $logical=" AND ";
             }
+
+            if(isset($filters["retentions"])){
+                $sintax.=$logical." t.id IN (:retentions)";
+                $parameters["retentions"]=$filters["retentions"];
+                $logical=" AND ";
+            }
             
+            if(isset($filters["retention_type"])){
+                $sintax.=$logical." s.id IN (7,8)";
+                $logical=" AND ";
+
+                $tables_extra.=" LEFT JOIN tm_retentions tmr ON tmr.tmtemplates_id=t.id AND tmr.retentioncategories_id = (SELECT TOP 1 rc2.id FROM retention_categories rc2 LEFT JOIN rc_states rcs2 ON rc2.document_state=rcs2.id AND rcs2.type=1 WHERE s.id IN (SELECT value FROM STRING_SPLIT(rcs2.relational_id,',')) AND rc2.id IN (SELECT tmr2.retentioncategories_id FROM tm_retentions tmr2 WHERE tmr2.tmtemplates_id=t.id) ORDER BY rc2.retention_days DESC) LEFT JOIN retention_categories rc ON tmr.retentioncategories_id=rc.id LEFT JOIN users cu ON rc.destroy_user=cu.id LEFT JOIN groups cg ON rc.destroy_group=cg.id LEFT JOIN rc_states rcs ON rc.document_state=rcs.id LEFT JOIN tm_signatures accret ON accret.template_id=t.id AND accret.action_id=9 LEFT JOIN tm_templates newt ON newt.template_id=t.id";
+                $fields_extra.=",rc.name mostRestrictiveCategory, CASE WHEN t.state_id=8 THEN accret.modified ELSE newt.effectiveDate END retentionDate, DATEADD(day,rc.retention_days,CASE WHEN t.state_id=8 THEN accret.modified ELSE newt.effectiveDate END) DestructionDate,cu.id confirmUser,cg.id confirmGroup,cu.name confirmUserName,cg.name confirmGroupName";
+                $rsm->addScalarResult('mostRestrictiveCategory', 'mostRestrictiveCategory');
+                $rsm->addScalarResult('DestructionDate', 'DestructionDate');
+                $rsm->addScalarResult('retentionDate', 'retentionDate');
+                $rsm->addScalarResult('confirmUser', 'confirmUser');
+                $rsm->addScalarResult('confirmGroup', 'confirmGroup');
+                $rsm->addScalarResult('confirmUserName', 'confirmUserName');
+                $rsm->addScalarResult('confirmGroupName', 'confirmGroupName');
+                $orderby=" ORDER BY DestructionDate DESC";
+
+                if(isset($filters["category"])){
+                    $terms = explode(" ", $filters["category"]);
+                    foreach($terms as $key => $term){
+                        $sintax.=$logical." rc.name LIKE :category".$key;
+                        $parameters["category".$key]="%".$term."%";
+                        $logical=" AND ";
+                    }
+                }
+
+                if(isset($filters["destruction_from"])){
+                    $sintax.=$logical." DATEADD(day,rc.retention_days,(CASE WHEN t.state_id=8 THEN accret.modified ELSE newt.effectiveDate END))>=:destruction_from";
+                    $parameters["destruction_from"]=$filters["destruction_from"];
+                    $logical=" AND ";
+                }
+
+                if(isset($filters["destruction_until"])){
+                    $sintax.=$logical." DATEADD(day,rc.retention_days,(CASE WHEN t.state_id=8 THEN accret.modified ELSE newt.effectiveDate END))<=:destruction_until";
+                    $parameters["destruction_until"]=$filters["destruction_until"];
+                    $logical=" AND ";
+                }
+
+                if(isset($filters["retention_from"])){
+                    $sintax.=$logical." CASE WHEN t.state_id=8 THEN accret.modified ELSE newt.effectiveDate END>=:retention_from";
+                    $parameters["retention_from"]=$filters["retention_from"];
+                    $logical=" AND ";
+                }
+
+                if(isset($filters["retention_until"])){
+                    $sintax.=$logical." CASE WHEN t.state_id=8 THEN accret.modified ELSE newt.effectiveDate END<=:retention_until";
+                    $parameters["retention_until"]=$filters["retention_until"];
+                    $logical=" AND ";
+                }
+
+                if(isset($filters["agent"])){
+                    $sintax.=$logical." cu.id=:agent";
+                    $parameters["agent"]=$filters["agent"];
+                    $logical=" AND ";
+                }
+
+                if(isset($filters["group_agent"])){
+                    $sintax.=$logical." cg.id=:group_agent";
+                    $parameters["group_agent"]=$filters["group_agent"];
+                    $logical=" AND ";
+                }
+
+                if(isset($filters["retention_action"])){
+                    switch($filters["retention_action"]){
+                        case "2":   $sintax.=$logical." DATEADD(day,rc.retention_days,(CASE WHEN t.state_id=8 THEN accret.modified ELSE newt.effectiveDate END))<=DATEADD(month,6,GETDATE()) AND (rc.destroy_user=:confirm_user_retention OR rc.destroy_group IN (:confirm_groups_retention))";
+                                    $logical=" AND ";
+                                    $parameters["confirm_user_retention"]=$filters["user_retention"];
+                                    $parameters["confirm_groups_retention"]=$filters["groups_retention"];
+                            break;
+                        case "3":   $sintax.=$logical." DATEADD(day,rc.retention_days,(CASE WHEN t.state_id=8 THEN accret.modified ELSE newt.effectiveDate END))<=GETDATE()  AND (rc.destroy_user=:confirm_user_retention OR rc.destroy_group IN (:confirm_groups_retention))";
+                                    $logical=" AND ";
+                                    $parameters["confirm_user_retention"]=$filters["user_retention"];
+                                    $parameters["confirm_groups_retention"]=$filters["groups_retention"];
+                            break;
+                    }
+                    
+                }
+
+                if(isset($filters["notify_retention"])){
+                    $sintax.=$logical." DATEADD(day,rc.retention_days,(CASE WHEN t.state_id=8 THEN accret.modified ELSE newt.effectiveDate END))<=GETDATE()";
+                        $logical=" AND ";
+                }
+            }
 
         }
 

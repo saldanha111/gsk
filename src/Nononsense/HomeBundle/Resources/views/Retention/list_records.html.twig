@@ -1,0 +1,408 @@
+{% extends '::base.html.twig' %}
+{% set title_search = 'Listado de retención' %}
+
+
+
+{% block page_title %}Docoaro - GSK | {{title_search}} {% endblock %}
+{% block head %}
+{{ parent() }}
+<link rel="stylesheet" href="/css/plugins/datapicker/datepicker3.css">
+<link rel="stylesheet" href="{{ asset('/js/plugins/sweetalert/sweetalert.min.css') }}">
+{% endblock %}
+{% block main_title %} {{title_search}}{% endblock %}
+{% block content %}
+
+<div class="wrapper wrapper-content">
+    {% for flashMessage in app.session.flashbag.get('error') %}
+    <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+        <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+        {{ flashMessage }}
+    </div><br>
+    {% endfor %}
+    {% for flashMessage in app.session.flashbag.get('success') %}
+    <div class="alert alert-success alert-dismissable" style="margin: 10px 16px 0 16px">
+        <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+        {{ flashMessage }}
+    </div><br>
+    {% endfor %}
+    <div class="row">
+        <div class="col-sm-12">
+            <div>
+                <div class="row">
+                    <form class="form-horizontal" id="form_item" action="{{ path('nononsense_retention_list')}}" method="GET">
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">Listado de retención</label>
+                            <div class="col-sm-2 item_filter">
+                                <select class="form-control" name="retention_type" id="retention_type" required="required">
+                                    {% for type in types %}
+                                        <option value="{{type.id}}" {{ filters.retention_type is defined and filters.retention_type==type.id ? 'selected="selected"' : ''}}>{{type.name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">Área</label>
+                            <div class="col-sm-2 item_filter">
+                                <select class="form-control" name="area" style="width: 100%;">
+                                    <option value=""></option>
+                                    {% for area in areas %}
+                                        <option value="{{area.id}}" {{filters.area is defined and filters.area==area.id ? 'selected="selected"'}}>{{area.name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <label class="col-sm-1 control-label">Categoría</label>
+                            <div class="col-sm-2 item_filter">
+                                <input type="text" name="category" class="form-control" value="{{filters.category is defined ? filters.category : ''}}">
+                            </div>
+
+                            <label class="col-sm-1 control-label">Fecha destrucción</label>
+                            <div class="col-sm-1 item_filter">
+                                <input type="text" class="form-control pull-right from" autocomplete="off" name="destruction_from" value="{{filters.destruction_from is defined ? filters.destruction_from|date("Y-m-d") : ''}}">
+                            </div>
+
+                            <div class="col-sm-1">
+                                <input type="text" class="form-control pull-right until" autocomplete="off" name="destruction_until" value="{{filters.destruction_until is defined ? filters.destruction_until|date("Y-m-d") : ''}}">
+                            </div>
+
+                            <label class="col-sm-1 control-label">Fecha retención</label>
+                            <div class="col-sm-1 item_filter">
+                                <input type="text" class="form-control pull-right from" autocomplete="off" name="retention_from" value="{{filters.retention_from is defined ? filters.retention_from|date("Y-m-d") : ''}}">
+                            </div>
+
+                            <div class="col-sm-1">
+                                <input type="text" class="form-control pull-right until" autocomplete="off" name="retention_until" value="{{filters.retention_until is defined ? filters.retention_until|date("Y-m-d") : ''}}">
+                            </div>
+
+                            
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label item_filter">Título</label>
+                            <div class="col-sm-2 item_filter">
+                                <input type="text" name="name" class="form-control" value="{{filters.name is defined ? filters.name : ''}}">
+                            </div>
+
+                            <label class="col-sm-1 control-label item_filter">Código</label>
+                            <div class="col-sm-2 item_filter">
+                                <input type="text" name="number" class="form-control" value="{{filters.number is defined ? filters.number : ''}}">
+                            </div>
+
+                            <label class="col-sm-1 control-label">Estado</label>
+                            <div class="col-sm-2 item_filter">
+                                <select class="form-control" style="width: 100%;" name="state" id="state">
+                                    <option value=""></option>
+                                    {% for state in states %}
+                                        <option value="{{state.relationalId}}" {{filters.state is defined and filters.state == state.relationalId ? 'selected="selected"' : ''}}>{{state.name}}</option>
+                                    {% endfor %}
+                                  </select>
+                            </div>
+
+                            
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">Representante</label>
+                            <div class="col-sm-2 item_filter">
+                                <select class="form-control" style="width: 100%;" name="agent">
+                                    <option value=""></option>
+                                    {% for agent in agents %}
+                                      <option value="{{agent.id}}" {{ filters.agent is defined and filters.agent==agent.id ? 'selected="selected"' : ''}}>{{agent.name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <label class="col-sm-1 control-label">Grupo representante</label>
+                            <div class="col-sm-2 item_filter">
+                                <select class="form-control" style="width: 100%;" name="group_agent">
+                                    <option value=""></option>
+                                    {% for group in groups_agents %}
+                                      <option value="{{group.id}}" {{ filters.group_agent is defined and filters.group_agent==group.id ? 'selected="selected"' : ''}}>{{group.name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <label class="col-sm-1 control-label">Acción</label>
+                            <div class="col-sm-2 item_filter">
+                                <select class="form-control" style="width: 100%;" name="retention_action">
+                                    <option value=""></option>
+                                    <option value="2" {{ filters.retention_action is defined and filters.retention_action=="2" ? 'selected="selected"' : ''}}>Revisión anual</option>
+                                    <option value="3" {{ filters.retention_action is defined and filters.retention_action=="3" ? 'selected="selected"' : ''}}>Solo vencidos</option>
+                                    <option value="4" {{ filters.retention_action is defined and filters.retention_action=="4" ? 'selected="selected"' : ''}}>Ver destruidos</option>
+                                </select>
+                            </div>
+
+                            <div class="col-sm-1">
+                                <button type="submit" class="btn btn-primary pull-right">Filtrar</button>
+                            </div>
+                        </div>
+                        <input type="hidden" name="template" value="{{filters.template is defined and filters.template is not empty ? filters.template : ''}}">
+                    </form>
+                </div>
+                <div class="row">
+                    <table id="inProcessParcial" class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Fecha destrucción</th>
+                            <th>Categoría retención</th>
+                            <th>Título</th>
+                            <th>Código</th>
+                            <th>Edición</th>
+                            <th>Área</th>
+                            <th>Estado</th>
+                            <th>Representante</th>
+                            <th>Fecha retención</th>
+                            <th>Acción</th>
+                            <th>Audit Trail</th>
+                            <th><input id="record_masive" class="supcheck" type="checkbox"></th>
+                        </tr>
+                        </thead>
+                        {% if items is defined %}
+                            {% for item in items %}
+                                {% if filters.retention_type=="1" %}
+                                    {% set audittrail = 'nononsense_tm_template_audit_trail' %}
+                                    {% set template = item.id %}
+                                    {% set type = 'template' %}
+                                {% else %}
+                                    {% set audittrail = 'nononsense_cv_record_audittrail' %}
+                                    {% set template = item.templateId %}
+                                    {% set type = 'record' %}
+                                {% endif %}
+                                <tr>
+                                    <td>{{item.id}}</td>
+                                    <td>{{item.DestructionDate is defined and item.DestructionDate is not null ? item.DestructionDate|date("d/m/Y")|gskdate : ''}}</td>
+                                    <td>{{item.mostRestrictiveCategory}}</td>
+                                    <td><a href="{{ path("nononsense_retention_edit", {'id' : template}) }}">{{item.name}}</a></td>
+                                    <td>{{item.number}}</td>
+                                    <td>{{item.numEdition}}</td>
+                                    <td>{{item.nameArea}}</td>
+                                    <td>{{item.stateName}}</td>
+                                    <td>
+                                        {% if item.confirmUserName is defined and item.confirmUserName is not empty %}
+                                            {{ item.confirmUserName }}
+                                        {% else %}
+                                            {% if item.confirmGroupName is defined and item.confirmGroupName is not empty %}
+                                                {{ item.confirmGroupName }}
+                                            {% endif %}
+                                        {% endif %}
+                                    </td>
+                                    <td>{{item.retentionDate is defined and item.retentionDate is not null ? item.retentionDate|date("d/m/Y")|gskdate : ''}}</td>
+                                    <td>
+                                        {% if filters.retention_action is defined and filters.retention_action=="3" %}
+                                            <a class="btn btn-xs btn-danger btn-retention" href="javascript:void(0)" data-info="Eliminar registro {{item.name}} (ID {{item.id}})" data-id="{{item.id}}" data-unique="1"><i class="fa fa-trash" aria-hidden="true"></i> Eliminar</a>
+                                        {% endif %}
+                                    </td>
+                                    <td><a class="btn btn-xs btn-info" href="{{path(audittrail, {'id': item.id})}}" target="_self"><i class="fa fa-book" aria-hidden="true"></i> Audit Trail</a></td>
+                                    <td><input class="checkpem" name="retentions[]" value="{{item.id}}" type="checkbox"></td>
+                                </tr>
+                                
+                            {% endfor %}
+                        {% endif %}
+                        {% if filters.retention_action is defined and count>0 and filters.retention_action=="3" %}
+                            <tr>
+                                <th colspan="12">
+                                    <a class="btn btn-danger pull-right btn-retention" href="javascript:void(0)" data-info="Eliminar"><i class="fa fa-trash" aria-hidden="true"></i> Eliminar</a>
+                                </th>
+                                <th><input id="record_masive" class="supcheck" type="checkbox"></th>
+                            </tr>
+                        {% endif %}
+                    </table>
+
+                    
+                    {% if pagination is defined and pagination.needed %}
+                        {% include '::pagination2.html.twig' %}
+                    {% endif %}
+                    {% if count>0 %}
+                        <a href="{{pagination.url}}{{pagination.character}}export_excel=1" target="_blank" class="btn btn-primary pull-right"><i class="fa fa-file-excel-o" aria-hidden="true"></i> Excel</a> 
+                        <a href="{{pagination.url}}{{pagination.character}}export_pdf=1" target="_blank" class="btn btn-primary pull-right" style="margin-right:1px"><i class="fa fa-file-pdf-o" aria-hidden="true"></i> PDF</a> 
+                    {% else %}
+                        <br><b>No se han encontrado datos disponibles</b>
+                    {% endif %}
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="modalRetention">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form class="form-horizontal" id="formModalRetention" action="{{pagination.url}}" method="POST">
+                <div class="modal-header">
+                    <h5 class="modal-title">Firmar</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-10 col-lg-offset-1">
+                            Va a efectuar la siguiente acción sobre el listado de registros en retención: 
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row">
+                        <div class="col-lg-10 col-lg-offset-1 error" id="retention_message">
+                             
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row box-text-comment">
+                        <div class="col-lg-10 col-lg-offset-1">
+                            <label for="description_workflow">Comentarios</label>
+                            <br>
+                            <div class="form-group">
+                                <textarea class="form-control text-comment" name="comment" rows="10" cols="40" id="modal_comment"  style="width:100%" required="required"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-10 col-lg-offset-1">
+                            <div id="signature-pad3" class="input-group">
+                                <label for="firma">Introduzca su firma</label>
+                                <br>
+                                <input type="password" name="password" id="modal_password" class="form-control" required="required"><br>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="dynamic_retention_elements" style="display:none">
+
+                </div>
+                <div class="modal-footer">
+                    <input type="button" class="btn btn-primary" id="sign_modal_retention" value="Firmar">
+                </div>
+                <input type="hidden" name="action" value="" required="required">
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+{{ parent() }}
+<script src="/js/plugins/datapicker/bootstrap-datepicker.js"></script>
+<script src="/js/plugins/datapicker/locales/bootstrap-datepicker.es.js" charset="UTF-8"></script>
+<script src="{{ asset('js/plugins/sweetalert/sweetalert.min.js') }}"></script>
+<script>
+    var retention_btn;
+  $( document ).ready(function() {
+    $('.from').datepicker({
+      autoclose: true,
+      orientation: 'bottom auto',
+      format: 'yyyy-mm-dd',
+      language: 'es'
+    });
+    $('.until').datepicker({
+      autoclose: true,
+      orientation: 'bottom auto',
+      format: 'yyyy-mm-dd',
+      language: 'es'
+    });
+
+    $(document).on('change', '[name="retention_type"]', function() {
+        $("#state").val("");
+        $('#form_item').submit();
+    });
+
+    
+
+    {% if filters.retention_type is defined and filters.retention_type=="1" and (filters.retention_action is not defined or filters.retention_action!="1") %}
+        ActivateMenu('retention_templ');
+    {% elseif filters.retention_type is defined and filters.retention_type=="1" and filters.retention_action=="1" %}
+        ActivateMenu('retention_templ_review');
+    {% elseif filters.retention_type is defined and filters.retention_type=="2" and (filters.retention_action is not defined or filters.retention_action!="1") %}
+        ActivateMenu('retention_cumpl');
+    {% else %}
+        ActivateMenu('retention_cumpl_review');
+    {% endif %}
+    
+    $('#side-menu').metisMenu();
+
+    $('.supcheck').change(function() {
+        if($(this).is(":checked")) {state=true;}else{state=false;}
+        $(":checkbox").prop('checked', state);        
+    });
+
+    $('.checkpem').change(function() {
+      check_superiores();
+    });
+
+    $(document).on('click','.btn-retention',function(e){
+        retention_btn=$(this);
+        title=$('[name="retention_type"] option:selected').text()+" - "+$(this).data("info")+" ";
+        if(!$(this).data("unique")){
+            if($('.checkpem:checked').length>0){
+                count=$('.checkpem:checked').length;
+            }
+            else{
+                count={{count}};
+            }
+
+            title+=count+" registros";
+        }
+        $("#retention_message").html(title);
+        $("#modalRetention").modal('show');
+    });
+
+    $(document).on('click','#sign_modal_retention',function(e){
+        if ($('#modal_comment').is(":visible") && !$('#modal_comment').val()){
+            swal({
+                title: "Atención",
+                text: "La descripcion es obligatoria",
+                type: "warning"
+            });
+            return false;
+        }
+
+        if (!$("#modal_password").val()){
+            swal({
+                title: "Atención",
+                text: "La firma es obligatoria",
+                type: "warning"
+            });
+            return false;
+        }
+
+        if (!gpassword_valid($("#modal_password").val())){
+            swal({
+                title: "Atención",
+                text: "La firma no es correcta",
+                type: "warning"
+            });
+            return false;
+        }
+        $('#dynamic_retention_elements').find(".checkpem").each(function() {
+            $(this).remove();
+        });
+
+
+
+        
+        if(retention_btn.data("unique")){
+            $('#dynamic_retention_elements').append(retention_btn.closest("tr").find(".checkpem").clone());
+            $('#dynamic_retention_elements').find(".checkpem").prop('checked',true);
+        }
+        else{
+            if($('.checkpem:checked').length>0){
+                $(".checkpem:checked").each(function() {
+                    $('#dynamic_retention_elements').append($(this).clone());
+                });
+            }
+        }
+
+        $("#formModalRetention").submit();
+
+    });
+  });
+
+  function check_superiores(){
+    $( ".supcheck" ).each(function() {
+      if($(".checkpem").is(":not(:checked)")){
+        $(this).prop('checked', false);  
+      }
+      else{
+        $(this).prop('checked', true); 
+      }
+    });
+  }
+</script>
+{% endblock %}

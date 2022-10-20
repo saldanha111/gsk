@@ -78,13 +78,19 @@ class RetentionCategoriesRepository extends EntityRepository
         $list->andWhere('rc.deletedAt is null');
 
         if (isset($filters["name"])) {
-            $list->andWhere('rc.name = :name');
-            $list->setParameter('name', $filters["name"]);
+            $terms = explode(" ", $filters["name"]);
+            foreach($terms as $key => $term){
+                $list->andWhere('rc.name LIKE :name'.$key);
+                $list->setParameter('name'.$key, '%' .$term . '%');
+            }
         }
 
         if (isset($filters["description"])) {
-            $list->andWhere('rc.description like :description');
-            $list->setParameter('description', '%' . $filters["description"] . '%');
+            $terms = explode(" ", $filters["description"]);
+            foreach($terms as $key => $term){
+                $list->andWhere('rc.description LIKE :description'.$key);
+                $list->setParameter('description'.$key, '%' .$term . '%');
+            }
         }
 
         if (isset($filters["state"])) {

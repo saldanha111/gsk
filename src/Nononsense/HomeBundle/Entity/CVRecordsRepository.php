@@ -3,6 +3,7 @@
 namespace Nononsense\HomeBundle\Entity;
 
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\Query\ResultSetMapping;
 
 /**
  * CVRecordsRepository
@@ -135,7 +136,7 @@ class CVRecordsRepository extends EntityRepository
         switch($type){
             case "list":
                 $list = $this->createQueryBuilder('i')
-                    ->select('i.id', 't.name','u.name creator','i.created','i.modified','t.logbook','s.name state','s.nameReconc stateReconc','i.inEdition','t.logbook','a.nameAlternative pendingAction','sigu.id idNextSigner','ty.name type','s.final finalState','s.color colorState','s.icon iconState','s.canBeOpened canBeOpenedState','s.nameAlternative alternativeState','s.nameAlternativeReconc  alternativeStateReconc','ty.id type_id','sig.version','a.id action','s.id state_id','IDENTITY(i.reconciliation) reconId','IDENTITY(i.firstReconciliation) reconFirstId','ar.name area','IDENTITY(i.firstNested) firstNestedId','IDENTITY(last.action) lastAction','IDENTITY(sig.action) lastActionUnsigned','IDENTITY(i.userGxP) usergxp','i.ecoNextOnStandBy');
+                    ->select('i.id', 't.number', 't.numEdition', 't.name','u.name creator','i.created','i.modified','t.logbook','s.name state','s.nameReconc stateReconc','i.inEdition','t.logbook','a.nameAlternative pendingAction','sigu.id idNextSigner','ty.name type','s.final finalState','s.color colorState','s.icon iconState','s.canBeOpened canBeOpenedState','s.nameAlternative alternativeState','s.nameAlternativeReconc  alternativeStateReconc','ty.id type_id','sig.version','a.id action','s.id state_id','IDENTITY(i.reconciliation) reconId','IDENTITY(i.firstReconciliation) reconFirstId','ar.name area','IDENTITY(i.firstNested) firstNestedId','IDENTITY(last.action) lastAction','IDENTITY(sig.action) lastActionUnsigned','IDENTITY(i.userGxP) usergxp','i.ecoNextOnStandBy');
 
                 if((!isset($filters["gxp"]) && !isset($filters["blocked"]))){
                     if(isset($require_action)){
@@ -196,7 +197,7 @@ class CVRecordsRepository extends EntityRepository
             $list->orderBy('i.id', 'DESC');
         }
 
-
+        $list->andWhere('i.retentionRemovedAt IS NULL');
 
         if(!empty($filters)){
 
@@ -376,8 +377,6 @@ class CVRecordsRepository extends EntityRepository
                 $list->andWhere('i.id=:nested_history OR IDENTITY(i.firstNested)=:nested_history');
                 $list->setParameter('nested_history', $filters["nested_history"]);
             }
-
-
         }
 
 
@@ -395,5 +394,212 @@ class CVRecordsRepository extends EntityRepository
                 return $query->getSingleResult()["conta"];
                 break;
         }
+    }
+
+    public function list($type,$filters)
+    {
+        $em = $this->getEntityManager();
+        $rsm = new ResultSetMapping();
+        
+
+        $sintax=" ";
+        $logical=" WHERE ";
+        $orderby=" ORDER BY cv.id DESC, s.id DESC";
+
+        $tables_extra="";
+        $fields_extra="";
+
+        if(empty($filters) || !isset($filters["retention_action"]) || $filters["retention_action"]!="4"){
+            $sintax.=$logical." cv.retention_removed_at IS NULL";
+            $logical=" AND ";
+        }
+        else{
+            $sintax.=$logical." cv.retention_removed_at IS NOT NULL";
+            $logical=" AND ";
+        }
+
+        if(!empty($filters)){
+            if(isset($filters["name"])){
+                $terms = explode(" ", $filters["name"]);
+                foreach($terms as $key => $term){
+                    $sintax.=$logical." t.name LIKE :name".$key;
+                    $parameters["name".$key]="%".$term."%";
+                    $logical=" AND ";
+                }
+            }
+
+            if(isset($filters["number"])){
+                $sintax.=$logical." t.number=:number";
+                $parameters["number"]=$filters["number"];
+                $logical=" AND ";
+            }
+
+            if(isset($filters["template"])){
+                $sintax.=$logical." t.id=:template";
+                $parameters["template"]=$filters["template"];
+                $logical=" AND ";
+            }
+
+            if(isset($filters["area"])){
+                $sintax.=$logical." a.id=:area";
+                $parameters["area"]=$filters["area"];
+                $logical=" AND ";
+            }
+
+            if(isset($filters["state"])){
+                $sintax.=$logical." s.id IN (:state)";
+                $parameters["state"]=explode(",", $filters["state"]);
+                $logical=" AND ";
+            }
+
+            if(isset($filters["id"])){
+                $sintax.=$logical." cv.id=:id";
+                $parameters["id"]=$filters["id"];
+                $logical=" AND ";
+            }
+
+            if(isset($filters["retentions"])){
+                $sintax.=$logical." cv.id IN (:retentions)";
+                $parameters["retentions"]=$filters["retentions"];
+                $logical=" AND ";
+            }
+            
+            if(isset($filters["retention_type"])){
+                $sintax.=$logical." s.id IN (3,6,7)";
+                $logical=" AND ";
+
+                $tables_extra.=" LEFT JOIN tm_retentions tmr ON tmr.tmtemplates_id=t.id AND tmr.retentioncategories_id = (SELECT TOP 1 rc2.id FROM retention_categories rc2 LEFT JOIN rc_states rcs2 ON rc2.document_state=rcs2.id AND rcs2.type=2 WHERE s.id IN (SELECT value FROM STRING_SPLIT(rcs2.relational_id,',')) AND rc2.id IN (SELECT tmr2.retentioncategories_id FROM tm_retentions tmr2 WHERE tmr2.tmtemplates_id=t.id) ORDER BY rc2.retention_days DESC) LEFT JOIN retention_categories rc ON tmr.retentioncategories_id=rc.id LEFT JOIN users cu ON rc.destroy_user=cu.id LEFT JOIN groups cg ON rc.destroy_group=cg.id LEFT JOIN rc_states rcs ON rc.document_state=rcs.id LEFT JOIN cv_signatures accret ON accret.record_id=cv.id AND accret.id = (SELECT MAX(accret2.id) FROM cv_signatures accret2 LEFT JOIN cv_actions cva ON accret2.action_id=cva.id WHERE cva.next_state=s.id AND accret2.record_id=cv.id)";
+                $fields_extra.=",rc.name mostRestrictiveCategory, accret.modified retentionDate, DATEADD(day,rc.retention_days,accret.modified) DestructionDate,cu.id confirmUser,cg.id confirmGroup,cu.name confirmUserName,cg.name confirmGroupName";
+                $rsm->addScalarResult('mostRestrictiveCategory', 'mostRestrictiveCategory');
+                $rsm->addScalarResult('DestructionDate', 'DestructionDate');
+                $rsm->addScalarResult('retentionDate', 'retentionDate');
+                $rsm->addScalarResult('confirmUser', 'confirmUser');
+                $rsm->addScalarResult('confirmGroup', 'confirmGroup');
+                $rsm->addScalarResult('confirmUserName', 'confirmUserName');
+                $rsm->addScalarResult('confirmGroupName', 'confirmGroupName');
+                $orderby=" ORDER BY DestructionDate DESC";
+
+                if(isset($filters["category"])){
+                    $terms = explode(" ", $filters["category"]);
+                    foreach($terms as $key => $term){
+                        $sintax.=$logical." rc.name LIKE :category".$key;
+                        $parameters["category".$key]="%".$term."%";
+                        $logical=" AND ";
+                    }
+                }
+
+                if(isset($filters["destruction_from"])){
+                    $sintax.=$logical." DATEADD(day,rc.retention_days,accret.modified)>=:destruction_from";
+                    $parameters["destruction_from"]=$filters["destruction_from"];
+                    $logical=" AND ";
+                }
+
+                if(isset($filters["destruction_until"])){
+                    $sintax.=$logical." DATEADD(day,rc.retention_days,accret.modified)<=:destruction_until";
+                    $parameters["destruction_until"]=$filters["destruction_until"];
+                    $logical=" AND ";
+                }
+
+                if(isset($filters["retention_from"])){
+                    $sintax.=$logical." CASE accret.modified>=:retention_from";
+                    $parameters["retention_from"]=$filters["retention_from"];
+                    $logical=" AND ";
+                }
+
+                if(isset($filters["retention_until"])){
+                    $sintax.=$logical." CASE accret.modified<=:retention_until";
+                    $parameters["retention_until"]=$filters["retention_until"];
+                    $logical=" AND ";
+                }
+
+                if(isset($filters["agent"])){
+                    $sintax.=$logical." cu.id=:agent";
+                    $parameters["agent"]=$filters["agent"];
+                    $logical=" AND ";
+                }
+
+                if(isset($filters["group_agent"])){
+                    $sintax.=$logical." cg.id=:group_agent";
+                    $parameters["group_agent"]=$filters["group_agent"];
+                    $logical=" AND ";
+                }
+
+                if(isset($filters["retention_action"])){
+                    switch($filters["retention_action"]){
+                        case "2":   $sintax.=$logical." DATEADD(day,rc.retention_days,accret.modified)<=DATEADD(month,6,GETDATE()) AND (rc.destroy_user=:confirm_user_retention OR rc.destroy_group IN (:confirm_groups_retention))";
+                                    $logical=" AND ";
+                                    $parameters["confirm_user_retention"]=$filters["user_retention"];
+                                    $parameters["confirm_groups_retention"]=$filters["groups_retention"];
+                            break;
+                        case "3":   $sintax.=$logical." DATEADD(day,rc.retention_days,accret.modified)<=GETDATE() AND (rc.destroy_user=:confirm_user_retention OR rc.destroy_group IN (:confirm_groups_retention))";
+                                    $logical=" AND ";
+                                    $parameters["confirm_user_retention"]=$filters["user_retention"];
+                                    $parameters["confirm_groups_retention"]=$filters["groups_retention"];
+                            break;
+                    }
+                    
+                }
+
+                if(isset($filters["notify_retention"])){
+                    $sintax.=$logical." DATEADD(day,rc.retention_days,accret.modified)<=GETDATE()";
+                        $logical=" AND ";
+                }
+            }
+
+        }
+
+
+
+        $sintax = " FROM cv_records cv LEFT JOIN tm_templates t ON cv.template_id=t.id LEFT JOIN areas a ON t.area_id=a.id LEFT JOIN cv_states s ON cv.state_id=s.id LEFT JOIN users uo ON t.owner_id=uo.id LEFT JOIN users ub ON t.backup_id=ub.id ".$tables_extra.$sintax;
+
+        switch($type){
+            case "list": 
+                if(isset($filters["limit_from"])){
+                    $limit=" OFFSET :from ROWS FETCH NEXT :many ROWS ONLY";
+                    $parameters["from"]=$filters["limit_from"]*$filters["limit_many"];
+                    $parameters["many"]=$filters["limit_many"];
+                }
+                else{
+                    $limit=" OFFSET 0 ROWS FETCH NEXT 999999999 ROWS ONLY";
+                }
+                
+                $query = $em->createNativeQuery("SELECT cv.id,t.name,a.name nameArea,t.number,t.num_edition numEdition,s.name stateName,t.id templateId,uo.name ownerName,ub.name backupName,t.effectiveDate".$fields_extra.$sintax." ".$orderby.$limit,$rsm);
+
+
+
+                $rsm->addScalarResult('id', 'id');
+                $rsm->addScalarResult('name', 'name');
+                $rsm->addScalarResult('templateId', 'templateId');
+                $rsm->addScalarResult('nameArea', 'nameArea');
+                $rsm->addScalarResult('number', 'number');
+                $rsm->addScalarResult('numEdition', 'numEdition');
+                $rsm->addScalarResult('reviewDateRetention', 'reviewDateRetention');
+                $rsm->addScalarResult('stateName', 'stateName');
+                $rsm->addScalarResult('ownerName', 'ownerName');
+                $rsm->addScalarResult('backupName', 'backupName');
+                $rsm->addScalarResult('effectiveDate', 'effectiveDate');
+
+                if(!empty($parameters)){
+                    $query->setParameters($parameters);
+                }
+
+
+                $items=$query->getResult();
+                break;
+
+            case "count":
+                $query = $em->createNativeQuery("SELECT COUNT(DISTINCT cv.id) conta ".$sintax,$rsm);
+
+                $rsm->addScalarResult('conta', 'conta');
+                if(!empty($parameters)){
+                    $query->setParameters($parameters);
+                }
+
+                $items=$query->getSingleResult()["conta"];
+                break;
+
+        }
+        
+        return $items;
     }
 }

@@ -174,11 +174,6 @@ class TMTemplates
     protected $effectiveDate;
 
     /**
-     * @ORM\Column(type="date", nullable=true)
-     */
-    protected $reviewDate;
-
-    /**
      * @ORM\ManyToMany(targetEntity="\Nononsense\HomeBundle\Entity\RetentionCategories", inversedBy="templates")
      * @ORM\JoinTable(name="tm_retentions")
      */
@@ -331,6 +326,18 @@ class TMTemplates
      * @ORM\OneToMany(targetEntity="\Nononsense\NotificationsBundle\Entity\NotificationsModels", mappedBy="templateId")
      */
     protected $notificationsModels;
+
+    /**
+     * @var boolean
+     *
+     * @ORM\Column(name="retention_on_review", type="boolean",  options={"default" = false}, nullable=true)
+     */
+    protected $retentionOnReview;
+
+    /**
+     * @ORM\Column(name="retention_removed_at", type="date", nullable=true)
+     */
+    protected $retentionRemovedAt;
 
 
     public function __construct()
@@ -573,39 +580,6 @@ class TMTemplates
     public function getState()
     {
         return $this->state;
-    }
-
-    /**
-     * Add tmSignatures
-     *
-     * @param \Nononsense\HomeBundle\Entity\TMSignatures $tmSignatures
-     * @return TMTemplates
-     */
-    public function addTmSignature(\Nononsense\HomeBundle\Entity\TMSignatures $tmSignatures)
-    {
-        $this->tmSignatures[] = $tmSignatures;
-
-        return $this;
-    }
-
-    /**
-     * Remove tmSignatures
-     *
-     * @param \Nononsense\HomeBundle\Entity\TMSignatures $tmSignatures
-     */
-    public function removeTmSignature(\Nononsense\HomeBundle\Entity\TMSignatures $tmSignatures)
-    {
-        $this->tmSignatures->removeElement($tmSignatures);
-    }
-
-    /**
-     * Get tmSignatures
-     *
-     * @return \Doctrine\Common\Collections\Collection 
-     */
-    public function getTmSignatures()
-    {
-        return $this->tmSignatures;
     }
 
     /**
@@ -1076,29 +1050,6 @@ class TMTemplates
     }
 
     /**
-     * Set reviewDate
-     *
-     * @param \DateTime $reviewDate
-     * @return TMTemplates
-     */
-    public function setReviewDate($reviewDate)
-    {
-        $this->reviewDate = $reviewDate;
-
-        return $this;
-    }
-
-    /**
-     * Get reviewDate
-     *
-     * @return \DateTime
-     */
-    public function getReviewDate()
-    {
-        return $this->reviewDate;
-    }
-
-    /**
      * Set token
      *
      * @param string $token
@@ -1563,4 +1514,52 @@ class TMTemplates
     {
         return $this->notificationsModels;
     }
+
+
+    /**
+     * Set retentionOnReview
+     *
+     * @param boolean $retentionOnReview
+     * @return TMTemplates
+     */
+    public function setRetentionOnReview($retentionOnReview)
+    {
+        $this->retentionOnReview = $retentionOnReview;
+
+        return $this;
+    }
+
+    /**
+     * Get retentionOnReview
+     *
+     * @return boolean 
+     */
+    public function getRetentionOnReview()
+    {
+        return $this->retentionOnReview;
+    }
+
+    /**
+     * Set retentionRemovedAt
+     *
+     * @param \DateTime $retentionRemovedAt
+     * @return TMTemplates
+     */
+    public function setRetentionRemovedAt($retentionRemovedAt)
+    {
+        $this->retentionRemovedAt = $retentionRemovedAt;
+
+        return $this;
+    }
+
+    /**
+     * Get retentionRemovedAt
+     *
+     * @return \DateTime 
+     */
+    public function getRetentionRemovedAt()
+    {
+        return $this->retentionRemovedAt;
+    }
+
 }

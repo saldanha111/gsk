@@ -612,6 +612,30 @@ nononsense_templates_old_edition_json:
     defaults: { _controller: NononsenseHomeBundle:TemplateManagementRequest:retrieveDataOldEdition, templateId: 0}
 
 # Retención
+nononsense_retention_list:
+    path: /retentions/
+    methods:    [GET]
+    defaults: { _controller: NononsenseHomeBundle:RetentionRecords:list}
+
+nononsense_retention_edit:
+    path: /retentions/{id}
+    methods:    [GET]
+    defaults: { _controller: NononsenseHomeBundle:RetentionRecords:edit}
+
+nononsense_retention_edit_update:
+    path: /retentions/{id}
+    methods:    [POST]
+    defaults: { _controller: NononsenseHomeBundle:RetentionRecords:updateRecord}
+
+nononsense_retention_log:
+    path: /retentions-logs/
+    methods:    [GET]
+    defaults: { _controller: NononsenseHomeBundle:RetentionLogs:list}
+
+nononsense_retention_update:
+    path: /retentions/
+    methods:    [POST]
+    defaults: { _controller: NononsenseHomeBundle:RetentionRecords:update}
 
 nononsense_retention_categories_list:
     path: /retention-categories

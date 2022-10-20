@@ -25,53 +25,47 @@
             {% endfor %}
             <form id="form_item" action="{{ path('nononsense_retention_categories_list') }}" method="GET">
                 <div class="row">
-                    <div class="col-md-2 col-sm-5 form-group">
-                        <label class="control-label">Nombre</label>
-                        <div>
-                            <input type="text" name="f_name" class="form-control" value="{{filters.name is defined ? filters.name : ''}}">
-                        </div>
+                    <label class="col-sm-1 control-label item_filter">Nombre</label>
+                    <div class="col-sm-2 item_filter">
+                        <input type="text" name="f_name" class="form-control" value="{{filters.name is defined ? filters.name : ''}}">
                     </div>
-                    <div class="col-md-2 col-sm-5 form-group">
-                        <label class="control-label">Descripción</label>
-                        <div>
-                            <input type="text" name="f_description" class="form-control" value="{{filters.description is defined ? filters.description : ''}}">
-                        </div>
+
+                    <label class="col-sm-1 control-label item_filter">Descripción</label>
+                    <div class="col-sm-2 item_filter">
+                        <input type="text" name="f_description" class="form-control" value="{{filters.description is defined ? filters.description : ''}}">
                     </div>
-                    <div class="col-md-2 col-sm-5 form-group">
-                        <label class="control-label">Tipo</label>
-                        <div>
-                            <select class="form-control" name="f_type">
-                                <option value=""></option>
-                                {% for type in types %}
-                                    <option value="{{type.id}}" {{ filters.type is defined and filters.type is not null and filters.type==type.id ? 'selected="selected"' : ''}}>{{type.name}}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
+
+                    <label class="col-sm-1 control-label item_filter">Tipo</label>
+                    <div class="col-sm-2 item_filter">
+                        <select class="form-control" name="f_type">
+                            <option value=""></option>
+                            {% for type in types %}
+                                <option value="{{type.id}}" {{ filters.type is defined and filters.type is not null and filters.type==type.id ? 'selected="selected"' : ''}}>{{type.name}}</option>
+                            {% endfor %}
+                        </select>
                     </div>
-                    <div class="col-md-2 col-sm-5 form-group">
-                        <label class="control-label">Estado</label>
-                        <div>
-                            <select class="form-control" name="f_state">
-                                <option value=""></option>
-                                {% for state in states %}
-                                    <option value="{{state.id}}" {{ filters.state is defined and filters.state is not null and filters.state==state.id ? 'selected="selected"' : ''}}>{{state.name}}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-md-2 col-sm-5 form-group">
-                        <label class="control-label">Activo</label>
-                        <div>
-                            <select class="form-control" name="f_active">
-                                <option value=""></option>
-                                <option value="0" {{ filters.active is defined and filters.active is not null and filters.active==0 ? 'selected="selected"' : ''}}>No</option>
-                                <option value="1" {{ filters.active is defined and filters.active is not null and filters.active==1 ? 'selected="selected"' : ''}}>Si</option>
-                            </select>
-                        </div>
+
+                    <label class="col-sm-1 control-label item_filter">Estado</label>
+                    <div class="col-sm-2 item_filter">
+                        <select class="form-control" name="f_state">
+                            <option value=""></option>
+                            {% for state in states %}
+                                <option value="{{state.id}}" {{ filters.state is defined and filters.state is not null and filters.state==state.id ? 'selected="selected"' : ''}}>{{state.name}}</option>
+                            {% endfor %}
+                        </select>
                     </div>
                 </div>
+                <br>
                 <div class="row">
-                    <div class="col-md-2 col-sm-5 form-group">
+                    <label class="col-sm-1 control-label item_filter">Activo</label>
+                    <div class="col-sm-2 item_filter">
+                        <select class="form-control" name="f_active">
+                            <option value=""></option>
+                            <option value="0" {{ filters.active is defined and filters.active is not null and filters.active==0 ? 'selected="selected"' : ''}}>No</option>
+                            <option value="1" {{ filters.active is defined and filters.active is not null and filters.active==1 ? 'selected="selected"' : ''}}>Si</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-4 item_filter">
                         <button type="submit" class="btn btn-primary">Filtrar</button>
                     </div>
                 </div>
@@ -115,7 +109,8 @@
                         <td>
                             {% if item.destroyUser is defined and item.destroyUser is not null %}
                                 {{ item.destroyUser.name }}
-                            {% else %}
+                            {% endif %}
+                            {% if item.destroyGroup is defined and item.destroyGroup is not null %}
                                 {{ item.destroyGroup.name }}
                             {% endif %}
                         </td>

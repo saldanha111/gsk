@@ -327,6 +327,11 @@ class TMTemplates
      */
     protected $notificationsModels;
 
+    /**
+     * @ORM\Column(name="retention_removed_at", type="date", nullable=true)
+     */
+    protected $retentionRemovedAt;
+
 
     public function __construct()
     {
@@ -568,39 +573,6 @@ class TMTemplates
     public function getState()
     {
         return $this->state;
-    }
-
-    /**
-     * Add tmSignatures
-     *
-     * @param \Nononsense\HomeBundle\Entity\TMSignatures $tmSignatures
-     * @return TMTemplates
-     */
-    public function addTmSignature(\Nononsense\HomeBundle\Entity\TMSignatures $tmSignatures)
-    {
-        $this->tmSignatures[] = $tmSignatures;
-
-        return $this;
-    }
-
-    /**
-     * Remove tmSignatures
-     *
-     * @param \Nononsense\HomeBundle\Entity\TMSignatures $tmSignatures
-     */
-    public function removeTmSignature(\Nononsense\HomeBundle\Entity\TMSignatures $tmSignatures)
-    {
-        $this->tmSignatures->removeElement($tmSignatures);
-    }
-
-    /**
-     * Get tmSignatures
-     *
-     * @return \Doctrine\Common\Collections\Collection 
-     */
-    public function getTmSignatures()
-    {
-        return $this->tmSignatures;
     }
 
     /**
@@ -1534,5 +1506,62 @@ class TMTemplates
     public function getNotificationsModels()
     {
         return $this->notificationsModels;
+    }
+
+    /**
+     * Set retentionRemovedAt
+     *
+     * @param \DateTime $retentionRemovedAt
+     * @return TMTemplates
+     */
+    public function setRetentionRemovedAt($retentionRemovedAt)
+    {
+        $this->retentionRemovedAt = $retentionRemovedAt;
+
+        return $this;
+    }
+
+    /**
+     * Get retentionRemovedAt
+     *
+     * @return \DateTime 
+     */
+    public function getRetentionRemovedAt()
+    {
+        return $this->retentionRemovedAt;
+    }
+
+
+    /**
+     * Add tmSignatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMSignatures $tmSignatures
+     * @return TMTemplates
+     */
+    public function addTmSignature(\Nononsense\HomeBundle\Entity\TMSignatures $tmSignatures)
+    {
+        $this->tmSignatures[] = $tmSignatures;
+
+        return $this;
+    }
+
+    /**
+     * Remove tmSignatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMSignatures $tmSignatures
+     */
+    public function removeTmSignature(\Nononsense\HomeBundle\Entity\TMSignatures $tmSignatures)
+    {
+        $this->tmSignatures->removeElement($tmSignatures);
+    }
+
+    /**
+     * Get tmSignatures
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getTmSignatures()
+    {
+        return $this->tmSignatures;
     }
 }

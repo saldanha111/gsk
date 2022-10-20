@@ -316,9 +316,9 @@ class Users implements AdvancedUserInterface, \Serializable
     protected $pinComite;
 
     /**
-     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\RCSignatures", mappedBy="userEntiy")
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\RetentionSignatures", mappedBy="userEntiy")
      */
-    protected $rcSignatures;
+    protected $retentionSignatures;
 
     /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\Delegations", mappedBy="user")
@@ -1762,39 +1762,6 @@ class Users implements AdvancedUserInterface, \Serializable
     }
 
     /**
-     * Add rcSignatures
-     *
-     * @param \Nononsense\HomeBundle\Entity\RCSignatures $rcSignatures
-     * @return Users
-     */
-    public function addRcSignature(\Nononsense\HomeBundle\Entity\RCSignatures $rcSignatures)
-    {
-        $this->rcSignatures[] = $rcSignatures;
-
-        return $this;
-    }
-
-    /**
-     * Remove rcSignatures
-     *
-     * @param \Nononsense\HomeBundle\Entity\RCSignatures $rcSignatures
-     */
-    public function removeRcSignature(\Nononsense\HomeBundle\Entity\RCSignatures $rcSignatures)
-    {
-        $this->rcSignatures->removeElement($rcSignatures);
-    }
-
-    /**
-     * Get rcSignatures
-     *
-     * @return \Doctrine\Common\Collections\Collection
-     */
-    public function getRcSignatures()
-    {
-        return $this->rcSignatures;
-    }
-
-    /**
      * Set mudId
      *
      * @param string $mudId
@@ -2168,5 +2135,38 @@ class Users implements AdvancedUserInterface, \Serializable
     public function getNotificationsModels()
     {
         return $this->notificationsModels;
+    }
+
+    /**
+     * Add retentionSignatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\RetentionSignatures $retentionSignatures
+     * @return Users
+     */
+    public function addRetentionSignature(\Nononsense\HomeBundle\Entity\RetentionSignatures $retentionSignatures)
+    {
+        $this->retentionSignatures[] = $retentionSignatures;
+
+        return $this;
+    }
+
+    /**
+     * Remove retentionSignatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\RetentionSignatures $retentionSignatures
+     */
+    public function removeRetentionSignature(\Nononsense\HomeBundle\Entity\RetentionSignatures $retentionSignatures)
+    {
+        $this->retentionSignatures->removeElement($retentionSignatures);
+    }
+
+    /**
+     * Get retentionSignatures
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getRetentionSignatures()
+    {
+        return $this->retentionSignatures;
     }
 }
