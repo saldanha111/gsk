@@ -222,11 +222,12 @@
         });
 
         $(document).on('change','select[name="type"]',function(){
-            $('select[name="state"]').val("");
-            $(".opt_type").prop('disabled',true);
-            $(".opt_"+$(this).val()).prop('disabled',false);
+            disable_sates($(this),true);
         });
 
+        {% if category.id is defined and category.id is not null%}
+            disable_sates($('select[name="type"]'),false);
+        {% endif %}
 
         $(document).on('click','.submit-category',function(e){
             if($(this).data("action")=="remove"){
@@ -295,6 +296,14 @@
         });
 
     });
+
+    function disable_sates(element,change){
+        if(change){
+            $('select[name="state"]').val("");
+        }
+        $(".opt_type").prop('disabled',true);
+        $(".opt_"+element.val()).prop('disabled',false);
+    }
     </script>
 {% endblock %}
 
