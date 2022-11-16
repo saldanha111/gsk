@@ -322,7 +322,7 @@ class RetentionRecordsController extends Controller
         }
 
         $class=TMTemplates::class;
-
+        $type="template";
 
         $em = $this->getDoctrine()->getManager();
         $item = $em->getRepository($class)->findOneBy(array("id" => $id));
@@ -346,6 +346,7 @@ class RetentionRecordsController extends Controller
                 $em->persist($item);
             }
         }
+
 
         $this->get('utilities')->saveLogRetention($this->getUser(),2,$request->get('comment'),$type,$id);
 
