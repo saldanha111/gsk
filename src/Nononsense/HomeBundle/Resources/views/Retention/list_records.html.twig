@@ -186,8 +186,15 @@
                                     <td>{{item.retentionDate is defined and item.retentionDate is not null ? item.retentionDate|date("d/m/Y")|gskdate : ''}}</td>
                                     <td>
                                         {% if filters.retention_action is defined and filters.retention_action=="3" %}
-                                            <a class="btn btn-xs btn-danger btn-retention" href="javascript:void(0)" data-info="Eliminar registro {{item.name}} (ID {{item.id}})" data-id="{{item.id}}" data-unique="1"><i class="fa fa-trash" aria-hidden="true"></i> Eliminar</a>
+                                            <a class="btn btn-xs btn-danger btn-retention" href="javascript:void(0)" data-info="Eliminar registro {{item.name}} (ID {{item.id}})" data-id="{{item.id}}" data-unique="1" data-action="2"><i class="fa fa-trash" aria-hidden="true"></i> Eliminar</a>
                                         {% endif %}
+
+                                        {% if filters.retention_action is defined and (filters.retention_action=="2" or filters.retention_action=="3") %}
+                                            <a class="btn btn-xs btn-primary btn-retention"  href="javascript:void(0)" data-action="1" data-info="Revisar registro {{item.name}} (ID {{item.id}})" data-id="{{item.id}}" data-unique="1"><i class="fa fa-check" aria-hidden="true"></i> Revisar</a>
+                                        {% endif %}
+                                        {% if item.retentionRevision is defined and item.retentionRevision %}
+                                            <a class="btn btn-xs btn-warning" target="_blank"  href="{{path('nononsense_retention_log')}}?action=3&id={{item.id}}"><i class="fa fa-warning" aria-hidden="true"></i> Revisado</a>
+                                        {% endif %}  
                                     </td>
                                     <td><a class="btn btn-xs btn-info" href="{{path(audittrail, {'id': item.id})}}" target="_self"><i class="fa fa-book" aria-hidden="true"></i> Audit Trail</a></td>
                                     <td><input class="checkpem" name="retentions[]" value="{{item.id}}" type="checkbox"></td>
@@ -195,10 +202,13 @@
                                 
                             {% endfor %}
                         {% endif %}
-                        {% if filters.retention_action is defined and count>0 and filters.retention_action=="3" %}
+                        {% if filters.retention_action is defined and count>0 and (filters.retention_action=="3" or filters.retention_action=="2") %}
                             <tr>
                                 <th colspan="12">
-                                    <a class="btn btn-danger pull-right btn-retention" href="javascript:void(0)" data-info="Eliminar"><i class="fa fa-trash" aria-hidden="true"></i> Eliminar</a>
+                                    <a class="btn btn-primary pull-right bnt-separator2 btn-retention" href="javascript:void(0)" data-action="1" data-info="Revisar"><i class="fa fa-check" aria-hidden="true"></i> Revisar</a>
+                                    {% if filters.retention_action is defined and filters.retention_action=="3" %}
+                                        <a class="btn btn-danger pull-right btn-retention" href="javascript:void(0)" data-action="2" data-info="Eliminar"><i class="fa fa-trash" aria-hidden="true"></i> Eliminar</a>
+                                    {% endif %} 
                                 </th>
                                 <th><input id="record_masive" class="supcheck" type="checkbox"></th>
                             </tr>
@@ -344,6 +354,7 @@
     });
 
     $(document).on('click','#sign_modal_retention',function(e){
+        $('[name="action"]').val(retention_btn.data("action"));
         if ($('#modal_comment').is(":visible") && !$('#modal_comment').val()){
             swal({
                 title: "Atención",

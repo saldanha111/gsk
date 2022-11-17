@@ -257,11 +257,21 @@ class RetentionRecordsController extends Controller
         }
         
         $records=$this->getDoctrine()->getRepository($class)->findBy(array("id" => $ids));
-        foreach($records as $record){
-            $record->setRetentionRemovedAt(new DateTime());
-            $this->get('utilities')->saveLogRetention($this->getUser(),1,$request->get('comment'),$type,$record->getId());
-            break;
-            $em->persist($record);
+        switch($request->get("action")){
+            case "1":
+                foreach($records as $record){
+                    $record->setRetentionRevision(TRUE);
+                    $this->get('utilities')->saveLogRetention($this->getUser(),3,$request->get('comment'),$type,$record->getId());
+                    $em->persist($record);
+                }
+                break;
+            case "2":
+                foreach($records as $record){
+                    $record->setRetentionRemovedAt(new DateTime());
+                    $this->get('utilities')->saveLogRetention($this->getUser(),1,$request->get('comment'),$type,$record->getId());
+                    $em->persist($record);
+                }
+                break;
         }
 
 

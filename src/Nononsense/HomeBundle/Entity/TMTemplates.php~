@@ -328,16 +328,16 @@ class TMTemplates
     protected $notificationsModels;
 
     /**
-     * @var boolean
-     *
-     * @ORM\Column(name="retention_on_review", type="boolean",  options={"default" = false}, nullable=true)
-     */
-    protected $retentionOnReview;
-
-    /**
      * @ORM\Column(name="retention_removed_at", type="date", nullable=true)
      */
     protected $retentionRemovedAt;
+
+    /**
+     * @var boolean 
+     *
+     * @ORM\Column(name="retention_revision", type="boolean", nullable=true)
+     */
+    protected $retentionRevision;
 
 
     public function __construct()
@@ -1515,30 +1515,6 @@ class TMTemplates
         return $this->notificationsModels;
     }
 
-
-    /**
-     * Set retentionOnReview
-     *
-     * @param boolean $retentionOnReview
-     * @return TMTemplates
-     */
-    public function setRetentionOnReview($retentionOnReview)
-    {
-        $this->retentionOnReview = $retentionOnReview;
-
-        return $this;
-    }
-
-    /**
-     * Get retentionOnReview
-     *
-     * @return boolean 
-     */
-    public function getRetentionOnReview()
-    {
-        return $this->retentionOnReview;
-    }
-
     /**
      * Set retentionRemovedAt
      *
@@ -1562,4 +1538,37 @@ class TMTemplates
         return $this->retentionRemovedAt;
     }
 
+
+    /**
+     * Add tmSignatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMSignatures $tmSignatures
+     * @return TMTemplates
+     */
+    public function addTmSignature(\Nononsense\HomeBundle\Entity\TMSignatures $tmSignatures)
+    {
+        $this->tmSignatures[] = $tmSignatures;
+
+        return $this;
+    }
+
+    /**
+     * Remove tmSignatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMSignatures $tmSignatures
+     */
+    public function removeTmSignature(\Nononsense\HomeBundle\Entity\TMSignatures $tmSignatures)
+    {
+        $this->tmSignatures->removeElement($tmSignatures);
+    }
+
+    /**
+     * Get tmSignatures
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getTmSignatures()
+    {
+        return $this->tmSignatures;
+    }
 }

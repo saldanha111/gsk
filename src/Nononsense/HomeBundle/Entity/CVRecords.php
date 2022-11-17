@@ -166,6 +166,13 @@ class CVRecords
      */
     protected $retentionRemovedAt;
 
+    /**
+     * @var boolean 
+     *
+     * @ORM\Column(name="retention_revision", type="boolean", nullable=true)
+     */
+    protected $retentionRevision;
+
     
     public function __construct()
     {
@@ -781,5 +788,28 @@ class CVRecords
     public function getRetentionRemovedAt()
     {
         return $this->retentionRemovedAt;
+    }
+
+    /**
+     * Set retentionRevision
+     *
+     * @param boolean $retentionRevision
+     * @return CVRecords
+     */
+    public function setRetentionRevision($retentionRevision)
+    {
+        $this->retentionRevision = $retentionRevision;
+
+        return $this;
+    }
+
+    /**
+     * Get retentionRevision
+     *
+     * @return boolean 
+     */
+    public function getRetentionRevision()
+    {
+        return $this->retentionRevision;
     }
 }

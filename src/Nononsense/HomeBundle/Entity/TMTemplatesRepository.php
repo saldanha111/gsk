@@ -226,7 +226,7 @@ class TMTemplatesRepository extends EntityRepository
                 $logical=" AND ";
 
                 $tables_extra.=" LEFT JOIN tm_retentions tmr ON tmr.tmtemplates_id=t.id AND tmr.retentioncategories_id = (SELECT TOP 1 rc2.id FROM retention_categories rc2 LEFT JOIN rc_states rcs2 ON rc2.document_state=rcs2.id AND rcs2.type=1 WHERE s.id IN (SELECT value FROM STRING_SPLIT(rcs2.relational_id,',')) AND rc2.id IN (SELECT tmr2.retentioncategories_id FROM tm_retentions tmr2 WHERE tmr2.tmtemplates_id=t.id) ORDER BY rc2.retention_days DESC) LEFT JOIN retention_categories rc ON tmr.retentioncategories_id=rc.id LEFT JOIN users cu ON rc.destroy_user=cu.id LEFT JOIN groups cg ON rc.destroy_group=cg.id LEFT JOIN rc_states rcs ON rc.document_state=rcs.id LEFT JOIN tm_signatures accret ON accret.template_id=t.id AND accret.action_id=9 LEFT JOIN tm_templates newt ON newt.template_id=t.id";
-                $fields_extra.=",rc.name mostRestrictiveCategory, CASE WHEN t.state_id=8 THEN accret.modified ELSE newt.effectiveDate END retentionDate, DATEADD(day,rc.retention_days,CASE WHEN t.state_id=8 THEN accret.modified ELSE newt.effectiveDate END) DestructionDate,cu.id confirmUser,cg.id confirmGroup,cu.name confirmUserName,cg.name confirmGroupName";
+                $fields_extra.=",rc.name mostRestrictiveCategory, CASE WHEN t.state_id=8 THEN accret.modified ELSE newt.effectiveDate END retentionDate, DATEADD(day,rc.retention_days,CASE WHEN t.state_id=8 THEN accret.modified ELSE newt.effectiveDate END) DestructionDate,cu.id confirmUser,cg.id confirmGroup,cu.name confirmUserName,cg.name confirmGroupName,t.retention_revision retentionRevision";
                 $rsm->addScalarResult('mostRestrictiveCategory', 'mostRestrictiveCategory');
                 $rsm->addScalarResult('DestructionDate', 'DestructionDate');
                 $rsm->addScalarResult('retentionDate', 'retentionDate');
@@ -234,6 +234,7 @@ class TMTemplatesRepository extends EntityRepository
                 $rsm->addScalarResult('confirmGroup', 'confirmGroup');
                 $rsm->addScalarResult('confirmUserName', 'confirmUserName');
                 $rsm->addScalarResult('confirmGroupName', 'confirmGroupName');
+                $rsm->addScalarResult('retentionRevision', 'retentionRevision');
                 $orderby=" ORDER BY DestructionDate DESC";
 
                 if(isset($filters["category"])){
