@@ -15,8 +15,12 @@
                     <form class="form-horizontal" id="form_item" action="{{ path('nononsense_retention_log')}}" method="GET">
                         <div class="form-group">
                             <label class="col-sm-1 control-label item_filter">ID</label>
-                            <div class="col-sm-2 item_filter">
+                            <div class="col-sm-1 item_filter">
                                 <input type="number" name="id" class="form-control" value="{{filters.id is defined ? filters.id : ''}}">
+                            </div>
+                            <label class="col-sm-1 control-label item_filter">Usuario</label>
+                            <div class="col-sm-2 item_filter">
+                                <input type="text" name="user" class="form-control" value="{{filters.user is defined ? filters.user : ''}}">
                             </div>
                             <label class="col-sm-1 control-label item_filter">Tipo</label>
                             <div class="col-sm-2 item_filter">
@@ -50,6 +54,7 @@
                             <th>Tipo</th>
                             <th>ID</th>
                             <th>Ácción</th>
+                            <th>Usuario</th>
                             <th>Comentario</th>
                         </tr>
                         </thead>
@@ -76,6 +81,7 @@
                                     {% endif %} 
                                 </td>
                                 <td>{{item.action}}</td>
+                                <td>{{item.user}}</td>
                                 <td>{{item.description}}</td>
                             </tr>
                             {% endfor %}

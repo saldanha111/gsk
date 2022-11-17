@@ -78,6 +78,14 @@ class RetentionSignaturesRepository extends EntityRepository
                         break;
                 }
             }
+
+            if(isset($filters["user"])){
+                $terms = explode(" ", $filters["user"]);
+                foreach($terms as $key => $term){
+                    $list->andWhere('u.name LIKE :user'.$key);
+                    $list->setParameter('user'.$key, '%' . $term. '%');
+                }
+            }
         }
 
         return $list;
