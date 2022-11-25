@@ -155,7 +155,7 @@
                 }
 
                 if(!error){
-                    saveVerification();
+                    checkPO();
                 }
             });
 
@@ -207,6 +207,49 @@
                                     closeOnConfirm: true
                                 });
                             }
+                        });
+                    }
+                });
+            }
+
+            function checkPO()
+            {
+                swal({
+                    title: "Validación necesaria",
+                    text: "Vuelve a escanear el Process order.",
+                    type: "input",
+                    inputType: "text",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#62bbe2',
+                    cancelButtonColor: '#ac2925',
+                    confirmButtonText: "Guardar",
+                    cancelButtonText: "Cancelar",
+                    closeOnConfirm: false
+                }, function (processOrder) {
+                    if(processOrder !== false && processOrder !== ''){
+                        if(processOrder !== $('.lot-code-input').val()){
+                            swal({
+                                title: "Error",
+                                text: "Los process order no coinciden, asegurate de que el process order es correcto.",
+                                icon: 'warning',
+                                showCancelButton: false,
+                                confirmButtonColor: '#62bbe2',
+                                confirmButtonText: "Ok",
+                                closeOnConfirm: true
+                            });
+                        }else{
+                            saveVerification();
+                        }
+                    }else{
+                        swal({
+                            title: "Error",
+                            text: "Ha ocurrido un error al intentar validar el process order",
+                            icon: 'warning',
+                            showCancelButton: false,
+                            confirmButtonColor: '#62bbe2',
+                            confirmButtonText: "Ok",
+                            closeOnConfirm: true
                         });
                     }
                 });
