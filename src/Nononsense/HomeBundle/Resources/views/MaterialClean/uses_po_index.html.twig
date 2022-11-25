@@ -146,7 +146,6 @@
                         sourceSelectPanel.style.display = 'block';
                     }
                     document.getElementById('btn-camera-use').addEventListener('click', () => {
-                        selectedDeviceId = 'undefined';
                         if(selectedDeviceId != 'undefined'){
                             activeCamera();
                             startCapture(codeReader,selectedDeviceId);

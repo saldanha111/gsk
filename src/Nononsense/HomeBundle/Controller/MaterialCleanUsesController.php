@@ -31,6 +31,7 @@ class MaterialCleanUsesController extends Controller
 
         if($request->getMethod() == 'POST') {
             if($request->get('po')){
+                $this->get('logger')->addCritical('1 - MaterialLimpio. Received process order: ' . $request->get('po'));
                 $data['po'] = $request->get('po');
                 return $this->render('NononsenseHomeBundle:MaterialClean:uses_material_index.html.twig',$data);
             }
@@ -56,6 +57,7 @@ class MaterialCleanUsesController extends Controller
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
 
+        $this->get('logger')->addCritical('2 - MaterialLimpio. Start get use data: || po: ' . $po . ', barcode: ' . $barcode);
         if(preg_match('/^\d{8,}$/', $po) !== 1){
             $this->get('session')->getFlashBag()->add('error', "El código del PO tiene que ser numérico y de mínimo 8 caracteres");
             return $this->redirect($this->generateUrl('nononsense_mclean_uses_scan'));
@@ -95,6 +97,7 @@ class MaterialCleanUsesController extends Controller
             'error' => $error
         ];
 
+        $this->get('logger')->addCritical('3 - MaterialLimpio. End get use data: || po: ' . $po . ', barcode: ' . $materialCleanClean->getCode());
         return $this->render('NononsenseHomeBundle:MaterialClean:uses_view.html.twig', $array_item);
     }
 
@@ -108,6 +111,7 @@ class MaterialCleanUsesController extends Controller
         $error = false;
 
         try {
+            $this->get('logger')->addCritical('4 - MaterialLimpio. Start saving use data: || po: ' . $request->get('lot-code') . ', barcode: ' . urldecode($id));
             $po = $request->get('lot-code');
             if(preg_match('/^\d{8,}$/', $po) !== 1){
                 $this->get('session')->getFlashBag()->add('error', "El código del PO tiene que ser numérico y de mínimo 8 caracteres");
@@ -155,9 +159,9 @@ class MaterialCleanUsesController extends Controller
                         <li>Fecha: '.$now->format('d-m-Y H:i:s').'</li>
                     </ul>';
 
-                    $file = Utils::generatePdf($this->container, 'GSK - Material limpio', 'Utilización del material', $html, 'material', $this->getParameter('crt.root_dir'));
-                    Utils::setCertification($this->container, $file, 'material-utilización', $materialCleanClean->getId());
-
+                $file = Utils::generatePdf($this->container, 'GSK - Material limpio', 'Utilización del material', $html, 'material', $this->getParameter('crt.root_dir'));
+                Utils::setCertification($this->container, $file, 'material-utilización', $materialCleanClean->getId());
+                $this->get('logger')->addCritical('5 - MaterialLimpio. Before saving use data: || po: ' . $po . ', barcode: ' . $materialCleanClean->getCode());
                 $materialCleanClean
                     ->setVerificationDate(new DateTime())
                     ->setVerificationUser($this->getUser())
@@ -168,7 +172,7 @@ class MaterialCleanUsesController extends Controller
 
                 $em->persist($materialCleanClean);
                 $em->flush();
-
+                $this->get('logger')->addCritical('6 - MaterialLimpio. After saving use data: || po: ' . $materialCleanClean->getLotNumber() . ', barcode: ' . $materialCleanClean->getCode());
                 $this->get('session')->getFlashBag()->add('message', "La verificación se ha registrado con éxito");
                 return $this->redirect($this->generateUrl('nononsense_mclean_uses_scan'));
             }
