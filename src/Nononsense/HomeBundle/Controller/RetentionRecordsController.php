@@ -200,6 +200,8 @@ class RetentionRecordsController extends Controller
 
         $em = $this->getDoctrine()->getManager();
         $user = $this->container->get('security.context')->getToken()->getUser();
+        $error=FALSE;
+        $error_previous_edition="";
 
         $is_valid = $this->get('app.security')->permissionSeccion('retention_agent');
         if (!$is_valid) {
@@ -267,18 +269,33 @@ class RetentionRecordsController extends Controller
                 break;
             case "2":
                 foreach($records as $record){
-                    $record->setRetentionRemovedAt(new DateTime());
-                    $this->get('utilities')->saveLogRetention($this->getUser(),1,$request->get('comment'),$type,$record->getId());
-                    $em->persist($record);
+                    $previous_edition=FALSE;
+                    if($type=="template" && $record->getTemplateId()){
+                        $previous_edition=$this->getDoctrine()->getRepository($class)->findOneBy(array("id" => $record->getTemplateId()));
+                    }
+                    if($type=="record" || !$record->getTemplateId() || $previous_edition->getRetentionRemovedAt() || in_array($previous_edition->getId(), $ids)){
+                        $record->setRetentionRemovedAt(new DateTime());
+                        $this->get('utilities')->saveLogRetention($this->getUser(),1,$request->get('comment'),$type,$record->getId());
+                        $em->persist($record);
+                    }
+                    else{
+                        $error=TRUE;
+                        $error_previous_edition.=$record->getId().",";
+                    }
                 }
                 break;
         }
 
 
 
+        if(!$error){
+            $em->flush();
+            $this->get('session')->getFlashBag()->add('success', "La acción de retención ha finalizado satisfactoriamente");
+        }
+        else{
+            $this->get('session')->getFlashBag()->add('error', "No se ha podido realizar la acción de eliminación debido a que hay ediciones previas sin eliminar. Las plantillas con ediciones anteriores son: ".$error_previous_edition);
+        }
         
-        $em->flush();
-        $this->get('session')->getFlashBag()->add('success', "La acción de retención ha finalizado satisfactoriamente");
 
         return $this->redirect($this->generateUrl('nononsense_retention_list')."?retention_type=".$request->get("retention_type"));
     }
