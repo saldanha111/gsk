@@ -25,11 +25,17 @@
                                 <input type="text" name="name" id="material_name" class="form-control" value="{{material.name is not null ? material.name : ''}}" required="required"
                                 {% if material.id is not null %} readonly="readonly" {% endif %}>
                             </div>
-                        </div>  
+                        </div>
                         <div class="form-group">
-                            <label class="col-sm-4 control-label" for="material_expiration">Caducidad limpieza (días)</label>
+                            <label class="col-sm-4 control-label" for="material_expiration_days">Caducidad limpieza (días)</label>
                             <div class="col-sm-7">
-                                <input type="text" name="expiration_days" id="material_expiration" class="form-control" value="{{material.expirationDays is not null ? material.expirationDays : ''}}" required="required">
+                                <input type="text" name="expiration_days" id="material_expiration_days" class="form-control" value="{{material.expirationDays is not null ? material.expirationDays : ''}}" required="required">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label" for="material_expiration_hours">Caducidad limpieza (horas)</label>
+                            <div class="col-sm-7">
+                                <input type="text" name="expiration_hours" id="material_expiration_hours" class="form-control" value="{{material.expirationHours is not null ? material.expirationHours : 0}}" required="required">
                             </div>
                         </div>
                         <div class="form-group">

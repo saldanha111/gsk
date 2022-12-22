@@ -128,6 +128,7 @@ class MaterialCleanMaterialsController extends Controller
                 }
                 $material->setActive($request->get("active"));
                 $material->setExpirationDays($request->get("expiration_days"));
+                $material->setExpirationHours($request->get("expiration_hours"));
                 if ($error == 0) {
                     $em->persist($material);
                     $em->flush();
@@ -161,14 +162,17 @@ class MaterialCleanMaterialsController extends Controller
             $materialRepository = $em->getRepository(MaterialCleanMaterials::class);
             $materialInput = $materialRepository->findOneBy(['id' =>$id, 'active' => true]);
             if ($materialInput) {
-                $expirationDays = $materialInput->getExpirationDays();
-                $expirationInterval = new DateInterval('P' . $expirationDays . 'D');
-                $expirationDate = (new DateTime())->add($expirationInterval);
+                $expirationDays = $materialInput->getExpirationDays() ?? 0;
+                $expirationHours = $materialInput->getExpirationHours() ?? 0;
+                $daysInterval = new DateInterval('P' . $expirationDays . 'D');
+                $hoursInterval = new DateInterval('PT' . $expirationHours . 'H');
+                $expirationDate = (new DateTime())->add($daysInterval)->add($hoursInterval);
                 $otherName = $materialInput->getOtherName();
                 $additionalInfo = $materialInput->getAdditionalInfo();
 
                 $data['cleanDate'] = (new DateTime())->format('d-m-Y H:i:s');
                 $data['expirationDays'] = $expirationDays;
+                $data['expirationHours'] = $expirationHours;
                 $data['expirationDate'] = $expirationDate->format('d-m-Y H:i:s');
                 $data['otherName'] = $otherName;
                 $data['additionalInfo'] = $additionalInfo;

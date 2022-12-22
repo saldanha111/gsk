@@ -36,6 +36,13 @@ class MaterialCleanMaterials
     protected $expirationDays;
 
     /**
+     * @var int | null
+     *
+     * @ORM\Column(name="expiration_hours", type="integer", options={"default" : 0}, nullable=true)
+     */
+    protected $expirationHours;
+
+    /**
      * @ORM\Column(type="datetime")
      */
     protected $created;
@@ -87,6 +94,7 @@ class MaterialCleanMaterials
     {
         $this->created = new DateTime();
         $this->expirationDays = 30;
+        $this->expirationHours = 0;
         $this->active = 1;
         $this->additionalInfo = 0;
         $this->otherName = false;
@@ -146,6 +154,29 @@ class MaterialCleanMaterials
     public function getExpirationDays()
     {
         return $this->expirationDays;
+    }
+
+    /**
+     * Set expirationHours
+     *
+     * @param int|null $expirationHours
+     * @return MaterialCleanMaterials
+     */
+    public function setExpirationHours(?int $expirationHours): MaterialCleanMaterials
+    {
+        $this->expirationHours = $expirationHours;
+
+        return $this;
+    }
+
+    /**
+     * Get expirationHours
+     *
+     * @return int|null
+     */
+    public function getExpirationHours(): ?int
+    {
+        return $this->expirationHours;
     }
 
     /**
