@@ -2,6 +2,7 @@
 
 namespace Nononsense\HomeBundle\Controller;
 
+use DateInterval;
 use DateTime;
 use Exception;
 use Nononsense\HomeBundle\Entity\MaterialCleanCenters;
@@ -60,7 +61,10 @@ class MaterialCleanCleansController extends Controller
         }
 
         $cleanDate = new DateTime();
-        $expirationDate = $this->getCleanDate($materialCleanCode->getIdMaterial()->getExpirationDays());
+        $expirationDate = $this->getCleanDate(
+            $materialCleanCode->getIdMaterial()->getExpirationDays(),
+            $materialCleanCode->getIdMaterial()->getExpirationHours()
+        );
 
         $array_item = array();
         $array_item["materials"] = $this->getDoctrine()->getRepository(MaterialCleanMaterials::class)->findBy(
@@ -140,7 +144,7 @@ class MaterialCleanCleansController extends Controller
                 $firma = 'Limpieza registrada con contraseña de usuario el día ' . $now->format('d-m-Y H:i:s');
                 $materialClean = new MaterialCleanCleans();
                 $cleanDate = new DateTime();
-                $expirationDate = $this->getCleanDate($material->getExpirationDays());
+                $expirationDate = $this->getCleanDate($material->getExpirationDays(), $material->getExpirationHours());
                 if($material->getCenter()->getId() !== $center->getId()){
                     $this->get('session')->getFlashBag()->add(
                         'error',
@@ -194,11 +198,14 @@ class MaterialCleanCleansController extends Controller
         return $this->redirect($this->generateUrl('nononsense_mclean_cleans_view', ['barcode' => $id]));
     }
 
-    private function getCleanDate($expirationDays)
+    private function getCleanDate($expirationDays = 0, $expirationHours = 0)
     {
+        $expirationDays = $expirationDays ?? 0;
+        $expirationHours = $expirationHours ?? 0;
         try {
-            $expirationInterval = new \DateInterval('P' . $expirationDays . 'D');
-            $expirationDate = (new DateTime())->add($expirationInterval);
+            $daysInterval = new DateInterval('P' . $expirationDays . 'D');
+            $hoursInterval = new DateInterval('PT' . $expirationHours . 'H');
+            $expirationDate = (new DateTime())->add($daysInterval)->add($hoursInterval);
         } catch (Exception $e) {
             $expirationDate = null;
             $this->get('session')->getFlashBag()->add(
