@@ -2,6 +2,7 @@
 
 namespace Nononsense\HomeBundle\Controller;
 
+use DateTime;
 use Exception;
 use Nononsense\HomeBundle\Entity\MaterialCleanProducts;
 use Nononsense\HomeBundle\Entity\MaterialCleanProductsRepository;
@@ -95,10 +96,16 @@ class MaterialCleanProductsController extends Controller
 
         if ($request->getMethod() == 'POST') {
             try {
+                $password = $request->get('password');
+                if(!$this->get('utilities')->checkUser($password)){
+                    $this->get('session')->getFlashBag()->add('error', "La contraseña no es correcta.");
+                    return $this->redirect($this->generateUrl('nononsense_mclean_products_list'));
+                }
+
                 if(!$product->getName()){
                     $product->setName($request->get("name"));
                 }
-                $product->setTagsNumber($request->get("tags_number"));
+                $product->setTagsNumber((int) $request->get("tags_number"));
                 $product->setActive($request->get("active"));
 
                 $error = 0;
@@ -109,6 +116,10 @@ class MaterialCleanProductsController extends Controller
                 }
 
                 if ($error == 0) {
+                    $product->setUpdateUser($this->getUser());
+                    $product->setValidated(false);
+                    $product->setValidateUser(null);
+                    $product->setUpdated(new DateTime());
                     $em->persist($product);
                     $em->flush();
                     $this->get('session')->getFlashBag()->add('message', "El producto se ha guardado correctamente");
@@ -122,8 +133,55 @@ class MaterialCleanProductsController extends Controller
             }
         }
 
-        $array_item = ['product' => $product];
+        $array_item = ['product' => $product, 'currentUser' => $this->getUser()];
         return $this->render('NononsenseHomeBundle:MaterialClean:product_edit.html.twig', $array_item);
+    }
+
+    /**
+     * @param Request $request
+     * @param int $id
+     * @return RedirectResponse|Response
+     */
+    public function validateAction(Request $request, $id)
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        /** @var MaterialCleanProductsRepository $productRepository */
+        $productRepository = $em->getRepository('NononsenseHomeBundle:MaterialCleanProducts');
+        $product = $productRepository->find($id);
+
+        $is_valid = $this->get('app.security')->permissionSeccion('mc_products_edit');
+        if (!$is_valid) {
+            $this->get('session')->getFlashBag()->add('error', "No tienes permisos para validar productos.");
+            return $this->redirect($this->generateUrl('nononsense_mclean_products_list'));
+        }
+
+        try {
+            $password = $request->get('valPassword');
+            if(!$this->get('utilities')->checkUser($password)){
+                $this->get('session')->getFlashBag()->add('error', "La contraseña no es correcta.");
+                return $this->redirect($this->generateUrl('nononsense_mclean_products_list'));
+            }
+
+            $updatedProductUser = $product->getUpdateUser();
+            if(!$updatedProductUser || $updatedProductUser === $this->getUser()){
+                $this->get('session')->getFlashBag()->add('error', "El usuario que editó el producto no puede validarlo");
+                return $this->redirect($this->generateUrl('nononsense_mclean_products_list'));
+            }
+
+            $product->setValidateUser($this->getUser());
+            $product->setValidated(true);
+            $product->setUpdated(new DateTime());
+            $em->persist($product);
+            $em->flush();
+            $this->get('session')->getFlashBag()->add('message', "El producto se ha validado correctamente");
+        } catch (Exception $e) {
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                "Error al intentar validar producto "
+            );
+        }
+        return $this->redirect($this->generateUrl('nononsense_mclean_products_list'));
     }
 
     /**

@@ -586,6 +586,11 @@ nononsense_mclean_centers_list:
     path: /mclean/centers
     defaults: { _controller: NononsenseHomeBundle:MaterialCleanCenters:list}
 
+nononsense_mclean_centers_validate:
+    path: /mclean/center/validate/{id}
+    methods:    [POST]
+    defaults: { _controller: NononsenseHomeBundle:MaterialCleanCenters:validate}
+
 nononsense_mclean_centers_edit:
     path: /mclean/center/{id}
     defaults: { _controller: NononsenseHomeBundle:MaterialCleanCenters:edit}
@@ -597,6 +602,11 @@ nononsense_mclean_centers_delete:
 nononsense_mclean_materials_list:
     path: /mclean/materials
     defaults: { _controller: NononsenseHomeBundle:MaterialCleanMaterials:list}
+
+nononsense_mclean_materials_validate:
+    path: /mclean/material/validate/{id}
+    methods:    [POST]
+    defaults: { _controller: NononsenseHomeBundle:MaterialCleanMaterials:validate}
 
 nononsense_mclean_materials_edit:
     path: /mclean/material/{id}
@@ -669,6 +679,11 @@ nononsense_mclean_trace_view:
 nononsense_mclean_products_list:
     path: /mclean/products
     defaults: { _controller: NononsenseHomeBundle:MaterialCleanProducts:list}
+
+nononsense_mclean_products_validate:
+    path: /mclean/product/validate/{id}
+    methods:    [POST]
+    defaults: { _controller: NononsenseHomeBundle:MaterialCleanProducts:validate}
 
 nononsense_mclean_products_edit:
     path: /mclean/product/{id}

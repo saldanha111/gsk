@@ -16,7 +16,6 @@ class MaterialCleanProductsRepository extends EntityRepository
     public function list($filters, $paginate=1)
     {
         $list = $this->createQueryBuilder('p')
-            ->select('p.id', 'p.name', 'p.tagsNumber', 'p.active')
             ->orderBy('p.name', 'ASC');
 
         $list = self::fillFilersQuery($filters, $list);
@@ -51,5 +50,4 @@ class MaterialCleanProductsRepository extends EntityRepository
         }
         return $list;
     }
-
 }

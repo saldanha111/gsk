@@ -3,8 +3,9 @@
 namespace Nononsense\HomeBundle\Entity;
 
 use DateTime;
-use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
+use Nononsense\UserBundle\Entity\Users;
 
 /**
  * @ORM\Entity
@@ -36,16 +37,40 @@ class MaterialCleanCenters
     protected $description;
 
     /**
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(name="created", type="datetime", nullable=false, options={"default":"CURRENT_TIMESTAMP"})
      */
     protected $created;
 
     /**
-     * @var boolean
+     * @var bool
      *
-     * @ORM\Column(name="active", type="boolean")
+     * @ORM\Column(name="active", type="boolean", nullable=false, options={"default":1})
      */
     private $active;
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="validated", type="boolean", nullable=false, options={"default":1})
+     */
+    private $validated;
+
+    /**
+     * @ORM\Column(name="updated", type="datetime", nullable=false, options={"default":"CURRENT_TIMESTAMP"})
+     */
+    private $updated;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="centerUpdated")
+     * @ORM\JoinColumn(name="update_user", referencedColumnName="id", nullable=true)
+     */
+    protected $updateUser;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="centerValidated")
+     * @ORM\JoinColumn(name="validate_user", referencedColumnName="id", nullable=true)
+     */
+    protected $validateUser;
 
     /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\MaterialCleanCodes", mappedBy="idCenter")
@@ -71,15 +96,17 @@ class MaterialCleanCenters
     public function __construct()
     {
         $this->created = new DateTime();
+        $this->updated = new DateTime();
         $this->active = 1;
+        $this->validated = 0;
     }
 
     /**
      * Get id
      *
-     * @return integer 
+     * @return int|null
      */
-    public function getId()
+    public function getId(): ?int
     {
         return $this->id;
     }
@@ -90,19 +117,18 @@ class MaterialCleanCenters
      * @param string $name
      * @return MaterialCleanCenters
      */
-    public function setName($name)
+    public function setName(string $name): MaterialCleanCenters
     {
         $this->name = $name;
-
         return $this;
     }
 
     /**
      * Get name
      *
-     * @return string 
+     * @return string|null
      */
-    public function getName()
+    public function getName(): ?string
     {
         return $this->name;
     }
@@ -113,19 +139,18 @@ class MaterialCleanCenters
      * @param string $description
      * @return MaterialCleanCenters
      */
-    public function setDescription($description)
+    public function setDescription(string $description): MaterialCleanCenters
     {
         $this->description = $description;
-
         return $this;
     }
 
     /**
      * Get description
      *
-     * @return string
+     * @return string|null
      */
-    public function getDescription()
+    public function getDescription(): ?string
     {
         return $this->description;
     }
@@ -136,10 +161,9 @@ class MaterialCleanCenters
      * @param DateTime $created
      * @return MaterialCleanCenters
      */
-    public function setCreated($created)
+    public function setCreated(DateTime $created): MaterialCleanCenters
     {
         $this->created = $created;
-
         return $this;
     }
 
@@ -148,7 +172,7 @@ class MaterialCleanCenters
      *
      * @return DateTime
      */
-    public function getCreated()
+    public function getCreated(): DateTime
     {
         return $this->created;
     }
@@ -156,22 +180,21 @@ class MaterialCleanCenters
     /**
      * Set active
      *
-     * @param boolean $active
+     * @param bool $active
      * @return MaterialCleanCenters
      */
-    public function setActive($active)
+    public function setActive(bool $active): MaterialCleanCenters
     {
         $this->active = ($active)?: false;
-
         return $this;
     }
 
     /**
      * Get active
      *
-     * @return boolean 
+     * @return bool
      */
-    public function getActive()
+    public function getActive(): bool
     {
         return $this->active;
     }
@@ -182,10 +205,9 @@ class MaterialCleanCenters
      * @param MaterialCleanCodes $barcode
      * @return MaterialCleanCenters
      */
-    public function addBarcode(MaterialCleanCodes $barcode)
+    public function addBarcode(MaterialCleanCodes $barcode): MaterialCleanCenters
     {
         $this->barcode[] = $barcode;
-
         return $this;
     }
 
@@ -194,7 +216,7 @@ class MaterialCleanCenters
      *
      * @param MaterialCleanCodes $barcode
      */
-    public function removeBarcode(MaterialCleanCodes $barcode)
+    public function removeBarcode(MaterialCleanCodes $barcode): void
     {
         $this->barcode->removeElement($barcode);
     }
@@ -202,9 +224,9 @@ class MaterialCleanCenters
     /**
      * Get barcode
      *
-     * @return Collection
+     * @return ArrayCollection;
      */
-    public function getBarcode()
+    public function getBarcode(): ArrayCollection
     {
         return $this->barcode;
     }
@@ -215,10 +237,9 @@ class MaterialCleanCenters
      * @param MaterialCleanCleans $cleans
      * @return MaterialCleanCenters
      */
-    public function addClean(MaterialCleanCleans $cleans)
+    public function addClean(MaterialCleanCleans $cleans): MaterialCleanCenters
     {
         $this->cleans[] = $cleans;
-
         return $this;
     }
 
@@ -227,7 +248,7 @@ class MaterialCleanCenters
      *
      * @param MaterialCleanCleans $cleans
      */
-    public function removeClean(MaterialCleanCleans $cleans)
+    public function removeClean(MaterialCleanCleans $cleans): void
     {
         $this->cleans->removeElement($cleans);
     }
@@ -235,9 +256,9 @@ class MaterialCleanCenters
     /**
      * Get cleans
      *
-     * @return Collection
+     * @return ArrayCollection
      */
-    public function getCleans()
+    public function getCleans(): ArrayCollection
     {
         return $this->cleans;
     }
@@ -248,10 +269,9 @@ class MaterialCleanCenters
      * @param MaterialCleanMaterials $material
      * @return MaterialCleanCenters
      */
-    public function addMaterial(MaterialCleanMaterials $material)
+    public function addMaterial(MaterialCleanMaterials $material): MaterialCleanCenters
     {
         $this->material[] = $material;
-
         return $this;
     }
 
@@ -260,7 +280,7 @@ class MaterialCleanCenters
      *
      * @param MaterialCleanMaterials $material
      */
-    public function removeMaterial(MaterialCleanMaterials $material)
+    public function removeMaterial(MaterialCleanMaterials $material): void
     {
         $this->material->removeElement($material);
     }
@@ -268,9 +288,9 @@ class MaterialCleanCenters
     /**
      * Get material
      *
-     * @return Collection
+     * @return ArrayCollection
      */
-    public function getMaterial()
+    public function getMaterial(): ArrayCollection
     {
         return $this->material;
     }
@@ -279,23 +299,110 @@ class MaterialCleanCenters
     /**
      * Set department
      *
-     * @param MaterialCleanDepartments|null $department
+     * @param MaterialCleanDepartments $department
      * @return MaterialCleanCenters
      */
-    public function setDepartment(?MaterialCleanDepartments $department = null): MaterialCleanCenters
+    public function setDepartment(MaterialCleanDepartments $department): MaterialCleanCenters
     {
         $this->department = $department;
-
         return $this;
     }
 
     /**
      * Get department
      *
-     * @return MaterialCleanDepartments
+     * @return MaterialCleanDepartments|null
      */
     public function getDepartment(): ?MaterialCleanDepartments
     {
         return $this->department;
+    }
+
+    /**
+     * Set validated
+     *
+     * @param bool $validated
+     * @return MaterialCleanCenters
+     */
+    public function setValidated(bool $validated): MaterialCleanCenters
+    {
+        $this->validated = ($validated)?: false;
+        return $this;
+    }
+
+    /**
+     * Get validated
+     *
+     * @return bool
+     */
+    public function getValidated(): bool
+    {
+        return $this->validated;
+    }
+
+    /**
+     * Set updated
+     *
+     * @param DateTime $updated
+     * @return MaterialCleanCenters
+     */
+    public function setUpdated(DateTime $updated): MaterialCleanCenters
+    {
+        $this->updated = $updated;
+        return $this;
+    }
+
+    /**
+     * Get updated
+     *
+     * @return DateTime
+     */
+    public function getUpdated(): DateTime
+    {
+        return $this->updated;
+    }
+
+    /**
+     * Set updateUser
+     *
+     * @param Users|null $updateUser
+     * @return MaterialCleanCenters
+     */
+    public function setUpdateUser(?Users $updateUser): MaterialCleanCenters
+    {
+        $this->updateUser = $updateUser;
+        return $this;
+    }
+
+    /**
+     * Get updateUser
+     *
+     * @return Users|null
+     */
+    public function getUpdateUser(): ?Users
+    {
+        return $this->updateUser;
+    }
+
+    /**
+     * Set validateUser
+     *
+     * @param Users|null $validateUser
+     * @return MaterialCleanCenters
+     */
+    public function setValidateUser(?Users $validateUser): MaterialCleanCenters
+    {
+        $this->validateUser = $validateUser;
+        return $this;
+    }
+
+    /**
+     * Get validateUser
+     *
+     * @return Users|null
+     */
+    public function getValidateUser(): ?Users
+    {
+        return $this->validateUser;
     }
 }

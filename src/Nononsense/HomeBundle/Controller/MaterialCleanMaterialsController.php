@@ -13,8 +13,10 @@ use Nononsense\HomeBundle\Entity\MaterialCleanProducts;
 use Nononsense\HomeBundle\Entity\MaterialCleanProductsRepository;
 use Nononsense\UtilsBundle\Classes\Utils;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\Response;
 
 class MaterialCleanMaterialsController extends Controller
 {
@@ -52,8 +54,6 @@ class MaterialCleanMaterialsController extends Controller
             $filters2["center"] = $request->get("center");
         }
 
-        $array_item["filters"] = $filters;
-
         $em = $this->getDoctrine()->getManager();
         /** @var MaterialCleanMaterialsRepository $materialRepository */
         $materialRepository = $em->getRepository(MaterialCleanMaterials::class);
@@ -61,7 +61,7 @@ class MaterialCleanMaterialsController extends Controller
         $array_item["count"] = $materialRepository->count($filters2);
         /** @var MaterialCleanProductsRepository $productsRepository */
         $productsRepository = $em->getRepository(MaterialCleanProducts::class);
-        $array_item['products'] = $productsRepository->findBy(['active' => true]);
+        $array_item['products'] = $productsRepository->findBy(['active' => true, 'validated' => true]);
         /** @var MaterialCleanCentersRepository $centersRepository */
         $centersRepository = $em->getRepository(MaterialCleanCenters::class);
         $array_item['centers'] = $centersRepository->findAll();
@@ -116,6 +116,11 @@ class MaterialCleanMaterialsController extends Controller
 
         if ($request->getMethod() == 'POST') {
             try {
+                $password = $request->get('password');
+                if(!$this->get('utilities')->checkUser($password)){
+                    $this->get('session')->getFlashBag()->add('error', "La contraseña no es correcta.");
+                    return $this->redirect($this->generateUrl('nononsense_mclean_materials_list'));
+                }
                 $error = 0;
                 if(!$material->getId()){
                     $product = $productsRepository->find($request->get("product"));
@@ -130,6 +135,10 @@ class MaterialCleanMaterialsController extends Controller
                 $material->setExpirationDays($request->get("expiration_days"));
                 $material->setExpirationHours($request->get("expiration_hours"));
                 if ($error == 0) {
+                    $material->setUpdateUser($this->getUser());
+                    $material->setValidated(false);
+                    $material->setValidateUser(null);
+                    $material->setUpdated(new DateTime());
                     $em->persist($material);
                     $em->flush();
                     $this->get('session')->getFlashBag()->add('message', "El material se ha guardado correctamente");
@@ -145,10 +154,58 @@ class MaterialCleanMaterialsController extends Controller
 
         $array_item = array();
         $array_item['material'] = $material;
-        $array_item['products'] = $productsRepository->findBy(['active' => true]);
-        $array_item['centers'] = $centersRepository->findBy(['active' => true]);
+        $array_item['products'] = $productsRepository->findBy(['active' => true, 'validated' => true]);
+        $array_item['centers'] = $centersRepository->findBy(['active' => true, 'validated' => true]);
+        $array_item['currentUser'] = $this->getUser();
 
         return $this->render('NononsenseHomeBundle:MaterialClean:material_edit.html.twig', $array_item);
+    }
+
+    /**
+     * @param Request $request
+     * @param int $id
+     * @return RedirectResponse|Response
+     */
+    public function validateAction(Request $request, $id)
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        /** @var MaterialCleanMaterialsRepository $materialsRepository */
+        $marterialsRepository = $em->getRepository('NononsenseHomeBundle:MaterialCleanMaterials');
+        $marterial = $marterialsRepository->find($id);
+
+        $is_valid = $this->get('app.security')->permissionSeccion('mc_materials_edit');
+        if (!$is_valid) {
+            $this->get('session')->getFlashBag()->add('error', "No tienes permisos para validar materiales.");
+            return $this->redirect($this->generateUrl('nononsense_mclean_materials_list'));
+        }
+
+        try {
+            $password = $request->get('valPassword');
+            if(!$this->get('utilities')->checkUser($password)){
+                $this->get('session')->getFlashBag()->add('error', "La contraseña no es correcta.");
+                return $this->redirect($this->generateUrl('nononsense_mclean_materials_list'));
+            }
+
+            $updatedMaterialUser = $marterial->getUpdateUser();
+            if(!$updatedMaterialUser || $updatedMaterialUser === $this->getUser()){
+                $this->get('session')->getFlashBag()->add('error', "El usuario que editó el material no puede validarlo");
+                return $this->redirect($this->generateUrl('nononsense_mclean_materials_list'));
+            }
+
+            $marterial->setValidateUser($this->getUser());
+            $marterial->setValidated(true);
+            $marterial->setUpdated(new DateTime());
+            $em->persist($marterial);
+            $em->flush();
+            $this->get('session')->getFlashBag()->add('message', "El material se ha validado correctamente");
+        } catch (Exception $e) {
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                "Error al intentar validar el material "
+            );
+        }
+        return $this->redirect($this->generateUrl('nononsense_mclean_materials_list'));
     }
 
     public function ajaxDataAction($id)
@@ -160,7 +217,7 @@ class MaterialCleanMaterialsController extends Controller
         try {
             /** @var MaterialCleanMaterialsRepository $materialRepository */
             $materialRepository = $em->getRepository(MaterialCleanMaterials::class);
-            $materialInput = $materialRepository->findOneBy(['id' =>$id, 'active' => true]);
+            $materialInput = $materialRepository->findOneBy(['id' =>$id, 'active' => true, 'validated' => true]);
             if ($materialInput) {
                 $expirationDays = $materialInput->getExpirationDays() ?? 0;
                 $expirationHours = $materialInput->getExpirationHours() ?? 0;

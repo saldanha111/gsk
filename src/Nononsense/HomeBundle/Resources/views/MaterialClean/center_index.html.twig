@@ -60,6 +60,7 @@
                                 <th>Nombre</th>
                                 <th>Descripción</th>
                                 <th>Departamento</th>
+                                <th>Validado</th>
                                 <th>Activo</th>
                                 <th></th>
                                 <th></th>
@@ -72,6 +73,13 @@
                                         <td>{{item.name}}</td>
                                         <td>{{item.description}}</td>
                                         <td>{{ item.department is defined and item.department is not null ? item.department.name : '' }}</td>
+                                        <td>
+                                            {% if item.validated %}
+                                                Si
+                                            {% else %}
+                                                No
+                                            {% endif %}
+                                        </td>
                                         <td>
                                             {% if item.active %}
                                                 Si

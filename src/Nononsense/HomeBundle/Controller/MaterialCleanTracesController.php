@@ -25,24 +25,18 @@ class MaterialCleanTracesController extends Controller
         $cleansRepository = $this->getDoctrine()->getRepository(MaterialCleanCleans::class);
         $array_item["filters"]=$filters;
         $array_item['status'] = MaterialCleanCleansRepository::status;
-        $array_item["items"] = $cleansRepository->list($filters);
+        $items = $cleansRepository->list($filters);
+        $array_item["items"] = $items;
         $array_item["count"] = $cleansRepository->count($filters);
-        if($array_item['count'] && isset($lotNumber)){
-            // Obtenemos los diferentes estados de los materiales
-            $distinctStatus = $cleansRepository->getDistinctStatus($filters);
-            if(is_array($distinctStatus) && count($distinctStatus) == 1){
-                // Si solo hay un estado se usa ese.
-                $singleStatus = reset($distinctStatus);
-                $status = $singleStatus['status'];
-            }elseif(is_array($distinctStatus) && count($distinctStatus) == 2){
-                // Si hay 2 estados Quitamos el estado 3 (Material sucio) que es el único que se aplica automáticamente.
-                $status = ($distinctStatus[0]['status'] == 3) ? $distinctStatus[1]['status'] : $distinctStatus[0]['status'];
-            }else{
-                // Si hay más de 2 estados diferentes no mostramos los botones.
-                $status = 0;
+        if($array_item['count'] && isset($lotNumber) && !empty($lotNumber)){
+            $canReview = false;
+            foreach($items as $item){
+                if($item->getStatus() === 3 || $item->getStatus() === 2){
+                    $canReview = true;
+                }
             }
 
-            if(($status == 3 || $status == 2) && $this->get('app.security')->permissionSeccion('mc_traces_review')){
+            if($canReview && $this->get('app.security')->permissionSeccion('mc_traces_review')){
                 $array_item["formAction"] = $this->container->get('router')->generate('nononsense_mclean_traces_review', ['lot' => $lotNumber]);
                 $array_item["buttonName"] = 'Revisar Lote';
                 $array_item['showCommentBox'] = true;
@@ -52,8 +46,7 @@ class MaterialCleanTracesController extends Controller
         $array_item["pagination"] = $this->getPagination($filters, $request, $array_item['count']);
         if(!$request->get("export_excel") && !$request->get("export_pdf")){
             return $this->render('NononsenseHomeBundle:MaterialClean:traces_index.html.twig',$array_item);
-        }
-        else{
+        }else{
             if($request->get("export_excel")){
                 $phpExcelObject = $this->get('phpexcel')->createPHPExcelObject();
 
@@ -361,16 +354,15 @@ class MaterialCleanTracesController extends Controller
                 'type' => ($totalNeed != $materialUsed) ? 'danger' : 'success',
                 'message' => 'Se necesitaba'.$nNeed.' '.$totalNeed.' material'.$esNeed.', se ha'.$nUsed.' utilizado '.$materialUsed.' material'.$esUsed.' no vencido'.$sUsed
             ];
+        }elseif ($materialUsed){
+            $es = ($materialUsed == 1) ? '' : 'es';
+            $n = ($materialUsed == 1) ? '' : 'n';
+            $sUsed = ($materialUsed == 1) ? '' : 's';
+            $message[] = [
+                'type' => 'success',
+                'message' => 'Se ha'.$n.' usado '.$materialUsed.' material'.$es.' no vencido'.$sUsed
+            ];
         }
-//        elseif ($materialUsed){
-//            $es = ($materialUsed == 1) ? '' : 'es';
-//            $n = ($materialUsed == 1) ? '' : 'n';
-//            $sUsed = ($materialUsed == 1) ? '' : 's';
-//            $message[] = [
-//                'type' => 'success',
-//                'message' => 'Se ha'.$n.' usado '.$materialUsed.' material'.$es.' no vencido'.$sUsed
-//            ];
-//        }
         return $message;
     }
 

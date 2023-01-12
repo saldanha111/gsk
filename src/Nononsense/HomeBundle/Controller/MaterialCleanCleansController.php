@@ -48,7 +48,7 @@ class MaterialCleanCleansController extends Controller
 
         $em = $this->getDoctrine()->getManager();
 
-        $cleanExist = $em->getRepository(MaterialCleanCleans::class)->findOneBy(['code' => $barcode]);
+        $cleanExist = $em->getRepository(MaterialCleanCleans::class)->findOneBy(['code' => $barcode, 'status' => 1]);
         if($cleanExist){
             $this->addFlash('error','El código ya ha sido utilizado');
             return $this->redirect($this->generateUrl('nononsense_mclean_cleans_scan'));
@@ -68,11 +68,11 @@ class MaterialCleanCleansController extends Controller
 
         $array_item = array();
         $array_item["materials"] = $this->getDoctrine()->getRepository(MaterialCleanMaterials::class)->findBy(
-            ['active' => true],
+            ['active' => true, 'validated' => true],
             ['name' => 'ASC']
         );
         $array_item["centers"] = $this->getDoctrine()->getRepository(MaterialCleanCenters::class)->findBy(
-            ['active' => true],
+            ['active' => true, 'validated' => true],
             ['name' => 'ASC']
         );
         $array_item["departments"] = $this->getDoctrine()->getRepository(MaterialCleanDepartments::class)->findBy(

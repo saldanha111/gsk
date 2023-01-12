@@ -85,6 +85,7 @@
                                 <th>Centro</th>
                                 <th>Producto</th>
                                 <th>Desc. Adicional</th>
+                                <th>Validado</th>
                                 <th>Activo</th>
                                 <th></th>
                                 <th></th>
@@ -101,6 +102,13 @@
                                         <td>{{ item.product is defined and item.product is not null ? item.product.name : '' }}</td>
                                         <td>
                                             {% if item.additionalInfo %}
+                                                Si
+                                            {% else %}
+                                                No
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if item.validated %}
                                                 Si
                                             {% else %}
                                                 No

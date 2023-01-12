@@ -2,6 +2,7 @@
 {% block page_title %}Docoaro - GSK |  productos / {{product.id is not null ? 'Editar' : 'Crear'}} producto {% endblock %}
 {% block head %}
     {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('/js/plugins/sweetalert/sweetalert.min.css') }}">
 {% endblock %}
 {% block main_title %} Productos / {{product.id is not null ? 'Editar' : 'Crear'}} producto{% endblock %}
 
@@ -15,6 +16,15 @@
         </div>
         <br>
         {% endfor %}
+        {% if product.id is not null and product.updateUser is not null %}
+            <div class="row">
+                <div class="alert alert-info col-lg-4 col-lg-offset-1">
+                    <p>Última modificación: <strong>{{ product.updateUser.name ?? '-' }}</strong></p>
+                    <p>Última validación: <strong>{{ product.validateUser.name ?? '-' }}</strong></p>
+                    <p>Fecha: <strong>{{ product.updated | date("d-m-Y H:i:s") }}</strong></p>
+                </div>
+            </div>
+        {% endif %}
         <form class="form-horizontal" id="form_item" action="{{ path('nononsense_mclean_products_edit',{'id': product.id is not null ? product.id : 0}) }}" method="POST">
             <div class="row">
                 <div class="col-lg-4 col-lg-offset-1">
@@ -40,26 +50,167 @@
                         </div>
                     </div>
                 </div>
+                <input type="hidden" name="password">
+                <input type="hidden" name="passCheck" value="{{ path('nononsense_mclean_get_sign_valid') }}">
             </div>
-
-            <div class="row">
-                <div class="col-sm-11">
-                    <button type="submit" class="btn btn-primary  pull-right"><i class="fa fa-floppy-o" aria-hidden="true"></i> {{product.id is not null ? 'Editar' : 'Registrar'}} producto</button>
-                </div>
-            </div>
-
         </form>
+        <div class="row">
+            <div class="col-sm-offset-1 col-sm-5">
+                {% if not product.validated and product.id is not null and product.updateUser is not null and currentUser.id != product.updateUser.id %}
+                    <form
+                        class="form-horizontal"
+                        id="form_validate"
+                        action="{{ path('nononsense_mclean_products_validate',{'id': product.id}) }}"
+                        method="POST"
+                    >
+                        <input type="hidden" name="valPassword">
+                        <button type="button" id="validate" class="btn btn-primary  pull-left">
+                            <i class="fa fa-check-square" aria-hidden="true"></i> Validar producto
+                        </button>
+                    </form>
+                {% endif %}
+            </div>
+            <div class="col-sm-5">
+                <button type="submit" id="save" class="btn btn-primary  pull-right">
+                    <i class="fa fa-floppy-o" aria-hidden="true"></i> {{product.id is not null ? 'Editar' : 'Registrar'}} producto
+                </button>
+            </div>
+        </div>
     </div>
     
 {% endblock %}
 
 {% block scripts %}
     {{ parent() }}
+    <script src="{{ asset('js/plugins/sweetalert/sweetalert.min.js') }}"></script>
     <script>
 
     $( document ).ready(function() {
         ActivateMenu('admin_products');
         $('#side-menu').metisMenu();
+
+        $(document).on('click', '#save', function (e) {
+            e.preventDefault();
+            form = document.getElementById("form_item");
+            if(form.checkValidity()){
+                save();
+            }else{
+                form.reportValidity();
+            }
+        });
+
+        $(document).on('click', '#validate', function (e) {
+            e.preventDefault();
+            validate();
+        });
+
+        function save()
+        {
+            swal({
+                title: "Contraseña necesaria",
+                text: "Introduce tu contraseña para guardar el producto.",
+                type: "input",
+                inputType: "password",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#62bbe2',
+                cancelButtonColor: '#ac2925',
+                confirmButtonText: "Guardar",
+                cancelButtonText: "Cancelar",
+                closeOnConfirm: false,
+                showLoaderOnConfirm: true,
+            }, function (password) {
+                if(password !== false && password !== ''){
+                    $.ajax({
+                        url: $('input[name="passCheck"]').val(),
+                        type: 'POST',
+                        dataType: 'json',
+                        data: {password: password},
+                        success: function(response) {
+                            if(response.valid){
+                                $('input[name="password"]').val(password);
+                                $('#form_item').submit();
+                            }else{
+                                swal({
+                                    title: "Error",
+                                    text: "La contraseña no es válida",
+                                    icon: 'warning',
+                                    showCancelButton: false,
+                                    confirmButtonColor: '#62bbe2',
+                                    confirmButtonText: "Ok",
+                                    closeOnConfirm: true
+                                });
+                            }
+                        },
+                        error: function() {
+                            swal({
+                                title: "Error",
+                                text: "Ha ocurrido un error al intentar validar la contraseña",
+                                icon: 'warning',
+                                showCancelButton: false,
+                                confirmButtonColor: '#62bbe2',
+                                confirmButtonText: "Ok",
+                                closeOnConfirm: true
+                            });
+                        }
+                    });
+                }
+            });
+        }
+
+        function validate()
+        {
+            swal({
+                title: "Contraseña necesaria",
+                text: "Introduce tu contraseña para validar.",
+                type: "input",
+                inputType: "password",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#62bbe2',
+                cancelButtonColor: '#ac2925',
+                confirmButtonText: "Guardar",
+                cancelButtonText: "Cancelar",
+                closeOnConfirm: false,
+                showLoaderOnConfirm: true,
+            }, function (password) {
+                if(password !== false && password !== ''){
+                    $.ajax({
+                        url: $('input[name="passCheck"]').val(),
+                        type: 'POST',
+                        dataType: 'json',
+                        data: {password: password},
+                        success: function(response) {
+                            if(response.valid){
+                                $('input[name="valPassword"]').val(password);
+                                $('#form_validate').submit();
+                            }else{
+                                swal({
+                                    title: "Error",
+                                    text: "La contraseña no es válida",
+                                    icon: 'warning',
+                                    showCancelButton: false,
+                                    confirmButtonColor: '#62bbe2',
+                                    confirmButtonText: "Ok",
+                                    closeOnConfirm: true
+                                });
+                            }
+                        },
+                        error: function() {
+                            swal({
+                                title: "Error",
+                                text: "Ha ocurrido un error al intentar validar la contraseña",
+                                icon: 'warning',
+                                showCancelButton: false,
+                                confirmButtonColor: '#62bbe2',
+                                confirmButtonText: "Ok",
+                                closeOnConfirm: true
+                            });
+                        }
+                    });
+                }
+            });
+        }
     });
     </script>
 {% endblock %}

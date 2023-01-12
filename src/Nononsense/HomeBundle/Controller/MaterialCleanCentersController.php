@@ -2,8 +2,10 @@
 
 namespace Nononsense\HomeBundle\Controller;
 
+use DateTime;
 use Exception;
 use Nononsense\HomeBundle\Entity\MaterialCleanCenters;
+use Nononsense\HomeBundle\Entity\MaterialCleanCentersRepository;
 use Nononsense\HomeBundle\Entity\MaterialCleanDepartments;
 use Nononsense\UtilsBundle\Classes\Utils;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -72,6 +74,12 @@ class MaterialCleanCentersController extends Controller
 
         if ($request->getMethod() == 'POST') {
             try {
+                $password = $request->get('password');
+                if(!$this->get('utilities')->checkUser($password)){
+                    $this->get('session')->getFlashBag()->add('error', "La contraseña no es correcta.");
+                    return $this->redirect($this->generateUrl('nononsense_mclean_centers_list'));
+                }
+
                 if(!$center->getName()) {
                     $center->setName($request->get("name"));
                 }
@@ -101,6 +109,10 @@ class MaterialCleanCentersController extends Controller
                 }
 
                 if ($error == 0) {
+                    $center->setUpdateUser($this->getUser());
+                    $center->setValidated(false);
+                    $center->setValidateUser(null);
+                    $center->setUpdated(new DateTime());
                     $em->persist($center);
                     $em->flush();
                     $this->get('session')->getFlashBag()->add('message', "El centro se ha guardado correctamente");
@@ -117,8 +129,57 @@ class MaterialCleanCentersController extends Controller
         $array_item = array();
         $array_item['center'] = $center;
         $array_item['departments'] = $departments;
+        $array_item['currentUser'] = $this->getUser();
+
 
         return $this->render('NononsenseHomeBundle:MaterialClean:center_edit.html.twig', $array_item);
+    }
+
+    /**
+     * @param Request $request
+     * @param int $id
+     * @return RedirectResponse|Response
+     */
+    public function validateAction(Request $request, $id)
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        /** @var MaterialCleanCentersRepository $centersRepository */
+        $centersRepository = $em->getRepository('NononsenseHomeBundle:MaterialCleanCenters');
+        $center = $centersRepository->find($id);
+
+        $is_valid = $this->get('app.security')->permissionSeccion('mc_centers_edit');
+        if (!$is_valid) {
+            $this->get('session')->getFlashBag()->add('error', "No tienes permisos para validar centros.");
+            return $this->redirect($this->generateUrl('nononsense_mclean_centers_list'));
+        }
+
+        try {
+            $password = $request->get('valPassword');
+            if(!$this->get('utilities')->checkUser($password)){
+                $this->get('session')->getFlashBag()->add('error', "La contraseña no es correcta.");
+                return $this->redirect($this->generateUrl('nononsense_mclean_centers_list'));
+            }
+
+            $updatedCenterUser = $center->getUpdateUser();
+            if(!$updatedCenterUser || $updatedCenterUser === $this->getUser()){
+                $this->get('session')->getFlashBag()->add('error', "El usuario que editó el centro no puede validarlo");
+                return $this->redirect($this->generateUrl('nononsense_mclean_centers_list'));
+            }
+
+            $center->setValidateUser($this->getUser());
+            $center->setValidated(true);
+            $center->setUpdated(new DateTime());
+            $em->persist($center);
+            $em->flush();
+            $this->get('session')->getFlashBag()->add('message', "El centro se ha validado correctamente");
+        } catch (Exception $e) {
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                "Error al intentar validar centro "
+            );
+        }
+        return $this->redirect($this->generateUrl('nononsense_mclean_centers_list'));
     }
 
     /**

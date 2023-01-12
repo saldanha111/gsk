@@ -59,6 +59,7 @@
                                 <th>Id.</th>
                                 <th>Nombre</th>
                                 <th>Número de etiquetas</th>
+                                <th>Validado</th>
                                 <th>Activo</th>
                                 <th></th>
                                 <th></th>
@@ -70,6 +71,13 @@
                                         <td>{{item.id}}</td>
                                         <td>{{item.name}}</td>
                                         <td>{{item.tagsNumber}}</td>
+                                        <td>
+                                            {% if item.validated %}
+                                                Si
+                                            {% else %}
+                                                No
+                                            {% endif %}
+                                        </td>
                                         <td>
                                             {% if item.active %}
                                                 Si
