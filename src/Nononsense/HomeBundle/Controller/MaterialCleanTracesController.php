@@ -325,9 +325,16 @@ class MaterialCleanTracesController extends Controller
                 $s = ($need['total'] == 1) ? '' : 's';
                 $es = ($need['total'] == 1) ? '' : 'es';
                 $totalNeed += $need['total'];
-                $text .= $need['name'].' con '.$need['total']. ' material'.$es.' necesario'.$s.'<br/>';
+                $text .= $need['name'];
+                if($need['total'] > 0){
+                    $text .= ' con '.$need['total']. ' material'.$es.' necesario'.$s.'<br/>';
+                }else{
+                    $text .= '<br/>';
+                }
             }
-            $text .= 'Total '.$totalNeed.' materiales necesarios';
+            if($totalNeed > 0){
+                $text .= 'Total '.$totalNeed.' materiales necesarios';
+            }
             $message[] = [
                 'type' => 'success',
                 'message' => $text
