@@ -3,18 +3,16 @@
 namespace Nononsense\HomeBundle\Entity;
 
 use DateTime;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Nononsense\UserBundle\Entity\Users;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="mc_materials")
- * @ORM\Entity(repositoryClass="Nononsense\HomeBundle\Entity\MaterialCleanMaterialsRepository")
+ * @ORM\Table(name="mc_materials_log")
+ * @ORM\Entity(repositoryClass="Nononsense\HomeBundle\Entity\MaterialCleanMaterialsLogRepository")
  * @ORM\HasLifecycleCallbacks
  */
-class MaterialCleanMaterials
+class MaterialCleanMaterialsLog
 {
     /**
      * @ORM\Column(type="integer")
@@ -22,6 +20,12 @@ class MaterialCleanMaterials
      * @ORM\GeneratedValue(strategy="AUTO")
      */
     protected $id;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\MaterialCleanMaterials", inversedBy="log")
+     * @ORM\JoinColumn(name="material", referencedColumnName="id", nullable=false)
+     */
+    protected $material;
 
     /**
      * @var string
@@ -69,26 +73,16 @@ class MaterialCleanMaterials
     private $updated;
 
     /**
-     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="materialUpdated")
+     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="materialUpdatedLog")
      * @ORM\JoinColumn(name="update_user", referencedColumnName="id", nullable=true)
      */
     protected $updateUser;
 
     /**
-     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="materialValidated")
+     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="materialValidatedLog")
      * @ORM\JoinColumn(name="validate_user", referencedColumnName="id", nullable=true)
      */
     protected $validateUser;
-
-    /**
-     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\MaterialCleanCodes", mappedBy="idMaterial")
-     */
-    private $barcode;
-
-    /**
-     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\MaterialCleanCleans", mappedBy="material")
-     */
-    private $cleans;
 
     /**
      * @var bool
@@ -112,35 +106,16 @@ class MaterialCleanMaterials
     protected $updateComment;
 
     /**
-     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\MaterialCleanProducts", inversedBy="material")
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\MaterialCleanProducts", inversedBy="materialLog")
      * @ORM\JoinColumn(name="id_product", referencedColumnName="id")
      */
     private $product;
 
     /**
-     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\MaterialCleanCenters", inversedBy="material")
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\MaterialCleanCenters", inversedBy="materialLog")
      * @ORM\JoinColumn(name="id_center", referencedColumnName="id")
      */
     private $center;
-
-    /**
-     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\MaterialCleanMaterialsLog", mappedBy="material")
-     * @ORM\OrderBy({"id" = "DESC"})
-     */
-    protected $log;
-
-    public function __construct()
-    {
-        $this->created = new DateTime();
-        $this->updated = new DateTime();
-        $this->expirationDays = 30;
-        $this->expirationHours = 0;
-        $this->active = 1;
-        $this->validated = 0;
-        $this->additionalInfo = 0;
-        $this->otherName = false;
-        $this->log = new ArrayCollection();
-    }
 
     /**
      * Get id
@@ -153,12 +128,34 @@ class MaterialCleanMaterials
     }
 
     /**
+     * Set material
+     *
+     * @param MaterialCleanMaterials $material
+     * @return MaterialCleanMaterialsLog
+     */
+    public function setMaterial(MaterialCleanMaterials $material): MaterialCleanMaterialsLog
+    {
+        $this->material = $material;
+        return $this;
+    }
+
+    /**
+     * Get material
+     *
+     * @return MaterialCleanMaterials
+     */
+    public function getMaterial(): MaterialCleanMaterials
+    {
+        return $this->material;
+    }
+
+    /**
      * Set name
      *
      * @param string $name
-     * @return MaterialCleanMaterials
+     * @return MaterialCleanMaterialsLog
      */
-    public function setName(string $name): MaterialCleanMaterials
+    public function setName(string $name): MaterialCleanMaterialsLog
     {
         $this->name = $name;
         return $this;
@@ -178,9 +175,9 @@ class MaterialCleanMaterials
      * Set expirationDays
      *
      * @param int|null $expirationDays
-     * @return MaterialCleanMaterials
+     * @return MaterialCleanMaterialsLog
      */
-    public function setExpirationDays(?int $expirationDays): MaterialCleanMaterials
+    public function setExpirationDays(?int $expirationDays): MaterialCleanMaterialsLog
     {
         $this->expirationDays = $expirationDays;
         return $this;
@@ -200,9 +197,9 @@ class MaterialCleanMaterials
      * Set expirationHours
      *
      * @param int|null $expirationHours
-     * @return MaterialCleanMaterials
+     * @return MaterialCleanMaterialsLog
      */
-    public function setExpirationHours(?int $expirationHours): MaterialCleanMaterials
+    public function setExpirationHours(?int $expirationHours): MaterialCleanMaterialsLog
     {
         $this->expirationHours = $expirationHours;
         return $this;
@@ -222,9 +219,9 @@ class MaterialCleanMaterials
      * Set created
      *
      * @param DateTime $created
-     * @return MaterialCleanMaterials
+     * @return MaterialCleanMaterialsLog
      */
-    public function setCreated(DateTime $created): MaterialCleanMaterials
+    public function setCreated(DateTime $created): MaterialCleanMaterialsLog
     {
         $this->created = $created;
         return $this;
@@ -244,9 +241,9 @@ class MaterialCleanMaterials
      * Set active
      *
      * @param bool $active
-     * @return MaterialCleanMaterials
+     * @return MaterialCleanMaterialsLog
      */
-    public function setActive(bool $active): MaterialCleanMaterials
+    public function setActive(bool $active): MaterialCleanMaterialsLog
     {
         $this->active = ($active)?: false;
         return $this;
@@ -263,76 +260,12 @@ class MaterialCleanMaterials
     }
 
     /**
-     * Add barcode
-     *
-     * @param MaterialCleanCodes $barcode
-     * @return MaterialCleanMaterials
-     */
-    public function addBarcode(MaterialCleanCodes $barcode): MaterialCleanMaterials
-    {
-        $this->barcode[] = $barcode;
-        return $this;
-    }
-
-    /**
-     * Remove barcode
-     *
-     * @param MaterialCleanCodes $barcode
-     */
-    public function removeBarcode(MaterialCleanCodes $barcode): void
-    {
-        $this->barcode->removeElement($barcode);
-    }
-
-    /**
-     * Get barcode
-     *
-     * @return ArrayCollection
-     */
-    public function getBarcode(): ArrayCollection
-    {
-        return $this->barcode;
-    }
-
-    /**
-     * Add cleans
-     *
-     * @param MaterialCleanCleans $cleans
-     * @return MaterialCleanMaterials
-     */
-    public function addClean(MaterialCleanCleans $cleans): MaterialCleanMaterials
-    {
-        $this->cleans[] = $cleans;
-        return $this;
-    }
-
-    /**
-     * Remove cleans
-     *
-     * @param MaterialCleanCleans $cleans
-     */
-    public function removeClean(MaterialCleanCleans $cleans): void
-    {
-        $this->cleans->removeElement($cleans);
-    }
-
-    /**
-     * Get cleans
-     *
-     * @return ArrayCollection
-     */
-    public function getCleans(): ArrayCollection
-    {
-        return $this->cleans;
-    }
-
-    /**
      * Set product
      *
      * @param MaterialCleanProducts|null $product
-     * @return MaterialCleanMaterials
+     * @return MaterialCleanMaterialsLog
      */
-    public function setProduct(?MaterialCleanProducts $product): MaterialCleanMaterials
+    public function setProduct(?MaterialCleanProducts $product): MaterialCleanMaterialsLog
     {
         $this->product = $product;
         return $this;
@@ -352,9 +285,9 @@ class MaterialCleanMaterials
      * Set additionalInfo
      *
      * @param bool|null $additionalInfo
-     * @return MaterialCleanMaterials
+     * @return MaterialCleanMaterialsLog
      */
-    public function setAdditionalInfo(?bool $additionalInfo): MaterialCleanMaterials
+    public function setAdditionalInfo(?bool $additionalInfo): MaterialCleanMaterialsLog
     {
         $this->additionalInfo = ($additionalInfo)?: false;
         return $this;
@@ -374,9 +307,9 @@ class MaterialCleanMaterials
      * Set otherName
      *
      * @param bool $otherName
-     * @return MaterialCleanMaterials
+     * @return MaterialCleanMaterialsLog
      */
-    public function setOtherName(bool $otherName): MaterialCleanMaterials
+    public function setOtherName(bool $otherName): MaterialCleanMaterialsLog
     {
         $this->otherName = $otherName;
         return $this;
@@ -396,9 +329,9 @@ class MaterialCleanMaterials
      * Set center
      *
      * @param MaterialCleanCenters|null $center
-     * @return MaterialCleanMaterials
+     * @return MaterialCleanMaterialsLog
      */
-    public function setCenter(MaterialCleanCenters $center = null): MaterialCleanMaterials
+    public function setCenter(MaterialCleanCenters $center = null): MaterialCleanMaterialsLog
     {
         $this->center = $center;
         return $this;
@@ -418,9 +351,9 @@ class MaterialCleanMaterials
      * Set validated
      *
      * @param bool $validated
-     * @return MaterialCleanMaterials
+     * @return MaterialCleanMaterialsLog
      */
-    public function setValidated(bool $validated): MaterialCleanMaterials
+    public function setValidated(bool $validated): MaterialCleanMaterialsLog
     {
         $this->validated = ($validated)?: false;
         return $this;
@@ -440,9 +373,9 @@ class MaterialCleanMaterials
      * Set updated
      *
      * @param DateTime $updated
-     * @return MaterialCleanMaterials
+     * @return MaterialCleanMaterialsLog
      */
-    public function setUpdated(DateTime $updated): MaterialCleanMaterials
+    public function setUpdated(DateTime $updated): MaterialCleanMaterialsLog
     {
         $this->updated = $updated;
         return $this;
@@ -462,9 +395,9 @@ class MaterialCleanMaterials
      * Set updateUser
      *
      * @param Users|null $updateUser
-     * @return MaterialCleanMaterials
+     * @return MaterialCleanMaterialsLog
      */
-    public function setUpdateUser(?Users $updateUser): MaterialCleanMaterials
+    public function setUpdateUser(?Users $updateUser): MaterialCleanMaterialsLog
     {
         $this->updateUser = $updateUser;
         return $this;
@@ -484,9 +417,9 @@ class MaterialCleanMaterials
      * Set validateUser
      *
      * @param Users|null $validateUser
-     * @return MaterialCleanMaterials
+     * @return MaterialCleanMaterialsLog
      */
-    public function setValidateUser(?Users $validateUser): MaterialCleanMaterials
+    public function setValidateUser(?Users $validateUser): MaterialCleanMaterialsLog
     {
         $this->validateUser = $validateUser;
         return $this;
@@ -503,44 +436,12 @@ class MaterialCleanMaterials
     }
 
     /**
-     * Add log
-     *
-     * @param MaterialCleanMaterialsLog $log
-     * @return MaterialCleanMaterials
-     */
-    public function addLog(MaterialCleanMaterialsLog $log): MaterialCleanMaterials
-    {
-        $this->log[] = $log;
-        return $this;
-    }
-
-    /**
-     * Remove log
-     *
-     * @param MaterialCleanMaterialsLog $log
-     */
-    public function removeLog(MaterialCleanMaterialsLog $log): void
-    {
-        $this->log->removeElement($log);
-    }
-
-    /**
-     * Get log
-     *
-     * @return Collection;
-     */
-    public function getLog(): Collection
-    {
-        return $this->log;
-    }
-
-    /**
      * Set updateComment
      *
      * @param string|null $updateComment
-     * @return MaterialCleanMaterials
+     * @return MaterialCleanMaterialsLog
      */
-    public function setUpdateComment(?string $updateComment): MaterialCleanMaterials
+    public function setUpdateComment(?string $updateComment): MaterialCleanMaterialsLog
     {
         $this->updateComment = $updateComment;
         return $this;

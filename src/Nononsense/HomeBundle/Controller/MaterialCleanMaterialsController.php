@@ -8,6 +8,7 @@ use Exception;
 use Nononsense\HomeBundle\Entity\MaterialCleanCenters;
 use Nononsense\HomeBundle\Entity\MaterialCleanCentersRepository;
 use Nononsense\HomeBundle\Entity\MaterialCleanMaterials;
+use Nononsense\HomeBundle\Entity\MaterialCleanMaterialsLog;
 use Nononsense\HomeBundle\Entity\MaterialCleanMaterialsRepository;
 use Nononsense\HomeBundle\Entity\MaterialCleanProducts;
 use Nononsense\HomeBundle\Entity\MaterialCleanProductsRepository;
@@ -116,6 +117,26 @@ class MaterialCleanMaterialsController extends Controller
 
         if ($request->getMethod() == 'POST') {
             try {
+                if($material->getId()){
+                    $log = new MaterialCleanMaterialsLog();
+                    $log->setUpdated($material->getUpdated())
+                        ->setCreated(new DateTime())
+                        ->setMaterial($material)
+                        ->setProduct($material->getProduct())
+                        ->setCenter($material->getCenter())
+                        ->setExpirationDays($material->getExpirationDays())
+                        ->setExpirationHours($material->getExpirationHours())
+                        ->setAdditionalInfo($material->getAdditionalInfo())
+                        ->setOtherName($material->getOtherName())
+                        ->setValidated($material->getValidated())
+                        ->setUpdateUser($material->getUpdateUser())
+                        ->setValidateUser($material->getValidateUser())
+                        ->setActive($material->getActive())
+                        ->setName($material->getName())
+                        ->setUpdateComment($material->getUpdateComment());
+                    $material->setUpdateComment($request->get('update_comment'));
+                }
+
                 $password = $request->get('password');
                 if(!$this->get('utilities')->checkUser($password)){
                     $this->get('session')->getFlashBag()->add('error', "La contraseña no es correcta.");
@@ -140,6 +161,9 @@ class MaterialCleanMaterialsController extends Controller
                     $material->setValidateUser(null);
                     $material->setUpdated(new DateTime());
                     $em->persist($material);
+                    if(isset($log) && $log){
+                        $em->persist($log);
+                    }
                     $em->flush();
                     $this->get('session')->getFlashBag()->add('message', "El material se ha guardado correctamente");
                     return $this->redirect($this->generateUrl('nononsense_mclean_materials_list'));

@@ -17,13 +17,13 @@
         <br>
         {% endfor %}
         {% if material.id is not null and material.updateUser is not null %}
-            <div class="row">
-                <div class="alert alert-info col-lg-4 col-lg-offset-1">
-                    <p>Última modificación: <strong>{{ material.updateUser.name ?? '-' }}</strong></p>
-                    <p>Última validación: <strong>{{ material.validateUser.name ?? '-' }}</strong></p>
-                    <p>Fecha: <strong>{{ material.updated | date("d-m-Y H:i:s") }}</strong></p>
-                </div>
-            </div>
+{#            <div class="row">#}
+{#                <div class="alert alert-info col-lg-4 col-lg-offset-1">#}
+{#                    <p>Última modificación: <strong>{{ material.updateUser.name ?? '-' }}</strong></p>#}
+{#                    <p>Última validación: <strong>{{ material.validateUser.name ?? '-' }}</strong></p>#}
+{#                    <p>Fecha: <strong>{{ material.updated | date("d-m-Y H:i:s") }}</strong></p>#}
+{#                </div>#}
+{#            </div>#}
         {% endif %}
         <form class="form-horizontal" id="form_item" action="{{ path('nononsense_mclean_materials_edit',{'id': material.id is not null ? material.id : 0}) }}" method="POST">
             <div class="row">
@@ -49,7 +49,7 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-4 control-label" for="select_product">Centro</label>
+                            <label class="col-sm-4 control-label" for="select_center">Centro</label>
                             <div class="col-sm-7">
                                 <select class="form-control" name="center" id="select_center" {{ material.id is not null ? 'disabled="disabled"' : ''}}>
                                     {% for center in centers %}
@@ -87,6 +87,14 @@
                                 <input name="active" value="1" id="check_active" type="checkbox" {% if material.active == true %} checked="checked" {% endif %}>
                             </div>
                         </div>
+                        {% if material.id is defined and material.id > 0 %}
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" for="update_comment">Comentario de actualización</label>
+                                <div class="col-sm-7">
+                                    <textarea id="update_comment" name="update_comment" rows="10" cols="40" required="required"></textarea>
+                                </div>
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
                 <input type="hidden" name="password">
@@ -115,6 +123,119 @@
                 </button>
             </div>
         </div>
+        {% if material.id is not null %}
+            <div class="row">
+                <div class="col-xs-12">
+                    <hr>
+                    <h3>Historial de cambios</h3>
+                    <br/>
+                    <table id="inProcessParcial" class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>Id.</th>
+                            <th>Nombre</th>
+                            <th>Cad. Limpieza (días)</th>
+                            <th>Cad. Limpieza (horas)</th>
+                            <th>Centro</th>
+                            <th>Producto</th>
+                            <th>Información Adicional</th>
+                            <th>Material Otro</th>
+                            <th>Activo</th>
+                            <th>Usuario modificación</th>
+                            <th>Fecha</th>
+                            <th>Validado</th>
+                            <th>Usuario validación</th>
+                            <th>Comentario de actualización</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="info">
+                                <td>{{material.id}}</td>
+                                <td>{{material.name}}</td>
+                                <td>{{material.expirationDays}}</td>
+                                <td>{{material.expirationHours ?? 0}}</td>
+                                <td>{{material.center.name}}</td>
+                                <td>{{ material.product is defined and material.product is not null ? material.product.name : 'No aplica' }}</td>
+                                <td>
+                                    {% if material.additionalInfo %}
+                                        Si
+                                    {% else %}
+                                        No
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if material.otherName %}
+                                        Si
+                                    {% else %}
+                                        No
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if material.active %}
+                                        Si
+                                    {% else %}
+                                        No
+                                    {% endif %}
+                                </td>
+                                <td>{{ material.updateUser.name ?? '-' }}</td>
+                                <td>{{ material.updated | date("d-m-Y H:i:s") }}</td>
+                                <td>
+                                    {% if material.validated %}
+                                        Si
+                                    {% else %}
+                                        No
+                                    {% endif %}
+                                </td>
+                                <td>{{ material.validateUser.name ?? '-' }}</td>
+                                <td>{{ material.updateComment }}</td>
+                            </tr>
+                        {% for item in material.log %}
+                            <tr>
+                                <td>{{item.material.id}}</td>
+                                <td>{{item.name}}</td>
+                                <td>{{item.expirationDays}}</td>
+                                <td>{{item.expirationHours ?? 0}}</td>
+                                <td>{{item.center.name}}</td>
+                                <td>{{ item.product is defined and item.product is not null ? item.product.name : 'No aplica' }}</td>
+                                <td>
+                                    {% if item.additionalInfo %}
+                                        Si
+                                    {% else %}
+                                        No
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if item.otherName %}
+                                        Si
+                                    {% else %}
+                                        No
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if item.active %}
+                                        Si
+                                    {% else %}
+                                        No
+                                    {% endif %}
+                                </td>
+                                <td>{{ item.updateUser.name ?? '-' }}</td>
+                                <td>{{ item.updated | date("d-m-Y H:i:s") }}</td>
+                                <td>
+                                    {% if item.validated %}
+                                        Si
+                                    {% else %}
+                                        No
+                                    {% endif %}
+                                </td>
+                                <td>{{ item.validateUser.name ?? '-' }}</td>
+                                <td>{{ item.updateComment }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% endif %}
     </div>
     
 {% endblock %}

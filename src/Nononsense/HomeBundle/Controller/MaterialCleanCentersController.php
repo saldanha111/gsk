@@ -5,6 +5,7 @@ namespace Nononsense\HomeBundle\Controller;
 use DateTime;
 use Exception;
 use Nononsense\HomeBundle\Entity\MaterialCleanCenters;
+use Nononsense\HomeBundle\Entity\MaterialCleanCentersLog;
 use Nononsense\HomeBundle\Entity\MaterialCleanCentersRepository;
 use Nononsense\HomeBundle\Entity\MaterialCleanDepartments;
 use Nononsense\UtilsBundle\Classes\Utils;
@@ -74,6 +75,21 @@ class MaterialCleanCentersController extends Controller
 
         if ($request->getMethod() == 'POST') {
             try {
+                if($center->getId()){
+                    $log = new MaterialCleanCentersLog();
+                    $log->setUpdated($center->getUpdated())
+                        ->setCreated(new DateTime())
+                        ->setValidated($center->getValidated())
+                        ->setCenter($center)
+                        ->setUpdateUser($center->getUpdateUser())
+                        ->setValidateUser($center->getValidateUser())
+                        ->setActive($center->getActive())
+                        ->setName($center->getName())
+                        ->setDepartment($center->getDepartment())
+                        ->setDescription($center->getDescription())
+                        ->setUpdateComment($center->getUpdateComment());
+                    $center->setUpdateComment($request->get("update_comment"));
+                }
                 $password = $request->get('password');
                 if(!$this->get('utilities')->checkUser($password)){
                     $this->get('session')->getFlashBag()->add('error', "La contraseña no es correcta.");
@@ -95,6 +111,7 @@ class MaterialCleanCentersController extends Controller
                     $error = 1;
                 }
                 if(!$center->getDepartment()) {
+                    /** @var MaterialCleanDepartments $department */
                     $department = $em->getRepository(MaterialCleanDepartments::class)->find($request->get("department"));
                     if(!$department){
                         $this->get('session')->getFlashBag()->add('error', "El departamento no es correcto.");
@@ -114,6 +131,9 @@ class MaterialCleanCentersController extends Controller
                     $center->setValidateUser(null);
                     $center->setUpdated(new DateTime());
                     $em->persist($center);
+                    if(isset($log) && $log){
+                        $em->persist($log);
+                    }
                     $em->flush();
                     $this->get('session')->getFlashBag()->add('message', "El centro se ha guardado correctamente");
                     return $this->redirect($this->generateUrl('nononsense_mclean_centers_list'));

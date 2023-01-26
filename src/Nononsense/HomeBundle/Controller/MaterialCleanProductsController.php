@@ -5,6 +5,7 @@ namespace Nononsense\HomeBundle\Controller;
 use DateTime;
 use Exception;
 use Nononsense\HomeBundle\Entity\MaterialCleanProducts;
+use Nononsense\HomeBundle\Entity\MaterialCleanProductsLog;
 use Nononsense\HomeBundle\Entity\MaterialCleanProductsRepository;
 use Nononsense\UtilsBundle\Classes\Utils;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -96,6 +97,20 @@ class MaterialCleanProductsController extends Controller
 
         if ($request->getMethod() == 'POST') {
             try {
+                if($product->getId()){
+                    $log = new MaterialCleanProductsLog();
+                    $log->setUpdated($product->getUpdated())
+                        ->setCreated(new DateTime())
+                        ->setProduct($product)
+                        ->setValidated($product->getValidated())
+                        ->setUpdateUser($product->getUpdateUser())
+                        ->setValidateUser($product->getValidateUser())
+                        ->setActive($product->getActive())
+                        ->setName($product->getName())
+                        ->setTagsNumber($product->getTagsNumber())
+                        ->setUpdateComment($product->getUpdateComment());
+                    $product->setUpdateComment($request->get("update_comment"));
+                }
                 $password = $request->get('password');
                 if(!$this->get('utilities')->checkUser($password)){
                     $this->get('session')->getFlashBag()->add('error', "La contraseña no es correcta.");
@@ -121,6 +136,9 @@ class MaterialCleanProductsController extends Controller
                     $product->setValidateUser(null);
                     $product->setUpdated(new DateTime());
                     $em->persist($product);
+                    if(isset($log) && $log){
+                        $em->persist($log);
+                    }
                     $em->flush();
                     $this->get('session')->getFlashBag()->add('message', "El producto se ha guardado correctamente");
                     return $this->redirect($this->generateUrl('nononsense_mclean_products_list'));
