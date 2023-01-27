@@ -146,11 +146,14 @@ class MaterialCleanCentersController extends Controller
             }
         }
 
+        $logRepository = $em->getRepository(MaterialCleanCentersLog::class);
+        $logs = $logRepository->findBy(['center' => $center], ['id' => 'DESC']);
+
         $array_item = array();
         $array_item['center'] = $center;
         $array_item['departments'] = $departments;
         $array_item['currentUser'] = $this->getUser();
-
+        $array_item['log'] = $logs;
 
         return $this->render('NononsenseHomeBundle:MaterialClean:center_edit.html.twig', $array_item);
     }

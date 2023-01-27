@@ -83,12 +83,6 @@ class MaterialCleanProducts
      */
     protected $material;
 
-    /**
-     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\MaterialCleanProductsLog", mappedBy="product")
-     * @ORM\OrderBy({"id" = "DESC"})
-     */
-    protected $log;
-
     public function __construct()
     {
         $this->material = new ArrayCollection();
@@ -96,7 +90,6 @@ class MaterialCleanProducts
         $this->updated = new DateTime();
         $this->active = true;
         $this->validated = false;
-        $this->log = new ArrayCollection();
     }
 
     /**
@@ -318,39 +311,6 @@ class MaterialCleanProducts
     public function getValidateUser(): ?Users
     {
         return $this->validateUser;
-    }
-
-
-    /**
-     * Add log
-     *
-     * @param MaterialCleanProductsLog $log
-     * @return MaterialCleanProducts
-     */
-    public function addLog(MaterialCleanProductsLog $log): MaterialCleanProducts
-    {
-        $this->log[] = $log;
-        return $this;
-    }
-
-    /**
-     * Remove log
-     *
-     * @param MaterialCleanProductsLog $log
-     */
-    public function removeLog(MaterialCleanProductsLog $log): void
-    {
-        $this->log->removeElement($log);
-    }
-
-    /**
-     * Get log
-     *
-     * @return Collection;
-     */
-    public function getLog(): Collection
-    {
-        return $this->log;
     }
 
     /**

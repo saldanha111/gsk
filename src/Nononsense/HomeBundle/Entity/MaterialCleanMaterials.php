@@ -123,12 +123,6 @@ class MaterialCleanMaterials
      */
     private $center;
 
-    /**
-     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\MaterialCleanMaterialsLog", mappedBy="material")
-     * @ORM\OrderBy({"id" = "DESC"})
-     */
-    protected $log;
-
     public function __construct()
     {
         $this->created = new DateTime();
@@ -139,7 +133,6 @@ class MaterialCleanMaterials
         $this->validated = 0;
         $this->additionalInfo = 0;
         $this->otherName = false;
-        $this->log = new ArrayCollection();
     }
 
     /**
@@ -500,38 +493,6 @@ class MaterialCleanMaterials
     public function getValidateUser(): ?Users
     {
         return $this->validateUser;
-    }
-
-    /**
-     * Add log
-     *
-     * @param MaterialCleanMaterialsLog $log
-     * @return MaterialCleanMaterials
-     */
-    public function addLog(MaterialCleanMaterialsLog $log): MaterialCleanMaterials
-    {
-        $this->log[] = $log;
-        return $this;
-    }
-
-    /**
-     * Remove log
-     *
-     * @param MaterialCleanMaterialsLog $log
-     */
-    public function removeLog(MaterialCleanMaterialsLog $log): void
-    {
-        $this->log->removeElement($log);
-    }
-
-    /**
-     * Get log
-     *
-     * @return Collection;
-     */
-    public function getLog(): Collection
-    {
-        return $this->log;
     }
 
     /**

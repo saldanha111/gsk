@@ -176,11 +176,15 @@ class MaterialCleanMaterialsController extends Controller
             }
         }
 
+        $logRepository = $em->getRepository(MaterialCleanMaterialsLog::class);
+        $logs = $logRepository->findBy(['material' => $material], ['id' => 'DESC']);
+
         $array_item = array();
         $array_item['material'] = $material;
         $array_item['products'] = $productsRepository->findBy(['active' => true, 'validated' => true]);
         $array_item['centers'] = $centersRepository->findBy(['active' => true, 'validated' => true]);
         $array_item['currentUser'] = $this->getUser();
+        $array_item['log'] = $logs;
 
         return $this->render('NononsenseHomeBundle:MaterialClean:material_edit.html.twig', $array_item);
     }

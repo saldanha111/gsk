@@ -101,19 +101,12 @@ class MaterialCleanCenters
      */
     protected $department;
 
-    /**
-     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\MaterialCleanCentersLog", mappedBy="center")
-     * @ORM\OrderBy({"id" = "DESC"})
-     */
-    protected $log;
-
     public function __construct()
     {
         $this->created = new DateTime();
         $this->updated = new DateTime();
         $this->active = 1;
         $this->validated = 0;
-        $this->log = new ArrayCollection();
     }
 
     /**
@@ -244,38 +237,6 @@ class MaterialCleanCenters
     public function getBarcode(): ArrayCollection
     {
         return $this->barcode;
-    }
-
-    /**
-     * Add log
-     *
-     * @param MaterialCleanCentersLog $log
-     * @return MaterialCleanCenters
-     */
-    public function addLog(MaterialCleanCentersLog $log): MaterialCleanCenters
-    {
-        $this->log[] = $log;
-        return $this;
-    }
-
-    /**
-     * Remove log
-     *
-     * @param MaterialCleanCentersLog $log
-     */
-    public function removeLog(MaterialCleanCentersLog $log): void
-    {
-        $this->log->removeElement($log);
-    }
-
-    /**
-     * Get log
-     *
-     * @return Collection;
-     */
-    public function getLog(): Collection
-    {
-        return $this->log;
     }
 
     /**

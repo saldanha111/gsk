@@ -151,7 +151,10 @@ class MaterialCleanProductsController extends Controller
             }
         }
 
-        $array_item = ['product' => $product, 'currentUser' => $this->getUser()];
+        $logRepository = $em->getRepository(MaterialCleanProductsLog::class);
+        $logs = $logRepository->findBy(['product' => $product], ['id' => 'DESC']);
+
+        $array_item = ['product' => $product, 'currentUser' => $this->getUser(), 'log' => $logs];
         return $this->render('NononsenseHomeBundle:MaterialClean:product_edit.html.twig', $array_item);
     }
 
