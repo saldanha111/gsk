@@ -213,10 +213,10 @@ class MaterialCleanCentersLog
     /**
      * Set department
      *
-     * @param MaterialCleanDepartments $department
+     * @param MaterialCleanDepartments|null $department
      * @return MaterialCleanCentersLog
      */
-    public function setDepartment(MaterialCleanDepartments $department): MaterialCleanCentersLog
+    public function setDepartment(?MaterialCleanDepartments $department): MaterialCleanCentersLog
     {
         $this->department = $department;
         return $this;
