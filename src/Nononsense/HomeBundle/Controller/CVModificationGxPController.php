@@ -144,7 +144,7 @@ class CVModificationGxPController extends Controller
         $array["item"]=$items[0];
 
         $array["users"] = $em->getRepository(Users::class)->findBy(array(),array("name" => "ASC"));
-        $array["groups"] = $em->getRepository(Groups::class)->findBy(array(),array("name" => "ASC"));
+        $array["groups"] = $em->getRepository(Groups::class)->findBy(array("isActive" => TRUE),array("name" => "ASC"));
         $array["signature_request"] = $em->getRepository(CVSignatures::class)->findOneBy(array("record" => $items[0]["id"],"action" => 18),array("id" => "DESC"));
         $array["secondWf"] = $em->getRepository(CVSecondWorkflow::class)->findBy(array("record" => $items[0]["id"]),array("id" => "ASC"));
         $array["currentWf"] = $wf;

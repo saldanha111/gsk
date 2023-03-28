@@ -37,7 +37,7 @@ class TemplateManagementRequestController extends Controller
         $array_item=array();
 
         $array_item["areas"] = $this->getDoctrine()->getRepository(Areas::class)->findBy(array(),array("name" => "ASC"));
-        $array_item["groups"] = $this->getDoctrine()->getRepository(Groups::class)->findBy(array(),array("name" => "ASC"));
+        $array_item["groups"] = $this->getDoctrine()->getRepository(Groups::class)->findBy(array("isActive" => TRUE),array("name" => "ASC"));
         $array_item["users"] = $this->getDoctrine()->getRepository(Users::class)->findBy(array(),array("name" => "ASC"));
         $array_item["retention_categories"] = $this->getDoctrine()->getRepository(RetentionCategories::class)->findBy(array(),array("name" => "ASC"));
 

@@ -13,15 +13,53 @@ use Doctrine\ORM\Tools\Pagination\Paginator;
 
 class GroupController extends Controller
 {
-    public function indexAction($page, $query = 'q')
+    public function indexAction(Request $request)
     {
         if (!$this->get('app.security')->permissionSeccion('grupos_gestion')) {
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
 
+        if(!$request->get("export_excel")){
+            if($request->get("page")){
+                $filters["limit_from"]=$request->get("page")-1;
+            }
+            else{
+                $filters["limit_from"]=0;
+            }
+            $filters["limit_many"]=10;
+        }
+        else{
+            $filters["limit_from"]=0;
+            $filters["limit_many"]=99999999999;
+        }
+
+        if($request->get("name")){
+            $filters["name"]=$request->get("name");
+        }
+
+        if($request->get("state")){
+            $filters["state"]=$request->get("state");
+        }
+
+
+        $array_item["filters"]=$filters;
+        $array_item["groups"] = $this->getDoctrine()->getRepository(Groups::class)->list("list",$filters);
+        $array_item["count"] = $this->getDoctrine()->getRepository(Groups::class)->list("count",$filters);
+
+        $url=$this->container->get('router')->generate('nononsense_tm_templates');
+        $params=$request->query->all();
+        unset($params["page"]);
+        if(!empty($params)){
+            $parameters=TRUE;
+        }
+        else{
+            $parameters=FALSE;
+        }
+        $array_item["pagination"]=\Nononsense\UtilsBundle\Classes\Utils::paginador($filters["limit_many"],$request,$url,$array_item["count"],"/", $parameters);
+
         $admin = true;
         
-        $maxResults = $this->container->getParameter('results_per_page');
+        /*$maxResults = $this->container->getParameter('results_per_page');
 
          $groups = $this->getDoctrine()
                         ->getRepository('NononsenseGroupBundle:Groups')
@@ -39,7 +77,8 @@ class GroupController extends Controller
             'paging' => $paging,
             'query' => $query
         ));
-        return $this->render('');
+        return $this->render('');*/
+        return $this->render('NononsenseGroupBundle:Group:index.html.twig',$array_item);  
     }
     
     public function createAction(Request $request)

@@ -4,6 +4,7 @@ namespace Nononsense\GroupBundle\Entity;
 
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Tools\Pagination\Paginator;
+use Doctrine\ORM\Query\ResultSetMapping;
 
 /**
  * GroupsRepository
@@ -164,5 +165,59 @@ class GroupsRepository extends EntityRepository
         $query = $list->getQuery();
 
         return $query->getResult();
+    }
+
+    public function list($type,$filters)
+    {
+        $em = new ResultSetMapping();
+
+        switch($type){
+            case "list":
+                $list = $this->createQueryBuilder('g')->select('g.id','g.name','g.isActive','g.color','g.created','g.description');
+                if(isset($filters["limit_from"])){
+                    $list->setFirstResult($filters["limit_from"]*$filters["limit_many"])->setMaxResults($filters["limit_many"]);
+                }
+                break;
+            case "count":
+                $list = $this->createQueryBuilder('g')->select('COUNT(g.id) as conta');
+                break;
+        }
+
+        if(!empty($filters)){
+
+            if(isset($filters["name"])){
+                $terms = explode(" ", $filters["name"]);
+                foreach($terms as $key => $term){
+                    $list->andWhere('g.name LIKE :name'.$key);
+                    $list->setParameter('name'.$key, '%' . $term. '%');
+                }
+            }
+
+            if(isset($filters["state"])){
+                switch($filters["state"]){
+                    case "active": 
+                        $list->andWhere('g.isActive=TRUE');
+                        break;
+                    case "inactive": 
+                        $list->andWhere('g.isActive=FALSE');
+                        break;
+                }
+            }
+        }
+
+
+        
+
+        $query = $list->getQuery();
+
+
+        switch($type){
+            case "list":
+                return $query->getResult();
+                break;
+            case "count":
+                return $query->getSingleResult()["conta"];
+                break;
+        }
     }
 }

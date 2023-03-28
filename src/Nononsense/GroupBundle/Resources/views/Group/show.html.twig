@@ -58,8 +58,10 @@
                 </div>
 
                 <div class="ibox-content">
-                    <h3 style="font-weight: normal"><button class="btn btn-default " style="background-color: {{group.color}}; border-color: {{group.color}}; margin-right: 10px" type="button"><i class="fa fa-users"></i></button> 
-                        {{ group.name }}</h3>
+                    <h3 style="font-weight: normal">
+
+                        <button class="btn btn-default " style="background-color: {{group.color}}; border-color: {{group.color}}; margin-right: 10px" type="button"><i class="fa fa-users"></i></button> 
+                        {{ group.name }}</h3>{% if group.isActive == false %}<button class="btn btn-danger btn-xs " type="button" disabled><i class="fa fa-minus-circle"></i> Inactivo</button>{% endif %}
                     <address style="line-height: 18px">
                         <i class="fa fa-calendar"> </i> <strong>{{'Created'|trans}}:</strong> {{ group.created|localizeddate('medium', 'medium', app.request.locale)}}<br />
                     </address>

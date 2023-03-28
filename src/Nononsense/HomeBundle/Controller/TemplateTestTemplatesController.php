@@ -248,7 +248,7 @@ class TemplateTestTemplatesController extends Controller
 
     		$json_content["data"]=array_merge($json_content["data"],$json_content2["data"]);
     	}
-
+        $json_content["configuration"]["partial_save_button"]=1;
     	if($request->get("mode")){
     		switch($request->get("mode")){
     			case "c": $json_content["configuration"]["prefix_view"]="u_;in_;dxo_";break;

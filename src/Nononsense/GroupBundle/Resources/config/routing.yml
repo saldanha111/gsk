@@ -63,9 +63,9 @@ nononsense_group_addbulk:
     defaults: { _controller: NononsenseGroupBundle:Group:addbulk }
         
 nononsense_groups_homepage:
-    path:     /{page}/{query}
-    defaults: { _controller: NononsenseGroupBundle:Group:index, page: 1, query: 'q' }
+    path:     /
+    defaults: { _controller: NononsenseGroupBundle:Group:index}
     
 nononsense_groups_homepage_slash:
     path:     /
-    defaults: { _controller: NononsenseGroupBundle:Group:index, page: 1, query: 'q' }
+    defaults: { _controller: NononsenseGroupBundle:Group:index }
