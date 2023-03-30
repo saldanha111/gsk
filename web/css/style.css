@@ -6153,6 +6153,22 @@ span.accordionTab:before {
     font-size: 13px;
 }
 
+.changes_groups table{
+  margin-bottom: 20px;
+  border-collapse: collapse;
+  border-spacing: 0;
+  margin-bottom:40px;
+}
+
+.changes_groups table tr:first-child td{
+  font-weight: bold;
+}
+
+.changes_groups td{
+  padding:10px 40px;
+}
+
+
 @media (max-width: 340px) {
     .welcome-message {
         display: none;

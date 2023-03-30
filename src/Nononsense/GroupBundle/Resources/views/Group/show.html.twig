@@ -169,6 +169,30 @@
             </div>
         </div>
 
+    {% if signatures is defined and signatures is not empty %}
+        <div class="col-md-12">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Usuario</th>
+                    <th>Acción</th>
+                    <th>Justificación</th>
+                </tr>
+                </thead>
+                <tbody>
+                    {% for signature in signatures %}
+                        <tr>
+                            <td>{% if signature.modified is defined and signature.modified is not null %}{{signature.modified|date("d/m/Y H:i:s")|gskdate}}{% endif %}</td>
+                            <td>{{signature.user.name}}</td>
+                            <td>{{signature.description}}</td>
+                            <td>{{signature.justification}}</td>
+                        </tr>
+                        <tr><td colspan="4" class="changes_groups">{{signature.changes|raw}}</td></tr>
+                    {% endfor %}
+            </tbody>
+        </div>
+    {% endif %}
 
 {% endblock %}
 {% block scripts %}

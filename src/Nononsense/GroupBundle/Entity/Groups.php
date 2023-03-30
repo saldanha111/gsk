@@ -31,6 +31,11 @@ class Groups
      * @ORM\OneToMany(targetEntity="\Nononsense\GroupBundle\Entity\GroupUsers", mappedBy="group")
      */
     protected $users;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\GroupBundle\Entity\GroupsSignatures", mappedBy="group")
+     */
+    protected $groupsSignatures;
     
     /**
      * @ORM\ManyToMany(targetEntity="\Nononsense\NotificationsBundle\Entity\Notifications", mappedBy="groups")
@@ -891,5 +896,38 @@ class Groups
     public function getNotificationsModels()
     {
         return $this->notificationsModels;
+    }
+
+    /**
+     * Add groupsSignatures
+     *
+     * @param \Nononsense\GroupBundle\Entity\GroupsSignatures $groupsSignatures
+     * @return Groups
+     */
+    public function addGroupsSignature(\Nononsense\GroupBundle\Entity\GroupsSignatures $groupsSignatures)
+    {
+        $this->groupsSignatures[] = $groupsSignatures;
+
+        return $this;
+    }
+
+    /**
+     * Remove groupsSignatures
+     *
+     * @param \Nononsense\GroupBundle\Entity\GroupsSignatures $groupsSignatures
+     */
+    public function removeGroupsSignature(\Nononsense\GroupBundle\Entity\GroupsSignatures $groupsSignatures)
+    {
+        $this->groupsSignatures->removeElement($groupsSignatures);
+    }
+
+    /**
+     * Get groupsSignatures
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getGroupsSignatures()
+    {
+        return $this->groupsSignatures;
     }
 }

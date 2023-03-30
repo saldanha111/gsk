@@ -1571,4 +1571,27 @@ class TMTemplates
     {
         return $this->tmSignatures;
     }
+
+    /**
+     * Set retentionRevision
+     *
+     * @param boolean $retentionRevision
+     * @return TMTemplates
+     */
+    public function setRetentionRevision($retentionRevision)
+    {
+        $this->retentionRevision = $retentionRevision;
+
+        return $this;
+    }
+
+    /**
+     * Get retentionRevision
+     *
+     * @return boolean 
+     */
+    public function getRetentionRevision()
+    {
+        return $this->retentionRevision;
+    }
 }

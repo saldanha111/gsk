@@ -154,6 +154,11 @@ class Users implements AdvancedUserInterface, \Serializable
      * @ORM\Column(name="mud_id", type="string", length=20, nullable=true)
      */
     protected $mudId;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\GroupBundle\Entity\GroupsSignatures", mappedBy="user")
+     */
+    protected $groupsSignatures;
     
     /**
      * @ORM\OneToMany(targetEntity="\Nononsense\NotificationsBundle\Entity\Notifications", mappedBy="user")
@@ -2168,5 +2173,38 @@ class Users implements AdvancedUserInterface, \Serializable
     public function getRetentionSignatures()
     {
         return $this->retentionSignatures;
+    }
+
+    /**
+     * Add groupsSignatures
+     *
+     * @param \Nononsense\GroupBundle\Entity\GroupsSignatures $groupsSignatures
+     * @return Users
+     */
+    public function addGroupsSignature(\Nononsense\GroupBundle\Entity\GroupsSignatures $groupsSignatures)
+    {
+        $this->groupsSignatures[] = $groupsSignatures;
+
+        return $this;
+    }
+
+    /**
+     * Remove groupsSignatures
+     *
+     * @param \Nononsense\GroupBundle\Entity\GroupsSignatures $groupsSignatures
+     */
+    public function removeGroupsSignature(\Nononsense\GroupBundle\Entity\GroupsSignatures $groupsSignatures)
+    {
+        $this->groupsSignatures->removeElement($groupsSignatures);
+    }
+
+    /**
+     * Get groupsSignatures
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getGroupsSignatures()
+    {
+        return $this->groupsSignatures;
     }
 }
