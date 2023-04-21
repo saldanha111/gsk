@@ -182,6 +182,16 @@ class AccountRequestController extends Controller
 				$accountRequest->setStatus($request->get('status'));
 				$accountRequest->setObservation(strip_tags($request->get('observation')));
 
+				$extra = $accountRequest->getExtra();
+
+				$extra[] = [
+					'validatedBy' => $this->getUser()->getUsername(), 
+					'status' => $request->get('status'),
+					'created' => new \DateTime()
+				];
+
+				$accountRequest->setExtra($extra);
+
 				$em->persist($accountRequest);
 				$em->flush();
 

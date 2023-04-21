@@ -141,6 +141,7 @@
                                                     <td>Estado</td>
                                                     <td>Observaciones</td>
                                                     <td>Accion</td>
+                                                    <td>Trazabilidad</td>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -170,6 +171,11 @@
                                                             {% else %}
                                                                 <button type="button" disabled class="btn btn-danger btn-sm disabled" data-value="0" data-id="p_{{request.id}}" data-request="{{row.id}}"><i class="fa fa-times" aria-hidden="true"></i></button>
                                                             {% endif %}
+                                                        </td>
+                                                        <td class="trace">
+                                                            {% for extra in request.extra %}
+                                                                Solicitud {{extra.status ? 'aprobada' : 'cancelada' }} el {{extra.created|date("d-m-Y")}} por <b>{{extra.validatedBy}}</b> <br>
+                                                            {% endfor %}
                                                         </td>
                                                     </tr>
                                                 {% endfor %}
@@ -255,6 +261,13 @@
                 success: function(e){
                     toastr[e.type](e.message);
                     var status;
+                    var date = new Date();
+                    var fullDate = date.toLocaleDateString('es-ES', {  
+                        year: 'numeric', 
+                        month: '2-digit', 
+                        day: '2-digit' 
+                    }).replaceAll('/', '-');
+
                     if (e.type == 'success') {
                         status = '<span class="label label-primary">Aceptada</span>';
                         $(that).prop('disabled', true);
@@ -267,6 +280,7 @@
                     }
                     //var status = (e.type == 'success') ? '<span class="label label-primary">Aceptada</span>' : '<span class="label label-danger">Cancelada</span>';
                     $('#'+id).find('.status').html(status)
+                    $('#'+id).find('.trace').append('Solicitud '+$(status).text().toLowerCase()+' el '+fullDate+' por <b>{{app.user.username}}</b><br>')
                 },
                 error: function(jqXHR, textStatus, errorThrown){
                     toastr.error('Actualmente no podemos procesar su solicitud: '+jqXHR.statusText);

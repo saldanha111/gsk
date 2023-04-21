@@ -52,6 +52,12 @@ class AccountRequestsGroups
      */
     private $status;
 
+    /**
+     * @var array
+     *
+     * @ORM\Column(name="extra", type="array", nullable=true)
+     */
+    private $extra;
 
     /**
      * Get id
@@ -62,8 +68,6 @@ class AccountRequestsGroups
     {
         return $this->id;
     }
-
-    
 
     /**
      * Set observation
@@ -155,5 +159,28 @@ class AccountRequestsGroups
     public function getStatus()
     {
         return $this->status;
+    }
+
+    /**
+     * Set extra
+     *
+     * @param array $extra
+     * @return AccountRequestsGroups
+     */
+    public function setExtra($extra)
+    {
+        $this->extra = $extra;
+
+        return $this;
+    }
+
+    /**
+     * Get extra
+     *
+     * @return array 
+     */
+    public function getExtra()
+    {
+        return $this->extra;
     }
 }
