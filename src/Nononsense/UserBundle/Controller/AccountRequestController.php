@@ -77,11 +77,19 @@ class AccountRequestController extends Controller
 
             	if ($bulkMudIds) {
 
-            		$bulkMudIds = explode(',', preg_replace('(\s+)', '', $bulkMudIds));
+            		//Check the integrity of the mudids again
+            		$bulkMudIds = $this->checkBulkMudIds($bulkMudIds);
 
-            		foreach ($bulkMudIds as $key => $bulkMudId) {
+            		if ($bulkMudIds['type'] == 'error'){
+            			$this->get('session')->getFlashBag()->add('errors', $bulkMudIds['message']);
+
+            			return $this->redirect($this->generateUrl('nononsense_user_crate_requests'));
+            		}
+
+            		foreach ($bulkMudIds['message'] as $key => $bulkMudId) {
 	            		$bulkRequest = new AccountRequests();
-	            		$bulkRequest->setMudId($bulkMudId);
+	            		$bulkRequest->setMudId($bulkMudId['mudId']);
+	            		$bulkRequest->setRefUsername($bulkMudId['displayname']);
 	            		$bulkRequest->setEmail($form->get('email')->getData());
 	            		$bulkRequest->setUsername($form->get('username')->getData());
 	            		$bulkRequest->setDescription($form->get('description')->getData());
@@ -99,7 +107,7 @@ class AccountRequestController extends Controller
 			            	$log = new Logs();
 					        $log->setType($logType);
 					        $log->setDate(new \DateTime());
-					        $log->setDescription($accountRequest->getMudId().' ha solicitado acceso al grupo '.$group->getName().' para el MUDID '.$bulkMudId);
+					        $log->setDescription($accountRequest->getMudId().' ha solicitado acceso al grupo '.$group->getName().' para el MUDID '.$bulkMudId['mudId']);
 
 					        $user = $em->getRepository(Users::class)->findOneBy(['username' => $accountRequest->getMudId()]);
 
@@ -377,5 +385,52 @@ class AccountRequestController extends Controller
 		$response = new JsonResponse($message);
 
 		return $response;
+	}
+
+	public function getBulkMudIdAction(Request $request){
+		return new JsonResponse($this->checkBulkMudIds($request->get('bulk')));
+	}
+
+
+	public function checkBulkMudIds(string $bulkMudIds){
+		$ldapdn   = $this->container->getParameter('ldap.search_dn');
+		$ldappass = $this->container->getParameter('ldap.search_password');
+
+		$uid_key = 'sAMAccountName';
+		$queryDn = $this->container->getParameter('ldap.base_dn');
+
+		$errors = [];
+		$mudIds = [];
+
+		try {
+			$bulkMudIds = explode(',', preg_replace('(\s+)', '', $bulkMudIds));
+
+			$ldap   = $this->container->get('ldap');
+			$bind   = $ldap->bind($ldapdn, $ldappass);
+
+			foreach($bulkMudIds as $key => $bulkMudId){
+				$filter  = '({uid_key}='.$bulkMudId.')';
+				$userSearch  = str_replace('{uid_key}', $uid_key, $filter);
+
+				$query = $ldap->find($queryDn, $userSearch, ['displayname']);
+
+				if (!$query) {
+					$errors[] = $bulkMudId;
+	        	}
+
+	        	$mudIds[$key]['mudId'] = $bulkMudId;
+	        	$mudIds[$key]['displayname'] = (isset($query[0]['displayname'][0])) ? $query[0]['displayname'][0] : null;
+			}
+
+			if ($errors){
+				throw new \Exception("Los siguientes MUD_IDs no han sido encontrados: ".implode(', ', $errors));
+			}
+
+	        $message = ['type' => 'success', 'message' => $mudIds];
+		} catch (\Exception $e) {
+			$message = ['type' => 'error', 'message' => $e->getMessage()];
+		}
+
+		return $message;
 	}
 }

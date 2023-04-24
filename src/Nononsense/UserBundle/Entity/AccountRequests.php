@@ -40,6 +40,13 @@ class AccountRequests
     /**
      * @var string
      *
+     * @ORM\Column(name="ref_username", type="string", length=90, nullable=true)
+     */
+    private $refUsername;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(name="email", type="string", length=90)
      */
     private $email;
@@ -330,5 +337,28 @@ class AccountRequests
     public function getRequestType()
     {
         return $this->requestType;
+    }
+
+    /**
+     * Set refUsername
+     *
+     * @param string $refUsername
+     * @return AccountRequests
+     */
+    public function setRefUsername($refUsername)
+    {
+        $this->refUsername = $refUsername;
+
+        return $this;
+    }
+
+    /**
+     * Get refUsername
+     *
+     * @return string 
+     */
+    public function getRefUsername()
+    {
+        return $this->refUsername;
     }
 }

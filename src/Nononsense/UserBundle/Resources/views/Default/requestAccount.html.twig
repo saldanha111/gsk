@@ -296,8 +296,13 @@
                     return false;
                 }
             
-                if ($('.nav-tabs li.active').index() == 0 && !ajaxDone) {
+                if ($('.nav-tabs li.active').index() == 0 && !isMudId) {
                     getUser();
+                    return false;
+                }
+
+                if ($('.nav-tabs li.active').index() == 1 && !isBulkMudId) {
+                    getMudids();
                     return false;
                 }
 
@@ -352,11 +357,16 @@
             return errors;
         }
 
+        var isMudId;
+        var isBulkMudId;
+
         $('#request_account_mud_id').change(function(e){
-           ajaxDone = false;
+           isMudId = false;
         });
 
-        var ajaxDone;
+        $('#request_account_bulk').change(function(e){
+           isBulkMudId = false;
+        });
 
         function getUser(){
  
@@ -371,7 +381,7 @@
                 toastr.remove();
                 if (e.type == 'success') {
                     $('.backdrop').hide();
-                    ajaxDone = true;
+                    isMudId = true;
                     if (e.message[0].displayname[0]) {
                         $('#request_account_username').add('ad');
                         $('#request_account_username').val(e.message[0].displayname[0]);
@@ -394,6 +404,33 @@
             });
 
         }
+
+    function getMudids(){
+        $('.backdrop').show();
+        toastr.info('Comprobando MUD_IDs, por favor espere.','', {iconClass: 'sk-spinner-rotating-plane sk-spinner'});
+
+        $.ajax({
+            url: '{{ path("nononsense_user_ajax_get_bulk_mudid")}}',
+            data: {bulk: $('#request_account_bulk').val() },
+            method: 'GET',
+        }).done(function(e){
+            toastr.remove();
+            if (e.type == 'success') {
+                $('.backdrop').hide();
+                isBulkMudId = true;
+
+                nextStep();
+            }else{
+                toastr.options.closeButton = true;
+                toastr[e.type](e.message);
+            }
+
+        }).fail(function(jqXHR, textStatus, errorThrown){
+            console.log(jqXHR.statusText);
+        }).always(function(){
+            toastr.options.closeButton = false;
+        });
+    }
 
     })
     </script>

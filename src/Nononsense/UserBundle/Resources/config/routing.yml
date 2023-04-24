@@ -97,6 +97,11 @@ nononsense_user_ajax_get_mudid:
     defaults: { _controller: NononsenseUserBundle:AccountRequest:getMudId}
     methods:  [GET]
 
+nononsense_user_ajax_get_bulk_mudid:
+    path:     /requests/check_bulk_mudid
+    defaults: { _controller: NononsenseUserBundle:AccountRequest:getBulkMudId}
+    methods:  [GET]
+
 nononsense_user_update_requests:
     path:     /requests/{id}
     defaults: { _controller: NononsenseUserBundle:AccountRequest:update}

@@ -81,6 +81,7 @@ security:
         - { path: ^/users/apply , roles: IS_AUTHENTICATED_ANONYMOUSLY}
         - { path: ^/users/ldap , roles: IS_AUTHENTICATED_ANONYMOUSLY}
         - { path: ^/users/requests/check_user , roles: IS_AUTHENTICATED_ANONYMOUSLY}
+        - { path: ^/users/requests/check_bulk_mudid , roles: IS_AUTHENTICATED_ANONYMOUSLY}
         - { path: ^/users/accessByToken , roles: IS_AUTHENTICATED_ANONYMOUSLY}
         - { path: ^/RESTservices/ , roles: IS_AUTHENTICATED_ANONYMOUSLY}
         - { path: ^/data/ , roles: IS_AUTHENTICATED_ANONYMOUSLY}
