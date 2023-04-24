@@ -79,6 +79,36 @@
                             </ul>
                             <p>Si deseas salir de algún grupo puedes <a href="{{path('nononsense_user_crate_requests')}}" target="_blank">realizar solicitud de baja</a></p>
                         {% endif %}
+
+                        {% if accountRequests is defined and accountRequests %}
+                            <h4>Grupos</h4>
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Grupo</th>
+                                        <th>Tipo</th>
+                                        <th>Flujo</th>
+                                        <th>Fecha</th>
+                                    </tr>
+                                </thead>
+                                
+                                    {% for request in accountRequests %}
+                                        <tr>
+                                            <td>{{request.groupId.name}}</td>
+                                            <td>{{request.requestId.requestType ? 'Alta' : 'Baja'}}</td>
+                                            <td>{{request.requestId.isManual ? 'Manual por administrador' : 'Proceso de solicitud'}}</td>
+                                            <td>{{request.updated is defined ? request.updated|date("d-m-Y") : ''}}</td>
+                                        </tr>
+                                    {% endfor %}
+                                
+                            </table>
+                            {% if pagination.count==0 %}
+                                <br><b>No se han encontrado datos disponibles</b>
+                            {% endif %}
+                            {% if pagination is defined and pagination.needed %}
+                                {% include '::pagination2.html.twig' %}
+                            {% endif %}
+                        {% endif %}
                     </div>
                 </div>
             </div>

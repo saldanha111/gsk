@@ -39,6 +39,11 @@ class AccountRequestsGroupsRepository extends EntityRepository
             $list->setParameter('until', $filter["until"]." 23:59:00");
         }
 
+        if(isset($filter["mudid"]) && $filter['mudid']){
+            $list->andWhere('r.mudId = :mudid');
+            $list->setParameter('mudid', $filter["mudid"]);
+        }
+
         $list->setFirstResult($limit*($filter["page"]-1))->setMaxResults($limit);
 
         $accountRequests['rows']  = $list->getQuery()->getResult();

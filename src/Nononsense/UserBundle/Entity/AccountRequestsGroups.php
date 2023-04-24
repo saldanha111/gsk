@@ -10,6 +10,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @ORM\Table(name="account_requests_groups")
  * @ORM\Entity(repositoryClass="Nononsense\UserBundle\Entity\AccountRequestsGroupsRepository")
+ * @ORM\HasLifecycleCallbacks
  */
 class AccountRequestsGroups
 {
@@ -52,6 +53,13 @@ class AccountRequestsGroups
      */
     private $status;
 
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="updated", type="date", nullable=true)
+     */
+    private $updated;
+
 
     /**
      * Get id
@@ -62,7 +70,6 @@ class AccountRequestsGroups
     {
         return $this->id;
     }
-
     
 
     /**
@@ -155,5 +162,36 @@ class AccountRequestsGroups
     public function getStatus()
     {
         return $this->status;
+    }
+
+    /**
+     * Set updated
+     *
+     * @param \DateTime $updated
+     * @return AccountRequestsGroups
+     */
+    public function setUpdated($updated)
+    {
+        $this->updated = $updated;
+
+        return $this;
+    }
+
+    /**
+     * Get updated
+     *
+     * @return \DateTime 
+     */
+    public function getUpdated()
+    {
+        return $this->updated;
+    }
+
+    /**
+     * @ORM\PreUpdate
+     */
+    public function setUpdatedValue()
+    {
+        $this->updated = new \DateTime();
     }
 }

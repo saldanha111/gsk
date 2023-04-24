@@ -89,6 +89,13 @@ class AccountRequests
     private $requestType = 0;
 
     /**
+     * @var boolean
+     *
+     * @ORM\Column(name="is_manual", type="boolean", nullable=true, options={"default": false})
+     */
+    private $isManual = false;
+
+    /**
      * Get id
      *
      * @return integer 
@@ -330,5 +337,28 @@ class AccountRequests
     public function getRequestType()
     {
         return $this->requestType;
+    }
+
+    /**
+     * Set isManual
+     *
+     * @param boolean $isManual
+     * @return AccountRequests
+     */
+    public function setIsManual($isManual)
+    {
+        $this->isManual = $isManual;
+
+        return $this;
+    }
+
+    /**
+     * Get isManual
+     *
+     * @return boolean 
+     */
+    public function getIsManual()
+    {
+        return $this->isManual;
     }
 }
