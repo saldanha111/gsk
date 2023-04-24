@@ -52,7 +52,7 @@
                     <form class="form-horizontal" id="form_item" action="{{ path('nononsense_user_check_requests')}}" method="GET">
                         <div class="form-group">
 
-                            <label class="col-sm-1 control-label item_filter">Nombre</label>
+                            <label class="col-sm-1 control-label item_filter">Nombre del solicitante</label>
                             <div class="col-sm-2 item_filter">
                                 <input type="text" name="username" class="form-control" value="{{filters.username is defined ? filters.username : ''}}">
                             </div>
@@ -111,8 +111,8 @@
                             <tr>
                                 <th>NUMERO DE SOLICITUD</th>
                                 <th>MUD ID</th>
-                                <th>SOLICITADO</th>
-                                <th>SOLICITANTE</th>
+                                <th>NOMBRE DEL SOLICITADO</th>
+                                <th>NOMBRE DEL SOLICITANTE</th>
                                 <th>FECHA DE SOLICITUD</th>
                                 <th>REVISADOS</th>
                                 <th>TIPO DE SOLICITUD</th>
