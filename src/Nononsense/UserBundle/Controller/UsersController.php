@@ -6,7 +6,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Nononsense\UserBundle\Entity\Users;
 use Nononsense\UserBundle\Entity\Roles;
 use Nononsense\GroupBundle\Entity\GroupUsers;
-use Nononsense\GroupBundle\Entity\AccountRequests;
+use Nononsense\UserBundle\Entity\AccountRequestsGroups;
 use Nononsense\UserBundle\Form\Type as FormUsers;
 use Symfony\Component\Security\Core\Util\SecureRandom;
 use Doctrine\ORM\Tools\Pagination\Paginator;
@@ -14,7 +14,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
-
+use Nononsense\HomeBundle\Entity\Logs;
+use Nononsense\HomeBundle\Entity\LogsTypes;
 
 class UsersController extends Controller
 {
@@ -48,7 +49,7 @@ class UsersController extends Controller
         ));
     }
     
-    public function showAction($id)
+    public function showAction($id, Request $request)
     {
         if (!$this->get('app.security')->permissionSeccion('usuarios_gestion')) {
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
@@ -62,12 +63,27 @@ class UsersController extends Controller
 
         $editable = true;
 
+        $filters['page'] = (!$request->get('page')) ? 1 : $request->get('page');
+        $filters['mudid'] = $user->getUsername();
+        $filters['status'] = 1;
+        $limit  = 15;
+
+        $accountRequests = $this->getDoctrine()->getRepository(AccountRequestsGroups::class)->listBy($filters, $limit);
+
+        $params = $request->query->all();           
+        unset($params["page"]);
+        $parameters = (!empty($params)) ? true : false;
+
+        $pagination    = \Nononsense\UtilsBundle\Classes\Utils::paginador($limit, $request, false, $accountRequests["count"], "/", $parameters);
+
         $path = '/' . $this->container->getParameter('user_img_dir');
         return $this->render('NononsenseUserBundle:Users:profile.html.twig', array(
             'user' => $user,
             'webPath' => $path,
             'templates' => $templates,
-            'editable' => $editable
+            'editable' => $editable,
+            'accountRequests' => $accountRequests['rows'],
+            'pagination' => $pagination
         ));
     }
     

@@ -12,6 +12,8 @@ use Nononsense\UserBundle\Entity\GroupsSubsecciones;
 use Nononsense\GroupBundle\Form\Type as FormGroups;
 use Symfony\Component\HttpFoundation\Request;
 use Doctrine\ORM\Tools\Pagination\Paginator;
+use Nononsense\UserBundle\Entity\AccountRequests;
+use Nononsense\UserBundle\Entity\AccountRequestsGroups;
 
 class GroupController extends Controller
 {
@@ -360,6 +362,8 @@ class GroupController extends Controller
                     'El usuario '.$user->getUsername().' de tipo '.$type.' ha sido añadido al grupo '.$group->getName().' manualmente', 
                     $this->getUser()->getUsername()
                 );
+
+                $this->simulateAccountRequest($user, $group, 1);
             }
         }
         $em->flush();
@@ -408,6 +412,8 @@ class GroupController extends Controller
                 'deletedUser',
                 'Usuario eliminado del grupo con éxito'
             );
+
+            $this->simulateAccountRequest($row->getUser(), $row->getGroup(), 0);
         }
         
         $group = $em->getRepository('NononsenseGroupBundle:Groups')
@@ -432,5 +438,34 @@ class GroupController extends Controller
         } else {
             return false;
         }
+    }
+
+
+    private function simulateAccountRequest(Users $user, Groups $group, $requestType){
+        $em = $this->getDoctrine()->getManager();
+
+        $accountRequest = new AccountRequests();
+        $accountRequest->setMudId($user->getUsername());
+        $accountRequest->setEmail($this->getUser()->getEmail());
+        $accountRequest->setUsername($this->getUser()->getName());
+        $accountRequest->setDescription('Solicitud creada manualmente');
+        $accountRequest->setRequestType($requestType);
+        $accountRequest->setIsManual(1);
+
+        $isActiveDirectory = ($user->getActiveDirectory() ? 1 : 0);
+        $accountRequest->setActiveDirectory($isActiveDirectory);
+
+        $accountRequestGroup = new AccountRequestsGroups();
+        $accountRequestGroup->setRequestId($accountRequest);
+        $accountRequestGroup->setGroupId($group);
+        $accountRequestGroup->setStatus(1);
+        $accountRequestGroup->setUpdated(new \DateTime());
+
+        $accountRequest->addRequest($accountRequestGroup);
+
+        $em->persist($accountRequest);
+        $em->flush();
+
+        return $accountRequest;
     }
 }
