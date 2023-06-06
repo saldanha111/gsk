@@ -88,16 +88,28 @@
                                         <th>Grupo</th>
                                         <th>Tipo</th>
                                         <th>Flujo</th>
-                                        <th>Fecha</th>
+                                        <th>Estado</th>
+                                        <th>Creación</th>
+                                        <th>Efectiva</th>
                                     </tr>
                                 </thead>
                                 
                                     {% for request in accountRequests %}
                                         <tr>
-                                            <td>{{request.groupId.name}}</td>
+                                            <td>{{request.id}}</td>
                                             <td>{{request.requestId.requestType ? 'Alta' : 'Baja'}}</td>
                                             <td>{{request.requestId.isManual ? 'Manual por administrador' : 'Proceso de solicitud'}}</td>
-                                            <td>{{request.updated is defined ? request.updated|date("d-m-Y") : ''}}</td>
+                                            <td>
+                                                {% if request.status == 1 %}
+                                                    <span class="label label-primary">Aprobada</span>
+                                                {% elseif request.status is same as(false) %}
+                                                    <span class="label label-danger">Cancelada</span>
+                                                {% else %}
+                                                    <span class="label label-warning">En revision</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{request.requestId.created is defined and request.requestId.created ? request.requestId.created|date("d-m-Y") : ''}}</td>
+                                            <td>{{request.updated is defined and request.updated ? request.updated|date("d-m-Y") : ''}}</td>
                                         </tr>
                                     {% endfor %}
                                 

@@ -226,12 +226,25 @@
     $('#side-menu').metisMenu();
 
 
+    $('.details-row .form-control').keydown(function(){
+        $(this).next('span').remove();
+        $(this).css('border-color','')
+    })
+
     $('.btn-submit').click(function(){
 
         var that = this;
 
         var id = $(this).data('id');
         var observation = $('#'+id).find('.form-control').val();
+
+        if (!observation){
+            $('#'+id).find('.form-control').next('span').remove();
+            $('#'+id).find('.form-control').css('border-color','red').after('<span class="text-danger">El campo es obligatorio</span>')
+
+            return false;
+        }
+
         var status = $(this).data('value');
 
         var msg = ($(this).data('value')) ? 'aceptar' : 'rechazar';

@@ -65,7 +65,6 @@ class UsersController extends Controller
 
         $filters['page'] = (!$request->get('page')) ? 1 : $request->get('page');
         $filters['mudid'] = $user->getUsername();
-        $filters['status'] = 1;
         $limit  = 15;
 
         $accountRequests = $this->getDoctrine()->getRepository(AccountRequestsGroups::class)->listBy($filters, $limit);
