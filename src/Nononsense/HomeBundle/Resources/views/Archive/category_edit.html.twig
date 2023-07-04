@@ -1,0 +1,240 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}Docoaro - GSK |  Retención / {{category.id is not null ? 'Editar' : 'Crear'}} categoría {% endblock %}
+{% block head %}
+    <link rel="stylesheet" href="{{ asset('bundles/nononsensehome/css/select2.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('/js/plugins/sweetalert/sweetalert.min.css') }}">
+    {{ parent() }}
+{% endblock %}
+{% block main_title %} Retención / {{category.id is not null ? 'Editar' : 'Crear'}} categoría{% endblock %}
+
+{% block content %}
+
+    <div class="wrapper wrapper-content animated fadeInUp">
+        {% for flashMessage in app.session.flashbag.get('error') %}
+            <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                {{ flashMessage }}
+            </div>
+            <br>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('message') %}
+            <div class="alert alert-success alert-dismissable" style="margin: 10px 16px 0 16px">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                {{ flashMessage }}
+            </div>
+            <br>
+        {% endfor %}
+        <form class="form-horizontal" id="form_item" method="POST">
+            <div class="row">
+                <div class="col-lg-4 col-lg-offset-1">
+                    <div class="row">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Nombre</label>
+                            <div class="col-sm-7">
+                                <input type="text" name="name" class="form-control" value="{{category.name is not null ? category.name : ''}}" required="required">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Sifnificado</label>
+                            <div class="col-sm-7">
+                                <textarea name="description" class="form-control text-comment" rows="10" cols="40"  style="width:100%" required="required">{{category.description is not null ? category.description : ''}}</textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Estado</label>
+                            <div class="col-sm-7">
+                                <select class="form-control" name="state" required="required">
+                                    <option value=""></option>
+                                    {% for state in states %}
+                                        <option value="{{state.id}}" {{ category.documentState.id is defined and category.documentState.id is not null and category.documentState.id==state.id ? 'selected="selected"' : ''}}>{{state.name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Tiempo de retención</label>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-7 col-sm-offset-4">
+                                <label class="control-label text-left">Años</label>
+                                <input type="text" name="years" class="form-control" value="{{category.RetentionDaysFormatted['years'] is not null ? category.RetentionDaysFormatted['years'] : '0'}}" required="required">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-7 col-sm-offset-4">
+                                <label class="control-label text-left">Meses</label>
+                                <input type="text" name="months" class="form-control" value="{{category.RetentionDaysFormatted['months'] is not null ? category.RetentionDaysFormatted['months'] : '0'}}" required="required">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-7 col-sm-offset-4">
+                                <label class="control-label text-left">Días</label>
+                                <input type="text" name="days" class="form-control" value="{{category.RetentionDaysFormatted['days'] is not null ? category.RetentionDaysFormatted['days'] : '0'}}" required="required">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Activo</label>
+                            <div class="col-sm-7">
+                                <input name="active" value="1" type="checkbox" {% if category.active == true or category is not empty %} checked="checked" {% endif %}>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-11 col-sm-offset-1">
+                    {% if not used and category.id is defined and category.id is not null%}
+                        <a class="btn btn-danger submit-category" data-action="remove">Eliminar categoría</a>
+                    {% endif %}
+                    <a class="btn btn-primary submit-category" data-action="save">{{category.id is not null ? 'Editar' : 'Registrar'}} categoría</a>
+                </div>
+            </div>
+            <div class="modal fade" tabindex="-1" role="dialog" id="modalSign">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Firmar</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+
+                        <div class="modal-body">
+                            <div class="row box-text-comment" style="display: none">
+                                <div class="col-lg-10 col-lg-offset-1">
+                                    <label for="description_workflow">Comentarios</label>
+                                    <br>
+                                    <div class="form-group">
+                                        <textarea class="form-control text-comment" id="modal_comment" rows="10" cols="40"  style="width:100%" required="required"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-10 col-lg-offset-1">
+                                    <div id="signature-pad3" class="input-group">
+                                        <label for="firma">Introduzca su firma</label>
+                                        <br>
+                                        <input type="password" id="modal_password" class="form-control" required="required"><br>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <input type="button" class="btn btn-primary" id="sign_category" value="Firmar">
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <input type="hidden" name="signature">
+            <textarea name="comment" style="display: none"></textarea>
+            <input type="hidden" id="action" value="">
+        </form>
+        {% if not used and category.id is defined and category.id is not null%}
+            <input type="hidden" name="del-url"  value="{{ path('nononsense_archive_categories_delete',{'id': category.id}) }}">
+        {% endif %}
+            <input type="hidden" name="edit-url" value="{{ path('nononsense_archive_categories_edit',{'id': category.id is not null ? category.id : 0}) }}">
+    </div>
+    
+{% endblock %}
+
+{% block scripts %}
+    {{ parent() }}
+    <script src="{{ asset('bundles/nononsensehome/js/select2.full.min.js') }}"></script>
+    <script src="{{ asset('js/plugins/sweetalert/sweetalert.min.js') }}"></script>
+
+    <script>
+
+    $( document ).ready(function() {
+        ActivateMenu('retention_admin');
+        $('#side-menu').metisMenu();
+        $('.search-select').select2();
+
+        $(document).on('change','select[name="type"]',function(){
+            disable_sates($(this),true);
+        });
+
+        {% if category.id is defined and category.id is not null%}
+            disable_sates($('select[name="type"]'),false);
+        {% endif %}
+
+        $(document).on('click','.submit-category',function(e){
+            if($(this).data("action")=="remove"){
+                $('.box-text-comment').show();
+                $('.text-comment').prop('required',true);
+            }
+            else{
+                $('.box-text-comment').hide();
+                $('.text-comment').prop('required',false);
+            }
+            $("#action").val($(this).data("action"));
+            $("#modalSign").modal('show');
+        });
+
+        $(document).on('click', '#sign_category', function() {
+            if ($('#modal_comment').is(":visible") && !$('#modal_comment').val()){
+                swal({
+                    title: "Atención",
+                    text: "La descripcion es obligatoria",
+                    type: "warning"
+                });
+                return false;
+            }
+
+            if (!$("#modal_password").val()){
+                swal({
+                    title: "Atención",
+                    text: "La firma es obligatoria",
+                    type: "warning"
+                });
+                return false;
+            }
+
+            if (!gpassword_valid($("#modal_password").val())){
+                swal({
+                    title: "Atención",
+                    text: "La firma no es correcta",
+                    type: "warning"
+                });
+                return false;
+            }
+            $('textarea[name="comment"]').val($("#modal_comment").val());
+            $('input[name="signature"]').val($("#modal_password").val());
+
+            if($("#action").val()=="remove"){
+                swal({
+                    title: "Estás seguro de que quieres eliminar esta categoría de retención?",
+                    text: "Si se elimina no se podrá recuperar.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#62bbe2',
+                    cancelButtonColor: '#ac2925',
+                    confirmButtonText: "Si, borrarlo",
+                    cancelButtonText: "Cancelar",
+                    closeOnConfirm: false
+                }, function () {
+                    $('#form_item').attr('action', $('input[name="del-url"]').val());
+                    $('#form_item').submit();
+                });
+                
+            }
+            else{
+                $('#form_item').attr('action', $('input[name="edit-url"]').val());
+                $('#form_item').submit();
+            }
+        });
+
+    });
+
+    function disable_sates(element,change){
+        if(change){
+            $('select[name="state"]').val("");
+        }
+        $(".opt_type").prop('disabled',true);
+        $(".opt_"+element.val()).prop('disabled',false);
+    }
+    </script>
+{% endblock %}
+
+

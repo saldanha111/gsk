@@ -9,6 +9,10 @@ use Nononsense\HomeBundle\Entity\LogsTypes;
 use Nononsense\HomeBundle\Entity\LogsTypesRepository;
 use Nononsense\HomeBundle\Entity\Tokens;
 use Nononsense\UserBundle\Entity\Users;
+use Nononsense\HomeBundle\Entity\ArchiveCategories;
+use Nononsense\HomeBundle\Entity\ArchivePreservations;
+use Nononsense\HomeBundle\Entity\ArchiveActions;
+use Nononsense\HomeBundle\Entity\ArchiveSignatures;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 class Utilities{
@@ -84,6 +88,34 @@ class Utilities{
         }
 
         return false;
+    }
+
+    public function saveLogArchive(Users $user, int $action, string $comment, string $type, int $id)
+    {
+        $action=$this->em->getRepository('NononsenseHomeBundle:ArchiveActions')->findOneBy(array('id' => $action));
+
+        $signatureLog = new ArchiveSignatures();
+        $signatureLog->setArchiveAction($action)
+            ->setDescription($comment)
+            ->setUserEntiy($user);
+
+        switch($type){
+            case "category":
+                $category=$this->em->getRepository('NononsenseHomeBundle:ArchiveCategories')->findOneBy(array('id' => $id));
+                $signatureLog->setArchiveCategory($category);
+                break;
+            case "preservation":
+                $preservation=$this->em->getRepository('NononsenseHomeBundle:ArchivePreservations')->findOneBy(array('id' => $id));
+                $signatureLog->setArchivePreservation($preservation);
+                break;
+            case "record":
+                $signatureLog->setRecord($id);
+                break;
+        }
+        $signatureLog->setModified(new \DateTime());
+        $this->em->persist($signatureLog);
+        $this->em->flush();
+        return true;
     }
 
     public function sendNotification($mailTo, $link, $logo, $accion, $subject, $message, $useTemplate = true)

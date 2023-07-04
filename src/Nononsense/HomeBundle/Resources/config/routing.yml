@@ -920,6 +920,19 @@ nononsense_areas_update:
 #     path: /retention_categories/delete/{id}
 #     defaults: { _controller: NononsenseHomeBundle:RetentionCategories:delete}
 
+
+nononsense_archive_categories_list:
+    path: /archive-categories
+    defaults: { _controller: NononsenseHomeBundle:ArchiveCategories:list}
+
+nononsense_archive_categories_edit:
+    path: /archive-categories/{id}
+    defaults: { _controller: NononsenseHomeBundle:ArchiveCategories:edit}
+
+nononsense_archive_categories_delete:
+    path: /archive-categories/delete/{id}
+    defaults: { _controller: NononsenseHomeBundle:ArchiveCategories:delete}
+
 #Crt
 
 nononsense_certifications_list:

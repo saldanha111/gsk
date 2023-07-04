@@ -2409,4 +2409,37 @@ class Users implements AdvancedUserInterface, \Serializable
     {
         return $this->logs;
     }
+
+    /**
+     * Add materialCancel
+     *
+     * @param \Nononsense\HomeBundle\Entity\MaterialCleanCleans $materialCancel
+     * @return Users
+     */
+    public function addMaterialCancel(\Nononsense\HomeBundle\Entity\MaterialCleanCleans $materialCancel)
+    {
+        $this->materialCancel[] = $materialCancel;
+
+        return $this;
+    }
+
+    /**
+     * Remove materialCancel
+     *
+     * @param \Nononsense\HomeBundle\Entity\MaterialCleanCleans $materialCancel
+     */
+    public function removeMaterialCancel(\Nononsense\HomeBundle\Entity\MaterialCleanCleans $materialCancel)
+    {
+        $this->materialCancel->removeElement($materialCancel);
+    }
+
+    /**
+     * Get materialCancel
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getMaterialCancel()
+    {
+        return $this->materialCancel;
+    }
 }
