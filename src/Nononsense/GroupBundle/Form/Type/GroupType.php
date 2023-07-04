@@ -17,7 +17,7 @@ class GroupType extends AbstractType
             ->add('color', 'text', array('required' => true, 'trim' => true))
             ->add('isActive', 'checkbox', array('required' => false))
             ->add('description', 'textarea', array('required' => true, 'trim' => true))
-            ->add('save', 'submit', array('label' => 'Save Group', 'translation_domain' => 'messages'));
+            ->add('save', 'submit', array('label' => 'Guardar grupo', 'translation_domain' => 'messages'));
 
     }
 

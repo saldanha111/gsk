@@ -341,6 +341,18 @@ class Users implements AdvancedUserInterface, \Serializable
     protected $notificationsModels;
 
     /**
+     * @var boolean
+     *
+     * @ORM\Column(name="activeDirectory", type="boolean", nullable=true, options={"default": false})
+     */
+    private $activeDirectory = false;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\Logs", mappedBy="user")
+     */
+    private $logs;
+
+    /**
      * Users constructor.
      */
     
@@ -1813,6 +1825,7 @@ class Users implements AdvancedUserInterface, \Serializable
     }
 
     /**
+<<<<<<< HEAD
      * Add cvWorkflows
      *
      * @param \Nononsense\HomeBundle\Entity\CVWorkflow $cvWorkflows
@@ -1821,11 +1834,22 @@ class Users implements AdvancedUserInterface, \Serializable
     public function addCvWorkflow(\Nononsense\HomeBundle\Entity\CVWorkflow $cvWorkflows)
     {
         $this->cvWorkflows[] = $cvWorkflows;
+=======
+     * Set activeDirectory
+     *
+     * @param boolean $activeDirectory
+     * @return AccountRequests
+     */
+    public function setActiveDirectory($activeDirectory)
+    {
+        $this->activeDirectory = $activeDirectory;
+>>>>>>> hide_options
 
         return $this;
     }
 
     /**
+<<<<<<< HEAD
      * Remove cvWorkflows
      *
      * @param \Nononsense\HomeBundle\Entity\CVWorkflow $cvWorkflows
@@ -2206,5 +2230,14 @@ class Users implements AdvancedUserInterface, \Serializable
     public function getGroupsSignatures()
     {
         return $this->groupsSignatures;
+=======
+     * Get activeDirectory
+     *
+     * @return boolean 
+     */
+    public function getActiveDirectory()
+    {
+        return $this->activeDirectory;
+>>>>>>> hide_options
     }
 }

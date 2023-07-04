@@ -2,6 +2,7 @@
 {% block page_title %}Docoaro - GSK |  Centros / {{ center.id is not null ? 'Editar' : 'Crear' }} centro {% endblock %}
 {% block head %}
     {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('/js/plugins/sweetalert/sweetalert.min.css') }}">
 {% endblock %}
 {% block main_title %} Centros / {{ center.id is not null ? 'Editar' : 'Crear' }} centro{% endblock %}
 
@@ -15,6 +16,15 @@
             </div>
             <br>
         {% endfor %}
+        {% if center.id is not null and center.updateUser is not null %}
+{#            <div class="row">#}
+{#                <div class="alert alert-info col-lg-4 col-lg-offset-1">#}
+{#                    <p>Última modificación: <strong>{{ center.updateUser.name ?? '-' }}</strong></p>#}
+{#                    <p>Última validación: <strong>{{ center.validateUser.name ?? '-' }}</strong></p>#}
+{#                    <p>Fecha: <strong>{{ center.updated | date("d-m-Y H:i:s") }}</strong></p>#}
+{#                </div>#}
+{#            </div>#}
+        {% endif %}
         <form class="form-horizontal" id="form_item"
               action="{{ path('nononsense_mclean_centers_edit',{'id': center.id is not null ? center.id : 0}) }}"
               method="POST">
@@ -32,9 +42,18 @@
                         <div class="form-group">
                             <label class="col-sm-4 control-label" for="center_description">Descripción</label>
                             <div class="col-sm-7">
-                                <textarea id="center_description" name="description" rows="10" cols="40" required="required">
-                                    {{ center.description is not null ? center.description : '' }}
-                                </textarea>
+                                <textarea id="center_description" name="description" rows="10" cols="40" required="required">{{ center.description is not null ? center.description : '' }}</textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label" for="select_departament">Departamento</label>
+                            <div class="col-sm-7">
+                                <select class="form-control select-department" name="department" required="required" id="select_departament">
+                                    <option></option>
+                                    {% for department in departments %}
+                                        <option value="{{department.id}}" {{ center.department is defined and center.department is not null and center.department.id==department.id ? 'selected="selected"' : ''}}>{{department.name}}</option>
+                                    {% endfor %}
+                                </select>
                             </div>
                         </div>
                         <div class="form-group">
@@ -44,28 +63,252 @@
                                        type="checkbox" {% if center.active == true %} checked="checked" {% endif %}>
                             </div>
                         </div>
+                        {% if center.id is defined and center.id > 0 %}
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" for="update_comment">Comentario de actualización</label>
+                                <div class="col-sm-7">
+                                    <textarea id="update_comment" name="update_comment" rows="10" cols="40" required="required"></textarea>
+                                </div>
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
-            </div>
-            <div class="row">
-                <div class="col-sm-11">
-                    <button type="submit" class="btn btn-primary  pull-right">
-                        <i class="fa fa-floppy-o" aria-hidden="true"></i>
-                        <span> {{ center.id is not null ? 'Editar' : 'Registrar' }} center</span>
-                    </button>
-                </div>
+                <input type="hidden" name="password">
+                <input type="hidden" name="passCheck" value="{{ path('nononsense_mclean_get_sign_valid') }}">
             </div>
         </form>
+        <div class="row">
+            <div class="col-sm-offset-1 col-sm-5">
+                {% if not center.validated and center.id is not null and center.updateUser is not null and currentUser.id != center.updateUser.id %}
+                    <form
+                            class="form-horizontal"
+                            id="form_validate"
+                            action="{{ path('nononsense_mclean_centers_validate',{'id': center.id}) }}"
+                            method="POST"
+                    >
+                        <input type="hidden" name="valPassword">
+                        <button type="button" id="validate" class="btn btn-primary  pull-left">
+                            <i class="fa fa-check-square" aria-hidden="true"></i> Validar centro
+                        </button>
+                    </form>
+                {% endif %}
+            </div>
+            <div class="col-sm-5">
+                <button type="submit" id="save" class="btn btn-primary  pull-right">
+                    <i class="fa fa-floppy-o" aria-hidden="true"></i> {{center.id is not null ? 'Editar' : 'Registrar'}} centro
+                </button>
+            </div>
+        </div>
+        {% if center.id is not null %}
+        <div class="row">
+            <div class="col-xs-12">
+                <hr>
+                <h3>Historial de cambios</h3>
+                <br/>
+                <table id="inProcessParcial" class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th>Id.</th>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                        <th>Departamento</th>
+                        <th>Activo</th>
+                        <th>Usuario modificación</th>
+                        <th>Fecha</th>
+                        <th>Validado</th>
+                        <th>Usuario validación</th>
+                        <th>Comentario de actualización</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="info">
+                            <td>{{center.id}}</td>
+                            <td>{{center.name}}</td>
+                            <td>{{center.description}}</td>
+                            <td>{{ center.department is defined and center.department is not null ? center.department.name : '' }}</td>
+                            <td>
+                                {% if center.active %}
+                                    Si
+                                {% else %}
+                                    No
+                                {% endif %}
+                            </td>
+                            <td>{{ center.updateUser.name ?? '-' }}</td>
+                            <td>{{ center.updated | date("d-m-Y H:i:s") }}</td>
+                            <td>
+                                {% if center.validated %}
+                                    Si
+                                {% else %}
+                                    No
+                                {% endif %}
+                            </td>
+                            <td>{{ center.validateUser.name ?? '-' }}</td>
+                            <td>{{ center.updateComment }}</td>
+                        </tr>
+                        {% for item in log %}
+                            <tr>
+                                <td>{{item.center.id}}</td>
+                                <td>{{item.name}}</td>
+                                <td>{{item.description}}</td>
+                                <td>{{ item.department is defined and item.department is not null ? item.department.name : '' }}</td>
+                                <td>
+                                    {% if item.active %}
+                                        Si
+                                    {% else %}
+                                        No
+                                    {% endif %}
+                                </td>
+                                <td>{{ item.updateUser.name ?? '-' }}</td>
+                                <td>{{ item.updated | date("d-m-Y H:i:s") }}</td>
+                                <td>
+                                    {% if item.validated %}
+                                        Si
+                                    {% else %}
+                                        No
+                                    {% endif %}
+                                </td>
+                                <td>{{ item.validateUser.name ?? '-' }}</td>
+                                <td>{{ item.updateComment }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
     </div>
 
 {% endblock %}
 
 {% block scripts %}
     {{ parent() }}
+    <script src="{{ asset('js/plugins/sweetalert/sweetalert.min.js') }}"></script>
     <script>
         $(document).ready(function () {
             ActivateMenu('admin_centers');
             $('#side-menu').metisMenu();
+
+            $(document).on('click', '#save', function (e) {
+                e.preventDefault();
+                form = document.getElementById("form_item");
+                if(form.checkValidity()){
+                    save();
+                }else{
+                    form.reportValidity();
+                }
+            });
+
+            $(document).on('click', '#validate', function (e) {
+                e.preventDefault();
+                validate();
+            });
+
+            function save()
+            {
+                swal({
+                    title: "Contraseña necesaria",
+                    text: "Introduce tu contraseña para guardar el centro.",
+                    type: "input",
+                    inputType: "password",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#62bbe2',
+                    cancelButtonColor: '#ac2925',
+                    confirmButtonText: "Guardar",
+                    cancelButtonText: "Cancelar",
+                    closeOnConfirm: false,
+                    showLoaderOnConfirm: true,
+                }, function (password) {
+                    if(password !== false && password !== ''){
+                        $.ajax({
+                            url: $('input[name="passCheck"]').val(),
+                            type: 'POST',
+                            dataType: 'json',
+                            data: {password: password},
+                            success: function(response) {
+                                if(response.valid){
+                                    $('input[name="password"]').val(password);
+                                    $('#form_item').submit();
+                                }else{
+                                    swal({
+                                        title: "Error",
+                                        text: "La contraseña no es válida",
+                                        icon: 'warning',
+                                        showCancelButton: false,
+                                        confirmButtonColor: '#62bbe2',
+                                        confirmButtonText: "Ok",
+                                        closeOnConfirm: true
+                                    });
+                                }
+                            },
+                            error: function() {
+                                swal({
+                                    title: "Error",
+                                    text: "Ha ocurrido un error al intentar validar la contraseña",
+                                    icon: 'warning',
+                                    showCancelButton: false,
+                                    confirmButtonColor: '#62bbe2',
+                                    confirmButtonText: "Ok",
+                                    closeOnConfirm: true
+                                });
+                            }
+                        });
+                    }
+                });
+            }
+            function validate()
+            {
+                swal({
+                    title: "Contraseña necesaria",
+                    text: "Introduce tu contraseña para validar.",
+                    type: "input",
+                    inputType: "password",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#62bbe2',
+                    cancelButtonColor: '#ac2925',
+                    confirmButtonText: "Guardar",
+                    cancelButtonText: "Cancelar",
+                    closeOnConfirm: false,
+                    showLoaderOnConfirm: true,
+                }, function (password) {
+                    if(password !== false && password !== ''){
+                        $.ajax({
+                            url: $('input[name="passCheck"]').val(),
+                            type: 'POST',
+                            dataType: 'json',
+                            data: {password: password},
+                            success: function(response) {
+                                if(response.valid){
+                                    $('input[name="valPassword"]').val(password);
+                                    $('#form_validate').submit();
+                                }else{
+                                    swal({
+                                        title: "Error",
+                                        text: "La contraseña no es válida",
+                                        icon: 'warning',
+                                        showCancelButton: false,
+                                        confirmButtonColor: '#62bbe2',
+                                        confirmButtonText: "Ok",
+                                        closeOnConfirm: true
+                                    });
+                                }
+                            },
+                            error: function() {
+                                swal({
+                                    title: "Error",
+                                    text: "Ha ocurrido un error al intentar validar la contraseña",
+                                    icon: 'warning',
+                                    showCancelButton: false,
+                                    confirmButtonColor: '#62bbe2',
+                                    confirmButtonText: "Ok",
+                                    closeOnConfirm: true
+                                });
+                            }
+                        });
+                    }
+                });
+            }
         });
     </script>
 {% endblock %}

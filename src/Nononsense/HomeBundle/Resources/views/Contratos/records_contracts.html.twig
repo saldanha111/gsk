@@ -235,7 +235,12 @@
             </div>
         </div>
     </div>
-</div> 
+</div>
+<div id='div_mascara' style="width: 100%; height: 100%; position: absolute; top: 0px; left: 0px; z-index: -1000;"></div>
+<div id='div_loader_admin' style="display: none;" class="ui-loader ui-corner-all ui-body-a ui-loader-verbose">
+    <span class="ui-icon-loading"></span>
+    <h1>{{ 'Enviando'|trans|capitalize }}...</h1>
+</div>
 
 
 {% endblock %}
@@ -278,16 +283,24 @@
 
   function enviarSmsEnviar(){
     if(confirm('¿Seguro que quieres enviar el SMS?')){
+        $('#dialog_enviar_sms').modal('toggle');
+        show_loader();
         $('#form_sign_sms').submit();
     }
   }
 
   function enviarEmailEnviar(){
     if(confirm('¿Seguro que quieres enviar el Email?')){
+        $('#dialog_enviar_email').modal('toggle');
+        show_loader();
         $('#form_sign_email').submit();
     }
   }
-  
+
+  function show_loader(){
+      $('#div_loader_admin').show();
+      $('#div_mascara').css("z-index", "10000");
+  }
 
 </script>
 {% endblock %}

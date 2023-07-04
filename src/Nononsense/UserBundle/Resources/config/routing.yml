@@ -97,10 +97,10 @@ nononsense_user_ajax_get_mudid:
     defaults: { _controller: NononsenseUserBundle:AccountRequest:getMudId}
     methods:  [GET]
 
-# nononsense_user_remove_requests:
-#     path:     /apply/remove
-#     defaults: { _controller: NononsenseUserBundle:AccountRequest:remove}
-#     methods:  [GET, POST]
+nononsense_user_ajax_get_bulk_mudid:
+    path:     /requests/check_bulk_mudid
+    defaults: { _controller: NononsenseUserBundle:AccountRequest:getBulkMudId}
+    methods:  [GET]
 
 nononsense_user_update_requests:
     path:     /requests/{id}
@@ -112,6 +112,10 @@ nononsense_user_update_requests:
 nononsense_users_ldap:
     path:     /ldap
     defaults: { _controller: NononsenseUserBundle:Login:ldapComponent}
+
+nononsense_users_log:
+    path:     /log
+    defaults: { _controller: NononsenseUserBundle:Access:log}
 
 nononsense_users_homepage:
     # path:     /{page}/{query}

@@ -79,8 +79,8 @@ class FormLdapUserProvider implements UserProviderInterface
             }
         }
 
-        $this->searchPassword = $this->container->get('request')->get('_password');
-        $this->searchDn = str_replace('{username}', $username, $this->searchDn);
+        // $this->searchPassword = $this->container->get('request')->get('_password');
+        // $this->searchDn = str_replace('{username}', $username, $this->searchDn);
 
         try {
             $this->ldap->bind($this->searchDn, $this->searchPassword);
@@ -100,6 +100,15 @@ class FormLdapUserProvider implements UserProviderInterface
         }
 
         $user = $search[0];
+
+        if ($user['distinguishedname']) {
+            try {
+                $password = $this->container->get('request')->get('_password');
+                $this->ldap->bind($user['distinguishedname'][0], $password);
+            } catch (Exception $e) {
+                throw new UsernameNotFoundException(sprintf('User "%s" not found.', $username));
+            }
+        }
 
         return $this->loadUser($username, $user);
     }

@@ -9,8 +9,10 @@ use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Exception;
 use Nononsense\HomeBundle\Entity\MaterialCleanCenters;
+use Nononsense\HomeBundle\Entity\MaterialCleanCentersRepository;
 use Nononsense\HomeBundle\Entity\MaterialCleanCodes;
 use Nononsense\HomeBundle\Entity\MaterialCleanCodesRepository;
+use Nononsense\HomeBundle\Entity\MaterialCleanDepartments;
 use Nononsense\HomeBundle\Entity\MaterialCleanMaterials;
 use Nononsense\HomeBundle\Entity\MaterialCleanMaterialsRepository;
 use Nononsense\UtilsBundle\Classes\Utils;
@@ -151,9 +153,11 @@ class MaterialCleanCodesController extends Controller
         }
 
         $array_item = array();
-        $array_item["centers"] = $this->getDoctrine()->getRepository(MaterialCleanCenters::class)->findBy(['active' => true], ['name' => 'ASC']);
+        $array_item["departments"] = $this->getDoctrine()->getRepository(MaterialCleanDepartments::class)->findBy(['active' => true], ['name' => 'ASC']);
+        $array_item["centers"] = $this->getDoctrine()->getRepository(MaterialCleanCenters::class)->findBy(['active' => true, 'validated' => true], ['name' => 'ASC']);
         $array_item['code'] = $code;
         $array_item['materialsUrl'] = $this->generateUrl('nononsense_mclean_get_material_by_center_for_code_json', ['id' => 'xxx']);
+        $array_item['centersUrl'] = $this->generateUrl('nononsense_mclean_get_center_by_department_json', ['id' => 'xxx']);
 
         return $this->render('NononsenseHomeBundle:MaterialClean:code_edit.html.twig', $array_item);
     }
@@ -204,8 +208,31 @@ class MaterialCleanCodesController extends Controller
         try {
             /** @var MaterialCleanMaterialsRepository $materialRepository */
             $materialRepository = $em->getRepository(MaterialCleanMaterials::class);
-            $materialInput = $materialRepository->findBy(['center' =>$id, 'active' => true]);
+            $materialInput = $materialRepository->findBy(['center' =>$id, 'active' => true, 'validated' => true]);
             $data = $this->renderView('NononsenseHomeBundle:MaterialClean:material_select.html.twig', ['materials' => $materialInput]);
+            $status = 200;
+
+        } catch (Exception $e) {
+
+        }
+
+        $array_return['data'] = $data;
+        $array_return['status'] = $status;
+
+        return new JsonResponse(json_encode($array_return));
+    }
+
+    public function ajaxGetCenterDataAction($id)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $array_return = array();
+        $data = array();
+        $status = 500;
+        try {
+            /** @var MaterialCleanCentersRepository $centerRepository */
+            $centerRepository = $em->getRepository(MaterialCleanCenters::class);
+            $centersInput = $centerRepository->findBy(['department' =>$id, 'active' => true, 'validated' => true]);
+            $data = $this->renderView('NononsenseHomeBundle:MaterialClean:center_select.html.twig', ['centers' => $centersInput]);
             $status = 200;
 
         } catch (Exception $e) {
@@ -227,7 +254,7 @@ class MaterialCleanCodesController extends Controller
         try {
             /** @var MaterialCleanMaterialsRepository $materialRepository */
             $materialRepository = $em->getRepository(MaterialCleanMaterials::class);
-            $materialInput = $materialRepository->findBy(['center' =>$id, 'active' => true, 'otherName' => false]);
+            $materialInput = $materialRepository->findBy(['center' => $id, 'active' => true, 'otherName' => false, 'validated' => true]);
             $data = $this->renderView('NononsenseHomeBundle:MaterialClean:material_select.html.twig', ['materials' => $materialInput]);
             $status = 200;
 

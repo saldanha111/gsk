@@ -36,6 +36,17 @@ class DocumentsController extends Controller
 {
     public function listAction(Request $request)
     {
+        $is_valid = $this->get('app.security')->permissionSeccion('albaran_gestion');
+        $is_valid2 = $this->get('app.security')->permissionSeccion('albaran_use');
+        if(!$is_valid && !$is_valid2){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                'No tiene permisos suficientes'
+            );
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
+            return $this->redirect($route);
+        }
+        
         $filters=Array();
         $filters2=Array();
         $types=array();
@@ -84,6 +95,16 @@ class DocumentsController extends Controller
 
     public function editAction(Request $request, string $id)
     {
+        $is_valid = $this->get('app.security')->permissionSeccion('albaran_gestion');
+        if(!$is_valid){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                'No tiene permisos suficientes'
+            );
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
+            return $this->redirect($route);
+        }
+
         $serializer = $this->get('serializer');
 
         $array_item["types"] = $this->getDoctrine()->getRepository(Types::class)->findAll();
@@ -122,7 +143,17 @@ class DocumentsController extends Controller
     }
 
     public function updateAction(Request $request, string $id)
-    {
+    {   
+        $is_valid = $this->get('app.security')->permissionSeccion('albaran_gestion');
+        if(!$is_valid){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                'No tiene permisos suficientes'
+            );
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
+            return $this->redirect($route);
+        }
+
         $em = $this->getDoctrine()->getManager();
         $update_template = 0;
         try {

@@ -146,18 +146,18 @@
             $('#user_save').click(function(e){
                 $('#user_description').val($(".summernote").code());
                 if ( $('#user_description').val() == ''){
-                    toastr.error('{{'You need to include a short description of the user role.'|trans}}', '{{'Warning'|trans}}');
+                    toastr.error('Debe incluir una breve descripción de la función del usuario.', '{{'Warning'|trans}}');
                     return false;
                 }
                 $('form').submit();
             });
             $( "form" ).submit(function( event ) {
-                $('#user_description').val($(".summernote").code());
-                if ( $('#user_description').val() == ''){
-                    toastr.error('{{'You need to include a short description of the user role.'|trans}}', '{{'Warning'|trans}}');
+                $('#user_photo').val($image.cropper("getDataURL"));
+
+                if (this.checkValidity() == false) {
                     return false;
                 }
-                $('#user_photo').val($image.cropper("getDataURL"));
+
                 return;
               });
              

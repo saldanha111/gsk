@@ -34,8 +34,6 @@
                     <div class="col-xs-12">
                         <form class="form-horizontal" id="form_item" action="{{ path('nononsense_mclean_traces_list') }}" method="GET">
                             <input type="hidden" id='url_product_list' value="{{ path('nononsense_mclean_traces_list') }}" />
-                            <input type="hidden" id='url_product_delete' value="{{ path('nononsense_products_delete',{'id': 'xxx'}) }}" />
-                            <input type="hidden" id='url_product_destroy' value="{{ path('nononsense_products_destroy',{'id': 'xxx'}) }}" />
                             <input type="hidden" id='a_excel' name='a_excel' />
                             <div class="form-group">
                                 <label class="col-sm-1 control-label item_filter">Material</label>
@@ -65,6 +63,10 @@
                             </div>
 
                             <div class="form-group">
+                                <label class="col-sm-1 control-label item_filter">Identificador</label>
+                                <div class="col-sm-2 item_filter">
+                                    <input type="text" name="identifier" class="form-control" value="{{filters.identifier is defined ? filters.identifier : ''}}">
+                                </div>
                                 <label class="col-sm-1 control-label item_filter">Fecha de limpieza</label>
                                 <div class="col-md-3 col-sm-4 item_filter">
                                     <div class="input-group input-daterange">
@@ -131,8 +133,10 @@
                         <table id="inProcessParcial" class="table table-hover">
                             <thead>
                             <tr>
+                                <th>Id</th>
                                 <th>Process Order</th>
                                 <th>Material</th>
+                                <th>Departamento</th>
                                 <th>Estado</th>
                                 <th>Identificador</th>
                                 <th>Usuario Limpieza</th>
@@ -146,14 +150,19 @@
                                 <th>Usuario revisión</th>
                                 <th>Fecha revisión</th>
                                 <th>Comentario revisión</th>
+                                <th>Usuario cancelación</th>
+                                <th>Fecha cancelación</th>
+                                <th>Comentario cancelación</th>
                             </tr>
                             </thead>
                             {% if items is defined %}
                                 {% for item in items %}
                                     <tr class="link-block" data-url="{{ path('nononsense_mclean_trace_view',{'id': item.id}) }}">
+                                        <td>{{ item.id }}</td>
                                         <td>{{item.lotNumber}}</td>
                                         <td>{{ item.material.name }}{{ item.materialOther is defined and
                                             item.materialOther is not empty ? (' - ' ~ item.materialOther) : ''}}</td>
+                                        <td>{{ item.material.center.department is not empty ? item.material.center.department.name : '' }}</td>
                                         <td>{{status[item.status]}}</td>
                                         <td>{{item.code}}</td>
                                         <td>{{item.cleanUser.name}}</td>
@@ -197,6 +206,21 @@
                                         <td>
                                             <p data-toggle="tooltip" data-placement="left" title="{{ item.reviewInformation|length > 50 ? item.reviewInformation : '' }}">
                                                 {{ item.reviewInformation|length > 50 ? item.reviewInformation|slice(0, 50) ~ '...' : item.reviewInformation  }}
+                                            </p>
+                                        </td>
+                                        <td>
+                                            {% if item.cancelUser.name is defined %}
+                                                {{item.cancelUser.name}}
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if item.cancelDate is defined and item.cancelDate is not null and item.cancelDate | date("Y") > 0  %}
+                                                {{item.cancelDate | date("d-m-Y H:i:s")}}
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <p data-toggle="tooltip" data-placement="left" title="{{ item.cancelInformation|length > 50 ? item.cancelInformation : '' }}">
+                                                {{ item.cancelInformation|length > 50 ? item.cancelInformation|slice(0, 50) ~ '...' : item.cancelInformation  }}
                                             </p>
                                         </td>
                                     </tr>
@@ -282,7 +306,8 @@
                 cancelButtonColor: '#ac2925',
                 confirmButtonText: "Guardar",
                 cancelButtonText: "Cancelar",
-                closeOnConfirm: false
+                closeOnConfirm: false,
+                showLoaderOnConfirm: true,
             }, function (password) {
                 if(password !== false && password !== ''){
                     $.ajax({

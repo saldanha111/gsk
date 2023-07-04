@@ -7,22 +7,22 @@
                     <form onkeypress="return event.keyCode != 13;">
                         <div class="input-group">
                             <select id="newmember" class="form-control">
-                                <option value="0">{{'Select user'|trans}}</option>
+                                <option value="0">Seleccionar usuario</option>
                             {% for user in users %}
                                 <option value="{{user.id}}">{{user.name}}</option>
                             {% endfor %}
                             </select>
-                            <span class="input-group-btn"> <span id="searchButton" class="btn btn-primary" style="cursor:default">{{'Add user'|trans}}</span> </span>
+                            <span class="input-group-btn"> <span id="searchButton" class="btn btn-primary" style="cursor:default">Añadir usuario</span> </span>
                         </div>
                     </form>
                 </div>
                 <ul class="userMiniList" id="userlist"></ul>
                 <ul id="instructions">
-                    <li>{{'Start typing an user name and chose a value from the dropdown list.'|trans}}</li>
-                    <li>{{'Whenever you decide to save the list press the "Save" button below.'|trans}}</li>
+                    <li>Comience a escribir un nombre de usuario y elija un valor de la lista desplegable</li>
+                    <li>Siempre que decida guardar la lista, presione el botón "Guardar" a continuación.</li>
                 </ul>
                 <div class="text-center">
-                    <button type="button" id="saveListButton" class="btn btn-primary">{{'Save'|trans}}</button>
+                    <button type="button" id="saveListButton" class="btn btn-primary">Guardar</button>
                 </div>
                     
             </div>
@@ -40,11 +40,11 @@
                 window.members['id_' + valid] = valid;
                 insertUser(valid, '{{type}}');
             } else {
-                toastr.error('{{'That user has already been added.'|trans}}','{{'Warning'|trans}}');
+                toastr.error('El usuario ya ha sido agregado','{{'Warning'|trans}}');
             }
         }
     });
-    $("#newmember").chosen({no_results_text: "{{'No results match'|trans}}"});
+    $("#newmember").chosen({no_results_text: "Resultados no encontrados"});
     
   });
   </script>

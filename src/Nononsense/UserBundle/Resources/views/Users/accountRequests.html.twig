@@ -52,7 +52,7 @@
                     <form class="form-horizontal" id="form_item" action="{{ path('nononsense_user_check_requests')}}" method="GET">
                         <div class="form-group">
 
-                            <label class="col-sm-1 control-label item_filter">Nombre</label>
+                            <label class="col-sm-1 control-label item_filter">Nombre del solicitante</label>
                             <div class="col-sm-2 item_filter">
                                 <input type="text" name="username" class="form-control" value="{{filters.username is defined ? filters.username : ''}}">
                             </div>
@@ -111,7 +111,8 @@
                             <tr>
                                 <th>NUMERO DE SOLICITUD</th>
                                 <th>MUD ID</th>
-                                <th>NOMBRE Y APELLIDOS DEL SOLICITANTE</th>
+                                <th>NOMBRE DEL SOLICITADO</th>
+                                <th>NOMBRE DEL SOLICITANTE</th>
                                 <th>FECHA DE SOLICITUD</th>
                                 <th>REVISADOS</th>
                                 <th>TIPO DE SOLICITUD</th>
@@ -122,6 +123,7 @@
                             <tr data-toggle="collapse" data-target="#g_{{row.id}}">
                                 <th>{{row.id}}</th>
                                 <td>{{row.mudId}}</td>
+                                <td>{{row.refUsername}}</td>
                                 <td>{{row.username}}</td>
                                 <td>{{row.created|date("d-m-Y")}}</td>
                                 <td><span class="revised">{{row.revised}}</span>/{{row.request|length}}</td>
@@ -141,6 +143,7 @@
                                                     <td>Estado</td>
                                                     <td>Observaciones</td>
                                                     <td>Accion</td>
+                                                    <td>Trazabilidad</td>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -170,6 +173,11 @@
                                                             {% else %}
                                                                 <button type="button" disabled class="btn btn-danger btn-sm disabled" data-value="0" data-id="p_{{request.id}}" data-request="{{row.id}}"><i class="fa fa-times" aria-hidden="true"></i></button>
                                                             {% endif %}
+                                                        </td>
+                                                        <td class="trace">
+                                                            {% for extra in request.extra %}
+                                                                Solicitud {{extra.status ? 'aprobada' : 'cancelada' }} el {{extra.created|date("d-m-Y")}} por <b>{{extra.validatedBy}}</b> <br>
+                                                            {% endfor %}
                                                         </td>
                                                     </tr>
                                                 {% endfor %}
@@ -218,12 +226,25 @@
     $('#side-menu').metisMenu();
 
 
+    $('.details-row .form-control').keydown(function(){
+        $(this).next('span').remove();
+        $(this).css('border-color','')
+    })
+
     $('.btn-submit').click(function(){
 
         var that = this;
 
         var id = $(this).data('id');
         var observation = $('#'+id).find('.form-control').val();
+
+        if (!observation){
+            $('#'+id).find('.form-control').next('span').remove();
+            $('#'+id).find('.form-control').css('border-color','red').after('<span class="text-danger">El campo es obligatorio</span>')
+
+            return false;
+        }
+
         var status = $(this).data('value');
 
         var msg = ($(this).data('value')) ? 'aceptar' : 'rechazar';
@@ -255,6 +276,13 @@
                 success: function(e){
                     toastr[e.type](e.message);
                     var status;
+                    var date = new Date();
+                    var fullDate = date.toLocaleDateString('es-ES', {  
+                        year: 'numeric', 
+                        month: '2-digit', 
+                        day: '2-digit' 
+                    }).replaceAll('/', '-');
+
                     if (e.type == 'success') {
                         status = '<span class="label label-primary">Aceptada</span>';
                         $(that).prop('disabled', true);
@@ -267,6 +295,7 @@
                     }
                     //var status = (e.type == 'success') ? '<span class="label label-primary">Aceptada</span>' : '<span class="label label-danger">Cancelada</span>';
                     $('#'+id).find('.status').html(status)
+                    $('#'+id).find('.trace').append('Solicitud '+$(status).text().toLowerCase()+' el '+fullDate+' por <b>{{app.user.username}}</b><br>')
                 },
                 error: function(jqXHR, textStatus, errorThrown){
                     toastr.error('Actualmente no podemos procesar su solicitud: '+jqXHR.statusText);

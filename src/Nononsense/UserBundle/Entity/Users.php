@@ -306,6 +306,11 @@ class Users implements AdvancedUserInterface, \Serializable
     protected $materialReview;
 
     /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\MaterialCleanCleans", mappedBy="cancelUser")
+     */
+    protected $materialCancel;
+
+    /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\ProductsInputs", mappedBy="user")
      */
     protected $productsInput;
@@ -339,6 +344,18 @@ class Users implements AdvancedUserInterface, \Serializable
      * @ORM\OneToMany(targetEntity="\Nononsense\NotificationsBundle\Entity\NotificationsModels", mappedBy="user")
      */
     protected $notificationsModels;
+
+    /**
+     * @var boolean
+     *
+     * @ORM\Column(name="activeDirectory", type="boolean", nullable=true, options={"default": false})
+     */
+    private $activeDirectory = false;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\Logs", mappedBy="user")
+     */
+    private $logs;
 
     /**
      * Users constructor.
@@ -1821,7 +1838,17 @@ class Users implements AdvancedUserInterface, \Serializable
     public function addCvWorkflow(\Nononsense\HomeBundle\Entity\CVWorkflow $cvWorkflows)
     {
         $this->cvWorkflows[] = $cvWorkflows;
+    }
 
+    /**
+     * Set activeDirectory
+     *
+     * @param boolean $activeDirectory
+     * @return AccountRequests
+     */
+    public function setActiveDirectory($activeDirectory)
+    {
+        $this->activeDirectory = $activeDirectory;
         return $this;
     }
 
@@ -1854,7 +1881,27 @@ class Users implements AdvancedUserInterface, \Serializable
     public function addCvSignature(\Nononsense\HomeBundle\Entity\CVSignatures $cvSignatures)
     {
         $this->cvSignatures[] = $cvSignatures;
+    }
 
+    /**
+     * Get activeDirectory
+     *
+     * @return boolean 
+     */
+    public function getActiveDirectory()
+    {
+        return $this->activeDirectory;
+    }
+
+    /**
+     * Add logs
+     *
+     * @param \Nononsense\HomeBundle\Entity\Logs $logs
+     * @return Users
+     */
+    public function addLog(\Nononsense\HomeBundle\Entity\Logs $logs)
+    {
+        $this->logs[] = $logs;
         return $this;
     }
 
@@ -2206,5 +2253,25 @@ class Users implements AdvancedUserInterface, \Serializable
     public function getGroupsSignatures()
     {
         return $this->groupsSignatures;
+    }
+
+    /**
+     * Remove logs
+     *
+     * @param \Nononsense\HomeBundle\Entity\Logs $logs
+     */
+    public function removeLog(\Nononsense\HomeBundle\Entity\Logs $logs)
+    {
+        $this->logs->removeElement($logs);
+    }
+
+    /**
+     * Get logs
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getLogs()
+    {
+        return $this->logs;
     }
 }

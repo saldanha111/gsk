@@ -3,17 +3,17 @@
 {% block head %}
     {{ parent() }}
 {% endblock %}
-{% block main_title %} {{'Reset password'|trans}} {% endblock %}
+{% block main_title %} Restablecer contraseña {% endblock %}
 {% block breadcrumb %}
 <ol class="breadcrumb">
     <li>
         <a href="{{ path('nononsense_home_homepage')}}">{{'Home'|trans}}</a>
     </li>
     <li>
-        <a href="{{ path('nononsense_users_homepage')}}">{{'Users'|trans}}</a>
+        <a href="{{ path('nononsense_users_homepage')}}">Usuarios</a>
     </li>
     <li class="active">
-        <strong>{{'Reset password'|trans}}</strong>
+        <strong>Restablecer contraseña</strong>
     </li>
 </ol>
 {% endblock %}
@@ -27,7 +27,7 @@
             <div class="col-lg-12">
                 <div class="ibox">
                     <div class="ibox-title">
-                        <h5>{{'Reset password'|trans}} <small>{{'All fields are mandatory'|trans}}.</small></h5>
+                        <h5>{{'Reset password'|trans}} <small>Todos los campos son obligatorios</small></h5>
                         <div class="ibox-tools">
                             <a class="collapse-link">
                                 <i class="fa fa-chevron-up"></i>
@@ -45,11 +45,11 @@
                                 </div>
                                 <br />
                             {% endfor %}
-                            <label class="col-sm-2 control-label">{{'Old Password'|trans}}</label>
+                            <label class="col-sm-2 control-label">Última contraseña</label>
                             <div class="col-sm-10">
                                 <div class="input-group">
                                     <span class="input-group-addon"><i class="fa fa-lock"></i></span>
-                                    <input type="password" name="oldPassword" id="oldPassword" class="form-control" value="" placeholder="{{'Old Password'|trans}}" />
+                                    <input type="password" name="oldPassword" id="oldPassword" class="form-control" value="" placeholder="Última contraseña" />
                                 </div>
                             </div>
                         </div>
@@ -64,7 +64,7 @@
                             </div>
                         {% endif %}
                         <div class="form-group">
-                            <label class="col-sm-2 control-label">{{'New Password'|trans}}</label>
+                            <label class="col-sm-2 control-label">Nueva contraseña</label>
                             <div class="col-sm-10">
                                 <div class="input-group">
                                     <span class="input-group-addon"><i class="fa fa-lock"></i></span>
@@ -73,7 +73,7 @@
                                         {
                                         'attr': {
                                             'class': 'form-control',
-                                            'placeholder': 'Password'|trans
+                                            'placeholder': 'Contraseña'|trans
                                                 }
                                         }
                                     ) 
@@ -82,7 +82,7 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-2 control-label">{{'Confirm Password'|trans}}</label>
+                            <label class="col-sm-2 control-label">Confirmar contraseña</label>
                             <div class="col-sm-10">
                                 <div class="input-group">
                                     <span class="input-group-addon"><i class="fa fa-check"></i></span>
@@ -91,7 +91,7 @@
                                         {
                                         'attr': {
                                             'class': 'form-control',
-                                            'placeholder': 'Confirm password'|trans
+                                            'placeholder': 'Confirmar contraseña'|trans
                                                 }
                                         }
                                     ) 

@@ -8,24 +8,24 @@ class DefaultController extends Controller
 {
     public function widgetAction()
     {        
-        $path = '/' . $this->container->getParameter('user_img_dir');
-        //userthumb.jpg
+        // $path = '/' . $this->container->getParameter('user_img_dir');
+        // //userthumb.jpg
 
-        $rootdir = $this->get('kernel')->getRootDir();
-        $rootdiruserimg = $rootdir .'/../web' .$path;
+        // $rootdir = $this->get('kernel')->getRootDir();
+        // $rootdiruserimg = $rootdir .'/../web' .$path;
 
-        $user = $this->getUser();
+        // $user = $this->getUser();
 
-        if(file_exists($rootdiruserimg . 'thumb_'.$user->getId().'.jpg')){
-            $imgExists = 1;
+        // if(file_exists($rootdiruserimg . 'thumb_'.$user->getId().'.jpg')){
+        //     $imgExists = 1;
 
-        }else{
+        // }else{
 
-            $imgExists = 0;
-            $path = $path .'userthumb.jpg';
+        //     $imgExists = 0;
+        //     $path = $path .'userthumb.jpg';
 
-        }
+        // }
 
-        return $this->render('NononsenseUserBundle:Default:widget.html.twig', array('webPath' => $path,'imgExists'=>$imgExists));
+        return $this->render('NononsenseUserBundle:Default:widget.html.twig');
     }
 }

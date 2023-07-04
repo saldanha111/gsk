@@ -37,8 +37,28 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="col-md-2 col-sm-4 control-label">Centro de trabajo</label>
+                    <label class="col-md-2 col-sm-4 control-label">Departamento</label>
                     <div class="col-sm-7">
+                        <select class="form-control select-department" name="department"
+                                {{ materialCleanCode.idCenter.department ? 'readonly="readonly"' : '' }}>
+                            {% if materialCleanCode.idCenter.department.id is defined and materialCleanCode.idCenter.department.id is not null %}
+                                {% for department in departments %}
+                                    {% if materialCleanCode.idCenter.department.id == department.id %}
+                                        <option value="{{ department.id }}" selected="selected">{{ department.name }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                <option value=""></option>
+                                {% for department in departments %}
+                                    <option value="{{ department.id }}" {{ materialCleanCode.idCenter.department.id is defined and materialCleanCode.idCenter.department.id==department.id ? 'selected="selected"' : '' }}>{{ department.name }}</option>
+                                {% endfor %}
+                            {% endif %}
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-2 col-sm-4 control-label">Centro de trabajo</label>
+                    <div class="col-sm-7" id="cont-center">
                         <select class="form-control select-center" name="center"
                                 {{ materialCleanCode.idCenter.id ? 'readonly="readonly"' : '' }}>
                             {% if materialCleanCode.idCenter.id is defined and materialCleanCode.idCenter.id is not null %}
@@ -48,10 +68,7 @@
                                     {% endif %}
                                 {% endfor %}
                             {% else %}
-                                <option value=""></option>
-                                {% for center in centers %}
-                                    <option value="{{ center.id }}" {{ materialCleanCode.idCenter.id is defined and materialCleanCode.idCenter.id==center.id ? 'selected="selected"' : '' }}>{{ center.name }}</option>
-                                {% endfor %}
+                                <option value="">Selecciona un departamento</option>
                             {% endif %}
                         </select>
                     </div>
@@ -124,6 +141,7 @@
             <input type="hidden" name="passCheck" value="{{ path('nononsense_mclean_get_sign_valid') }}">
         </form>
         <input type="hidden" id="url_get_materials_json" value="{{ materialsUrl }}"/>
+        <input type="hidden" id="url_get_centers_json" value="{{ centersUrl }}"/>
     </div>
 
 {% endblock %}
@@ -189,6 +207,9 @@
                             hide_loader();
                             let datos = JSON.parse(response.responseText);
                             if(datos.status === 200){
+                                if(datos.data.cleanDate != 'undefined'){
+                                    $('input[name="cleanDate"]').val(datos.data.cleanDate);
+                                }
                                 $('input[name="expirationDate"]').val(datos.data.expirationDate);
                                 if(datos.data.otherName){
                                     showOtherInput();
@@ -212,26 +233,12 @@
                 }
             });
 
+            $(document).on('change','.select-department',function(e){
+                getCenter();
+            });
+
             $(document).on('change','.select-center',function(e){
-                const url_get_products_json = $('#url_get_materials_json').val();
-                const selectedCenter = $('.select-center').val();
-                show_loader();
-                $.ajax({
-                    url: url_get_products_json.replace('xxx', selectedCenter),
-                    type: 'GET',
-                    dataType: 'json',
-                    success: function(response) {
-                        hide_loader();
-                        const res = JSON.parse(response);
-                        if(res.status === 200){
-                            $('#cont-material').html(res.data);
-                        }
-                    },
-                    error: function() {
-                        hide_loader();
-                        console.log("No se ha podido obtener la información");
-                    }
-                });
+                getMaterial();
             });
 
             $(document).on('click','#borrar-firma', function (e) {
@@ -284,7 +291,8 @@
                     cancelButtonColor: '#ac2925',
                     confirmButtonText: "Guardar",
                     cancelButtonText: "Cancelar",
-                    closeOnConfirm: false
+                    closeOnConfirm: false,
+                    showLoaderOnConfirm: true,
                 }, function (password) {
                     if(password !== false && password !== ''){
                         $.ajax({
@@ -320,6 +328,51 @@
                                 });
                             }
                         });
+                    }
+                });
+            }
+
+            function getCenter(){
+                const url_get_centers_json = $('#url_get_centers_json').val();
+                const selectedDepartment = $('.select-department').val();
+                show_loader();
+                $.ajax({
+                    url: url_get_centers_json.replace('xxx', selectedDepartment),
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(response) {
+                        hide_loader();
+                        const res = JSON.parse(response);
+                        if(res.status === 200){
+                            $('#cont-center').html(res.data);
+                            getMaterial();
+                        }
+                    },
+                    error: function() {
+                        hide_loader();
+                        console.log("No se ha podido obtener la información");
+                    }
+                });
+            }
+
+            function getMaterial(){
+                const url_get_products_json = $('#url_get_materials_json').val();
+                const selectedCenter = $('.select-center').val();
+                show_loader();
+                $.ajax({
+                    url: url_get_products_json.replace('xxx', selectedCenter),
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(response) {
+                        hide_loader();
+                        const res = JSON.parse(response);
+                        if(res.status === 200){
+                            $('#cont-material').html(res.data);
+                        }
+                    },
+                    error: function() {
+                        hide_loader();
+                        console.log("No se ha podido obtener la información");
                     }
                 });
             }

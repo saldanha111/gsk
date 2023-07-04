@@ -16,7 +16,7 @@ class MaterialCleanCentersRepository extends EntityRepository
     public function list($filters, $paginate=1)
     {
         $list = $this->createQueryBuilder('c')
-            ->select('c.id', 'c.name', 'c.description', 'c.created', 'c.active')
+            ->select('c')
             ->orderBy('c.name', 'ASC');
 
         $list = self::fillFilersQuery($filters, $list);

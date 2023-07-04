@@ -47,9 +47,11 @@
                 </div>
                 <div class="row">
                     <div class="col-xs-12">
-                        <div>
-                            <a href="{{ path('nononsense_mclean_products_edit',{'id': '0'}) }}" target="_self" class="btn btn-primary pull-right"><i class="fa fa-plus"></i> Nuevo producto</a>
-                        </div>
+                        {% if canCreate %}
+                            <div>
+                                <a href="{{ path('nononsense_mclean_products_edit',{'id': '0'}) }}" target="_self" class="btn btn-primary pull-right"><i class="fa fa-plus"></i> Nuevo producto</a>
+                            </div>
+                        {% endif %}
                         <br/>
                         <table id="inProcessParcial" class="table table-striped">
                             <thead>
@@ -57,6 +59,7 @@
                                 <th>Id.</th>
                                 <th>Nombre</th>
                                 <th>Número de etiquetas</th>
+                                <th>Validado</th>
                                 <th>Activo</th>
                                 <th></th>
                                 <th></th>
@@ -68,6 +71,13 @@
                                         <td>{{item.id}}</td>
                                         <td>{{item.name}}</td>
                                         <td>{{item.tagsNumber}}</td>
+                                        <td>
+                                            {% if item.validated %}
+                                                Si
+                                            {% else %}
+                                                No
+                                            {% endif %}
+                                        </td>
                                         <td>
                                             {% if item.active %}
                                                 Si

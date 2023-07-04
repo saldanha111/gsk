@@ -5,6 +5,7 @@ namespace Nononsense\UserBundle\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\Security\Core\Util\SecureRandom;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
@@ -226,41 +227,71 @@ class LoginController extends Controller
         
         error_reporting(0);
 
-        echo 'v5';
-
         $form = $this->createForm(new FormUsers\ldapType());
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
-            $response   = new Response();
             $data       = $form->getData();
-            $justthese  = array("mail");
-            //$justthese = array("cn", "ou", "sn", "uid","givenname", "mail", "displayname", "sAMAccountName", "telephonenumber");
+            
+            $baseDn = $data['base_dn']; //$this->container->getParameter('ldap.base_dn');
+            $searchDn  = $data['dn_string']; //$this->container->getParameter('ldap.dn_string');
+            $searchPassword = $data['search_password']; //$this->container->getParameter('ldap.search_password');
+            $mudid = $data['mudid']; //'admin';//$request->get('mudid');
+
+            $uid_key = 'sAMAccountName'; //$this->container->getParameter('ldap.uid_key');
+
+            $filter  = '({uid_key}='.$mudid.')';
+
+            $userSearch  = str_replace('{uid_key}', $uid_key, $filter);
 
             try {
+                $ldap   = $this->container->get('ldap');
+                $bind   = $ldap->bind($searchDn, $searchPassword);
+                $query  = $ldap->find($baseDn, $userSearch, ['mail','displayname']);
 
-                $ldap       = $this->container->get('ldap');
-
-                $ldaprdn    = $data['dn']; //cn=admin,ou=users,dc=wmservice,dc=corpnet1,dc=com
-                $ldappass   = $data['_password'];
-
-                $filter     = $data['filter']; //(objectClass=inetOrgPerson)
-                $queryDn    = $data['querydn']; //dc=wmservice,dc=corpnet1,dc=com
-
-                $bind       = $ldap->bind($ldaprdn, $ldappass);
-                $query      = $ldap->find($queryDn, $filter);
+                if (!$query) {
+                    throw new \Exception("MUD ID introducino no encontrado");
+                }
 
                 print_r($query);
-
             } catch (\Exception $e) {
-
                 $response->setContent(json_encode([
                     'Error: ' => "Error en la autentificación"
                 ]));
             }
 
-            return $response;
+            //$response = new JsonResponse($message);
+
+            //return $response;
+
+            // $response   = new Response();
+            // $data       = $form->getData();
+            // $justthese  = array("mail");
+            // //$justthese = array("cn", "ou", "sn", "uid","givenname", "mail", "displayname", "sAMAccountName", "telephonenumber");
+
+            // try {
+
+            //     $ldap       = $this->container->get('ldap');
+
+            //     $ldaprdn    = $data['dn']; //cn=admin,ou=users,dc=wmservice,dc=corpnet1,dc=com
+            //     $ldappass   = $data['_password'];
+
+            //     $filter     = $data['filter']; //(objectClass=inetOrgPerson)
+            //     $queryDn    = $data['querydn']; //dc=wmservice,dc=corpnet1,dc=com
+
+            //     $bind       = $ldap->bind($ldaprdn, $ldappass);
+            //     $query      = $ldap->find($queryDn, $filter);
+
+            //     print_r($query);
+
+            // } catch (\Exception $e) {
+
+            //     $response->setContent(json_encode([
+            //         'Error: ' => $e->getMessage()
+            //     ]));
+            // }
+
+            // return $response;
             
         }
 

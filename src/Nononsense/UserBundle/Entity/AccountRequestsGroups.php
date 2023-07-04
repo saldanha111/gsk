@@ -10,6 +10,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @ORM\Table(name="account_requests_groups")
  * @ORM\Entity(repositoryClass="Nononsense\UserBundle\Entity\AccountRequestsGroupsRepository")
+ * @ORM\HasLifecycleCallbacks
  */
 class AccountRequestsGroups
 {
@@ -52,6 +53,19 @@ class AccountRequestsGroups
      */
     private $status;
 
+    /**
+     * @var array
+     *
+     * @ORM\Column(name="extra", type="array", nullable=true)
+     */
+    private $extra;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="updated", type="date", nullable=true)
+     */
+    private $updated;
 
     /**
      * Get id
@@ -62,8 +76,6 @@ class AccountRequestsGroups
     {
         return $this->id;
     }
-
-    
 
     /**
      * Set observation
@@ -155,5 +167,59 @@ class AccountRequestsGroups
     public function getStatus()
     {
         return $this->status;
+    }
+
+    /**
+     * Set extra
+     *
+     * @param array $extra
+     * @return AccountRequestsGroups
+     */
+    public function setExtra($extra)
+    {
+        $this->extra = $extra;
+
+        return $this;
+    }
+
+    /**
+     * Get extra
+     *
+     * @return array 
+     */
+    public function getExtra()
+    {
+        return $this->extra;
+    }
+
+    /**
+     * Set updated
+     *
+     * @param \DateTime $updated
+     * @return AccountRequestsGroups
+     */
+    public function setUpdated($updated)
+    {
+        $this->updated = $updated;
+
+        return $this;
+    }
+
+    /**
+     * Get updated
+     *
+     * @return \DateTime 
+     */
+    public function getUpdated()
+    {
+        return $this->updated;
+    }
+
+    /**
+     * @ORM\PreUpdate
+     */
+    public function setUpdatedValue()
+    {
+        $this->updated = new \DateTime();
     }
 }

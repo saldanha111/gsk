@@ -16,7 +16,8 @@ class AccountRequestsRepository extends EntityRepository
 	 public function listBy($filter, $limit = 20){
         $list  = $this->createQueryBuilder('u')
                 ->addOrderBy('u.status','ASC')
-                ->addOrderBy('u.created','ASC');
+                ->addOrderBy('u.created','ASC')
+                ->where('(u.isManual != 1 or u.isManual IS NULL)');
 
         if (isset($filter['status']) && is_numeric($filter['status'])) {
             $list->andWhere('u.status = :status');
@@ -24,7 +25,7 @@ class AccountRequestsRepository extends EntityRepository
         }
 
         if (isset($filter['mudid']) && $filter['mudid']) {
-            $list->andWhere('u.mudid LIKE :mudid');
+            $list->andWhere('u.mudId LIKE :mudid');
             $list->setParameter('mudid', '%'.$filter["mudid"].'%');
         }
 

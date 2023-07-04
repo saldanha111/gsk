@@ -2,6 +2,8 @@
 
 namespace Nononsense\GroupBundle\Controller;
 
+use Nononsense\HomeBundle\Entity\Logs;
+use Nononsense\HomeBundle\Entity\LogsTypes;
 use Nononsense\UserBundle\Entity\Users;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Nononsense\GroupBundle\Entity\Groups;
@@ -11,6 +13,8 @@ use Nononsense\UserBundle\Entity\GroupsSubsecciones;
 use Nononsense\GroupBundle\Form\Type as FormGroups;
 use Symfony\Component\HttpFoundation\Request;
 use Doctrine\ORM\Tools\Pagination\Paginator;
+use Nononsense\UserBundle\Entity\AccountRequests;
+use Nononsense\UserBundle\Entity\AccountRequestsGroups;
 
 class GroupController extends Controller
 {
@@ -60,25 +64,6 @@ class GroupController extends Controller
 
         $admin = true;
         
-        /*$maxResults = $this->container->getParameter('results_per_page');
-
-         $groups = $this->getDoctrine()
-                        ->getRepository('NononsenseGroupBundle:Groups')
-                        ->listGroups($page, $maxResults, 'id', $query, $admin);
-
-        $paging = array(
-            'page' => $page,
-            'path' => 'nononsense_groups_homepage',
-            'count' => max(ceil($groups->count() / $maxResults), 1),
-            'results' => $groups->count()
-            );
- 
-        return $this->render('NononsenseGroupBundle:Group:index.html.twig', array(
-            'groups' => $groups,
-            'paging' => $paging,
-            'query' => $query
-        ));
-        return $this->render('');*/
         return $this->render('NononsenseGroupBundle:Group:index.html.twig',$array_item);  
     }
     
@@ -103,8 +88,8 @@ class GroupController extends Controller
             $em->persist($group);
 
             $this->get('session')->getFlashBag()->add(
-            'createdGroup',
-            $this->get('translator')->trans('The group named: "') . $group->getName() . $this->get('translator')->trans('" has been created.')
+                'createdGroup',
+                'El grupo '.$group->getName().' ha sido creado'
             );
 
             /* Añadimos audittrail a las fichas de grupos */
@@ -122,6 +107,13 @@ class GroupController extends Controller
 
             $group->setColor(\Nononsense\UtilsBundle\Classes\Utils::generateRandomColor());
             $group->setDescription($this->get('translator')->trans('<p>Insert <strong>here</strong> the group description.</p>'));
+
+            $this->get('utilities')->logger(
+                'GROUP', 
+                'El grupo '.$group->getName().' ha sido creado', 
+                $this->getUser()->getUsername()
+            );
+
             return $this->redirect($this->generateUrl('nononsense_groups_homepage'));
         }
 
@@ -181,9 +173,16 @@ class GroupController extends Controller
 
             $em->flush();
             $this->get('session')->getFlashBag()->add(
-            'createdGroup',
-            $this->get('translator')->trans('The group named: "') . $group->getName() . $this->get('translator')->trans('" has been edited.')
+                'createdGroup',
+                'El grupo '.$group->getName().' ha sido editado'
             );
+
+            $this->get('utilities')->logger(
+                'GROUP', 
+                'El grupo '.$group->getName().' ha sido editado', 
+                $this->getUser()->getUsername()
+            );
+
             return $this->redirect($this->generateUrl('nononsense_groups_homepage'));
         }
 
@@ -246,9 +245,16 @@ class GroupController extends Controller
             $em->flush();
             
             $this->get('session')->getFlashBag()->add(
-            'createdGroup',
-            'The group named: "' . $data['name'] . '" has been cloned with the name "' . $group->getName() . '".'
+                'createdGroup',
+                'El grupo '.$data['name'].' ha sido clonado con el nombre de '.$group->getName()
             );
+
+            $this->get('utilities')->logger(
+                'GROUP', 
+                'El grupo '.$data['name'].' ha sido clonado con el nombre de '.$group->getName(), 
+                $this->getUser()->getUsername()
+            );
+                        
             return $this->redirect($this->generateUrl('nononsense_groups_homepage'));
         }
 
@@ -404,6 +410,14 @@ class GroupController extends Controller
                 $new->setUser($user);
                 $new->setType($type);
                 $em->persist($new);
+
+                $this->get('utilities')->logger(
+                    'GROUP', 
+                    'El usuario '.$user->getUsername().' de tipo '.$type.' ha sido añadido al grupo '.$group->getName().' manualmente', 
+                    $this->getUser()->getUsername()
+                );
+
+                $this->simulateAccountRequest($user, $group, 1);
             }
         }
         $em->flush();
@@ -411,13 +425,13 @@ class GroupController extends Controller
         if(!$error){
             $this->get('session')->getFlashBag()->add(
                 'addedUsers',
-                'The new members have been added.'
+                'Los nuevos miembros han sido añadidos'
             );
         }
         return $this->redirect($this->generateUrl('nononsense_group_show', array('id' => $groupId)));
     }
     
-    public function removeuserAction($id, $type = 'member', $userid)
+    public function removeuserAction(Request $request, $id, $type = 'member', $userid)
     {
         
         $groupAdmin = $this->isGroupAdmin($id);
@@ -435,16 +449,25 @@ class GroupController extends Controller
                         );
         if (empty($row)) {
             $this->get('session')->getFlashBag()->add(
-            'errorDeletingUser',
-            'It was not possible to remove the user. Please, try again later. If the errror persists contact the platform administrators.'
+                'errorDeletingUser',
+                'No fue posible eliminar al usuario. Por favor, inténtelo de nuevo más tarde. Si el error persiste comuníquese con los administradores de la plataforma.'
             );
         } else {
             $em->remove($row);
             $em->flush();
-            $this->get('session')->getFlashBag()->add(
-            'deletedUser',
-            'The user membership was revoked.'
+
+            $this->get('utilities')->logger(
+                'GROUP', 
+                'El usuario '.$row->getUser()->getUsername().' de tipo '.$type.' ha sido eliminado del grupo '.$row->getGroup()->getName().' manualmente', 
+                $this->getUser()->getUsername()
             );
+
+            $this->get('session')->getFlashBag()->add(
+                'deletedUser',
+                'Usuario eliminado del grupo con éxito'
+            );
+
+            $this->simulateAccountRequest($row->getUser(), $row->getGroup(), 0);
         }
         
         $group = $em->getRepository('NononsenseGroupBundle:Groups')
@@ -525,5 +548,33 @@ class GroupController extends Controller
         }
 
         return $changes;
+    }
+
+    private function simulateAccountRequest(Users $user, Groups $group, $requestType){
+        $em = $this->getDoctrine()->getManager();
+
+        $accountRequest = new AccountRequests();
+        $accountRequest->setMudId($user->getUsername());
+        $accountRequest->setEmail($this->getUser()->getEmail());
+        $accountRequest->setUsername($this->getUser()->getName());
+        $accountRequest->setDescription('Solicitud creada manualmente');
+        $accountRequest->setRequestType($requestType);
+        $accountRequest->setIsManual(1);
+
+        $isActiveDirectory = ($user->getActiveDirectory() ? 1 : 0);
+        $accountRequest->setActiveDirectory($isActiveDirectory);
+
+        $accountRequestGroup = new AccountRequestsGroups();
+        $accountRequestGroup->setRequestId($accountRequest);
+        $accountRequestGroup->setGroupId($group);
+        $accountRequestGroup->setStatus(1);
+        $accountRequestGroup->setUpdated(new \DateTime());
+
+        $accountRequest->addRequest($accountRequestGroup);
+
+        $em->persist($accountRequest);
+        $em->flush();
+
+        return $accountRequest;
     }
 }

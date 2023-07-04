@@ -276,6 +276,15 @@ class RecordsController extends Controller
 
     public function createAction($id)
     {
+        $is_valid = $this->get('app.security')->permissionSeccion('albaran_use');
+        if(!$is_valid){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                'No tiene permisos suficientes'
+            );
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
+            return $this->redirect($route);
+        }
 
         $document = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:Documents')
@@ -321,6 +330,55 @@ class RecordsController extends Controller
         $record = $this->getDoctrine()
             ->getRepository('NononsenseHomeBundle:RecordsDocuments')
             ->find($id);
+
+        $user = $this->container->get('security.context')->getToken()->getUser();
+
+        if(!$request->get("mode")){
+            if(($record->getStatus()==0 || $record->getStatus()==1) && $record->getUserCreatedEntiy()!=$user){
+                $this->get('session')->getFlashBag()->add(
+                    'error',
+                    "No puede cumplimentar este documento"
+                );
+                return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
+            }
+
+            if($record->getStatus()==2){
+                $signature = $this->getDoctrine()
+                    ->getRepository('NononsenseHomeBundle:RecordsSignatures')
+                    ->findOneBy(array("record"=>$record,"next"=>1));
+
+                if(!$signature){
+                    $this->get('session')->getFlashBag()->add(
+                        'error',
+                        "No puede firmar este documento. Es posible que el documento ya haya sido firmado por otro usuario"
+                    );
+                    return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
+                }
+
+                $can_sign=0;
+                if($signature->getGroupEntiy()){
+                    $isGroup = $this->getDoctrine()
+                    ->getRepository('NononsenseGroupBundle:GroupUsers')
+                    ->findOneBy(array("group"=>$signature->getGroupEntiy(),"user"=>$user));
+                    if($isGroup){
+                        $can_sign=1;
+                    }
+                }
+                else{
+                    if($signature->getUserEntiy()->getId()==$user->getId()){
+                        $can_sign=1;
+                    }  
+                }
+
+                if(!$can_sign){
+                    $this->get('session')->getFlashBag()->add(
+                        'error',
+                        "No puede firmar este documento. Es posible que el documento ya haya sido firmado por otro usuario"
+                    );
+                    return $this->redirect($this->container->get('router')->generate('nononsense_home_homepage'));
+                }
+            }
+        }
 
         if ($record->getStatus() == 2 || $record->getStatus() == 3) {
             // Abrir para validar
@@ -773,7 +831,7 @@ class RecordsController extends Controller
 
                                 $file = Utils::api3($this->linkAction($request, $record->getId()));
                                 $file = Utils::saveFile($file, 'plain_document', $this->getParameter('crt.root_dir'));
-                                Utils::setCertification($this->container, $file, 'plain_document', $record->getId());                
+                                Utils::setCertification($this->container, $file, 'documento/albaran', $record->getId());
                             } catch (\Exception $e) {
                                 $this->get('session')->getFlashBag()->add( 'error', "No se pudo certificar el doccumento");
                             }
@@ -990,7 +1048,7 @@ class RecordsController extends Controller
                 
                 $file = Utils::api3($this->linkAction($request, $record->getId()));
                 $file = Utils::saveFile($file, 'plain_document', $this->getParameter('crt.root_dir'));
-                Utils::setCertification($this->container, $file, 'plain_document', $record->getId());                   
+                Utils::setCertification($this->container, $file, 'documento/albaran', $record->getId());
             } catch (\Exception $e) {
                 $this->get('session')->getFlashBag()->add( 'error', "No se pudo certificar el doccumento");
             }

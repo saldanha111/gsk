@@ -2,6 +2,7 @@
 
 namespace Nononsense\GroupBundle\Entity;
 
+use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
@@ -28,27 +29,26 @@ class GroupUsers
      * @ORM\GeneratedValue(strategy="AUTO")
      */
     protected $id;
-    
+
     /**
      * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="groups")
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
      */
     protected $user;
-    
-    
+
+
     /**
      * @ORM\ManyToOne(targetEntity="\Nononsense\GroupBundle\Entity\Groups", inversedBy="users")
      * @ORM\JoinColumn(name="group_id", referencedColumnName="id")
      */
     protected $group;
-    
+
     /**
      * @var string
      * @ORM\Column(name="type", type="string")
      * @Assert\Choice(choices = {"admin", "member"}, message = "Choose a valid type.")
      */
     protected $type;
-
 
 
     /**
@@ -67,7 +67,7 @@ class GroupUsers
     /**
      * Get user
      *
-     * @return integer 
+     * @return integer
      */
     public function getUser()
     {
@@ -90,7 +90,7 @@ class GroupUsers
     /**
      * Get group
      *
-     * @return integer 
+     * @return integer
      */
     public function getGroup()
     {
@@ -113,7 +113,7 @@ class GroupUsers
     /**
      * Get type
      *
-     * @return string 
+     * @return string
      */
     public function getType()
     {
@@ -123,10 +123,12 @@ class GroupUsers
     /**
      * Get id
      *
-     * @return integer 
+     * @return integer
      */
     public function getId()
     {
         return $this->id;
     }
+
+
 }

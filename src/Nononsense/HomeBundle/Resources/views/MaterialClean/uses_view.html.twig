@@ -36,6 +36,13 @@
                     </div>
                 </div>
                 <div class="form-group">
+                    <label class="col-md-2 col-sm-4 control-label">Departamento</label>
+                    <div class="col-sm-7">
+                        <input type="text" name="department" class="form-control" readonly="readonly"
+                               value="{{ center.department is not empty ? center.department.name : '' }}">
+                    </div>
+                </div>
+                <div class="form-group">
                     <label class="col-md-2 col-sm-4 control-label">Centro de trabajo</label>
                     <div class="col-sm-7">
                         <input type="text" name="center" class="form-control" required="required" readonly="readonly"
@@ -155,7 +162,7 @@
                 }
 
                 if(!error){
-                    saveVerification();
+                    checkPO();
                 }
             });
 
@@ -172,7 +179,8 @@
                     cancelButtonColor: '#ac2925',
                     confirmButtonText: "Guardar",
                     cancelButtonText: "Cancelar",
-                    closeOnConfirm: false
+                    closeOnConfirm: false,
+                    showLoaderOnConfirm: true,
                 }, function (password) {
                     if(password !== false && password !== ''){
                         $.ajax({
@@ -207,6 +215,49 @@
                                     closeOnConfirm: true
                                 });
                             }
+                        });
+                    }
+                });
+            }
+
+            function checkPO()
+            {
+                swal({
+                    title: "Validación necesaria",
+                    text: "Vuelve a escanear el Process order.",
+                    type: "input",
+                    inputType: "text",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#62bbe2',
+                    cancelButtonColor: '#ac2925',
+                    confirmButtonText: "Guardar",
+                    cancelButtonText: "Cancelar",
+                    closeOnConfirm: false
+                }, function (processOrder) {
+                    if(processOrder !== false && processOrder !== ''){
+                        if(processOrder !== $('.lot-code-input').val()){
+                            swal({
+                                title: "Error",
+                                text: "Los process order no coinciden, asegurate de que el process order es correcto.",
+                                icon: 'warning',
+                                showCancelButton: false,
+                                confirmButtonColor: '#62bbe2',
+                                confirmButtonText: "Ok",
+                                closeOnConfirm: true
+                            });
+                        }else{
+                            saveVerification();
+                        }
+                    }else{
+                        swal({
+                            title: "Error",
+                            text: "Ha ocurrido un error al intentar validar el process order",
+                            icon: 'warning',
+                            showCancelButton: false,
+                            confirmButtonColor: '#62bbe2',
+                            confirmButtonText: "Ok",
+                            closeOnConfirm: true
                         });
                     }
                 });

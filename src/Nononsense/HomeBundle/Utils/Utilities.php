@@ -21,6 +21,8 @@ use Nononsense\NotificationsBundle\Entity\Notifications;
 use Nononsense\GroupBundle\Entity\GroupUsers;
 use Nononsense\HomeBundle\Utils\GskPdf;
 use Nononsense\UtilsBundle\Classes\Utils;
+use Symfony\Component\HttpFoundation\RequestStack;
+
 
 class Utilities{
     
@@ -153,35 +155,17 @@ class Utilities{
             $command = 'AutoFirma sign -i '.$path_document_to_sign.' -o '.$path_document_to_sign.' -store pkcs12:'.$p12Path.' -filter cualquiertexto -password '.$p12Pass;
             $result = shell_exec($command);
             if(strpos($result,'La operacion ha terminado correctamente') === false){
+                $this->get('utilities')->sendNotification('sergio.saldana@nodalblock.com', false, false, false, 'Error Al firmar el contrato', $result);
+                $this->logger->error("Utilities->signWithP12: ".$result);
                 return false;
             }
         } catch(\Exception $ex){
+            $this->get('utilities')->sendNotification('sergio.saldana@nodalblock.com', false, false, false, 'Error Al firmar el contrato', $ex->getMessage());
             $this->logger->error("Utilities->signWithP12: ".$ex->getCode().": ".$ex->getMessage());
             return false;
         }
 
         return true;
-    }
-
-    public function saveLog(string $type, string $description)
-    {
-        /** @var LogsTypesRepository $logsTypesRepository */
-        $logsTypesRepository = $this->em->getRepository(LogsTypes::class);
-        /** @var LogsTypes $logType */
-        $logType = $logsTypesRepository->findOneBy(['stringId' => $type]);
-        if(!$logType){
-            $logType = $logsTypesRepository->findOneBy(['stringId' => 'unknown']);
-        }
-
-        $log = new Logs();
-        $log->setType($logType);
-        $log->setDate(new DAteTime());
-        $log->setDescription($description);
-        $this->em->persist($log);
-        try {
-            $this->em->flush();
-        } catch (OptimisticLockException $e) {
-        }
     }
 
     public function checkUser($password, $username=''){
@@ -202,7 +186,6 @@ class Utilities{
 
         return false;   
     }
-
 
     public function returnPDFResponseFromHTML($html, string $title, string $filename = 'list_records'){
         ini_set('memory_limit', '-1');
@@ -665,5 +648,34 @@ class Utilities{
         $this->em->persist($signatureLog);
         $this->em->flush();
         return true;
+    }
+    public function logger(string $type, string $description, string $username){
+        $logType = $this->em->getRepository(LogsTypes::class)->findOneBy(['stringId' => $type]);
+
+        if (!$logType) {
+            $logType = new LogsTypes();
+            $logType->setStringId($type);
+            $logType->setName($type);
+            $logType->setVisible(1);
+            
+            $this->em->persist($logType);
+        }
+
+        $log = new Logs();
+        $log->setType($logType);
+        $log->setDate(new \DateTime());
+        $log->setDescription($description);
+        $log->setIp($this->container->get('request')->getClientIp());
+
+        $user = $this->em->getRepository(Users::class)->findOneBy(['username' => $username]);
+
+        if ($user) {
+            $log->setUser($user);
+        }
+
+        $this->em->persist($log);
+        $this->em->flush();
+
+        return $log;
     }
 }

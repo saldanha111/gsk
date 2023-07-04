@@ -3,6 +3,7 @@
 namespace Nononsense\HomeBundle\Entity;
 
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 
 /**
  * LogsRepository
@@ -12,4 +13,42 @@ use Doctrine\ORM\EntityRepository;
  */
 class LogsRepository extends EntityRepository
 {
+	public function listBy($filter, $limit = 20)
+	{
+		$list  = $this->createQueryBuilder('l')
+                ->addOrderBy('l.date', 'DESC');
+
+        if (isset($filter['username']) && $filter['username']) {
+        	$list->join('l.user', 'u')
+            	->andWhere('u.username = :username')
+            	->setParameter('username', $filter["username"]);
+        }
+
+       if (isset($filter['description']) && $filter['description']) {
+            $list->andWhere('l.description LIKE :description')
+            	->setParameter('description', '%'.$filter["description"].'%');
+        }
+
+        if(isset($filter["from"]) && $filter['from']){
+            $list->andWhere('l.date >= :from');
+            $list->setParameter('from', $filter["from"]);
+        }
+
+        if(isset($filter["until"]) && $filter['until']){
+            $list->andWhere('l.date <= :until');
+            $list->setParameter('until', $filter["until"]." 23:59:00");
+        }
+
+        if(isset($filter["logType"]) && $filter['logType']){
+            $list->andWhere('l.type = :logType');
+            $list->setParameter('logType', $filter["logType"]);
+        }
+
+		$list->setFirstResult($limit*($filter["page"]-1))->setMaxResults($limit);
+
+        $accountRequests['rows']  = $list->getQuery()->getResult();
+        $accountRequests['count'] = count(new Paginator($list));
+
+        return $accountRequests;
+	}
 }

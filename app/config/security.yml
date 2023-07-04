@@ -56,14 +56,15 @@ security:
                 login_path: /users/login
                 remember_me: true
                 default_target_path: /users/login_init
-            form_ldap:
-                check_path: /users/check_user
-                login_path: /users/login
-                service: ldap
-                dn_string: '%ldap.search_dn%'
+            # form_ldap:
+            #     check_path: /users/check_user
+            #     login_path: /users/login
+            #     service: ldap
+            #     dn_string: '%ldap.dn_string%'
             logout:
                 path:   /users/logout
                 target: /
+                handler: app.exception_listener.exit
             remember_me:
                 key: Qn65f7wtgGZKCCzWQZps04AskmNSiZrvl3qVZRCCIp
                 lifetime: 31536000
@@ -80,6 +81,7 @@ security:
         - { path: ^/users/apply , roles: IS_AUTHENTICATED_ANONYMOUSLY}
         - { path: ^/users/ldap , roles: IS_AUTHENTICATED_ANONYMOUSLY}
         - { path: ^/users/requests/check_user , roles: IS_AUTHENTICATED_ANONYMOUSLY}
+        - { path: ^/users/requests/check_bulk_mudid , roles: IS_AUTHENTICATED_ANONYMOUSLY}
         - { path: ^/users/accessByToken , roles: IS_AUTHENTICATED_ANONYMOUSLY}
         - { path: ^/RESTservices/ , roles: IS_AUTHENTICATED_ANONYMOUSLY}
         - { path: ^/data/ , roles: IS_AUTHENTICATED_ANONYMOUSLY}

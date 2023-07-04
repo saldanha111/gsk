@@ -8,7 +8,7 @@
         <a href="{{ path('nononsense_home_homepage')}}">{{'Home'|trans}}</a>
     </li>
     <li class="active">
-        <strong>{{'Groups'|trans}}</strong>
+        <strong>Grupos</strong>
     </li>
 </ol>
 {% endblock %}
@@ -29,7 +29,7 @@
     <div class="row">
         <div class="col-lg-12">
             <div>
-                <a href="{{ path('nononsense_group_create') }}" class="btn btn-primary pull-right"><i class="fa fa-plus"></i> Nuevo grupo</a>
+                {# <a href="{{ path('nononsense_group_create') }}" class="btn btn-primary pull-right"><i class="fa fa-plus"></i> Nuevo grupo</a> #}
             </div><br>
         </div>
     </div>
@@ -90,7 +90,6 @@
 {% endblock %}
 {% block scripts %}
     {{ parent() }}
-
 {% endblock %}
 
 

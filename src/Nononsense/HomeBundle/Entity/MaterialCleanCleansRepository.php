@@ -20,7 +20,8 @@ class MaterialCleanCleansRepository extends EntityRepository
         1 => 'Material limpio',
         2 => 'Verificado limpieza',
         3 => 'Limpieza vencida',
-        4 => 'Revisado'
+        4 => 'Revisado',
+        5 => 'Limpieza cancelada'
     ];
 
     /**
@@ -138,26 +139,13 @@ class MaterialCleanCleansRepository extends EntityRepository
                 $list->andWhere('cle.verificationDate < :validateEndDate');
                 $list->setParameter('validateEndDate', $validateEndDate);
             }
+            if(isset($filters["identifier"])){
+                $list->andWhere('cle.code = :identifier');
+                $list->setParameter('identifier', $filters["identifier"]);
+            }
         }
 
         return $list;
-    }
-
-    public function getDistinctStatus($filters = [])
-    {
-        $list = $this->createQueryBuilder('cle')
-            ->select('DISTINCT cle.status')
-            ->innerJoin('cle.material','mat')
-            ->innerJoin('cle.center','cen')
-            ->innerJoin('cle.cleanUser','clu')
-            ->leftJoin('cle.verificationUser','veu')
-            ->leftJoin('cle.dirtyMaterialUser','dmu')
-            ->leftJoin('cle.reviewUser','rvu');
-
-        $list = self::fillFilersQuery($filters, $list);
-        $query = $list->getQuery();
-
-        return $query->getResult();
     }
 
     public function getMaterialNeed($lotNumber)

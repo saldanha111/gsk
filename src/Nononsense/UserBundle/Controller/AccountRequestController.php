@@ -8,11 +8,13 @@ use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\Security\Core\Util\SecureRandom;
 use Nononsense\UserBundle\Entity\Users;
+use Nononsense\UserBundle\Entity\Roles;
 use Nononsense\GroupBundle\Entity\GroupUsers;
 use Nononsense\GroupBundle\Entity\Groups;
 use Nononsense\UserBundle\Entity\AccountRequests;
 use Nononsense\UserBundle\Entity\AccountRequestsGroups;
-use Nononsense\UserBundle\Entity\Roles;
+use Nononsense\HomeBundle\Entity\LogsTypes;
+use Nononsense\HomeBundle\Entity\Logs;
 use Nononsense\UserBundle\Form\Type as Form;
 use Nononsense\UtilsBundle\Classes\Utils;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -48,8 +50,6 @@ class AccountRequestController extends Controller
 			}
 		}
 
-		//$accountRequests     	= $this->getDoctrine()->getRepository(AccountRequestsGroups::class)->listBy($filters, $limit);
-
 		$params    = $request->query->all();
 		unset($params["page"]);
         $parameters = (!empty($params)) ? true : false;
@@ -77,11 +77,19 @@ class AccountRequestController extends Controller
 
             	if ($bulkMudIds) {
 
-            		$bulkMudIds = explode(',', preg_replace('(\s+)', '', $bulkMudIds));
+            		//Check the integrity of the mudids again
+            		$bulkMudIds = $this->checkBulkMudIds($bulkMudIds);
 
-            		foreach ($bulkMudIds as $key => $bulkMudId) {
+            		if ($bulkMudIds['type'] == 'error'){
+            			$this->get('session')->getFlashBag()->add('errors', $bulkMudIds['message']);
+
+            			return $this->redirect($this->generateUrl('nononsense_user_crate_requests'));
+            		}
+
+            		foreach ($bulkMudIds['message'] as $key => $bulkMudId) {
 	            		$bulkRequest = new AccountRequests();
-	            		$bulkRequest->setMudId($bulkMudId);
+	            		$bulkRequest->setMudId($bulkMudId['mudId']);
+	            		$bulkRequest->setRefUsername($bulkMudId['displayname']);
 	            		$bulkRequest->setEmail($form->get('email')->getData());
 	            		$bulkRequest->setUsername($form->get('username')->getData());
 	            		$bulkRequest->setDescription($form->get('description')->getData());
@@ -93,22 +101,30 @@ class AccountRequestController extends Controller
 			            	$bulkGroupRequest->setGroupId($group);
 
 			            	$bulkRequest->addRequest($bulkGroupRequest);
+
+			            	$logType = $em->getRepository(LogsTypes::class)->findOneBy(['stringId' => 'APPLY']);
+
+			            	$log = new Logs();
+					        $log->setType($logType);
+					        $log->setDate(new \DateTime());
+					        $log->setDescription($accountRequest->getMudId().' ha solicitado acceso al grupo '.$group->getName().' para el MUDID '.$bulkMudId['mudId']);
+
+					        $user = $em->getRepository(Users::class)->findOneBy(['username' => $accountRequest->getMudId()]);
+
+					        if ($user) {
+					            $log->setUser($user);
+					        }
+
+					        $em->persist($log);
 			            }
+
 			            $em->persist($bulkRequest);
 	            	}
             	}
 
-	            // foreach ($groups as $key => $group) {
-	            // 	$groupRequest = new AccountRequestsGroups();
-	            // 	$groupRequest->setRequestId($accountRequest);
-	            // 	$groupRequest->setGroupId($group);
-	            // 	$accountRequest->addRequest($groupRequest);
-	            // }
-
 	            try {
 		           	$this->signForm($accountRequest->getMudId(), $password); //Sign form with AD sAMAccountName and password.
 
-		            //$em->persist($accountRequest);
 		            $em->flush();
 
 		            //Application submitted successfully
@@ -123,53 +139,7 @@ class AccountRequestController extends Controller
         return $this->render('NononsenseUserBundle:Default:requestAccount.html.twig', array('form' => $form->createView()));
 	}
 
-	// public function updateAction(Request $request, $id){
-
-	// 	if (!$this->isAllowed('usuarios_gestion')) return $this->redirect($this->generateUrl('nononsense_home_homepage'));
-
-	// 	$accountRequest      = $this->getDoctrine()->getRepository(AccountRequests::class)->find($id);
-
-	// 	// foreach ($accountRequest->getRequest() as $key => $value) {
-	// 	// 	var_dump($value->getGroupId()->getName());
-	// 	// }
-
-	// 	$form = $this->createForm(new Form\AccountRequestUpdateType(), $accountRequest);
-	// 	$form->handleRequest($request);
-
-	// 	$data = $form->getData();
-
-	// 	if ($form->isSubmitted() && $form->isValid()) {
-
-	// 		try {
-	// 			if ($data->getStatus() == true) {
-	// 				$this->addUserAction($accountRequest);
-	// 			}
-	// 			$em = $this->getDoctrine()->getManager();
-	// 			$em->persist($accountRequest);
-	// 			$em->flush();
-	// 		} catch (\Exception $e) {
-	// 			$this->get('session')->getFlashBag()->add('errors', $e->getMessage());
-	// 		}
-
-	// 		// $accountRequest = ($data->getStatus()) ? $this->acceptAction($accountRequest) : $this->removeAction($accountRequest);
-
-	// 		return $this->redirect($this->generateUrl('nononsense_user_update_requests', ['id' => $id]));
- //        }
-
- //        return $this->render('NononsenseUserBundle:Users:accountRequestsUpdate.html.twig', ['account' => $accountRequest, 'form' => $form->createView()]);
-	// }
-
-	// public function getStatus($status){
-	// 	$stauts[0] = 'Rechazada';
-	// 	$status[1] = 'Aceptada';
-	// 	$status[2] = 'Revision';
-
-	// 	return $status[$status];
-	// }
-
 	public function ajaxUpdateAction(Request $request){
-
-			//$id = 'p_1014';
 			$id = trim($request->get('id'), 'p_');
 			$em = $this->getDoctrine()->getManager();
 
@@ -220,10 +190,41 @@ class AccountRequestController extends Controller
 				$accountRequest->setStatus($request->get('status'));
 				$accountRequest->setObservation(strip_tags($request->get('observation')));
 
+				$extra = $accountRequest->getExtra();
+
+				$extra[] = [
+					'validatedBy' => $this->getUser()->getUsername(), 
+					'status' => $request->get('status'),
+					'created' => new \DateTime()
+				];
+
+				$accountRequest->setExtra($extra);
+
 				$em->persist($accountRequest);
 				$em->flush();
 
-				
+				$subject = ($accountRequest->getStatus()) ? 'Solicitud aceptada' : 'Solicitud rechazada';
+				$accountRequestType = ($accountRequest->getRequestId()->getRequestType()) ? 'Alta' : 'Baja';
+				$this->get('utilities')->sendNotification(
+					$accountRequest->getRequestId()->getEmail(), 
+					'', 
+					'', 
+					'', 
+					$subject, 
+					'<ul>
+						<li>Grupo: '.$accountRequest->getGroupId()->getName().'</li>
+						<li>MUDID: '.$accountRequest->getRequestId()->getMudId().'</li>
+						<li>Tipo: '.$accountRequestType.'</li>
+					</ul>
+					<p>'.$accountRequest->getObservation().'</p>'
+				);
+
+				$this->get('utilities')->logger(
+	         		'APPLY', 
+	         		$message['message'].' - Grupo: '.$accountRequest->getGroupId()->getName().'- Usuario: '.$accountRequest->getRequestId()->getMudId(), 
+	         		$this->getUser()->getUsername()
+	         	);
+
 			} catch (\Exception $e) {
 				$message = ['type' => 'error', 'message' => $e->getMessage()];
 			}
@@ -241,18 +242,19 @@ class AccountRequestController extends Controller
             $user->setDescription(''); //Required parameter. TO DO FIXE IT.
             $user->setIsActive(1);
 
-            //Start Block Password DEV ONLY. TO DO GET AZURE ACTIVE DIRECTORY TOKEN
-	            $generator = new SecureRandom();
-	            $user->setSalt(base64_encode($generator->nextBytes(10)));
+            $width 	= $this->container->getParameter('avatar_width');
+        	$height = $this->container->getParameter('avatar_height');
+        	$image = \Nononsense\UtilsBundle\Classes\Utils::generateColoredPNG(['width' => $width, 'height' => $height]);
+        	$user->setPhoto($image);
+        	$user->setActiveDirectory(1);
 
-	            $factory 	= $this->get('security.encoder_factory');
-	            $encoder 	= $factory->getEncoder($user);
-	            $password 	= $encoder->encodePassword(1, $user->getSalt());
-	            $user->setPassword($password);
-            //End Block Password
+            $generator = new SecureRandom();
+            $user->setSalt(base64_encode($generator->nextBytes(10)));
 
-            //$user->setMudId($accountRequest->getMudId()); 
-            //$user->setEmail($accountRequest->getEmail()); // TO DO GET AZURE ACTIVE DIRECTORY EMAIL.
+            $factory 	= $this->get('security.encoder_factory');
+            $encoder 	= $factory->getEncoder($user);
+            $password 	= $encoder->encodePassword(uniqid(), $user->getSalt());
+            $user->setPassword($password);
 
 		    $validator 	= $this->get('validator');
 		    $errors 	= $validator->validate($user);
@@ -272,10 +274,6 @@ class AccountRequestController extends Controller
 
             $em->persist($user);
             $em->flush();
-
-            //$this->get('session')->getFlashBag()->add('success', 'Usuario creado con exito.');
-            //$message = ['type' => 'error', 'message' => 'Usuario creado con exito.'];
-            //$this->addUserGroupAction($accountRequest->getRequestId()->getGroups(), $user);
 
             return $user;
 	}
@@ -307,62 +305,7 @@ class AccountRequestController extends Controller
             $em->flush();
 
             return $usergroup;
-			// foreach ($groups as $key => $group) {
-				
-
-			// 	$usergroup = new GroupUsers();
-	  //           $usergroup->setUser($user);
-	  //           $usergroup->setGroup($groupid);
-	  //           $usergroup->setType('member');
-
-	  //           $errors = $validator->validate($usergroup);
-
-	  //           if(count($errors) > 0){
-
-	  //           	throw new \Exception($error->getMessage());
-	  //           	// $this->get('session')->getFlashBag()->add('errors', $error->getMessage());
-
-	  //           	// return false;
-	  //           }
-
-	  //           $em->persist($usergroup);
-			// }
-
-			// $em->flush();
-
-			// //$this->get('session')->getFlashBag()->add('success', 'Usuario añadido a: '.implode(',', array_column($groups, 'name')));
-
-			// return true;
 	}
-
-	// public function removeAction($accountRequest){
-
-	// 	$this->get('session')->getFlashBag()->add('success', 'Solicitud cancelada.');
-
-	// 	$accountRequest->setStatus(0);
-
-	// 	$em = $this->getDoctrine()->getManager();
-	// 	$em->persist($accountRequest);
-	// 	$em->flush();
-
-	// 	return $accountRequest;
-	// }
-
-	// public function acceptAction($accountRequest){
-
-	// 	if ($this->addUserAction($accountRequest)){
-
-	// 		$this->get('session')->getFlashBag()->add('success', 'Solicitud aceptada.');
-
-	// 		$accountRequest->setStatus(1);
-
-	// 		$em = $this->getDoctrine()->getManager();
-	// 		$em->persist($accountRequest);
-	// 		$em->flush();
-	// 	}
-
-	// 	return $accountRequest;
-	// }
 
 	public function checkMudId($mudId){
 
@@ -387,7 +330,7 @@ class AccountRequestController extends Controller
 	private function signForm($cn, $pass, $hideLdapErrors = true){
 
 		try {
-			$ldapdn = 'cn={username},cn=users,dc=demo,dc=local';
+			$ldapdn = $this->container->getParameter('ldap.dn_string');
 			$ldapdn = str_replace('{username}', $cn, $ldapdn);
 
 			$ldap   = $this->container->get('ldap');
@@ -403,21 +346,15 @@ class AccountRequestController extends Controller
 	}
 
 	public function getMudIdAction(Request $request){
-
 		$em 	= $this->getDoctrine()->getManager();
-		
-		//error_reporting(0);
 
 		$mudid = preg_replace('/[^a-z0-9]/i', '', $request->get('mudid'));
 
-		// if (isset($mudid) && $mudid) {
-		// 	# code...
-		// }
-		$ldapdn   = $this->container->getParameter('ldap.dn_string'); //'cn=admin,cn=users,dc=demo,dc=local'; $this->container->getParameter('ldap.search_dn');
+		$ldapdn   = $this->container->getParameter('ldap.search_dn'); //'cn=admin,cn=users,dc=demo,dc=local'; $this->container->getParameter('ldap.search_dn');
 		$ldappass = $this->container->getParameter('ldap.search_password');; //$this->container->getParameter('ldap.search_password');
 
 		$uid_key = 'sAMAccountName'; //$this->container->getParameter('ldap.uid_key');
-		$queryDn = 'dc=demo,dc=local'; //$this->container->getParameter('ldap.base_dn');
+		$queryDn = $this->container->getParameter('ldap.base_dn'); //$this->container->getParameter('ldap.base_dn');
 
 		$filter  = '({uid_key}='.$mudid.')';
 
@@ -450,48 +387,50 @@ class AccountRequestController extends Controller
 		return $response;
 	}
 
-	public function removeAction(Request $request)
-	{
-		//if (!$this->getUser()) return $this->redirect($this->generateUrl('nononsense_user_login'));
-
-		$em = $this->getDoctrine()->getManager();
-		$user = $em->getRepository(Users::class)->findOneBy(['id' => $this->getUser()]);
-
-		$form = $this->createForm(new Form\RemoveRequestAccountType(), $user);
-        $form->handleRequest($request);
-
-		if ($form->isSubmitted() && $form->isValid()) {
-
-			try {
-
-				$factory = $this->container->get('security.encoder_factory');
-            	$encoder = $factory->getEncoder($user);
-
-				if (!$encoder->isPasswordValid($user->getPassword(), $form->get('_password')->getData(), $user->getSalt())) {
-					throw new \Exception("La firma no es válida.", 0);
-				}
-				
-				$groups = $form->get('groups')->getData(); 
-
-				if ($groups) {
-
-					foreach ($groups as $key => $group) {
-						$groupUser = $em->getRepository(GroupUsers::class)->findOneBy(['id' => $group]);
-						$em->remove($groupUser);
-					}
-
-				}
-
-				$this->get('session')->getFlashBag()->add('success', 'Solicitud enviada con éxito');
-				$em->flush();
-			} catch (\Exception $e) {
-				$this->get('session')->getFlashBag()->add('errors', "error");
-			}
-
-		}
-
-		return $this->render('NononsenseUserBundle:Default:requestAccountRemove.html.twig', array('form' => $form->createView()));
-		
+	public function getBulkMudIdAction(Request $request){
+		return new JsonResponse($this->checkBulkMudIds($request->get('bulk')));
 	}
 
+
+	public function checkBulkMudIds(string $bulkMudIds){
+		$ldapdn   = $this->container->getParameter('ldap.search_dn');
+		$ldappass = $this->container->getParameter('ldap.search_password');
+
+		$uid_key = 'sAMAccountName';
+		$queryDn = $this->container->getParameter('ldap.base_dn');
+
+		$errors = [];
+		$mudIds = [];
+
+		try {
+			$bulkMudIds = explode(',', preg_replace('(\s+)', '', $bulkMudIds));
+
+			$ldap   = $this->container->get('ldap');
+			$bind   = $ldap->bind($ldapdn, $ldappass);
+
+			foreach($bulkMudIds as $key => $bulkMudId){
+				$filter  = '({uid_key}='.$bulkMudId.')';
+				$userSearch  = str_replace('{uid_key}', $uid_key, $filter);
+
+				$query = $ldap->find($queryDn, $userSearch, ['displayname']);
+
+				if (!$query) {
+					$errors[] = $bulkMudId;
+	        	}
+
+	        	$mudIds[$key]['mudId'] = $bulkMudId;
+	        	$mudIds[$key]['displayname'] = (isset($query[0]['displayname'][0])) ? $query[0]['displayname'][0] : null;
+			}
+
+			if ($errors){
+				throw new \Exception("Los siguientes MUD_IDs no han sido encontrados: ".implode(', ', $errors));
+			}
+
+	        $message = ['type' => 'success', 'message' => $mudIds];
+		} catch (\Exception $e) {
+			$message = ['type' => 'error', 'message' => $e->getMessage()];
+		}
+
+		return $message;
+	}
 }

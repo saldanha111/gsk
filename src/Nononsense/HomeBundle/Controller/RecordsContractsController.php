@@ -799,7 +799,6 @@ class RecordsContractsController extends Controller
 
                         if($this->sendBySMS($concatphone, $textMessage)){
                             $sended++;
-                            $this->get('Utilities')->saveLog('sms', 'contrato enviado por sms');
                         }else{
                             $errors++;
                         }
@@ -985,7 +984,6 @@ class RecordsContractsController extends Controller
                 switch($type){
                     case 'email':
                         if($this->sendByEmail($email_email, $signLink1, $signLink2, $pin)){
-                            $this->get('Utilities')->saveLog('mail', 'contrato enviado por mail');
                             $sended = true;
                         }
                         break;
@@ -994,7 +992,6 @@ class RecordsContractsController extends Controller
                         $textMessage .= ' (1/2) | ' . $signLink2 . ' (2/2)';
                         if($this->sendBySMS($phonePrefix.$phoneNumber, $textMessage)){
                             $sended = true;
-                            $this->get('Utilities')->saveLog('sms', 'contrato enviado por sms');
                         }
                         break;
                 }
@@ -1193,7 +1190,7 @@ class RecordsContractsController extends Controller
 
             return $this->render('NononsenseHomeBundle:Contratos:sign_contract.html.twig', $array_data);
         }
-        throw new Exception("Contrato no existente", 1);
+        return $this->render('NononsenseHomeBundle:Contratos:sign_contract_expired.html.twig', ['time' => time()]);
     }
 
     /**
@@ -1242,7 +1239,11 @@ class RecordsContractsController extends Controller
                        throw new \Exception("Error copying the document", 1);
                     }
 
-                    Utils::setCertification($this->container, $file, 'contract', $record->getId());
+                    $versionName = '';
+                    if($version == 2){
+                        $versionName = '-comite';
+                    }
+                    Utils::setCertification($this->container, $file, 'contrato'.$versionName, $record->getId());
                 } catch (\Exception $e) {
                     return false;
                 }
