@@ -1,10 +1,19 @@
 var gsk_comment=0;
+$('#fill_html').html($('#fill_html').html().replace(/GSKNOCUMPLE/g, "NO CUMPLE"));
+$('#fill_html').html($('#fill_html').html().replace(/GSKCUMPLE/g, "CUMPLE"));
+$('#fill_html').html($('#fill_html').html().replace(/GSKNOAPLICA/g, "NO APLICA"));
 $( document ).ready(function() {
 	$("#btn_save").hide();
 	$("#btn_save_partial").html('<i class="fa fa-send-o"></i> Aprobar cancelación');
 	$("#btn_cancel").html('<i class="fa fa-close"></i> Rechazar cancelación');
+
+	$("span.view_date").each(function( index ) {
+		custom_date=$(this).html().toUpperCase();
+		custom_date=custom_date.replace(/\.\//,"/");
+		$(this).html(custom_date);
+	});
 	
-	$("#form_fill").append('<input type="hidden" name="gsk_percent" value="'+$(".progress_document").html()+'" />');
+	//$("#form_fill").append('<input type="hidden" name="gsk_percent" value="'+$(".progress_document").html()+'" />');
 
 	/* Ocultamos los input pertenecientes a los ids de las firmas de la imputaciones */
 	$("input[class*='var_in_']").each(function( index ) {

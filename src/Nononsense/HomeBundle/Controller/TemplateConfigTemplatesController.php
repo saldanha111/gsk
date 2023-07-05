@@ -1,8 +1,8 @@
 <?php
 namespace Nononsense\HomeBundle\Controller;
 
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Nononsense\HomeBundle\Entity\InstanciasSteps;
 use Symfony\Component\Filesystem\Filesystem;
 use Nononsense\UtilsBundle\Classes;
 
@@ -49,7 +49,7 @@ class TemplateConfigTemplatesController extends Controller
                 'error',
                 'No tiene permisos suficientes'
             );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+            $route=$this->container->get('router')->generate('nononsense_home_homepage');
             return $this->redirect($route);
         }
 
@@ -57,12 +57,7 @@ class TemplateConfigTemplatesController extends Controller
 
         $array_item["template"] = $this->getDoctrine()->getRepository(TMTemplates::class)->findOneBy(array("id" => $id));
         if($array_item["template"]->getTmState()->getId()!=5 && $array_item["template"]->getTmState()->getId()!=11  && $array_item["template"]->getTmState()->getId()!=6){
-        	$this->get('session')->getFlashBag()->add(
-                'error',
-                'La plantilla indicada no se encuentra en fase de configuración'
-            );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
-            return $this->redirect($route);
+            return $this->returnToHomePage("La plantilla indicada no se encuentra en fase de configuración");
         }
 
 
@@ -86,12 +81,7 @@ class TemplateConfigTemplatesController extends Controller
         }
 
         if(!$find){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                'No tiene permisos para configurar esta plantilla'
-            );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
-            return $this->redirect($route);
+            return $this->returnToHomePage("No tiene permisos para configurar esta plantilla");
         }
 
         $action = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 2));
@@ -142,33 +132,23 @@ class TemplateConfigTemplatesController extends Controller
 
         $is_valid = $this->get('app.security')->permissionSeccion('admin_gp');
         if(!$is_valid){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                'No tiene permisos suficientes'
-            );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
-            return $this->redirect($route);
+            return $this->returnToHomePage('No tiene permisos suficientes');
+        }
+
+        $password =  $request->get('password');
+        if(!$password || !$this->get('utilities')->checkUser($password)){
+            return $this->returnToHomePage("No se pudo firmar el registro, la contraseña es incorrecta");
         }
 
         $user = $this->container->get('security.context')->getToken()->getUser();
 
         $template = $this->getDoctrine()->getRepository(TMTemplates::class)->findOneBy(array("id" => $id));
         if($template->getTmState()->getId()!=5 && $template->getTmState()->getId()!=11  && $template->getTmState()->getId()!=6){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                'La plantilla indicada no se encuentra en fase de configuración'
-            );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
-            return $this->redirect($route);
+            return $this->returnToHomePage('La plantilla indicada no se encuentra en fase de configuración');
         }
 
         if(!$template->getOpenedBy() || $template->getOpenedBy()!=$user){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                'No se puede efectuar la operación'
-            );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
-            return $this->redirect($route);
+            return $this->returnToHomePage('No se puede efectuar la operación');
         }
         
         $action = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id"=>"5"));
@@ -202,11 +182,25 @@ class TemplateConfigTemplatesController extends Controller
                 $template->setUniqid(0); 
             }
 
+            if($request->get("correlative")){
+               $template->setCorrelative(1); 
+            }
+            else{
+                $template->setCorrelative(0); 
+            }
+
             if($request->get("not_fillable_it_self")){
                $template->setNotFillableItSelf(1); 
             }
             else{
                 $template->setNotFillableItSelf(NULL); 
+            }
+
+            if($request->get("minutes_verification")){
+               $template->setMinutesVerification($request->get("minutes_verification")); 
+            }
+            else{
+                $template->setMinutesVerification(NULL); 
             }
 
             if($request->get("qr")){
@@ -217,10 +211,11 @@ class TemplateConfigTemplatesController extends Controller
             $description="Esta firma significa la puesta en vigor de la plantilla en la fecha indicada y habiendo sido aprobada, marcando la efectividad de la misma desde dicho momento. Declarando que las actividades asociados a la gestión de la plantilla se han realizado de manera satisfactoria";
           
             if($request->get("public_date") && $request->get("action")=="1"){
-                $date_public=\DateTime::createFromFormat('d/m/Y', $request->get("public_date"));
+                $date_public=\DateTime::createFromFormat('Y-m-d', $request->get("public_date"));
                 if(date("Y-m-d")>=$date_public->format("Y-m-d")){
                     $next_state = $this->getDoctrine()->getRepository(TMStates::class)->findOneBy(array("id"=>"6"));
-
+                    $template->setDateReview(new \DateTime('+3 year'));
+                    
                     if($template->getTemplateId()){
                         $obsolete = $this->getDoctrine()->getRepository(TMStates::class)->findOneBy(array("id"=>"7"));
                         $last_edition = $this->getDoctrine()->getRepository(TMTemplates::class)->findOneBy(array("id" => $template->getTemplateId()));
@@ -257,6 +252,7 @@ class TemplateConfigTemplatesController extends Controller
                             }
                         }
                     }
+
                 }
 
                 $template->setEffectiveDate($date_public); 
@@ -306,7 +302,8 @@ class TemplateConfigTemplatesController extends Controller
         $signature->setUserEntiy($user);
         $signature->setCreated(new \DateTime());
         $signature->setModified(new \DateTime());
-        $signature->setSignature($request->get("signature"));
+        $signature->setSignature("-");
+
         $signature->setVersion($response["version"]["id"]);
         $signature->setConfiguration($response["version"]["configuration"]["id"]);
         $signature->setDescription($description);
@@ -318,13 +315,22 @@ class TemplateConfigTemplatesController extends Controller
 
         
         if($next_state->getId()!=6){
-            $this->get('session')->getFlashBag()->add('message', "La configuración de la plantilla se ha realizado correctamente");
+            $message = "La configuración de la plantilla se ha realizado correctamente";
         }
         else{
-        	$this->get('session')->getFlashBag()->add('message', "La plantilla se ha puesto en vigor");
+            $message = "La plantilla se ha puesto en vigor";
         }
-        $route = $this->container->get('router')->generate('nononsense_tm_templates');
 
+        return $this->returnToHomePage($message, "message");
+    }
+
+    private function returnToHomePage(string $msgError, string $type = "error"): RedirectResponse
+    {
+        $this->get('session')->getFlashBag()->add(
+            $type,
+            $msgError
+        );
+        $route=$this->container->get('router')->generate('nononsense_home_homepage');
         return $this->redirect($route);
     }
 }

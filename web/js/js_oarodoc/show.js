@@ -1,7 +1,16 @@
 var gsk_comment=0;
+$('#fill_html').html($('#fill_html').html().replace(/GSKNOCUMPLE/g, "NO CUMPLE"));
+$('#fill_html').html($('#fill_html').html().replace(/GSKCUMPLE/g, "CUMPLE"));
+$('#fill_html').html($('#fill_html').html().replace(/GSKNOAPLICA/g, "NO APLICA"));
 $( document ).ready(function() {
 	$("#btn_save").hide();
 	$("#btn_save_partial").hide();
+
+	$("span.view_date").each(function( index ) {
+		custom_date=$(this).html().toUpperCase();
+		custom_date=custom_date.replace(/\.\//,"/");
+		$(this).html(custom_date);
+	});
 	
 	/* Ocultamos los input pertenecientes a los ids de las firmas de la imputaciones */
 	$("input[class*='var_in_']").each(function( index ) {

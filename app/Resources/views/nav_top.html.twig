@@ -1,8 +1,24 @@
 <div class="clearHead">
     <div class="border-bottom">
         <div class="col-sm-4 col-xs-10">
-            <a href="{{path('nononsense_home_homepage')}}"><img src="/img/logo-gsk.png"/></a>
+            <a href="{{path('nononsense_home_homepage')}}" style="float:left"><img src="/img/logo-gsk.png"/></a>
+
+            <div id="box_clock">
+                <div class="date">
+                    <span id="weekDay" class="weekDay"></span>, 
+                    <span id="day" class="day"></span> de
+                    <span id="month" class="month"></span> del
+                    <span id="year" class="year"></span>
+                </div>
+                <div class="clock">
+                    <span id="hours" class="hours"></span> :
+                    <span id="minutes" class="minutes"></span> :
+                    <span id="seconds" class="seconds"></span>
+                    <span id="gmt" class="gmt"></span>
+                </div>
+            </div>
         </div>
+
         <div class="col-xs-2 only-mobile pull-right">
             <a class="navbar-minimalize minimalize-styl-2 btn btn-primary pull-right" href="#"><i class="fa fa-bars"></i> </a>
         </div>
@@ -13,19 +29,11 @@
                         <span class="m-r-sm text-muted welcome-message">Bienvenido a <span class="corpColor">GSK</span></span>
                     </li>
                     <li class="dropdown phoneHidden">
-                        <a class="dropdown-toggle count-info" data-toggle="dropdown" href="#">
-                            <i class="fa fa-bell"></i>  <span class="label label-warning" id="unreadTop">&nbsp;</span>
+                        <a class="count-info" href="{{ path('nononsense_notifications_mails') }}">
+                            {% if messages>0 %}
+                                <i class="fa fa-bell"></i>  <span class="label label-danger">{{messages}}</span>
+                            {% endif %}
                         </a>
-                        <ul class="dropdown-menu dropdown-messages">
-                            {{ render(controller('NononsenseNotificationsBundle:Mailbox:widget')) }}					
-                            <li>
-                                <div class="text-center link-block">
-                                    <a href="{{ path('nononsense_notifications_homepage') }}">
-                                        <i class="fa fa-envelope"></i> <strong>{{'Read All Mesages'|trans}}</strong>
-                                    </a>
-                                </div>
-                            </li>
-                        </ul>
                     </li>
                     <li class="dropdown">
                         <a class="dropdown-toggle count-info" data-toggle="dropdown" href="#">
@@ -69,12 +77,12 @@
                     </li>
 
                     {% if is_granted('ROLE_PREVIOUS_ADMIN') %}
-                        <li><a href="{{ path('nononsense_home_homepage', {'_switch_user': '_exit'}) }}" style="font-weight: normal; color:#888; font-size: 13px"><i class="fa fa-users" style="color: #b70000; font-size: 16px"></i>Exit impersonation</a></li>
-                        {% else %}
-                        <li><a href="{{ path("nononsense_user_logout") }}"  style="font-weight: normal; color:#888; font-size: 13px"><i class="fa fa-power-off" style="color: #b70000; font-size: 16px"></i>Log out</a></li>
-                        {% endif %}
+                    <li><a href="{{ path('nononsense_home_homepage', {'_switch_user': '_exit'}) }}" style="font-weight: normal; color:#888; font-size: 13px"><i class="fa fa-users" style="color: #b70000; font-size: 16px"></i>Exit impersonation</a></li>
+                    {% else %}
+                    <li><a href="{{ path("nononsense_user_logout") }}"  style="font-weight: normal; color:#888; font-size: 13px"><i class="fa fa-power-off" style="color: #b70000; font-size: 16px"></i>Log out</a></li>
+                    {% endif %}
                 </ul>
-
+                
             </nav>
         </div>
     </div>

@@ -4,7 +4,7 @@ namespace Nononsense\HomeBundle\Controller;
 
 use DateTime;
 use Exception;
-use Nononsense\HomeBundle\Entity\InstanciasSteps;
+use Nononsense\HomeBundle\Entity\CVSignatures;
 use Nononsense\HomeBundle\Entity\ProductsDissolution;
 use Nononsense\HomeBundle\Entity\ProductsDissolutionRepository;
 use Nononsense\HomeBundle\Entity\ProductsInputs;
@@ -118,14 +118,14 @@ class ProductsDissolutionController extends Controller
     }
 
     /**
-     * @param InstanciasSteps $step
+     * @param CVSignatures $signature
      * @return bool
      * @throws Exception
      */
-    public function saveReactivoUseAction(InstanciasSteps $step)
+    public function saveReactivoUseAction(CVSignatures $signature)
     {
         $em = $this->getDoctrine()->getManager();
-        $data = json_decode($step->getStepDataValue(), true);
+        $data = json_decode($signature->getJson(), true);
         $products = [];
         if(count($data['data'])){
             foreach($data['data'] as $key => $item){
@@ -137,7 +137,7 @@ class ProductsDissolutionController extends Controller
             }
             $disoluciones = [];
             foreach($products as $prod){
-                $nrDisolucion = $prod['u_ndis'];
+                $nrDisolucion = isset($prod['u_ndis']) ? $prod['u_ndis'] : 0;
                 if($nrDisolucion > 0){
                     $disoluciones[$nrDisolucion]['name'] = $prod['u_tipo'] . ' ' . $prod['u_tipo2'];
                     $disoluciones[$nrDisolucion]['method'] = $prod['u_met1'] . ' ' . $prod['u_met'];
@@ -162,8 +162,8 @@ class ProductsDissolutionController extends Controller
                 }
             }
             $jsonData = json_encode($data);
-            $step->setStepDataValue($jsonData);
-            $em->persist($step);
+            $signature->setJson($jsonData);
+            $em->persist($signature);
             $em->flush();
         }
 

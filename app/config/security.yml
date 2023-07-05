@@ -91,6 +91,8 @@ security:
         - { path: ^/mt/elaborate/[0-9]+/restore , roles: IS_AUTHENTICATED_ANONYMOUSLY}
         - { path: ^/mt/test/[0-9]+/getdata , roles: IS_AUTHENTICATED_ANONYMOUSLY}
         - { path: ^/mt/test/[0-9]+/save , roles: IS_AUTHENTICATED_ANONYMOUSLY}
+        - { path: ^/docoaro/[0-9]+/getdata , roles: IS_AUTHENTICATED_ANONYMOUSLY}
+        - { path: ^/docoaro/[0-9]+/save , roles: IS_AUTHENTICATED_ANONYMOUSLY}
         - { path: ^/view-contract/ , roles: IS_AUTHENTICATED_ANONYMOUSLY}
         - { path: ^/info_Bizlayer , roles: IS_AUTHENTICATED_ANONYMOUSLY}
         - { path: ^/json_integration_index/ , roles: IS_AUTHENTICATED_ANONYMOUSLY}
@@ -100,6 +102,7 @@ security:
         - { path: ^/backoffice_bloquear_registros , roles: IS_AUTHENTICATED_ANONYMOUSLY}
         - { path: ^/products-output-data/.* , roles: IS_AUTHENTICATED_ANONYMOUSLY}
         - { path: ^/products-dissolution-qr/.* , roles: IS_AUTHENTICATED_ANONYMOUSLY}
+        - { path: ^/qrs-json/[0-9]+ , roles: IS_AUTHENTICATED_ANONYMOUSLY}
         - { path: ^/$ , roles: ROLE_EXTERNAL}
         - { path: ^/ , roles: ROLE_USER}
         # require ROLE_ADMIN

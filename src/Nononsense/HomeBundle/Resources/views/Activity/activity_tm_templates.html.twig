@@ -1,0 +1,175 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}Docoaro - GSK | Actividad de área {% endblock %}
+{% block head %}
+{{ parent() }}
+<link rel="stylesheet" href="/css/plugins/datapicker/datepicker3.css">
+{% endblock %}
+{% block main_title %} Actividad de área - Elab/Aprob.{% endblock %}
+{% block content %}
+
+<div class="wrapper wrapper-content">
+    {% for flashMessage in app.session.flashbag.get('error') %}
+    <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+        <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+        {{ flashMessage }}
+    </div><br>
+    {% endfor %}
+    {% for flashMessage in app.session.flashbag.get('success') %}
+    <div class="alert alert-success alert-dismissable" style="margin: 10px 16px 0 16px">
+        <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+        {{ flashMessage }}
+    </div><br>
+    {% endfor %}
+    <div class="row">
+        <div class="col-sm-12">
+            <div>
+                <div class="row">
+                    <form class="form-horizontal" id="form_item" action="{{ path('nononsense_activity_tm_templates')}}" method="GET">
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">ID.Plant.</label>
+                            <div class="col-sm-1 item_filter">
+                                <input type="number" name="plantilla_id" class="form-control" value="{{filters.plantilla_id is defined ? filters.plantilla_id : ''}}">
+                            </div>
+
+                            <label class="col-sm-1 control-label">Plantilla</label>
+                            <div class="col-sm-2 item_filter">
+                                <input type="text" name="name" class="form-control" value="{{filters.name is defined ? filters.name : ''}}">
+                            </div>
+
+                            <label class="col-sm-1 control-label">Usuario</label>
+                            <div class="col-sm-2 item_filter">
+                                <select class="form-control select_user" name="creator" style="width: 100%;">
+                                    <option value=""></option>
+                                    {% for itemuser in users %}
+                                        <option value="{{itemuser.id}}" {{filters.creator is defined and filters.creator==itemuser.id ? 'selected="selected"'}}>{{itemuser.name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            
+                        </div>
+                        <div class="form-group">
+
+                            <label class="col-sm-1 control-label">Fecha</label>
+                            <div class="col-sm-1 item_filter">
+                                <input type="text" class="form-control pull-right" autocomplete="off" name="from" id="from" value="{{filters.from is defined ? filters.from|date("Y-m-d") : ''}}">
+                            </div>
+
+                            <div class="col-sm-1">
+                                <input type="text" class="form-control pull-right" autocomplete="off" name="until" id="until" value="{{filters.until is defined ? filters.until|date("Y-m-d") : ''}}">
+                            </div>
+
+                            <label class="col-sm-1 control-label">Acción</label>
+                            <div class="col-sm-1 item_filter">
+                                <select class="form-control" name="action" style="width: 100%;">
+                                    <option value=""></option>
+                                    {% for action in actions %}
+                                        <option value="{{action.id}}" {{filters.action is defined and filters.action==action.id ? 'selected="selected"'}}>{{action.name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <label class="col-sm-1 control-label">Área</label>
+                            <div class="col-sm-1 item_filter">
+                                <select class="form-control" name="area" style="width: 100%;">
+                                    <option value=""></option>
+                                    {% for area in areas %}
+                                        <option value="{{area.id}}" {{filters.area is defined and filters.area==area.id ? 'selected="selected"'}}>{{area.name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <label class="col-sm-1 control-label">Reg.Página</label>
+                            <div class="col-sm-1 item_filter">
+                                <select class="form-control" style="width: 100%;" name="limit_many">
+                                    <option value=""></option>
+                                    <option value="15" {{filters.limit_many is defined and filters.limit_many == 15 ? 'selected="selected"' : ''}}>15</option>
+                                    <option value="50" {{filters.limit_many is defined and filters.limit_many == 50 ? 'selected="selected"' : ''}}>50</option>
+                                    <option value="100" {{filters.limit_many is defined and filters.limit_many == 100 ? 'selected="selected"' : ''}}>100</option>
+                                    <option value="500" {{filters.limit_many is defined and filters.limit_many == 500 ? 'selected="selected"' : ''}}>500</option>
+                                  </select>
+                            </div>
+
+                            <div class="col-sm-1">
+                                <button type="submit" class="btn btn-primary pull-right">Filtrar</button>
+                            </div>
+                            
+                        </div>
+
+                      </form>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+
+                        <table id="inProcessParcial" class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>Id Acción</th>
+                            <th>Id Plantilla</th>
+                            <th>Nº.</th>
+                            <th>Ed.</th>
+                            <th>Nombre</th>
+                            <th>Area</th>
+                            <th>Fecha</th>
+                            <th>Acción</th>
+                            <th>Firmante</th>
+                        </tr>
+                        </thead>
+                        {% if items is defined %}
+                            {% for item in items %}
+                                <tr>
+                                    <td>{{item.id}}</td>
+                                    <td>{{item.template.id}}</td>
+                                    <td>{{item.template.number}}</td>
+                                    <td>{{item.template.numEdition}}</td>
+                                    <td>{{item.template.name}}</td>
+                                    <td>{{item.template.area.name}}</td>
+                                    <td>{{item.created is defined and item.created is not empty ? item.created|date("d/m/Y H:i:s")|gskdate : '' }}</td>
+                                    <td>{{item.action.name }}</td>
+                                    <td>{{item.userEntiy.name}}</td>
+                                </tr>
+                            {% endfor %}
+                        {% endif %}
+                    </table>
+
+                        {% if pagination is defined and pagination.needed %}
+                            {% include '::pagination2.html.twig' %}
+                        {% endif %}
+                        
+                        {% if count==0 %}
+                            <br><b>No se han encontrado datos disponibles</b>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+{{ parent() }}
+<script src="/js/plugins/datapicker/bootstrap-datepicker.js"></script>
+<script src="/js/plugins/datapicker/locales/bootstrap-datepicker.es.js" charset="UTF-8"></script>
+<script>
+$(function () {
+    $('#from').datepicker({
+      autoclose: true,
+      orientation: 'bottom auto',
+      format: 'yyyy-mm-dd',
+      language: 'es'
+    });
+    $('#until').datepicker({
+      autoclose: true,
+      orientation: 'bottom auto',
+      format: 'yyyy-mm-dd',
+      language: 'es'
+    });
+
+    ActivateMenu('graphics_tm');
+    $('#side-menu').metisMenu();
+
+});
+
+</script>
+{% endblock %}

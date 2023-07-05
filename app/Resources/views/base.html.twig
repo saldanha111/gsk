@@ -3,7 +3,7 @@
     <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="img-src 'self' data:;default-src 'self' 'unsafe-inline'">
+    <meta http-equiv="Content-Security-Policy" content="img-src 'self' data:;default-src 'self' 'unsafe-inline' 'unsafe-eval'">
     <link rel="stylesheet" type="text/css" href="{{ asset('bundles/nononsensehome/css/loader-generic.css') }}">
 
     <title>{% block page_title %}GSK{% endblock %}</title>
@@ -14,7 +14,7 @@
     <body class="boxed-layout">
         <div class="header-page">
             {% block nav_top %}
-                    {% include "::nav_top.html.twig" %}
+                    {{ render(controller('Nononsense\HomeBundle:Default:topSide')) }}
             {% endblock %} 
         </div>
         <div id="wrapper" class="border-xs-top border-sm-top">
@@ -56,6 +56,8 @@
             <span class="ui-icon-loading"></span>
             <h1>{{ 'cargando'|trans|capitalize }}...</h1>
         </div>
+
+        {{ render(controller('Nononsense\HomeBundle:Default:popupAreas')) }}
 
     </body>
 

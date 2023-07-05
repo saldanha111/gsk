@@ -8,6 +8,7 @@ use Nononsense\UserBundle\Entity\Users;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Nononsense\GroupBundle\Entity\Groups;
 use Nononsense\GroupBundle\Entity\GroupUsers;
+use Nononsense\GroupBundle\Entity\GroupsSignatures;
 use Nononsense\UserBundle\Entity\GroupsSubsecciones;
 use Nononsense\GroupBundle\Form\Type as FormGroups;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,33 +18,53 @@ use Nononsense\UserBundle\Entity\AccountRequestsGroups;
 
 class GroupController extends Controller
 {
-    public function indexAction($page, $query = 'q')
+    public function indexAction(Request $request)
     {
         if (!$this->get('app.security')->permissionSeccion('grupos_gestion')) {
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
 
+        if(!$request->get("export_excel")){
+            if($request->get("page")){
+                $filters["limit_from"]=$request->get("page")-1;
+            }
+            else{
+                $filters["limit_from"]=0;
+            }
+            $filters["limit_many"]=10;
+        }
+        else{
+            $filters["limit_from"]=0;
+            $filters["limit_many"]=99999999999;
+        }
+
+        if($request->get("name")){
+            $filters["name"]=$request->get("name");
+        }
+
+        if($request->get("state")){
+            $filters["state"]=$request->get("state");
+        }
+
+
+        $array_item["filters"]=$filters;
+        $array_item["groups"] = $this->getDoctrine()->getRepository(Groups::class)->list("list",$filters);
+        $array_item["count"] = $this->getDoctrine()->getRepository(Groups::class)->list("count",$filters);
+
+        $url=$this->container->get('router')->generate('nononsense_tm_templates');
+        $params=$request->query->all();
+        unset($params["page"]);
+        if(!empty($params)){
+            $parameters=TRUE;
+        }
+        else{
+            $parameters=FALSE;
+        }
+        $array_item["pagination"]=\Nononsense\UtilsBundle\Classes\Utils::paginador($filters["limit_many"],$request,$url,$array_item["count"],"/", $parameters);
+
         $admin = true;
         
-        $maxResults = $this->container->getParameter('results_per_page');
-
-         $groups = $this->getDoctrine()
-                        ->getRepository('NononsenseGroupBundle:Groups')
-                        ->listGroups($page, $maxResults, 'id', $query, $admin);
-
-        $paging = array(
-            'page' => $page,
-            'path' => 'nononsense_groups_homepage',
-            'count' => max(ceil($groups->count() / $maxResults), 1),
-            'results' => $groups->count()
-            );
- 
-        return $this->render('NononsenseGroupBundle:Group:index.html.twig', array(
-            'groups' => $groups,
-            'paging' => $paging,
-            'query' => $query
-        ));
-        return $this->render('');
+        return $this->render('NononsenseGroupBundle:Group:index.html.twig',$array_item);  
     }
     
     public function createAction(Request $request)
@@ -65,11 +86,27 @@ class GroupController extends Controller
         if ($form->isValid()) {
             $em = $this->getDoctrine()->getManager();                
             $em->persist($group);
-            $em->flush();
+
             $this->get('session')->getFlashBag()->add(
                 'createdGroup',
                 'El grupo '.$group->getName().' ha sido creado'
             );
+
+            /* Añadimos audittrail a las fichas de grupos */
+            $user = $this->container->get('security.context')->getToken()->getUser();
+            $signature = new GroupsSignatures();
+            $signature->setGroup($group);
+            $signature->setUser($user);
+            $signature->setDescription("Se crea un nuevo grupo");
+            $signature->setJustification($request->get("justification"));
+            $signature->setCreated(new \DateTime());
+            $signature->setModified(new \DateTime());
+            $em->persist($signature);
+
+            $em->flush();
+
+            $group->setColor(\Nononsense\UtilsBundle\Classes\Utils::generateRandomColor());
+            $group->setDescription($this->get('translator')->trans('<p>Insert <strong>here</strong> the group description.</p>'));
 
             $this->get('utilities')->logger(
                 'GROUP', 
@@ -102,12 +139,11 @@ class GroupController extends Controller
         $em = $this->getDoctrine()->getManager();
         $group = $em->getRepository('NononsenseGroupBundle:Groups')
                      ->findOneBy(array('id' => $id));
-
+        $changes=$this->getChangesInGroup($request,$group);             
         $form = $this->createForm(new FormGroups\GroupType(), $group);
         $form->handleRequest($request);
 
         if ($form->isValid()) {      
-
             $query = "DELETE FROM NononsenseUserBundle:GroupsSubsecciones gs WHERE gs.group=$id";
             $query = $em->createQuery($query);
             $query->getResult();
@@ -122,6 +158,19 @@ class GroupController extends Controller
             }
 
             $em->persist($group);
+
+            /* Añadimos audittrail a las fichas de grupos */
+            $user = $this->container->get('security.context')->getToken()->getUser();
+            $signature = new GroupsSignatures();
+            $signature->setGroup($group);
+            $signature->setUser($user);
+            $signature->setDescription("Se modifica el grupo");
+            $signature->setJustification($request->get("justification"));
+            $signature->setChanges($changes);
+            $signature->setCreated(new \DateTime());
+            $signature->setModified(new \DateTime());
+            $em->persist($signature);
+
             $em->flush();
             $this->get('session')->getFlashBag()->add(
                 'createdGroup',
@@ -144,6 +193,8 @@ class GroupController extends Controller
         foreach ($groupsSubsecciones as $groupSubseccion) {
             array_push($subseccionesSelected, $groupSubseccion->getSubseccion()->getId());
         }
+
+        
 
 
         return $this->render('NononsenseGroupBundle:Group:edit.html.twig', array(
@@ -228,12 +279,15 @@ class GroupController extends Controller
 
         $editable = true;
         $clonable = false;
+
+        $signatures=$this->getDoctrine()->getRepository('NononsenseGroupBundle:GroupsSignatures')->findBy(array("group" => $group),array("id" => "ASC"));
         
  
         return $this->render('NononsenseGroupBundle:Group:show.html.twig', array(
             'group' => $group,
             'editable' => $editable,
             'clonable' => $clonable,
+            'signatures' => $signatures
         ));
     }
     
@@ -440,6 +494,61 @@ class GroupController extends Controller
         }
     }
 
+    public function getChangesInGroup($request,$group){
+        $changes="";
+        $em = $this->getDoctrine()->getManager();
+        if($request->get("groups")){
+            if($request->get("groups")["name"] && $request->get("groups")["name"]!=$group->getName()) {
+                $changes.="<tr><td>Nombre</td><td>".$group->getName()."</td><td>".$request->get("groups")["name"]."</td></tr>";
+            }
+            if($request->get("groups")["color"] && $request->get("groups")["color"]!=$group->getColor()) {
+                $changes.="<tr><td>Color</td><td>".$group->getColor()."</td><td>".$request->get("groups")["color"]."</td></tr>";
+            }
+            if(!array_key_exists("isActive", $request->get("groups"))){
+                $active=FALSE;
+            }
+            else{
+               $active=TRUE;
+            }
+            
+            if($active!=$group->getIsActive()) {
+                if($group->getIsActive()){
+                    $new="No";
+                    $old="Yes";
+                }
+                else{
+                    $new="Yes";
+                    $old="No";
+                }
+                $changes.="<tr><td>Activo</td><td>".$old."</td><td>".$new."</td></tr>";
+            }
+            
+            if($request->get("groups")["description"] && $request->get("groups")["description"]!=$group->getDescription()) {
+                $changes.="<tr><td>Descripción</td><td>".$group->getDescription()."</td><td>".$request->get("groups")["description"]."</td></tr>";
+            }
+
+            $permissions = $request->get('permissions');
+            $saved=$em->getRepository('NononsenseUserBundle:GroupsSubsecciones')->findBy(array("group" => $group));
+            foreach($saved as $save){
+                if (!in_array($save->getSubseccion()->getId(), $permissions)) {
+                    $changes.="<tr><td>Permiso ".$save->getSubseccion()->getName()."</td><td>Si</td><td>No</td></tr>";
+                }
+            }
+            foreach ($permissions as $permission) {
+                $subseccion=$em->getRepository('NononsenseUserBundle:Subsecciones')->find($permission);
+                $exist=$em->getRepository('NononsenseUserBundle:GroupsSubsecciones')->findOneBy(array("group" => $group, "subseccion" => $subseccion));
+                if(!$exist){
+                    $changes.="<tr><td>Permiso ".$subseccion->getName()."</td><td>No</td><td>Si</td></tr>";
+                }
+            }
+
+            if($changes!=""){
+                $changes="\n<table><tr><td>Campo</td><td>Anterior</td><td>Nuevo</td></tr>".$changes."</table>";
+            }
+        }
+
+        return $changes;
+    }
 
     private function simulateAccountRequest(Users $user, Groups $group, $requestType){
         $em = $this->getDoctrine()->getManager();

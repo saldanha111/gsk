@@ -58,8 +58,10 @@
                 </div>
 
                 <div class="ibox-content">
-                    <h3 style="font-weight: normal"><button class="btn btn-default " style="background-color: {{group.color}}; border-color: {{group.color}}; margin-right: 10px" type="button"><i class="fa fa-users"></i></button> 
-                        {{ group.name }}</h3>
+                    <h3 style="font-weight: normal">
+
+                        <button class="btn btn-default " style="background-color: {{group.color}}; border-color: {{group.color}}; margin-right: 10px" type="button"><i class="fa fa-users"></i></button> 
+                        {{ group.name }}</h3>{% if group.isActive == false %}<button class="btn btn-danger btn-xs " type="button" disabled><i class="fa fa-minus-circle"></i> Inactivo</button>{% endif %}
                     <address style="line-height: 18px">
                         <i class="fa fa-calendar"> </i> <strong>Creado:</strong> {{ group.created|localizeddate('medium', 'medium', app.request.locale)}}<br />
                     </address>
@@ -167,6 +169,30 @@
             </div>
         </div>
 
+    {% if signatures is defined and signatures is not empty %}
+        <div class="col-md-12">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Usuario</th>
+                    <th>Acción</th>
+                    <th>Justificación</th>
+                </tr>
+                </thead>
+                <tbody>
+                    {% for signature in signatures %}
+                        <tr>
+                            <td>{% if signature.modified is defined and signature.modified is not null %}{{signature.modified|date("d/m/Y H:i:s")|gskdate}}{% endif %}</td>
+                            <td>{{signature.user.name}}</td>
+                            <td>{{signature.description}}</td>
+                            <td>{{signature.justification}}</td>
+                        </tr>
+                        <tr><td colspan="4" class="changes_groups">{{signature.changes|raw}}</td></tr>
+                    {% endfor %}
+            </tbody>
+        </div>
+    {% endif %}
 
 {% endblock %}
 {% block scripts %}

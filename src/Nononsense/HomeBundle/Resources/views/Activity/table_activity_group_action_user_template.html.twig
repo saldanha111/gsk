@@ -1,0 +1,24 @@
+<table id="inProcessParcial" class="table table-striped">
+    <thead>
+    <tr>
+        <th>Usuario</th>
+        <th>Plantilla</th>
+        <th>Acción</th>
+        <th>Tiempo</th>
+        <th>Número de acciones<th>
+        <th><th>
+    </tr>
+    </thead>
+    {% if items is defined %}
+        {% for item in items %}
+            <tr>
+                <td>{{item.creator}}</td>
+                <td>{{item.name}}</td>
+                <td>{{item.accion|capitalize}}</td>
+                <td>{{item.formatDuration}}</td>
+                <td>{{item.conta}}</td>
+                <td>{{item.percent is defined and item.percent is not empty ? item.percent|number_format(2, '.', '')~'% Sobre su jornada (7.5h)' : ''}}</td>
+            </tr>
+        {% endfor %}
+    {% endif %}
+</table>

@@ -6,7 +6,6 @@ use Datetime;
 use Exception;
 use Nononsense\GroupBundle\Entity\Groups;
 use Nononsense\GroupBundle\Entity\GroupUsers;
-use Nononsense\HomeBundle\Entity\InstanciasSteps;
 use Nononsense\HomeBundle\Entity\ProductsDissolution;
 use Nononsense\HomeBundle\Entity\ProductsDissolutionRepository;
 use Nononsense\HomeBundle\Entity\ProductsInputsRepository;
@@ -368,7 +367,7 @@ class ProductsController extends Controller
                 $minStockEdited = $this->editMinStock($request->get('stockMinimum'), $product);
                 if($minStockEdited){
                     $now = new DateTime();
-                    $signature = 'Modificación de stock mínimo registrado con contraseña de usuario ' . $this->getUser()->getName() . ' el día ' . $now->format('d-m-Y H:i:s');
+                    $signature = 'Modificación de stock mínimo registrado con contraseña de usuario ' . $this->getUser()->getName() . ' el día ' . $this->get('utilities')->sp_date($now->format('d/m/Y H:i:s'));
                     $this->saveSignature(
                         $product,
                         $oldMinStock,
@@ -383,7 +382,7 @@ class ProductsController extends Controller
                     $stockEdited = $this->editStockMaterial((int) $request->get('stock'), $product, $request->get('observations'), false);
                     if($stockEdited){
                         $now = new DateTime();
-                        $signature = 'Modificación de stock registrado con contraseña de usuario ' . $this->getUser()->getName() . ' el día ' . $now->format('d-m-Y H:i:s');
+                        $signature = 'Modificación de stock registrado con contraseña de usuario ' . $this->getUser()->getName() . ' el día ' . $this->get('utilities')->sp_date($now->format('d/m/Y H:i:s'));
                         $this->saveSignature(
                             $product,
                             $oldStock,
@@ -404,7 +403,7 @@ class ProductsController extends Controller
                     $stockEdited = $this->editStockReactivo([$request->get('output')], $product);
                     if($stockEdited){
                         $now = new DateTime();
-                        $signature = 'Modificación de stock registrado con contraseña de usuario ' . $this->getUser()->getName() . ' el día ' . $now->format('d-m-Y H:i:s');
+                        $signature = 'Modificación de stock registrado con contraseña de usuario ' . $this->getUser()->getName() . ' el día ' . $this->get('utilities')->sp_date($now->format('d/m/Y H:i:s'));
                         $this->saveSignature(
                             $product,
                             $oldStock,
@@ -426,7 +425,7 @@ class ProductsController extends Controller
                 $activeEdited = $oldActive != $product->getActive();
                 if($activeEdited){
                     $now = new DateTime();
-                    $signature = 'Modificación del estado registrado con contraseña de usuario ' . $this->getUser()->getName() . ' el día ' . $now->format('d-m-Y H:i:s');
+                    $signature = 'Modificación del estado registrado con contraseña de usuario ' . $this->getUser()->getName() . ' el día ' . $this->get('utilities')->sp_date($now->format('d/m/Y H:i:s'));
                     $this->saveSignature(
                         $product,
                         (int) $oldActive,
@@ -1446,23 +1445,26 @@ class ProductsController extends Controller
 
         $phpExcelObject->getProperties();
         $phpExcelObject->setActiveSheetIndex(0)
-            ->setCellValue('A1', 'Tipo')
-            ->setCellValue('B1', 'Nombre')
-            ->setCellValue('C1', 'Qr')
-            ->setCellValue('D1', 'Part. Number')
-            ->setCellValue('E1', 'CAS Number')
-            ->setCellValue('F1', 'Código interno')
-            ->setCellValue('G1', 'Proveedor')
-            ->setCellValue('H1', 'Presentación')
-            ->setCellValue('I1', 'Fecha de destrucción')
-            ->setCellValue('J1', 'Estado')
-            ->setCellValue('K1', 'Stock actual')
-            ->setCellValue('L1', 'Stock Mínimo')
-            ->setCellValue('M1', 'Observaciones')
-            ->setCellValue('N1', 'Activo');
+            ->setCellValue('A1', "Stock de almacén en Reactivos - ".$this->getUser()->getName()." - ".$this->get('utilities')->sp_date(date("d/m/Y H:i:s")));
+        $phpExcelObject->setActiveSheetIndex()
+            ->setCellValue('A2', 'Tipo')
+            ->setCellValue('B2', 'Nombre')
+            ->setCellValue('C2', 'Qr')
+            ->setCellValue('D2', 'Part. Number')
+            ->setCellValue('E2', 'CAS Number')
+            ->setCellValue('F2', 'Código interno')
+            ->setCellValue('G2', 'Proveedor')
+            ->setCellValue('H2', 'Presentación')
+            ->setCellValue('I2', 'Fecha de destrucción')
+            ->setCellValue('J2', 'Estado')
+            ->setCellValue('K2', 'Stock actual')
+            ->setCellValue('L2', 'Stock Mínimo')
+            ->setCellValue('M2', 'Observaciones')
+            ->setCellValue('N2', 'Activo');
 
-        $i = 2;
+        $i = 3;
         foreach ($items as $product) {
+            $destructionFormatted = ($product['destructionDate']) ? $this->get('utilities')->sp_date((new DateTime($product['destructionDate']))->format('d/m/Y')) : '';
             $phpExcelObject->getActiveSheet()
                 ->setCellValue('A' . $i, $product['productType'])
                 ->setCellValue('B' . $i, $product['productName'])
@@ -1472,7 +1474,7 @@ class ProductsController extends Controller
                 ->setCellValue('F' . $i, $product['internalCode'])
                 ->setCellValue('G' . $i, $product['provider'])
                 ->setCellValue('H' . $i, $product['presentation'])
-                ->setCellValue('I' . $i, $product['destructionDate'])
+                ->setCellValue('I' . $i, $destructionFormatted)
                 ->setCellValue('J' . $i, $product['state'])
                 ->setCellValue('K' . $i, $product['stock'])
                 ->setCellValue('L' . $i, $product['minStock'])
@@ -1520,7 +1522,7 @@ class ProductsController extends Controller
                             </tr>';
 
         foreach($items as $item) {
-            $destructionFormatted = ($item['destructionDate']) ? (new DateTime($item['destructionDate']))->format('Y-m-d') : '';
+            $destructionFormatted = ($item['destructionDate']) ? $this->get('utilities')->sp_date((new DateTime($item['destructionDate']))->format('d/m/Y')) : '';
             $productType = $item['productType'];
             $productName = $item['productName'];
             $qrCode = $item['qrCode'];
@@ -1559,28 +1561,7 @@ class ProductsController extends Controller
                     </body>
                 </html>';
 
-        return $this->returnPDFResponseFromHTML($html);
-    }
-
-    private function returnPDFResponseFromHTML($html){
-        //set_time_limit(30); uncomment this line according to your needs
-        // If you are not in a controller, retrieve of some way the service container and then retrieve it
-        //$pdf = $this->container->get("white_october.tcpdf")->create('vertical', PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
-        //if you are in a controlller use :
-        $pdf = $this->get("white_october.tcpdf")->create('horizontal', PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
-        $pdf->SetAuthor('GSK');
-        $pdf->SetTitle(('Registros GSK'));
-        $pdf->SetSubject('Registros GSK');
-        $pdf->setFontSubsetting(true);
-        $pdf->SetFont('helvetica', '', 9, '', true);
-        //$pdf->SetMargins(20,20,40, true);
-        $pdf->AddPage('L', 'A4');
-
-
-        $filename = 'list_records';
-
-        $pdf->writeHTMLCell($w = 0, $h = 0, $x = '', $y = '', $html, $border = 0, $ln = 1, $fill = 0, $reseth = true, $align = '', $autopadding = true);
-        return $pdf->Output($filename.".pdf",'I'); // This will output the PDF as a response directly
+        return $this->get('utilities')->returnPDFResponseFromHTML($html,"Stock de almacén en Reactivos");
     }
 
     /** ProductInpus[] $items
@@ -1592,32 +1573,37 @@ class ProductsController extends Controller
         $phpExcelObject = $this->get('phpexcel')->createPHPExcelObject();
 
         $phpExcelObject->getProperties();
+        
         if($type=== 'reactivo'){
             $phpExcelObject->setActiveSheetIndex(0)
-                ->setCellValue('A1', 'Id')
-                ->setCellValue('B1', 'CAS Number')
-                ->setCellValue('C1', 'Part. Number')
-                ->setCellValue('D1', 'Nombre')
-                ->setCellValue('E1', 'Proveedor')
-                ->setCellValue('F1', 'Presentación')
-                ->setCellValue('G1', 'Cantidad')
-                ->setCellValue('H1', 'Fecha de recepción')
-                ->setCellValue('I1', 'Comentarios')
-                ->setCellValue('J1', 'Usuario');
+            ->setCellValue('A1', "Entrada de reactivos al almacén de reactivos - ".$this->getUser()->getUserName()." - ".$this->get('utilities')->sp_date(date("d/m/Y H:i:s")));
+            $phpExcelObject->setActiveSheetIndex()
+                ->setCellValue('A2', 'Id')
+                ->setCellValue('B2', 'CAS Number')
+                ->setCellValue('C2', 'Part. Number')
+                ->setCellValue('D2', 'Nombre')
+                ->setCellValue('E2', 'Proveedor')
+                ->setCellValue('F2', 'Presentación')
+                ->setCellValue('G2', 'Cantidad')
+                ->setCellValue('H2', 'Fecha de recepción')
+                ->setCellValue('I2', 'Comentarios')
+                ->setCellValue('J2', 'Usuario');
         }else{
             $phpExcelObject->setActiveSheetIndex(0)
-                ->setCellValue('A1', 'Id')
-                ->setCellValue('B1', 'Part. Number')
-                ->setCellValue('C1', 'Nombre')
-                ->setCellValue('D1', 'Proveedor')
-                ->setCellValue('E1', 'Presentación')
-                ->setCellValue('F1', 'Cantidad')
-                ->setCellValue('G1', 'Fecha de recepción')
-                ->setCellValue('H1', 'Comentarios')
-                ->setCellValue('I1', 'Usuario');
+            ->setCellValue('A1', "Entrada de material al almacén de reactivos - ".$this->getUser()->getUserName()." - ".$this->get('utilities')->sp_date(date("d/m/Y H:i:s")));
+            $phpExcelObject->setActiveSheetIndex()
+                ->setCellValue('A2', 'Id')
+                ->setCellValue('B2', 'Part. Number')
+                ->setCellValue('C2', 'Nombre')
+                ->setCellValue('D2', 'Proveedor')
+                ->setCellValue('E2', 'Presentación')
+                ->setCellValue('F2', 'Cantidad')
+                ->setCellValue('G2', 'Fecha de recepción')
+                ->setCellValue('H2', 'Comentarios')
+                ->setCellValue('I2', 'Usuario');
         }
 
-        $i = 2;
+        $i = 3;
         foreach ($items as $item) {
             if($type === 'reactivo'){
                 $phpExcelObject->getActiveSheet()
@@ -1628,7 +1614,7 @@ class ProductsController extends Controller
                     ->setCellValue('E' . $i, $item->getProduct()->getProvider())
                     ->setCellValue('F' . $i, $item->getProduct()->getPresentation())
                     ->setCellValue('G' . $i, $item->getAmount())
-                    ->setCellValue('H' . $i, $item->getReceptionDate()->format('Y-m-d H:i:s'))
+                    ->setCellValue('H' . $i, $this->get('utilities')->sp_date($item->getReceptionDate()->format('d/m/Y H:i:s')))
                     ->setCellValue('I' . $i, $item->getObservations())
                     ->setCellValue('J' . $i, $item->getUser()->getName());
             }else{
@@ -1639,7 +1625,7 @@ class ProductsController extends Controller
                     ->setCellValue('D' . $i, $item->getProduct()->getProvider())
                     ->setCellValue('E' . $i, $item->getProduct()->getPresentation())
                     ->setCellValue('F' . $i, $item->getAmount())
-                    ->setCellValue('G' . $i, $item->getReceptionDate()->format('Y-m-d H:i:s'))
+                    ->setCellValue('G' . $i, $this->get('utilities')->sp_date($item->getReceptionDate()->format('d/m/Y H:i:s')))
                     ->setCellValue('H' . $i, $item->getObservations())
                     ->setCellValue('I' . $i, $item->getUser()->getName());
             }
@@ -1695,7 +1681,7 @@ class ProductsController extends Controller
             $provider = $item->getProduct()->getProvider();
             $presentation = $item->getProduct()->getPresentation();
             $amount = $item->getAmount();
-            $receptionDate = $item->getReceptionDate()->format('Y-m-d H:i:s');
+            $receptionDate = $this->get('utilities')->sp_date($item->getReceptionDate()->format('d/m/Y H:i:s'));
             $observations = $item->getObservations();
             $user = $item->getUser()->getName();
             $html .= "
@@ -1721,7 +1707,7 @@ class ProductsController extends Controller
                     </body>
                 </html>';
 
-        return $this->returnPDFResponseFromHTML($html);
+        return $this->get('utilities')->returnPDFResponseFromHTML($html,"Entradas de productos al almacén de reactivos");
     }
 
     /**
@@ -1733,15 +1719,17 @@ class ProductsController extends Controller
         $phpExcelObject = $this->get('phpexcel')->createPHPExcelObject();
         $phpExcelObject->getProperties();
         $phpExcelObject->setActiveSheetIndex(0)
-            ->setCellValue('A1', 'Id')
-            ->setCellValue('B1', 'Entrada Id')
-            ->setCellValue('C1', 'Part Number')
-            ->setCellValue('D1', 'Nombre')
-            ->setCellValue('E1', 'Cantidad')
-            ->setCellValue('F1', 'Fecha de retirada')
-            ->setCellValue('G1', 'Usuario');
+            ->setCellValue('A1', "Retirada de almacén - ".$this->getUser()->getUserName()." - ".$this->get('utilities')->sp_date(date("d/m/Y H:i:s")));
+        $phpExcelObject->setActiveSheetIndex()
+            ->setCellValue('A2', 'Id')
+            ->setCellValue('B2', 'Entrada Id')
+            ->setCellValue('C2', 'Part Number')
+            ->setCellValue('D2', 'Nombre')
+            ->setCellValue('E2', 'Cantidad')
+            ->setCellValue('F2', 'Fecha de retirada')
+            ->setCellValue('G2', 'Usuario');
 
-        $i = 2;
+        $i = 3;
         foreach ($items as $item) {
             $phpExcelObject->getActiveSheet()
                 ->setCellValue('A' . $i, $item->getId())
@@ -1749,7 +1737,7 @@ class ProductsController extends Controller
                 ->setCellValue('C' . $i, $item->getProductInput()->getProduct()->getPartNumber())
                 ->setCellValue('D' . $i, $item->getProductInput()->getProduct()->getName())
                 ->setCellValue('E' . $i, $item->getAmount())
-                ->setCellValue('F' . $i, $item->getDate()->format('Y-m-d H:i:s'))
+                ->setCellValue('F' . $i, $this->get('utilities')->sp_date($item->getDate()->format('d/m/Y H:i:s')))
                 ->setCellValue('G' . $i, $item->getUser()->getName());
 
             $i++;

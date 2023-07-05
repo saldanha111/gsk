@@ -1,0 +1,72 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}Docoaro - GSK | {{'Homepage'|trans}} {% endblock %}
+{% block head %}
+{{ parent() }}
+
+{% endblock %}
+{% block main_title %} Historial de reconciliación{% endblock %}
+{% block content %}
+
+
+<div class="wrapper wrapper-content">
+    {% for flashMessage in app.session.flashbag.get('error') %}
+    <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+        <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+        {{ flashMessage }}
+    </div>
+    {% endfor %}
+    <div id="box_recon">
+        <h1>Reconciliación del registro {{record.id}} - Código:{{record.template.id}} - Título:{{record.template.name}} - Edición:{{record.template.numEdition}}</h1><br><br>
+        <div class="row">
+            <form class="form-horizontal" id="form_item" action="{{ path('nononsense_cv_record_audittrail', {'id': record.id})}}" method="GET">
+                    <div class="form-group">
+
+                        <label class="col-sm-1 control-label">Usuario</label>
+                        <div class="col-sm-2 item_filter">
+                            <input type="text" name="creator" class="form-control" value="{{filters.creator is defined ? filters.creator : ''}}">
+                        </div>
+
+                        <label class="col-sm-1 control-label">Acción</label>
+                        <div class="col-sm-2 item_filter">
+                            <select class="form-control" name="action" style="width: 100%;">
+                                <option value=""></option>
+                                {% for action in actions %}
+                                    <option value="{{action.id}}" {{filters.action is defined and filters.action==action.id ? 'selected="selected"'}}>{{action.name}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <label class="col-sm-1 control-label">Subacción</label>
+                        <div class="col-sm-3 item_filter">
+                            <select class="form-control" name="subaction" style="width: 100%;">
+                                <option value=""></option>
+                                {% for subaction in subactions %}
+                                    <option value="{{subaction.id}}" {{filters.subaction is defined and filters.subaction==subaction.id ? 'selected="selected"'}}>{{subaction.type.name|first}}-{{subaction.name}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-sm-1">
+                            <button type="submit" class="btn btn-primary pull-right">Filtrar</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        <div class="row">
+            <br>
+            <div class="col-sm-12" id="html_reconciliation">
+                {{ html|raw }}
+                <br>
+                <a href="{{pagination.url}}{{pagination.character}}pdf=1" target="_blank" class="btn btn-primary pull-right" style="margin-right:1px"><i class="fa fa-file-pdf-o" aria-hidden="true"></i> PDF</a> 
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+{{ parent() }}
+<script>
+
+</script>
+{% endblock %}

@@ -176,7 +176,7 @@
                                         <td>{{ item.presentation }}</td>
                                         <td>
                                             {% if item.destructionDate is defined and item.destructionDate is not null %}
-                                                {{ item.destructionDate | date('d-m-Y') }}
+                                                {{ item.destructionDate | date('d/m/Y') }}
                                             {% endif %}
                                         </td>
                                         <td>{{ item.state }}</td>

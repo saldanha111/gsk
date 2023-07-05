@@ -3,7 +3,11 @@
 }
 
 #tablefirmas td{
-	font-size:11px;
+	font-size:12px;
+}
+
+#tablelogbook td{
+	font-size:12px;
 }
 
 #tableRecon td{

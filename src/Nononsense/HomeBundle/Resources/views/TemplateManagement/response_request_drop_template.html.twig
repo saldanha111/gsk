@@ -21,7 +21,7 @@
                     <div class="col-lg-10 col-lg-offset-1">
                         <b>Fecha</b><br>
                         <div class="form-group">
-                            {{drop_request.created is defined and drop_request.created is not null ? drop_request.created|date("d/m/Y H:i:s") : ''}}
+                            {{drop_request.created is defined and drop_request.created is not null ? drop_request.created|date("d/m/Y H:i:s")|gskdate : ''}}
                         </div>
                     </div>
                 </div>
@@ -43,17 +43,15 @@
                 </div>
                 <div class="row">
                     <div class="col-lg-10 col-lg-offset-1">
-                        <div id="signature-pad" class="input-group">
-                            <b>Introduzca su firma</b><br>
-                            <canvas id="canvas2" width="300" height="150" style="touch-action: none; border: 2px solid #eee; box-shadow: 0px 0px 6px 1px rgba(80, 90, 100, 0.5)"></canvas>
+                        <div class="input-group">
+                            <p>Introduzca su firma</p>
+                            <input type="password" name="password" id="response_request_drop_password" class="form-control"><br>
                         </div>
                     </div>
                 </div>
-                <input type="hidden" id="signature" name="signature" />
                 <input type="hidden" name="action" value="" />
             </div>
             <div class="modal-footer">
-                <a name="borrarFirmar" class="btn btn-secondary" id="borrarFirmar">Limpiar firma</a>
                 <input type="submit" class="btn btn-danger" data-action="2" value="Rechazar solicitud">
                 <input type="submit" class="btn btn-primary" data-action="1" value="Aprobar solicitud">
             </div>

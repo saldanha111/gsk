@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Security\Core\User\AdvancedUserInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * User
@@ -24,6 +25,7 @@ class Users implements AdvancedUserInterface, \Serializable
      * @ORM\Column(type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @Groups({"data_new_edition"})
      */
     protected $id;
     
@@ -152,9 +154,14 @@ class Users implements AdvancedUserInterface, \Serializable
      * @ORM\Column(name="mud_id", type="string", length=20, nullable=true)
      */
     protected $mudId;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\GroupBundle\Entity\GroupsSignatures", mappedBy="user")
+     */
+    protected $groupsSignatures;
     
     /**
-     * @ORM\OneToMany(targetEntity="\Nononsense\NotificationsBundle\Entity\Notifications", mappedBy="author")
+     * @ORM\OneToMany(targetEntity="\Nononsense\NotificationsBundle\Entity\Notifications", mappedBy="user")
      */
     protected $notifications;
     
@@ -162,11 +169,6 @@ class Users implements AdvancedUserInterface, \Serializable
      * @ORM\OneToMany(targetEntity="\Nononsense\NotificationsBundle\Entity\MessagesUsers", mappedBy="user")
      */
     protected $messages;
-    
-    /**
-     * @ORM\OneToMany(targetEntity="\Nononsense\NewsBundle\Entity\News", mappedBy="user")
-     */
-    protected $news;
 
     /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\Documents", mappedBy="userCreatedEntiy")
@@ -209,21 +211,6 @@ class Users implements AdvancedUserInterface, \Serializable
     protected $recordsContractsSignatures;
 
     /**
-     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\InstanciasWorkflows", mappedBy="userCreatedEntiy")
-     */
-    protected $InstanciasWorkflowCreated;
-
-    /**
-     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\EvidenciasStep", mappedBy="userEntiy")
-     */
-    protected $Evidencias;
-
-    /**
-     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\FirmasStep", mappedBy="userEntiy")
-     */
-    protected $Firmas;
-
-    /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMTests", mappedBy="userEntiy")
      */
     protected $tmTests;
@@ -259,35 +246,39 @@ class Users implements AdvancedUserInterface, \Serializable
     protected $tmWorkflows;
 
     /**
-     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\ActivityUser", mappedBy="userEntiy")
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\CVWorkflow", mappedBy="user")
      */
-    protected $Activity;
-
-
-    /**
-     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\Revision", mappedBy="userRevisionEntiy")
-     */
-    protected $Revisions;
+    protected $cvWorkflows;
 
     /**
-     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\CancelacionStep", mappedBy="userRevisionEntiy")
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\CVSecondWorkflow", mappedBy="user")
      */
-    protected $Cancelaciones;
+    protected $cvSecondWorkflows;
 
     /**
-     * @ORM\OneToMany(targetEntity="\Nononsense\UserBundle\Entity\UsersSection", mappedBy="user")
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\CVSignatures", mappedBy="user")
      */
-    protected $sections;
+    protected $cvSignatures;
 
     /**
-     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\ReconciliacionRegistro", mappedBy="userEntiy")
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\CVRecords", mappedBy="user")
      */
-    protected $Reconciliaciones;
+    protected $cvRecords;
 
     /**
-     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\ReconciliacionRegistro", mappedBy="userValidationEntiy")
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\CVRecords", mappedBy="userGxP")
      */
-    protected $ReconciliacionesValidations;
+    protected $cvRecordsGxP;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\CVRecords", mappedBy="openedBy")
+     */
+    protected $cvRecordsOpen;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\Areas", mappedBy="fll")
+     */
+    protected $areas;
 
     /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\Tokens", mappedBy="user")
@@ -335,9 +326,24 @@ class Users implements AdvancedUserInterface, \Serializable
     protected $pinComite;
 
     /**
-     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\RCSignatures", mappedBy="userEntiy")
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\RetentionSignatures", mappedBy="userEntiy")
      */
-    protected $rcSignatures;
+    protected $retentionSignatures;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\Delegations", mappedBy="user")
+     */
+    protected $delegationsusers;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\Delegations", mappedBy="sustitute")
+     */
+    protected $delegationssustitutes;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\NotificationsBundle\Entity\NotificationsModels", mappedBy="user")
+     */
+    protected $notificationsModels;
 
     /**
      * @var boolean
@@ -916,39 +922,6 @@ class Users implements AdvancedUserInterface, \Serializable
     }
 
     /**
-     * Add news
-     *
-     * @param \Nononsense\NewsBundle\Entity\News $news
-     * @return Users
-     */
-    public function addNews(\Nononsense\NewsBundle\Entity\News $news)
-    {
-        $this->news[] = $news;
-
-        return $this;
-    }
-
-    /**
-     * Remove news
-     *
-     * @param \Nononsense\NewsBundle\Entity\News $news
-     */
-    public function removeNews(\Nononsense\NewsBundle\Entity\News $news)
-    {
-        $this->news->removeElement($news);
-    }
-
-    /**
-     * Get news
-     *
-     * @return \Doctrine\Common\Collections\Collection 
-     */
-    public function getNews()
-    {
-        return $this->news;
-    }
-
-    /**
      * Add instanciasworkflowscolaborated
      *
      * @param \Nononsense\UserBundle\Entity\Roles $instanciasworkflowscolaborated
@@ -1028,273 +1001,6 @@ class Users implements AdvancedUserInterface, \Serializable
     }
 
     /**
-     * Add InstanciasWorkflowCreated
-     *
-     * @param \Nononsense\HomeBundle\Entity\InstanciasWorkflows $instanciasWorkflowCreated
-     * @return Users
-     */
-    public function addInstanciasWorkflowCreated(\Nononsense\HomeBundle\Entity\InstanciasWorkflows $instanciasWorkflowCreated)
-    {
-        $this->InstanciasWorkflowCreated[] = $instanciasWorkflowCreated;
-
-        return $this;
-    }
-
-    /**
-     * Remove InstanciasWorkflowCreated
-     *
-     * @param \Nononsense\HomeBundle\Entity\InstanciasWorkflows $instanciasWorkflowCreated
-     */
-    public function removeInstanciasWorkflowCreated(\Nononsense\HomeBundle\Entity\InstanciasWorkflows $instanciasWorkflowCreated)
-    {
-        $this->InstanciasWorkflowCreated->removeElement($instanciasWorkflowCreated);
-    }
-
-    /**
-     * Get InstanciasWorkflowCreated
-     *
-     * @return \Doctrine\Common\Collections\Collection 
-     */
-    public function getInstanciasWorkflowCreated()
-    {
-        return $this->InstanciasWorkflowCreated;
-    }
-
-    /**
-     * Add InstanciasWorkflowValidatedN1
-     *
-     * @param \Nononsense\HomeBundle\Entity\InstanciasWorkflows $instanciasWorkflowValidatedN1
-     * @return Users
-     */
-    public function addInstanciasWorkflowValidatedN1(\Nononsense\HomeBundle\Entity\InstanciasWorkflows $instanciasWorkflowValidatedN1)
-    {
-        $this->InstanciasWorkflowValidatedN1[] = $instanciasWorkflowValidatedN1;
-
-        return $this;
-    }
-
-    /**
-     * Remove InstanciasWorkflowValidatedN1
-     *
-     * @param \Nononsense\HomeBundle\Entity\InstanciasWorkflows $instanciasWorkflowValidatedN1
-     */
-    public function removeInstanciasWorkflowValidatedN1(\Nononsense\HomeBundle\Entity\InstanciasWorkflows $instanciasWorkflowValidatedN1)
-    {
-        $this->InstanciasWorkflowValidatedN1->removeElement($instanciasWorkflowValidatedN1);
-    }
-
-    /**
-     * Get InstanciasWorkflowValidatedN1
-     *
-     * @return \Doctrine\Common\Collections\Collection 
-     */
-    public function getInstanciasWorkflowValidatedN1()
-    {
-        return $this->InstanciasWorkflowValidatedN1;
-    }
-
-    /**
-     * Add InstanciasWorkflowValidatedN2
-     *
-     * @param \Nononsense\HomeBundle\Entity\InstanciasWorkflows $instanciasWorkflowValidatedN2
-     * @return Users
-     */
-    public function addInstanciasWorkflowValidatedN2(\Nononsense\HomeBundle\Entity\InstanciasWorkflows $instanciasWorkflowValidatedN2)
-    {
-        $this->InstanciasWorkflowValidatedN2[] = $instanciasWorkflowValidatedN2;
-
-        return $this;
-    }
-
-    /**
-     * Remove InstanciasWorkflowValidatedN2
-     *
-     * @param \Nononsense\HomeBundle\Entity\InstanciasWorkflows $instanciasWorkflowValidatedN2
-     */
-    public function removeInstanciasWorkflowValidatedN2(\Nononsense\HomeBundle\Entity\InstanciasWorkflows $instanciasWorkflowValidatedN2)
-    {
-        $this->InstanciasWorkflowValidatedN2->removeElement($instanciasWorkflowValidatedN2);
-    }
-
-    /**
-     * Get InstanciasWorkflowValidatedN2
-     *
-     * @return \Doctrine\Common\Collections\Collection 
-     */
-    public function getInstanciasWorkflowValidatedN2()
-    {
-        return $this->InstanciasWorkflowValidatedN2;
-    }
-
-    /**
-     * Add Revisions
-     *
-     * @param \Nononsense\HomeBundle\Entity\Revision $revisions
-     * @return Users
-     */
-    public function addRevision(\Nononsense\HomeBundle\Entity\Revision $revisions)
-    {
-        $this->Revisions[] = $revisions;
-
-        return $this;
-    }
-
-    /**
-     * Remove Revisions
-     *
-     * @param \Nononsense\HomeBundle\Entity\Revision $revisions
-     */
-    public function removeRevision(\Nononsense\HomeBundle\Entity\Revision $revisions)
-    {
-        $this->Revisions->removeElement($revisions);
-    }
-
-    /**
-     * Get Revisions
-     *
-     * @return \Doctrine\Common\Collections\Collection 
-     */
-    public function getRevisions()
-    {
-        return $this->Revisions;
-    }
-
-    /**
-     * Add sections
-     *
-     * @param \Nononsense\UserBundle\Entity\Userssection $sections
-     * @return Users
-     */
-    public function addSection(\Nononsense\UserBundle\Entity\UsersSection $sections)
-    {
-        $this->sections[] = $sections;
-
-        return $this;
-    }
-
-    /**
-     * Remove sections
-     *
-     * @param \Nononsense\UserBundle\Entity\Userssection $sections
-     */
-    public function removeSection(\Nononsense\UserBundle\Entity\UsersSection $sections)
-    {
-        $this->sections->removeElement($sections);
-    }
-
-    /**
-     * Get sections
-     *
-     * @return \Doctrine\Common\Collections\Collection 
-     */
-    public function getSections()
-    {
-        return $this->sections;
-    }
-
-
-    /**
-     * Add InstanciasWorkflowValidatedLogistica1
-     *
-     * @param \Nononsense\HomeBundle\Entity\InstanciasWorkflows $instanciasWorkflowValidatedLogistica1
-     * @return Users
-     */
-    public function addInstanciasWorkflowValidatedLogistica1(\Nononsense\HomeBundle\Entity\InstanciasWorkflows $instanciasWorkflowValidatedLogistica1)
-    {
-        $this->InstanciasWorkflowValidatedLogistica1[] = $instanciasWorkflowValidatedLogistica1;
-
-        return $this;
-    }
-
-    /**
-     * Remove InstanciasWorkflowValidatedLogistica1
-     *
-     * @param \Nononsense\HomeBundle\Entity\InstanciasWorkflows $instanciasWorkflowValidatedLogistica1
-     */
-    public function removeInstanciasWorkflowValidatedLogistica1(\Nononsense\HomeBundle\Entity\InstanciasWorkflows $instanciasWorkflowValidatedLogistica1)
-    {
-        $this->InstanciasWorkflowValidatedLogistica1->removeElement($instanciasWorkflowValidatedLogistica1);
-    }
-
-    /**
-     * Get InstanciasWorkflowValidatedLogistica1
-     *
-     * @return \Doctrine\Common\Collections\Collection 
-     */
-    public function getInstanciasWorkflowValidatedLogistica1()
-    {
-        return $this->InstanciasWorkflowValidatedLogistica1;
-    }
-
-    /**
-     * Add InstanciasWorkflowColaboratedLogistica
-     *
-     * @param \Nononsense\HomeBundle\Entity\InstanciasWorkflows $instanciasWorkflowColaboratedLogistica
-     * @return Users
-     */
-    public function addInstanciasWorkflowColaboratedLogistica(\Nononsense\HomeBundle\Entity\InstanciasWorkflows $instanciasWorkflowColaboratedLogistica)
-    {
-        $this->InstanciasWorkflowColaboratedLogistica[] = $instanciasWorkflowColaboratedLogistica;
-
-        return $this;
-    }
-
-    /**
-     * Remove InstanciasWorkflowColaboratedLogistica
-     *
-     * @param \Nononsense\HomeBundle\Entity\InstanciasWorkflows $instanciasWorkflowColaboratedLogistica
-     */
-    public function removeInstanciasWorkflowColaboratedLogistica(\Nononsense\HomeBundle\Entity\InstanciasWorkflows $instanciasWorkflowColaboratedLogistica)
-    {
-        $this->InstanciasWorkflowColaboratedLogistica->removeElement($instanciasWorkflowColaboratedLogistica);
-    }
-
-    /**
-     * Get InstanciasWorkflowColaboratedLogistica
-     *
-     * @return \Doctrine\Common\Collections\Collection 
-     */
-    public function getInstanciasWorkflowColaboratedLogistica()
-    {
-        return $this->InstanciasWorkflowColaboratedLogistica;
-    }
-
-    /**
-     * Add InstanciasWorkflowValidatedLogistica
-     *
-     * @param \Nononsense\HomeBundle\Entity\InstanciasWorkflows $instanciasWorkflowValidatedLogistica
-     * @return Users
-     */
-    public function addInstanciasWorkflowValidatedLogistica(\Nononsense\HomeBundle\Entity\InstanciasWorkflows $instanciasWorkflowValidatedLogistica)
-    {
-        $this->InstanciasWorkflowValidatedLogistica[] = $instanciasWorkflowValidatedLogistica;
-
-        return $this;
-    }
-
-    /**
-     * Remove InstanciasWorkflowValidatedLogistica
-     *
-     * @param \Nononsense\HomeBundle\Entity\InstanciasWorkflows $instanciasWorkflowValidatedLogistica
-     */
-    public function removeInstanciasWorkflowValidatedLogistica(\Nononsense\HomeBundle\Entity\InstanciasWorkflows $instanciasWorkflowValidatedLogistica)
-    {
-        $this->InstanciasWorkflowValidatedLogistica->removeElement($instanciasWorkflowValidatedLogistica);
-    }
-
-    /**
-     * Get InstanciasWorkflowValidatedLogistica
-     *
-     * @return \Doctrine\Common\Collections\Collection 
-     */
-    public function getInstanciasWorkflowValidatedLogistica()
-    {
-        return $this->InstanciasWorkflowValidatedLogistica;
-    }
-
-
-
-    /**
      * Set deleted
      *
      * @param boolean $deleted
@@ -1315,105 +1021,6 @@ class Users implements AdvancedUserInterface, \Serializable
     public function getDeleted()
     {
         return $this->deleted;
-    }
-
-    /**
-     * Add Cancelaciones
-     *
-     * @param \Nononsense\HomeBundle\Entity\CancelacionStep $cancelaciones
-     * @return Users
-     */
-    public function addCancelacione(\Nononsense\HomeBundle\Entity\CancelacionStep $cancelaciones)
-    {
-        $this->Cancelaciones[] = $cancelaciones;
-
-        return $this;
-    }
-
-    /**
-     * Remove Cancelaciones
-     *
-     * @param \Nononsense\HomeBundle\Entity\CancelacionStep $cancelaciones
-     */
-    public function removeCancelacione(\Nononsense\HomeBundle\Entity\CancelacionStep $cancelaciones)
-    {
-        $this->Cancelaciones->removeElement($cancelaciones);
-    }
-
-    /**
-     * Get Cancelaciones
-     *
-     * @return \Doctrine\Common\Collections\Collection 
-     */
-    public function getCancelaciones()
-    {
-        return $this->Cancelaciones;
-    }
-
-    /**
-     * Add Evidencias
-     *
-     * @param \Nononsense\HomeBundle\Entity\EvidenciasStep $evidencias
-     * @return Users
-     */
-    public function addEvidencia(\Nononsense\HomeBundle\Entity\EvidenciasStep $evidencias)
-    {
-        $this->Evidencias[] = $evidencias;
-
-        return $this;
-    }
-
-    /**
-     * Remove Evidencias
-     *
-     * @param \Nononsense\HomeBundle\Entity\EvidenciasStep $evidencias
-     */
-    public function removeEvidencia(\Nononsense\HomeBundle\Entity\EvidenciasStep $evidencias)
-    {
-        $this->Evidencias->removeElement($evidencias);
-    }
-
-    /**
-     * Get Evidencias
-     *
-     * @return \Doctrine\Common\Collections\Collection 
-     */
-    public function getEvidencias()
-    {
-        return $this->Evidencias;
-    }
-
-    /**
-     * Add Firmas
-     *
-     * @param \Nononsense\HomeBundle\Entity\FirmasStep $firmas
-     * @return Users
-     */
-    public function addFirma(\Nononsense\HomeBundle\Entity\FirmasStep $firmas)
-    {
-        $this->Firmas[] = $firmas;
-
-        return $this;
-    }
-
-    /**
-     * Remove Firmas
-     *
-     * @param \Nononsense\HomeBundle\Entity\FirmasStep $firmas
-     */
-    public function removeFirma(\Nononsense\HomeBundle\Entity\FirmasStep $firmas)
-    {
-        $this->Firmas->removeElement($firmas);
-    }
-
-    /**
-     * Get Firmas
-     *
-     * @return \Doctrine\Common\Collections\Collection 
-     */
-    public function getFirmas()
-    {
-        return $this->Firmas;
     }
 
     /**
@@ -1546,105 +1153,6 @@ class Users implements AdvancedUserInterface, \Serializable
     public function getRecordsSignatures()
     {
         return $this->recordsSignatures;
-    }
-
-    /**
-     * Add Activity
-     *
-     * @param \Nononsense\HomeBundle\Entity\ActivityUser $activity
-     * @return Users
-     */
-    public function addActivity(\Nononsense\HomeBundle\Entity\ActivityUser $activity)
-    {
-        $this->Activity[] = $activity;
-
-        return $this;
-    }
-
-    /**
-     * Remove Activity
-     *
-     * @param \Nononsense\HomeBundle\Entity\ActivityUser $activity
-     */
-    public function removeActivity(\Nononsense\HomeBundle\Entity\ActivityUser $activity)
-    {
-        $this->Activity->removeElement($activity);
-    }
-
-    /**
-     * Get Activity
-     *
-     * @return \Doctrine\Common\Collections\Collection 
-     */
-    public function getActivity()
-    {
-        return $this->Activity;
-    }
-
-    /**
-     * Add Reconciliaciones
-     *
-     * @param \Nononsense\HomeBundle\Entity\ReconciliacionRegistro $reconciliaciones
-     * @return Users
-     */
-    public function addReconciliacione(\Nononsense\HomeBundle\Entity\ReconciliacionRegistro $reconciliaciones)
-    {
-        $this->Reconciliaciones[] = $reconciliaciones;
-
-        return $this;
-    }
-
-    /**
-     * Remove Reconciliaciones
-     *
-     * @param \Nononsense\HomeBundle\Entity\ReconciliacionRegistro $reconciliaciones
-     */
-    public function removeReconciliacione(\Nononsense\HomeBundle\Entity\ReconciliacionRegistro $reconciliaciones)
-    {
-        $this->Reconciliaciones->removeElement($reconciliaciones);
-    }
-
-    /**
-     * Get Reconciliaciones
-     *
-     * @return \Doctrine\Common\Collections\Collection 
-     */
-    public function getReconciliaciones()
-    {
-        return $this->Reconciliaciones;
-    }
-
-    /**
-     * Add ReconciliacionesValidations
-     *
-     * @param \Nononsense\HomeBundle\Entity\ReconciliacionRegistro $reconciliacionesValidations
-     * @return Users
-     */
-    public function addReconciliacionesValidation(\Nononsense\HomeBundle\Entity\ReconciliacionRegistro $reconciliacionesValidations)
-    {
-        $this->ReconciliacionesValidations[] = $reconciliacionesValidations;
-
-        return $this;
-    }
-
-    /**
-     * Remove ReconciliacionesValidations
-     *
-     * @param \Nononsense\HomeBundle\Entity\ReconciliacionRegistro $reconciliacionesValidations
-     */
-    public function removeReconciliacionesValidation(\Nononsense\HomeBundle\Entity\ReconciliacionRegistro $reconciliacionesValidations)
-    {
-        $this->ReconciliacionesValidations->removeElement($reconciliacionesValidations);
-    }
-
-    /**
-     * Get ReconciliacionesValidations
-     *
-     * @return \Doctrine\Common\Collections\Collection 
-     */
-    public function getReconciliacionesValidations()
-    {
-        return $this->ReconciliacionesValidations;
     }
 
     /**
@@ -2276,39 +1784,6 @@ class Users implements AdvancedUserInterface, \Serializable
     }
 
     /**
-     * Add rcSignatures
-     *
-     * @param \Nononsense\HomeBundle\Entity\RCSignatures $rcSignatures
-     * @return Users
-     */
-    public function addRcSignature(\Nononsense\HomeBundle\Entity\RCSignatures $rcSignatures)
-    {
-        $this->rcSignatures[] = $rcSignatures;
-
-        return $this;
-    }
-
-    /**
-     * Remove rcSignatures
-     *
-     * @param \Nononsense\HomeBundle\Entity\RCSignatures $rcSignatures
-     */
-    public function removeRcSignature(\Nononsense\HomeBundle\Entity\RCSignatures $rcSignatures)
-    {
-        $this->rcSignatures->removeElement($rcSignatures);
-    }
-
-    /**
-     * Get rcSignatures
-     *
-     * @return \Doctrine\Common\Collections\Collection
-     */
-    public function getRcSignatures()
-    {
-        return $this->rcSignatures;
-    }
-
-    /**
      * Set mudId
      *
      * @param string $mudId
@@ -2355,6 +1830,16 @@ class Users implements AdvancedUserInterface, \Serializable
     }
 
     /**
+<<<<<<< HEAD
+     * Add cvWorkflows
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVWorkflow $cvWorkflows
+     * @return Users
+     */
+    public function addCvWorkflow(\Nononsense\HomeBundle\Entity\CVWorkflow $cvWorkflows)
+    {
+        $this->cvWorkflows[] = $cvWorkflows;
+=======
      * Set activeDirectory
      *
      * @param boolean $activeDirectory
@@ -2363,11 +1848,394 @@ class Users implements AdvancedUserInterface, \Serializable
     public function setActiveDirectory($activeDirectory)
     {
         $this->activeDirectory = $activeDirectory;
+>>>>>>> hide_options
 
         return $this;
     }
 
     /**
+<<<<<<< HEAD
+     * Remove cvWorkflows
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVWorkflow $cvWorkflows
+     */
+    public function removeCvWorkflow(\Nononsense\HomeBundle\Entity\CVWorkflow $cvWorkflows)
+    {
+        $this->cvWorkflows->removeElement($cvWorkflows);
+    }
+
+    /**
+     * Get cvWorkflows
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getCvWorkflows()
+    {
+        return $this->cvWorkflows;
+    }
+
+    /**
+     * Add cvSignatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVSignatures $cvSignatures
+     * @return Users
+     */
+    public function addCvSignature(\Nononsense\HomeBundle\Entity\CVSignatures $cvSignatures)
+    {
+        $this->cvSignatures[] = $cvSignatures;
+
+        return $this;
+    }
+
+    /**
+     * Remove cvSignatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVSignatures $cvSignatures
+     */
+    public function removeCvSignature(\Nononsense\HomeBundle\Entity\CVSignatures $cvSignatures)
+    {
+        $this->cvSignatures->removeElement($cvSignatures);
+    }
+
+    /**
+     * Get cvSignatures
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getCvSignatures()
+    {
+        return $this->cvSignatures;
+    }
+
+    /**
+     * Add cvRecords
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVRecords $cvRecords
+     * @return Users
+     */
+    public function addCvRecord(\Nononsense\HomeBundle\Entity\CVRecords $cvRecords)
+    {
+        $this->cvRecords[] = $cvRecords;
+
+        return $this;
+    }
+
+    /**
+     * Remove cvRecords
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVRecords $cvRecords
+     */
+    public function removeCvRecord(\Nononsense\HomeBundle\Entity\CVRecords $cvRecords)
+    {
+        $this->cvRecords->removeElement($cvRecords);
+    }
+
+    /**
+     * Get cvRecords
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getCvRecords()
+    {
+        return $this->cvRecords;
+    }
+
+    /**
+     * Add cvRecordsGxP
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVRecords $cvRecordsGxP
+     * @return Users
+     */
+    public function addCvRecordsGxP(\Nononsense\HomeBundle\Entity\CVRecords $cvRecordsGxP)
+    {
+        $this->cvRecordsGxP[] = $cvRecordsGxP;
+
+        return $this;
+    }
+
+    /**
+     * Remove cvRecordsGxP
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVRecords $cvRecordsGxP
+     */
+    public function removeCvRecordsGxP(\Nononsense\HomeBundle\Entity\CVRecords $cvRecordsGxP)
+    {
+        $this->cvRecordsGxP->removeElement($cvRecordsGxP);
+    }
+
+    /**
+     * Get cvRecordsGxP
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getCvRecordsGxP()
+    {
+        return $this->cvRecordsGxP;
+    }
+
+    /**
+     * Add areas
+     *
+     * @param \Nononsense\HomeBundle\Entity\Areas $areas
+     * @return Users
+     */
+    public function addArea(\Nononsense\HomeBundle\Entity\Areas $areas)
+    {
+        $this->areas[] = $areas;
+
+        return $this;
+    }
+
+    /**
+     * Remove areas
+     *
+     * @param \Nononsense\HomeBundle\Entity\Areas $areas
+     */
+    public function removeArea(\Nononsense\HomeBundle\Entity\Areas $areas)
+    {
+        $this->areas->removeElement($areas);
+    }
+
+    /**
+     * Get areas
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getAreas()
+    {
+        return $this->areas;
+    }
+
+    /**
+     * Add cvSecondWorkflows
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVSecondWorkflow $cvSecondWorkflows
+     * @return Users
+     */
+    public function addCvSecondWorkflow(\Nononsense\HomeBundle\Entity\CVSecondWorkflow $cvSecondWorkflows)
+    {
+        $this->cvSecondWorkflows[] = $cvSecondWorkflows;
+
+        return $this;
+    }
+
+    /**
+     * Remove cvSecondWorkflows
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVSecondWorkflow $cvSecondWorkflows
+     */
+    public function removeCvSecondWorkflow(\Nononsense\HomeBundle\Entity\CVSecondWorkflow $cvSecondWorkflows)
+    {
+        $this->cvSecondWorkflows->removeElement($cvSecondWorkflows);
+    }
+
+    /**
+     * Get cvSecondWorkflows
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getCvSecondWorkflows()
+    {
+        return $this->cvSecondWorkflows;
+    }
+
+    /**
+     * Add cvRecordsOpen
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVRecords $cvRecordsOpen
+     * @return Users
+     */
+    public function addCvRecordsOpen(\Nononsense\HomeBundle\Entity\CVRecords $cvRecordsOpen)
+    {
+        $this->cvRecordsOpen[] = $cvRecordsOpen;
+
+        return $this;
+    }
+
+    /**
+     * Remove cvRecordsOpen
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVRecords $cvRecordsOpen
+     */
+    public function removeCvRecordsOpen(\Nononsense\HomeBundle\Entity\CVRecords $cvRecordsOpen)
+    {
+        $this->cvRecordsOpen->removeElement($cvRecordsOpen);
+    }
+
+    /**
+     * Get cvRecordsOpen
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getCvRecordsOpen()
+    {
+        return $this->cvRecordsOpen;
+    }
+
+    /**
+     * Add delegationsusers
+     *
+     * @param \Nononsense\HomeBundle\Entity\Delegations $delegationsusers
+     * @return Users
+     */
+    public function addDelegationsuser(\Nononsense\HomeBundle\Entity\Delegations $delegationsusers)
+    {
+        $this->delegationsusers[] = $delegationsusers;
+
+        return $this;
+    }
+
+    /**
+     * Remove delegationsusers
+     *
+     * @param \Nononsense\HomeBundle\Entity\Delegations $delegationsusers
+     */
+    public function removeDelegationsuser(\Nononsense\HomeBundle\Entity\Delegations $delegationsusers)
+    {
+        $this->delegationsusers->removeElement($delegationsusers);
+    }
+
+    /**
+     * Get delegationsusers
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getDelegationsusers()
+    {
+        return $this->delegationsusers;
+    }
+
+    /**
+     * Add delegationssustitutes
+     *
+     * @param \Nononsense\HomeBundle\Entity\Delegations $delegationssustitutes
+     * @return Users
+     */
+    public function addDelegationssustitute(\Nononsense\HomeBundle\Entity\Delegations $delegationssustitutes)
+    {
+        $this->delegationssustitutes[] = $delegationssustitutes;
+
+        return $this;
+    }
+
+    /**
+     * Remove delegationssustitutes
+     *
+     * @param \Nononsense\HomeBundle\Entity\Delegations $delegationssustitutes
+     */
+    public function removeDelegationssustitute(\Nononsense\HomeBundle\Entity\Delegations $delegationssustitutes)
+    {
+        $this->delegationssustitutes->removeElement($delegationssustitutes);
+    }
+
+    /**
+     * Get delegationssustitutes
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getDelegationssustitutes()
+    {
+        return $this->delegationssustitutes;
+    }
+
+    /**
+     * Add notificationsModels
+     *
+     * @param \Nononsense\NotificationsBundle\Entity\NotificationsModels $notificationsModels
+     * @return Users
+     */
+    public function addNotificationsModel(\Nononsense\NotificationsBundle\Entity\NotificationsModels $notificationsModels)
+    {
+        $this->notificationsModels[] = $notificationsModels;
+
+        return $this;
+    }
+
+    /**
+     * Remove notificationsModels
+     *
+     * @param \Nononsense\NotificationsBundle\Entity\NotificationsModels $notificationsModels
+     */
+    public function removeNotificationsModel(\Nononsense\NotificationsBundle\Entity\NotificationsModels $notificationsModels)
+    {
+        $this->notificationsModels->removeElement($notificationsModels);
+    }
+
+    /**
+     * Get notificationsModels
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getNotificationsModels()
+    {
+        return $this->notificationsModels;
+    }
+
+    /**
+     * Add retentionSignatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\RetentionSignatures $retentionSignatures
+     * @return Users
+     */
+    public function addRetentionSignature(\Nononsense\HomeBundle\Entity\RetentionSignatures $retentionSignatures)
+    {
+        $this->retentionSignatures[] = $retentionSignatures;
+
+        return $this;
+    }
+
+    /**
+     * Remove retentionSignatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\RetentionSignatures $retentionSignatures
+     */
+    public function removeRetentionSignature(\Nononsense\HomeBundle\Entity\RetentionSignatures $retentionSignatures)
+    {
+        $this->retentionSignatures->removeElement($retentionSignatures);
+    }
+
+    /**
+     * Get retentionSignatures
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getRetentionSignatures()
+    {
+        return $this->retentionSignatures;
+    }
+
+    /**
+     * Add groupsSignatures
+     *
+     * @param \Nononsense\GroupBundle\Entity\GroupsSignatures $groupsSignatures
+     * @return Users
+     */
+    public function addGroupsSignature(\Nononsense\GroupBundle\Entity\GroupsSignatures $groupsSignatures)
+    {
+        $this->groupsSignatures[] = $groupsSignatures;
+
+        return $this;
+    }
+
+    /**
+     * Remove groupsSignatures
+     *
+     * @param \Nononsense\GroupBundle\Entity\GroupsSignatures $groupsSignatures
+     */
+    public function removeGroupsSignature(\Nononsense\GroupBundle\Entity\GroupsSignatures $groupsSignatures)
+    {
+        $this->groupsSignatures->removeElement($groupsSignatures);
+    }
+
+    /**
+     * Get groupsSignatures
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getGroupsSignatures()
+    {
+        return $this->groupsSignatures;
+=======
      * Get activeDirectory
      *
      * @return boolean 
@@ -2375,6 +2243,7 @@ class Users implements AdvancedUserInterface, \Serializable
     public function getActiveDirectory()
     {
         return $this->activeDirectory;
+>>>>>>> hide_options
     }
 
     /**

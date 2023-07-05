@@ -193,31 +193,37 @@
         {{ flashMessage }}
     </div>
     {% endfor %}
+    {% for flashMessage in app.session.flashbag.get('message') %}
+        <div class="alert alert-success alert-dismissable" style="margin: 10px 16px 0 16px">
+            <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+            {{ flashMessage }}
+        </div><br>
+    {% endfor %}
     <div class="row">
         <div class="col-sm-12">
             <div class="row wrapper-blocks wrapper-blocks-home">
-                {# <div class="col-sm-3 block-wrapper">
+                <div class="col-sm-3 block-wrapper">
                     <div class="block-content" style="text-align: -webkit-center;">
-                        <h3 class="title-block"><a class="iframe" href="{{path('nononsense_nuevo_contrato')}}">{{'Nuevo registro'|trans}}</a></h3>
-                        <a class="iframe" href="{{path('nononsense_nuevo_contrato')}}"><img
+                        <h3 class="title-block"><a class="iframe" href="{{path('nononsense_tm_templates')}}?state=6">{{'Nuevo registro'|trans}}</a></h3>
+                        <a class="iframe" href="{{path('nononsense_tm_templates')}}?state=6"><img
                                 src="/img/icono-edit.png"/></a>
-                        <a class="btn btn-primary" href="{{path('nononsense_nuevo_contrato')}}">{{'Empezar'|trans}}</a>
+                        <a class="btn btn-primary" href="{{path('nononsense_tm_templates')}}?state=6">{{'Empezar'|trans}}</a>
                     </div>
                 </div>
                 <div class="col-sm-3 block-wrapper" style="text-align: -webkit-center;">
                     <div class="block-content">
-                        <h3 class="title-block"><a href="{{path('nononsense_search')}}">Buscador</a></h3>
-                        <a href="{{path('nononsense_search')}}"><img src="/img/icono-search.png"/></a>
-                        <a class="btn btn-primary" href="{{path('nononsense_search')}}">Buscar registros</a>
+                        <h3 class="title-block"><a href="{{path('nononsense_cv_search')}}">Buscador</a></h3>
+                        <a href="{{path('nononsense_cv_search')}}"><img src="/img/icono-search.png"/></a>
+                        <a class="btn btn-primary" href="{{path('nononsense_cv_search')}}">Buscar registros</a>
                     </div>
                 </div>
                 <div class="col-sm-3 block-wrapper">
                     <div class="block-content" style="text-align: -webkit-center;">
-                        <h3 class="title-block"><a href="{{path('nononsense_search')}}?pending_for_me=1">{{'En proceso'|trans}}</a></h3>
-                        <a href="{{path('nononsense_search')}}?pending_for_me=1"><img src="/img/icono-archivo.png"/></a>
-                        <a class="btn btn-primary" href="{{path('nononsense_search')}}?pending_for_me=1">{{'Continuar'|trans}}</a>
+                        <h3 class="title-block"><a href="{{path('nononsense_cv_search')}}?pending_for_me=1">{{'En proceso'|trans}}</a></h3>
+                        <a href="{{path('nononsense_cv_search')}}?pending_for_me=1"><img src="/img/icono-archivo.png"/></a>
+                        <a class="btn btn-primary" href="{{path('nononsense_cv_search')}}?pending_for_me=1">{{'Continuar'|trans}}</a>
                     </div>
-                </div> #}
+                </div>
             </div>
         </div>
     </div>

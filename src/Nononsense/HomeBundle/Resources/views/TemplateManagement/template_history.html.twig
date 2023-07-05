@@ -57,8 +57,8 @@
                                 </ul>
                             </div>
                         </td>
-                        <td>{{template.effectiveDate is defined and template.effectiveDate is not null ? template.effectiveDate|date("d/m/Y") : ''}}</td>
-                        <td>{{templates[(key+1)].effectiveDate is defined and templates[(key+1)].effectiveDate is not null ? templates[(key+1)].effectiveDate|date("d/m/Y") : ''}}</td>
+                        <td>{{template.effectiveDate is defined and template.effectiveDate is not null ? template.effectiveDate|date("d/m/Y")|gskdate : ''}}</td>
+                        <td>{{templates[(key+1)].effectiveDate is defined and templates[(key+1)].effectiveDate is not null ? templates[(key+1)].effectiveDate|date("d/m/Y")|gskdate : ''}}</td>
                         <td></td>
                         
                     </tr>

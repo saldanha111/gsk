@@ -1,0 +1,362 @@
+{% extends '::base.html.twig' %}
+{% if filters.gxp is defined and filters.gxp=="1" %}
+    {% set title_search = 'Listado de modificaciones de un dato GxP' %}
+{% elseif filters.blocked is defined and filters.blocked=="1" %}
+    {% set title_search = 'Listado de registros bloqueados' %}
+{% else %}
+    {% set title_search = 'Listado de registros' %}
+{% endif %}
+
+
+{% block page_title %}Docoaro - GSK | {{title_search}} {% endblock %}
+{% block head %}
+{{ parent() }}
+<link rel="stylesheet" href="/css/plugins/datapicker/datepicker3.css">
+{% endblock %}
+{% block main_title %} {{title_search}}{% endblock %}
+{% block content %}
+
+<div class="wrapper wrapper-content">
+    {% for flashMessage in app.session.flashbag.get('error') %}
+    <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+        <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+        {{ flashMessage }}
+    </div><br>
+    {% endfor %}
+    {% for flashMessage in app.session.flashbag.get('success') %}
+    <div class="alert alert-success alert-dismissable" style="margin: 10px 16px 0 16px">
+        <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+        {{ flashMessage }}
+    </div><br>
+    {% endfor %}
+    <div class="row">
+        <div class="col-sm-12">
+            <div>
+                <div class="row">
+                    <form class="form-horizontal" id="form_item" action="{{ path('nononsense_cv_search')}}" method="GET">
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">Contenido</label>
+                            <div class="col-sm-9 item_filter">
+                                <input type="text" name="content" class="form-control" value="{{filters.content is defined ? filters.content : ''}}">
+                            </div>
+
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">ID</label>
+                            <div class="col-sm-1 item_filter">
+                                <input type="number" name="id" class="form-control" value="{{filters.id is defined ? filters.id : ''}}">
+                            </div>
+
+                            <label class="col-sm-2 control-label">Identificador Plantilla</label>
+                            <div class="col-sm-1 item_filter">
+                                <input type="number" name="plantilla_id" class="form-control" value="{{filters.plantilla_id is defined ? filters.plantilla_id : ''}}">
+                            </div>
+
+                            <label class="col-sm-1 control-label">Nombre</label>
+                            <div class="col-sm-2 item_filter">
+                                <input type="text" name="name" class="form-control" value="{{filters.name is defined ? filters.name : ''}}">
+                            </div>
+
+                            <label class="col-sm-1 control-label">Usuario</label>
+                            <div class="col-sm-2 item_filter">
+                                <input type="text" name="creator" class="form-control" value="{{filters.creator is defined ? filters.creator : ''}}">
+                            </div>
+                        </div>
+                        <div class="form-group">
+
+                            <label class="col-sm-1 control-label">Fecha</label>
+                            <div class="col-sm-1 item_filter">
+                                <input type="text" class="form-control pull-right" autocomplete="off" name="from" id="from" value="{{filters.from is defined ? filters.from|date("Y-m-d") : ''}}">
+                            </div>
+
+                            <div class="col-sm-1">
+                                <input type="text" class="form-control pull-right" autocomplete="off" name="until" id="until" value="{{filters.until is defined ? filters.until|date("Y-m-d") : ''}}">
+                            </div>
+
+                            <label class="col-sm-1 control-label">Estado</label>
+                            <div class="col-sm-2 item_filter">
+                                <select class="form-control" style="width: 100%;" name="status">
+                                    <option value=""></option>
+                                    {% for state in states %}
+                                        <option value="{{state.id}}" {{filters.status is defined and filters.status == state.id ? 'selected="selected"' : ''}}>{{state.name}}</option>
+                                    {% endfor %}
+                                    <option value="-1" {{filters.status is defined and filters.status == -1 ? 'selected="selected"'}}>Reconciliado</option>
+                                    <option value="-2" {{filters.status is defined and filters.status == -2 ? 'selected="selected"'}}>Con devolución</option>
+                                    <option value="-3"  {{filters.status is defined and filters.status == -3 ? 'selected="selected"'}}>En proceso</option>
+                                    <option value="-4"  {{filters.status is defined and filters.status == -4 ? 'selected="selected"'}}>En edición</option>
+                                    <option value="-5"  {{filters.status is defined and filters.status == -5 ? 'selected="selected"'}}>Finalizado</option>
+                                  </select>
+                            </div>
+
+                            <label class="col-sm-1 control-label">Área</label>
+                            <div class="col-sm-1 item_filter">
+                                <select class="form-control" name="area" style="width: 100%;">
+                                    <option value=""></option>
+                                    {% for area in areas %}
+                                        <option value="{{area.id}}" {{filters.area is defined and filters.area==area.id ? 'selected="selected"'}}>{{area.name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="col-sm-2">
+                              <div class="checkbox">
+                                <label>
+                                  <input name="pending_for_me" value="1" type="checkbox" {% if filters.pending_for_me is defined and  filters.pending_for_me == true %} checked="checked" {% endif %}> Mis Registros Pendientes
+                                </label>
+                              </div>
+                            </div>
+                            
+                            
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">Variable</label>
+                            <div class="col-sm-2 item_filter">
+                                <input type="text" name="var" class="form-control" value="{{filters.var is defined ? filters.var : ''}}">
+                            </div>
+
+                            <label class="col-sm-1 control-label">Valor</label>
+                            <div class="col-sm-2 item_filter">
+                                <input type="text" name="value" class="form-control" value="{{filters.value is defined ? filters.value : ''}}">
+                            </div>
+
+                            <div class="col-sm-offset-1 col-sm-1">
+                                <button type="submit" class="btn btn-primary pull-right">Filtrar</button>
+                            </div>
+                        </div>
+
+                        <input type="hidden" name="gxp" value="{{filters.gxp is defined and filters.gxp == 1 ? '1' : ''}}">
+                        <input type="hidden" name="blocked" value="{{filters.blocked is defined and filters.blocked == 1 ? '1' : ''}}">
+                      </form>
+                </div>
+                <div class="row">
+                    <table id="inProcessParcial" class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>Nº</th>
+                            <th></th>
+                            <th>Plantilla</th>
+                            <th>Área</th>
+                            <th>Iniciado por</th>
+                            <th>Fecha inicio</th>
+                            <th>Última modificación</th>
+                            <th>Estado</th>
+                            <th>Acción</th>
+                            <th>Audit Trail</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        {% if items is defined %}
+                            {% for item in items %}
+                            <tr>
+
+                                <td>
+                                    {% if item.firstNestedId is not defined or item.firstNestedId is empty %}
+                                        <a class="btn btn-xs btn-primary" href="{{ path('nononsense_cv_search')}}?nested_history={{item.id }}">#{{ item.id }}</a>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if item.firstNestedId is defined and item.firstNestedId is not empty %}
+                                        <a class="btn btn-xs btn-primary" href="{{ path('nononsense_cv_search')}}?nested_history={{ item.firstNestedId }}"><i class="fa fa-chevron-right" aria-hidden="true"></i> #{{ item.id }}</a>
+                                    {% endif %}
+                                </td>
+                                <td>{{item.name}}</td>
+                                <td>{{item.area}}</td>
+                                <td>{{item.creator}}</td>
+                                <td>{{ item.created is defined ? item.created|date("d/m/Y H:i:s")|gskdate : '' }}</td>
+                                <td>{{ item.modified is defined ? item.modified|date("d/m/Y H:i:s")|gskdate : '' }}</td>
+                                <td>{{ item.reconId is defined and item.reconId is not empty ? item.stateReconc : item.state }}</td>
+                                <td>
+                                    {% if item.inEdition is defined and item.inEdition == true %}
+                                        <a class="btn btn-xs btn-secondary not-allowed"><i class="fa fa-lock"> </i> {{'En edicion'|trans}}</a>
+                                    {% else %}
+                                        {% if item.pendingAction is defined and item.pendingAction is not empty  and item.version is not empty %}
+                                            {% if item.idNextSigner is defined  and suser.id==item.idNextSigner and item.requireAction %}
+                                                <a class="btn btn-xs btn-danger" href="{{path('nononsense_cv_record', {'id': item.id})}}" target="_self"><i class="fa fa-pencil" aria-hidden="true"></i> {{'Firmar'|trans}} {{item.pendingAction}}</a>
+                                            {% else %}
+                                                <a href="#" class="btn btn-xs btn-warning disabled"><i class="fa fa-pencil" aria-hidden="true"></i> Pendiente firmar {{item.pendingAction}}</a>
+                                            {% endif %}
+                                        {% else %}
+                                            {% if not item.finalState %}
+                                                {% if item.canBeOpenedState %}
+                                                    {% if item.requireAction %}
+                                                        {% if item.reconId is defined and item.reconId is not empty %}
+                                                            {% set caption_btn = item.alternativeStateReconc %}
+                                                        {% else %}
+                                                            {% set caption_btn = item.alternativeState %}
+                                                        {% endif %}
+
+                                                        {% if item.observer %}
+                                                            {% set caption_btn = "Observar" %}
+                                                        {% endif %}
+
+                                                        <a class="btn btn-xs {{item.colorState}}" {{ item.type_id is defined and item.type_id==1 and item.logbook and item.creator is not empty  ? 'name=completarregistro data-template='~item.id~' data-loogbook=1' : 'href='~path('nononsense_cv_docoaro_new', {'id': item.id})~' target=_self' }}><i class="{{item.iconState}}" aria-hidden="true"></i> {{ caption_btn }}</a>  
+                                                    {% else %}
+                                                        <a href="#" class="btn btn-xs btn-warning disabled"><i class="fa fa-pencil" aria-hidden="true"></i> Pendiente </a>
+                                                    {% endif %}
+                                                {% else %}
+                                                    <a  name="verRegistro" href="#" class="btn btn-xs {{item.colorState}}"><i class="{{item.iconState}}" aria-hidden="true"></i> {{item.state}}</a>
+                                                {% endif %}
+                                            {% else %}
+                                                <a  href="{{path('nononsense_cv_docoaro_new', {'id': item.id})}}" target="_blank" class="btn btn-xs {{item.colorState}}"><i class="{{item.iconState}}" aria-hidden="true"></i> {{ item.reconId is defined and item.reconId is not empty ? item.alternativeStateReconc : item.alternativeState }}</a>
+                                                <a  href="{{path('nononsense_cv_docoaro_new', {'id': item.id})}}?pdf=1" target="_blank" class="btn btn-xs btn-danger"><i class="fa fa-file-pdf-o" aria-hidden="true"></i> PDF</a>
+                                            {% endif %}
+                                        {% endif %}
+                                        {% if item.reconId is not empty and item.reconId is defined %}
+                                            <a class="btn btn-xs btn-primary" href="{{path('nononsense_reconciliation_detail', {'id': item.id})}}" target="_self"><i class="fa fa-link" aria-hidden="true"></i> Ver reconciliado</a>
+                                        {% endif %}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if item.finalState %}
+                                        <a class="btn btn-xs btn-info" href="{{path('nononsense_cv_record_audittrail', {'id': item.id})}}" target="_self"><i class="fa fa-book" aria-hidden="true"></i> Audit Trail</a>
+                                        <a class="btn btn-xs btn-danger" href="{{path('nononsense_cv_record_audittrail', {'id': item.id})}}?pdf=1" target="_self"><i class="fa fa-file-pdf-o" aria-hidden="true"></i> PDF</a>
+                                    {% endif %} 
+                                </td>
+                                <td>
+                                {% if item.finalState and (item.state_id==7 or item.state_id==8) and (filters.blocked is not defined or filters.blocked is empty) %}
+                                    {% if item.usergxp is empty and item.lastAction!=18 and item.lastActionUnsigned!=18 %}
+                                        <a class="btn btn-xs btn-default" href="{{path('nononsense_request_modification_gxp', {'id': item.id})}}" target="_self"><i class="fa fa-pencil-square" aria-hidden="true"></i> {{ 'Solicitar modificación'|trans }}</a>
+                                    {% else %}
+                                        {% if filters.gxp is defined and filters.gxp is not empty %}
+                                            {% if item.allow_gxp %} 
+                                                <a class="btn btn-xs btn-danger" href="{{path('nononsense_request_view_gxp', {'id': item.id})}}" target="_self"><i class="fa fa-check" aria-hidden="true"></i> {{'Aprobar'|trans}} modificación GxP</a>
+                                            {% elseif item.usergxp is not empty %}
+                                                <a class="btn btn-xs btn-warning disabled"><i class="fa fa-paper-plane" aria-hidden="true"></i> {{ 'Modificación solicitada'|trans }}</a>
+                                            {% endif %}
+                                        {% endif %}
+                                    {% endif %} 
+                                {% endif %}
+
+                                {% if filters.blocked is defined and filters.blocked is not empty %}
+                                    {% if item.allow_blocked %} 
+                                        <a class="btn btn-xs btn-danger" href="{{path('nononsense_request_view_standby', {'id': item.id})}}" target="_self"><i class="fa fa-unlock" aria-hidden="true"></i> {{'Desbloquear'|trans}}</a>
+                                    {% else %}
+                                        <a class="btn btn-xs btn-warning disabled"><i class="fa fa-lock" aria-hidden="true"></i> {{ 'Pendiente de desbloqueo'|trans }}</a>
+                                    {% endif %}
+
+                                    {% if item.ecoNextOnStandBy is defined and item.ecoNextOnStandBy is not empty %}
+                                        <span class="btn btn-xs btn-danger disabled">Requiere ECO!</span>
+                                    {% endif %}
+                                    {% if item.reconId is defined and item.reconId is not empty %}
+                                        <span class="btn btn-xs btn-info disabled"><i class="fa fa-info" aria-hidden="true"></i> Reconciliación</span>
+                                    {% endif %}
+                                {% endif %}
+                                
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% endif %}
+                    </table>
+
+                    
+                    {% if pagination is defined and pagination.needed %}
+                        {% include '::pagination2.html.twig' %}
+                    {% endif %}
+                    <a href="{{pagination.url}}{{pagination.character}}export_excel=1" target="_blank" class="btn btn-primary pull-right"><i class="fa fa-file-excel-o" aria-hidden="true"></i> Excel</a> 
+                    <a href="{{pagination.url}}{{pagination.character}}export_pdf=1" target="_blank" class="btn btn-primary pull-right" style="margin-right:1px"><i class="fa fa-file-pdf-o" aria-hidden="true"></i> PDF</a> 
+                    
+                    {% if count==0 %}
+                        <br><b>No se han encontrado datos disponibles</b>
+                    {% endif %}
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div style="display: none">
+    <form id="createRegistro" action="{{path('nononsense_cv_docoaro_new', {'id': 0})}}">
+        <input type="hidden" name="registroidForm" id="registroidForm">
+        <input type="hidden" name="logbook" id="logbookForm">
+    </form>
+</div>
+<div class="modal" id="editModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <h4>Número de registros del logbook </h4>
+                <p>Introduzca el número de registros anteriores que quiere ver en el logbook</p>
+                <p>
+                    Nombre: <input id="logbook" name="logbook" type="number"
+                                   min="0"
+                                   max="10"
+                                   step="1"
+                                   value=""
+                                   class="form-control"></br>
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" id="editBtnNo"
+                        data-dismiss="modal">
+                    <i class="fa fa-ban" aria-hidden="true"></i> Cancelar
+                </button>
+                <a
+                        class="btn btn-success" id="editBtnYes"
+                        data-dismiss="modal">
+                    <i class="fa fa-paper-plane" aria-hidden="true"></i>
+                    Aceptar
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+{{ parent() }}
+<script src="/js/plugins/datapicker/bootstrap-datepicker.js"></script>
+<script src="/js/plugins/datapicker/locales/bootstrap-datepicker.es.js" charset="UTF-8"></script>
+<script>
+  $(function () {
+    $('#from').datepicker({
+      autoclose: true,
+      orientation: 'bottom auto',
+      format: 'yyyy-mm-dd',
+      language: 'es'
+    });
+    $('#until').datepicker({
+      autoclose: true,
+      orientation: 'bottom auto',
+      format: 'yyyy-mm-dd',
+      language: 'es'
+    });
+
+    $('#factBtnNo').click(function () {
+        $("#factModal").hide();
+
+    });
+
+    $('[name="completarregistro"]').click(function () {
+        $('#registroidForm').val($(this).attr('data-template'));
+        $("#editModal").show();
+    });
+
+    $('#editBtnNo').click(function () {
+        $("#editModal").hide();
+
+    });
+
+    $('#editBtnYes').click(function () {
+        url="{{ path('nononsense_cv_docoaro_new', {'id': 'value_id'}) }}?logbook="+$("#logbook").val();
+        url=url.replace("value_id", $("#registroidForm").val());
+
+        location.href=url;
+    });
+
+    {% if filters.status is defined and filters.status=="-5" %}
+    ActivateMenu('docxpresso_archivo');
+    {% elseif filters.pending_for_me is defined and filters.pending_for_me=="1" %}
+        ActivateMenu('docxpresso_proceso');
+    {% elseif filters.gxp is defined and filters.gxp=="1" %}
+        ActivateMenu('docxpresso_gxp');
+    {% elseif filters.blocked is defined and filters.blocked=="1" %}
+        ActivateMenu('docxpresso_standby');
+    {% else %}
+        ActivateMenu('docxpresso_search');
+    {% endif %}
+
+    
+    $('#side-menu').metisMenu();
+  });
+</script>
+{% endblock %}

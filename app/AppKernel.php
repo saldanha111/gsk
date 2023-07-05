@@ -19,10 +19,8 @@ class AppKernel extends Kernel
             new Nononsense\UserBundle\NononsenseUserBundle(),
             new Nononsense\GroupBundle\NononsenseGroupBundle(),
             new Nononsense\HomeBundle\NononsenseHomeBundle(),
-            new Nononsense\NewsBundle\NononsenseNewsBundle(),
             new Nononsense\NotificationsBundle\NononsenseNotificationsBundle(),
             new Nononsense\UtilsBundle\NononsenseUtilsBundle(),
-            new Nononsense\DataDocumentBundle\NononsenseDataDocumentBundle(),
             new Liuggio\ExcelBundle\LiuggioExcelBundle(),
             new WhiteOctober\TCPDFBundle\WhiteOctoberTCPDFBundle()
 

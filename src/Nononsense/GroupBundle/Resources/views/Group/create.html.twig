@@ -53,11 +53,15 @@
                 onblur: function(e) {   
                 }
             });
-            
-            $( "form" ).submit(function( event ) {
+
+            $('form[name="groups"]').submit(function(e){
                 $('#groups_description').val($(".summernote").code());
+                if (!gpassword_valid($("#box_password").val())){
+                    toastr.error("La firma no es correcta",'aviso');
+                    return false;
+                }
                 return;
-              });
+            });
              
              ActivateMenu('browse_groups');
             $('#side-menu').metisMenu();

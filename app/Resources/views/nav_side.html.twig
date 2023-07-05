@@ -30,7 +30,7 @@
             <li id="docxpresso_home">
                 <a href="{{path('nononsense_home_homepage')}}"><i class="fa fa-home"></i> <span class="nav-label">{{'Home'|trans}}</span></a>
             </li>
-            {# {% if 'admin_gp' in array_subsecciones or 'elaborador_gp' in array_subsecciones or 'tester_gp' in array_subsecciones  or 'aprobador_gp' in array_subsecciones  or 'dueno_gp' in array_subsecciones %}
+            {% if 'admin_gp' in array_subsecciones or 'elaborador_gp' in array_subsecciones or 'tester_gp' in array_subsecciones  or 'aprobador_gp' in array_subsecciones  or 'dueno_gp' in array_subsecciones %}
                 <li>
                     <a href="#"><i class="fa fa-file-word-o"></i> <span class="nav-label">{{'Gestión de plantillas'|trans}}</span><span
                             class="fa arrow"></span></a>
@@ -75,42 +75,41 @@
                                 <a href="{{path('nononsense_tm_templates')}}?request_drop=1"><span class="nav-label">Solicitudes baja</span></a>
                             </li>
                         {% endif %}
-                        {% if 'elaborador_gp' in array_subsecciones  or 'dueno_gp' in array_subsecciones %}
+                        {% if 'elaborador_gp' in array_subsecciones  or 'dueno_gp' in array_subsecciones  or 'aprobador_gp' in array_subsecciones  %}
                             <li id="solicitudes_revision_plantillas">
                                 <a href="{{path('nononsense_tm_templates')}}?request_review=1"><span class="nav-label">Solicitudes revisiones</span></a>
                             </li>
                         {% endif %}
-                            <li id="en_vigor_gestion_plantillas">
-                                <a href="{{path('nononsense_tm_templates')}}?state=6"><span class="nav-label">En vigor</span></a>
-                            </li>
+                        <li id="en_vigor_gestion_plantillas">
+                            <a href="{{path('nononsense_tm_templates')}}?state=6"><span class="nav-label">En vigor</span></a>
+                        </li>
                     </ul>
                 </li>
             {% endif %}
+            
             <li id="docxpresso_nuevo">
-                <a href="{{path('nononsense_nuevo_contrato')}}?categoriasSelect=0"><i class="fa fa-pencil-square"></i> <span class="nav-label">{{'Nuevo registro'|trans}}</span></a>
+                <a href="#" data-toggle="modal" data-target="#popupArea"><i class="fa fa-pencil-square"></i> <span class="nav-label">{{'Nuevo registro'|trans}}</span></a>
             </li>
             <li id="docxpresso_search">
-                <a href="{{path('nononsense_search')}}"><i class="fa fa-search" aria-hidden="true"></i> <span class="nav-label">Buscador</span></a>
+                <a href="{{path('nononsense_cv_search')}}"><i class="fa fa-search" aria-hidden="true"></i> <span class="nav-label">Buscador</span></a>
             </li>
-            {% if app.user.id==1 or  app.user.id==2 or  app.user.id==3  or  app.user.id==4  %}
-                <li id="docxpresso_search_contains">
-                    <a href="{{path('nononsense_search')}}?record_contains=1"><i class="fa fa-search-plus" aria-hidden="true"></i> <span class="nav-label">Buscador de contenido</span></a>
-                </li>
-            {% endif %}
             <li id="docxpresso_proceso">
-                <a href="{{path('nononsense_search')}}?pending_for_me=1"><i class="fa fa-folder"></i> <span class="nav-label">{{'En proceso'|trans}}</span></a>
+                <a href="{{path('nononsense_cv_search')}}?pending_for_me=1"><i class="fa fa-folder"></i> <span class="nav-label">{{'En proceso'|trans}}</span></a>
             </li>
-            {% if FLL == 1 %}
-            <li id="docxpresso_auth">
-                <a href="{{path('nononsense_registro_autorizar_list')}}"><i class="fa fa-magic" aria-hidden="true"></i> <span class="nav-label">{{'Autorizaciones'|trans}}</span></a>
+            <li id="docxpresso_archivo">
+                <a href="{{path('nononsense_cv_search')}}?status=-5"><i class="fa fa-archive"></i> <span class="nav-label">{{'Archivo'|trans}}</span></a>
             </li>
-            {% endif %}
-            {% if FLL == 1 %}
-                <li id="docxpresso_proceso">
-                    <a href="{{path('nononsense_activity')}}?limit_many=15"><i class="fa fa-pie-chart" aria-hidden="true"></i> <span class="nav-label">Actividad de área</span></a>
-                </li>
-            {% endif %}
-            {% if 'retention_admin' in array_subsecciones or 'retention_agent' in array_subsecciones or 'retention_review' in array_subsecciones %}
+            <li id="docxpresso_search_contains">
+                <a href="{{path('nononsense_cv_content_search')}}"><i class="fa fa-search-plus" aria-hidden="true"></i> <span class="nav-label">Buscador de contenido</span></a>
+            </li>
+            <li id="docxpresso_gxp">
+                <a href="{{path('nononsense_cv_search')}}?gxp=1"><i class="fa fa-magic" aria-hidden="true"></i> <span class="nav-label">{{'Modificaciones GxP'|trans}}</span></a>
+            </li>
+            <li id="docxpresso_standby">
+                <a href="{{path('nononsense_cv_search')}}?blocked=1"><i class="fa fa-exclamation-triangle"></i> <span class="nav-label">{{'En revisión'|trans}}</span></a>
+            </li>
+
+            {% if 'retention_admin' in array_subsecciones or 'retention_agent' in array_subsecciones %}
                 <li>
                     <a href="#">
                         <i class="fa fa-trash" aria-hidden="true"></i>
@@ -122,37 +121,37 @@
                             <li id="retention_admin">
                                 <a href="{{path('nononsense_retention_categories_list')}}">
                                     <i class="fa fa-list-ul" aria-hidden="true"></i>
-                                    <span class="nav-label"> Administrar</span>
+                                    <span class="nav-label"> Categorías</span>
                                 </a>
                             </li>
                         {% endif %}
                         {% if 'retention_agent' in array_subsecciones %}
-                            <li id="retention_agent">
-                                <a href="{{path('nononsense_search')}}?destruction=1">
-                                    <i class="fa fa-search" aria-hidden="true"></i>
-                                    <span class="nav-label"> Buscador</span>
+                            <li id="retention_templ">
+                                <a href="{{path('nononsense_retention_list')}}?retention_type=1">
+                                    <i class="fa fa-file-word-o"></i>
+                                    <span class="nav-label"> Plantillas</span>
                                 </a>
                             </li>
                         {% endif %}
-                        {% if 'retention_review' in array_subsecciones %}
-                            <li id="retention_review">
-                                <a href="{{path('nononsense_search')}}?destruction=1">
+                        {% if 'retention_agent' in array_subsecciones %}
+                            <li id="retention_cumpl">
+                                <a href="{{path('nononsense_retention_list')}}?retention_type=2">
+                                    <i class="fa fa-pencil-square"></i>
+                                    <span class="nav-label"> Cumplimentaciones</span>
+                                </a>
+                            </li>
+                        {% endif %}
+                        {% if 'retention_admin' in array_subsecciones %}
+                            <li id="retention_log">
+                                <a href="{{path('nononsense_retention_log')}}">
                                     <i class="fa fa-book" aria-hidden="true"></i>
-                                    <span class="nav-label"> Revisión</span>
+                                    <span class="nav-label"> Audittrail</span>
                                 </a>
                             </li>
                         {% endif %}
                     </ul>
                 </li>
             {% endif %}
-            <!--<li id="docxpresso_archivo">
-                <a href="{{path('nononsense_registro_archivo')}}"><i class="fa fa-folder"></i> <span class="nav-label">{{'Archivo'|trans}}</span></a>
-            </li>-->
-            {% if FLL == 1 or ECO == 1 %}
-            <li id="docxpresso_standby">
-                <a href="{{path('nononsense_backoffice_standby_documents_list')}}"><i class="fa fa-exclamation-triangle"></i> <span class="nav-label">{{'Documentos Stand By'|trans}}</span></a>
-            </li>
-            {% endif %} #}
 
             {% if 'albaran_gestion' in array_subsecciones or 'albaran_use' in array_subsecciones %}
                 <li id="docxpresso_plantdocs">
@@ -165,6 +164,35 @@
             <li id="docxpresso_mydocs">
                 <a href="{{path('nononsense_records')}}?pending_for_me=1"><i class="fa fa-file" aria-hidden="true"></i> <span class="nav-label">Mis Doc. Pend.</span></a>
             </li> 
+
+            {% if 'graphics_cv' in array_subsecciones or 'graphics_templates' in array_subsecciones or 'graphics_tm' in array_subsecciones %}
+                <li>
+                    <a href="#">
+                        <i class="fa fa-pie-chart" aria-hidden="true"></i>
+                        <span class="nav-label">Efectividad de Área</span>
+                        <span class="fa arrow"></span>
+                    </a>
+                    <ul class="nav nav-second-level">
+                        {% if 'graphics_tm' in array_subsecciones %}
+                            <li id="graphics_tm">
+                                <a href="{{path('nononsense_activity_tm_templates')}}?limit_many=15"> <span class="nav-label">Elab./Aprob</span></a>
+                            </li>
+                        {% endif %}
+
+                        {% if 'graphics_cv' in array_subsecciones %}
+                            <li id="graphics_cv">
+                                <a href="{{path('nononsense_activity')}}?limit_many=15"> <span class="nav-label">Cumpl./Verif.</span></a>
+                            </li>
+                        {% endif %}
+
+                        {% if 'graphics_templates' in array_subsecciones %}
+                            <li id="graphics_templates">
+                                <a href="{{path('nononsense_activity_templates')}}?limit_many=15&group=1"> <span class="nav-label">Plantillas</span></a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </li>
+            {% endif %}
 
             {% if 'plantillas_contratos_gestion' in array_subsecciones or 'contratos_gestion' in array_subsecciones %}
                 <li>
@@ -183,7 +211,8 @@
                     </ul>
                 </li>
             {% endif %}
-            {# {% if 'productos_gestion' in array_subsecciones or 'productos_recepcion' in array_subsecciones or 'productos_retirada' in array_subsecciones or 'reactivos_disolucion' in array_subsecciones %}
+            
+            {% if 'productos_gestion' in array_subsecciones or 'productos_recepcion' in array_subsecciones or 'productos_retirada' in array_subsecciones or 'reactivos_disolution' in array_subsecciones or 'reactivos_use' in array_subsecciones %}
                 <li>
                     <a href="#">
                         <i class="fa fa-medkit" aria-hidden="true"></i>
@@ -230,7 +259,7 @@
                         {% endif %}
                     </ul>
                 </li>
-            {% endif %} #}
+            {% endif %}
 
             {% if
                 'mc_products_list' in array_subsecciones or 'mc_materials_list' in array_subsecciones or 'mc_centers_list' in array_subsecciones or
@@ -293,12 +322,12 @@
             </li>
             {% endif %} 
 
-            {% if 'qrs_gestion' in array_subsecciones or 'areas_gestion' in array_subsecciones or 'usuarios_gestion' in array_subsecciones  or 'grupos_gestion' in array_subsecciones %}
+            {% if 'qrs_gestion' in array_subsecciones or 'areas_gestion' in array_subsecciones or 'usuarios_gestion' in array_subsecciones  or 'grupos_gestion' in array_subsecciones or 'delegations_gestion' in array_subsecciones or 'notifications_gestion' in array_subsecciones or 'usuarios_acceso' in array_subsecciones %}
                 <li>
                     <a href="#"><i class="fa fa-fw fa-gear"></i> <span class="nav-label">{{'Configuración'|trans}}</span><span
                             class="fa arrow"></span></a>
                     <ul class="nav nav-second-level">
-                        {# {% if 'qrs_gestion' in array_subsecciones %}
+                        {% if 'qrs_gestion' in array_subsecciones %}
                             <li id="qr_list">
                                 <a href="{{path('nononsense_qr_list')}}"><span class="nav-label">QRs</span></a>
                             </li>
@@ -306,6 +335,11 @@
                         {% if 'areas_gestion' in array_subsecciones %}
                             <li id="areas_list">
                                 <a href="{{path('nononsense_areas')}}"><span class="nav-label">Areas</span></a>
+                            </li>
+                        {% endif %}
+                        {% if 'delegations_gestion' in array_subsecciones %}
+                            <li id="delegations_list">
+                                <a href="{{path('nononsense_delegations_list')}}"><span class="nav-label">Delegación de firmas</span></a>
                             </li>
                         {% endif %}
                         {% if 'grupos_gestion' in array_subsecciones %}
@@ -319,6 +353,11 @@
                             </li>
                             <li id="browse_requests">
                                 <a href="{{path('nononsense_user_check_requests')}}"><span class="nav-label">Solicitudes</span></a>
+                            </li>
+                        {% endif %}
+                        {% if 'notifications_gestion' in array_subsecciones %}
+                            <li id="notifications">
+                                    <a href="{{path('nononsense_notifications_templates_notification_list')}}"><span class="nav-label">Modelo de notificaciones</span></a>
                             </li>
                         {% endif %}
                         {% if 'usuarios_acceso' in array_subsecciones %}

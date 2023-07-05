@@ -1,0 +1,141 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}Docoaro - GSK | Documentos {% endblock %}
+{% block head %}
+    {{ parent() }}
+    <link rel="stylesheet" href="/css/plugins/datapicker/datepicker3.css">
+    <link rel="stylesheet" href="/plugins/select2/dist/css/select2.min.css">
+    <link rel="stylesheet" href="/plugins/dual_listbox/dist/multi.min.css">
+{% endblock %}
+{% block main_title %} Firmar {{ signature.record.reconciliation is not empty ? signature.action.nameAlternativeReconc : signature.action.nameAlternative }} - <b>{{item.template.name}} #{{item.id}}</b>{% endblock %}
+
+{% block content %}
+
+    <div class="wrapper wrapper-content animated fadeInUp">
+        {% for flashMessage in app.session.flashbag.get('error') %}
+        <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+            <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+            {{ flashMessage }}
+        </div>
+        {% endfor %}
+
+        {% if signature.record.reconciliation is not empty %}
+        <table id="inProcess" class="table table-striped">
+            <thead>
+            <tr>
+                <th>Id Registro afectado</th>
+                <th>Area</th>
+                <th>Nombre</th>
+                <th>Fecha Solicitado</th>
+                <th>Solicitado por</th>
+                <th>Acción</th>
+            </tr>
+            </thead>
+            <tr>
+                <td>{{signature.record.reconciliation.id}}</td>
+                <td>{{signature.record.reconciliation.template.area.name}}</td>
+                <td>{{signature.record.reconciliation.template.name}}</td>
+                <td>{{signature.created | date('d-m-Y H:i:s') }}</td>
+                <td>{{signature.user.name}}</td>
+                <td>
+                    <a class="btn btn-xs btn-primary" href="{{path('nononsense_cv_docoaro_new', {'id': item.id})}}?readonly=1" target="_blank" target="_blank">{{'Ver reconciliado'|trans}}</a>
+                </td>
+            </tr>
+        </table>
+        {% endif %}
+
+        <form class="form-horizontal" id="form_item" action="{{path('nononsense_cv_record_sign', {'id': item.id}) }}" method="POST"  enctype="multipart/form-data">
+
+            {% if signature.action.justification or (signature.record.reconciliation is not empty and signature.record.cvSignatures|length==1) %}
+
+
+                <div class="row" id="box_justification">
+                    <div class="col-lg-5 col-lg-offset-1">
+                        {% if  signature.action.justification %} 
+                            <p>Esta acción requiere de una justificación obligatoria</p>
+                        {% elseif  signature.record.reconciliation is not empty and signature.record.cvSignatures|length==1 %} 
+                            <p>Justifique su solicitud de reconciliación</p>
+                        {% endif %} 
+
+                        <textarea id="comment" name="justification" class="form-control" rows="10" cols="91" required="required"></textarea>
+                    </div>
+                </div>
+                <br>
+            {% endif %} 
+            <div class="row">
+                <div class="col-lg-5 col-lg-offset-1">
+                    <div id="signature-pad">
+                        <p>Introduzca su firma</p>
+                        <input type="password" name="password" id="box_password" class="form-control" required="required"><br>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-5 col-lg-offset-1">
+                    <button id="btn_send" type="button" class="btn btn-primary pull-right"><i class="fa fa-pencil" aria-hidden="true"></i> Firmar</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+    {{ parent() }}
+    
+<script  charset="utf-8">
+    var dataworkflow;
+    $( document ).ready(function() {
+        
+        
+        ActivateMenu('en_vigor_gestion_plantillas');
+        $('#side-menu').metisMenu();
+
+        $('#btn_send').on('click', function(e){
+            if ($('#comment').length && !$('#comment').val()) {
+                toastr.error("Debe escribir una justificación", 'aviso');
+                return false;
+            }
+
+            $(this).hide(function() {
+                valid_password=password_valid($("#box_password").val());
+                if (!valid_password) {
+                    $(this).show();
+                    toastr.error("La contraseña es incorecta", 'aviso');
+                } else {
+                    $("#form_item").submit();
+                }
+            });
+            return false;
+        });
+
+        $('#form_item input').on('keypress', function(e) {
+            return e.which !== 13;
+        });
+
+    });
+
+    function password_valid(password){
+        var result;
+        $.ajax({
+            url: "{{ path('nononsense_mclean_get_sign_valid') }}",
+            type: 'POST',
+            dataType: 'json',
+            async: false,
+            data: {password: password},
+            success: function(response) {
+                console.log(response);
+                if(response.valid){
+                    result=true;
+                }else{
+                    result=false;
+                }
+            },
+            error: function() {
+                result=false;
+            }
+        });
+
+        return result;
+    }
+</script>
+{% endblock %}

@@ -131,6 +131,24 @@
         </div>
 
         <div class="row">
+            <div class="col-lg-4">
+                <div>
+                    <label class="control-label">Justificación</label>
+                    <textarea name="justification" rows="10" cols="120" required="required" style="width:100%"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-4">
+                <div>
+                    <label class="control-label">Introduzca su firma</label>
+                    <input type="password" name="password" id="box_password" class="form-control" required="required"><br>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
             <div class="col-lg-12">
             {{ form_widget(createGroup.save, {'attr' : {'class': 'btn btn-primary'}}) }}
             </div>
@@ -161,4 +179,5 @@
             $('.checkAll_seccion_'+seccion_id).prop('checked', false);
         }
     }
+
 </script>

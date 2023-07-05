@@ -776,7 +776,7 @@ class Utils
         // $key = $container->getParameter('api3.key');
 
         $ch = curl_init();
-
+        
         curl_setopt($ch, CURLOPT_URL, $url);
         if ($header) {
             curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
@@ -793,6 +793,7 @@ class Utils
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         //curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         $output = curl_exec($ch);
+        
         if (!$output) {
             $output = curl_error($ch);
         }
@@ -806,9 +807,10 @@ class Utils
         return $output;
     }
 
-    public static function setCertification($container, string $file, string $type, int $recordId)
+    public function setCertification($container, string $file, string $type, string $recordId)
     {
         $em = $container->get('doctrine.orm.entity_manager');
+
 
         $certificationsType = $em->getRepository(CertificationsType::class)->findOneBy(['name' => $type]);
 

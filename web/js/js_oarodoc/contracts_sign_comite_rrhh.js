@@ -2,6 +2,12 @@ $( document ).ready(function() {
 	$("#btn_save").html('<i class="fa fa-send-o"></i> Firmar');
 	$("#btn_save_partial").hide();
 
+	$("span.view_date").each(function( index ) {
+		custom_date=$(this).html().toUpperCase();
+		custom_date=custom_date.replace(/\.\//,"/");
+		$(this).html(custom_date);
+	});
+
 	// importante que este vaya antes que el display none, si no, no se oculta ninguna
 	$("input.form-control").css('display','inline-block');
 	//las variables que se deban ocultar en la vista del comite deben tener un name que empiece por 'dat_tra_   y con la siguiente linea las oculto

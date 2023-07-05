@@ -1,0 +1,24 @@
+<div class="modal" id="popupArea" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form class="form-horizontal" id="form_item" action="{{path('nononsense_tm_templates')}}" method="GET">
+                <div class="modal-body">
+                    <h4>Area </h4>
+                    {% if areas is defined %}
+                      <select class="form-control" style="width: 100%!important;" name="area">
+                        {% for area in areas %}
+                          <option value="{{area.id}}" {{ filters.area is defined and filters.area==area.id ? 'selected="selected"' : ''}}>{{area.name}}</option>
+                        {% endfor %}
+                      </select>
+                    {% endif %}
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <input  class="btn btn-primary"  type="submit" value="Ir">
+                </div>
+                <input type="hidden" name="state" value="6">
+                <input type="hidden" name="cumpl" value="1">
+            </form>
+        </div>
+    </div>
+</div>

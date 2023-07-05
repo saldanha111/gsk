@@ -29,11 +29,12 @@ class EfectiveTemplatesCommand extends ContainerAwareCommand
 
 		if ($templates) {
 	    	$subject = 'Plantilla pendiente de puesta en vigor';
-	        $message = 'La siguiente plantilla ha llegado a su fecha efectiva y está pendiente su puesta en vigor';
+	        $message = 'La siguiente plantilla ha llegado a su fecha efectiva y está pendiente su puesta en vigor. ';
 
 		    foreach ($templates as $key => $template) {
 		    	$users=array();
 		    	$baseUrl = trim($this->getContainer()->getParameter('cm_installation'), '/').$this->getContainer()->get('router')->generate('nononsense_tm_config_detail', array("id" => $template->getId()));
+		    	$aux_message=$template->getId()." - Códigoº: ".$template->getNumber()." - Título: ".$template->getName()." - Edición: ".$template->getNumEdition();
 		    	foreach($template->getTmWorkflows() as $wf){
 
 		    		if($wf->getAction()->getId()==5){
@@ -46,7 +47,7 @@ class EfectiveTemplatesCommand extends ContainerAwareCommand
 		    				}
 		    			}
 		    			foreach($users as $user){
-				            if ($this->getContainer()->get('utilities')->sendNotification($user->getEmail(), $baseUrl, "", "", $subject, $message)) {
+				            if ($this->getContainer()->get('utilities')->sendNotification($user->getEmail(), $baseUrl, "", "", $subject, $message.$aux_message)) {
 				                
 				                $output->writeln(['Mensaje enviado: '.$user->getEmail()]);
 

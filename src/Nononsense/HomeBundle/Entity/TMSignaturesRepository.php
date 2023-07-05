@@ -12,5 +12,87 @@ use Doctrine\ORM\EntityRepository;
  */
 class TMSignaturesRepository extends EntityRepository
 {
-	
+	public function activity($type,$filters)
+    {
+        $em = $this->getEntityManager();
+
+        switch($type){
+            case "list":
+                $list = $this->createQueryBuilder('s')
+                    ->select('s');
+
+                break;
+            case "count":
+                $list = $this->createQueryBuilder('s')
+                    ->select('COUNT(s.id) as conta');
+                break;
+        }
+
+        $list->leftJoin("s.template", "t")
+             ->leftJoin("t.area", "a")
+             ->leftJoin("s.action", "c")
+             ->leftJoin("s.userEntiy", "u");
+            
+        if($type=="list"){
+            $list->orderBy('s.id', 'DESC');
+        }
+
+        if(!empty($filters)){
+
+            if(isset($filters["plantilla_id"])){
+                $list->andWhere('t.id=:plantilla_id');
+                $list->setParameter('plantilla_id', $filters["plantilla_id"]);
+            }
+
+            if(isset($filters["name"])){
+                $terms = explode(" ", $filters["name"]);
+                foreach($terms as $key => $term){
+                    $list->andWhere('t.name LIKE :name'.$key);
+                    $list->setParameter('name'.$key, '%' . $term. '%');
+                }
+            }
+
+            if(isset($filters["area"])){
+                $list->andWhere('a.id=:area');
+                $list->setParameter('area', $filters["area"]);
+            }
+
+            if(isset($filters["action"])){
+                $list->andWhere('c.id=:action');
+                $list->setParameter('action', $filters["action"]);
+            }
+
+            if(isset($filters["creator"])){
+                $list->andWhere('u.id=:creator');
+                $list->setParameter('creator', $filters["creator"]);
+            }
+
+            if(isset($filters["from"])){
+                $list->andWhere('s.created>=:from');
+                $list->setParameter('from', $filters["from"]);
+            }
+
+            if(isset($filters["until"])){
+                $list->andWhere('s.created<=:until');
+                $list->setParameter('until', $filters["until"]." 23:59:00");
+            }
+        }
+
+
+        if(isset($filters["limit_from"])){
+            $list->setFirstResult($filters["limit_from"]*$filters["limit_many"])->setMaxResults($filters["limit_many"]);
+        }
+
+        $query = $list->getQuery();
+
+
+        switch($type){
+            case "list":
+                return $query->getResult();
+                break;
+            case "count":
+                return $query->getSingleResult()["conta"];
+                break;
+        }
+    }
 }

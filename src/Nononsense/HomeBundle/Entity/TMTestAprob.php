@@ -31,6 +31,13 @@ class TMTestAprob
     protected $name;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="description", type="text", nullable=true)
+     */
+    protected $description;
+
+    /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\TMSignatures", mappedBy="tmAprobAction")
      */
     protected $tmSignatures;
@@ -106,5 +113,28 @@ class TMTestAprob
     public function getTmSignatures()
     {
         return $this->tmSignatures;
+    }
+
+    /**
+     * Set description
+     *
+     * @param string $description
+     * @return TMTestAprob
+     */
+    public function setDescription($description)
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    /**
+     * Get description
+     *
+     * @return string 
+     */
+    public function getDescription()
+    {
+        return $this->description;
     }
 }

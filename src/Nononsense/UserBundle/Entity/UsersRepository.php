@@ -56,7 +56,6 @@ class UsersRepository extends EntityRepository
     /**
      * Gest user names and ids
      *
-     * @return Paginator
      */
     public function getUserNames()
     {
@@ -333,6 +332,25 @@ class UsersRepository extends EntityRepository
         return $users->getQuery()->getArrayResult();
 
     }
+
+    public function listUsersByPermission($permission)
+    {
+        $users = $this->createQueryBuilder('u')
+            ->select('u.name', 'u.email', 'u.id')
+            ->join('u.groups', 'gu')
+            ->join('gu.group', 'g')
+            ->join('g.groupsSubsecciones', 'gs')
+            ->join('gs.subseccion', 's')
+            ->andWhere('s.nameId = :permission')
+            ->andWhere('u.isActive = true')
+            ->setParameter('permission', $permission)
+            ->groupBy('u.id')->addGroupBy('u.name')->addGroupBy('u.email')
+            ->orderBy('u.name', 'ASC');
+
+        return $users->getQuery()->getArrayResult();
+
+    }
+
 
     public function listBy($filter, $limit = 10){
         $list  = $this->createQueryBuilder('u')

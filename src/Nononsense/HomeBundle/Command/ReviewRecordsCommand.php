@@ -6,6 +6,11 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 //use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
+use Nononsense\HomeBundle\Entity\CVSecondWorkflowStates;
+use Nononsense\HomeBundle\Entity\SpecificGroups;
+use Nononsense\HomeBundle\Entity\CVSecondWorkflow;
+use Nononsense\GroupBundle\Entity\GroupUsers;
+use Nononsense\GroupBundle\Entity\Groups;
 
 /**
 * 
@@ -25,92 +30,115 @@ class ReviewRecordsCommand extends ContainerAwareCommand
 
 	protected function execute(InputInterface $input, OutputInterface $output){
 
-		$steps = $this->getSteps();
-
-		if ($steps) {
-
-			$users = $this->getUsers();
-
-	    	$subject = 'Registros bloqueados';
-	        $message = 'Los siguientes registros han sido bloqueados y necesitan ser gestionados por su parte o algún otro FLL. Acceda al siguiente  Link para gestionar los bloqueos.<br><br>'.implode('<br>', $steps);
-	        $baseUrl = trim($this->getContainer()->getParameter('cm_installation'), '/').$this->getContainer()->get('router')->generate('nononsense_backoffice_standby_documents_list');
-
-		    foreach ($users as $key => $user) {
-	            if ($this->getContainer()->get('utilities')->sendNotification($user['email'], $baseUrl, "", "", $subject, $message)) {
-	                
-	                $output->writeln(['Mensaje enviado: '.$user['email']]);
-
-	                if ($input->getOption('msg')) {
-	                	$output->writeln(['Asunto: '.$subject]);	
-	                	$output->writeln(['Cuerpo del mensaje: '.$message]);
-	                	$output->writeln(['']);	
-	                }
-
-	            }else{
-
-	            	$output->writeln(['<error>Error: '.$user['email'].'</error>']);
-	            }
-		    }
-
-	    }else{
-	    	$output->writeln(['<comment>Ningún registro bloqueado</comment>']);
-	    }
-
-	    $output->writeln(['<info>Proceso completado</info>']);	
-	}
-
-	protected function getSteps(){
-
 		$em = $this->getContainer()->get('doctrine')->getManager();
 
-	    $qb 		= $em->createQueryBuilder();
-	    $instancias = $qb->select('iw, st')
-	    				->from('NononsenseHomeBundle:InstanciasWorkflows', 'iw')
-	    				//->join('iw.Steps','st')
-	    				->join("iw.Steps", "st", "WITH", 'st.dependsOn = 0')
-	    				->where('iw.modified <= :modified')
-	    				->setParameter('modified', new \DateTime('-8 hour'))
-	    				->andWhere('iw.in_edition = 1')
-	    				//->andWhere('st.dependsOn = 0')
-	    				->getQuery()
-	    				->getResult();
+		$areas = $em->getRepository('NononsenseHomeBundle:Areas')->findAll();
+		$ids_eco=array();
+		$aux_message_eco="";
+		foreach($areas as $area){
+			$ids=array();
+			$qb 		= $em->createQueryBuilder();
+		   	$records = $qb->select('i')
+		    				->from('NononsenseHomeBundle:CVRecords', 'i')
+		    				->leftJoin("i.template", "t")
+		    				->andWhere('i.openDate <= :modified')
+		    				->andWhere('i.inEdition = 1')
+		    				->andWhere('(i.blocked = 0 OR i.blocked IS NULL)')
+		    				->andWhere('IDENTITY(t.area) = :area')
+		    				->setParameter('modified', new \DateTime('-2 hour'))
+		    				->setParameter('area', $area->getId())
+		    				->getQuery()
+		    				->getResult();
+		   	$aux_message="";
+		    if ($records) {	
+	    		$typesw = $em->getRepository(CVSecondWorkflowStates::class)->findOneBy(array("id" => "2"));
+		    	$specific = $em->getRepository(SpecificGroups::class)->findOneBy(array("name" => "ECO"));
+            		$other_group = $specific->getGroup();
+            		$blocked_state = $em->getRepository(Groups::class)->findOneBy(array("id" => 9));
+		    	foreach ($records as $key => $record) {
+		    		$record->setBlocked(1);
+		    		$this->getContainer()->get('utilities')->checkModelNotification($record->getTemplate(),$blocked_state);
+		    		$em->persist($record);
+		    		$ids[] = $record->getId();
+		    		$aux_message.=$record->getId()." - Código: ".$record->getTemplate()->getNumber()." - Título: ".$record->getTemplate()->getName()." - Edición: ".$record->getTemplate()->getNumEdition()."<br>";
 
-	    if ($instancias) {
-	    							
-		    foreach ($instancias as $key => $instancia) {
-	    		$instancia->setInEdition(0);
-	    		$instancia->setStatus(11);
+		            $sworkflow = new CVSecondWorkflow();
+			        $sworkflow->setRecord($record);
+			        $sworkflow->setGroup($other_group);
+			        $sworkflow->setNumberSignature(1);
+			        $sworkflow->setType($typesw);
+			        $sworkflow->setSigned(FALSE);
+			        $em->persist($sworkflow);
 
-	    		$em->persist($instancia);
+			        if($area->getFll()){
+			            $sworkflow = new CVSecondWorkflow();
+				        $sworkflow->setRecord($record);
+				        $sworkflow->setUser($area->getFll());
+				        $sworkflow->setNumberSignature(2);
+				        $sworkflow->setType($typesw);
+				        $sworkflow->setSigned(FALSE);
+				        $em->persist($sworkflow);
+			        }
 
-	    		foreach ($instancia->getSteps() as $key => $step) {
-	    			$steps[] = $step->getId();
-	    		}
+			        if (!in_array($record->getId(), $ids_eco)) {
+			        	$aux_message_eco.=$record->getId()." - Código: ".$record->getTemplate()->getNumber()." - Título: ".$record->getTemplate()->getName()." - Edición: ".$record->getTemplate()->getNumEdition()."<br>";
+			        	$ids_eco[]=$record->getId();
+			        }
+			    }
+			}
+
+
+			if ($ids) {
+
+		    	$subject = 'Registros bloqueados';
+		        $message = 'Los siguientes registros han sido bloqueados y necesitan ser gestionados por su parte. Acceda al siguiente  Link para gestionar los bloqueos.<br><br>'.$aux_message;
+		        $baseUrl = trim($this->getContainer()->getParameter('cm_installation'), '/').$this->getContainer()->get('router')->generate('nononsense_cv_search')."?blocked=1";
+
+	            if($area->getFll()){
+		            if ($this->getContainer()->get('utilities')->sendNotification($area->getFll()->getEmail(), $baseUrl, "", "", $subject, $message)) {
+
+		                $output->writeln(['Mensaje enviado: '.$area->getFll()->getEmail()]);
+
+		                if ($input->getOption('msg')) {
+		                	$output->writeln(['Asunto: '.$subject]);	
+		                	$output->writeln(['Cuerpo del mensaje: '.$message]);
+		                	$output->writeln(['']);	
+		                }
+
+		            }else{
+
+		            	$output->writeln(['<error>Error: '.$area->getFll()->getEmail().'</error>']);
+		            }
+		        }
+
+		    }else{
+		    	$output->writeln(['<comment>Ningún registro bloqueado para el area '.$area->getName().'</comment>']);
 		    }
-
-		    $em->flush();
-
-		    return $steps;
 		}
 
-		return false;
-	}
+		$specific = $em->getRepository(SpecificGroups::class)->findOneBy(array("name" => "ECO"));
+		$eco=$specific->getGroup();
+        $eco_users = $em->getRepository(GroupUsers::class)->findBy(["group" => $eco]);
+        $message = 'Los siguientes registros han sido bloqueados y necesitan ser gestionados por su parte o algún otro FLL. Acceda al siguiente  Link para gestionar los bloqueos.<br><br>'.$aux_message_eco;
+    	foreach ($eco_users as $eco_user) {
+    		if ($this->getContainer()->get('utilities')->sendNotification($eco_user->getUser()->getEmail(), $baseUrl, "", "", $subject, $message)) {
 
-	protected function getUsers(){
+                $output->writeln(['Mensaje enviado: '.$eco_user->getUser()->getEmail()]);
 
-		$em = $this->getContainer()->get('doctrine')->getManager();
+                if ($input->getOption('msg')) {
+                	$output->writeln(['Asunto: '.$subject]);	
+                	$output->writeln(['Cuerpo del mensaje: '.$message]);
+                	$output->writeln(['']);	
+                }
 
-		$qb 	= $em->createQueryBuilder();
-		$query 	= $qb->select('u.email')
-		   ->distinct()
-		   ->from('NononsenseGroupBundle:GroupUsers', 'gu')
-		   ->join('gu.group', 'g')
-		   ->join('gu.user', 'u')
-		   ->where("g.tipo = 'FLL'")
-		   ->getQuery();
+            }else{
 
-		$users = $query->getResult();
+            	$output->writeln(['<error>Error: '.$area->getFll()->getEmail().'</error>']);
+            }
+    	}
 
-		return $users;
+		$em->flush();
+
+	    $output->writeln(['<info>Proceso completado</info>']);	
 	}
 }

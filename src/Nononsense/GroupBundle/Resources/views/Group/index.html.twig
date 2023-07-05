@@ -38,34 +38,34 @@
             <div class="wrapper wrapper-content animated fadeInUp">
                 <div class="ibox">
                     <div class="ibox-content">
-                        {% if query == 'q' %}
-                        <p>
-                            Introduzca un término de consulta si desea filtrar sus resultados:
-                        </p>
-                        {% else %}
-                        <p>
-                            {{paging.results}} 
-                            {% if paging.results == 1 %}
-                                resultado
-                            {% else %}
-                                resultados
-                            {% endif %}
-                            para: <span class="text-navy">“{{query}}”</span>
-                        </p>
-                        {% endif %}
 
                         <div class="search-form">
-                            <form action="index.html" method="get">
-                                <div class="input-group">
-                                    <input type="text" id="search" class="form-control"><span class="input-group-btn"> <button type="button" id="searchButton" class="btn btn-primary">{{'Search'|trans}}</button> </span>
-                                </div>
+                            <form action="{{ path('nononsense_groups_homepage_slash')}}" method="get">
+                                <div class="row">
+                                    <label class="col-sm-1 control-label item_filter">Nombre</label>
+                                    <div class="col-sm-4 item_filter">
+                                        <input type="text" name="name" class="form-control" value="{{filters.name is defined ? filters.name : ''}}">
+                                    </div>
 
+                                    <label class="col-sm-1 control-label item_filter">Estado</label>
+                                    <div class="col-sm-2 item_filter">
+                                      <select class="form-control" style="width: 100%;" name="state">
+                                        <option value=""></option>
+                                        <option value="active" {{ filters.state is defined and filters.state=="active" ? 'selected="selected"' : ''}}>Activos</option>
+                                        <option value="inactive" {{ filters.state is defined and filters.state=="inactive" ? 'selected="selected"' : ''}} >Inactivos</option>
+                                      </select>
+                                    </div>
+
+                                    <div class="col-sm-4 item_filter">
+                                        <button type="submit" class="btn btn-primary">Filtrar</button>
+                                    </div>
+                                </div>
                             </form>
                         </div>
                         {% for item in groups %}
                             <div class="hr-line-dashed"></div>
                             <div class="search-result">
-                                <h3>{% if item.isActive == false %}<button class="btn btn-warning btn-xs " type="button"><i class="fa fa-lock"></i></button>{% endif %}
+                                <h3>{% if item.isActive == false %}<button class="btn btn-danger btn-xs " type="button" disabled><i class="fa fa-minus-circle"></i> Inactivo</button>{% endif %}
                                     <a href="{{path('nononsense_group_show', {'id': item.id}) }}"><button class="btn btn-default btn-xs " style="background-color: {{item.color}}; border-color: {{item.color}}" type="button"><i class="fa fa-users"></i></button> {{ item.name }}</a></h3>
                                 <p>{{ item.created|localizeddate('medium', 'medium', app.request.locale)}}</p>
                                 {{ item.description|escape_tags|striptags|truncate(200)|raw}}
@@ -74,7 +74,12 @@
 
                         <div class="hr-line-dashed"></div>
                         
-                        {% include '::pagination.html.twig' %}
+                        {% if pagination is defined and pagination.needed %}
+                            {% include '::pagination2.html.twig' %}
+                        {% endif %}
+                        {% if count==0 %}
+                            <br><b>No se han encontrado grupos para esta búsqueda</b>
+                        {% endif %}
                         
                     </div>
                 </div>
@@ -85,32 +90,6 @@
 {% endblock %}
 {% block scripts %}
     {{ parent() }}
-    <script>
-        $(document).ready(function(){
-            
-            ActivateMenu('browse_groups');
-            $('#side-menu').metisMenu();
-            $( "#searchButton" ).click(function( ) {
-                if ($("#search").val() == ''){
-                    path = "{{ path(paging.path)}}";
-                    window.location.href = path;
-                }else if ($("#search").val().length < 3) {
-                    toastr.error('El término de búsqueda debe incluir al menos tres caracteres','{{'Warning'|trans}}');
-                }else {
-                    path = "{{ path(paging.path)}}" + "/1/" + $("#search").val();
-                    window.location.href = path;
-                }
-              });
-            
-            $( "#search" ).keypress(function( event ) {
-                if ( event.which == 13 ) {
-                    event.preventDefault();
-                    $( "#searchButton" ).click();
-                }
-            });
-            
-       });
-    </script>
 {% endblock %}
 
 

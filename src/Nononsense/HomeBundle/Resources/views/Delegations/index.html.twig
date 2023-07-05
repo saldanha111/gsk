@@ -1,0 +1,122 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}Docoaro - GSK | {{'Homepage'|trans}} {% endblock %}
+{% block head %}
+{{ parent() }}
+<link rel="stylesheet" href="/css/plugins/datapicker/datepicker3.css">
+{% endblock %}
+{% block main_title %} Delegaciones de firmas{% endblock %}
+{% block content %}
+
+<div class="wrapper wrapper-content">
+    <div class="row">
+        <div class="col-sm-12">
+            <div>
+                <div class="row">
+                    {% for flashMessage in app.session.flashbag.get('error') %}
+                        <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+                            <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                            {{ flashMessage }}
+                        </div>
+                        <br>
+                    {% endfor %}
+                    {% for flashMessage in app.session.flashbag.get('message') %}
+                        <div class="alert alert-success alert-dismissable" style="margin: 10px 16px 0 16px">
+                            <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                            {{ flashMessage }}
+                        </div>
+                        <br>
+                    {% endfor %}
+                    <form class="form-horizontal" id="form_item" action="{{ path('nononsense_delegations_list')}}" method="GET">
+                        <input type="hidden" id='url_delegation_delete' value="{{ path('nononsense_delegations_delete',{'id': 'xxx'}) }}" />
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label item_filter">Usuario</label>
+                            <div class="col-sm-2 item_filter">
+                                <input type="text" name="name" class="form-control" value="{{filters.name is defined ? filters.name : ''}}">
+                            </div>
+                            <label class="col-sm-1 control-label item_filter">Sustituto</label>
+                            <div class="col-sm-2 item_filter">
+                                <input type="text" name="name2" class="form-control" value="{{filters.name2 is defined ? filters.name2 : ''}}">
+                            </div>
+                            <div class="col-sm-1">
+                              <div class="checkbox">
+                                <label>
+                                  <input name="active" value="1" type="checkbox" {% if filters.active is defined and  filters.active == true %} checked="checked" {% endif %}> Activo
+                                </label>
+                              </div>
+                            </div>
+                            <div class="col-sm-1 item_filter">
+                                <button type="submit" class="btn btn-primary pull-right">Filtrar</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="row">
+                    <div>
+                      <a href="{{ path('nononsense_delegations_edit',{'id': '0'}) }}" target="_self" class="btn btn-primary pull-right"><i class="fa fa-plus"></i> Nueva delegación</a>
+                    </div><br>
+                    <table id="inProcessParcial" class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>Id.</th>
+                            <th>Tipo</th>
+                            <th>Nombre</th>
+                            <th>Sustituto</th>
+                            <th>Fecha inicio</th>
+                            <th>Fecha fin</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        {% if items is defined %}
+                            {% for item in items %}
+                            <tr>
+                                <td>{{item.id}}</td>
+                                <td>{{item.typeName}}</td>
+                                <td>{{item.name}}</td>
+                                <td>{{item.sustituteName}}</td>
+                                <td>{{ item.created is defined and item.created is not empty ? item.created|date("d/m/Y H:i:s")|gskdate : '' }}</td>
+                                <td>{{ item.deleted is defined and item.deleted is not empty ? item.deleted|date("d/m/Y H:i:s")|gskdate : '' }}</td>
+                                <td>
+                                    {% if item.deleted is not defined or item.deleted is empty %}
+                                        <a href="javascript:delegation_delete({{ item.id }})" class="btn btn-xs" target="_self"><i class="fa fa-trash" aria-hidden="true"></i> Cancelar</a>
+                                    {% endif %}  
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% endif %}
+                    </table>
+
+                    {% if count==0 %}
+                        <br><b>No se han encontrado datos disponibles</b>
+                    {% endif %}
+                    {% if pagination is defined and pagination.needed %}
+                        {% include '::pagination2.html.twig' %}
+                    {% endif %}
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+{{ parent() }}
+<script>
+  $(function () {
+
+    ActivateMenu('delegations_list');
+    $('#side-menu').metisMenu();
+  });
+
+  function delegation_delete(id){
+    var url_delegation_delete = $('#url_delegation_delete').val();     
+    url_delegation_delete = url_delegation_delete.replace("xxx", id);
+
+    if(confirm('¿Seguro que quieres cancelar esta delegación de firma?')){
+        window.location.href = url_delegation_delete;
+    }
+
+  }
+
+</script>
+{% endblock %}
+                        

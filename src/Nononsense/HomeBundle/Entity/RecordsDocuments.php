@@ -462,40 +462,6 @@ class RecordsDocuments
     }
 
     /**
-     * Add metaData
-     *
-     * @param \Nononsense\HomeBundle\Entity\MetaData $metaData
-     * @return InstanciasWorkflows
-     */
-    public function addMetaDatum(\Nononsense\HomeBundle\Entity\MetaData $metaData)
-    {
-        $this->metaData[] = $metaData;
-
-        return $this;
-    }
-
-    /**
-     * Remove metaData
-     *
-     * @param \Nononsense\HomeBundle\Entity\MetaData $metaData
-     */
-    public function removeMetaDatum(\Nononsense\HomeBundle\Entity\MetaData $metaData)
-    {
-        $this->metaData->removeElement($metaData);
-    }
-
-    /**
-     * Get metaData
-     *
-     * @return \Doctrine\Common\Collections\Collection 
-     */
-    public function getMetaData()
-    {
-        return $this->metaData;
-    }
-
-
-    /**
      * Set userCreatedEntiy
      *
      * @param \Nononsense\UserBundle\Entity\Users $userCreatedEntiy

@@ -49,6 +49,7 @@
                             <th>Nombre</th>
                             <th>Tipo</th>
                             <th>Qr</th>
+                            <th>Qr dinámico</th>
                             <th>Link dinámico</th>
                             <th></th>
                             <th></th>
@@ -62,6 +63,9 @@
                                 <td>{{item.typeqr}}</td>
                                 <td>
                                     <a href="{{path('nononsense_qrs_view_qr', {'id': item.id}) }}" target="_blank" class="btn btn-xs"><i class="fa fa-qrcode" aria-hidden="true"></i> Ver QR</a>
+                                </td>
+                                <td>
+                                    <a href="{{path('nononsense_qrs_view_qr', {'id': item.id}) }}?dynamic=1" target="_blank" class="btn btn-xs"><i class="fa fa-qrcode" aria-hidden="true"></i> Ver QR dinámico</a>
                                 </td>
                                 <td>
                                     <a href="{{path('nononsense_qrs_json_qr', {'id': item.id}) }}" target="_blank" class="btn btn-xs"><i class="fa fa-link" aria-hidden="true"></i> Link</a>

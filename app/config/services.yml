@@ -36,6 +36,11 @@ services:
         public: false
         tags:
             - { name: twig.extension }
+    gskdate.twig_extension:
+        class: Nononsense\HomeBundle\Twig\GskDateExtension
+        public: false
+        tags:
+            - { name: twig.extension }
     cleanoption.twig_extension:
         class: Nononsense\HomeBundle\Twig\CleanoptionExtension
         public: false

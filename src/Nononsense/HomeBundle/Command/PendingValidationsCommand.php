@@ -25,72 +25,70 @@ class PendingValidationsCommand extends ContainerAwareCommand
 
 	protected function execute(InputInterface $input, OutputInterface $output){
 
-		$pendingWorkflows = $this->getWorkflows();
-
-		if ($pendingWorkflows) {
-			
-			$users = $this->getUsers();
-		
-			$subject = 'Documento pendiente de verificar';
-	        $message = 'Los siguientes registros: '.$pendingWorkflows.' están pendientes de verificar en el sistema';
-	        $baseUrl = trim($this->getContainer()->getParameter('cm_installation'), '/').$this->getContainer()->get('router')->generate('nononsense_search');
-
-	        foreach ($users as $key => $user) {
-	        	if ($this->getContainer()->get('utilities')->sendNotification($user['email'], $baseUrl, "", "", $subject, $message)) {
-	        		
-	        		$output->writeln(['<options=bold>Mensaje enviado:</> '.$user['email']]);
-
-	        		if ($input->getOption('msg')) {
-	                	$output->writeln(['<options=bold>Asunto:</> '.$subject]);	
-	                	$output->writeln(['<options=bold>Cuerpo del mensaje:</> '.$message]);
-	                	$output->writeln(['<options=bold>URL:</> '.$baseUrl]);
-	                	$output->writeln(['']);	
-	                }
-
-	        	}else{
-
-	        		$output->writeln(['<error>Error: '.$user['email'].'</error>']);
-	        	}
-	        }
-    	}else{
-
-    		$output->writeln(['<comment>Ningún documento pendiente</comment>']);
-    	}
-
-        $output->writeln(['<info>Proceso completado</info>']);
-	}
-
-	protected function getWorkflows(){
-
 		$em = $this->getContainer()->get('doctrine')->getManager();
 
-		$result = $em->getRepository('NononsenseHomeBundle:InstanciasWorkflows')->findBy(array("status" => [4,7,12,13,14,15]));
+		$states = $em->getRepository('NononsenseHomeBundle:CVStates')->findBy(array("id" => array(2,4)));
+		$areas = $em->getRepository('NononsenseHomeBundle:Areas')->findAll();
+		$minutes=10;
+		foreach($areas as $area){
+			$ids=array();
+			$qb 		= $em->createQueryBuilder();
+		    $records = $qb->select('i')
+		    				->from('NononsenseHomeBundle:CVRecords', 'i')
+		    				->leftJoin("i.template", "t")
+		    				->andWhere('i.state IN (:states)')
+		    				->andWhere('t.minutesVerification IS NOT NULL')
+		    				//->andWhere("DATE_SUB(i.modified,10,'MINUTE')<= CURRENT_TIMESTAMP()")
+		    				->andWhere("(DATEDIFF(CURRENT_TIMESTAMP(), i.modified)/60)>t.minutesVerification")
+		    				->andWhere('IDENTITY(t.area) = :area')
+		    				->andWhere('(i.pending = 0 OR i.pending IS NULL)')
+		    				//->setParameter('modified', new \DateTime('-'.$minutes.' minutes'))
+		    				->setParameter('area', $area->getId())
+		    				->setParameter('states', $states)
+		    				->getQuery()
+		    				->getResult();
+		   $aux_message="";
+		    if ($records) {				
+			    foreach ($records as $key => $record) {
+		    		$record->setPending(1);
+		    		$em->persist($record);
+		    		$ids[] = $record->getId();
+		    		$aux_message.=$record->getId()." - Código: ".$record->getTemplate()->getNumber()." - Título: ".$record->getTemplate()->getName()." - Edición: ".$record->getTemplate()->getNumEdition()."<br>";
+			    }
+			}
 
-		if ($result) {
 
-			$pendingWorkflows = implode(', ', array_map(function($c){ return $c->getId(); }, $result));
+			if ($ids) {
+				$subject = 'Registros pendientes de verificar';
+		        $message = 'Los siguientes registros están pendientes de verificación y necesitan ser gestionados por parte de algún verificador involucrado en su workflow correspondiente.<br><br>'. $aux_message;
+		        $baseUrl = trim($this->getContainer()->getParameter('cm_installation'), '/').$this->getContainer()->get('router')->generate('nononsense_cv_search')."?pending_for_me=1";
 
-			return $pendingWorkflows;
+		        if($area->getFll()){
+		            if ($this->getContainer()->get('utilities')->sendNotification($area->getFll()->getEmail(), $baseUrl, "", "", $subject, $message)) {
+
+		            	$output->writeln(['Mensaje enviado: '.$area->getFll()->getEmail()]);
+
+		                if ($input->getOption('msg')) {
+		                	$output->writeln(['Asunto: '.$subject]);	
+		                	$output->writeln(['Cuerpo del mensaje: '.$message]);
+		                	$output->writeln(['']);	
+		                }
+		            }
+		            else{
+
+		            	$output->writeln(['<error>Error: '.$area->getFll()->getEmail().'</error>']);
+		            }
+		        }
+		        else{
+			    	$output->writeln(['<comment>Hay '.count($ids).' registros pero no hay FLL para el area '.$area->getName().'</comment>']);
+			    }
+			}
+			else{
+		    	$output->writeln(['<comment>Ningún registro pendiente para el area '.$area->getName().'</comment>']);
+		    }
 		}
-		
-		return false;
-	}
+		$em->flush();
 
-	protected function getUsers(){
-
-		$em 	= $this->getContainer()->get('doctrine')->getManager();
-
-		$qb 	= $em->createQueryBuilder();
-		$query 	= $qb->select('u.email')
-		   ->distinct()
-		   ->from('NononsenseGroupBundle:GroupUsers', 'gu')
-		   ->join('gu.group', 'g')
-		   ->join('gu.user', 'u')
-		   ->where("g.tipo = 'FLL'")
-		   ->getQuery();
-
-		$users = $query->getResult();
-
-		return $users;
+	    $output->writeln(['<info>Proceso completado</info>']);	
 	}
 }

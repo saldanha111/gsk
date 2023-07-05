@@ -4,6 +4,7 @@ namespace Nononsense\HomeBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
+use Nononsense\NotificationsBundle\Entity\NotificationsModels;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -20,7 +21,7 @@ class TMTemplates
      * @ORM\Column(type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
-     * @Groups({"detail_document","json","detail","detail_area"})
+     * @Groups({"detail_document","json","detail","detail_area","data_new_edition"})
      */
     protected $id;
     
@@ -83,7 +84,7 @@ class TMTemplates
     /**
      * @var integer
      *
-     * @ORM\Column(name="first_edtition", type="integer", nullable=true)
+     * @ORM\Column(name="first_edition", type="integer", nullable=true)
      */
     protected $firstEdition;
 
@@ -121,9 +122,17 @@ class TMTemplates
     protected $logbook;
 
     /**
+     * @var boolean $correlative
+     *
+     * @ORM\Column(name="correlative", type="boolean",  options={"default" = false}, nullable=true)
+     * @Groups({"detail_document"})
+     */
+    protected $correlative;
+
+    /**
      * @var boolean $uniqid
      *
-     * @ORM\Column(name="uniqid", type="boolean",  options={"default" = false})
+     * @ORM\Column(name="uniqid", type="boolean",  options={"default" = false}, nullable=true)
      * @Groups({"detail_document"})
      */
     protected $uniqid;
@@ -131,7 +140,7 @@ class TMTemplates
     /**
      * @var boolean $isSimple
      *
-     * @ORM\Column(name="is_simple", type="boolean",  options={"default" = false})
+     * @ORM\Column(name="is_simple", type="boolean",  options={"default" = false}, nullable=true)
      * @Groups({"detail_document"})
      */
     protected $isSimple;
@@ -163,11 +172,6 @@ class TMTemplates
      * @ORM\Column(type="date", nullable=true)
      */
     protected $effectiveDate;
-
-    /**
-     * @ORM\Column(type="date", nullable=true)
-     */
-    protected $reviewDate;
 
     /**
      * @ORM\ManyToMany(targetEntity="\Nononsense\HomeBundle\Entity\RetentionCategories", inversedBy="templates")
@@ -227,12 +231,14 @@ class TMTemplates
     /**
      * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="ownerTemplates")
      * @ORM\JoinColumn(name="owner_id", referencedColumnName="id")
+     * @Groups({"data_new_edition"})
      */
     protected $owner;
 
     /**
      * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="backupTeamplates")
      * @ORM\JoinColumn(name="backup_id", referencedColumnName="id")
+     * @Groups({"data_new_edition"})
      */
     protected $backup;
 
@@ -247,6 +253,11 @@ class TMTemplates
      * @ORM\JoinColumn(name="opened_by_id", referencedColumnName="id", nullable=true)
      */
     protected $openedBy;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\CVRecords", mappedBy="template")
+     */
+    protected $cvRecords;
 
     /**
      * @var string
@@ -289,7 +300,44 @@ class TMTemplates
      */
     protected $notFillableItSelf;
 
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="minutes_verification", type="integer", nullable=true)
+     */
+    protected $minutesVerification;
 
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="diff_edition_days", type="integer", nullable=true)
+     */
+    protected $diffEditionDays;
+
+    /**
+     * @var boolean $isReactive
+     *
+     * @ORM\Column(name="is_reactive", type="boolean",  options={"default" = false}, nullable=true)
+     * @Groups({"detail_document"})
+     */
+    protected $isReactive;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\NotificationsBundle\Entity\NotificationsModels", mappedBy="templateId")
+     */
+    protected $notificationsModels;
+
+    /**
+     * @ORM\Column(name="retention_removed_at", type="date", nullable=true)
+     */
+    protected $retentionRemovedAt;
+
+    /**
+     * @var boolean 
+     *
+     * @ORM\Column(name="retention_revision", type="boolean", nullable=true)
+     */
+    protected $retentionRevision;
 
 
     public function __construct()
@@ -532,39 +580,6 @@ class TMTemplates
     public function getState()
     {
         return $this->state;
-    }
-
-    /**
-     * Add tmSignatures
-     *
-     * @param \Nononsense\HomeBundle\Entity\TMSignatures $tmSignatures
-     * @return TMTemplates
-     */
-    public function addTmSignature(\Nononsense\HomeBundle\Entity\TMSignatures $tmSignatures)
-    {
-        $this->tmSignatures[] = $tmSignatures;
-
-        return $this;
-    }
-
-    /**
-     * Remove tmSignatures
-     *
-     * @param \Nononsense\HomeBundle\Entity\TMSignatures $tmSignatures
-     */
-    public function removeTmSignature(\Nononsense\HomeBundle\Entity\TMSignatures $tmSignatures)
-    {
-        $this->tmSignatures->removeElement($tmSignatures);
-    }
-
-    /**
-     * Get tmSignatures
-     *
-     * @return \Doctrine\Common\Collections\Collection 
-     */
-    public function getTmSignatures()
-    {
-        return $this->tmSignatures;
     }
 
     /**
@@ -1035,29 +1050,6 @@ class TMTemplates
     }
 
     /**
-     * Set reviewDate
-     *
-     * @param \DateTime $reviewDate
-     * @return TMTemplates
-     */
-    public function setReviewDate($reviewDate)
-    {
-        $this->reviewDate = $reviewDate;
-
-        return $this;
-    }
-
-    /**
-     * Get reviewDate
-     *
-     * @return \DateTime 
-     */
-    public function getReviewDate()
-    {
-        return $this->reviewDate;
-    }
-
-    /**
      * Set token
      *
      * @param string $token
@@ -1338,5 +1330,268 @@ class TMTemplates
     public function getNotFillableItSelf()
     {
         return $this->notFillableItSelf;
+    }
+
+    /**
+     * Add cvRecords
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVRecords $cvRecords
+     * @return TMTemplates
+     */
+    public function addCvRecord(\Nononsense\HomeBundle\Entity\CVRecords $cvRecords)
+    {
+        $this->cvRecords[] = $cvRecords;
+
+        return $this;
+    }
+
+    /**
+     * Remove cvRecords
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVRecords $cvRecords
+     */
+    public function removeCvRecord(\Nononsense\HomeBundle\Entity\CVRecords $cvRecords)
+    {
+        $this->cvRecords->removeElement($cvRecords);
+    }
+
+    /**
+     * Get cvRecords
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getCvRecords()
+    {
+        return $this->cvRecords;
+    }
+
+    /**
+     * Set correlative
+     *
+     * @param boolean $correlative
+     * @return TMTemplates
+     */
+    public function setCorrelative($correlative)
+    {
+        $this->correlative = $correlative;
+
+        return $this;
+    }
+
+    /**
+     * Get correlative
+     *
+     * @return boolean 
+     */
+    public function getCorrelative()
+    {
+        return $this->correlative;
+    }
+
+    /**
+     * Set minutesVerification
+     *
+     * @param integer $minutesVerification
+     * @return TMTemplates
+     */
+    public function setMinutesVerification($minutesVerification)
+    {
+        $this->minutesVerification = $minutesVerification;
+
+        return $this;
+    }
+
+    /**
+     * Get minutesVerification
+     *
+     * @return integer 
+     */
+    public function getMinutesVerification()
+    {
+        return $this->minutesVerification;
+    }
+
+    /**
+     * Set isReactive
+     *
+     * @param boolean $isReactive
+     * @return TMTemplates
+     */
+    public function setIsReactive($isReactive)
+    {
+        $this->isReactive = $isReactive;
+
+        return $this;
+    }
+
+    /**
+     * Get isReactive
+     *
+     * @return boolean 
+     */
+    public function getIsReactive()
+    {
+        return $this->isReactive;
+    }
+
+    /**
+     * Set diffEditionDays
+     *
+     * @param integer $diffEditionDays
+     * @return TMTemplates
+     */
+    public function setDiffEditionDays($diffEditionDays)
+    {
+        $this->diffEditionDays = $diffEditionDays;
+
+        return $this;
+    }
+
+    /**
+     * Get diffEditionDays
+     *
+     * @return integer 
+     */
+    public function getDiffEditionDays()
+    {
+        return $this->diffEditionDays;
+    }
+
+
+    /**
+     * Get notificationsModels
+     *
+     * @return NotificationsModels
+     */
+    public function getNotificationModels()
+    {
+        return $this->notificationsModels;
+    }
+
+    /**
+     * Set notificationsModels
+     *
+     * @param NotificationsModels $notificationsModels
+     * @return TMTemplates
+     */
+    public function setNotificationModels(NotificationsModels $notificationsModels)
+    {
+        $this->notificationsModels = $notificationsModels;
+
+        return $this;
+    }
+
+
+    /**
+     * Add notificationsModels
+     *
+     * @param \Nononsense\NotificationsBundle\Entity\NotificationsModels $notificationsModels
+     * @return TMTemplates
+     */
+    public function addNotificationsModel(\Nononsense\NotificationsBundle\Entity\NotificationsModels $notificationsModels)
+    {
+        $this->notificationsModels[] = $notificationsModels;
+
+        return $this;
+    }
+
+    /**
+     * Remove notificationsModels
+     *
+     * @param \Nononsense\NotificationsBundle\Entity\NotificationsModels $notificationsModels
+     */
+    public function removeNotificationsModel(\Nononsense\NotificationsBundle\Entity\NotificationsModels $notificationsModels)
+    {
+        $this->notificationsModels->removeElement($notificationsModels);
+    }
+
+    /**
+     * Get notificationsModels
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getNotificationsModels()
+    {
+        return $this->notificationsModels;
+    }
+
+    /**
+     * Set retentionRemovedAt
+     *
+     * @param \DateTime $retentionRemovedAt
+     * @return TMTemplates
+     */
+    public function setRetentionRemovedAt($retentionRemovedAt)
+    {
+        $this->retentionRemovedAt = $retentionRemovedAt;
+
+        return $this;
+    }
+
+    /**
+     * Get retentionRemovedAt
+     *
+     * @return \DateTime 
+     */
+    public function getRetentionRemovedAt()
+    {
+        return $this->retentionRemovedAt;
+    }
+
+
+    /**
+     * Add tmSignatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMSignatures $tmSignatures
+     * @return TMTemplates
+     */
+    public function addTmSignature(\Nononsense\HomeBundle\Entity\TMSignatures $tmSignatures)
+    {
+        $this->tmSignatures[] = $tmSignatures;
+
+        return $this;
+    }
+
+    /**
+     * Remove tmSignatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\TMSignatures $tmSignatures
+     */
+    public function removeTmSignature(\Nononsense\HomeBundle\Entity\TMSignatures $tmSignatures)
+    {
+        $this->tmSignatures->removeElement($tmSignatures);
+    }
+
+    /**
+     * Get tmSignatures
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getTmSignatures()
+    {
+        return $this->tmSignatures;
+    }
+
+    /**
+     * Set retentionRevision
+     *
+     * @param boolean $retentionRevision
+     * @return TMTemplates
+     */
+    public function setRetentionRevision($retentionRevision)
+    {
+        $this->retentionRevision = $retentionRevision;
+
+        return $this;
+    }
+
+    /**
+     * Get retentionRevision
+     *
+     * @return boolean 
+     */
+    public function getRetentionRevision()
+    {
+        return $this->retentionRevision;
     }
 }

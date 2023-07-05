@@ -127,10 +127,10 @@
                                 <td>{{item.numEdition}}</td>
                                 <td><a href="{{path('nononsense_tm_template_detail', {'id': item.id}) }}">{{item.name}}</a></td>
                                 <td>{{item.nameArea}}</td>
-                                <td><b>{{item.ReviewRequestDate is defined and item.ReviewRequestDate is not null ? item.ReviewRequestDate|date("d/m/Y H:i:s") : ''}}</b></td>
+                                <td><b>{{item.ReviewRequestDate is defined and item.ReviewRequestDate is not null ? item.ReviewRequestDate|date("d/m/Y H:i:s")|gskdate : ''}}</b></td>
                                 <td><b>{{item.ReviewRequestName}}</b></td>
-                                <td>{{item.effectiveDate is defined and item.effectiveDate is not null ? item.effectiveDate|date("d/m/Y") : ''}}</td>
-                                <td>{{item.reviewDate is defined and item.reviewDate is not null ? item.reviewDate|date("d/m/Y") : ''}}</td>
+                                <td>{{item.effectiveDate is defined and item.effectiveDate is not null ? item.effectiveDate|date("d/m/Y")|gskdate : ''}}</td>
+                                <td>{{item.dateReview is defined and item.dateReview is not null ? item.dateReview|date("d/m/Y")|gskdate : ''}}</td>
                                 <td>{{item.ownerName}}</td>
                                 <td>{{item.backupName}}</td>
                                 <td>{{item.reference}}</td>

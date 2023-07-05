@@ -27,7 +27,6 @@ class CertificateCommand extends ContainerAwareCommand
 
 		if ($certifications) {
 			
-			
 			$header = ['apiKey:'.$this->getContainer()->getParameter('api3.key')];
 
 			foreach ($certifications as $key => $certification) {
@@ -60,6 +59,7 @@ class CertificateCommand extends ContainerAwareCommand
 				} catch (\Exception $e) {
 					$subject = 'Error de certificación';
 					$message = 'Error durante la certificación de un documento: '.$e->getMessage();
+
 					$this->getContainer()->get('utilities')->sendNotification('asantos@oaro.net', false, false, false, $subject, $message);
 					$output->writeln(['<error>'.$e->getMessage().'</error>']);
 				}

@@ -52,11 +52,6 @@ class Categories
      */
     protected $modified;
 
-    /**
-     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\MasterWorkflows", mappedBy="category")
-     */
-    protected $Master_Workflows;
-
     public function __construct()
     {
 
@@ -158,39 +153,6 @@ class Categories
     public function getModified()
     {
         return $this->modified;
-    }
-
-    /**
-     * Add MasterWorkflows
-     *
-     * @param \Nononsense\HomeBundle\Entity\MasterWorkflows $masterWorkflows
-     * @return Categories
-     */
-    public function addMasterWorkflow(\Nononsense\HomeBundle\Entity\MasterWorkflows $masterWorkflows)
-    {
-        $this->MasterWorkflows[] = $masterWorkflows;
-
-        return $this;
-    }
-
-    /**
-     * Remove MasterWorkflows
-     *
-     * @param \Nononsense\HomeBundle\Entity\MasterWorkflows $masterWorkflows
-     */
-    public function removeMasterWorkflow(\Nononsense\HomeBundle\Entity\MasterWorkflows $masterWorkflows)
-    {
-        $this->MasterWorkflows->removeElement($masterWorkflows);
-    }
-
-    /**
-     * Get MasterWorkflows
-     *
-     * @return \Doctrine\Common\Collections\Collection 
-     */
-    public function getMasterWorkflows()
-    {
-        return $this->MasterWorkflows;
     }
 
     /**

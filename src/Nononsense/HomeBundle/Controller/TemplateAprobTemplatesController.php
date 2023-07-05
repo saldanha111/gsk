@@ -1,8 +1,8 @@
 <?php
 namespace Nononsense\HomeBundle\Controller;
 
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Nononsense\HomeBundle\Entity\InstanciasSteps;
 use Symfony\Component\Filesystem\Filesystem;
 use Nononsense\UtilsBundle\Classes;
 
@@ -43,24 +43,14 @@ class TemplateAprobTemplatesController extends Controller
 
         $is_valid = $this->get('app.security')->permissionSeccion('aprobador_gp');
         if(!$is_valid){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                'No tiene permisos suficientes'
-            );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
-            return $this->redirect($route);
+            return $this->returnToHomePage("No tiene permisos suficientes");
         }
 
         $user = $this->container->get('security.context')->getToken()->getUser();
 
         $array_item["template"] = $this->getDoctrine()->getRepository(TMTemplates::class)->findOneBy(array("id" => $id));
         if($array_item["template"]->getTmState()->getId()!=4){
-        	$this->get('session')->getFlashBag()->add(
-                'error',
-                'La plantilla indicada no se encuentra en fase de aprobación'
-            );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
-            return $this->redirect($route);
+            return $this->returnToHomePage("La plantilla indicada no se encuentra en fase de aprobación");
         }
 
         $action_test = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 3));
@@ -95,12 +85,7 @@ class TemplateAprobTemplatesController extends Controller
         }
 
         if($find==0){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                'No tiene permisos para aprobar esta plantilla'
-            );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
-            return $this->redirect($route);
+            return $this->returnToHomePage("No tiene permisos para aprobar esta plantilla");
         }
 
         $all_signatures = $this->getDoctrine()->getRepository(TMSignatures::class)->findBy(array("template" => $array_item["template"]),array("id" => "ASC"));
@@ -162,55 +147,35 @@ class TemplateAprobTemplatesController extends Controller
         $em = $this->getDoctrine()->getManager();
         $array_item=array();
 
+        $password =  $request->get('password');
+        if(!$password || !$this->get('utilities')->checkUser($password)){
+            return $this->returnToHomePage("No se pudo firmar el registro, la contraseña es incorrecta");
+        }
+
         $is_valid = $this->get('app.security')->permissionSeccion('aprobador_gp');
         if(!$is_valid){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                'No tiene permisos suficientes'
-            );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
-            return $this->redirect($route);
+            return $this->returnToHomePage("No tiene permisos suficientes");
         }
 
         $user = $this->container->get('security.context')->getToken()->getUser();
 
         $template = $this->getDoctrine()->getRepository(TMTemplates::class)->findOneBy(array("id" => $id));
         if($template->getTmState()->getId()!=4){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                'La plantilla indicada no se encuentra en fase de aprobación'
-            );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
-            return $this->redirect($route);
+            return $this->returnToHomePage("La plantilla indicada no se encuentra en fase de aprobación");
         }
 
         if(!$template->getOpenedBy() || $template->getOpenedBy()!=$user){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                'No se puede efectuar la operación'
-            );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
-            return $this->redirect($route);
+            return $this->returnToHomePage("No se puede efectuar la operación");
         }
 
         if($request->get("test")){
         	$test_to_approve = $this->getDoctrine()->getRepository(TMTests::class)->findOneBy(array("id" => $request->get("test")));
         	if(!$test_to_approve || $test_to_approve->getSignature()->getTemplate()!=$template){
-        		$this->get('session')->getFlashBag()->add(
-	                'error',
-	                'No se puede efectuar la operación'
-	            );
-	            $route=$this->container->get('router')->generate('nononsense_tm_templates');
-	            return $this->redirect($route);
+                return $this->returnToHomePage("No se puede efectuar la operación");
         	}
         }
         else{
-        	$this->get('session')->getFlashBag()->add(
-                'error',
-                'No se puede efectuar la operación'
-            );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
-            return $this->redirect($route);
+            return $this->returnToHomePage("No se puede efectuar la operación");
         }
         
         $action = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 4));
@@ -245,12 +210,7 @@ class TemplateAprobTemplatesController extends Controller
         
 
         if($find==0){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                'No tiene permisos para aprobar este documento'
-            );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
-            return $this->redirect($route);
+            return $this->returnToHomePage("No tiene permisos para aprobar este documento");
         }
 
         $action_test = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 3));
@@ -274,7 +234,7 @@ class TemplateAprobTemplatesController extends Controller
         $signature->setUserEntiy($user);
         $signature->setCreated(new \DateTime());
         $signature->setModified(new \DateTime());
-        $signature->setSignature($request->get("signature"));
+        $signature->setSignature("-");
         $signature->setVersion($response["version"]["id"]);
         $signature->setTmTest($test_to_approve);
         $signature->setTmWhoAprobFromWorkflow($wich_workflow);
@@ -350,7 +310,7 @@ class TemplateAprobTemplatesController extends Controller
 	        		if($us->getAction()->getId()!=4){
 	        			$next_state=5;
 	        			//Metemos aquellos usuarios que sean elaboradores para que estos sean notificados en caso de que la plantilla vuelva hacia atrás
-	        			if($us->getAction()->getId()==2){
+	        			if($us->getAction()->getId()==2 || $us->getAction()->getId()==10 || $us->getAction()->getId()==9){
 	        				$users_elaborations[]=$us->getUserEntiy()->getEmail();
 	        			}
 
@@ -406,26 +366,31 @@ class TemplateAprobTemplatesController extends Controller
                 switch($next_state){
                     case 5:
                         $subject="Plantilla aprobada";
-                        $mensaje='La plantilla con ID '.$id.' está pendiente de configuración por su parte. Para poder revisarlo puede acceder a "Gestión de plantillas -> Pdt. configuración", buscar la plantilla correspondiente y pulsar en Configurar';
+                        $mensaje='La plantilla Código: '.$template->getNumber().' - Título: '.$template->getName().' - Edición: '.$template->getNumEdition().' está pendiente de configuración por su parte. Para poder revisarlo puede acceder a "Gestión de plantillas -> Pdt. configuración", buscar la plantilla correspondiente y pulsar en Configurar';
                         $baseURL=$this->container->get('router')->generate('nononsense_tm_config_detail', array("id" => $id),TRUE);
+                        
+                        $description=$signature->getDescription()." - Con esta firma declaro la verificación del contenido de la plantilla estando de acuerdo a los procedimientos vigentes y a la aprobación de la plantilla.";
+                        $signature->setDescription($description);
+                        $em->persist($signature);
                         break;
                     case 3:
                         $subject="Test rechazados";
-                        $mensaje='La plantilla con ID '.$id.' está pendiente de realizar nuevos tests por su parte. Para poder revisarlos puede acceder a "Gestión de plantillas -> En test", buscar la plantilla correspondiente y pulsar en Testear';
+                        $mensaje='La plantilla Código: '.$template->getNumber().' - Título: '.$template->getName().' - Edición: '.$template->getNumEdition().' está pendiente de realizar nuevos tests por su parte. Para poder revisarlos puede acceder a "Gestión de plantillas -> En test", buscar la plantilla correspondiente y pulsar en Testear';
                         $baseURL=$this->container->get('router')->generate('nononsense_tm_test_detail', array("id" => $id),TRUE);
                         break;
                     case 2:
                         $subject="Plantilla rechazada";
-                        $mensaje='La plantilla con ID '.$id.' está pendiente de revisión por su parte por haberse solicitado su reelaboración. Para poder revisarlo puede acceder a "Gestión de plantillas -> En elaboración", buscar la plantilla correspondiente y pulsar en Elaborar';
+                        $mensaje='La plantilla Código: '.$template->getNumber().' - Título: '.$template->getName().' - Edición: '.$template->getNumEdition().' está pendiente de revisión por su parte por haberse solicitado su reelaboración. Para poder revisarlo puede acceder a "Gestión de plantillas -> En elaboración", buscar la plantilla correspondiente y pulsar en Elaborar';
                         $baseURL=$this->container->get('router')->generate('nononsense_tm_elaborate_detail', array("id" => $id),TRUE);
                         break;
                     case 9:
                         $subject="Plantilla cancelada";
-                        $mensaje='La plantilla con ID '.$id.' está pendiente de revisión por su parte por haberse solicitado su cancelación. Para poder revisarlo puede acceder a "Gestión de plantillas -> En elaboración", buscar la plantilla correspondiente y pulsar en Gestionar cancelación';
-                        $baseURL=$this->container->get('router')->generate('nononsense_tm_elaborate_detail', array("id" => $id),TRUE);
+                        $mensaje='La plantilla Código: '.$template->getNumber().' - Título: '.$template->getName().' - Edición: '.$template->getNumEdition().' está pendiente de revisión por su parte por haberse solicitado su cancelación. Para poder revisarlo puede acceder a "Gestión de plantillas -> En elaboración", buscar la plantilla correspondiente y pulsar en Gestionar cancelación';
+                        $baseURL=$this->container->get('router')->generate('nononsense_tm_elaborate_detail_cancel', array("id" => $id),TRUE);
                         break;
                 }
 
+                $users_notifications = array_unique($users_notifications);
 	            foreach($users_notifications as $email){
                     $this->get('utilities')->sendNotification($email, $baseURL, "", "", $subject, $mensaje);
                 }
@@ -438,12 +403,22 @@ class TemplateAprobTemplatesController extends Controller
 
         $this->get('session')->getFlashBag()->add('message', "La aprobación se ha realizado correctamente");
         if($user_workflow_finish){
-        	$route = $this->container->get('router')->generate('nononsense_tm_templates');
+            $route = $this->container->get('router')->generate('nononsense_home_homepage');
         }
         else{
         	$route = $this->container->get('router')->generate('nononsense_tm_aprob_detail', array("id" => $template->getId()),TRUE);
         }
 
+        return $this->redirect($route);
+    }
+
+    private function returnToHomePage(string $msgError, string $type = "error"): RedirectResponse
+    {
+        $this->get('session')->getFlashBag()->add(
+            $type,
+            $msgError
+        );
+        $route=$this->container->get('router')->generate('nononsense_home_homepage');
         return $this->redirect($route);
     }
 }

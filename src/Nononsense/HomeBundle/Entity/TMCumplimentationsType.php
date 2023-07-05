@@ -35,6 +35,16 @@ class TMCumplimentationsType
      */
     protected $tmCumplimentations;
 
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\CVActions", mappedBy="type")
+     */
+    protected $cvActions;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\CVStates", mappedBy="type")
+     */
+    protected $cvStates;
+
     public function __construct()
     {
 
@@ -104,5 +114,71 @@ class TMCumplimentationsType
     public function getTmCumplimentations()
     {
         return $this->tmCumplimentations;
+    }
+
+    /**
+     * Add cvActions
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVActions $cvActions
+     * @return TMCumplimentationsType
+     */
+    public function addCvAction(\Nononsense\HomeBundle\Entity\CVActions $cvActions)
+    {
+        $this->cvActions[] = $cvActions;
+
+        return $this;
+    }
+
+    /**
+     * Remove cvActions
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVActions $cvActions
+     */
+    public function removeCvAction(\Nononsense\HomeBundle\Entity\CVActions $cvActions)
+    {
+        $this->cvActions->removeElement($cvActions);
+    }
+
+    /**
+     * Get cvActions
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getCvActions()
+    {
+        return $this->cvActions;
+    }
+
+    /**
+     * Add cvStates
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVStates $cvStates
+     * @return TMCumplimentationsType
+     */
+    public function addCvState(\Nononsense\HomeBundle\Entity\CVStates $cvStates)
+    {
+        $this->cvStates[] = $cvStates;
+
+        return $this;
+    }
+
+    /**
+     * Remove cvStates
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVStates $cvStates
+     */
+    public function removeCvState(\Nononsense\HomeBundle\Entity\CVStates $cvStates)
+    {
+        $this->cvStates->removeElement($cvStates);
+    }
+
+    /**
+     * Get cvStates
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getCvStates()
+    {
+        return $this->cvStates;
     }
 }

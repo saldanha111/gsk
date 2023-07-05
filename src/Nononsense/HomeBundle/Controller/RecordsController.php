@@ -138,13 +138,16 @@ class RecordsController extends Controller
 
                 $phpExcelObject->getProperties();
                 $phpExcelObject->setActiveSheetIndex(0)
-                 ->setCellValue('A1', 'Nº')
-                 ->setCellValue('B1', 'Nombre')
-                 ->setCellValue('C1', 'Creador')
-                 ->setCellValue('D1', 'Próximo firmante')
-                 ->setCellValue('E1', 'Tipo')
-                 ->setCellValue('F1', 'Fecha')
-                 ->setCellValue('G1', 'Estado');
+                 ->setCellValue('A1', "Listado de documentos - ".$user->getUsername()." - ".$this->get('utilities')->sp_date(date("d/m/Y H:i:s")));
+
+                 $phpExcelObject->setActiveSheetIndex()
+                 ->setCellValue('A2', 'Nº')
+                 ->setCellValue('B2', 'Nombre')
+                 ->setCellValue('C2', 'Creador')
+                 ->setCellValue('D2', 'Próximo firmante')
+                 ->setCellValue('E2', 'Tipo')
+                 ->setCellValue('F2', 'Fecha')
+                 ->setCellValue('G2', 'Estado');
             }
 
             if($request->get("export_pdf")){
@@ -204,7 +207,7 @@ class RecordsController extends Controller
                 </tr>';
             }
 
-            $i=2;
+            $i=3;
             foreach($array_item["items"] as $item){
                 switch($item["status"]){
                     case 1: $status="En proceso";break;
@@ -230,12 +233,12 @@ class RecordsController extends Controller
                     ->setCellValue('C'.$i, $item["usuario"])
                     ->setCellValue('D'.$i, $next_signer)
                     ->setCellValue('E'.$i, $item["nameType"])
-                    ->setCellValue('F'.$i, ($item["created"]) ? $item["created"] : '')
+                    ->setCellValue('F'.$i, ($item["created"]) ? $this->get('utilities')->sp_date($item["created"]->format('d/m/Y H:i:s')) : '')
                     ->setCellValue('G'.$i, $status);
                 }
 
                 if($request->get("export_pdf")){
-                    $html.='<tr style="font-size:8px"><td>'.$item["id"].'</td><td>'.$item["name"].'</td><td>'.$item["usuario"].'</td><td>'.$next_signer.'</td><td>'.$item["nameType"].'</td><td>'.(($item["created"]) ? $item["created"]->format('Y-m-d H:i:s') : '').'</td><td>'.$status.'</td></tr>';
+                    $html.='<tr style="font-size:8px"><td>'.$item["id"].'</td><td>'.$item["name"].'</td><td>'.$item["usuario"].'</td><td>'.$next_signer.'</td><td>'.$item["nameType"].'</td><td>'.(($item["created"]) ? $this->get('utilities')->sp_date($item["created"]->format('d/m/Y H:i:s')) : '').'</td><td>'.$status.'</td></tr>';
                 }
 
                 $i++;
@@ -265,7 +268,7 @@ class RecordsController extends Controller
 
             if($request->get("export_pdf")){
                 $html.='</table></body></html>';
-                $this->returnPDFResponseFromHTML($html);
+                $this->get('utilities')->returnPDFResponseFromHTML($html, "Listado de documentos");
             }
         }
     }
@@ -431,7 +434,6 @@ class RecordsController extends Controller
         if(!$expired_token){
             $em = $this->getDoctrine()->getManager();
 
-            // get the InstanciasSteps entity
             $record = $this->getDoctrine()
                 ->getRepository('NononsenseHomeBundle:RecordsDocuments')
                 ->find($id);
@@ -513,7 +515,7 @@ class RecordsController extends Controller
         $expired_token = $this->get('utilities')->tokenExpired($_REQUEST["token"]);
         if(!$expired_token){
             $this->get('utilities')->tokenRemove($_REQUEST["token"]);
-            // get the InstanciasSteps entity
+
             $record = $this->getDoctrine()
                 ->getRepository('NononsenseHomeBundle:RecordsDocuments')
                 ->find($id);
@@ -1439,26 +1441,5 @@ class RecordsController extends Controller
             'name' => $ruta.$file_name,
             'size' => $file->getClientSize()
         ];
-    }
-
-    private function returnPDFResponseFromHTML($html){
-        //set_time_limit(30); uncomment this line according to your needs
-        // If you are not in a controller, retrieve of some way the service container and then retrieve it
-        //$pdf = $this->container->get("white_october.tcpdf")->create('vertical', PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
-        //if you are in a controlller use :
-        $pdf = $this->get("white_october.tcpdf")->create('horizontal', PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
-        $pdf->SetAuthor('GSK');
-        $pdf->SetTitle(('Registros GSK'));
-        $pdf->SetSubject('Registros GSK');
-        $pdf->setFontSubsetting(true);
-        $pdf->SetFont('helvetica', '', 9, '', true);
-        //$pdf->SetMargins(20,20,40, true);
-        $pdf->AddPage('L', 'A4');
-
-
-        $filename = 'list_records';
-
-        $pdf->writeHTMLCell($w = 0, $h = 0, $x = '', $y = '', $html, $border = 0, $ln = 1, $fill = 0, $reseth = true, $align = '', $autopadding = true);
-        $pdf->Output($filename.".pdf",'I'); // This will output the PDF as a response directly
     }
 }

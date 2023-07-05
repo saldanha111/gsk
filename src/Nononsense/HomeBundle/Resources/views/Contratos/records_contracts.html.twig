@@ -104,7 +104,7 @@
                                         <i class="fa fa-users" aria-hidden="true"></i> Contratado
                                     {% endif %}
                                 </td>
-                                <td>{{item.created|date("d/m/Y")}}</td>
+                                <td>{{item.created|date("d/m/Y")|gskdate}}</td>
                                 <td>
                                     {% if item.status is defined %}
                                         {% if is_admin %}

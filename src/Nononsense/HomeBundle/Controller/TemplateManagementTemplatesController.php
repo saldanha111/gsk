@@ -1,8 +1,9 @@
 <?php
 namespace Nononsense\HomeBundle\Controller;
 
+use Exception;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Nononsense\HomeBundle\Entity\InstanciasSteps;
 use Symfony\Component\Filesystem\Filesystem;
 use Nononsense\UtilsBundle\Classes;
 
@@ -33,34 +34,54 @@ class TemplateManagementTemplatesController extends Controller
     /* Listado de plantillas que están disponibles para crear una nueva edición */
     public function listActiveJsonAction(Request $request)
     {
-    	$em = $this->getDoctrine()->getManager();
-        $array=array();
 
-        $filters["limit_from"]=0;
-        $filters["limit_many"]=10;
 
-        if($request->get("no_request_in_proccess")){
-            $filters["no_request_in_proccess"]=1;
+        $em = $this->getDoctrine()->getManager();
+        $array = array();
+
+        $filters["limit_from"] = 0;
+        $filters["limit_many"] = 10;
+
+        if ($request->get("no_request_in_proccess")) {
+            $filters["no_request_in_proccess"] = 1;
         }
 
-        if($request->get("nest")){
-            $filters["nest"]=1;
-            if($request->get("parent")){
-                $filters["parent"]=$request->get("parent");
+        if ($request->get("nest")) {
+            $filters["nest"] = 1;
+            if ($request->get("parent")) {
+                $filters["parent"] = $request->get("parent");
             }
         }
 
-        if($request->get("name")){
-            $filters["name"]=$request->get("name");
+        if ($request->get("name")) {
+            $filters["name"] = $request->get("name");
         }
 
+        if ($request->get("operative")) {
+            $filters["operative"] = $request->get("operative");
+        }
 
-        $items=$em->getRepository('NononsenseHomeBundle:TMTemplates')->listActiveForRequest($filters);
+        try {
+
+            $items = $em->getRepository('NononsenseHomeBundle:TMTemplates')->listActiveForRequest($filters);
+
+        } catch(Exception $exception)
+        {
+            $response = new Response(json_encode($exception->getMessage()), 500);
+            $response->headers->set('Content-Type', 'application/json');
+
+            return $response;
+        }
         $serializer = $this->get('serializer');
         $array_items = json_decode($serializer->serialize($items,'json',array('groups' => array('json'))),true);
         foreach($array_items as $key => $item){
             $array["items"][$key]["id"]=$item["id"];
-            $array["items"][$key]["text"]=$item["name"]." - ".$item["prefix"];
+            if(!$request->get("cv")){
+                $array["items"][$key]["text"]=$item["name"]." - ".$item["prefix"];
+            }
+            else{
+                $array["items"][$key]["text"]=$item["id"]." - ".$item["name"];
+            }
             $array["items"][$key]["area"]=$item["area"]["id"];
         }
 
@@ -78,11 +99,23 @@ class TemplateManagementTemplatesController extends Controller
         $types=array();
 
         $array_item["areas"] = $this->getDoctrine()->getRepository(Areas::class)->findBy(array(),array("name" => "ASC"));
-        $array_item["groups"] = $this->getDoctrine()->getRepository(Groups::class)->findBy(array(),array("name" => "ASC"));
+        $array_item["groups"] = $this->getDoctrine()->getRepository(Groups::class)->findBy(array("isActive" => TRUE),array("name" => "ASC"));
         $array_item["users"] = $this->getDoctrine()->getRepository(Users::class)->findBy(array(),array("name" => "ASC"));
         $array_item["states"] = $this->getDoctrine()->getRepository(TMStates::class)->findBy(array(),array("number" => "ASC"));
         
-        
+        if(!$this->get('app.security')->permissionSeccion('dueno_gp') && !$this->get('app.security')->permissionSeccion('elaborador_gp') && !$this->get('app.security')->permissionSeccion('tester_gp') && !$this->get('app.security')->permissionSeccion('aprobador_gp') && !$this->get('app.security')->permissionSeccion('admin_gp')){
+            $array_item["extend"]=FALSE;
+        }   
+        else{
+            if($request->get("cumpl") && $request->get("cumpl")!=""){
+                $filters["cumpl"]=$request->get("cumpl");
+                $array_item["extend"]=FALSE;
+            }
+            else{
+                $array_item["extend"]=TRUE;
+            }
+            
+        }
 
         if(!$request->get("export_excel")){
             if($request->get("page")){
@@ -113,6 +146,29 @@ class TemplateManagementTemplatesController extends Controller
 
         if($request->get("state")){
             $filters["state"]=$request->get("state");
+
+            $perm_state = $this->getDoctrine()->getRepository(TMStates::class)->findOneBy(array("id" => $request->get("state")));
+
+            if($perm_state){
+                if($perm_state->getPem()){
+                    $pems = explode(";", $perm_state->getPem());
+                    $find=0;
+                    foreach($pems as $pem){
+                        if($this->get('app.security')->permissionSeccion($pem)){
+                            $find=1;
+                        }
+                    }
+
+                    if(!$find){
+                        return $this->returnToHomePage("No tiene permisos suficientes");
+                    }
+                }
+            }
+        }
+        else{
+            if(!$request->get("request_drop") && !$request->get("request_review")){
+                return $this->returnToHomePage("Tiene que filtrar por al menos un estado");
+            }
         }
 
         if($request->get("applicant")){
@@ -147,6 +203,10 @@ class TemplateManagementTemplatesController extends Controller
             $filters["pending_for_me"]=$request->get("pending_for_me");
         }
 
+        if($request->get("order")){
+            $filters["order"]=$request->get("order");
+        }
+
 
         $array_item["filters"]=$filters;
         $array_item["items"] = $this->getDoctrine()->getRepository(TMTemplates::class)->list("list",$filters);
@@ -169,12 +229,7 @@ class TemplateManagementTemplatesController extends Controller
             }
             else{
                 if(!$this->get('app.security')->permissionSeccion('elaborador_gp') && !$this->get('app.security')->permissionSeccion('aprobador_gp')){
-                    $this->get('session')->getFlashBag()->add(
-                        'error',
-                        'No tiene permisos suficientes'
-                    );
-                    $route=$this->container->get('router')->generate('nononsense_tm_templates');
-                    return $this->redirect($route);
+                    return $this->returnToHomePage("No tiene permisos suficientes");
                 }
                 return $this->render('NononsenseHomeBundle:TemplateManagement:requests_review_templates.html.twig',$array_item);
             }
@@ -182,12 +237,7 @@ class TemplateManagementTemplatesController extends Controller
         else{
             $is_valid = $this->get('app.security')->permissionSeccion('admin_gp');
             if(!$is_valid){
-                $this->get('session')->getFlashBag()->add(
-                    'error',
-                    'No tiene permisos suficientes'
-                );
-                $route=$this->container->get('router')->generate('nononsense_tm_templates');
-                return $this->redirect($route);
+                return $this->returnToHomePage("No tiene permisos suficientes");
             }
             return $this->render('NononsenseHomeBundle:TemplateManagement:request_drop_templates.html.twig',$array_item);            
         }
@@ -216,12 +266,7 @@ class TemplateManagementTemplatesController extends Controller
 
         if($request->get("request_review") || $request->get("request_drop") || $request->get("request_drop_action")){
             if($array_item["template"]->getTmState()->getId()!=6){
-                $this->get('session')->getFlashBag()->add(
-                    'error',
-                    'La plantilla indicada no se encuentra en vigor y por tanto no se puede realizar ninguna acción de solicitud sobre ella'
-                );
-                $route=$this->container->get('router')->generate('nononsense_tm_templates');
-                return $this->redirect($route);
+                return $this->returnToHomePage("La plantilla indicada no se encuentra en vigor y por tanto no se puede realizar ninguna acción de solicitud sobre ella");
             }
         }
 
@@ -229,33 +274,18 @@ class TemplateManagementTemplatesController extends Controller
         if($request->get("request_drop")){
             $is_valid = $this->get('app.security')->permissionSeccion('dueno_gp');
             if(!$is_valid){
-                $this->get('session')->getFlashBag()->add(
-                    'error',
-                    'No tiene permisos suficientes'
-                );
-                $route=$this->container->get('router')->generate('nononsense_tm_templates');
-                return $this->redirect($route);
+                return $this->returnToHomePage("No tiene permisos suficientes");
             }
 
             if($user!=$array_item["template"]->getOwner() && $user!=$array_item["template"]->getBackup()){
-                $this->get('session')->getFlashBag()->add(
-                    'error',
-                    'Solo el dueño o backup de esta plantilla puede crear una solicitud de baja'
-                );
-                $route=$this->container->get('router')->generate('nononsense_tm_templates');
-                return $this->redirect($route);
+                return $this->returnToHomePage("Solo el dueño o backup de esta plantilla puede crear una solicitud de baja");
             }
 
             $action = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 8));
             $drop_request = $this->getDoctrine()->getRepository(TMSignatures::class)->findOneBy(array("template" => $array_item["template"], "action" => $action, "tmDropAction" => NULL));
 
             if($drop_request){
-                $this->get('session')->getFlashBag()->add(
-                    'error',
-                    'Ya existe una solicitud de baja para esta plantilla'
-                );
-                $route=$this->container->get('router')->generate('nononsense_tm_templates');
-                return $this->redirect($route);
+                return $this->returnToHomePage("Ya existe una solicitud de baja para esta plantilla");
             }
         }
 
@@ -263,47 +293,27 @@ class TemplateManagementTemplatesController extends Controller
         if($request->get("request_drop_action")){
             $is_valid = $this->get('app.security')->permissionSeccion('admin_gp');
             if(!$is_valid){
-                $this->get('session')->getFlashBag()->add(
-                    'error',
-                    'No tiene permisos suficientes'
-                );
-                $route=$this->container->get('router')->generate('nononsense_tm_templates');
-                return $this->redirect($route);
+                return $this->returnToHomePage("No tiene permisos suficientes");
             }
 
             $action_admin = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 5));
             $workflow_admin = $this->getDoctrine()->getRepository(TMWorkflow::class)->findOneBy(array("template" => $array_item["template"], "action" => $action_admin),array("id" => "ASC"));
 
             if(!$workflow_admin || $workflow_admin->getUserEntiy()!=$user){
-                $this->get('session')->getFlashBag()->add(
-                    'error',
-                    'No esta denominado como administrador de esta plantilla y por tanto no puede tramitar aprobar o rechazar la solicitud de baja'
-                );
-                $route=$this->container->get('router')->generate('nononsense_tm_templates');
-                return $this->redirect($route);
+                return $this->returnToHomePage("No esta denominado como administrador de esta plantilla y por tanto no puede tramitar aprobar o rechazar la solicitud de baja");
             }
 
             $action = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 8));
             $array_item["drop_request"] = $this->getDoctrine()->getRepository(TMSignatures::class)->findOneBy(array("template" => $array_item["template"], "action" => $action, "tmDropAction" => NULL));
             if(!$array_item["drop_request"]){
-                $this->get('session')->getFlashBag()->add(
-                    'error',
-                    'No hay una solicitud de baja para esta plantilla'
-                );
-                $route=$this->container->get('router')->generate('nononsense_tm_templates');
-                return $this->redirect($route);
+                return $this->returnToHomePage("No hay una solicitud de baja para esta plantilla");
             }
         }
 
         /* Popup de solicitar revisión de plantilla */
         if($request->get("request_review")){
             if(!$this->get('app.security')->permissionSeccion('dueno_gp') && !$this->get('app.security')->permissionSeccion('elaborador_gp')){
-                $this->get('session')->getFlashBag()->add(
-                    'error',
-                    'No tiene permisos suficientes'
-                );
-                $route=$this->container->get('router')->generate('nononsense_tm_templates');
-                return $this->redirect($route);
+                return $this->returnToHomePage("No tiene permisos suficientes");
             }
 
             $action = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 2));
@@ -316,30 +326,19 @@ class TemplateManagementTemplatesController extends Controller
             }
 
             if($user!=$array_item["template"]->getOwner() && $find==0){
-                $this->get('session')->getFlashBag()->add(
-                    'error',
-                    'Solo el dueño o elaborador de esta plantilla puede crear una solicitud de revisión'
-                );
-                $route=$this->container->get('router')->generate('nononsense_tm_templates');
-                return $this->redirect($route);
+                return $this->returnToHomePage("Solo el dueño o elaborador de esta plantilla puede crear una solicitud de revisión");
             }
 
             if($array_item["template"]->getRequestReview()){
-                $this->get('session')->getFlashBag()->add(
-                    'error',
-                    'Ya existe una solicitud de revisión abierta para esta plantilla'
-                );
-                $route=$this->container->get('router')->generate('nononsense_tm_templates');
-                return $this->redirect($route);
+                return $this->returnToHomePage("Ya existe una solicitud de revisión abierta para esta plantilla");
             }
 
-            if(!empty($array_item["template"]->getDateReview()) && $array_item["template"]->getDateReview()>date("Y-m-d")){
-                $this->get('session')->getFlashBag()->add(
-                    'error',
-                    'No se puede realizar una solicitud de esta plantilla puesto que aún ha llegado la fecha de su revisión periódica'
-                );
-                $route=$this->container->get('router')->generate('nononsense_tm_templates');
-                return $this->redirect($route);
+            if(!empty($array_item["template"]->getDateReview()) && $array_item["template"]->getDateReview()<=date("Y-m-d")){
+                return $this->returnToHomePage("No se puede realizar una solicitud de esta plantilla puesto que aún ha llegado la fecha de su revisión periódica");
+            }
+
+            if($array_item["template"]->getNeedNewEdition()){
+                return $this->returnToHomePage("Ya se ha realizado una revisión para esta plantilla previamente y se ha determinado que es necesario crear una edición de esta plantilla");
             }
 
             $array_item["can_review"]=1;
@@ -357,27 +356,17 @@ class TemplateManagementTemplatesController extends Controller
 
         $is_valid = $this->get('app.security')->permissionSeccion('dueno_gp');
         if(!$is_valid){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                'No tiene permisos suficientes'
-            );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
-            return $this->redirect($route);
+            return $this->returnToHomePage("No tiene permisos suficientes");
         }
 
         $user = $this->container->get('security.context')->getToken()->getUser();
-        if($request->get("action") && $request->get("signature")){
+        if($request->get("action") && $request->get("password")){
             $template = $this->getDoctrine()->getRepository(TMTemplates::class)->findOneBy(array("id" => $id));
             if($template){
                 $action = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => $request->get("action")));
                 if($action){
                     if($user!=$template->getOwner() && $user!=$template->getBackup()){
-                        $this->get('session')->getFlashBag()->add(
-                            'error',
-                            'Solo el dueño o backup puede aceptar o rechazar la solicitud'
-                        );
-                        $route=$this->container->get('router')->generate('nononsense_tm_templates');
-                        return $this->redirect($route);
+                        return $this->returnToHomePage("Solo el dueño o backup puede aceptar o rechazar la solicitud");
                     }
 
                     switch($request->get("action")){
@@ -404,14 +393,14 @@ class TemplateManagementTemplatesController extends Controller
                             $signature->setUserEntiy($user);
                             $signature->setCreated(new \DateTime());
                             $signature->setModified(new \DateTime());
-                            $signature->setSignature($request->get("signature"));
+                            $signature->setSignature("-");
                             $signature->setVersion($previous_signature->getVersion());
                             $signature->setConfiguration($previous_signature->getConfiguration());
                             $em->persist($signature);
 
                             $em->flush();
 
-                            $route=$this->container->get('router')->generate('nononsense_tm_templates');
+                            $route=$this->container->get('router')->generate('nononsense_home_homepage');
                             return $this->redirect($route);
                         }
                     }
@@ -419,12 +408,7 @@ class TemplateManagementTemplatesController extends Controller
             }
         }
 
-        $this->get('session')->getFlashBag()->add(
-            'error',
-            'No se ha podido efectuar la operación sobre la plantilla especifiada. Es posible que ya se haya realizado una acción sobre ella o que la plantilla ya no exista'
-        );
-        $route=$this->container->get('router')->generate('nononsense_tm_templates');
-        return $this->redirect($route);
+        return $this->returnToHomePage("No se ha podido efectuar la operación sobre la plantilla especifiada. Es posible que ya se haya realizado una acción sobre ella o que la plantilla ya no exista");
     }
 
     /* Se crea una solicitud de baja de una plantilla */
@@ -435,98 +419,80 @@ class TemplateManagementTemplatesController extends Controller
 
         $is_valid = $this->get('app.security')->permissionSeccion('dueno_gp');
         if(!$is_valid){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                'No tiene permisos suficientes'
-            );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
-            return $this->redirect($route);
+            return $this->returnToHomePage("No tiene permisos suficientes");
+        }
+
+        $password =  $request->get('password');
+        if(!$password || !$this->get('utilities')->checkUser($password)){
+            return $this->returnToHomePage("No se pudo firmar el registro, la contraseña es incorrecta");
         }
 
         $user = $this->container->get('security.context')->getToken()->getUser();
-        if($request->get("signature")){
-            $template = $this->getDoctrine()->getRepository(TMTemplates::class)->findOneBy(array("id" => $id));
-            if($template){
-                $action = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 8));
-                if($action){
-                    $drop_request = $this->getDoctrine()->getRepository(TMSignatures::class)->findOneBy(array("template" => $template, "action" => $action, "tmDropAction" => NULL));
-                    if($drop_request){
-                        $this->get('session')->getFlashBag()->add(
-                            'error',
-                            'Ya hay una solicitud de baja para esta plantilla'
-                        );
-                        $route=$this->container->get('router')->generate('nononsense_tm_templates');
-                        return $this->redirect($route);
-                    }
-
-                    if($user!=$template->getOwner() && $user!=$template->getBackup()){
-                        $this->get('session')->getFlashBag()->add(
-                            'error',
-                            'Solo el dueño o backup puede crear una solicitud de baja'
-                        );
-                        $route=$this->container->get('router')->generate('nononsense_tm_templates');
-                        return $this->redirect($route);
-                    }
-
-                    
-                    $this->get('session')->getFlashBag()->add('message','La solicitud de baja ha sido tramitada');
-                    
-                    
-                    $previous_signature = $this->getDoctrine()->getRepository(TMSignatures::class)->findOneBy(array("template"=>$template),array("id" => "ASC"));
-
-                    if($template->getTmState()->getId()==6){
-                        $signature = new TMSignatures();
-                        $signature->setTemplate($template);
-                        $signature->setAction($action);
-                        $signature->setUserEntiy($user);
-                        $signature->setCreated(new \DateTime());
-                        $signature->setModified(new \DateTime());
-                        $signature->setSignature($request->get("signature"));
-                        $signature->setVersion($previous_signature->getVersion());
-                        $signature->setConfiguration($previous_signature->getConfiguration());
-                        if($request->get("description")){
-                            $signature->setDescription($request->get("description"));
-                        }
-                        $em->persist($signature);
-                        
-
-                        $users_notifications=array();
-                        $action_admin = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 5));
-                        $admins = $this->getDoctrine()->getRepository(TMWorkflow::class)->findBy(array("template" => $template, "action" => $action_admin));
-                        foreach($admins as $admin){
-                            if($admin->getUserEntiy()){
-                                $users_notifications[]=$admin->getUserEntiy()->getEmail();
-                            }
-                            else{
-                                foreach($admin->getGroupEntiy()->getUsers() as $user_group){
-                                    $users_notifications[]=$user_group->getUser()->getEmail();
-                                }
-                            }
-                        }
-
-                        $subject="Solicitud de baja";
-                        $mensaje='Se ha tramitado la solicitud de baja para la plantilla con ID '.$id.'. Para poder revisar dicha soliciutd puede acceder a "Gestión de plantillas -> Solicitudes de baja", buscar la plantilla correspondiente y pulsar en Administrar';
-                        $baseURL=$this->container->get('router')->generate('nononsense_tm_template_detail', array("id" => $id),TRUE)."?pending_request_drop=1";
-                        foreach($users_notifications as $email){
-                            $this->get('utilities')->sendNotification($email, $baseURL, "", "", $subject, $mensaje);
-                        }
-
-                        $em->flush();
-
-                        $route=$this->container->get('router')->generate('nononsense_tm_templates');
-                        return $this->redirect($route);
-                    }
-                    
+        $template = $this->getDoctrine()->getRepository(TMTemplates::class)->findOneBy(array("id" => $id));
+        if($template){
+            $action = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 8));
+            if($action){
+                $drop_request = $this->getDoctrine()->getRepository(TMSignatures::class)->findOneBy(array("template" => $template, "action" => $action, "tmDropAction" => NULL));
+                if($drop_request){
+                    return $this->returnToHomePage("Ya hay una solicitud de baja para esta plantilla");
                 }
+
+                if($user!=$template->getOwner() && $user!=$template->getBackup()){
+                    return $this->returnToHomePage("Solo el dueño o backup puede crear una solicitud de baja");
+                }
+
+
+                $this->get('session')->getFlashBag()->add('message','La solicitud de baja ha sido tramitada');
+
+
+                $previous_signature = $this->getDoctrine()->getRepository(TMSignatures::class)->findOneBy(array("template"=>$template),array("id" => "ASC"));
+
+                if($template->getTmState()->getId()==6){
+                    $signature = new TMSignatures();
+                    $signature->setTemplate($template);
+                    $signature->setAction($action);
+                    $signature->setUserEntiy($user);
+                    $signature->setCreated(new \DateTime());
+                    $signature->setModified(new \DateTime());
+                    $signature->setSignature("-");
+                    $signature->setVersion($previous_signature->getVersion());
+                    $signature->setConfiguration($previous_signature->getConfiguration());
+                    if($request->get("description")){
+                        $signature->setDescription($request->get("description"));
+                    }
+                    $em->persist($signature);
+
+
+                    $users_notifications=array();
+                    $action_admin = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 5));
+                    $admins = $this->getDoctrine()->getRepository(TMWorkflow::class)->findBy(array("template" => $template, "action" => $action_admin));
+                    foreach($admins as $admin){
+                        if($admin->getUserEntiy()){
+                            $users_notifications[]=$admin->getUserEntiy()->getEmail();
+                        }
+                        else{
+                            foreach($admin->getGroupEntiy()->getUsers() as $user_group){
+                                $users_notifications[]=$user_group->getUser()->getEmail();
+                            }
+                        }
+                    }
+
+                    $subject="Solicitud de baja";
+                    $mensaje='Se ha tramitado la solicitud de baja para la plantilla con Código '.$template->getNumber().' - Título: '.$template->getName().' - Edición: '.$template->getNumEdition().'. Para poder revisar dicha soliciutd puede acceder a "Gestión de plantillas -> Solicitudes de baja", buscar la plantilla correspondiente y pulsar en Administrar';
+                    $baseURL=$this->container->get('router')->generate('nononsense_tm_template_detail', array("id" => $id),TRUE)."?request_drop_action=1";
+                    foreach($users_notifications as $email){
+                        $this->get('utilities')->sendNotification($email, $baseURL, "", "", $subject, $mensaje);
+                    }
+
+                    $em->flush();
+
+                    $route=$this->container->get('router')->generate('nononsense_home_homepage');
+                    return $this->redirect($route);
+                }
+
             }
         }
-
-        $this->get('session')->getFlashBag()->add(
-            'error',
-            'No se ha podido efectuar la operación sobre la plantilla especificada. Es posible que ya se haya realizado una acción sobre ella o que la plantilla ya no exista'
-        );
-        $route=$this->container->get('router')->generate('nononsense_tm_templates');
-        return $this->redirect($route);
+        return $this->returnToHomePage("No se ha podido efectuar la operación sobre la plantilla especificada. Es posible que ya se haya realizado una acción sobre ella o que la plantilla ya no exista");
     }
 
     /* Aceptar o rechazar solicitud de baja de una plantilla */
@@ -537,16 +503,16 @@ class TemplateManagementTemplatesController extends Controller
 
         $is_valid = $this->get('app.security')->permissionSeccion('admin_gp');
         if(!$is_valid){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                'No tiene permisos suficientes'
-            );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
-            return $this->redirect($route);
+            return $this->returnToHomePage("No tiene permisos suficientes");
+        }
+
+        $password =  $request->get('password');
+        if(!$password || !$this->get('utilities')->checkUser($password)){
+            return $this->returnToHomePage("No se pudo firmar el registro, la contraseña es incorrecta");
         }
 
         $user = $this->container->get('security.context')->getToken()->getUser();
-        if($request->get("signature") && $request->get("action")){
+        if($request->get("action")){
             $template = $this->getDoctrine()->getRepository(TMTemplates::class)->findOneBy(array("id" => $id));
             if($template){
                 $action = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 8));
@@ -554,28 +520,16 @@ class TemplateManagementTemplatesController extends Controller
 
                     $drop_request = $this->getDoctrine()->getRepository(TMSignatures::class)->findOneBy(array("template" => $template, "action" => $action, "tmDropAction" => NULL));
                     if(!$drop_request){
-                        $this->get('session')->getFlashBag()->add(
-                            'error',
-                            'No existe una solicitud de baja sobre esta plantilla'
-                        );
-                        $route=$this->container->get('router')->generate('nononsense_tm_templates');
-                        return $this->redirect($route);
+                        return $this->returnToHomePage("No existe una solicitud de baja sobre esta plantilla");
                     }
 
                     $action_admin = $this->getDoctrine()->getRepository(TMActions::class)->findOneBy(array("id" => 5));
                     $workflow_admin = $this->getDoctrine()->getRepository(TMWorkflow::class)->findOneBy(array("template" => $template, "action" => $action_admin),array("id" => "ASC"));
 
                     if(!$workflow_admin || $workflow_admin->getUserEntiy()!=$user){
-                        $this->get('session')->getFlashBag()->add(
-                            'error',
-                            'No tiene permisos para aceptar la solicitud de esta plantilla'
-                        );
-                        $route=$this->container->get('router')->generate('nononsense_tm_templates');
-                        return $this->redirect($route);
+                        return $this->returnToHomePage("No tiene permisos para aceptar la solicitud de esta plantilla");
                     }
 
-                    
-                    
                     $previous_signature = $this->getDoctrine()->getRepository(TMSignatures::class)->findOneBy(array("template"=>$template),array("id" => "ASC"));
 
                     if($template->getTmState()->getId()==6){
@@ -621,28 +575,21 @@ class TemplateManagementTemplatesController extends Controller
                         $signature->setUserEntiy($user);
                         $signature->setCreated(new \DateTime());
                         $signature->setModified(new \DateTime());
-                        $signature->setSignature($request->get("signature"));
+                        $signature->setSignature("-");
                         $signature->setVersion($previous_signature->getVersion());
                         $signature->setConfiguration($previous_signature->getConfiguration());
                         $em->persist($signature);
                         
                         $em->flush();
 
-                        $this->get('session')->getFlashBag()->add('message',$desc_error);
-                        $route=$this->container->get('router')->generate('nononsense_tm_templates');
-                        return $this->redirect($route);
+                        return $this->returnToHomePage($desc_error, "message");
                     }
                     
                 }
             }
         }
 
-        $this->get('session')->getFlashBag()->add(
-            'error',
-            'No se ha podido efectuar la operación sobre la solicitud especificada. Es posible que ya se haya realizado una acción sobre ella'
-        );
-        $route=$this->container->get('router')->generate('nononsense_tm_templates');
-        return $this->redirect($route);
+        return $this->returnToHomePage("No se ha podido efectuar la operación sobre la solicitud especificada. Es posible que ya se haya realizado una acción sobre ella");
     }
 
     /* Detalle historial de cambios de una plantilla */
@@ -768,14 +715,19 @@ class TemplateManagementTemplatesController extends Controller
         $response = json_decode($raw_response, true);
 
         if(!isset($response["configurationUrl"])){
-            $this->get('session')->getFlashBag()->add(
-                'error',
-                'No se puede cargar la configuración de esta plantilla'
-            );
-            $route=$this->container->get('router')->generate('nononsense_tm_templates');
-            return $this->redirect($route);
+            return $this->returnToHomePage("No se puede cargar la configuración de esta plantilla");
         }
         
         return $this->redirect($response["configurationUrl"]);
+    }
+
+    private function returnToHomePage(string $msgError, string $type = "error"): RedirectResponse
+    {
+        $this->get('session')->getFlashBag()->add(
+            $type,
+            $msgError
+        );
+        $route=$this->container->get('router')->generate('nononsense_home_homepage');
+        return $this->redirect($route);
     }
 }

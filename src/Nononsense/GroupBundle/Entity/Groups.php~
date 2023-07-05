@@ -31,6 +31,11 @@ class Groups
      * @ORM\OneToMany(targetEntity="\Nononsense\GroupBundle\Entity\GroupUsers", mappedBy="group")
      */
     protected $users;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\GroupBundle\Entity\GroupsSignatures", mappedBy="group")
+     */
+    protected $groupsSignatures;
     
     /**
      * @ORM\ManyToMany(targetEntity="\Nononsense\NotificationsBundle\Entity\Notifications", mappedBy="groups")
@@ -120,9 +125,29 @@ class Groups
     protected $tmWorkflows;
 
     /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\CVWorkflow", mappedBy="group")
+     */
+    protected $cvWorkflows;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\CVSecondWorkflow", mappedBy="group")
+     */
+    protected $cvSecondWorkflows;
+
+    /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\AreasGroups", mappedBy="agroup")
      */
-    protected $areas; 
+    protected $areas;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\SpecificGroups", mappedBy="group")
+     */
+    protected $specificGroups;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\NotificationsBundle\Entity\NotificationsModels", mappedBy="group")
+     */
+    protected $notificationsModels;
 
     /**
      * Get id
@@ -134,15 +159,6 @@ class Groups
         return $this->id;
     }
 
-    /**
-     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\MasterSteps", mappedBy="Groups")
-     */
-    protected $MasterSteps;
-
-    /**
-     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\MasterWorkflows", mappedBy="grupoVerificacion")
-     */
-    protected $MasterWorkflowsVerificacion;
     /**
      * Construct
      *
@@ -405,39 +421,6 @@ class Groups
     }
 
     /**
-     * Add MasterSteps
-     *
-     * @param \Nononsense\HomeBundle\Entity\MasterSteps $masterSteps
-     * @return Groups
-     */
-    public function addMasterStep(\Nononsense\HomeBundle\Entity\MasterSteps $masterSteps)
-    {
-        $this->MasterSteps[] = $masterSteps;
-
-        return $this;
-    }
-
-    /**
-     * Remove MasterSteps
-     *
-     * @param \Nononsense\HomeBundle\Entity\MasterSteps $masterSteps
-     */
-    public function removeMasterStep(\Nononsense\HomeBundle\Entity\MasterSteps $masterSteps)
-    {
-        $this->MasterSteps->removeElement($masterSteps);
-    }
-
-    /**
-     * Get MasterSteps
-     *
-     * @return \Doctrine\Common\Collections\Collection 
-     */
-    public function getMasterSteps()
-    {
-        return $this->MasterSteps;
-    }
-
-    /**
      * Set codigousuarios
      *
      * @param string $codigousuarios
@@ -550,39 +533,6 @@ class Groups
     public function getSuperior()
     {
         return $this->superior;
-    }
-
-    /**
-     * Add MasterWorkflowsVerificacion
-     *
-     * @param \Nononsense\HomeBundle\Entity\MasterWorkflows $masterWorkflowsVerificacion
-     * @return Groups
-     */
-    public function addMasterWorkflowsVerificacion(\Nononsense\HomeBundle\Entity\MasterWorkflows $masterWorkflowsVerificacion)
-    {
-        $this->MasterWorkflowsVerificacion[] = $masterWorkflowsVerificacion;
-
-        return $this;
-    }
-
-    /**
-     * Remove MasterWorkflowsVerificacion
-     *
-     * @param \Nononsense\HomeBundle\Entity\MasterWorkflows $masterWorkflowsVerificacion
-     */
-    public function removeMasterWorkflowsVerificacion(\Nononsense\HomeBundle\Entity\MasterWorkflows $masterWorkflowsVerificacion)
-    {
-        $this->MasterWorkflowsVerificacion->removeElement($masterWorkflowsVerificacion);
-    }
-
-    /**
-     * Get MasterWorkflowsVerificacion
-     *
-     * @return \Doctrine\Common\Collections\Collection 
-     */
-    public function getMasterWorkflowsVerificacion()
-    {
-        return $this->MasterWorkflowsVerificacion;
     }
 
     /**
@@ -814,5 +764,170 @@ class Groups
     public function getAreas()
     {
         return $this->areas;
+    }
+
+    /**
+     * Add cvWorkflows
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVWorkflow $cvWorkflows
+     * @return Groups
+     */
+    public function addCvWorkflow(\Nononsense\HomeBundle\Entity\CVWorkflow $cvWorkflows)
+    {
+        $this->cvWorkflows[] = $cvWorkflows;
+
+        return $this;
+    }
+
+    /**
+     * Remove cvWorkflows
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVWorkflow $cvWorkflows
+     */
+    public function removeCvWorkflow(\Nononsense\HomeBundle\Entity\CVWorkflow $cvWorkflows)
+    {
+        $this->cvWorkflows->removeElement($cvWorkflows);
+    }
+
+    /**
+     * Get cvWorkflows
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getCvWorkflows()
+    {
+        return $this->cvWorkflows;
+    }
+
+    /**
+     * Add cvSecondWorkflows
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVSecondWorkflow $cvSecondWorkflows
+     * @return Groups
+     */
+    public function addCvSecondWorkflow(\Nononsense\HomeBundle\Entity\CVSecondWorkflow $cvSecondWorkflows)
+    {
+        $this->cvSecondWorkflows[] = $cvSecondWorkflows;
+
+        return $this;
+    }
+
+    /**
+     * Remove cvSecondWorkflows
+     *
+     * @param \Nononsense\HomeBundle\Entity\CVSecondWorkflow $cvSecondWorkflows
+     */
+    public function removeCvSecondWorkflow(\Nononsense\HomeBundle\Entity\CVSecondWorkflow $cvSecondWorkflows)
+    {
+        $this->cvSecondWorkflows->removeElement($cvSecondWorkflows);
+    }
+
+    /**
+     * Get cvSecondWorkflows
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getCvSecondWorkflows()
+    {
+        return $this->cvSecondWorkflows;
+    }
+
+    /**
+     * Add specificGroups
+     *
+     * @param \Nononsense\HomeBundle\Entity\SpecificGroups $specificGroups
+     * @return Groups
+     */
+    public function addSpecificGroup(\Nononsense\HomeBundle\Entity\SpecificGroups $specificGroups)
+    {
+        $this->specificGroups[] = $specificGroups;
+
+        return $this;
+    }
+
+    /**
+     * Remove specificGroups
+     *
+     * @param \Nononsense\HomeBundle\Entity\SpecificGroups $specificGroups
+     */
+    public function removeSpecificGroup(\Nononsense\HomeBundle\Entity\SpecificGroups $specificGroups)
+    {
+        $this->specificGroups->removeElement($specificGroups);
+    }
+
+    /**
+     * Get specificGroups
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getSpecificGroups()
+    {
+        return $this->specificGroups;
+    }
+
+    /**
+     * Add notificationsModels
+     *
+     * @param \Nononsense\NotificationsBundle\Entity\NotificationsModels $notificationsModels
+     * @return Groups
+     */
+    public function addNotificationsModel(\Nononsense\NotificationsBundle\Entity\NotificationsModels $notificationsModels)
+    {
+        $this->notificationsModels[] = $notificationsModels;
+
+        return $this;
+    }
+
+    /**
+     * Remove notificationsModels
+     *
+     * @param \Nononsense\NotificationsBundle\Entity\NotificationsModels $notificationsModels
+     */
+    public function removeNotificationsModel(\Nononsense\NotificationsBundle\Entity\NotificationsModels $notificationsModels)
+    {
+        $this->notificationsModels->removeElement($notificationsModels);
+    }
+
+    /**
+     * Get notificationsModels
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getNotificationsModels()
+    {
+        return $this->notificationsModels;
+    }
+
+    /**
+     * Add groupsSignatures
+     *
+     * @param \Nononsense\GroupBundle\Entity\GroupsSignatures $groupsSignatures
+     * @return Groups
+     */
+    public function addGroupsSignature(\Nononsense\GroupBundle\Entity\GroupsSignatures $groupsSignatures)
+    {
+        $this->groupsSignatures[] = $groupsSignatures;
+
+        return $this;
+    }
+
+    /**
+     * Remove groupsSignatures
+     *
+     * @param \Nononsense\GroupBundle\Entity\GroupsSignatures $groupsSignatures
+     */
+    public function removeGroupsSignature(\Nononsense\GroupBundle\Entity\GroupsSignatures $groupsSignatures)
+    {
+        $this->groupsSignatures->removeElement($groupsSignatures);
+    }
+
+    /**
+     * Get groupsSignatures
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getGroupsSignatures()
+    {
+        return $this->groupsSignatures;
     }
 }

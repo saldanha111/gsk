@@ -1,0 +1,88 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}Docoaro - GSK | {{'Homepage'|trans}} {% endblock %}
+{% block head %}
+{{ parent() }}
+
+{% endblock %}
+{% block main_title %} Historial de reconciliación{% endblock %}
+{% block content %}
+
+
+<div class="wrapper wrapper-content">
+    {% for flashMessage in app.session.flashbag.get('error') %}
+    <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+        <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+        {{ flashMessage }}
+    </div>
+    {% endfor %}
+    <div id="box_recon">
+        <h1>Reconciliación del registro {{record.id}} - Código:{{record.template.id}} - Título:{{record.template.name}} - Edición:{{record.template.numEdition}}</h1>
+        <div class="row">
+            <br>
+            <div class="col-sm-12">
+                <b>{{count}} Registros reconciliados - {{app.user.name}} - {{ "now"|date("d/m/Y H:i:s")|gskdate }}</b>
+                <table id="inProcess2" class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th>Nº</th>
+                        <th>Área</th>
+                        <th>Nombre</th>
+                        <th>Solicitante</th>
+                        <th>Fecha solicitud</th>
+                        <th>Estado</th>
+                        <th>Última Modificación</th>
+                        <th class="noprint">Acción</th>
+                        <th class="noprint"></th>
+                    </tr>
+                    </thead>
+                    {% for item in items %}
+                        <tr {{ item.id == record.id ? 'style="font-weight:bold"' : '' }}>
+                            <td>{{item.id}}</td>
+                            <td>{{item.area}}</td>
+                            <td>{{item.name}}</td>
+                            <td>{{item.creator}}</td>
+                            <td>{{item.created | date('d/m/Y H:i:s') }}</td>
+                            <td>{{item.state}}</td>
+                            <td>{{item.modified | date('d/m/Y H:i:s') }}</td>
+                            <td class="noprint"><a class="btn btn-xs btn-primary"href="{{path('nononsense_cv_docoaro_new', {'id': item.id})}}?readonly=1" target="_blank">{{'Ver'|trans}}</a></td>
+                            <td class="noprint">
+                                {# {% if plantilla.txhash is defined and plantilla.txhash !="" %}
+                                    <a class="btn btn-xs btn-primary" name="verregistro" href="{{url_scagle}}{{plantilla.txhash}}" target="_blank">Blockchain</a>
+                                {% endif %} #}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+                <b>{{count}} Registros reconciliados - {{ "now"|date("d/m/Y H:i:s")|gskdate }}</b>
+            </div>
+        </div>
+    </div>
+    <input id="btn_print" type="button" class="btn btn-primary pull-right" value="Imprimir">
+    <a href="{{pagination.url}}{{pagination.character}}export_excel=1" target="_blank" class="btn btn-primary pull-right" style="margin-right:1px"><i class="fa fa-file-excel-o" aria-hidden="true"></i> Excel</a> 
+    <a href="{{pagination.url}}{{pagination.character}}export_pdf=1" target="_blank" class="btn btn-primary pull-right" style="margin-right:1px"><i class="fa fa-file-pdf-o" aria-hidden="true"></i> PDF</a> 
+</div>
+{% endblock %}
+{% block scripts %}
+  {{ parent() }}
+  <script>
+  $(function () {
+    $(document).on("click", "#btn_print", function() {
+      console.log("ASDFASDFASD");
+      $("#box_recon").print({
+          globalStyles: true,
+          mediaPrint: false,
+          stylesheet: null,
+          noPrintSelector: ".no-print",
+          iframe: true,
+          append: null,
+          prepend: null,
+          manuallyCopyFormValues: true,
+          deferred: $.Deferred(),
+          timeout: 5750,
+          title: null,
+          doctype: '<!doctype html>'
+      });
+    });
+  });
+</script>
+{% endblock %}

@@ -44,9 +44,9 @@ class Certifications
     private $type;
 
     /**
-     * @var integer
+     * @var string
      *
-     * @ORM\Column(name="record_id", type="integer")
+     * @ORM\Column(name="record_id", type="string", length=255)
      */
     private $recordId;
 
@@ -120,29 +120,6 @@ class Certifications
     }
 
     /**
-     * Set recordId
-     *
-     * @param integer $recordId
-     * @return Certifications
-     */
-    public function setRecordId($recordId)
-    {
-        $this->recordId = $recordId;
-
-        return $this;
-    }
-
-    /**
-     * Get recordId
-     *
-     * @return integer 
-     */
-    public function getRecordId()
-    {
-        return $this->recordId;
-    }
-
-    /**
      * Set type
      *
      * @param \Nononsense\HomeBundle\Entity\CertificationsType $type
@@ -209,5 +186,28 @@ class Certifications
     public function getModified()
     {
         return $this->modified;
+    }
+
+    /**
+     * Set recordId
+     *
+     * @param string $recordId
+     * @return Certifications
+     */
+    public function setRecordId($recordId)
+    {
+        $this->recordId = $recordId;
+
+        return $this;
+    }
+
+    /**
+     * Get recordId
+     *
+     * @return string 
+     */
+    public function getRecordId()
+    {
+        return $this->recordId;
     }
 }

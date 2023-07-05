@@ -1,0 +1,86 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}Docoaro - GSK |  Delegación de firma / {{delegation.id is not null ? 'Editar' : 'Crear'}}  {% endblock %}
+{% block head %}
+    {{ parent() }}
+{% endblock %}
+{% block main_title %} Delegación de firma / {{delegation.id is not null ? 'Editar' : 'Crear'}} {% endblock %}
+
+{% block content %}
+
+    <div class="wrapper wrapper-content animated fadeInUp">
+        {% for flashMessage in app.session.flashbag.get('error') %}
+        <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+            <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+            {{ flashMessage }}
+        </div>
+        <br>
+        {% endfor %}
+        <form class="form-horizontal" id="form_item" action="{{ path('nononsense_delegations_edit',{'id': delegation.id is not null ? delegation.id : 0}) }}" method="POST">
+            <div class="row">
+                <div class="col-lg-10 col-lg-offset-1">
+                    <div class="row">
+                        <div class="form-group">
+                        {% if types is defined %}
+                            <label class="col-sm-1 control-label">Tipo</label>
+                            <div class="col-sm-3">
+                              <select class="form-control" name="type" style="width: 100%;" required="required">
+                                <option value=""></option>
+                                {% for type in types %}
+                                  <option value="{{type.id}}" {{ delegation.type.id is defined and delegation.type.id==type.id ? 'selected="selected"' : ''}}>{{type.name}}</option>
+                                {% endfor %}
+                              </select>
+                            </div>
+                        {% endif %} 
+
+                        {% if users is defined %}
+                            <label class="col-sm-1 control-label">Usuario</label>
+                            <div class="col-sm-3">
+                                <select class="form-control select_user" name="user" required="required" style="width: 100%;">
+                                    <option value=""></option>
+                                    {% for user in users %}
+                                        <option value="{{user.id}}" {{item is defined and item.user.id==user.id ? 'selected="selected"'}}>{{user.name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        {% endif %} 
+
+                        {% if users is defined %}
+                                <label class="col-sm-1 control-label">Sustituto</label>
+                                <div class="col-sm-3">
+                                    <select class="form-control select_user" name="sustitute" required="required" style="width: 100%;">
+                                        <option value=""></option>
+                                        {% for user in users %}
+                                            <option value="{{user.id}}" {{item is defined and item.sustitute.id==user.id ? 'selected="selected"'}}>{{user.name}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                        {% endif %} 
+                        </div>
+                    </div>          
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-11">
+                    <input type="submit" class="btn btn-primary pull-right" value="Guardar delegación de firma">
+                </div>
+            </div>
+
+        </form>
+    </div>
+    
+{% endblock %}
+
+{% block scripts %}
+    {{ parent() }}
+
+    <script>
+
+    $( document ).ready(function() {
+        ActivateMenu('delegations_list');
+        $('#side-menu').metisMenu();
+    });
+    </script>
+{% endblock %}
+
+

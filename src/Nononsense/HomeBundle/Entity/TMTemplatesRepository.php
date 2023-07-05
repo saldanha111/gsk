@@ -3,6 +3,7 @@
 namespace Nononsense\HomeBundle\Entity;
 
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\Query\ResultSetMapping;
 
 /**
  * AreasRepository
@@ -38,7 +39,7 @@ class TMTemplatesRepository extends EntityRepository
             }
 
             if(isset($filters["no_request_in_proccess"]) && $filters["no_request_in_proccess"]==1){
-                $sintax.=$logical." (t.tmState=6 OR t.tmState=8) AND ((SELECT COUNT(aux.template_id) FROM Nononsense\HomeBundle\Entity\TMTemplates aux WHERE aux.tmState IN (1,2,3,4,5,11))=0) AND t.id NOT IN (SELECT aux2.template_id FROM Nononsense\HomeBundle\Entity\TMTemplates aux2 WHERE aux2.template_id=t.id)";
+                $sintax.=$logical." (t.tmState=6 OR t.tmState=8 OR t.tmState=14) AND t.id NOT IN (SELECT aux2.template_id FROM Nononsense\HomeBundle\Entity\TMTemplates aux2 WHERE aux2.template_id=t.id)";
                 $logical=" AND ";
             }
 
@@ -49,6 +50,11 @@ class TMTemplatesRepository extends EntityRepository
                     $sintax.=$logical." t.id!=:parent";
                     $parameters["parent"]=$filters["parent"];
                 }
+            }
+
+            if(isset($filters["operative"])){
+                $sintax.=$logical." t.tmState=6";
+                $logical=" AND ";
             }
         }
 
@@ -65,12 +71,16 @@ class TMTemplatesRepository extends EntityRepository
 
         $items=$query->getResult();
 
+
+
         return $items;
     }
 
     public function list($type,$filters)
     {
         $em = $this->getEntityManager();
+        $rsm = new ResultSetMapping();
+        
 
         $sintax=" ";
         $logical=" WHERE ";
@@ -79,8 +89,16 @@ class TMTemplatesRepository extends EntityRepository
         $tables_extra="";
         $fields_extra="";
 
-        if(!empty($filters)){
+        if(empty($filters) || !isset($filters["retention_action"]) || $filters["retention_action"]!="4"){
+            $sintax.=$logical." t.retention_removed_at IS NULL";
+            $logical=" AND ";
+        }
+        else{
+            $sintax.=$logical." t.retention_removed_at IS NOT NULL";
+            $logical=" AND ";
+        }
 
+        if(!empty($filters)){
             if(isset($filters["name"])){
                 $terms = explode(" ", $filters["name"]);
                 foreach($terms as $key => $term){
@@ -140,11 +158,13 @@ class TMTemplatesRepository extends EntityRepository
             }
 
             if(isset($filters["request_drop"])){
-                $sintax.=$logical." sg.action=8 AND sg.tmDropAction IS NULL";
+                $sintax.=$logical." sg.action_id=8 AND sg.drop_action IS NULL";
                 $logical=" AND ";
 
-                $tables_extra="LEFT JOIN Nononsense\HomeBundle\Entity\TMSignatures sg WITH t.id=sg.template LEFT JOIN Nononsense\UserBundle\Entity\Users ud WITH sg.userEntiy=ud.id";
-                $fields_extra=",ud.name applicantDropRequestName,sg.created dropRequestDate";
+                $tables_extra.="LEFT JOIN tm_signatures sg ON t.id=sg.template_id LEFT JOIN users ud ON sg.userid=ud.id";
+                $fields_extra.=",ud.name applicantDropRequestName,sg.created dropRequestDate";
+                $rsm->addScalarResult('applicantDropRequestName', 'applicantDropRequestName');
+                $rsm->addScalarResult('dropRequestDate', 'dropRequestDate');
             }
 
             if(isset($filters["applicant_drop"])){
@@ -154,18 +174,20 @@ class TMTemplatesRepository extends EntityRepository
             }
 
             if(isset($filters["changes_history"])){
-                $sintax.=$logical." (t.id=:changes_history OR t.firstEdition=:changes_history)";
+                $sintax.=$logical." (t.id=:changes_history OR t.first_edition=:changes_history)";
                 $parameters["changes_history"]=$filters["changes_history"];
                 $logical=" AND ";
-                $orderby="Order by t.id ASC";
+                $orderby="ORDER BY t.id ASC";
             }
 
             if(isset($filters["request_review"])){
-                $sintax.=$logical." s.id=6 AND sg.action=12";
+                $sintax.=$logical." s.id=6 AND sg.action_id=12";
                 $logical=" AND ";
 
-                $tables_extra="LEFT JOIN Nononsense\HomeBundle\Entity\TMSignatures sg WITH t.requestReview=sg.id LEFT JOIN Nononsense\UserBundle\Entity\Users ud WITH sg.userEntiy=ud.id";
-                $fields_extra=",ud.name ReviewRequestName,sg.created ReviewRequestDate";
+                $tables_extra.="LEFT JOIN tm_signatures sg ON t.request_review=sg.id LEFT JOIN users ud ON sg.userid=ud.id";
+                $fields_extra.=",ud.name ReviewRequestName,sg.created ReviewRequestDate";
+                $rsm->addScalarResult('ReviewRequestName', 'ReviewRequestName');
+                $rsm->addScalarResult('ReviewRequestDate', 'ReviewRequestDate');
             }
 
             if (isset($filters["pending_for_me"])) {
@@ -173,41 +195,416 @@ class TMTemplatesRepository extends EntityRepository
                     $sintax.=$logical."(".$this->sintax_pending("workflow_where").")";
                 }
                 else{
-                    $sintax.=$logical." (t.id IN (SELECT IDENTITY(w_admin.template) FROM Nononsense\HomeBundle\Entity\TMWorkflow w_admin WHERE w_admin.template=t.id AND w_admin.action=5 AND w_admin.userEntiy=:user))";
+                    $sintax.=$logical." (t.id IN (SELECT IDENTITY(w_admin.template_id) FROM tm_workflow w_admin WHERE w_admin.template_id=t.id AND w_admin.action_id=5 AND w_admin.userid=:user))";
                 }
             }
 
+            if(isset($filters["id"])){
+                $sintax.=$logical." t.id=:id";
+                $parameters["id"]=$filters["id"];
+                $logical=" AND ";
+            }
+
+            if(isset($filters["init_cumplimentation"])){
+                $sintax.=$logical." s.id=6 AND (t.inactive!=1 OR t.inactive IS NULL) AND (t.not_fillable_itself!=1 OR t.not_fillable_itself IS NULL)";
+                $logical=" AND ";
+            }
+
+            if(isset($filters["nest_init_cumplimentation"])){
+                $sintax.=$logical." s.id=6 AND (t.inactive!=1 OR t.inactive IS NULL)";
+                $logical=" AND ";
+            }
+
+            if(isset($filters["retentions"])){
+                $sintax.=$logical." t.id IN (:retentions)";
+                $parameters["retentions"]=$filters["retentions"];
+                $logical=" AND ";
+            }
             
+            if(isset($filters["retention_type"])){
+                $sintax.=$logical." s.id IN (7,8)";
+                $logical=" AND ";
+
+                $tables_extra.=" LEFT JOIN tm_retentions tmr ON tmr.tmtemplates_id=t.id AND tmr.retentioncategories_id = (SELECT TOP 1 rc2.id FROM retention_categories rc2 LEFT JOIN rc_states rcs2 ON rc2.document_state=rcs2.id AND rcs2.type=1 WHERE s.id IN (SELECT value FROM STRING_SPLIT(rcs2.relational_id,',')) AND rc2.id IN (SELECT tmr2.retentioncategories_id FROM tm_retentions tmr2 WHERE tmr2.tmtemplates_id=t.id) ORDER BY rc2.retention_days DESC) LEFT JOIN retention_categories rc ON tmr.retentioncategories_id=rc.id LEFT JOIN users cu ON rc.destroy_user=cu.id LEFT JOIN groups cg ON rc.destroy_group=cg.id LEFT JOIN rc_states rcs ON rc.document_state=rcs.id LEFT JOIN tm_signatures accret ON accret.template_id=t.id AND accret.action_id=9 LEFT JOIN tm_templates newt ON newt.template_id=t.id";
+                $fields_extra.=",rc.name mostRestrictiveCategory, CASE WHEN t.state_id=8 THEN accret.modified ELSE newt.effectiveDate END retentionDate, DATEADD(day,rc.retention_days,CASE WHEN t.state_id=8 THEN accret.modified ELSE newt.effectiveDate END) DestructionDate,cu.id confirmUser,cg.id confirmGroup,cu.name confirmUserName,cg.name confirmGroupName,t.retention_revision retentionRevision";
+                $rsm->addScalarResult('mostRestrictiveCategory', 'mostRestrictiveCategory');
+                $rsm->addScalarResult('DestructionDate', 'DestructionDate');
+                $rsm->addScalarResult('retentionDate', 'retentionDate');
+                $rsm->addScalarResult('confirmUser', 'confirmUser');
+                $rsm->addScalarResult('confirmGroup', 'confirmGroup');
+                $rsm->addScalarResult('confirmUserName', 'confirmUserName');
+                $rsm->addScalarResult('confirmGroupName', 'confirmGroupName');
+                $rsm->addScalarResult('retentionRevision', 'retentionRevision');
+                $orderby=" ORDER BY DestructionDate DESC";
+
+                if(isset($filters["category"])){
+                    $terms = explode(" ", $filters["category"]);
+                    foreach($terms as $key => $term){
+                        $sintax.=$logical." rc.name LIKE :category".$key;
+                        $parameters["category".$key]="%".$term."%";
+                        $logical=" AND ";
+                    }
+                }
+
+                if(isset($filters["destruction_from"])){
+                    $sintax.=$logical." DATEADD(day,rc.retention_days,(CASE WHEN t.state_id=8 THEN accret.modified ELSE newt.effectiveDate END))>=:destruction_from";
+                    $parameters["destruction_from"]=$filters["destruction_from"];
+                    $logical=" AND ";
+                }
+
+                if(isset($filters["destruction_until"])){
+                    $sintax.=$logical." DATEADD(day,rc.retention_days,(CASE WHEN t.state_id=8 THEN accret.modified ELSE newt.effectiveDate END))<=:destruction_until";
+                    $parameters["destruction_until"]=$filters["destruction_until"];
+                    $logical=" AND ";
+                }
+
+                if(isset($filters["retention_from"])){
+                    $sintax.=$logical." CASE WHEN t.state_id=8 THEN accret.modified ELSE newt.effectiveDate END>=:retention_from";
+                    $parameters["retention_from"]=$filters["retention_from"];
+                    $logical=" AND ";
+                }
+
+                if(isset($filters["retention_until"])){
+                    $sintax.=$logical." CASE WHEN t.state_id=8 THEN accret.modified ELSE newt.effectiveDate END<=:retention_until";
+                    $parameters["retention_until"]=$filters["retention_until"];
+                    $logical=" AND ";
+                }
+
+                if(isset($filters["agent"])){
+                    $sintax.=$logical." cu.id=:agent";
+                    $parameters["agent"]=$filters["agent"];
+                    $logical=" AND ";
+                }
+
+                if(isset($filters["group_agent"])){
+                    $sintax.=$logical." cg.id=:group_agent";
+                    $parameters["group_agent"]=$filters["group_agent"];
+                    $logical=" AND ";
+                }
+
+                if(isset($filters["retention_action"])){
+                    switch($filters["retention_action"]){
+                        case "2":   $sintax.=$logical." DATEADD(day,rc.retention_days,(CASE WHEN t.state_id=8 THEN accret.modified ELSE newt.effectiveDate END))<=DATEADD(month,6,GETDATE()) AND (rc.destroy_user=:confirm_user_retention OR rc.destroy_group IN (:confirm_groups_retention))";
+                                    $logical=" AND ";
+                                    $parameters["confirm_user_retention"]=$filters["user_retention"];
+                                    $parameters["confirm_groups_retention"]=$filters["groups_retention"];
+                            break;
+                        case "3":   $sintax.=$logical." DATEADD(day,rc.retention_days,(CASE WHEN t.state_id=8 THEN accret.modified ELSE newt.effectiveDate END))<=GETDATE()  AND (rc.destroy_user=:confirm_user_retention OR rc.destroy_group IN (:confirm_groups_retention))";
+                                    $logical=" AND ";
+                                    $parameters["confirm_user_retention"]=$filters["user_retention"];
+                                    $parameters["confirm_groups_retention"]=$filters["groups_retention"];
+                            break;
+                    }
+                    
+                }
+
+                if(isset($filters["notify_retention"])){
+                    $sintax.=$logical." DATEADD(day,rc.retention_days,(CASE WHEN t.state_id=8 THEN accret.modified ELSE newt.effectiveDate END))<=GETDATE()";
+                        $logical=" AND ";
+                }
+            }
+
         }
 
 
 
-        $sintax = " FROM Nononsense\HomeBundle\Entity\TMTemplates t LEFT JOIN Nononsense\HomeBundle\Entity\Areas a WITH t.area=a.id LEFT JOIN Nononsense\HomeBundle\Entity\TMStates s WITH t.tmState=s.id LEFT JOIN Nononsense\UserBundle\Entity\Users ua WITH t.applicant=ua.id LEFT JOIN Nononsense\UserBundle\Entity\Users uo WITH t.owner=uo.id LEFT JOIN Nononsense\UserBundle\Entity\Users ub WITH t.backup=ub.id ".$tables_extra.$sintax;
+        $sintax = " FROM tm_templates t LEFT JOIN areas a ON t.area_id=a.id LEFT JOIN tm_states s ON t.state_id=s.id  LEFT JOIN qrs_types q ON t.qr_type_id=q.id LEFT JOIN users ua ON t.applicant_id=ua.id LEFT JOIN users uo ON t.owner_id=uo.id LEFT JOIN users ub ON t.backup_id=ub.id ".$tables_extra.$sintax;
 
         switch($type){
             case "list": 
                 if(isset($filters["user"])){
                     $parameters["user"]=$filters["user"];
+                    $case=", CASE WHEN ".$this->sintax_pending('workflow_select')." THEN 1 ELSE 0 END require_action";
+                    $rsm->addScalarResult('require_action', 'require_action');
                 }
-                $query = $em->createQuery("SELECT t.id,t.name,a.name nameArea,t.number,t.numEdition,s.id status,t.inactive,s.name stateName,t.created,t.reference,ua.name applicantName,uo.name ownerName,ub.name backupName,t.effectiveDate,t.reviewDate,t.historyChange,uo.id ownerId,ub.id backupId,t.dateReview,t.needNewEdition,t.notFillableItSelf, CASE WHEN ".$this->sintax_pending('workflow_select')." THEN 1 ELSE 0 END require_action ".$fields_extra.$sintax." ".$orderby);
+                else{
+                    $case="";
+                }
+
                 if(isset($filters["limit_from"])){
-                    $query->setFirstResult($filters["limit_from"]*$filters["limit_many"])->setMaxResults($filters["limit_many"]);
+                    $limit=" OFFSET :from ROWS FETCH NEXT :many ROWS ONLY";
+                    $parameters["from"]=$filters["limit_from"]*$filters["limit_many"];
+                    $parameters["many"]=$filters["limit_many"];
+                }
+                else{
+                    $limit=" OFFSET 0 ROWS FETCH NEXT 999999999 ROWS ONLY";
                 }
                 
+                if(isset($filters["order"])){
+                    switch($filters["order"]){
+                        case 2: 
+                            $orderby=" ORDER BY used DESC";
+                            $fields_extra.=",(SELECT COUNT(cvr.template_id) FROM cv_records cvr LEFT JOIN cv_signatures cvs ON cvr.id=cvs.record_id AND cvs.user_id=:user WHERE t.id=cvr.template_id GROUP BY cvr.template_id) used";
+                            $rsm->addScalarResult('used', 'used');
+                            break;
+                    }
+                }
+    
+                $query = $em->createNativeQuery("SELECT t.logbook,t.uniqid,t.id,t.name,a.name nameArea,t.number,t.num_edition numEdition,s.id status,t.inactive,s.name stateName,t.created,t.reference,ua.name applicantName,uo.name ownerName,ub.name backupName,t.effectiveDate, t.history_change historyChange,uo.id ownerId,ub.id backupId,t.date_review dateReview,t.need_new_edition needNewEdition,t.not_fillable_itself notFillableItSelf,q.id qr".$case.$fields_extra.$sintax." ".$orderby.$limit,$rsm);
+
+
+
+                $rsm->addScalarResult('logbook', 'logbook');
+                $rsm->addScalarResult('uniqid', 'uniqid');
+                $rsm->addScalarResult('id', 'id');
+                $rsm->addScalarResult('name', 'name');
+                $rsm->addScalarResult('nameArea', 'nameArea');
+                $rsm->addScalarResult('number', 'number');
+                $rsm->addScalarResult('numEdition', 'numEdition');
+                $rsm->addScalarResult('status', 'status');
+                $rsm->addScalarResult('inactive', 'inactive');
+                $rsm->addScalarResult('stateName', 'stateName');
+                $rsm->addScalarResult('created', 'created');
+                $rsm->addScalarResult('reference', 'reference');
+                $rsm->addScalarResult('applicantName', 'applicantName');
+                $rsm->addScalarResult('ownerName', 'ownerName');
+                $rsm->addScalarResult('backupName', 'backupName');
+                $rsm->addScalarResult('effectiveDate', 'effectiveDate');
+                $rsm->addScalarResult('reviewDateRetention', 'reviewDateRetention');
+                $rsm->addScalarResult('historyChange', 'historyChange');
+                $rsm->addScalarResult('ownerId', 'ownerId');
+                $rsm->addScalarResult('backupId', 'backupId');
+                $rsm->addScalarResult('dateReview', 'dateReview');
+                $rsm->addScalarResult('needNewEdition', 'needNewEdition');
+                $rsm->addScalarResult('notFillableItSelf', 'notFillableItSelf');
+                $rsm->addScalarResult('qr', 'qr');
+
                 if(!empty($parameters)){
                     $query->setParameters($parameters);
                 }
 
-                $items=$query->getResult();
+                /*$rsm->addScalarResult('name', 'name');
+                $rsm->addScalarResult('id', 'id');*/
 
+
+                $items=$query->getResult();
                 break;
 
             case "count":
                 if(isset($filters["pending_for_me"]) && isset($filters["user"])){
                     $parameters["user"]=$filters["user"];
                 }
-                $query = $em->createQuery("SELECT COUNT(DISTINCT t.id) conta ".$sintax);
+                
+                $query = $em->createNativeQuery("SELECT COUNT(DISTINCT t.id) conta ".$sintax,$rsm);
 
+                $rsm->addScalarResult('conta', 'conta');
+                if(!empty($parameters)){
+                    $query->setParameters($parameters);
+                }
+
+                $items=$query->getSingleResult()["conta"];
+                break;
+
+        }
+        
+        return $items;
+    }
+
+    private function sintax_pending($table_alias){
+        $admins="CASE WHEN t.state_id=5 OR t.state_id=11 THEN 5 ELSE 0 END";
+        $aprobs="CASE WHEN t.state_id=4 THEN 4 ELSE ".$admins." END";
+        $testers="CASE WHEN t.state_id=3 THEN 3 ELSE ".$aprobs." END";
+        $elaborators="CASE WHEN t.state_id=2 OR t.state_id=9 THEN 2 ELSE ".$testers." END";
+        $sintax_pending=" (t.state_id=1 AND (t.backup_id=:user OR t.owner_id=:user)) OR (t.id IN (SELECT ".$table_alias.".template_id FROM tm_workflow ".$table_alias." WHERE ".$table_alias.".template_id=t.id AND ".$table_alias.".action_id=".$elaborators." AND ".$table_alias.".userid=:user))";
+
+        return $sintax_pending;
+    }
+
+    public function activity($type,$filters)
+    {
+        $em = new ResultSetMapping();
+
+        switch($type){
+            case "list":
+
+                if(isset($filters["group"])){
+                    switch($filters["group"]){
+                        case 1: 
+                            $list = $this->createQueryBuilder('t')
+                                ->select('t.id','t.name','s.name state','t.numEdition');
+                            break;
+                    }
+                }
+                else{
+                    $list = $this->createQueryBuilder('t')
+                        ->select('t.id','t.name','s.name state','t.numEdition');
+                }
+                
+
+
+                break;
+            case "count":
+                $list = $this->createQueryBuilder('t')
+                    ->select('COUNT(t.id) as conta');
+                break;
+        }
+
+        $list->leftJoin("t.area", "a3")
+            ->leftJoin("t.tmState", "s");
+
+        if(!empty($filters)){
+
+            if(isset($filters["plantilla_id"])){
+                $list->andWhere('t.id=:plantilla_id');
+                $list->setParameter('plantilla_id', $filters["plantilla_id"]);
+            }
+
+            if(isset($filters["name"])){
+                $terms = explode(" ", $filters["name"]);
+                foreach($terms as $key => $term){
+                    $list->andWhere('t.name LIKE :name'.$key);
+                    $list->setParameter('name'.$key, '%' . $term. '%');
+                }
+            }
+
+            if(isset($filters["area"])){
+                $list->andWhere('a3.id=:area');
+                $list->setParameter('area', $filters["area"]);
+            }
+        }
+
+        if(isset($filters["group"])){
+            switch($filters["group"]){
+                case 1: 
+                    $list->andWhere('s.id=7 or s.id=8'); // Cargamos las obsoletas y las dadas de baja
+                    if($type=="list"){
+                        $list->orderBy('t.id', 'DESC');
+                    }
+                    break;
+            }
+        }
+
+
+        if(isset($filters["limit_from"])){
+            $list->setFirstResult($filters["limit_from"]*$filters["limit_many"])->setMaxResults($filters["limit_many"]);
+        }
+
+        $query = $list->getQuery();
+
+
+        switch($type){
+            case "list":
+                return $query->getResult();
+                break;
+            case "count":
+                /*if(isset($filters["group"]) && $filters["group"]=="3"){
+                    return count($query->getResult());
+                }
+                else{*/
+                    return $query->getSingleResult()["conta"];
+                //}
+                break;
+        }
+    }
+
+    public function activityAux($type,$filters)
+    {
+        $em = $this->getEntityManager();
+        $rsm = new ResultSetMapping();
+
+        $sintax=" ";
+        $logical=" WHERE ";
+        $orderby=" ";
+        $groupby=" ";
+        $limit="";
+
+        $tables_extra="";
+        $fields_extra="";
+
+        if(!empty($filters)){
+
+            if(isset($filters["name"])){
+                $terms = explode(" ", $filters["name"]);
+                foreach($terms as $key => $term){
+                    $sintax.=$logical." t.name LIKE :name".$key;
+                    $parameters["name".$key]="%".$term."%";
+                    $logical=" AND ";
+                }
+            }
+
+            if(isset($filters["plantilla_id"])){
+                $sintax.=$logical." t.id=:plantilla_id";
+                $parameters["plantilla_id"]=$filters["plantilla_id"];
+                $logical=" AND ";
+            }
+
+            if(isset($filters["area"])){
+                $sintax.=$logical." a3.id=:area";
+                $parameters["area"]=$filters["area"];
+                $logical=" AND ";
+            }
+
+            if(isset($filters["group"])){
+                switch($filters["group"]){
+                    case 2: 
+                        $groupby=" GROUP BY r.template_id,t.name";
+                        $orderby=" ORDER BY conta DESC";
+                        $sintax = " FROM cv_records r LEFT JOIN tm_templates t ON r.template_id=t.id LEFT JOIN areas a3 ON t.area_id=a3.id ".$tables_extra.$sintax;
+                        break;
+                    case 3: 
+                        $sintax.=$logical." t.first_edition IS NOT NULL";
+                        $groupby=" GROUP BY t.first_edition,t.name";
+                        $orderby=" ORDER BY conta DESC";
+                        $sintax = " FROM tm_templates t LEFT JOIN areas a3 ON t.area_id=a3.id ".$tables_extra.$sintax;
+                        break;
+                    case 4: 
+                        $sintax.=$logical." t.first_edition IS NOT NULL AND diff_edition_days<90";
+                        $groupby=" GROUP BY t.first_edition,t.name";
+                        $orderby=" ORDER BY conta DESC";
+                        $sintax = " FROM tm_templates t LEFT JOIN areas a3 ON t.area_id=a3.id ".$tables_extra.$sintax;
+                        break;
+                }
+            }
+        }
+
+
+        
+
+        switch($type){
+            case "list": 
+                
+                if(isset($filters["limit_from"])){
+                    $limit=" OFFSET :from ROWS FETCH NEXT :many ROWS ONLY";
+                    $parameters["from"]=$filters["limit_from"]*$filters["limit_many"];
+                    $parameters["many"]=$filters["limit_many"];
+                }
+
+
+                switch($filters["group"]){
+                    case 2: 
+                        $query = $em->createNativeQuery("SELECT t.name,COUNT(r.template_id) as conta".$fields_extra.$sintax." ".$groupby." ".$orderby." ".$limit,$rsm);
+                        break;
+                    case 3: 
+                    case 4: 
+                        $query = $em->createNativeQuery("SELECT t.name,COUNT(t.id) as conta".$fields_extra.$sintax." ".$groupby." ".$orderby." ".$limit,$rsm);
+                        break;
+                }
+
+                
+                $rsm->addScalarResult('name', 'name');
+                $rsm->addScalarResult('conta', 'conta');                
+                if(!empty($parameters)){
+                    $query->setParameters($parameters);
+                }
+
+                $items=$query->getResult();
+
+
+                break;
+
+            case "count":
+
+                switch($filters["group"]){
+                    case 2: 
+                        $query = $em->createNativeQuery("SELECT COUNT(DISTINCT r.template_id) conta ".$sintax,$rsm);
+                        break;
+                    case 3: 
+                    case 4:
+                        $query = $em->createNativeQuery("SELECT COUNT(DISTINCT t.first_edition) conta ".$sintax,$rsm);
+                        break;
+                }
+                
+                $rsm->addScalarResult('conta', 'conta');
                 if(!empty($parameters)){
                     $query->setParameters($parameters);
                 }
@@ -219,13 +616,15 @@ class TMTemplatesRepository extends EntityRepository
         return $items;
     }
 
-    private function sintax_pending($table_alias){
-        $admins="CASE WHEN t.tmState=5 OR t.tmState=11 THEN 5 ELSE 0 END";
-        $aprobs="CASE WHEN t.tmState=4 THEN 4 ELSE ".$admins." END";
-        $testers="CASE WHEN t.tmState=3 THEN 3 ELSE ".$aprobs." END";
-        $elaborators="CASE WHEN t.tmState=2 OR t.tmState=9 THEN 2 ELSE ".$testers." END";
-        $sintax_pending=" (t.tmState=1 AND (t.backup=:user OR t.owner=:user)) OR (t.id IN (SELECT IDENTITY(".$table_alias.".template) FROM Nononsense\HomeBundle\Entity\TMWorkflow ".$table_alias." WHERE ".$table_alias.".template=t.id AND ".$table_alias.".action=".$elaborators." AND ".$table_alias.".userEntiy=:user))";
+    public function listRetentionsByTemplateId(int $templateId)
+    {
+        $template = $this->createQueryBuilder('t')
+            ->select('t, r')
+            ->leftJoin("t.retentions", "r")
+            ->where('t.id = :templateId');
+        $template->setParameter('templateId', $templateId);
 
-        return $sintax_pending;
+        return $template->getQuery()->getArrayResult();
+
     }
 }

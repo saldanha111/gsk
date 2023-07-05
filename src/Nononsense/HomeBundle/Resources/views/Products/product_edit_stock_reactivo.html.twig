@@ -141,9 +141,9 @@
                                     <td>{{item.id}}</td>
                                     <td>{{item.qrCode}}</td>
                                     <td>{{item.lotNumber}}</td>
-                                    <td>{{ item.receptionDate | date('d-m-Y') }}</td>
-                                    <td>{{ item.expiryDate | date('d-m-Y') }}</td>
-                                    <td>{{ item.destructionDate | date('d-m-Y') }}</td>
+                                    <td>{{ item.receptionDate | date('d/m/Y') }}</td>
+                                    <td>{{ item.expiryDate | date('d/m/Y') }}</td>
+                                    <td>{{ item.destructionDate | date('d/m/Y') }}</td>
                                     <td>
                                         <p data-toggle="tooltip" data-placement="left" title="{{ item.observations|length > 50 ? item.observations : '' }}">
                                             {{ item.observations|length > 50 ? item.observations|slice(0, 50) ~ '...' : item.observations  }}
