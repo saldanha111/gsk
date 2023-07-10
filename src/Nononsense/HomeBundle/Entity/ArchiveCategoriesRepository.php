@@ -67,8 +67,6 @@ class ArchiveCategoriesRepository extends EntityRepository
      */
     private function fillFilersQuery(array $filters, QueryBuilder $list)
     {
-        $list->andWhere('ac.deletedAt is null');
-
         if (isset($filters["name"])) {
             $terms = explode(" ", $filters["name"]);
             foreach($terms as $key => $term){

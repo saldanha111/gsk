@@ -1073,9 +1073,13 @@ nononsense_archive_categories_edit:
     path: /archive-categories/{id}
     defaults: { _controller: NononsenseHomeBundle:ArchiveCategories:edit}
 
-nononsense_archive_categories_delete:
-    path: /archive-categories/delete/{id}
-    defaults: { _controller: NononsenseHomeBundle:ArchiveCategories:delete}
+nononsense_archive_preservations_list:
+    path: /preservations-notices
+    defaults: { _controller: NononsenseHomeBundle:ArchivePreservationsNotices:list}
+
+nononsense_archive_preservations_edit:
+    path: /preservations-notices/{id}
+    defaults: { _controller: NononsenseHomeBundle:ArchivePreservationsNotices:edit}
 
 nononsense_archive_ubications_list:
     path: /archive-ubications
