@@ -1830,7 +1830,6 @@ class Users implements AdvancedUserInterface, \Serializable
     }
 
     /**
-<<<<<<< HEAD
      * Add cvWorkflows
      *
      * @param \Nononsense\HomeBundle\Entity\CVWorkflow $cvWorkflows
@@ -1839,7 +1838,9 @@ class Users implements AdvancedUserInterface, \Serializable
     public function addCvWorkflow(\Nononsense\HomeBundle\Entity\CVWorkflow $cvWorkflows)
     {
         $this->cvWorkflows[] = $cvWorkflows;
-=======
+    }
+
+    /**
      * Set activeDirectory
      *
      * @param boolean $activeDirectory
@@ -1848,13 +1849,10 @@ class Users implements AdvancedUserInterface, \Serializable
     public function setActiveDirectory($activeDirectory)
     {
         $this->activeDirectory = $activeDirectory;
->>>>>>> hide_options
-
         return $this;
     }
 
     /**
-<<<<<<< HEAD
      * Remove cvWorkflows
      *
      * @param \Nononsense\HomeBundle\Entity\CVWorkflow $cvWorkflows
@@ -1883,7 +1881,27 @@ class Users implements AdvancedUserInterface, \Serializable
     public function addCvSignature(\Nononsense\HomeBundle\Entity\CVSignatures $cvSignatures)
     {
         $this->cvSignatures[] = $cvSignatures;
+    }
 
+    /**
+     * Get activeDirectory
+     *
+     * @return boolean 
+     */
+    public function getActiveDirectory()
+    {
+        return $this->activeDirectory;
+    }
+
+    /**
+     * Add logs
+     *
+     * @param \Nononsense\HomeBundle\Entity\Logs $logs
+     * @return Users
+     */
+    public function addLog(\Nononsense\HomeBundle\Entity\Logs $logs)
+    {
+        $this->logs[] = $logs;
         return $this;
     }
 
@@ -2235,28 +2253,6 @@ class Users implements AdvancedUserInterface, \Serializable
     public function getGroupsSignatures()
     {
         return $this->groupsSignatures;
-=======
-     * Get activeDirectory
-     *
-     * @return boolean 
-     */
-    public function getActiveDirectory()
-    {
-        return $this->activeDirectory;
->>>>>>> hide_options
-    }
-
-    /**
-     * Add logs
-     *
-     * @param \Nononsense\HomeBundle\Entity\Logs $logs
-     * @return Users
-     */
-    public function addLog(\Nononsense\HomeBundle\Entity\Logs $logs)
-    {
-        $this->logs[] = $logs;
-
-        return $this;
     }
 
     /**
@@ -2277,5 +2273,38 @@ class Users implements AdvancedUserInterface, \Serializable
     public function getLogs()
     {
         return $this->logs;
+    }
+
+    /**
+     * Add materialCancel
+     *
+     * @param \Nononsense\HomeBundle\Entity\MaterialCleanCleans $materialCancel
+     * @return Users
+     */
+    public function addMaterialCancel(\Nononsense\HomeBundle\Entity\MaterialCleanCleans $materialCancel)
+    {
+        $this->materialCancel[] = $materialCancel;
+
+        return $this;
+    }
+
+    /**
+     * Remove materialCancel
+     *
+     * @param \Nononsense\HomeBundle\Entity\MaterialCleanCleans $materialCancel
+     */
+    public function removeMaterialCancel(\Nononsense\HomeBundle\Entity\MaterialCleanCleans $materialCancel)
+    {
+        $this->materialCancel->removeElement($materialCancel);
+    }
+
+    /**
+     * Get materialCancel
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getMaterialCancel()
+    {
+        return $this->materialCancel;
     }
 }

@@ -1,0 +1,126 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}Docoaro - GSK | {{'Homepage'|trans}} {% endblock %}
+{% block head %}
+{{ parent() }}
+<link rel="stylesheet" href="/css/plugins/datapicker/datepicker3.css">
+{% endblock %}
+{% block main_title %} Listado de Ubicaciones{% endblock %}
+{% block content %}
+
+<div class="wrapper wrapper-content">
+    <div class="row">
+        <div class="col-sm-12">
+            <div>
+                <div class="row">
+                    {% for flashMessage in app.session.flashbag.get('error') %}
+                        <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+                            <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                            {{ flashMessage }}
+                        </div>
+                        <br>
+                    {% endfor %}
+                    {% for flashMessage in app.session.flashbag.get('message') %}
+                        <div class="alert alert-success alert-dismissable" style="margin: 10px 16px 0 16px">
+                            <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                            {{ flashMessage }}
+                        </div>
+                        <br>
+                    {% endfor %}
+                    <form class="form-horizontal" id="form_item" action="{{ path('nononsense_archive_ubications_list')}}" method="GET">
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label item_filter">Edificio</label>
+                            <div class="col-sm-2 item_filter">
+                                <input type="text" name="building" class="form-control" value="{{filters.building is defined ? filters.building : ''}}">
+                            </div>
+
+                            <label class="col-sm-1 control-label item_filter">Balda</label>
+                            <div class="col-sm-2 item_filter">
+                                <input type="text" name="shelf" class="form-control" value="{{filters.shelf is defined ? filters.shelf : ''}}">
+                            </div>
+
+                            <label class="col-sm-1 control-label item_filter">Pasillo</label>
+                            <div class="col-sm-2 item_filter">
+                                <input type="text" name="passage" class="form-control" value="{{filters.passage is defined ? filters.passage : ''}}">
+                            </div>
+
+                            <label class="col-sm-1 control-label item_filter">Armario</label>
+                            <div class="col-sm-2 item_filter">
+                                <input type="text" name="cabinet" class="form-control" value="{{filters.cabinet is defined ? filters.cabinet : ''}}">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label item_filter">Otros</label>
+                            <div class="col-sm-2 item_filter">
+                                <input type="text" name="others" class="form-control" value="{{filters.others is defined ? filters.others : ''}}">
+                            </div>
+                            <div class="col-sm-2 item_filter">
+                                <button type="submit" class="btn btn-primary">Filtrar</button>
+                            </div>
+                        </div>
+
+
+                    </form>
+                </div>
+                <div class="row">
+                    <div>
+                      <a href="{{ path('nononsense_archive_ubications_edit',{'id': '0'}) }}" target="_self" class="btn btn-primary pull-right"><i class="fa fa-plus"></i> Nueva ubicación</a>
+                    </div><br>
+                    <table id="inProcessParcial" class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>Id.</th>
+                            <th>Edificio</th>
+                            <th>Balda</th>
+                            <th>Pasillo</th>
+                            <th>Armario</th>
+                            <th>Otros</th>
+                            <th>Qr</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        {% if items is defined %}
+                            {% for item in items %}
+                            <tr>
+                                <td>{{item.id}}</td>
+                                <td>{{item.building}}</td>
+                                <td>{{item.shelf}}</td>
+                                <td>{{item.passage}}</td>
+                                <td>{{item.cabinet}}</td>
+                                <td>{{item.others}}</td>
+                                <td>
+                                    <a href="{{path('nononsense_archive_view_qr', {'id': item.id}) }}?dynamic=1" target="_blank" class="btn btn-xs"><i class="fa fa-qrcode" aria-hidden="true"></i> Ver QR</a>
+                                </td>
+                                <td>
+                                    <a href="{{path('nononsense_archive_ubications_edit', {'id': item.id}) }}" class="btn btn-xs" target="_self"><i class="fa fa-pencil" aria-hidden="true"></i> Editar</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% endif %}
+                    </table>
+
+                    {% if count==0 %}
+                        <br><b>No se han encontrado ubicaciones disponibles</b>
+                    {% endif %}
+                    {% if pagination is defined and pagination.needed %}
+                        {% include '::pagination2.html.twig' %}
+                    {% endif %}
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+{{ parent() }}
+<script>
+  $(function () {
+
+    ActivateMenu('archive_ubications');
+    $('#side-menu').metisMenu();
+  });
+
+
+</script>
+{% endblock %}
+                        

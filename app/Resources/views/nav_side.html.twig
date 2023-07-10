@@ -298,7 +298,7 @@
             </li>
             {% endif %} 
 
-            {% if 'archive_admin' in array_subsecciones or 'archive_agent' in array_subsecciones %}
+            
             <li>
                 <a href="#">
                     <i class="fa fa-archive" aria-hidden="true"></i>
@@ -313,14 +313,18 @@
                         <li id="archive_categories"><a href="{{path('nononsense_archive_categories_list')}}">{{'Categorías'|trans}}</a></li>
                     {% endif %}
                     {% if 'archive_admin' in array_subsecciones %}
-                        <li id="document_ubications"><a href="#">{{'Ubicaciones'|trans}}</a></li>
+                        <li id="archive_ubications"><a href="{{path('nononsense_archive_ubications_list')}}">{{'Ubicaciones'|trans}}</a></li>
                     {% endif %}
                     {% if 'archive_agent' in array_subsecciones %}
                         <li id="document_records"><a href="#">{{'Registros'|trans}}</a></li>
                     {% endif %}
+                    {% if 'archive_agent' in array_subsecciones %}
+                        <li id="document_records"><a href="#">{{'Gestión de prestamos'|trans}}</a></li>
+                    {% endif %}
+                    <li id="document_records"><a href="#">{{'Solicitar prestamo'|trans}}</a></li>
                 </ul>
             </li>
-            {% endif %} 
+            
 
             {% if 'qrs_gestion' in array_subsecciones or 'areas_gestion' in array_subsecciones or 'usuarios_gestion' in array_subsecciones  or 'grupos_gestion' in array_subsecciones or 'delegations_gestion' in array_subsecciones or 'notifications_gestion' in array_subsecciones or 'usuarios_acceso' in array_subsecciones %}
                 <li>
@@ -331,7 +335,7 @@
                             <li id="qr_list">
                                 <a href="{{path('nononsense_qr_list')}}"><span class="nav-label">QRs</span></a>
                             </li>
-                        {% endif %}  #}
+                        {% endif %}
                         {% if 'areas_gestion' in array_subsecciones %}
                             <li id="areas_list">
                                 <a href="{{path('nononsense_areas')}}"><span class="nav-label">Areas</span></a>

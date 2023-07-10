@@ -1077,6 +1077,22 @@ nononsense_archive_categories_delete:
     path: /archive-categories/delete/{id}
     defaults: { _controller: NononsenseHomeBundle:ArchiveCategories:delete}
 
+nononsense_archive_ubications_list:
+    path: /archive-ubications
+    defaults: { _controller: NononsenseHomeBundle:ArchiveUbications:list}
+
+nononsense_archive_ubications_edit:
+    path: /archive-ubications/{id}
+    defaults: { _controller: NononsenseHomeBundle:ArchiveUbications:edit}
+
+nononsense_archive_view_qr:
+    path: /archive-ubications-view/{id}
+    defaults: { _controller: NononsenseHomeBundle:ArchiveUbications:viewQr}
+
+nononsense_archive_json_qr:
+    path: /archive-json/{id}
+    defaults: { _controller: NononsenseHomeBundle:ArchiveUbications:jsonQr}
+
 #Crt
 nononsense_retention_update:
     path: /retentions/

@@ -60,12 +60,6 @@ class ArchivePreservations
     protected $active;
 
     /**
-     * @var dateTime
-     * @ORM\Column(name="deletedAt", type="datetime", nullable=true)
-     */
-    protected $deletedAt;
-
-    /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\ArchiveSignatures", mappedBy="archivePreservation")
      */
     protected $archiveSignatures;
@@ -202,29 +196,6 @@ class ArchivePreservations
     public function getActive()
     {
         return $this->active;
-    }
-
-    /**
-     * Set deletedAt
-     *
-     * @param \DateTime $deletedAt
-     * @return ArchivePreservations
-     */
-    public function setDeletedAt($deletedAt)
-    {
-        $this->deletedAt = $deletedAt;
-
-        return $this;
-    }
-
-    /**
-     * Get deletedAt
-     *
-     * @return \DateTime 
-     */
-    public function getDeletedAt()
-    {
-        return $this->deletedAt;
     }
 
     /**

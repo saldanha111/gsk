@@ -46,12 +46,6 @@ class ArchiveCategories
     protected $retentionDays;
 
     /**
-     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\ArchiveStates", inversedBy="category")
-     * @ORM\JoinColumn(name="document_state", referencedColumnName="id")
-     */
-    protected $documentState;
-
-    /**
      * @ORM\ManyToMany(targetEntity="\Nononsense\HomeBundle\Entity\ArchiveRecords", mappedBy="categories")
      */
     protected $records;
@@ -239,52 +233,6 @@ class ArchiveCategories
     public function getActive()
     {
         return $this->active;
-    }
-
-    /**
-     * Set deletedAt
-     *
-     * @param \DateTime $deletedAt
-     * @return ArchiveCategories
-     */
-    public function setDeletedAt($deletedAt)
-    {
-        $this->deletedAt = $deletedAt;
-
-        return $this;
-    }
-
-    /**
-     * Get deletedAt
-     *
-     * @return \DateTime 
-     */
-    public function getDeletedAt()
-    {
-        return $this->deletedAt;
-    }
-
-    /**
-     * Set documentState
-     *
-     * @param \Nononsense\HomeBundle\Entity\ArchiveStates $documentState
-     * @return ArchiveCategories
-     */
-    public function setDocumentState(\Nononsense\HomeBundle\Entity\ArchiveStates $documentState = null)
-    {
-        $this->documentState = $documentState;
-
-        return $this;
-    }
-
-    /**
-     * Get documentState
-     *
-     * @return \Nononsense\HomeBundle\Entity\ArchiveStates 
-     */
-    public function getDocumentState()
-    {
-        return $this->documentState;
     }
 
     /**

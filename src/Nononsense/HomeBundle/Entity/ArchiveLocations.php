@@ -3,6 +3,7 @@
 namespace Nononsense\HomeBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity
@@ -16,6 +17,7 @@ class ArchiveLocations
      * @ORM\Column(type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @Groups({"location"})
      */
     protected $id;
 
@@ -23,6 +25,7 @@ class ArchiveLocations
      * @var string
      *
      * @ORM\Column(name="building", type="string", length=255,  nullable=true)
+     * @Groups({"location"})
      */
     protected $building;
 
@@ -30,6 +33,7 @@ class ArchiveLocations
      * @var string
      *
      * @ORM\Column(name="shelf", type="string", length=255,  nullable=true)
+     * @Groups({"location"})
      */
     protected $shelf;
 
@@ -37,6 +41,7 @@ class ArchiveLocations
      * @var string
      *
      * @ORM\Column(name="passage", type="string", length=255,  nullable=true)
+     * @Groups({"location"})
      */
     protected $passage;
 
@@ -44,6 +49,7 @@ class ArchiveLocations
      * @var string
      *
      * @ORM\Column(name="cabinet", type="string", length=255,  nullable=true)
+     * @Groups({"location"})
      */
     protected $cabinet;
 
@@ -51,6 +57,7 @@ class ArchiveLocations
      * @var string
      *
      * @ORM\Column(name="others", type="string", length=255,  nullable=true)
+     * @Groups({"location"})
      */
     protected $others;
 

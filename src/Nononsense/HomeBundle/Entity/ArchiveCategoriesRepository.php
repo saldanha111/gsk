@@ -24,7 +24,6 @@ class ArchiveCategoriesRepository extends EntityRepository
     {
         $list = $this->createQueryBuilder('ac')
             ->select('ac')
-            ->innerJoin('ac.documentState', 'st')
             ->orderBy('ac.id', 'DESC');
 
         $list = self::fillFilersQuery($filters, $list);
@@ -47,8 +46,7 @@ class ArchiveCategoriesRepository extends EntityRepository
     public function count($filters = [])
     {
         $list = $this->createQueryBuilder('ac')
-            ->select('COUNT(ac.id) as conta')
-            ->innerJoin('ac.documentState', 'st');
+            ->select('COUNT(ac.id) as conta');
 
         $list = self::fillFilersQuery($filters, $list);
         $query = $list->getQuery();
@@ -79,10 +77,6 @@ class ArchiveCategoriesRepository extends EntityRepository
             }
         }
 
-        if (isset($filters["state"])) {
-            $list->andWhere('st.id = :state');
-            $list->setParameter('state', $filters["state"]);
-        }
 
         if (isset($filters["active"])) {
             $list->andWhere('ac.active = :active');
