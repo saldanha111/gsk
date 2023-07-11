@@ -1,10 +1,10 @@
 {% extends '::base.html.twig' %}
-{% block page_title %}Docoaro - GSK | {{'Homepage'|trans}} {% endblock %}
+{% block page_title %}Docoaro - GSK | Audittrail archive {% endblock %}
 {% block head %}
 {{ parent() }}
 <link rel="stylesheet" href="/css/plugins/datapicker/datepicker3.css">
 {% endblock %}
-{% block main_title %} Audittrail retentions{% endblock %}
+{% block main_title %} Audittrail archive{% endblock %}
 {% block content %}
 
 <div class="wrapper wrapper-content">
@@ -12,7 +12,7 @@
         <div class="col-sm-12">
             <div>
                 <div class="row">
-                    <form class="form-horizontal" id="form_item" action="{{ path('nononsense_retention_log')}}" method="GET">
+                    <form class="form-horizontal" id="form_item" action="{{ path('nononsense_archive_log')}}" method="GET">
                         <div class="form-group">
                             <label class="col-sm-1 control-label item_filter">ID</label>
                             <div class="col-sm-1 item_filter">
@@ -26,9 +26,9 @@
                             <div class="col-sm-2 item_filter">
                                 <select class="form-control" name="type" style="width: 100%;">
                                     <option value=""></option>
-                                    <option value="template" {{filters.type is defined and filters.type=="template" ? 'selected="selected"'}}>Gestión Plantillas</option>
-                                    <option value="record" {{filters.type is defined and filters.type=="record" ? 'selected="selected"'}}>Cumplimentación</option>
-                                    <option value="category" {{filters.type is defined and filters.type=="category" ? 'selected="selected"'}}>Categoría retención</option>
+                                    <option value="preservation" {{filters.type is defined and filters.type=="preservation" ? 'selected="selected"'}}>Preservation notices</option>
+                                    <option value="record" {{filters.type is defined and filters.type=="record" ? 'selected="selected"'}}>Registros</option>
+                                    <option value="category" {{filters.type is defined and filters.type=="category" ? 'selected="selected"'}}>Categoría</option>
                                 </select>
                             </div>
                             <label class="col-sm-1 control-label">Acción</label>
@@ -63,17 +63,17 @@
                             <tr>
                                 <td>{{ item.modified is defined and item.modified is not empty ? item.modified|date("d/m/Y H:i:s")|gskdate : '' }}</td>
                                 <td>
-                                    {% if item.template is not empty %}
-                                        Plantilla
+                                    {% if item.preservation is not empty %}
+                                        Preservation notice
                                     {% elseif item.record is not empty %}
-                                        Cumplimentación
+                                        Registro
                                     {% else %} 
-                                        Categoría retención
+                                        Categoría
                                     {% endif %} 
                                 </td>
                                 <td>
-                                    {% if item.template is not empty %}
-                                        {{ item.template }}
+                                    {% if item.preservation is not empty %}
+                                        {{ item.preservation }}
                                     {% elseif item.record is not empty %}
                                         {{ item.record }}
                                     {% else %} 
@@ -107,7 +107,7 @@
 <script>
   $(function () {
 
-    ActivateMenu('retention_log');
+    ActivateMenu('archive_log');
     $('#side-menu').metisMenu();
   });
 </script>

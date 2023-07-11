@@ -12,82 +12,82 @@ use Doctrine\ORM\EntityRepository;
  */
 class ArchiveSignaturesRepository extends EntityRepository
 {
-	// public function list($filters, $paginate=1)
-    // {
-    //     $em = $this->getEntityManager();
+	public function list($filters, $paginate=1)
+    {
+        $em = $this->getEntityManager();
 
-    //     $list = $this->createQueryBuilder('rs')
-    //         ->select('DISTINCT(rs.retentionCategory) category', 'rs.retentionTemplate template', 'rs.retentionRecord record','a.name action', 'u.name user', 'rs.description', 'rs.modified','rs.id')
-    //         ->leftJoin("rs.retentionAction", "a")
-    //         ->leftJoin("rs.userEntiy", "u")
-    //         ->orderBy('rs.id', 'DESC');
+        $list = $this->createQueryBuilder('ars')
+            ->select('IDENTITY(ars.archiveCategory) category', 'IDENTITY(ars.archivePreservation) preservation', 'IDENTITY(ars.record) record','a.name action', 'u.name user', 'ars.description', 'ars.modified','ars.id')
+            ->leftJoin("ars.archiveAction", "a")
+            ->leftJoin("ars.userEntiy", "u")
+            ->orderBy('ars.id', 'DESC');
 
-    //     $list = self::fillFilersQuery($filters, $list);
+        $list = self::fillFilersQuery($filters, $list);
 
-    //     if($paginate==1 && isset($filters["limit_from"])){
-    //         $list->setFirstResult($filters["limit_from"]*$filters["limit_many"])->setMaxResults($filters["limit_many"]);
-    //     }
+        if($paginate==1 && isset($filters["limit_from"])){
+            $list->setFirstResult($filters["limit_from"]*$filters["limit_many"])->setMaxResults($filters["limit_many"]);
+        }
 
-    //     $query = $list->getQuery();
+        $query = $list->getQuery();
 
-    //     return $query->getResult();
-    // }
+        return $query->getResult();
+    }
 
-    // public function count($filters = array())
-    // {
-    //     $em = $this->getEntityManager();
+    public function count($filters = array())
+    {
+        $em = $this->getEntityManager();
 
-    //     $list = $this->createQueryBuilder('rs')
-    //         ->select('COUNT(rs.id) as conta')
-    //         ->leftJoin("rs.retentionAction", "a")
-    //         ->leftJoin("rs.userEntiy", "u");
+        $list = $this->createQueryBuilder('ars')
+            ->select('COUNT(ars.id) as conta')
+            ->leftJoin("ars.archiveAction", "a")
+            ->leftJoin("ars.userEntiy", "u");
 
-    //     $list = self::fillFilersQuery($filters, $list);
+        $list = self::fillFilersQuery($filters, $list);
         
-    //     $query = $list->getQuery();
+        $query = $list->getQuery();
 
-    //     return $query->getSingleResult()["conta"];
-    // }
+        return $query->getSingleResult()["conta"];
+    }
 
 
-    // private function fillFilersQuery($filters, $list){
+    private function fillFilersQuery($filters, $list){
 
-    //     if(!empty($filters)){
-    //         if(isset($filters["id"])){
-    //             $list->andWhere('rs.retentionCategory=:id1 OR rs.retentionTemplate=:id2 OR rs.retentionRecord=:id3');
-    //             $list->setParameter('id1', $filters["id"]);
-    //             $list->setParameter('id2', $filters["id"]);
-    //             $list->setParameter('id3', $filters["id"]);
-    //         }
+        if(!empty($filters)){
+            if(isset($filters["id"])){
+                $list->andWhere('ars.archiveCategory=:id1 OR ars.archivePreservation=:id2 OR ars.record=:id3');
+                $list->setParameter('id1', $filters["id"]);
+                $list->setParameter('id2', $filters["id"]);
+                $list->setParameter('id3', $filters["id"]);
+            }
 
-    //         if(isset($filters["action"])){
-    //             $list->andWhere("a.id=:action");
-    //             $list->setParameter('action', $filters["action"]);
-    //         }
+            if(isset($filters["action"])){
+                $list->andWhere("a.id=:action");
+                $list->setParameter('action', $filters["action"]);
+            }
 
-    //         if(isset($filters["type"])){
-    //             switch($filters["type"]){
-    //                 case "category":
-    //                     $list->andWhere("rs.retentionCategory IS NOT NULL");
-    //                     break;
-    //                 case "template":
-    //                     $list->andWhere("rs.retentionTemplate IS NOT NULL");
-    //                     break;
-    //                 case "record":
-    //                     $list->andWhere("rs.retentionRecord IS NOT NULL");
-    //                     break;
-    //             }
-    //         }
+            if(isset($filters["type"])){
+                switch($filters["type"]){
+                    case "category":
+                        $list->andWhere("ars.archiveCategory IS NOT NULL");
+                        break;
+                    case "preservation":
+                        $list->andWhere("ars.archivePreservation IS NOT NULL");
+                        break;
+                    case "record":
+                        $list->andWhere("ars.record IS NOT NULL");
+                        break;
+                }
+            }
 
-    //         if(isset($filters["user"])){
-    //             $terms = explode(" ", $filters["user"]);
-    //             foreach($terms as $key => $term){
-    //                 $list->andWhere('u.name LIKE :user'.$key);
-    //                 $list->setParameter('user'.$key, '%' . $term. '%');
-    //             }
-    //         }
-    //     }
+            if(isset($filters["user"])){
+                $terms = explode(" ", $filters["user"]);
+                foreach($terms as $key => $term){
+                    $list->andWhere('u.name LIKE :user'.$key);
+                    $list->setParameter('user'.$key, '%' . $term. '%');
+                }
+            }
+        }
 
-    //     return $list;
-    // }
+        return $list;
+    }
 }

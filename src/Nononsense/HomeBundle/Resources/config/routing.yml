@@ -1097,6 +1097,11 @@ nononsense_archive_json_qr:
     path: /archive-json/{id}
     defaults: { _controller: NononsenseHomeBundle:ArchiveUbications:jsonQr}
 
+nononsense_archive_log:
+    path: /archive-logs/
+    methods:    [GET]
+    defaults: { _controller: NononsenseHomeBundle:ArchiveLogs:list}
+
 #Crt
 nononsense_retention_update:
     path: /retentions/
