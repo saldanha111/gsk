@@ -109,8 +109,14 @@ class ArchiveLogsController extends Controller
                         $id=$item["record"];
                     }
                     else{
-                        $type="Categoría";
-                        $id=$item["category"];
+                        if($item["type"]!=""){
+                            $type="Tipo";
+                            $id=$item["type"];
+                        }
+                        else{
+                            $type="Categoría";
+                            $id=$item["category"];
+                        }
                     }
                 }
 

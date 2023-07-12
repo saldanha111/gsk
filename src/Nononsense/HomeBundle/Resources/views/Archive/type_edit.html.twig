@@ -1,0 +1,159 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}Docoaro - GSK |  Archivo / {{category.id is not null ? 'Editar' : 'Crear'}} tipo {% endblock %}
+{% block head %}
+    <link rel="stylesheet" href="{{ asset('/js/plugins/sweetalert/sweetalert.min.css') }}">
+    {{ parent() }}
+{% endblock %}
+{% block main_title %} Archivo / {{category.id is not null ? 'Editar' : 'Crear'}} tipo{% endblock %}
+
+{% block content %}
+
+    <div class="wrapper wrapper-content animated fadeInUp">
+        {% for flashMessage in app.session.flashbag.get('error') %}
+            <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                {{ flashMessage }}
+            </div>
+            <br>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('message') %}
+            <div class="alert alert-success alert-dismissable" style="margin: 10px 16px 0 16px">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                {{ flashMessage }}
+            </div>
+            <br>
+        {% endfor %}
+        <form class="form-horizontal" id="form_item" method="POST" action="{{ path('nononsense_archive_types_edit',{'id': category.id is not null ? category.id : 0}) }}">
+            <div class="row">
+                <div class="col-lg-4 col-lg-offset-1">
+                    <div class="row">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Nombre</label>
+                            <div class="col-sm-7">
+                                <input type="text" name="name" class="form-control" value="{{category.name is not null ? category.name : ''}}" required="required">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Descripción</label>
+                            <div class="col-sm-7">
+                                <textarea name="description" class="form-control text-comment" rows="10" cols="40"  style="width:100%" required="required">{{category.description is not null ? category.description : ''}}</textarea>
+                            </div>
+                        </div>
+
+                        {% if category.id is defined and category.id is not null%}
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Activo</label>
+                                <div class="col-sm-7">
+                                    <input name="active" value="1" type="checkbox" {% if category.active == true %} checked="checked" {% endif %}>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-11 col-sm-offset-1">
+                    <a class="btn btn-primary submit-category" data-action="save">{{category.id is not null ? 'Editar' : 'Crear'}} tipo</a>
+                </div>
+            </div>
+
+            <div class="modal fade" tabindex="-1" role="dialog" id="modalSign">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Firmar</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+
+                        <div class="modal-body">
+                            <div class="row box-text-comment">
+                                <div class="col-lg-10 col-lg-offset-1">
+                                    <label for="description_workflow">Comentarios</label>
+                                    <br>
+                                    <div class="form-group">
+                                        <textarea class="form-control text-comment" name="comment" id="modal_comment" rows="10" cols="40"  style="width:100%" required="required"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-10 col-lg-offset-1">
+                                    <div id="signature-pad3" class="input-group">
+                                        <label for="firma">Introduzca su firma</label>
+                                        <br>
+                                        <input type="password" id="modal_password" class="form-control" required="required"><br>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <input type="button" class="btn btn-primary" id="sign_category" value="Firmar">
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <input type="hidden" name="signature">
+            <textarea name="comment" style="display: none"></textarea>
+            <input type="hidden" id="action" value="">
+        </form>
+    </div>
+    
+{% endblock %}
+
+{% block scripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/plugins/sweetalert/sweetalert.min.js') }}"></script>
+
+    <script>
+
+    $( document ).ready(function() {
+        ActivateMenu('archive_preservations');
+        $('#side-menu').metisMenu();
+
+
+        $(document).on('click','.submit-category',function(e){
+            $("#action").val($(this).data("action"));
+            $("#modalSign").modal('show');
+        });
+
+        $(document).on('click', '#sign_category', function() {
+            if ($('#modal_comment').is(":visible") && !$('#modal_comment').val()){
+                swal({
+                    title: "Atención",
+                    text: "La descripcion es obligatoria",
+                    type: "warning"
+                });
+                return false;
+            }
+
+            if (!$("#modal_password").val()){
+                swal({
+                    title: "Atención",
+                    text: "La firma es obligatoria",
+                    type: "warning"
+                });
+                return false;
+            }
+
+            if (!gpassword_valid($("#modal_password").val())){
+                swal({
+                    title: "Atención",
+                    text: "La firma no es correcta",
+                    type: "warning"
+                });
+                return false;
+            }
+            $('textarea[name="comment"]').val($("#modal_comment").val());
+            $('input[name="signature"]').val($("#modal_password").val());
+
+            $('#form_item').submit();
+        });
+
+    });
+
+    </script>
+{% endblock %}
+
+

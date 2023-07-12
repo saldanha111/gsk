@@ -13,6 +13,7 @@ use Nononsense\HomeBundle\Entity\TMCumplimentations;
 use Nononsense\UserBundle\Entity\Users;
 use Nononsense\HomeBundle\Entity\ArchiveCategories;
 use Nononsense\HomeBundle\Entity\ArchivePreservations;
+use Nononsense\HomeBundle\Entity\ArchiveTypes;
 use Nononsense\HomeBundle\Entity\ArchiveActions;
 use Nononsense\HomeBundle\Entity\ArchiveSignatures;
 use Nononsense\HomeBundle\Entity\RetentionCategories;
@@ -116,6 +117,10 @@ class Utilities{
             case "category":
                 $category=$this->em->getRepository('NononsenseHomeBundle:ArchiveCategories')->findOneBy(array('id' => $id));
                 $signatureLog->setArchiveCategory($category);
+                break;
+            case "type":
+                $category=$this->em->getRepository('NononsenseHomeBundle:ArchiveTypes')->findOneBy(array('id' => $id));
+                $signatureLog->setArchiveType($category);
                 break;
             case "preservation":
                 $preservation=$this->em->getRepository('NononsenseHomeBundle:ArchivePreservations')->findOneBy(array('id' => $id));

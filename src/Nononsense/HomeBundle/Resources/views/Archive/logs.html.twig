@@ -29,6 +29,7 @@
                                     <option value="preservation" {{filters.type is defined and filters.type=="preservation" ? 'selected="selected"'}}>Preservation notices</option>
                                     <option value="record" {{filters.type is defined and filters.type=="record" ? 'selected="selected"'}}>Registros</option>
                                     <option value="category" {{filters.type is defined and filters.type=="category" ? 'selected="selected"'}}>Categoría</option>
+                                    <option value="type" {{filters.type is defined and filters.type=="type" ? 'selected="selected"'}}>Tipo</option>
                                 </select>
                             </div>
                             <label class="col-sm-1 control-label">Acción</label>
@@ -67,6 +68,8 @@
                                         Preservation notice
                                     {% elseif item.record is not empty %}
                                         Registro
+                                    {% elseif item.type is not empty %}
+                                        Tipo
                                     {% else %} 
                                         Categoría
                                     {% endif %} 
@@ -76,6 +79,8 @@
                                         {{ item.preservation }}
                                     {% elseif item.record is not empty %}
                                         {{ item.record }}
+                                    {% elseif item.type is not empty %}
+                                        {{ item.type }}
                                     {% else %} 
                                         {{ item.category }}
                                     {% endif %} 
@@ -107,7 +112,7 @@
 <script>
   $(function () {
 
-    ActivateMenu('archive_log');
+    ActivateMenu('archive_logs');
     $('#side-menu').metisMenu();
   });
 </script>

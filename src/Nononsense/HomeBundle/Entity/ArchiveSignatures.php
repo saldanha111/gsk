@@ -38,6 +38,12 @@ class ArchiveSignatures
     protected $archivePreservation;
 
     /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\ArchiveTypes", inversedBy="archiveSignatures")
+     * @ORM\JoinColumn(name="type_id", referencedColumnName="id")
+     */
+    protected $archiveType;
+
+    /**
      * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\ArchiveRecords", inversedBy="archiveSignatures")
      * @ORM\JoinColumn(name="record_id", referencedColumnName="id")
      */
@@ -260,5 +266,28 @@ class ArchiveSignatures
     public function getUserEntiy()
     {
         return $this->userEntiy;
+    }
+
+    /**
+     * Set archiveType
+     *
+     * @param \Nononsense\HomeBundle\Entity\ArchiveTypes $archiveType
+     * @return ArchiveSignatures
+     */
+    public function setArchiveType(\Nononsense\HomeBundle\Entity\ArchiveTypes $archiveType = null)
+    {
+        $this->archiveType = $archiveType;
+
+        return $this;
+    }
+
+    /**
+     * Get archiveType
+     *
+     * @return \Nononsense\HomeBundle\Entity\ArchiveTypes 
+     */
+    public function getArchiveType()
+    {
+        return $this->archiveType;
     }
 }

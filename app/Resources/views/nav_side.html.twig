@@ -307,7 +307,7 @@
                 </a>
                 <ul class="nav nav-second-level">
                     {% if 'archive_admin' in array_subsecciones %}
-                        <li id="document_types"><a href="#">{{'Tipos'|trans}}</a></li>
+                        <li id="archive_types"><a href="{{path('nononsense_archive_types_list')}}">{{'Tipos'|trans}}</a></li>
                     {% endif %}
                     {% if 'archive_admin' in array_subsecciones %}
                         <li id="archive_categories"><a href="{{path('nononsense_archive_categories_list')}}">{{'Categorías'|trans}}</a></li>

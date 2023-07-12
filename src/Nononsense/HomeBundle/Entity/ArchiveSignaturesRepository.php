@@ -17,7 +17,7 @@ class ArchiveSignaturesRepository extends EntityRepository
         $em = $this->getEntityManager();
 
         $list = $this->createQueryBuilder('ars')
-            ->select('IDENTITY(ars.archiveCategory) category', 'IDENTITY(ars.archivePreservation) preservation', 'IDENTITY(ars.record) record','a.name action', 'u.name user', 'ars.description', 'ars.modified','ars.id')
+            ->select('IDENTITY(ars.archiveCategory) category', 'IDENTITY(ars.archivePreservation) preservation', 'IDENTITY(ars.archiveType) type', 'IDENTITY(ars.record) record','a.name action', 'u.name user', 'ars.description', 'ars.modified','ars.id')
             ->leftJoin("ars.archiveAction", "a")
             ->leftJoin("ars.userEntiy", "u")
             ->orderBy('ars.id', 'DESC');
@@ -54,7 +54,7 @@ class ArchiveSignaturesRepository extends EntityRepository
 
         if(!empty($filters)){
             if(isset($filters["id"])){
-                $list->andWhere('ars.archiveCategory=:id1 OR ars.archivePreservation=:id2 OR ars.record=:id3');
+                $list->andWhere('ars.archiveCategory=:id1 OR ars.archivePreservation=:id2 OR ars.record=:id3 OR ars.type=:id3');
                 $list->setParameter('id1', $filters["id"]);
                 $list->setParameter('id2', $filters["id"]);
                 $list->setParameter('id3', $filters["id"]);
@@ -72,6 +72,9 @@ class ArchiveSignaturesRepository extends EntityRepository
                         break;
                     case "preservation":
                         $list->andWhere("ars.archivePreservation IS NOT NULL");
+                        break;
+                    case "type":
+                        $list->andWhere("ars.archiveType IS NOT NULL");
                         break;
                     case "record":
                         $list->andWhere("ars.record IS NOT NULL");

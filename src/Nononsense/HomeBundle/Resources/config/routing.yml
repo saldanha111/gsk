@@ -1081,6 +1081,14 @@ nononsense_archive_preservations_edit:
     path: /preservations-notices/{id}
     defaults: { _controller: NononsenseHomeBundle:ArchivePreservationsNotices:edit}
 
+nononsense_archive_types_list:
+    path: /archive-types
+    defaults: { _controller: NononsenseHomeBundle:ArchiveTypes:list}
+
+nononsense_archive_types_edit:
+    path: /archive-types/{id}
+    defaults: { _controller: NononsenseHomeBundle:ArchiveTypes:edit}
+
 nononsense_archive_ubications_list:
     path: /archive-ubications
     defaults: { _controller: NononsenseHomeBundle:ArchiveUbications:list}
