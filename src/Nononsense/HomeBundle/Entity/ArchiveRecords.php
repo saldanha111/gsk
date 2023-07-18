@@ -43,49 +43,85 @@ class ArchiveRecords
     protected $state;
 
     /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\ArchiveUseStates", inversedBy="archive")
+     * @ORM\JoinColumn(name="state_use_id", referencedColumnName="id")
+     */
+    protected $useState;
+
+    /**
      * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\ArchiveLocations", inversedBy="archive")
      * @ORM\JoinColumn(name="location_id", referencedColumnName="id")
      */
     protected $location;
 
     /**
-     * @ORM\ManyToMany(targetEntity="\Nononsense\HomeBundle\Entity\ArchiveCategories", mappedBy="records")
+     * @ORM\ManyToMany(targetEntity="\Nononsense\HomeBundle\Entity\ArchiveCategories", inversedBy="records")
+     * @ORM\JoinTable(name="archive_records_categories")
      */
     protected $categories;
 
     /**
-     * @ORM\ManyToMany(targetEntity="\Nononsense\HomeBundle\Entity\ArchivePreservations", mappedBy="records")
+     * @ORM\ManyToMany(targetEntity="\Nononsense\HomeBundle\Entity\ArchivePreservations", inversedBy="records")
+     * @ORM\JoinTable(name="archive_records_preservations")
      */
     protected $preservations;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="unique_number", type="string", length=150)
+     * @ORM\Column(name="unique_number", type="string", length=150, unique=true)
      */
     protected $uniqueNumber;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="title", type="string", length=150)
+     * @ORM\Column(name="az", type="string", length=150)
+     */
+    protected $az;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="title", type="string", length=150, nullable=true)
      */
     protected $title;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="edition", type="string", length=150)
+     * @ORM\Column(name="edition", type="string", length=150, nullable=true)
      */
     protected $edition;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="archiveRecords")
+     * @ORM\JoinColumn(name="creator_id", referencedColumnName="id")
+     */
+    protected $creator;
+
+    /**
+     * @ORM\Column(name="created", type="datetime", nullable=false)
+     */
+    protected $created;
+
+    /**
+     * @ORM\Column(name="modified", type="datetime", nullable=false)
+     */
+    protected $modified;
+
+    /**
+     * @ORM\Column(name="init_retention", type="datetime", nullable=true)
+     */
+    protected $initRetention;
+
 
     /**
      * Constructor
      */
     public function __construct()
     {
-        $this->categories = new \Doctrine\Common\Collections\ArrayCollection();
-        $this->preservations = new \Doctrine\Common\Collections\ArrayCollection();
+
     }
 
     /**
@@ -257,6 +293,144 @@ class ArchiveRecords
     public function getLocation()
     {
         return $this->location;
+    }
+
+    /**
+     * Set useState
+     *
+     * @param \Nononsense\HomeBundle\Entity\ArchiveUseStates $useState
+     * @return ArchiveRecords
+     */
+    public function setUseState(\Nononsense\HomeBundle\Entity\ArchiveUseStates $useState = null)
+    {
+        $this->useState = $useState;
+
+        return $this;
+    }
+
+    /**
+     * Get useState
+     *
+     * @return \Nononsense\HomeBundle\Entity\ArchiveUseStates 
+     */
+    public function getUseState()
+    {
+        return $this->useState;
+    }
+
+    /**
+     * Set creator
+     *
+     * @param \Nononsense\UserBundle\Entity\Users $creator
+     * @return ArchiveRecords
+     */
+    public function setCreator(\Nononsense\UserBundle\Entity\Users $creator = null)
+    {
+        $this->creator = $creator;
+
+        return $this;
+    }
+
+    /**
+     * Get creator
+     *
+     * @return \Nononsense\UserBundle\Entity\Users 
+     */
+    public function getCreator()
+    {
+        return $this->creator;
+    }
+
+    /**
+     * Set created
+     *
+     * @param \DateTime $created
+     * @return ArchiveRecords
+     */
+    public function setCreated($created)
+    {
+        $this->created = $created;
+
+        return $this;
+    }
+
+    /**
+     * Get created
+     *
+     * @return \DateTime 
+     */
+    public function getCreated()
+    {
+        return $this->created;
+    }
+
+    /**
+     * Set modified
+     *
+     * @param \DateTime $modified
+     * @return ArchiveRecords
+     */
+    public function setModified($modified)
+    {
+        $this->modified = $modified;
+
+        return $this;
+    }
+
+    /**
+     * Get modified
+     *
+     * @return \DateTime 
+     */
+    public function getModified()
+    {
+        return $this->modified;
+    }
+
+    /**
+     * Set az
+     *
+     * @param string $az
+     * @return ArchiveRecords
+     */
+    public function setAz($az)
+    {
+        $this->az = $az;
+
+        return $this;
+    }
+
+    /**
+     * Get az
+     *
+     * @return string 
+     */
+    public function getAz()
+    {
+        return $this->az;
+    }
+
+    /**
+     * Set initRetention
+     *
+     * @param \DateTime $initRetention
+     * @return ArchiveRecords
+     */
+    public function setInitRetention($initRetention)
+    {
+        $this->initRetention = $initRetention;
+
+        return $this;
+    }
+
+    /**
+     * Get initRetention
+     *
+     * @return \DateTime 
+     */
+    public function getInitRetention()
+    {
+        return $this->initRetention;
     }
 
     /**

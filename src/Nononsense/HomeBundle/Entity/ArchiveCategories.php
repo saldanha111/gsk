@@ -77,13 +77,12 @@ class ArchiveCategories
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\ArchiveSignatures", mappedBy="archiveCategory")
      */
     protected $archiveSignatures;
-
+    
     /**
      * Constructor
      */
     public function __construct()
     {
-        $this->records = new \Doctrine\Common\Collections\ArrayCollection();
         $this->archiveSignatures = new \Doctrine\Common\Collections\ArrayCollection();
     }
 
@@ -236,39 +235,6 @@ class ArchiveCategories
     }
 
     /**
-     * Add records
-     *
-     * @param \Nononsense\HomeBundle\Entity\ArchiveRecords $records
-     * @return ArchiveCategories
-     */
-    public function addRecord(\Nononsense\HomeBundle\Entity\ArchiveRecords $records)
-    {
-        $this->records[] = $records;
-
-        return $this;
-    }
-
-    /**
-     * Remove records
-     *
-     * @param \Nononsense\HomeBundle\Entity\ArchiveRecords $records
-     */
-    public function removeRecord(\Nononsense\HomeBundle\Entity\ArchiveRecords $records)
-    {
-        $this->records->removeElement($records);
-    }
-
-    /**
-     * Get records
-     *
-     * @return \Doctrine\Common\Collections\Collection 
-     */
-    public function getRecords()
-    {
-        return $this->records;
-    }
-
-    /**
      * Add archiveSignatures
      *
      * @param \Nononsense\HomeBundle\Entity\ArchiveSignatures $archiveSignatures
@@ -355,5 +321,39 @@ class ArchiveCategories
     public function getDeletedAt()
     {
         return $this->deletedAt;
+    }
+
+
+    /**
+     * Add records
+     *
+     * @param \Nononsense\HomeBundle\Entity\ArchiveRecords $records
+     * @return ArchiveCategories
+     */
+    public function addRecord(\Nononsense\HomeBundle\Entity\ArchiveRecords $records)
+    {
+        $this->records[] = $records;
+
+        return $this;
+    }
+
+    /**
+     * Remove records
+     *
+     * @param \Nononsense\HomeBundle\Entity\ArchiveRecords $records
+     */
+    public function removeRecord(\Nononsense\HomeBundle\Entity\ArchiveRecords $records)
+    {
+        $this->records->removeElement($records);
+    }
+
+    /**
+     * Get records
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getRecords()
+    {
+        return $this->records;
     }
 }

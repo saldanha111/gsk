@@ -1,0 +1,219 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}Docoaro - GSK | Registros archivo {% endblock %}
+{% block head %}
+{{ parent() }}
+<link rel="stylesheet" href="/css/plugins/datapicker/datepicker3.css">
+{% endblock %}
+{% block main_title %} Registros archivo{% endblock %}
+{% block content %}
+
+<div class="wrapper wrapper-content">
+    <div class="row">
+        <div class="col-sm-12">
+            <div>
+                <div class="row">
+                    <form class="form-horizontal" id="form_item" action="{{ path('nononsense_archive_records')}}" method="GET">
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label item_filter">ID</label>
+                            <div class="col-sm-1 item_filter">
+                                <input type="number" name="id" class="form-control" value="{{filters.id is defined ? filters.id : ''}}">
+                            </div>
+                            <label class="col-sm-1 control-label item_filter">Identificador</label>
+                            <div class="col-sm-1 item_filter">
+                                <input type="string" name="uniqueNumber" class="form-control" value="{{filters.uniqueNumber is defined ? filters.uniqueNumber : ''}}">
+                            </div>
+                            <label class="col-sm-1 control-label item_filter">Título</label>
+                            <div class="col-sm-2 item_filter">
+                                <input type="string" name="title" class="form-control" value="{{filters.title is defined ? filters.title : ''}}">
+                            </div>
+                            <label class="col-sm-1 control-label item_filter">Edición</label>
+                            <div class="col-sm-1 item_filter">
+                                <input type="string" name="edition" class="form-control" value="{{filters.edition is defined ? filters.edition : ''}}">
+                            </div>
+                            <label class="col-sm-1 control-label item_filter">Tipo</label>
+                            <div class="col-sm-2 item_filter">
+                                <select class="form-control" name="type" style="width: 100%;">
+                                    <option value=""></option>
+                                    {% for type in types %}
+                                        <option value="{{type.id}}" {{filters.type is defined and filters.type==type.id ? 'selected="selected"'}}>{{type.name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label item_filter">Estado</label>
+                            <div class="col-sm-2 item_filter">
+                                <select class="form-control" name="state" style="width: 100%;">
+                                    <option value=""></option>
+                                    {% for state in states %}
+                                        <option value="{{state.id}}" {{filters.state is defined and filters.state==state.id ? 'selected="selected"'}}>{{state.name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <label class="col-sm-1 control-label item_filter">Disponibilidad</label>
+                            <div class="col-sm-2 item_filter">
+                                <select class="form-control" name="useState" style="width: 100%;">
+                                    <option value=""></option>
+                                    {% for useState in useStates %}
+                                        <option value="{{useState.id}}" {{filters.useState is defined and filters.useState==useState.id ? 'selected="selected"'}}>{{useState.name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <label class="col-sm-1 control-label">Área</label>
+                            <div class="col-sm-2 item_filter">
+                                <select class="form-control" name="area" style="width: 100%;">
+                                    <option value=""></option>
+                                    {% for area in areas %}
+                                        <option value="{{area.id}}" {{filters.area is defined and filters.area==area.id ? 'selected="selected"'}}>{{area.name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <label class="col-sm-1 control-label item_filter">Categoría retención</label>
+                            <div class="col-sm-2 item_filter">
+                                <select class="form-control" name="category" style="width: 100%;">
+                                    <option value=""></option>
+                                    {% for category in categories %}
+                                        <option value="{{category.id}}" {{filters.category is defined and filters.category==category.id ? 'selected="selected"'}}>{{category.name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">Fecha retención</label>
+                            <div class="col-sm-1 item_filter">
+                                <input type="text" class="form-control pull-right" autocomplete="off" name="retentionFrom" id="retentionFrom" value="{{filters.retentionFrom is defined ? filters.retentionFrom|date("Y-m-d") : ''}}">
+                            </div>
+                            <div class="col-sm-1">
+                                <input type="text" class="form-control pull-right" autocomplete="off" name="retentionUntil" id="retentionUntil" value="{{filters.retentionUntil is defined ? filters.retentionUntil|date("Y-m-d") : ''}}">
+                            </div>
+
+                            <label class="col-sm-1 control-label">Fecha destrucción</label>
+                            <div class="col-sm-1 item_filter">
+                                <input type="text" class="form-control pull-right" autocomplete="off" name="destructionFrom" id="destructionFrom" value="{{filters.destructionFrom is defined ? filters.destructionFrom|date("Y-m-d") : ''}}">
+                            </div>
+                            <div class="col-sm-1">
+                                <input type="text" class="form-control pull-right" autocomplete="off" name="destructionUntil" id="destructionUntil" value="{{filters.destructionUntil is defined ? filters.destructionUntil|date("Y-m-d") : ''}}">
+                            </div>
+
+                            <label class="col-sm-1 control-label item_filter">Preservation Notice</label>
+                            <div class="col-sm-1 item_filter">
+                                <select class="form-control" name="preservation" style="width: 100%;">
+                                    <option value=""></option>
+                                    <option value="1" {{filters.preservation is defined and filters.preservation == 1 ? 'selected="selected"'}}>Si</option>
+                                    <option value="2" {{filters.preservation is defined and filters.preservation == 2 ? 'selected="selected"'}}>No</option>
+                                </select>
+                            </div>
+
+                            <div class="col-sm-1 item_filter">
+                                <button type="submit" class="btn btn-primary pull-right">Filtrar</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="row">
+                    {% if agent is defined and agent %}
+                        <a href="{{ path('nononsense_archive_records_edit', {'id' : 0}) }}" class="btn btn-primary pull-right">
+                            <i class="fa fa-plus"></i>
+                            <span> Nuevo registro</span>
+                        </a><br><br>
+                    {% endif %}
+                    <table id="inProcessParcial" class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Identificador</th>
+                            <th>Título</th>
+                            <th>Edición</th>
+                            <th>Área</th>
+                            <th>Tipo</th>
+                            <th>Estado</th>
+                            <th>Disponibilidad</th>
+                            <th>Categoría retención</th>
+                            <th>Inicio retención</th>
+                            <th>Fecha destrucción</th>
+                            <th>Preservation Notice</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        {% if items is defined %}
+                            {% for item in items %}
+                            <tr>
+                                <td>{{item.id}}</td>
+                                <td>{{item.uniqueNumber}}</td>
+                                <td>{{item.title}}</td>
+                                <td>{{item.edition}}</td>
+                                <td>{{item.area}}</td>
+                                <td>{{item.type}}</td>
+                                <td>{{item.state}}</td>
+                                <td>{{item.useState}}</td>
+                                <td>{{item.category}}</td>
+                                <td>{{ item.initRetention is defined and item.initRetention is not empty ? item.initRetention|date("d/m/Y")|gskdate : '' }}</td>
+                                <td>{{ item.destructionDate is defined and item.destructionDate is not empty ? item.destructionDate|date("d/m/Y")|gskdate : '' }}</td>
+                                <td>{{item.preservation}}</td>
+                                <td>
+                                    {% if agent is defined and agent %}
+                                        <a href="{{ path('nononsense_archive_records_edit', {'id' : item.id}) }}" class="btn btn-xs">
+                                            <i class="fa fa-pencil" aria-hidden="true"></i>
+                                            <span> Editar</span>
+                                        </a>
+                                    {% endif %}
+                                </td>
+                                {# {{ item.modified is defined and item.modified is not empty ? item.modified|date("d/m/Y H:i:s")|gskdate : '' }} #}
+                            </tr>
+                            {% endfor %}
+                        {% endif %}
+                    </table>
+
+                    {% if count==0 %}
+                        <br><b>No se han encontrado datos disponibles</b>
+                    {% endif %}
+                    {% if pagination is defined and pagination.needed %}
+                        {% include '::pagination2.html.twig' %}
+                    {% endif %}
+                    <a href="{{pagination.url}}{{pagination.character}}export_excel=1" target="_blank" class="btn btn-primary pull-right"><i class="fa fa-file-excel-o" aria-hidden="true"></i> Excel</a> 
+                    <a href="{{pagination.url}}{{pagination.character}}export_pdf=1" target="_blank" class="btn btn-primary pull-right" style="margin-right:1px"><i class="fa fa-file-pdf-o" aria-hidden="true"></i> PDF</a> 
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+{{ parent() }}
+<script src="/js/plugins/datapicker/bootstrap-datepicker.js"></script>
+<script src="/js/plugins/datapicker/locales/bootstrap-datepicker.es.js" charset="UTF-8"></script>
+<script>
+  $(function () {
+    $('#retentionFrom').datepicker({
+      autoclose: true,
+      orientation: 'bottom auto',
+      format: 'yyyy-mm-dd',
+      language: 'es'
+    });
+    $('#retentionUntil').datepicker({
+      autoclose: true,
+      orientation: 'bottom auto',
+      format: 'yyyy-mm-dd',
+      language: 'es'
+    });
+    $('#destructionFrom').datepicker({
+      autoclose: true,
+      orientation: 'bottom auto',
+      format: 'yyyy-mm-dd',
+      language: 'es'
+    });
+    $('#destructionUntil').datepicker({
+      autoclose: true,
+      orientation: 'bottom auto',
+      format: 'yyyy-mm-dd',
+      language: 'es'
+    });
+
+    ActivateMenu('archive_records');
+    $('#side-menu').metisMenu();
+  });
+</script>
+{% endblock %}
+                        

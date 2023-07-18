@@ -1110,6 +1110,15 @@ nononsense_archive_log:
     methods:    [GET]
     defaults: { _controller: NononsenseHomeBundle:ArchiveLogs:list}
 
+nononsense_archive_records:
+    path: /archive-records/
+    methods:    [GET]
+    defaults: { _controller: NononsenseHomeBundle:ArchiveRecords:list}
+
+nononsense_archive_records_edit:
+    path: /archive-records/{id}
+    defaults: { _controller: NononsenseHomeBundle:ArchiveRecords:edit}
+
 #Crt
 nononsense_retention_update:
     path: /retentions/

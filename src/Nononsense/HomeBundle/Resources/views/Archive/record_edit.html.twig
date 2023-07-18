@@ -1,284 +1,386 @@
 {% extends '::base.html.twig' %}
-{% block page_title %}Docoaro - GSK | Edición retención {% endblock %}
+{% block page_title %}Docoaro - GSK |  Archivo / {{record.id is not null ? 'Editar' : 'Crear'}} registro{% endblock %}
 {% block head %}
-{{ parent() }}
-<link rel="stylesheet" href="/css/plugins/datapicker/datepicker3.css">
-<link rel="stylesheet" href="{{ asset('/js/plugins/sweetalert/sweetalert.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('/js/plugins/sweetalert/sweetalert.min.css') }}">
+    <link rel="stylesheet" href="/plugins/dual_listbox/dist/multi.min.css">
+    {{ parent() }}
 {% endblock %}
-{% block main_title %} Edición retención {{desc_type}}{% endblock %}
+{% block main_title %} Archivo / {{record.id is not null ? 'Editar' : 'Crear'}} registro{% endblock %}
+
 {% block content %}
 
-<div class="wrapper wrapper-content">
-    {% for flashMessage in app.session.flashbag.get('error') %}
-    <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
-        <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
-        {{ flashMessage }}
-    </div><br>
-    {% endfor %}
-    {% for flashMessage in app.session.flashbag.get('success') %}
-    <div class="alert alert-success alert-dismissable" style="margin: 10px 16px 0 16px">
-        <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
-        {{ flashMessage }}
-    </div><br>
-    {% endfor %}
-    <div class="row">
-        <div class="col-sm-12">
-            <div>
-                <div class="row">
-                    <table id="inProcessParcial" class="table table-striped">
-                        <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Fecha destrucción</th>
-                            <th>Categoría retención</th>
-                            <th>Título</th>
-                            <th>Código</th>
-                            <th>Edición</th>
-                            <th>Área</th>
-                            <th>Estado</th>
-                            <th>Representante</th>
-                            <th>Fecha retención</th>
-                            <th>Dueño</th>
-                            <th>Backup</th>
-                            <th>Fecha efectiva</th>
-                            <th>Audit Trail</th>
-                            <th>Imprimir</th>
-                            <th>Destruir</th>
-                            <th>Revisado, no destruir</th>
-                        </tr>
-                        </thead>
-                            <tr>
-                                {% set audittrail = 'nononsense_tm_template_audit_trail' %}
-                                {% set print = 'nononsense_tm_template_cover_page' %}
-                                {% set template = item.id %}
-                                {% set type = 'template' %}
-  
-                                <td>{{item.id}}</td>
-                                <td class="destruction-record">{{item.DestructionDate is defined and item.DestructionDate is not null ? item.DestructionDate|date("d/m/Y")|gskdate : ''}}</td>
-                                <td>{{item.mostRestrictiveCategory}}</td>
-                                <td>{{item.name}}</td>
-                                <td>{{item.number}}</td>
-                                <td>{{item.numEdition}}</td>
-                                <td>{{item.nameArea}}</td>
-                                <td>{{item.stateName}}</td>
-                                <td></td>
-                                <td>{{item.retentionDate is defined and item.retentionDate is not null ? item.retentionDate|date("d/m/Y")|gskdate : ''}}</td>
-                                <td>{{item.ownerName}}</td>
-                                <td>{{item.backupName}}</td>
-                                <td>{{item.effectiveDate is defined and item.effectiveDate is not null ? item.effectiveDate|date("d/m/Y")|gskdate : ''}}</td>
-                                <td><a class="btn btn-xs btn-info" href="{{path(audittrail, {'id': item.id})}}" target="_self"><i class="fa fa-book" aria-hidden="true"></i> Audit Trail</a></td>
-                                <td><a class="btn btn-xs btn-danger" href="{{path(print, {'id': item.id})}}" target="_self"><i class="fa fa-print" aria-hidden="true"></i> Imprimir</a></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                    </table>
-
-                    <table class="table table-striped">
-                        <thead>
-                        <tr>
-                            <th>Registros con estado</th>
-                            <th>Dias de retención</th>
-                            <th></th>
-                        </tr>
-                        </thead>
-                            {% if states is defined and states is not empty %}
-                                {% for state in states %}
-                                    <tr>
-                                        <td>{{state.name}}</td>
-                                        <td class="base_states" data-id="{{state.id}}"></td>
-                                        <td><a class="btn btn-xs btn-primary" href="{{path('nononsense_retention_list')}}?retention_type=2&state={{state.relationalId}}&template={{item.id}}" target="_blank">Ver registros de esta plantilla</a></td>
-                                    </tr>
-                                {% endfor %}
-                            {% endif %}
-                    </table>
-
-                    <table class="table table-striped">
-                        <thead>
-                        <tr>
-                            <th></th>
-                            <th>ID</th>
-                            <th>Categoría</th>
-                            <th>Estado</th>
-                            <th>Inicio Retención</th>
-                            <th>Fecha destrucción</th>
-                            <th>Días de retención</th>
-                        </tr>
-                        </thead>
-
-
-                            {% if categories is defined %}
-                                {% for category in categories %}
-                                    {% set checked = "" %}
-                                    {% for tempaux in category.templates if checked=="" %}
-                                        {% if tempaux.id == template %}
-                                            {% set checked = "checked='checked" %}   
-                                        {% endif %}
+    <div class="wrapper wrapper-content animated fadeInUp">
+        {% for flashMessage in app.session.flashbag.get('error') %}
+            <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                {{ flashMessage }}
+            </div>
+            <br>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('message') %}
+            <div class="alert alert-success alert-dismissable" style="margin: 10px 16px 0 16px">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                {{ flashMessage }}
+            </div>
+            <br>
+        {% endfor %}
+        <form class="form-horizontal" id="form_item" method="POST" action="{{ path('nononsense_archive_records_edit',{'id': record.id is not null ? record.id : 0}) }}">
+            <div class="row">
+                <div class="col-lg-10 col-lg-offset-1">
+                    <div class="row">
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">Título</label>
+                            <div class="col-sm-6">
+                                <input type="text" name="title" class="form-control" value="{{record.title is not null ? record.title : ''}}">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">Edición</label>
+                            <div class="col-sm-6">
+                                <input type="text" name="edition" class="form-control" value="{{record.edition is not null ? record.edition : ''}}">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">Área</label>
+                            <div class="col-sm-6">
+                                <select class="form-control" name="area" style="width: 100%;" required="required">
+                                    <option value=""></option>
+                                    {% for area in areas %}
+                                        <option value="{{area.id}}" {{record.area is defined and record.area==area ? 'selected="selected"'}}>{{area.name}}</option>
                                     {% endfor %}
-                                    
-                                    {% if state in category.documentState.relationalId %}
-                                        {% set retentionDate = item.retentionDate|date("d/m/Y")|gskdate %}
-                                        {% set destructionDate = item.retentionDate|date_modify("+"~category.retentionDays~" day")|date("d/m/Y")|gskdate %}
-                                        {% set destructionDate2 = item.retentionDate|date_modify("+"~category.retentionDays~" day")|date("Y-m-d") %}
-                                    {% else %}
-                                        {% set retentionDate = "" %}
-                                        {% set destructionDate = "" %}
-                                        {% set destructionDate2 = "" %}
-                                    {% endif %}    
-                                    {% if (category.active and category.deletedAt is empty) or checked!=""  %}
-                                        <tr>
-                                            <td><input class="checkcategories category_state_{{category.documentState.id}}" name="categories[]" value="{{category.id}}" type="checkbox" {{checked}} data-retention_days="{{category.retentionDays}}"></td>
-                                            <td>{{category.id}}</td>
-                                            <td>{{category.name}}</td>
-                                            <td>{{category.documentState.name}}</td>
-                                            <td>{{retentionDate}}</td>
-                                            <td class="destructionDate" data-destruction_date="{{destructionDate2}}">{{destructionDate}}</td>
-                                            <td>{{category.retentionDays}}</td>
-                                        </tr>
-                                    {% endif %}
-                                {% endfor %}
-                            {% endif %}
-                    </table>
-
-                    <a class="btn btn-primary pull-right btn-retention" href="javascript:void(0)"><i class="fa fa-save" aria-hidden="true"></i> Guardar</a>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">Tipo</label>
+                            <div class="col-sm-6">
+                                <select class="form-control" name="type" style="width: 100%;" required="required">
+                                    <option value=""></option>
+                                    {% for type in types %}
+                                        <option value="{{type.id}}" {{record.type is defined and record.type==type ? 'selected="selected"'}}>{{type.name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">Identificador</label>
+                            <div class="col-sm-6">
+                                <input type="text" name="unique_number" class="form-control" value="{{record.uniqueNumber is not null ? record.uniqueNumber : ''}}" required="required">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">Estado</label>
+                            <div class="col-sm-6">
+                                <select class="form-control" name="state" style="width: 100%;" required="required">
+                                    <option value=""></option>
+                                    {% for state in states %}
+                                        <option value="{{state.id}}" {{record.state is defined and record.state==state ? 'selected="selected"'}}>{{state.name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">Cat.Retención</label>
+                            <div class="col-sm-6">
+                                {% if categories is defined %}
+                                    <select multiple="multiple" name="categories[]" id="category">
+                                        {% for category in categories %}
+                                            <option value={{category.id}}>{{category.name}}</option>;
+                                        {% endfor %}
+                                    </select>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">Preservation notices</label>
+                            <div class="col-sm-6">
+                                {% if preservations is defined %}
+                                    <select multiple="multiple" name="preservations[]" id="preservations">
+                                        {% for preservation in preservations %}
+                                            <option value={{preservation.id}}>{{preservation.name}}</option>;
+                                        {% endfor %}
+                                    </select>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">Ubicación</label>
+                            <div class="col-sm-5">
+                                <input type="text" id="location-info" class="form-control" value="{{record.location is not null ? record.location.id : ''}}" readonly="readonly" required="required">
+                                <input type="hidden" name="location" id="location" class="form-control" value="{{record.location is not null ? record.location.id : ''}}" required="required">
+                            </div>
+                            <div class="col-md-1 col-sm-4 col-xs-6">
+                                <button id="btn-camera-clean" type="button" class="btn btn-primary">Escanear</button>
+                            </div>
+                        </div>
+                        <div class="form-group camera-group" style="display:none;">
+                            <label class="col-sm-1 control-label"></label>
+                            <div class="col-lg-2 col-md-4 col-sm-11">
+                                <video id="video" style="border: 1px solid gray;"></video>
+                                <input type="hidden" name="camera_clean" class="form-control code-input camera-clean" required="required">
+                            </div>
+                            <div class="col-sm-11 col-sm-offset-1">
+                                <div id="sourceSelectPanel" style="display:none">
+                                    <label for="sourceSelect">Selecciona la Cámara:</label>
+                                    <select id="sourceSelect" class="form-control" style="max-width:400px"></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">AZ</label>
+                            <div class="col-sm-6">
+                                <input type="text" name="az" class="form-control" value="{{record.az is not null ? record.az : ''}}" required="required">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">Fecha inicio retención</label>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control" value="{{ record.initRetention is defined and record.initRetention is not empty ? record.initRetention|date("d/m/Y H:i:s")|gskdate : '' }}" readonly="readonly">
+                            </div>
+                        </div>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" tabindex="-1" role="dialog" id="modalRetention">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <form class="form-horizontal" id="formModalRetention" action="" method="POST">
-                <div class="modal-header">
-                    <h5 class="modal-title">Firmar</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+            <div class="row">
+                <div class="col-sm-11 col-sm-offset-1">
+                    <input type="button" class="btn btn-primary submit-record" data-action="save" value="{{record.id is not null ? 'Editar' : 'Crear'}} registro">
                 </div>
+            </div>
 
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-lg-10 col-lg-offset-1">
-                            Va a cambiar las categorías asociadas a este {{desc_type}}
+            <div class="modal fade" tabindex="-1" role="dialog" id="modalSign">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Firmar</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
                         </div>
-                    </div>
-                    <br>
-                    <div class="row box-text-comment">
-                        <div class="col-lg-10 col-lg-offset-1">
-                            <label for="description_workflow">Comentarios</label>
-                            <br>
-                            <div class="form-group">
-                                <textarea class="form-control text-comment" name="comment" rows="10" cols="40" id="modal_comment"  style="width:100%" required="required"></textarea>
+
+                        <div class="modal-body">
+                            <div class="row box-text-comment">
+                                <div class="col-lg-10 col-lg-offset-1">
+                                    <label for="description_workflow">Comentarios</label>
+                                    <br>
+                                    <div class="form-group">
+                                        <textarea class="form-control text-comment" name="comment" id="modal_comment" rows="10" cols="40"  style="width:100%" required="required"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-10 col-lg-offset-1">
+                                    <div id="signature-pad3" class="input-group">
+                                        <label for="firma">Introduzca su firma</label>
+                                        <br>
+                                        <input type="password" id="modal_password" class="form-control" required="required"><br>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-lg-10 col-lg-offset-1">
-                            <div id="signature-pad3" class="input-group">
-                                <label for="firma">Introduzca su firma</label>
-                                <br>
-                                <input type="password" name="password" id="modal_password" class="form-control" required="required"><br>
-                            </div>
+                        <div class="modal-footer">
+                            <input type="button" class="btn btn-primary" id="sign_record" value="Firmar">
+                            
                         </div>
                     </div>
                 </div>
-                <div id="dynamic_retention_categories" style="display:none">
-
-                </div>
-                <div class="modal-footer">
-                    <input type="button" class="btn btn-primary" id="sign_modal_retention" value="Firmar">
-                </div>
-            </form>
-        </div>
+            </div>
+            <input type="hidden" name="signature">
+            <textarea name="comment" style="display: none"></textarea>
+            <input type="hidden" id="action" value="">
+        </form>
     </div>
-</div>
 
 {% endblock %}
+
 {% block scripts %}
-{{ parent() }}
-<script src="/js/plugins/datapicker/bootstrap-datepicker.js"></script>
-<script src="/js/plugins/datapicker/locales/bootstrap-datepicker.es.js" charset="UTF-8"></script>
-<script src="{{ asset('js/plugins/sweetalert/sweetalert.min.js') }}"></script>
-<script>
-  $( document ).ready(function() {
+    {{ parent() }}
+    <script src="{{ asset('js/plugins/sweetalert/sweetalert.min.js') }}"></script>
+    <script src="/plugins/dual_listbox/dist/multi.min.js"></script>
+    <script type="text/javascript" src="{{ asset('js/barcode-reader.min.js') }}"></script>
+    <script>
 
-    $(document).on('click','.btn-retention',function(e){
-        $("#modalRetention").modal('show');
-    });
+    $( document ).ready(function() {
+        ActivateMenu('archive_records');
+        $('#side-menu').metisMenu();
 
-    $(document).on('change','.checkcategories',function(e){
-        var maxRetentionDate="";
-        $(".destruction-record").html("");
-        $(".checkcategories:checked").each(function() {
-            retentionCategory=$(this).closest("tr").find(".destructionDate").data("destruction_date");
-            if(retentionCategory!="" && retentionCategory>=maxRetentionDate){
-                maxRetentionDate=retentionCategory;
-                $(".destruction-record").html($(this).closest("tr").find(".destructionDate").html());
+        $('#category').multi({ non_selected_header: 'Categorías de retención disponibles',
+            selected_header: 'Categorías de retención que aplican'
+        });
+
+        $('#preservations').multi({ non_selected_header: 'Preservation notices disponibles',
+            selected_header: 'Preservation notices que aplican'
+        });
+
+
+
+        $(document).on('click','.submit-record',function(e){
+            if(!$("#location").val()){
+                swal({
+                    title: "Atención",
+                    text: "Debe escanear una localización",
+                    type: "warning"
+                });
+                return false;
             }
-        });
-        update_states();
-    });
 
-    $(document).on('click','#sign_modal_retention',function(e){
-        if ($('#modal_comment').is(":visible") && !$('#modal_comment').val()){
-            swal({
-                title: "Atención",
-                text: "La descripcion es obligatoria",
-                type: "warning"
-            });
-            return false;
-        }
-
-        if (!$("#modal_password").val()){
-            swal({
-                title: "Atención",
-                text: "La firma es obligatoria",
-                type: "warning"
-            });
-            return false;
-        }
-
-        if (!gpassword_valid($("#modal_password").val())){
-            swal({
-                title: "Atención",
-                text: "La firma no es correcta",
-                type: "warning"
-            });
-            return false;
-        }
-
-        $('#dynamic_retention_categories').find(".checkcategories").each(function() {
-            $(this).remove();
-        });
-
-
-        if($('.checkcategories:checked').length>0){
-            $(".checkcategories:checked").each(function() {
-                $('#dynamic_retention_categories').append($(this).clone());
-            });
-        }
-    
-        $("#formModalRetention").submit();
-
-    });
-    update_states();
-  });
-
-function update_states(){
-    $(".base_states").each(function() {
-        base_id=$(this).data("id");
-        maxRetentionDays=0;
-        $(".category_state_"+base_id+":checked").each(function() {
-            retentionDays=parseInt($(this).data("retention_days"));
-            if(retentionDays>=maxRetentionDays){
-                maxRetentionDays=retentionDays;
+            if(!$('[name="categories[]').val()){
+                swal({
+                    title: "Atención",
+                    text: "Es obligatorio al menos una categoría de retención",
+                    type: "warning"
+                });
+                return false;
             }
+
+            if(!$('[name="preservations[]').val()){
+                swal({
+                    title: "Atención",
+                    text: "Es obligatorio al menos una preservation notice",
+                    type: "warning"
+                });
+                return false;
+            }
+
+            $("#action").val($(this).data("action"));
+            $("#modalSign").modal('show');
+
         });
 
-        $(this).html(maxRetentionDays);
-    });
-}
+        $(document).on('click', '#sign_record', function() {
+            if ($('#modal_comment').is(":visible") && !$('#modal_comment').val()){
+                swal({
+                    title: "Atención",
+                    text: "La descripcion es obligatoria",
+                    type: "warning"
+                });
+                return false;
+            }
 
-</script>
+            if (!$("#modal_password").val()){
+                swal({
+                    title: "Atención",
+                    text: "La firma es obligatoria",
+                    type: "warning"
+                });
+                return false;
+            }
+
+            if (!gpassword_valid($("#modal_password").val())){
+                swal({
+                    title: "Atención",
+                    text: "La firma no es correcta",
+                    type: "warning"
+                });
+                return false;
+            }
+            $('textarea[name="comment"]').val($("#modal_comment").val());
+            $('input[name="signature"]').val($("#modal_password").val());
+
+            $('#form_item').submit();
+        });
+
+    });
+
+    window.addEventListener('load', function () {
+        let selectedDeviceId;
+        const codeReader = new ZXing.BrowserMultiFormatReader();
+        codeReader.getVideoInputDevices()
+            .then((videoInputDevices) => {
+                if (videoInputDevices.length > 0) {
+                    const sourceSelect = document.getElementById('sourceSelect');
+                    selectedDeviceId = videoInputDevices[0].deviceId;
+                    videoInputDevices.forEach((element) => {
+                        const sourceOption = document.createElement('option');
+                        sourceOption.text = element.label;
+                        if(element.label.indexOf('back')){
+                            sourceOption.setAttribute('selected','selected');
+                            selectedDeviceId = element.deviceId;
+                        }
+                        sourceOption.value = element.deviceId;
+                        sourceSelect.appendChild(sourceOption);
+                    })
+
+                    sourceSelect.onchange = () => {
+                        selectedDeviceId = sourceSelect.value;
+                        startCapture(codeReader,selectedDeviceId);
+                    };
+
+                    const sourceSelectPanel = document.getElementById('sourceSelectPanel');
+                    sourceSelectPanel.style.display = 'block';
+
+                }
+                document.getElementById('btn-camera-clean').addEventListener('click', () => {
+                    if(selectedDeviceId != 'undefined') {
+                        activeCamera();
+                        startCapture(codeReader, selectedDeviceId);
+                    }else{
+                        toastr.error(
+                            "No se ha detectado ninguna cámara",
+                            'Error',
+                            {preventDuplicates:true}
+                        );
+                    }
+                })
+            })
+            .catch((err) => {
+                console.error(err);
+            })
+    })
+
+    function activeCamera(){
+        $('.code-input').val('');
+        $('.scan-group').hide();
+        $('.scan-clean').removeClass('active');
+        $('.camera-group').show();
+        $('.camera-clean').addClass('active');
+    }
+
+    function activeScanner(){
+        $('.code-input').val('');
+        $('.camera-group').hide();
+        $('.camera-clean').removeClass('active');
+        $('.scan-group').show();
+        $('.scan-clean').addClass('active').focus();
+    }
+
+    function startCapture(codeReader, selectedDeviceId){
+        codeReader.reset()
+        codeReader.decodeFromVideoDevice(selectedDeviceId, 'video', (result, err) => {
+            if (result) {
+                document.getElementsByClassName('camera-clean')[0].value = result.text;
+                $.ajax({
+                    url: result.text,
+                    type: 'POST',
+                    dataType: 'json',
+                    async: false,
+                    success: function(response) {
+                        if(!response.type || response.type!="archive_location"){
+                            toastr.error("El código de QR no es correcto", 'aviso');
+                        }
+                        else{
+                            $("#location-info").val(JSON.stringify(response.location));
+                            $("#location").val(response.location.id);
+                            toastr.success(
+                                "El código de barras se ha leído correctamente",
+                                'Bien',
+                                {preventDuplicates:true}
+                            );
+                        }
+                    },
+                    error: function() {
+                        result=false;
+                    }
+                });
+                
+            }
+            if (err && !(err instanceof ZXing.NotFoundException)) {
+                console.error(err)
+                document.getElementsByClassName('camera-clean')[0].value = '';
+                toastr.error("El código QR no se ha leído correctamente", 'aviso');
+            }
+        })
+    }
+
+    </script>
 {% endblock %}
+
+

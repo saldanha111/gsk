@@ -6,11 +6,11 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="archive_states")
- * @ORM\Entity(repositoryClass="Nononsense\HomeBundle\Entity\ArchiveStatesRepository")
+ * @ORM\Table(name="archive_use_states")
+ * @ORM\Entity(repositoryClass="Nononsense\HomeBundle\Entity\ArchiveUseStatesRepository")
  * @ORM\HasLifecycleCallbacks
  */
-class ArchiveStates
+class ArchiveUseStates
 {
     /**
      * @ORM\Column(type="integer")
@@ -27,10 +27,11 @@ class ArchiveStates
     protected $name;
 
     /**
-     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\ArchiveRecords", mappedBy="state")
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\ArchiveRecords", mappedBy="useState")
      */
     protected $archive;
 
+    
     /**
      * Constructor
      */
@@ -53,7 +54,7 @@ class ArchiveStates
      * Set name
      *
      * @param string $name
-     * @return ArchiveStates
+     * @return ArchiveUseStates
      */
     public function setName($name)
     {
@@ -76,7 +77,7 @@ class ArchiveStates
      * Add archive
      *
      * @param \Nononsense\HomeBundle\Entity\ArchiveRecords $archive
-     * @return ArchiveStates
+     * @return ArchiveUseStates
      */
     public function addArchive(\Nononsense\HomeBundle\Entity\ArchiveRecords $archive)
     {

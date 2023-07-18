@@ -358,6 +358,17 @@ class Users implements AdvancedUserInterface, \Serializable
     private $logs;
 
     /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\ArchiveSignatures", mappedBy="userEntiy")
+     */
+    protected $archiveSignatures;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\ArchiveRecords", mappedBy="creator")
+     */
+    protected $archiveRecords;
+
+
+    /**
      * Users constructor.
      */
     
@@ -2306,5 +2317,71 @@ class Users implements AdvancedUserInterface, \Serializable
     public function getMaterialCancel()
     {
         return $this->materialCancel;
+    }
+
+    /**
+     * Add archiveSignatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\ArchiveSignatures $archiveSignatures
+     * @return Users
+     */
+    public function addArchiveSignature(\Nononsense\HomeBundle\Entity\ArchiveSignatures $archiveSignatures)
+    {
+        $this->archiveSignatures[] = $archiveSignatures;
+
+        return $this;
+    }
+
+    /**
+     * Remove archiveSignatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\ArchiveSignatures $archiveSignatures
+     */
+    public function removeArchiveSignature(\Nononsense\HomeBundle\Entity\ArchiveSignatures $archiveSignatures)
+    {
+        $this->archiveSignatures->removeElement($archiveSignatures);
+    }
+
+    /**
+     * Get archiveSignatures
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getArchiveSignatures()
+    {
+        return $this->archiveSignatures;
+    }
+
+    /**
+     * Add archiveRecords
+     *
+     * @param \Nononsense\HomeBundle\Entity\ArchiveRecords $archiveRecords
+     * @return Users
+     */
+    public function addArchiveRecord(\Nononsense\HomeBundle\Entity\ArchiveRecords $archiveRecords)
+    {
+        $this->archiveRecords[] = $archiveRecords;
+
+        return $this;
+    }
+
+    /**
+     * Remove archiveRecords
+     *
+     * @param \Nononsense\HomeBundle\Entity\ArchiveRecords $archiveRecords
+     */
+    public function removeArchiveRecord(\Nononsense\HomeBundle\Entity\ArchiveRecords $archiveRecords)
+    {
+        $this->archiveRecords->removeElement($archiveRecords);
+    }
+
+    /**
+     * Get archiveRecords
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getArchiveRecords()
+    {
+        return $this->archiveRecords;
     }
 }

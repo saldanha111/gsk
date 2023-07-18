@@ -2,6 +2,7 @@
 
 namespace Nononsense\HomeBundle\Entity;
 
+use DateTime;
 use Doctrine\ORM\EntityRepository;
 
 /**
@@ -12,5 +13,149 @@ use Doctrine\ORM\EntityRepository;
  */
 class ArchiveRecordsRepository extends EntityRepository
 {
-	
+	public function list($type,$filters)
+    {
+        $em = $this->getEntityManager();
+
+        switch($type){
+            case "list":
+                $list = $this->createQueryBuilder('ar')->select("ar.id","ar.uniqueNumber","us.name useState","s.name state","t.name type","a.name area","ar.title","ar.edition","ar.initRetention","arc.name category","arc.retentionDays","arp.name preservation");
+                $list->addSelect('DATE_ADD(ar.initRetention, arc.retentionDays, \'DAY\') as destructionDate');
+                break;
+            case "count":
+                $list = $this->createQueryBuilder('ar')
+                    ->select('COUNT(ar.id) as conta');
+                break;
+        }
+
+        $list->leftJoin("ar.state", "s")
+             ->leftJoin("ar.useState", "us")
+             ->leftJoin("ar.type", "t")
+             ->leftJoin("ar.location", "l")
+             ->leftJoin("ar.area", "a");
+
+        $list->leftJoin("ar.categories", "arc", "WITH", "(arc.id = (
+                SELECT MIN(arc3.id) 
+                FROM Nononsense\HomeBundle\Entity\ArchiveCategories arc3
+                WHERE arc3.retentionDays = 
+                (SELECT MAX(arc2.retentionDays) 
+                FROM Nononsense\HomeBundle\Entity\ArchiveCategories arc2 
+                JOIN arc2.records ar2 
+                WHERE ar2.id = ar.id
+            )))");
+
+        $list->leftJoin("ar.preservations", "arp", "WITH", "(arp.id = (
+                SELECT MIN(arp2.id) 
+                FROM Nononsense\HomeBundle\Entity\ArchivePreservations arp2 
+                JOIN arp2.records ap2 
+                WHERE ap2.id = ar.id
+            ) OR arp.id IS NULL)");
+            
+        if($type=="list"){
+            $list->orderBy('ar.id', 'DESC');
+        }
+
+        $list->andWhere('arc.name IS NOT NULL OR (SELECT COUNT(arck.id) FROM Nononsense\HomeBundle\Entity\ArchiveCategories arck JOIN arck.records ack WHERE ack.id = ar.id)=0');
+        $list->andWhere('arp.name IS NOT NULL OR (SELECT COUNT(arpk.id) FROM Nononsense\HomeBundle\Entity\ArchivePreservations arpk JOIN arpk.records apk WHERE apk.id = ar.id)=0');
+
+        if(!empty($filters)){
+
+            if(isset($filters["id"])){
+                $list->andWhere('ar.id=:id');
+                $list->setParameter('id', $filters["id"]);
+            }
+
+            if(isset($filters["uniqueNumber"])){
+                $list->andWhere('ar.uniqueNumber=:uniqueNumber');
+                $list->setParameter('uniqueNumber', $filters["uniqueNumber"]);
+            }
+
+            if(isset($filters["useState"])){
+                $list->andWhere('us.id=:useState');
+                $list->setParameter('useState', $filters["useState"]);
+            }
+
+            if(isset($filters["state"])){
+                $list->andWhere('s.id=:state');
+                $list->setParameter('state', $filters["state"]);
+            }
+
+            if(isset($filters["type"])){
+                $list->andWhere('t.id=:type');
+                $list->setParameter('type', $filters["type"]);
+            }
+
+            if(isset($filters["area"])){
+                $list->andWhere('a.id=:area');
+                $list->setParameter('area', $filters["area"]);
+            }
+
+            if(isset($filters["category"])){
+                $list->andWhere('arc.id=:category');
+                $list->setParameter('category', $filters["category"]);
+            }
+
+            if(isset($filters["preservation"])){
+                switch($filters["preservation"]){
+                    case 1: $list->andWhere('arp.name IS NOT NULL');break;
+                    case 2: $list->andWhere('arp.name IS NULL');break;
+                }
+            }
+
+            if(isset($filters["title"])){
+                $terms = explode(" ", $filters["title"]);
+                foreach($terms as $key => $term){
+                    $list->andWhere('ar.title LIKE :title'.$key);
+                    $list->setParameter('title'.$key, '%' . $term. '%');
+                }
+            }
+
+            if(isset($filters["retentionFrom"])){
+                $dateFrom = DateTime::createFromFormat('Y-m-d',$filters["retentionFrom"]);
+                $list->andWhere('ar.initRetention>=:retentionFrom');
+                $list->setParameter('retentionFrom', $dateFrom->format('Y-m-d'));
+            }
+            if(isset($filters["retentionUntil"])){
+                $dateUntil = DateTime::createFromFormat('Y-m-d',$filters["retentionUntil"]);
+                $list->andWhere('ar.initRetention<=:retentionUntil');
+                $list->setParameter('retentionUntil', $dateUntil->format('Y-m-d')." 23:59:00");
+            }
+
+            if(isset($filters["destructionFrom"])){
+                $dateFrom = DateTime::createFromFormat('Y-m-d',$filters["destructionFrom"]);
+                $list->andWhere('DATE_ADD(ar.initRetention, arc.retentionDays, \'DAY\')>=:destructionFrom');
+                $list->setParameter('destructionFrom', $dateFrom->format('Y-m-d'));
+            }
+            if(isset($filters["destructionUntil"])){
+                $dateUntil = DateTime::createFromFormat('Y-m-d',$filters["destructionUntil"]);
+                $list->andWhere('DATE_ADD(ar.initRetention, arc.retentionDays, \'DAY\')<=:destructionUntil');
+                $list->setParameter('destructionUntil', $dateUntil->format('Y-m-d')." 23:59:00");
+            }
+
+            if(isset($filters["edition"])){
+                $list->andWhere('ar.edition=:edition');
+                $list->setParameter('edition', $filters["edition"]);
+            }
+        }
+
+
+        if(isset($filters["limit_from"])){
+            $list->setFirstResult($filters["limit_from"]*$filters["limit_many"])->setMaxResults($filters["limit_many"]);
+        }
+        if($type=="list"){
+            $list->addOrderBy("ar.id","DESC");
+        }
+
+        $query = $list->getQuery();
+
+
+        switch($type){
+            case "list":
+                return $query->getResult();
+                break;
+            case "count":
+                return $query->getSingleResult()["conta"];
+                break;
+        }
+    }
 }

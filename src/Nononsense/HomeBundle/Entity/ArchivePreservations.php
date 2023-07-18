@@ -69,7 +69,6 @@ class ArchivePreservations
      */
     public function __construct()
     {
-        $this->records = new \Doctrine\Common\Collections\ArrayCollection();
         $this->archiveSignatures = new \Doctrine\Common\Collections\ArrayCollection();
     }
 
@@ -199,39 +198,6 @@ class ArchivePreservations
     }
 
     /**
-     * Add records
-     *
-     * @param \Nononsense\HomeBundle\Entity\ArchiveRecords $records
-     * @return ArchivePreservations
-     */
-    public function addRecord(\Nononsense\HomeBundle\Entity\ArchiveRecords $records)
-    {
-        $this->records[] = $records;
-
-        return $this;
-    }
-
-    /**
-     * Remove records
-     *
-     * @param \Nononsense\HomeBundle\Entity\ArchiveRecords $records
-     */
-    public function removeRecord(\Nononsense\HomeBundle\Entity\ArchiveRecords $records)
-    {
-        $this->records->removeElement($records);
-    }
-
-    /**
-     * Get records
-     *
-     * @return \Doctrine\Common\Collections\Collection 
-     */
-    public function getRecords()
-    {
-        return $this->records;
-    }
-
-    /**
      * Add archiveSignatures
      *
      * @param \Nononsense\HomeBundle\Entity\ArchiveSignatures $archiveSignatures
@@ -262,5 +228,39 @@ class ArchivePreservations
     public function getArchiveSignatures()
     {
         return $this->archiveSignatures;
+    }
+
+
+    /**
+     * Add records
+     *
+     * @param \Nononsense\HomeBundle\Entity\ArchiveRecords $records
+     * @return ArchivePreservations
+     */
+    public function addRecord(\Nononsense\HomeBundle\Entity\ArchiveRecords $records)
+    {
+        $this->records[] = $records;
+
+        return $this;
+    }
+
+    /**
+     * Remove records
+     *
+     * @param \Nononsense\HomeBundle\Entity\ArchiveRecords $records
+     */
+    public function removeRecord(\Nononsense\HomeBundle\Entity\ArchiveRecords $records)
+    {
+        $this->records->removeElement($records);
+    }
+
+    /**
+     * Get records
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getRecords()
+    {
+        return $this->records;
     }
 }

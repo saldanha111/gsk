@@ -322,12 +322,9 @@
                         <li id="archive_logs"><a href="{{path('nononsense_archive_log')}}">{{'Audittrail'|trans}}</a></li>
                     {% endif %}
                     {% if 'archive_agent' in array_subsecciones %}
-                        <li id="document_records"><a href="#">{{'Registros'|trans}}</a></li>
-                    {% endif %}
-                    {% if 'archive_agent' in array_subsecciones %}
                         <li id="document_records"><a href="#">{{'Gestión de prestamos'|trans}}</a></li>
                     {% endif %}
-                    <li id="document_records"><a href="#">{{'Solicitar prestamo'|trans}}</a></li>
+                    <li id="archive_records"><a href="{{path('nononsense_archive_records')}}">{{'Consulta de registros en el sistema'|trans}}</a></li>
                 </ul>
             </li>
             

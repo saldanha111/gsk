@@ -127,7 +127,8 @@ class Utilities{
                 $signatureLog->setArchivePreservation($preservation);
                 break;
             case "record":
-                $signatureLog->setRecord($id);
+                $record=$this->em->getRepository('NononsenseHomeBundle:ArchiveRecords')->findOneBy(array('id' => $id));
+                $signatureLog->setRecord($record);
                 break;
         }
         $signatureLog->setModified(new \DateTime());
