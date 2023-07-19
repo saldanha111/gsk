@@ -1119,6 +1119,15 @@ nononsense_archive_records_edit:
     path: /archive-records/{id}
     defaults: { _controller: NononsenseHomeBundle:ArchiveRecords:edit}
 
+nononsense_products_check_unique:
+    path: /check-unique/{id}
+    defaults: { _controller: NononsenseHomeBundle:ArchiveRecords:checkUnique}
+
+nononsense_archive_records_update:
+    path: /archive-records/
+    methods:    [POST]
+    defaults: { _controller: NononsenseHomeBundle:ArchiveRecords:update}
+
 #Crt
 nononsense_retention_update:
     path: /retentions/

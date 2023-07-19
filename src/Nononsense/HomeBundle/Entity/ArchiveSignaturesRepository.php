@@ -53,11 +53,17 @@ class ArchiveSignaturesRepository extends EntityRepository
     private function fillFilersQuery($filters, $list){
 
         if(!empty($filters)){
+            if(isset($filters["relational"])){
+                $list->andWhere('ars.archiveCategory=:id1 OR ars.archivePreservation=:id2 OR ars.record=:id3 OR ars.archiveType=:id4');
+                $list->setParameter('id1', $filters["relational"]);
+                $list->setParameter('id2', $filters["relational"]);
+                $list->setParameter('id3', $filters["relational"]);
+                $list->setParameter('id4', $filters["relational"]);
+            }
+
             if(isset($filters["id"])){
-                $list->andWhere('ars.archiveCategory=:id1 OR ars.archivePreservation=:id2 OR ars.record=:id3 OR ars.type=:id3');
-                $list->setParameter('id1', $filters["id"]);
-                $list->setParameter('id2', $filters["id"]);
-                $list->setParameter('id3', $filters["id"]);
+                $list->andWhere('ars.id=:id');
+                $list->setParameter('id', $filters["id"]);
             }
 
             if(isset($filters["action"])){

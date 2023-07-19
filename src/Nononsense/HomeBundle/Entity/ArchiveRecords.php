@@ -67,6 +67,11 @@ class ArchiveRecords
     protected $preservations;
 
     /**
+     * @ORM\ManyToMany(targetEntity="\Nononsense\HomeBundle\Entity\ArchiveSignatures", mappedBy="records")
+     */
+    protected $signatures;
+
+    /**
      * @var string
      *
      * @ORM\Column(name="unique_number", type="string", length=150, unique=true)
@@ -114,6 +119,17 @@ class ArchiveRecords
      * @ORM\Column(name="init_retention", type="datetime", nullable=true)
      */
     protected $initRetention;
+
+    /**
+     * @ORM\Column(name="removed_at", type="datetime", nullable=true)
+     */
+    protected $removedAt;
+
+    /**
+     * @var bool
+     * @ORM\Column(name="retention_revision", type="boolean", nullable=true)
+     */
+    protected $retentionRevision;
 
 
     /**
@@ -497,5 +513,84 @@ class ArchiveRecords
     public function getPreservations()
     {
         return $this->preservations;
+    }
+
+    /**
+     * Add signatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\ArchiveSignatures $signatures
+     * @return ArchiveRecords
+     */
+    public function addSignature(\Nononsense\HomeBundle\Entity\ArchiveSignatures $signatures)
+    {
+        $this->signatures[] = $signatures;
+
+        return $this;
+    }
+
+    /**
+     * Remove signatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\ArchiveSignatures $signatures
+     */
+    public function removeSignature(\Nononsense\HomeBundle\Entity\ArchiveSignatures $signatures)
+    {
+        $this->signatures->removeElement($signatures);
+    }
+
+    /**
+     * Get signatures
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getSignatures()
+    {
+        return $this->signatures;
+    }
+
+    /**
+     * Set removedAt
+     *
+     * @param \DateTime $removedAt
+     * @return ArchiveRecords
+     */
+    public function setRemovedAt($removedAt)
+    {
+        $this->removedAt = $removedAt;
+
+        return $this;
+    }
+
+    /**
+     * Get removedAt
+     *
+     * @return \DateTime 
+     */
+    public function getRemovedAt()
+    {
+        return $this->removedAt;
+    }
+
+    /**
+     * Set retentionRevision
+     *
+     * @param boolean $retentionRevision
+     * @return ArchiveRecords
+     */
+    public function setRetentionRevision($retentionRevision)
+    {
+        $this->retentionRevision = $retentionRevision;
+
+        return $this;
+    }
+
+    /**
+     * Get retentionRevision
+     *
+     * @return boolean 
+     */
+    public function getRetentionRevision()
+    {
+        return $this->retentionRevision;
     }
 }

@@ -75,6 +75,19 @@ class ArchiveSignatures
     protected $groupId;
 
     /**
+     * @ORM\ManyToMany(targetEntity="\Nononsense\HomeBundle\Entity\ArchiveRecords", inversedBy="signatures")
+     * @ORM\JoinTable(name="archive_signatures_records")
+     */
+    protected $records;
+
+    /**
+     * @var integer
+     * @ORM\Column(name="groupid", type="integer", nullable=true)
+     */
+    protected $groupid;
+
+
+    /**
      * Get id
      *
      * @return integer 
@@ -289,5 +302,45 @@ class ArchiveSignatures
     public function getArchiveType()
     {
         return $this->archiveType;
+    }
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+        $this->records = new \Doctrine\Common\Collections\ArrayCollection();
+    }
+
+    /**
+     * Add records
+     *
+     * @param \Nononsense\HomeBundle\Entity\ArchiveRecords $records
+     * @return ArchiveSignatures
+     */
+    public function addRecord(\Nononsense\HomeBundle\Entity\ArchiveRecords $records)
+    {
+        $this->records[] = $records;
+
+        return $this;
+    }
+
+    /**
+     * Remove records
+     *
+     * @param \Nononsense\HomeBundle\Entity\ArchiveRecords $records
+     */
+    public function removeRecord(\Nononsense\HomeBundle\Entity\ArchiveRecords $records)
+    {
+        $this->records->removeElement($records);
+    }
+
+    /**
+     * Get records
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getRecords()
+    {
+        return $this->records;
     }
 }

@@ -117,14 +117,24 @@ class Utilities{
             case "category":
                 $category=$this->em->getRepository('NononsenseHomeBundle:ArchiveCategories')->findOneBy(array('id' => $id));
                 $signatureLog->setArchiveCategory($category);
+                $records = $this->em->getRepository('NononsenseHomeBundle:ArchiveRecords')->list("list",array("categoryIn"=>$id));
+                foreach($records as $record){
+                    $record=$this->em->getRepository('NononsenseHomeBundle:ArchiveRecords')->findOneBy(array('id' => $record["id"]));
+                    $signatureLog->addRecord($record);
+                }
                 break;
             case "type":
-                $category=$this->em->getRepository('NononsenseHomeBundle:ArchiveTypes')->findOneBy(array('id' => $id));
-                $signatureLog->setArchiveType($category);
+                $type=$this->em->getRepository('NononsenseHomeBundle:ArchiveTypes')->findOneBy(array('id' => $id));
+                $signatureLog->setArchiveType($type);
                 break;
             case "preservation":
                 $preservation=$this->em->getRepository('NononsenseHomeBundle:ArchivePreservations')->findOneBy(array('id' => $id));
                 $signatureLog->setArchivePreservation($preservation);
+                $records = $this->em->getRepository('NononsenseHomeBundle:ArchiveRecords')->list("list",array("preservationIn"=>$id));
+                foreach($records as $record){
+                    $record=$this->em->getRepository('NononsenseHomeBundle:ArchiveRecords')->findOneBy(array('id' => $record["id"]));
+                    $signatureLog->addRecord($record);
+                }
                 break;
             case "record":
                 $record=$this->em->getRepository('NononsenseHomeBundle:ArchiveRecords')->findOneBy(array('id' => $id));

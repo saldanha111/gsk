@@ -32,6 +32,11 @@ class ArchiveRecordsController extends Controller
         $filters=array();
         $filters2=array();
 
+        $agent = $this->get('app.security')->permissionSeccion('archive_agent');
+        if(!$agent){
+            $request->attributes->set("retentionAction", null);
+        }
+
         $filters=array_filter($request->query->all());
         $filters2=array_filter($request->query->all());
 
@@ -49,6 +54,11 @@ class ArchiveRecordsController extends Controller
         else{
             $filters["limit_from"]=0;
             $filters["limit_many"]=99999999999;
+        }
+
+        if($request->get("retentionAction")){
+            $filters["areas"]=$this->get('app.security')->getAreas('archive_agent');
+            $filters2["areas"]=$this->get('app.security')->getAreas('archive_agent');
         }
 
         $array_item["filters"]=$filters;
@@ -207,10 +217,7 @@ class ArchiveRecordsController extends Controller
 
     public function editAction(Request $request, $id)
     {
-        $is_valid = $this->get('app.security')->permissionSeccion('archive_agent');
-        if (!$is_valid) {
-            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
-        }
+        $agent = $this->get('app.security')->permissionSeccion('archive_agent');
 
         $user = $this->container->get('security.context')->getToken()->getUser();
 
@@ -241,10 +248,103 @@ class ArchiveRecordsController extends Controller
             'types' => $types,
             'states' => $states,
             'categories' => $categories,
-            'preservations' => $preservations
+            'preservations' => $preservations,
+            'agent' => $agent
         ];
 
         return $this->render('NononsenseHomeBundle:Archive:record_edit.html.twig', $data);
+    }
+
+    public function updateAction(Request $request){
+        $em = $this->getDoctrine()->getManager();
+        $user = $this->container->get('security.context')->getToken()->getUser();
+
+        $is_valid = $this->get('app.security')->permissionSeccion('archive_agent');
+        if (!$is_valid) {
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+        }
+
+        if(!$request->get("password")){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                    'La firma es incorrecta'
+            );
+            $route = $this->container->get('router')->generate('nononsense_home_homepage');
+            return $this->redirect($route);
+        }
+
+        
+        $types=array();
+
+        $filters=array_filter($request->query->all());
+        $filters2=array_filter($request->query->all());
+
+        if($request->get("retentions")){
+            $filters["retentions"]=$request->get("retentions");
+            $filters2["retentions"]=$request->get("retentions");
+        }
+
+
+        $items = $this->getDoctrine()->getRepository(ArchiveRecords::class)->list("list",$filters);
+        $count = $this->getDoctrine()->getRepository(ArchiveRecords::class)->list("count",$filters2);
+
+        $ids=array();
+        foreach($items as $item){
+            $ids[]=intval($item["id"]);
+        }
+        
+        $records=$this->getDoctrine()->getRepository(ArchiveRecords::class)->findBy(array("id" => $ids));
+        switch($request->get("action")){
+            case "1":
+                foreach($records as $record){
+                    $record->setRetentionRevision(TRUE);
+                    $this->get('utilities')->saveLogArchive($this->getUser(),6,$request->get('comment'),"record",$record->getId());
+                    $em->persist($record);
+                }
+                break;
+            case "2":
+                foreach($records as $record){
+                    $record->setRemovedAt(new \DateTime());
+                    $this->get('utilities')->saveLogArchive($this->getUser(),7,$request->get('comment'),"record",$record->getId());
+                    $em->persist($record);
+                }
+                break;
+        }
+        
+        $em->flush();
+        $this->get('session')->getFlashBag()->add('success', "La acción de actualización de archivos ha finalizado satisfactoriamente");
+
+        return $this->redirect($this->generateUrl('nononsense_archive_records'));
+    }
+
+    public function checkUniqueAction(Request $request, $id)
+    {
+        $em = $this->getDoctrine()->getManager();
+        if(!$request->get("code")){
+            $response = new Response(json_encode(array("check" => false)), 400);
+            $response->headers->set('Content-Type', 'application/json');
+
+            return $response;
+        }
+
+        $currentRecord=null;
+        if($id){
+            $currentRecord = $em->getRepository(ArchiveRecords::class)->findOneBy(['id' => $id]);
+        }
+
+        $searchRecord = $em->getRepository(ArchiveRecords::class)->findOneBy(['uniqueNumber' => $request->get("code")]);
+
+        if($searchRecord && $searchRecord!=$currentRecord){
+            $response = new Response(json_encode(array("check" => false)), 400);
+            $response->headers->set('Content-Type', 'application/json');
+
+            return $response;
+        }
+
+        $response = new Response(json_encode(array("check" => TRUE)), 200);
+        $response->headers->set('Content-Type', 'application/json');
+
+        return $response;
     }
 
     /**
@@ -254,6 +354,11 @@ class ArchiveRecordsController extends Controller
      */
     private function saveData(Request $request, ArchiveRecords $record)
     {
+        $is_valid = $this->get('app.security')->permissionSeccion('archive_agent');
+        if (!$is_valid) {
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+        }
+
         $em = $this->getDoctrine()->getManager();
         $saved = false;
         $action = 5;
@@ -269,7 +374,7 @@ class ArchiveRecordsController extends Controller
             $state = $em->getRepository(ArchiveStates::class)->findOneBy(['id' => $request->get('state')]);
             
             if($record->getState()!=$state){
-                if($state->getId()==1 || $state->getId()==4){
+                if($state->getId()==1 || $state->getId()==2){
                     $record->setInitRetention(new \DateTime());
                 }
                 else{
@@ -297,19 +402,9 @@ class ArchiveRecordsController extends Controller
                 throw new Exception('Todos los datos son obligatorios.');
             }
 
-            /*if($record->getCategories()){
-                foreach ($record->getCategories() as $category) {
-                    $em->remove($category);
-                }
+            if($record->getCategories()){
+                $record->getCategories()->clear();
             }
-
-            if($record->getPreservations()){
-                foreach ($record->getPreservations() as $preservation) {
-                    $em->remove($preservation);
-                }
-            }*/
-
-            $record->getCategories()->clear();
             if($request->get('categories')){
                 foreach($request->get('categories') as $category){
                     $category = $em->getRepository(ArchiveCategories::class)->findOneBy(['id' => $category]);
@@ -317,7 +412,9 @@ class ArchiveRecordsController extends Controller
                 }
             }
             
-            $record->getPreservations()->clear();
+            if($record->getPreservations()){
+                $record->getPreservations()->clear();
+            }
             if($request->get('preservations')){
                 foreach($request->get('preservations') as $preservation){
                     $preservation = $em->getRepository(ArchivePreservations::class)->findOneBy(['id' => $preservation]);

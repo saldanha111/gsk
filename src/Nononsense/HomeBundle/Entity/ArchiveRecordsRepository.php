@@ -20,12 +20,19 @@ class ArchiveRecordsRepository extends EntityRepository
         switch($type){
             case "list":
                 $list = $this->createQueryBuilder('ar')->select("ar.id","ar.uniqueNumber","us.name useState","s.name state","t.name type","a.name area","ar.title","ar.edition","ar.initRetention","arc.name category","arc.retentionDays","arp.name preservation");
-                $list->addSelect('DATE_ADD(ar.initRetention, arc.retentionDays, \'DAY\') as destructionDate');
+                $list->addSelect('DATE_ADD(ar.initRetention, arc.retentionDays, \'DAY\') as destructionDate','ar.retentionRevision');
                 break;
             case "count":
                 $list = $this->createQueryBuilder('ar')
                     ->select('COUNT(ar.id) as conta');
                 break;
+        }
+
+        if(empty($filters) || !isset($filters["retentionAction"]) || $filters["retentionAction"]!="4"){
+            $list->andWhere('ar.removedAt IS NULL');
+        }
+        else{
+            $list->andWhere('ar.removedAt IS NOT NULL');
         }
 
         $list->leftJoin("ar.state", "s")
@@ -34,15 +41,17 @@ class ArchiveRecordsRepository extends EntityRepository
              ->leftJoin("ar.location", "l")
              ->leftJoin("ar.area", "a");
 
-        $list->leftJoin("ar.categories", "arc", "WITH", "(arc.id = (
-                SELECT MIN(arc3.id) 
+        $list->leftJoin("ar.categories", "arc", "WITH", "(arc.id IN (
+                SELECT MIN(arc3.id)
                 FROM Nononsense\HomeBundle\Entity\ArchiveCategories arc3
-                WHERE arc3.retentionDays = 
-                (SELECT MAX(arc2.retentionDays) 
-                FROM Nononsense\HomeBundle\Entity\ArchiveCategories arc2 
-                JOIN arc2.records ar2 
-                WHERE ar2.id = ar.id
-            )))");
+                JOIN arc3.records ar3 
+                WHERE ar3.id = ar.id
+                AND arc3.retentionDays = 
+                    (SELECT MAX(arc2.retentionDays) 
+                    FROM Nononsense\HomeBundle\Entity\ArchiveCategories arc2 
+                    JOIN arc2.records ar2 
+                    WHERE ar2.id = ar.id) 
+            ))");
 
         $list->leftJoin("ar.preservations", "arp", "WITH", "(arp.id = (
                 SELECT MIN(arp2.id) 
@@ -51,9 +60,6 @@ class ArchiveRecordsRepository extends EntityRepository
                 WHERE ap2.id = ar.id
             ) OR arp.id IS NULL)");
             
-        if($type=="list"){
-            $list->orderBy('ar.id', 'DESC');
-        }
 
         $list->andWhere('arc.name IS NOT NULL OR (SELECT COUNT(arck.id) FROM Nononsense\HomeBundle\Entity\ArchiveCategories arck JOIN arck.records ack WHERE ack.id = ar.id)=0');
         $list->andWhere('arp.name IS NOT NULL OR (SELECT COUNT(arpk.id) FROM Nononsense\HomeBundle\Entity\ArchivePreservations arpk JOIN arpk.records apk WHERE apk.id = ar.id)=0');
@@ -63,6 +69,11 @@ class ArchiveRecordsRepository extends EntityRepository
             if(isset($filters["id"])){
                 $list->andWhere('ar.id=:id');
                 $list->setParameter('id', $filters["id"]);
+            }
+
+            if(isset($filters["retentions"])){
+                $list->andWhere('ar.id IN (:retentions)');
+                $list->setParameter('retentions', $filters["retentions"]);
             }
 
             if(isset($filters["uniqueNumber"])){
@@ -90,9 +101,32 @@ class ArchiveRecordsRepository extends EntityRepository
                 $list->setParameter('area', $filters["area"]);
             }
 
+             if(isset($filters["areas"])){
+                $list->andWhere('ar.area IN (:areas)');
+                $list->setParameter('areas', $filters["areas"]);
+            }
+
             if(isset($filters["category"])){
                 $list->andWhere('arc.id=:category');
                 $list->setParameter('category', $filters["category"]);
+            }
+
+            if(isset($filters["categoryIn"])){
+                $list->innerJoin('ar.categories', 'subc')
+                    ->andWhere('subc.id = :categoryIn')
+                    ->setParameter('categoryIn', $filters["categoryIn"]);
+            }
+
+            if(isset($filters["preservationIn"])){
+                $list->innerJoin('ar.preservations', 'subp')
+                    ->andWhere('subp.id = :preservationIn')
+                    ->setParameter('preservationIn', $filters["preservationIn"]);
+            }
+
+            if(isset($filters["signature"])){
+                $list->innerJoin('ar.signatures', 'subs')
+                    ->andWhere('subs.id = :signature')
+                    ->setParameter('signature', $filters["signature"]);
             }
 
             if(isset($filters["preservation"])){
@@ -135,6 +169,14 @@ class ArchiveRecordsRepository extends EntityRepository
             if(isset($filters["edition"])){
                 $list->andWhere('ar.edition=:edition');
                 $list->setParameter('edition', $filters["edition"]);
+            }
+
+            if(isset($filters["retentionAction"])){
+                if($filters["retentionAction"]==3){
+                    $dateFrom = DateTime::createFromFormat('Y-m-d',date("Y-m-d"));
+                    $list->andWhere('DATE_ADD(ar.initRetention, arc.retentionDays, \'DAY\')<=:rt3');
+                    $list->setParameter('rt3', $dateFrom->format('Y-m-d'));
+                }
             }
         }
 

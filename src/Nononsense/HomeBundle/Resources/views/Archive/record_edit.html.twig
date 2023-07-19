@@ -31,19 +31,19 @@
                         <div class="form-group">
                             <label class="col-sm-1 control-label">Título</label>
                             <div class="col-sm-6">
-                                <input type="text" name="title" class="form-control" value="{{record.title is not null ? record.title : ''}}">
+                                <input type="text" name="title" class="form-control" value="{{record.title is not null ? record.title : ''}}" {{agent is not defined or not agent ? 'disabled="disabled"' : ''}}>
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-sm-1 control-label">Edición</label>
                             <div class="col-sm-6">
-                                <input type="text" name="edition" class="form-control" value="{{record.edition is not null ? record.edition : ''}}">
+                                <input type="text" name="edition" class="form-control" value="{{record.edition is not null ? record.edition : ''}}" {{agent is not defined or not agent ? 'disabled="disabled"' : ''}}>
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-sm-1 control-label">Área</label>
                             <div class="col-sm-6">
-                                <select class="form-control" name="area" style="width: 100%;" required="required">
+                                <select class="form-control" name="area" style="width: 100%;" required="required" {{agent is not defined or not agent ? 'disabled="disabled"' : ''}}>
                                     <option value=""></option>
                                     {% for area in areas %}
                                         <option value="{{area.id}}" {{record.area is defined and record.area==area ? 'selected="selected"'}}>{{area.name}}</option>
@@ -54,7 +54,7 @@
                         <div class="form-group">
                             <label class="col-sm-1 control-label">Tipo</label>
                             <div class="col-sm-6">
-                                <select class="form-control" name="type" style="width: 100%;" required="required">
+                                <select class="form-control" name="type" style="width: 100%;" required="required" {{agent is not defined or not agent ? 'disabled="disabled"' : ''}}>
                                     <option value=""></option>
                                     {% for type in types %}
                                         <option value="{{type.id}}" {{record.type is defined and record.type==type ? 'selected="selected"'}}>{{type.name}}</option>
@@ -65,13 +65,13 @@
                         <div class="form-group">
                             <label class="col-sm-1 control-label">Identificador</label>
                             <div class="col-sm-6">
-                                <input type="text" name="unique_number" class="form-control" value="{{record.uniqueNumber is not null ? record.uniqueNumber : ''}}" required="required">
+                                <input type="text" id="unique_number" name="unique_number" class="form-control" value="{{record.uniqueNumber is not null ? record.uniqueNumber : ''}}" required="required" {{agent is not defined or not agent ? 'disabled="disabled"' : ''}}>
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-sm-1 control-label">Estado</label>
                             <div class="col-sm-6">
-                                <select class="form-control" name="state" style="width: 100%;" required="required">
+                                <select class="form-control" name="state" style="width: 100%;" required="required" {{agent is not defined or not agent ? 'disabled="disabled"' : ''}}>
                                     <option value=""></option>
                                     {% for state in states %}
                                         <option value="{{state.id}}" {{record.state is defined and record.state==state ? 'selected="selected"'}}>{{state.name}}</option>
@@ -82,24 +82,40 @@
                         <div class="form-group">
                             <label class="col-sm-1 control-label">Cat.Retención</label>
                             <div class="col-sm-6">
-                                {% if categories is defined %}
-                                    <select multiple="multiple" name="categories[]" id="category">
+                                {% if agent is defined and agent %}
+                                    {% if categories is defined %}
+                                        <select multiple="multiple" name="categories[]" id="category" {{agent is not defined or not agent ? 'disabled="disabled"' : ''}}>
+                                            {% for category in categories %}
+                                                <option value={{category.id}} {{ category in record.categories ? "selected='selected'" : "" }}>{{category.name}}</option>;
+                                            {% endfor %}
+                                        </select>
+                                    {% endif %}
+                                {% else %}
+                                    {% if categories is defined %}
                                         {% for category in categories %}
-                                            <option value={{category.id}}>{{category.name}}</option>;
+                                            {{ category in record.categories ? (category.name~"<br>")|raw : "" }}
                                         {% endfor %}
-                                    </select>
+                                    {% endif %}
                                 {% endif %}
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-sm-1 control-label">Preservation notices</label>
                             <div class="col-sm-6">
-                                {% if preservations is defined %}
-                                    <select multiple="multiple" name="preservations[]" id="preservations">
+                                {% if agent is defined and agent %}
+                                    {% if preservations is defined %}
+                                        <select multiple="multiple" name="preservations[]" id="preservations" {{agent is not defined or not agent ? 'disabled="disabled"' : ''}}>
+                                            {% for preservation in preservations %}
+                                                <option value={{preservation.id}} {{ preservation in record.preservations ? "selected='selected'" : "" }}>{{preservation.name}}</option>;
+                                            {% endfor %}
+                                        </select>
+                                    {% endif %}
+                                {% else %}
+                                    {% if preservations is defined %}
                                         {% for preservation in preservations %}
-                                            <option value={{preservation.id}}>{{preservation.name}}</option>;
+                                            {{ preservation in record.preservations ? (preservation.name~"<br>")|raw : "" }}
                                         {% endfor %}
-                                    </select>
+                                    {% endif %}
                                 {% endif %}
                             </div>
                         </div>
@@ -109,9 +125,11 @@
                                 <input type="text" id="location-info" class="form-control" value="{{record.location is not null ? record.location.id : ''}}" readonly="readonly" required="required">
                                 <input type="hidden" name="location" id="location" class="form-control" value="{{record.location is not null ? record.location.id : ''}}" required="required">
                             </div>
-                            <div class="col-md-1 col-sm-4 col-xs-6">
-                                <button id="btn-camera-clean" type="button" class="btn btn-primary">Escanear</button>
-                            </div>
+                            {% if agent is defined and agent %}
+                                <div class="col-md-1 col-sm-4 col-xs-6">
+                                    <button id="btn-camera-clean" type="button" class="btn btn-primary">Escanear</button>
+                                </div>
+                            {% endif %}
                         </div>
                         <div class="form-group camera-group" style="display:none;">
                             <label class="col-sm-1 control-label"></label>
@@ -129,7 +147,7 @@
                         <div class="form-group">
                             <label class="col-sm-1 control-label">AZ</label>
                             <div class="col-sm-6">
-                                <input type="text" name="az" class="form-control" value="{{record.az is not null ? record.az : ''}}" required="required">
+                                <input type="text" name="az" class="form-control" value="{{record.az is not null ? record.az : ''}}" required="required" {{agent is not defined or not agent ? 'disabled="disabled"' : ''}}>
                             </div>
                         </div>
                         <div class="form-group">
@@ -140,11 +158,13 @@
                         </div>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-sm-11 col-sm-offset-1">
-                    <input type="button" class="btn btn-primary submit-record" data-action="save" value="{{record.id is not null ? 'Editar' : 'Crear'}} registro">
+            {% if agent is defined and agent %}
+                <div class="row">
+                    <div class="col-sm-11 col-sm-offset-1">
+                        <input type="button" class="btn btn-primary submit-record" data-action="save" value="{{record.id is not null ? 'Editar' : 'Crear'}} registro">
+                    </div>
                 </div>
-            </div>
+            {% endif %}
 
             <div class="modal fade" tabindex="-1" role="dialog" id="modalSign">
                 <div class="modal-dialog" role="document">
@@ -202,13 +222,15 @@
         ActivateMenu('archive_records');
         $('#side-menu').metisMenu();
 
-        $('#category').multi({ non_selected_header: 'Categorías de retención disponibles',
-            selected_header: 'Categorías de retención que aplican'
-        });
+        {% if agent is defined and agent %}
+            $('#category').multi({ non_selected_header: 'Categorías de retención disponibles',
+                selected_header: 'Categorías de retención que aplican'
+            });
 
-        $('#preservations').multi({ non_selected_header: 'Preservation notices disponibles',
-            selected_header: 'Preservation notices que aplican'
-        });
+            $('#preservations').multi({ non_selected_header: 'Preservation notices disponibles',
+                selected_header: 'Preservation notices que aplican'
+            });
+        {% endif %}
 
 
 
@@ -235,6 +257,15 @@
                 swal({
                     title: "Atención",
                     text: "Es obligatorio al menos una preservation notice",
+                    type: "warning"
+                });
+                return false;
+            }
+
+            if(!checkUnique($("#unique_number").val())){
+                swal({
+                    title: "Atención",
+                    text: "El identificador ya existe",
                     type: "warning"
                 });
                 return false;
@@ -378,6 +409,33 @@
                 toastr.error("El código QR no se ha leído correctamente", 'aviso');
             }
         })
+    }
+
+    function checkUnique(value){
+        var result;
+        url="{{ path('nononsense_products_check_unique',{'id': record.id is not null ? record.id : 0}) }}";
+        $.ajax({
+            type: 'GET',
+            dataType: "json",
+            url: url,
+            async: false,
+            data: {code: value},
+            success: function(data){
+                console.log(data);
+                if(data.check){
+                    result=true;
+                }
+                else{
+                    result=false;
+                }
+
+            },
+            error: function (request, status, error) {
+                result=false;
+            }
+        });
+
+        return result;
     }
 
     </script>
