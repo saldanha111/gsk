@@ -86,6 +86,13 @@ class ArchiveSignatures
      */
     protected $groupid;
 
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="attachment", type="text", nullable=true)
+     */
+    protected $attachment;
+
 
     /**
      * Get id
@@ -342,5 +349,28 @@ class ArchiveSignatures
     public function getRecords()
     {
         return $this->records;
+    }
+
+    /**
+     * Set attachment
+     *
+     * @param string $attachment
+     * @return ArchiveSignatures
+     */
+    public function setAttachment($attachment)
+    {
+        $this->attachment = $attachment;
+
+        return $this;
+    }
+
+    /**
+     * Get attachment
+     *
+     * @return string 
+     */
+    public function getAttachment()
+    {
+        return $this->attachment;
     }
 }

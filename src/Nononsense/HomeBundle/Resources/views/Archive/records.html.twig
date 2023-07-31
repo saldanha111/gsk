@@ -243,7 +243,7 @@
 <div class="modal fade" tabindex="-1" role="dialog" id="modalRetention">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
-            <form class="form-horizontal" id="formModalRetention" action="{{pagination.url}}" method="POST">
+            <form class="form-horizontal" id="formModalRetention" action="{{pagination.url}}" method="POST"  enctype="multipart/form-data">
                 <div class="modal-header">
                     <h5 class="modal-title">Firmar</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -270,6 +270,14 @@
                             <br>
                             <div class="form-group">
                                 <textarea class="form-control text-comment" name="comment" rows="10" cols="40" id="modal_comment"  style="width:100%" required="required"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" id="box_file">
+                        <div class="col-lg-10 col-lg-offset-1">
+                            Certificado de destrucción<br>
+                            <div class="form-group">
+                                <input type='file' name="certification" id="certificate" />
                             </div>
                         </div>
                     </div>
@@ -341,6 +349,14 @@
     $(document).on('click','.btn-retention',function(e){
         retention_btn=$(this);
         title="Archivos - "+$(this).data("info")+" ";
+        if($(this).data("action")=="1"){
+            $("#box_file").hide();
+            //$("#certificate").prop('required',false);
+        }
+        else{
+            $("#box_file").show();
+            //$("#certificate").prop('required',true);
+        }
         if(!$(this).data("unique")){
             if($('.checkpem:checked').length>0){
                 count=$('.checkpem:checked').length;

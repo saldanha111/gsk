@@ -96,6 +96,12 @@
                                             <i class="fa fa-eye" aria-hidden="true"></i><span> Ver registros afectados</span>
                                         </a>
                                     {% endif %}
+
+                                    {% if item.attachment is defined and item.attachment is not empty %}
+                                        <a href="{{path('nononsense_archive_log_certification', {'id' : item.id})}}" target="_blank" class="btn btn-xs btn-primary">
+                                            <i class="fa fa-file" aria-hidden="true"></i><span> Documento certificación</span>
+                                        </a>
+                                    {% endif %}
                                 </td>
                             </tr>
                             {% endfor %}

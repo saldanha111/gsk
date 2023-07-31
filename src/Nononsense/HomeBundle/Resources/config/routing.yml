@@ -1110,6 +1110,10 @@ nononsense_archive_log:
     methods:    [GET]
     defaults: { _controller: NononsenseHomeBundle:ArchiveLogs:list}
 
+nononsense_archive_log_certification:
+    path: /archive-logs/certification/{id}
+    defaults: { _controller: NononsenseHomeBundle:ArchiveLogs:downloadCertification}
+
 nononsense_archive_records:
     path: /archive-records/
     methods:    [GET]

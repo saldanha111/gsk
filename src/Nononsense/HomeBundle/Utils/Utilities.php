@@ -104,7 +104,7 @@ class Utilities{
         return false;
     }
 
-    public function saveLogArchive(Users $user, int $action, string $comment, string $type, int $id)
+    public function saveLogArchive(Users $user, int $action, string $comment, string $type, int $id, $file=NULL)
     {
         $action=$this->em->getRepository('NononsenseHomeBundle:ArchiveActions')->findOneBy(array('id' => $action));
 
@@ -142,6 +142,9 @@ class Utilities{
                 break;
         }
         $signatureLog->setModified(new \DateTime());
+        if($file){
+            $signatureLog->setAttachment($file["name"]);
+        }
         $this->em->persist($signatureLog);
         $this->em->flush();
         return true;

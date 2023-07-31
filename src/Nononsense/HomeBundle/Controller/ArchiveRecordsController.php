@@ -296,6 +296,7 @@ class ArchiveRecordsController extends Controller
         $records=$this->getDoctrine()->getRepository(ArchiveRecords::class)->findBy(array("id" => $ids));
         switch($request->get("action")){
             case "1":
+                
                 foreach($records as $record){
                     $record->setRetentionRevision(TRUE);
                     $this->get('utilities')->saveLogArchive($this->getUser(),6,$request->get('comment'),"record",$record->getId());
@@ -303,9 +304,13 @@ class ArchiveRecordsController extends Controller
                 }
                 break;
             case "2":
+                $file=NULL;
+                if($request->files->get('certification')){
+                    $file = $this->uploadFile($request);
+                }
                 foreach($records as $record){
                     $record->setRemovedAt(new \DateTime());
-                    $this->get('utilities')->saveLogArchive($this->getUser(),7,$request->get('comment'),"record",$record->getId());
+                    $this->get('utilities')->saveLogArchive($this->getUser(),7,$request->get('comment'),"record",$record->getId(),$file);
                     $em->persist($record);
                 }
                 break;
@@ -446,4 +451,67 @@ class ArchiveRecordsController extends Controller
         }
         return $saved;
     }
+
+    private function uploadFile($request)
+    {
+        //====================
+        // GUARDAR DOCUMENTOS
+        //====================
+
+        //--------------------
+        // url carpeta usuario
+        //--------------------
+        $ruta='/files/archive-retention/removes/'.date('Y-m-d').'/';
+        $full_path = $this->get('kernel')->getRootDir() . $ruta;
+
+        //---------------------------
+        // ayudante archivos Symfony
+        //---------------------------
+        $fs = new Filesystem();
+
+        //----------------------------
+        // crear carpeta si no existe
+        //----------------------------
+        if(!$fs->exists($full_path))
+        {
+            $fs->mkdir($full_path);
+        }
+
+        //----------------------
+        // nombre del documento
+        //----------------------
+        $file = $request->files->get('certification');
+        $file_name = $file->getClientOriginalName();
+        $file_name_ = $file_name;
+
+        //--------------------------------------------------
+        // si existe documento mismo nombre, cambiar nombre
+        //--------------------------------------------------
+        if(file_exists($full_path.$file_name))
+        {
+            $i = 0;
+
+            do
+            {
+                $i++;
+                $file_name = $i.$file_name_;
+            }
+
+            while (file_exists($full_path.$file_name));
+        }
+
+        //-------------------
+        // guardar documento
+        //-------------------
+        $file->move($full_path, $file_name);
+
+        /**
+         * @return [ nombre documento, tamaño documento ]
+         */
+        return [
+            'name' => $ruta.$file_name,
+            'size' => $file->getClientSize()
+        ];
+    }
+
 }

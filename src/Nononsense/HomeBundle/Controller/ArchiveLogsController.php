@@ -172,4 +172,23 @@ class ArchiveLogsController extends Controller
             }
         }
     }
+
+    public function downloadCertificationAction(Request $request, int $id){
+        
+        $is_valid = $this->get('app.security')->permissionSeccion('archive_admin');
+        if(!$is_valid){
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+        }
+
+        $certification = $this->getDoctrine()->getRepository(ArchiveSignatures::class)->findOneBy(['id' => $id]);
+
+        $response = new BinaryFileResponse($this->get('kernel')->getRootDir().$certification->getAttachment());
+
+        $response->setContentDisposition(
+            ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+            basename($certification->getAttachment())
+        );
+
+        return $response;
+    }
 }
