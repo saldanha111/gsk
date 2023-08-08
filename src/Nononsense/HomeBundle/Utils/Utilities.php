@@ -104,7 +104,7 @@ class Utilities{
         return false;
     }
 
-    public function saveLogArchive(Users $user, int $action, string $comment, string $type, int $id, $file=NULL)
+    public function saveLogArchive(Users $user, int $action, string $comment, string $type, int $id, $file=NULL, $patern=NULL)
     {
         $action=$this->em->getRepository('NononsenseHomeBundle:ArchiveActions')->findOneBy(array('id' => $action));
 
@@ -140,10 +140,19 @@ class Utilities{
                 $record=$this->em->getRepository('NononsenseHomeBundle:ArchiveRecords')->findOneBy(array('id' => $id));
                 $signatureLog->setRecord($record);
                 break;
+            case "import":
+                $record=$this->em->getRepository('NononsenseHomeBundle:ArchiveRecords')->findOneBy(array('id' => $id));
+                $signatureLog->setRecord($record);
+                break;
         }
         $signatureLog->setModified(new \DateTime());
         if($file){
             $signatureLog->setAttachment($file["name"]);
+        }
+
+        if($patern){
+            $patern=$this->em->getRepository('NononsenseHomeBundle:ArchiveSignatures')->findOneBy(array('id' => $patern));
+            $signatureLog->setPatern($patern);
         }
         $this->em->persist($signatureLog);
         $this->em->flush();

@@ -1132,6 +1132,21 @@ nononsense_archive_records_update:
     methods:    [POST]
     defaults: { _controller: NononsenseHomeBundle:ArchiveRecords:update}
 
+nononsense_archive_loan:
+    path: /archive-loan/
+    methods:    [GET]
+    defaults: { _controller: NononsenseHomeBundle:ArchiveLoan:list}
+
+nononsense_archive_load_update:
+    path: /archive-loan/
+    methods:    [POST]
+    defaults: { _controller: NononsenseHomeBundle:ArchiveLoan:update}
+
+nononsense_archive_records_import:
+    path: /archive-import/
+    methods:    [POST]
+    defaults: { _controller: NononsenseHomeBundle:ArchiveRecords:upload}
+
 #Crt
 nononsense_retention_update:
     path: /retentions/

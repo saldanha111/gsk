@@ -53,7 +53,7 @@
             </div>
             <div class="row">
                 <div class="col-sm-11 col-sm-offset-1">
-                    <a class="btn btn-primary submit-category" data-action="save">{{category.id is not null ? 'Editar' : 'Crear'}} preservation notice</a>
+                    <input type="submit" class="btn btn-primary submit-record" data-action="save" value="{{category.id is not null ? 'Editar' : 'Crear'}} preservation notice">
                 </div>
             </div>
 
@@ -113,7 +113,8 @@
         $('#side-menu').metisMenu();
 
 
-        $(document).on('click','.submit-category',function(e){
+        $(document).on('submit','#form_item',function(e){
+            event.preventDefault();
             $("#action").val($(this).data("action"));
             $("#modalSign").modal('show');
         });

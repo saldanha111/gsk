@@ -93,6 +93,19 @@ class ArchiveSignatures
      */
     protected $attachment;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\ArchiveSignatures")
+     * @ORM\JoinColumn(name="patern_id", referencedColumnName="id")
+     */
+    protected $patern;
+
+    /**
+     * @var boolean
+     *
+     * @ORM\Column(name="not_available", type="boolean",  nullable=true)
+     */
+    protected $notAvailable;
+
 
     /**
      * Get id
@@ -372,5 +385,51 @@ class ArchiveSignatures
     public function getAttachment()
     {
         return $this->attachment;
+    }
+
+    /**
+     * Set patern
+     *
+     * @param \Nononsense\HomeBundle\Entity\ArchiveSignatures $patern
+     * @return ArchiveSignatures
+     */
+    public function setPatern(\Nononsense\HomeBundle\Entity\ArchiveSignatures $patern = null)
+    {
+        $this->patern = $patern;
+
+        return $this;
+    }
+
+    /**
+     * Get patern
+     *
+     * @return \Nononsense\HomeBundle\Entity\ArchiveSignatures 
+     */
+    public function getPatern()
+    {
+        return $this->patern;
+    }
+
+    /**
+     * Set notAvailable
+     *
+     * @param boolean $notAvailable
+     * @return ArchiveSignatures
+     */
+    public function setNotAvailable($notAvailable)
+    {
+        $this->notAvailable = $notAvailable;
+
+        return $this;
+    }
+
+    /**
+     * Get notAvailable
+     *
+     * @return boolean 
+     */
+    public function getNotAvailable()
+    {
+        return $this->notAvailable;
     }
 }

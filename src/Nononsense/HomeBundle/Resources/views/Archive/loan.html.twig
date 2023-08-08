@@ -1,0 +1,422 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}Docoaro - GSK | Gestión de prestamos {% endblock %}
+{% block head %}
+{{ parent() }}
+<link rel="stylesheet" href="{{ asset('/js/plugins/sweetalert/sweetalert.min.css') }}">
+<link rel="stylesheet" href="/css/plugins/datapicker/datepicker3.css">
+{% endblock %}
+{% block main_title %} Gestión de prestamos{% endblock %}
+{% block content %}
+
+<div class="wrapper wrapper-content">
+    {% for flashMessage in app.session.flashbag.get('error') %}
+        <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+            <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+            {{ flashMessage }}
+        </div>
+        <br>
+    {% endfor %}
+    {% for flashMessage in app.session.flashbag.get('message') %}
+        <div class="alert alert-success alert-dismissable" style="margin: 10px 16px 0 16px">
+            <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+            {{ flashMessage }}
+        </div>
+        <br>
+    {% endfor %}
+    {% for flashMessage in app.session.flashbag.get('success') %}
+            <div class="alert alert-success alert-dismissable" style="margin: 10px 16px 0 16px">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                {{ flashMessage }}
+            </div><br>
+        {% endfor %}
+    <div class="row">
+        <div class="col-sm-12">
+            <div>
+                <div class="row">
+                    <form class="form-horizontal" id="form_item" action="{{ path('nononsense_archive_loan')}}" method="GET">
+                        <div class="form-group">
+                            
+                            <label class="col-sm-1 control-label item_filter">Estado</label>
+                            <div class="col-sm-2 item_filter">
+                                <select class="form-control" name="action" style="width: 100%;">
+                                    <option value=""></option>
+                                    <option value="8" {{filters.action is defined and filters.action=="8" ? 'selected="selected"'}}>Solicitud pendiente</option>
+                                    <option value="9" {{filters.action is defined and filters.action=="9" ? 'selected="selected"'}}>Solicitud aceptada</option>
+                                    <option value="10" {{filters.action is defined and filters.action=="10" ? 'selected="selected"'}}>Solicitud rechazada</option>
+                                    <option value="11" {{filters.action is defined and filters.action=="11" ? 'selected="selected"'}}>Préstamo finalizado</option>
+                                </select>
+                            </div>
+                            <div class="col-sm-1 item_filter">
+                                <button type="submit" class="btn btn-primary pull-right">Filtrar</button>
+                            </div>
+                        </div>
+                        <input type="hidden" name="id" value="{{filters.id is defined ? filters.id : ''}}">
+                    </form>
+                </div>
+                <div class="row">
+                    <table id="inProcessParcial" class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Solicitante</th>
+                            <th>Comentario</th>
+                            <th>Fecha solicitud</th>
+                            <th>Representante</th>
+                            <th>Comentario</th>
+                            <th>Fecha respuesta</th>
+                            <th>Estado</th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        {% if items is defined %}
+                            {% for item in items %}
+                            <tr>
+                                <td>{{ item.record }}</td>
+                                
+                                <td>
+                                    {% if item.patern is empty %}
+                                        {{item.user}}
+                                    {% else %}
+                                        {{item.user2}}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if item.patern is empty %}
+                                        {{item.description}}
+                                    {% else %}
+                                        {{item.description2}}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if item.patern is empty %}
+                                        {{ item.modified is defined and item.modified is not empty ? item.modified|date("d/m/Y H:i:s")|gskdate : '' }}
+                                    {% else %}
+                                        {{ item.modified2 is defined and item.modified2 is not empty ? item.modified2|date("d/m/Y H:i:s")|gskdate : '' }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if item.patern is not empty %}
+                                        {{item.user}}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if item.patern is not empty %}
+                                        {{item.description}}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if item.patern is not empty %}
+                                        {{ item.modified is defined and item.modified is not empty ? item.modified|date("d/m/Y H:i:s")|gskdate : '' }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {{item.action}}
+                                </td>
+                                <td><a href="{{ path('nononsense_archive_records_edit', {'id' : item.record}) }}" target="_blank" class="btn btn-xs btn-primary">
+                                        <i class="fa fa-eye" aria-hidden="true"></i><span> Ver registro</span>
+                                    </a>
+                                </td>
+                                <td>
+                                    {% if item.actionId==8 %}
+                                        {% if item.useStateId==1 %}
+                                            <a href="javascript:void(0)" class="btn btn-xs btn-primary btn-retention"  data-info="Aceptar préstamo (ID {{item.id}})"  data-action="9" data-id="{{item.id}}"><i class="fa fa-check" aria-hidden="true"></i><span> Entregar documento</span></a>
+                                        {% else %}
+                                            <a class="btn btn-xs btn-warning disabled">{{ 'Actualmente prestado'|trans }}</a>
+                                        {% endif %}
+                                        <a href="javascript:void(0)" class="btn btn-xs btn-danger btn-retention" data-info="Rechazar préstamo (ID {{item.id}})" data-action="10" data-id="{{item.id}}"><i class="fa fa-remove" aria-hidden="true"></i><span> Rechazar</span></a>
+                                    {% endif %}
+                                    {% if item.actionId==9 %}
+                                        <a href="javascript:void(0)" class="btn btn-xs btn-primary btn-retention" data-info="Finalizar préstamo (ID {{item.id}})"  data-action="11" data-id="{{item.id}}"><i class="fa fa-flag-checkered" aria-hidden="true"></i><span> Recibir documento</span></a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% endif %}
+                    </table>
+
+                    {% if count==0 %}
+                        <br><b>No se han solicitudes disponibles</b>
+                    {% endif %}
+                    {% if pagination is defined and pagination.needed %}
+                        {% include '::pagination2.html.twig' %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" tabindex="-1" role="dialog" id="modalRetention">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form class="form-horizontal" id="formModalRetention" action="{{ path('nononsense_archive_load_update')}}" method="POST"  enctype="multipart/form-data">
+                <div class="modal-header">
+                    <h5 class="modal-title">Firmar</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-10 col-lg-offset-1">
+                            Gestión de prestamos
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row">
+                        <div class="col-lg-10 col-lg-offset-1 error" id="retention_message">
+                             
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row box-text-comment">
+                        <div class="col-lg-10 col-lg-offset-1">
+                            <label for="description_workflow">Comentarios</label>
+                            <br>
+                            <div class="form-group">
+                                <textarea class="form-control text-comment" name="comment" rows="10" cols="40" id="modal_comment"  style="width:100%" required="required"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" id="box_location">
+                        <div class="col-lg-10 col-lg-offset-1">
+                            <div class="input-group">
+                                <label>Ubicación</label>
+                                <br>
+                                <input type="text" id="location-info" class="form-control" value="" readonly="readonly" required="required">
+                                <input type="hidden" name="location" id="location" class="form-control" value="" required="required">
+                                <br><br>
+                                <button id="btn-camera-clean" type="button" class="btn btn-primary">Escanear</button><br><br>
+                            </div>
+                            <div class="input-group camera-group" style="display:none;">
+                                <div class="col-sm-8">
+                                    <video id="video" style="border: 1px solid gray;"></video>
+                                    <input type="hidden" name="camera_clean" class="form-control code-input camera-clean" required="required">
+                                </div>
+                                <div class="col-sm-12">
+                                    <div id="sourceSelectPanel" style="display:none">
+                                        <label for="sourceSelect">Selecciona la Cámara:</label>
+                                        <select id="sourceSelect" class="form-control" style="max-width:400px"></select>
+                                    </div>
+                                </div>
+                            </div><br>
+                            <div class="input-group">
+                                <label>AZ</label>
+                                <br>
+                                <input type="text" name="az" id="az" class="form-control" value="" required="required">
+                            </div><br>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-10 col-lg-offset-1">
+                            <div id="signature-pad3" class="input-group">
+                                <label for="firma">Introduzca su firma</label>
+                                <br>
+                                <input type="password" name="password" id="modal_password" class="form-control" required="required"><br>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="dynamic_retention_elements" style="display:none">
+
+                </div>
+                <div class="modal-footer">
+                    <input type="button" class="btn btn-primary" id="sign_modal_retention" value="Firmar">
+                </div>
+                <input type="hidden" name="action" id="action" value="" required="required">
+                <input type="hidden" name="id" id="id" value="" required="required">
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+{{ parent() }}
+<script src="{{ asset('js/plugins/sweetalert/sweetalert.min.js') }}"></script>
+<script type="text/javascript" src="{{ asset('js/barcode-reader.min.js') }}"></script>
+<script>
+  $(function () {
+
+    ActivateMenu('archive_loan');
+    $('#side-menu').metisMenu();
+
+    $(document).on('click','.btn-retention',function(e){
+        retention_btn=$(this);
+        title="Archivos - "+$(this).data("info")+" ";
+        if($(this).data("action")!="11"){
+            $("#box_location").hide();
+            $("#location-info").prop('required',false);
+            $("#location").prop('required',false);
+            $("#az").prop('required',false);
+        }
+        else{
+            $("#box_location").show();
+            $("#location-info").prop('required',true);
+            $("#location").prop('required',true);
+            $("#az").prop('required',true);
+        }
+        $("#action").val($(this).data("action"));
+        $("#id").val($(this).data("id"));
+
+        $("#retention_message").html(title);
+        $("#modalRetention").modal('show');
+    });
+
+    $(document).on('click','#sign_modal_retention',function(e){
+        if ($('#modal_comment').is(":visible") && !$('#modal_comment').val()){
+            swal({
+                title: "Atención",
+                text: "La descripcion es obligatoria",
+                type: "warning"
+            });
+            return false;
+        }
+
+        if($("#action").val()=="11"){
+            if (!$("#location").val()){
+                swal({
+                    title: "Atención",
+                    text: "La localización es obligatoria",
+                    type: "warning"
+                });
+                return false;
+            }
+
+            if (!$("#az").val()){
+                swal({
+                    title: "Atención",
+                    text: "El AZ es obligatorio",
+                    type: "warning"
+                });
+                return false;
+            }
+
+        }
+
+        if (!$("#modal_password").val()){
+            swal({
+                title: "Atención",
+                text: "La firma es obligatoria",
+                type: "warning"
+            });
+            return false;
+        }
+
+        if (!gpassword_valid($("#modal_password").val())){
+            swal({
+                title: "Atención",
+                text: "La firma no es correcta",
+                type: "warning"
+            });
+            return false;
+        }
+
+        $("#formModalRetention").submit();
+    });
+
+  });
+
+  window.addEventListener('load', function () {
+        let selectedDeviceId;
+        const codeReader = new ZXing.BrowserMultiFormatReader();
+        codeReader.getVideoInputDevices()
+            .then((videoInputDevices) => {
+                if (videoInputDevices.length > 0) {
+                    const sourceSelect = document.getElementById('sourceSelect');
+                    selectedDeviceId = videoInputDevices[0].deviceId;
+                    videoInputDevices.forEach((element) => {
+                        const sourceOption = document.createElement('option');
+                        sourceOption.text = element.label;
+                        if(element.label.indexOf('back')){
+                            sourceOption.setAttribute('selected','selected');
+                            selectedDeviceId = element.deviceId;
+                        }
+                        sourceOption.value = element.deviceId;
+                        sourceSelect.appendChild(sourceOption);
+                    })
+
+                    sourceSelect.onchange = () => {
+                        selectedDeviceId = sourceSelect.value;
+                        startCapture(codeReader,selectedDeviceId);
+                    };
+
+                    const sourceSelectPanel = document.getElementById('sourceSelectPanel');
+                    sourceSelectPanel.style.display = 'block';
+
+                }
+                document.getElementById('btn-camera-clean').addEventListener('click', () => {
+                    if(selectedDeviceId != 'undefined') {
+                        activeCamera();
+                        startCapture(codeReader, selectedDeviceId);
+                    }else{
+                        toastr.error(
+                            "No se ha detectado ninguna cámara",
+                            'Error',
+                            {preventDuplicates:true}
+                        );
+                    }
+                })
+            })
+            .catch((err) => {
+                console.error(err);
+            })
+    })
+
+    function activeCamera(){
+        $('.code-input').val('');
+        $('.scan-group').hide();
+        $('.scan-clean').removeClass('active');
+        $('.camera-group').show();
+        $('.camera-clean').addClass('active');
+    }
+
+    function activeScanner(){
+        $('.code-input').val('');
+        $('.camera-group').hide();
+        $('.camera-clean').removeClass('active');
+        $('.scan-group').show();
+        $('.scan-clean').addClass('active').focus();
+    }
+
+    function startCapture(codeReader, selectedDeviceId){
+        codeReader.reset()
+        codeReader.decodeFromVideoDevice(selectedDeviceId, 'video', (result, err) => {
+            if (result) {
+                document.getElementsByClassName('camera-clean')[0].value = result.text;
+                $.ajax({
+                    url: result.text,
+                    type: 'POST',
+                    dataType: 'json',
+                    async: false,
+                    success: function(response) {
+                        if(!response.type || response.type!="archive_location"){
+                            toastr.error("El código de QR no es correcto", 'aviso');
+                        }
+                        else{
+                            $("#location-info").val(JSON.stringify(response.location));
+                            $("#location").val(response.location.id);
+                            $("#current_location").hide();
+                            toastr.success(
+                                "El código de barras se ha leído correctamente",
+                                'Bien',
+                                {preventDuplicates:true}
+                            );
+                        }
+                    },
+                    error: function() {
+                        result=false;
+                    }
+                });
+                
+            }
+            if (err && !(err instanceof ZXing.NotFoundException)) {
+                console.error(err)
+                document.getElementsByClassName('camera-clean')[0].value = '';
+                toastr.error("El código QR no se ha leído correctamente", 'aviso');
+            }
+        })
+    }
+</script>
+{% endblock %}
+                        

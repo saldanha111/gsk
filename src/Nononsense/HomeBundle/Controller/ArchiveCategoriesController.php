@@ -125,7 +125,7 @@ class ArchiveCategoriesController extends Controller
             $em->getConnection()->rollback();
             $this->get('session')->getFlashBag()->add(
                 'error',
-                "Error al intentar guardar los datos de la categoría"
+                "Error al intentar guardar los datos de la categoría".$e->getMessage()
             );
         }
         return $saved;

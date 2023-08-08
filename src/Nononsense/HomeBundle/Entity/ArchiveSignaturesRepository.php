@@ -17,9 +17,13 @@ class ArchiveSignaturesRepository extends EntityRepository
         $em = $this->getEntityManager();
 
         $list = $this->createQueryBuilder('ars')
-            ->select('IDENTITY(ars.archiveCategory) category', 'IDENTITY(ars.archivePreservation) preservation', 'IDENTITY(ars.archiveType) type', 'IDENTITY(ars.record) record','a.name action', 'u.name user', 'ars.description', 'ars.modified','ars.id','ars.attachment')
+            ->select('IDENTITY(ars.archiveCategory) category', 'IDENTITY(ars.archivePreservation) preservation', 'IDENTITY(ars.archiveType) type', 'IDENTITY(ars.record) record','a.name action', 'u.name user', 'ars.description', 'ars.modified','ars.id','ars.attachment','a.id actionId','us.id useStateId','u2.name user2', 'ars2.description description2', 'ars2.modified modified2', 'ars2.id patern')
             ->leftJoin("ars.archiveAction", "a")
             ->leftJoin("ars.userEntiy", "u")
+            ->leftJoin("ars.record", "ar")
+            ->leftJoin("ar.useState", "us")
+            ->leftJoin("ars.patern", "ars2")
+            ->leftJoin("ars2.userEntiy", "u2")
             ->orderBy('ars.id', 'DESC');
 
         $list = self::fillFilersQuery($filters, $list);
@@ -40,7 +44,8 @@ class ArchiveSignaturesRepository extends EntityRepository
         $list = $this->createQueryBuilder('ars')
             ->select('COUNT(ars.id) as conta')
             ->leftJoin("ars.archiveAction", "a")
-            ->leftJoin("ars.userEntiy", "u");
+            ->leftJoin("ars.userEntiy", "u")
+            ->leftJoin("ars.record", "ar");
 
         $list = self::fillFilersQuery($filters, $list);
         
@@ -69,6 +74,20 @@ class ArchiveSignaturesRepository extends EntityRepository
             if(isset($filters["action"])){
                 $list->andWhere("a.id=:action");
                 $list->setParameter('action', $filters["action"]);
+            }
+
+            if(isset($filters["actions"])){
+                $list->andWhere("a.id IN (:actions)");
+                $list->setParameter('actions', $filters["actions"]);
+            }
+
+            if(isset($filters["not_available"])){
+                $list->andWhere("ars.notAvailable IS NULL");
+            }
+
+            if(isset($filters["areas"])){
+                $list->andWhere('ar.area IN (:areas)');
+                $list->setParameter('areas', $filters["areas"]);
             }
 
             if(isset($filters["type"])){

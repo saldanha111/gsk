@@ -24,6 +24,14 @@ class ArchiveLocations
     /**
      * @var string
      *
+     * @ORM\Column(name="name", type="string", length=255,  nullable=true)
+     * @Groups({"location"})
+     */
+    protected $name;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(name="building", type="string", length=255,  nullable=true)
      * @Groups({"location"})
      */
@@ -230,5 +238,28 @@ class ArchiveLocations
     public function getArchive()
     {
         return $this->archive;
+    }
+
+    /**
+     * Set name
+     *
+     * @param string $name
+     * @return ArchiveLocations
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    /**
+     * Get name
+     *
+     * @return string 
+     */
+    public function getName()
+    {
+        return $this->name;
     }
 }

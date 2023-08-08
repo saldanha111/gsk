@@ -81,7 +81,7 @@ class ArchiveRecords
     /**
      * @var string
      *
-     * @ORM\Column(name="az", type="string", length=150)
+     * @ORM\Column(name="az", type="string", length=150, nullable=true)
      */
     protected $az;
 
@@ -130,7 +130,6 @@ class ArchiveRecords
      * @ORM\Column(name="retention_revision", type="boolean", nullable=true)
      */
     protected $retentionRevision;
-
 
     /**
      * Constructor

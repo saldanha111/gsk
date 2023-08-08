@@ -36,7 +36,7 @@
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Sifnificado</label>
                             <div class="col-sm-7">
-                                <textarea name="description" class="form-control text-comment" rows="10" cols="40"  style="width:100%" required="required">{{category.description is not null ? category.description : ''}}</textarea>
+                                <textarea name="description" id="description" class="form-control text-comment" rows="10" cols="40"  style="width:100%" required="required">{{category.description is not null ? category.description : ''}}</textarea>
                             </div>
                         </div>
 
@@ -75,7 +75,7 @@
             </div>
             <div class="row">
                 <div class="col-sm-11 col-sm-offset-1">
-                    <a class="btn btn-primary submit-category" data-action="save">{{category.id is not null ? 'Editar' : 'Crear'}} categoría</a>
+                    <input type="submit" class="btn btn-primary submit-record" data-action="save" value="{{category.id is not null ? 'Editar' : 'Crear'}} categoria">
                 </div>
             </div>
 
@@ -135,12 +135,22 @@
         $('#side-menu').metisMenu();
 
 
-        $(document).on('click','.submit-category',function(e){
+       $(document).on('submit','#form_item',function(e){
+            event.preventDefault();
             $("#action").val($(this).data("action"));
             $("#modalSign").modal('show');
         });
 
         $(document).on('click', '#sign_category', function() {
+            if (!$('#description').val()){
+                swal({
+                    title: "Atención",
+                    text: "El significado es obligatorio",
+                    type: "warning"
+                });
+                return false;
+            }
+
             if ($('#modal_comment').is(":visible") && !$('#modal_comment').val()){
                 swal({
                     title: "Atención",

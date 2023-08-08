@@ -314,10 +314,184 @@ class ArchiveRecordsController extends Controller
                     $em->persist($record);
                 }
                 break;
+            case "3":
+                foreach($records as $record){
+                    if($record->getUseState()->getId()!=1){
+                        $this->get('session')->getFlashBag()->add(
+                            'error',
+                            'Algunos de los registros seleccionados se encuentran actualmente prestados'
+                        );
+                        $route = $this->container->get('router')->generate('nononsense_home_homepage');
+                        return $this->redirect($route);
+                    }
+
+                    $this->get('utilities')->saveLogArchive($this->getUser(),8,$request->get('comment'),"record",$record->getId());
+                    $em->persist($record);
+                }
+                break;
         }
         
         $em->flush();
         $this->get('session')->getFlashBag()->add('success', "La acción de actualización de archivos ha finalizado satisfactoriamente");
+
+        return $this->redirect($this->generateUrl('nononsense_archive_records'));
+    }
+
+    public function uploadAction(Request $request)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $user = $this->container->get('security.context')->getToken()->getUser();
+
+        $is_valid = $this->get('app.security')->permissionSeccion('archive_agent');
+        if (!$is_valid) {
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                'No tiene permisos para realizar esta acción'
+            );
+            return $this->redirect($this->generateUrl('nononsense_archive_records'));
+        }
+
+
+        if ($request->getMethod() == 'POST') {
+            $file = $request->files->get('excel');
+            
+            if ($file) {
+                $em->getConnection()->beginTransaction();
+                try {
+                    $phpExcelObject = $this->get('phpexcel')->createPHPExcelObject($file);
+
+                    $sheet = $phpExcelObject->getActiveSheet();
+                    $allRows = $sheet->toArray();
+                    $rows = array_filter($allRows, function($row) {
+                        // Esta función retorna true si al menos una celda en $row tiene contenido
+                        return count(array_filter($row)) > 0;
+                    });
+
+
+                    // Suponiendo que las columnas obligatorias son 'Nombre', 'Edad', y 'Correo'
+                    $requiredColumns = ['Document Number', 'Version', 'Document Name', 'Type', 'Document Status', 'Global Retention Schedule (GRS)','Area'];
+                    $actualColumns = $rows[0];  // Asumimos que la primera fila tiene los nombres de las columnas
+                    
+                    $required=array_diff($requiredColumns, $actualColumns);
+                    if (!empty($required)) {
+                        $this->get('session')->getFlashBag()->add(
+                            'error',
+                            'No se encuentra las siguientes columnas: '.implode(",", $required)
+                        );
+                        return $this->redirect($this->generateUrl('nononsense_archive_records'));
+                    }
+
+                    $columnNames = $rows[0];
+                    $array_records=array();
+                    foreach ($rows as $rowNumber => $row) {
+                        if ($rowNumber == 0) { 
+                            continue;
+                        }
+
+                        $record = new ArchiveRecords();
+                        $record->setCreated(new \DateTime());
+                        $stateUse = $em->getRepository(ArchiveUseStates::class)->findOneBy(['id' => 1]);
+                        $record->setUseState($stateUse);
+                        $record->setCreator($user);
+
+                        foreach ($columnNames as $columnIndex => $columnName) {
+                            $value = $row[$columnIndex];
+                            switch($columnName){
+                                case "Document Number":
+                                    $searchRecord = $em->getRepository(ArchiveRecords::class)->findOneBy(['uniqueNumber' => $value]);
+                                    if($searchRecord){
+                                        $this->get('session')->getFlashBag()->add(
+                                            'error',
+                                            'El siguiente document number ya está en uso: '.$value
+                                        );
+                                        return $this->redirect($this->generateUrl('nononsense_archive_records'));
+                                    }
+                                    $record->setUniqueNumber($value);
+                                    break;
+                                case "Version":
+                                    $record->setEdition($value);
+                                    break;
+                                case "Document Name":
+                                    $record->setTitle($value);
+                                    break;
+                                case "Area":
+                                    $area = $em->getRepository(Areas::class)->findOneBy(['name' => $value]);
+                                    if(!$area){
+                                        $this->get('session')->getFlashBag()->add(
+                                            'error',
+                                            'No se encuentra el area del registro: '.$value
+                                        );
+                                        return $this->redirect($this->generateUrl('nononsense_archive_records'));
+                                    }
+                                    $record->setArea($area);
+                                    break;
+                                case "Type":
+                                    $type = $em->getRepository(ArchiveTypes::class)->findOneBy(['name' => $value]);
+                                    if(!$type){
+                                        $this->get('session')->getFlashBag()->add(
+                                            'error',
+                                            'No se encuentra el tipo de registro: '.$value
+                                        );
+                                        return $this->redirect($this->generateUrl('nononsense_archive_records'));
+                                    }
+                                    $record->setType($type);
+                                    break;
+                                case "Document Status":
+                                    break;
+                                case "Legal Preservation Name":
+                                    if($value){
+                                        $preservation = $em->getRepository(ArchivePreservations::class)->findOneBy(['name' => $value]);
+                                        if(!$preservation){
+                                            $this->get('session')->getFlashBag()->add(
+                                                'error',
+                                                'No se encuentra la preservation notice '.$value
+                                            );
+                                            return $this->redirect($this->generateUrl('nononsense_archive_records'));
+                                        }
+                                        $record->addPreservation($preservation); 
+                                    }
+                                    break;
+                                case "Global Retention Schedule (GRS)":
+                                    if($value){
+                                        $category = $em->getRepository(ArchiveCategories::class)->findOneBy(['name' => $value]);
+                                        if(!$category){
+                                            $this->get('session')->getFlashBag()->add(
+                                                'error',
+                                                'No se encuentra la categoria de retención '.$value
+                                            );
+                                            return $this->redirect($this->generateUrl('nononsense_archive_records'));
+                                        }
+                                        $record->addCategory($category);
+                                    }
+                                    break;
+                            }
+
+                        }
+
+                        $record->setModified(new \DateTime());
+                        
+                        $location = $em->getRepository(ArchiveLocations::class)->findOneBy(['name' => 'VQD']);
+                        if(!$location){
+                            $this->get('session')->getFlashBag()->add(
+                                'error',
+                                'No se encuentra la ubicación VQD'
+                            );
+                            return $this->redirect($this->generateUrl('nononsense_archive_records'));
+                        }
+                        $record->setLocation($location);
+
+                        $em->persist($record);
+                        $em->flush();
+                        $this->get('utilities')->saveLogArchive($this->getUser(),12,$request->get("comment"),"record",$record->getId());
+                    }
+
+                } catch (\Exception $e) {
+                    return new Response('Error al leer el archivo Excel: ' . $e->getMessage());
+                }
+            }
+        }
+        $em->getConnection()->commit();
+        $this->get('session')->getFlashBag()->add('success', "La importación se ha realizado satisfactoriamente. Se han importado ".(count($rows)-1)." registros");
 
         return $this->redirect($this->generateUrl('nononsense_archive_records'));
     }
@@ -404,7 +578,11 @@ class ArchiveRecordsController extends Controller
             $record->setAZ($request->get('az'));
 
             if (!$request->get('location') || !$request->get('state') || !$request->get('type') || !$request->get('area') || !$request->get('az') || !$request->get('comment')) {
-                throw new Exception('Todos los datos son obligatorios.');
+                $this->get('session')->getFlashBag()->add(
+                    'error',
+                    'Todos los datos son obligatorios'
+                );
+                return $this->redirect($this->generateUrl('nononsense_archive_records'));
             }
 
             if($record->getCategories()){
@@ -445,9 +623,9 @@ class ArchiveRecordsController extends Controller
             $em->getConnection()->rollback();
             $this->get('session')->getFlashBag()->add(
                 'error',
-                "Error al intentar guardar los datos del registro"
+                'Todos los datos son obligatorios'
             );
-            return $e->getMessage();
+            return $this->redirect($this->generateUrl('nononsense_archive_records'));
         }
         return $saved;
     }

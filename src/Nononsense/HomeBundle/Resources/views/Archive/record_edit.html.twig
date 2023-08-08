@@ -144,6 +144,16 @@
                                 </div>
                             </div>
                         </div>
+
+                        {% if record is defined and record is not empty and record.location is defined and record.location is not empty %}
+                            <div class="form-group" id="current_location">
+                                <label class="col-sm-1 control-label"></label>
+                                <div class="col-sm-11">
+                                    <div><b>Edificio:</b> {{record.location.building}}<br><b>Balda:</b> {{record.location.shelf}}<br><b>Pasillo:</b>{{record.location.passage}}<br><b>Armario:</b> {{record.location.cabinet}}<br><b>Otros:</b> {{record.location.others}}</div>
+                                </div>
+                            </div>
+                        {% endif %}
+
                         <div class="form-group">
                             <label class="col-sm-1 control-label">AZ</label>
                             <div class="col-sm-6">
@@ -161,7 +171,7 @@
             {% if agent is defined and agent %}
                 <div class="row">
                     <div class="col-sm-11 col-sm-offset-1">
-                        <input type="button" class="btn btn-primary submit-record" data-action="save" value="{{record.id is not null ? 'Editar' : 'Crear'}} registro">
+                        <input type="submit" class="btn btn-primary submit-record" data-action="save" value="{{record.id is not null ? 'Editar' : 'Crear'}} registro">
                     </div>
                 </div>
             {% endif %}
@@ -234,7 +244,8 @@
 
 
 
-        $(document).on('click','.submit-record',function(e){
+        $(document).on('submit','#form_item',function(e){
+            event.preventDefault();
             if(!$("#location").val()){
                 swal({
                     title: "Atención",
@@ -390,6 +401,7 @@
                         else{
                             $("#location-info").val(JSON.stringify(response.location));
                             $("#location").val(response.location.id);
+                            $("#current_location").hide();
                             toastr.success(
                                 "El código de barras se ha leído correctamente",
                                 'Bien',
