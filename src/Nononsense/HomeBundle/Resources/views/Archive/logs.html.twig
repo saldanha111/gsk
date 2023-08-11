@@ -30,6 +30,7 @@
                                     <option value="record" {{filters.type is defined and filters.type=="record" ? 'selected="selected"'}}>Registros</option>
                                     <option value="category" {{filters.type is defined and filters.type=="category" ? 'selected="selected"'}}>Categoría</option>
                                     <option value="type" {{filters.type is defined and filters.type=="type" ? 'selected="selected"'}}>Tipo</option>
+                                    <option value="az" {{filters.type is defined and filters.type=="type" ? 'selected="selected"'}}>AZ</option>
                                 </select>
                             </div>
                             <label class="col-sm-1 control-label">Acción</label>
@@ -72,6 +73,8 @@
                                         Registro
                                     {% elseif item.type is not empty %}
                                         Tipo
+                                    {% elseif item.az is not empty %}
+                                        Az
                                     {% else %} 
                                         Categoría
                                     {% endif %} 
@@ -83,6 +86,8 @@
                                         {{ item.record }}
                                     {% elseif item.type is not empty %}
                                         {{ item.type }}
+                                    {% elseif item.az is not empty %}
+                                        {{ item.az }}
                                     {% else %} 
                                         {{ item.category }}
                                     {% endif %} 

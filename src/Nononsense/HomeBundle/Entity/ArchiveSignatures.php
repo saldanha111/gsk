@@ -50,6 +50,12 @@ class ArchiveSignatures
     protected $record;
 
     /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\ArchiveAZ", inversedBy="archiveSignatures")
+     * @ORM\JoinColumn(name="az_id", referencedColumnName="id")
+     */
+    protected $archiveAz;
+
+    /**
      * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="archiveSignatures")
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
      */
@@ -431,5 +437,28 @@ class ArchiveSignatures
     public function getNotAvailable()
     {
         return $this->notAvailable;
+    }
+
+    /**
+     * Set archiveAz
+     *
+     * @param \Nononsense\HomeBundle\Entity\ArchiveAZ $archiveAz
+     * @return ArchiveSignatures
+     */
+    public function setArchiveAz(\Nononsense\HomeBundle\Entity\ArchiveAZ $archiveAz = null)
+    {
+        $this->archiveAz = $archiveAz;
+
+        return $this;
+    }
+
+    /**
+     * Get archiveAz
+     *
+     * @return \Nononsense\HomeBundle\Entity\ArchiveAZ 
+     */
+    public function getArchiveAz()
+    {
+        return $this->archiveAz;
     }
 }

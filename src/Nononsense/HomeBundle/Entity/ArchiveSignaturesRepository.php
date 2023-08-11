@@ -17,7 +17,7 @@ class ArchiveSignaturesRepository extends EntityRepository
         $em = $this->getEntityManager();
 
         $list = $this->createQueryBuilder('ars')
-            ->select('IDENTITY(ars.archiveCategory) category', 'IDENTITY(ars.archivePreservation) preservation', 'IDENTITY(ars.archiveType) type', 'IDENTITY(ars.record) record','a.name action', 'u.name user', 'ars.description', 'ars.modified','ars.id','ars.attachment','a.id actionId','us.id useStateId','u2.name user2', 'ars2.description description2', 'ars2.modified modified2', 'ars2.id patern')
+            ->select('IDENTITY(ars.archiveCategory) category', 'IDENTITY(ars.archivePreservation) preservation', 'IDENTITY(ars.archiveType) type', 'IDENTITY(ars.record) record', 'IDENTITY(ars.archiveAz) az','a.name action', 'u.name user', 'ars.description', 'ars.modified','ars.id','ars.attachment','a.id actionId','us.id useStateId','u2.name user2', 'ars2.description description2', 'ars2.modified modified2', 'ars2.id patern','ar.link')
             ->leftJoin("ars.archiveAction", "a")
             ->leftJoin("ars.userEntiy", "u")
             ->leftJoin("ars.record", "ar")
@@ -59,11 +59,12 @@ class ArchiveSignaturesRepository extends EntityRepository
 
         if(!empty($filters)){
             if(isset($filters["relational"])){
-                $list->andWhere('ars.archiveCategory=:id1 OR ars.archivePreservation=:id2 OR ars.record=:id3 OR ars.archiveType=:id4');
+                $list->andWhere('ars.archiveCategory=:id1 OR ars.archivePreservation=:id2 OR ars.record=:id3 OR ars.archiveType=:id4 OR ars.archiveAz=:id5');
                 $list->setParameter('id1', $filters["relational"]);
                 $list->setParameter('id2', $filters["relational"]);
                 $list->setParameter('id3', $filters["relational"]);
                 $list->setParameter('id4', $filters["relational"]);
+                $list->setParameter('id5', $filters["relational"]);
             }
 
             if(isset($filters["id"])){
@@ -103,6 +104,9 @@ class ArchiveSignaturesRepository extends EntityRepository
                         break;
                     case "record":
                         $list->andWhere("ars.record IS NOT NULL");
+                        break;
+                    case "az":
+                        $list->andWhere("ars.archiveAz IS NOT NULL");
                         break;
                 }
             }

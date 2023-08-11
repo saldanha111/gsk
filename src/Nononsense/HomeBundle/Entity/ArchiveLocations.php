@@ -24,14 +24,6 @@ class ArchiveLocations
     /**
      * @var string
      *
-     * @ORM\Column(name="name", type="string", length=255,  nullable=true)
-     * @Groups({"location"})
-     */
-    protected $name;
-
-    /**
-     * @var string
-     *
      * @ORM\Column(name="building", type="string", length=255,  nullable=true)
      * @Groups({"location"})
      */
@@ -70,9 +62,9 @@ class ArchiveLocations
     protected $others;
 
     /**
-     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\ArchiveRecords", mappedBy="location")
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\ArchiveAZ", mappedBy="location")
      */
-    protected $archive;
+    protected $azs;
 
     /**
      * Constructor
@@ -241,25 +233,35 @@ class ArchiveLocations
     }
 
     /**
-     * Set name
+     * Add azs
      *
-     * @param string $name
+     * @param \Nononsense\HomeBundle\Entity\ArchiveAZ $azs
      * @return ArchiveLocations
      */
-    public function setName($name)
+    public function addAz(\Nononsense\HomeBundle\Entity\ArchiveAZ $azs)
     {
-        $this->name = $name;
+        $this->azs[] = $azs;
 
         return $this;
     }
 
     /**
-     * Get name
+     * Remove azs
      *
-     * @return string 
+     * @param \Nononsense\HomeBundle\Entity\ArchiveAZ $azs
      */
-    public function getName()
+    public function removeAz(\Nononsense\HomeBundle\Entity\ArchiveAZ $azs)
     {
-        return $this->name;
+        $this->azs->removeElement($azs);
+    }
+
+    /**
+     * Get azs
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getAzs()
+    {
+        return $this->azs;
     }
 }

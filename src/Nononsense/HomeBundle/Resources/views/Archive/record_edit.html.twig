@@ -120,46 +120,76 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-1 control-label">Ubicación</label>
-                            <div class="col-sm-5">
-                                <input type="text" id="location-info" class="form-control" value="{{record.location is not null ? record.location.id : ''}}" readonly="readonly" required="required">
-                                <input type="hidden" name="location" id="location" class="form-control" value="{{record.location is not null ? record.location.id : ''}}" required="required">
+                            <div class="col-sm-4 col-sm-offset-1">
+                                <div class="checkbox">
+                                    <label>
+                                        <input name="filetype" value="1" type="radio" {{record.id is null or record.az is not empty ? 'checked="checked"' : ''}} > Archivo físico
+                                    </label>
+                                </div>
+                                <div class="checkbox">
+                                    <label>
+                                        <input name="filetype" value="2" type="radio" {{record.id is not null and record.az is empty ? 'checked="checked"' : ''}}> Archivo digital
+                                    </label>
+                                </div>
                             </div>
-                            {% if agent is defined and agent %}
-                                <div class="col-md-1 col-sm-4 col-xs-6">
-                                    <button id="btn-camera-clean" type="button" class="btn btn-primary">Escanear</button>
+                        </div>
+                        <div id="physical_type" {{record.id is null or record.az is not empty ? 'style="display:block"' : 'style="display:none"'}}>
+                            <div class="form-group">
+                                <label class="col-sm-1 control-label">AZ</label>
+                                <div class="col-sm-2">
+                                    <input type="text" id="location-info" class="form-control" value="{{record.az is not null ? record.az.code : ''}}" readonly="readonly" {{record.id is null or record.az is not empty ? 'required="required"' : ''}}>
+                                    <input type="hidden" name="location" id="location" class="form-control" value="{{record.az is not null ? record.az.id : ''}}"  {{record.id is null or record.az is not empty ? 'required="required"' : ''}}>
+                                </div>
+                                {% if agent is defined and agent %}
+                                    <div class="col-md-2 col-sm-4 col-xs-6">
+                                        <button id="btn-camera-clean" type="button" class="btn btn-primary">Escanear con cámara</button>
+                                    </div>
+                                    <div class="col-md-2 col-sm-4 col-xs-6">
+                                        <button id="btn-scanner-clean" type="button" class="btn btn-primary">Escanear con scanner</button>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="form-group camera-group" style="display:none;">
+                                <label class="col-sm-1 control-label"></label>
+                                <div class="col-lg-2 col-md-4 col-sm-11">
+                                    <video id="video" style="border: 1px solid gray;"></video>
+                                </div>
+                                <div class="col-sm-11 col-sm-offset-1">
+                                    <div id="sourceSelectPanel" style="display:none">
+                                        <label for="sourceSelect">Selecciona la Cámara:</label>
+                                        <select id="sourceSelect" class="form-control" style="max-width:400px"></select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group scan-group" style="display:none;">
+                                <label class="col-sm-1 control-label"></label>
+                                <div class="col-lg-3 col-md-4 col-sm-11">
+                                    <input type="text" id="input-scan" class="form-control" value="">
+                                </div>
+                                <div class="col-sm-2">
+                                    <button id="btn-scanner-send" type="button" class="btn btn-primary">Obtener AZ</button>
+                                </div>
+                            </div>
+                            {% if record is defined and record is not empty and record.az is defined and record.az is not empty %}
+                                <div class="form-group" id="current_location">
+                                    <label class="col-sm-1 control-label"></label>
+                                    <div class="col-sm-11">
+                                        <div><b>Edificio:</b> {{record.az.location.building}}<br><b>Balda:</b> {{record.az.location.shelf}}<br><b>Pasillo:</b>{{record.az.location.passage}}<br><b>Armario:</b> {{record.az.location.cabinet}}<br><b>Otros:</b> {{record.az.location.others}}</div>
+                                    </div>
                                 </div>
                             {% endif %}
                         </div>
-                        <div class="form-group camera-group" style="display:none;">
-                            <label class="col-sm-1 control-label"></label>
-                            <div class="col-lg-2 col-md-4 col-sm-11">
-                                <video id="video" style="border: 1px solid gray;"></video>
-                                <input type="hidden" name="camera_clean" class="form-control code-input camera-clean" required="required">
-                            </div>
-                            <div class="col-sm-11 col-sm-offset-1">
-                                <div id="sourceSelectPanel" style="display:none">
-                                    <label for="sourceSelect">Selecciona la Cámara:</label>
-                                    <select id="sourceSelect" class="form-control" style="max-width:400px"></select>
+                        <div id="digital_type" {{record.id is not null and record.az is empty ? 'style="display:block"' : 'style="display:none"'}}>
+                            <div class="form-group">
+                                <label class="col-sm-1 control-label">Link</label>
+                                <div class="col-sm-6">
+                                    <input type="url" id="link" name="link" class="form-control" value="{{record.link is not null ? record.link : ''}}" {{record.id is not null and record.az is empty ? 'required="required"' : ''}} {{agent is not defined or not agent ? 'disabled="disabled"' : ''}}>
                                 </div>
                             </div>
                         </div>
 
-                        {% if record is defined and record is not empty and record.location is defined and record.location is not empty %}
-                            <div class="form-group" id="current_location">
-                                <label class="col-sm-1 control-label"></label>
-                                <div class="col-sm-11">
-                                    <div><b>Edificio:</b> {{record.location.building}}<br><b>Balda:</b> {{record.location.shelf}}<br><b>Pasillo:</b>{{record.location.passage}}<br><b>Armario:</b> {{record.location.cabinet}}<br><b>Otros:</b> {{record.location.others}}</div>
-                                </div>
-                            </div>
-                        {% endif %}
+                        
 
-                        <div class="form-group">
-                            <label class="col-sm-1 control-label">AZ</label>
-                            <div class="col-sm-6">
-                                <input type="text" name="az" class="form-control" value="{{record.az is not null ? record.az : ''}}" required="required" {{agent is not defined or not agent ? 'disabled="disabled"' : ''}}>
-                            </div>
-                        </div>
                         <div class="form-group">
                             <label class="col-sm-1 control-label">Fecha inicio retención</label>
                             <div class="col-sm-6">
@@ -246,14 +276,6 @@
 
         $(document).on('submit','#form_item',function(e){
             event.preventDefault();
-            if(!$("#location").val()){
-                swal({
-                    title: "Atención",
-                    text: "Debe escanear una localización",
-                    type: "warning"
-                });
-                return false;
-            }
 
             if(!$('[name="categories[]').val()){
                 swal({
@@ -320,6 +342,32 @@
             $('#form_item').submit();
         });
 
+        $(document).on('change', '[name="filetype"]', function() {
+            $("#location").val("");
+            $("#location-info").val("");
+            $("#link").val("");
+            const selectedOption = parseInt($(this).val());
+            switch(selectedOption){
+                case 1:
+                    $("#physical_type").show();
+                    $("#digital_type").hide();
+                    $("#location").prop('required',true);
+                    $("#location-info").prop('required',true);
+                    $("#link").prop('required',false);
+                    break;
+                case 2:
+                    $("#physical_type").hide();
+                    $("#digital_type").show();
+                    $("#location").prop('required',false);
+                    $("#location-info").prop('required',false);
+                    $("#link").prop('required',true);
+                    break;
+                default: break;
+            }
+
+            clear_workflow();
+        });
+
     });
 
     window.addEventListener('load', function () {
@@ -362,6 +410,12 @@
                         );
                     }
                 })
+                document.getElementById('btn-scanner-clean').addEventListener('click', () => {
+                    activeScanner();
+                })
+                document.getElementById('btn-scanner-send').addEventListener('click', () => {
+                    get_az(document.getElementById('input-scan').value);
+                })
             })
             .catch((err) => {
                 console.error(err);
@@ -369,63 +423,76 @@
     })
 
     function activeCamera(){
-        $('.code-input').val('');
         $('.scan-group').hide();
-        $('.scan-clean').removeClass('active');
         $('.camera-group').show();
-        $('.camera-clean').addClass('active');
+        $("#location-info").val("");
+        $("#location").val("");
+        $('#current_location').hide();
     }
 
     function activeScanner(){
-        $('.code-input').val('');
-        $('.camera-group').hide();
-        $('.camera-clean').removeClass('active');
         $('.scan-group').show();
-        $('.scan-clean').addClass('active').focus();
+        $('.camera-group').hide();
+        $("#location-info").val("");
+        $("#location").val("");
+        $("#input-scan").val("");
+        $("#input-scan").focus();
+        $('#current_location').hide();
+        if (typeof codeReader !== 'undefined') {
+            codeReader.reset();
+        }
     }
 
     function startCapture(codeReader, selectedDeviceId){
         codeReader.reset()
         codeReader.decodeFromVideoDevice(selectedDeviceId, 'video', (result, err) => {
+
             if (result) {
-                document.getElementsByClassName('camera-clean')[0].value = result.text;
-                $.ajax({
-                    url: result.text,
-                    type: 'POST',
-                    dataType: 'json',
-                    async: false,
-                    success: function(response) {
-                        if(!response.type || response.type!="archive_location"){
-                            toastr.error("El código de QR no es correcto", 'aviso');
-                        }
-                        else{
-                            $("#location-info").val(JSON.stringify(response.location));
-                            $("#location").val(response.location.id);
-                            $("#current_location").hide();
-                            toastr.success(
-                                "El código de barras se ha leído correctamente",
-                                'Bien',
-                                {preventDuplicates:true}
-                            );
-                        }
-                    },
-                    error: function() {
-                        result=false;
-                    }
-                });
-                
+                get_az(result.text);
             }
             if (err && !(err instanceof ZXing.NotFoundException)) {
                 console.error(err)
-                document.getElementsByClassName('camera-clean')[0].value = '';
-                toastr.error("El código QR no se ha leído correctamente", 'aviso');
+                toastr.error("El código de barras no es válido o no se ha leído correctamente", 'aviso');
+                startCapture(codeReader, selectedDeviceId);
             }
+            
         })
+        
+    }
+
+    function get_az(value){
+        $.ajax({
+            url: "{{ path('nononsense_archive_check_az') }}",
+            type: 'POST',
+            dataType: 'json',
+            async: false,
+            data: {az: value},
+            success: function(response) {
+                if(response.check){
+                    $("#location-info").val(value);
+                    $("#location").val(response.az);
+                    $("#current_location").hide();
+                    $('.scan-group').hide();
+                    $('.camera-group').hide();
+                    toastr.success(
+                        "El código de barras se ha leído correctamente",
+                        'Bien',
+                        {preventDuplicates:true}
+                    );
+                }
+                else{
+                    toastr.error("El código de barras no es válido o no se ha leído correctamente", 'aviso');
+                }
+            },
+            error: function() {
+                toastr.error("El código de barras no es válido o no se ha leído correctamente", 'aviso');
+            }
+        });
     }
 
     function checkUnique(value){
         var result;
-        url="{{ path('nononsense_products_check_unique',{'id': record.id is not null ? record.id : 0}) }}";
+        url="{{ path('nononsense_archive_check_unique',{'id': record.id is not null ? record.id : 0}) }}";
         $.ajax({
             type: 'GET',
             dataType: "json",

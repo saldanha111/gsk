@@ -29,6 +29,12 @@
         </div>
         <br>
     {% endfor %}
+    {% for flashMessage in app.session.flashbag.get('success') %}
+        <div class="alert alert-success alert-dismissable" style="margin: 10px 16px 0 16px">
+            <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+            {{ flashMessage }}
+        </div><br>
+    {% endfor %}
     <div class="row">
         <div class="col-sm-12">
             <div>
@@ -346,8 +352,9 @@
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-lg-10 col-lg-offset-1">
-                            Va a realizar una importación de registros. El excel a importar debe tener las siguientes columnas:<br>
-                            Area, Document Number, Version, Document Name, Type, Document Status, Legal Preservation Name, Global Retention Schedule (GRS)
+                            Va a realizar una importación de registros. El excel a importar debe tener las siguientes columnas obligatorias:<br><br>
+                            <b>Area, Document Number, Version, Document Name, Type, Document Status, Legal Preservation Name, Global Retention Schedule (GRS)</b><br><br>
+                            Habrá una columna <b>AZ</b> no obligatoria para si se desea adjudicar una localización, si no se introduce se dará por hecho que es un archivo ditital siempre y cuando tenga un <b>Link la columna Document Number</b>. De no ser así notificará un error
                         </div>
                     </div>
                     <br>

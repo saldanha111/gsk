@@ -43,6 +43,12 @@ class DefaultController extends Controller
         return $this->render('::popupAreas.html.twig', $data);
     }
 
+    public function popupAZAction()
+    {
+        return $this->render('NononsenseHomeBundle:Archive:popupAZ.html.twig');
+    }
+
+
     public function topSideAction(){
 
         $em     = $this->getDoctrine()->getManager();

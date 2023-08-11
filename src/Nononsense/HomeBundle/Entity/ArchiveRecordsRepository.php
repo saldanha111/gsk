@@ -38,7 +38,7 @@ class ArchiveRecordsRepository extends EntityRepository
         $list->leftJoin("ar.state", "s")
              ->leftJoin("ar.useState", "us")
              ->leftJoin("ar.type", "t")
-             ->leftJoin("ar.location", "l")
+             ->leftJoin("ar.az", "l")
              ->leftJoin("ar.area", "a");
 
         $list->leftJoin("ar.categories", "arc", "WITH", "(arc.id IN (

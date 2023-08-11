@@ -7,6 +7,7 @@ use Nononsense\HomeBundle\Entity\ArchiveUseStates;
 use Nononsense\HomeBundle\Entity\ArchiveSignatures;
 use Nononsense\HomeBundle\Entity\ArchiveActions;
 use Nononsense\HomeBundle\Entity\ArchiveLocations;
+use Nononsense\HomeBundle\Entity\ArchiveAZ;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Nononsense\HomeBundle\Form\Type as FormProveedor;
@@ -127,15 +128,6 @@ class ArchiveLoanController extends Controller
                     $patern=$signature->getId();
                 break;
             case "11":
-                    if(!$request->get("az") || !$request->get("location")){
-                        $this->get('session')->getFlashBag()->add(
-                            'error',
-                                'No se pudo finalizar el préstamo'
-                        );
-                        $route = $this->container->get('router')->generate('nononsense_home_homepage');
-                        return $this->redirect($route);
-                    }
-
                     if($record->getUseState()->getId()!=3){
                         $this->get('session')->getFlashBag()->add(
                             'error',
@@ -147,10 +139,10 @@ class ArchiveLoanController extends Controller
                     $newState=$this->getDoctrine()->getRepository(ArchiveUseStates::class)->findOneBy(array("id" =>1));
                     $record->setUseState($newState);
 
-                    $location = $em->getRepository(ArchiveLocations::class)->findOneBy(['id' => $request->get('location')]);
-                    $record->setLocation($location);
-
-                    $record->setAZ($request->get('az'));
+                    if($request->get('location')){
+                        $az = $em->getRepository(ArchiveAZ::class)->findOneBy(['id' => $request->get('location')]);
+                        $record->setAZ($az);
+                    }
 
                     $em->persist($record);
                     $signature->setNotAvailable(TRUE);

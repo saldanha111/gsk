@@ -11,6 +11,7 @@ use Nononsense\HomeBundle\Entity\ArchiveLocations;
 use Nononsense\HomeBundle\Entity\Areas;
 use Nononsense\HomeBundle\Entity\ArchiveCategories;
 use Nononsense\HomeBundle\Entity\ArchivePreservations;
+use Nononsense\HomeBundle\Entity\ArchiveAZ;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Nononsense\HomeBundle\Form\Type as FormProveedor;
@@ -464,21 +465,41 @@ class ArchiveRecordsController extends Controller
                                         $record->addCategory($category);
                                     }
                                     break;
+                                case "AZ":
+                                    if($value){
+                                        $az = $em->getRepository(ArchiveAZ::class)->findOneBy(['code' => $value]);
+                                        if(!$az){
+                                            $this->get('session')->getFlashBag()->add(
+                                                'error',
+                                                'No se encuentra el AZ del registro: '.$value
+                                            );
+                                            return $this->redirect($this->generateUrl('nononsense_archive_records'));
+                                        }
+                                        $record->setAZ($az);
+                                    }
+                                    else{
+                                        $docNumberColumnIndex = array_search('Document Number', $columnNames);
+                                        $cell = $sheet->getCellByColumnAndRow($docNumberColumnIndex, $rowNumber+1);
+                                        $link = $cell->getHyperlink()->getUrl();
+                                        if($link){
+                                            $record->setLink($link);
+                                        }
+                                        else{
+                                            $this->get('session')->getFlashBag()->add(
+                                                'error',
+                                                'No se encuentra el Link para este archivo digital: '.$cell->getValue()
+                                            );
+                                            return $this->redirect($this->generateUrl('nononsense_archive_records'));
+                                        }
+                                    }
+                                    break;
                             }
 
                         }
 
                         $record->setModified(new \DateTime());
                         
-                        $location = $em->getRepository(ArchiveLocations::class)->findOneBy(['name' => 'VQD']);
-                        if(!$location){
-                            $this->get('session')->getFlashBag()->add(
-                                'error',
-                                'No se encuentra la ubicación VQD'
-                            );
-                            return $this->redirect($this->generateUrl('nononsense_archive_records'));
-                        }
-                        $record->setLocation($location);
+
 
                         $em->persist($record);
                         $em->flush();
@@ -486,7 +507,7 @@ class ArchiveRecordsController extends Controller
                     }
 
                 } catch (\Exception $e) {
-                    return new Response('Error al leer el archivo Excel: ' . $e->getMessage());
+                    return new Response('Error al leer el archivo Excel: ' . $e->getMessage(). " - Line: ".$e->getLine(). " - File:".$e->getFile());
                 }
             }
         }
@@ -526,6 +547,7 @@ class ArchiveRecordsController extends Controller
         return $response;
     }
 
+    
     /**
      * @param Request $request
      * @param ArchiveRecords $record
@@ -547,9 +569,11 @@ class ArchiveRecordsController extends Controller
         }
         $em->getConnection()->beginTransaction();
         try {
-
-            $location = $em->getRepository(ArchiveLocations::class)->findOneBy(['id' => $request->get('location')]);
-            $record->setLocation($location);
+            if($request->get('location')){
+                $az = $em->getRepository(ArchiveAZ::class)->findOneBy(['id' => $request->get('location')]);
+                $record->setAz($az);
+                $record->setLink(NULL);
+            }
             $state = $em->getRepository(ArchiveStates::class)->findOneBy(['id' => $request->get('state')]);
             
             if($record->getState()!=$state){
@@ -575,9 +599,13 @@ class ArchiveRecordsController extends Controller
                 $record->setEdition($request->get('edition'));
             }
 
-            $record->setAZ($request->get('az'));
 
-            if (!$request->get('location') || !$request->get('state') || !$request->get('type') || !$request->get('area') || !$request->get('az') || !$request->get('comment')) {
+            if($request->get("link")){
+                $record->setLink($request->get('link'));
+                $record->setAZ(NULL);
+            }
+
+            if ((!$request->get('location') && !$request->get("link")) || !$request->get('state') || !$request->get('type') || !$request->get('area') || !$request->get('comment')) {
                 $this->get('session')->getFlashBag()->add(
                     'error',
                     'Todos los datos son obligatorios'

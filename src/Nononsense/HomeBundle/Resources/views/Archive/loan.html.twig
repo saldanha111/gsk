@@ -127,7 +127,7 @@
                                         <a href="javascript:void(0)" class="btn btn-xs btn-danger btn-retention" data-info="Rechazar préstamo (ID {{item.id}})" data-action="10" data-id="{{item.id}}"><i class="fa fa-remove" aria-hidden="true"></i><span> Rechazar</span></a>
                                     {% endif %}
                                     {% if item.actionId==9 %}
-                                        <a href="javascript:void(0)" class="btn btn-xs btn-primary btn-retention" data-info="Finalizar préstamo (ID {{item.id}})"  data-action="11" data-id="{{item.id}}"><i class="fa fa-flag-checkered" aria-hidden="true"></i><span> Recibir documento</span></a>
+                                        <a href="javascript:void(0)" data-location="{{item.link is empty ? '1' : '0'}}" class="btn btn-xs btn-primary btn-retention" data-info="Finalizar préstamo (ID {{item.id}})"  data-action="11" data-id="{{item.id}}"><i class="fa fa-flag-checkered" aria-hidden="true"></i><span> Recibir documento</span></a>
                                     {% endif %}
                                 </td>
                             </tr>
@@ -182,12 +182,13 @@
                     <div class="row" id="box_location">
                         <div class="col-lg-10 col-lg-offset-1">
                             <div class="input-group">
-                                <label>Ubicación</label>
+                                <label>AZ</label>
                                 <br>
                                 <input type="text" id="location-info" class="form-control" value="" readonly="readonly" required="required">
                                 <input type="hidden" name="location" id="location" class="form-control" value="" required="required">
                                 <br><br>
-                                <button id="btn-camera-clean" type="button" class="btn btn-primary">Escanear</button><br><br>
+                                <button id="btn-camera-clean" type="button" class="btn btn-primary" style="margin-right:4px">Escanear con cámara</button> 
+                                <button id="btn-scanner-clean" type="button" class="btn btn-primary">Escanear con scanner</button><br><br>
                             </div>
                             <div class="input-group camera-group" style="display:none;">
                                 <div class="col-sm-8">
@@ -200,11 +201,11 @@
                                         <select id="sourceSelect" class="form-control" style="max-width:400px"></select>
                                     </div>
                                 </div>
-                            </div><br>
-                            <div class="input-group">
-                                <label>AZ</label>
+                            </div>
+                            <div class="form-group scan-group" style="display:none;">
+                                <input type="text" id="input-scan" class="form-control" value="">
                                 <br>
-                                <input type="text" name="az" id="az" class="form-control" value="" required="required">
+                                <button id="btn-scanner-send" type="button" class="btn btn-primary">Obtener AZ</button>
                             </div><br>
                         </div>
                     </div>
@@ -244,17 +245,15 @@
     $(document).on('click','.btn-retention',function(e){
         retention_btn=$(this);
         title="Archivos - "+$(this).data("info")+" ";
-        if($(this).data("action")!="11"){
+        if($(this).data("action")!="11" || $(this).data("location")!="1"){
             $("#box_location").hide();
             $("#location-info").prop('required',false);
             $("#location").prop('required',false);
-            $("#az").prop('required',false);
         }
         else{
             $("#box_location").show();
             $("#location-info").prop('required',true);
             $("#location").prop('required',true);
-            $("#az").prop('required',true);
         }
         $("#action").val($(this).data("action"));
         $("#id").val($(this).data("id"));
@@ -274,7 +273,7 @@
         }
 
         if($("#action").val()=="11"){
-            if (!$("#location").val()){
+            if (!$("#location").val() && $("#location").prop('required')){
                 swal({
                     title: "Atención",
                     text: "La localización es obligatoria",
@@ -282,16 +281,6 @@
                 });
                 return false;
             }
-
-            if (!$("#az").val()){
-                swal({
-                    title: "Atención",
-                    text: "El AZ es obligatorio",
-                    type: "warning"
-                });
-                return false;
-            }
-
         }
 
         if (!$("#modal_password").val()){
@@ -357,6 +346,12 @@
                         );
                     }
                 })
+                document.getElementById('btn-scanner-clean').addEventListener('click', () => {
+                    activeScanner();
+                })
+                document.getElementById('btn-scanner-send').addEventListener('click', () => {
+                    get_az(document.getElementById('input-scan').value);
+                })
             })
             .catch((err) => {
                 console.error(err);
@@ -364,58 +359,67 @@
     })
 
     function activeCamera(){
-        $('.code-input').val('');
         $('.scan-group').hide();
-        $('.scan-clean').removeClass('active');
         $('.camera-group').show();
-        $('.camera-clean').addClass('active');
+        $("#location-info").val("");
+        $("#location").val("");
+        $('#current_location').hide();
     }
 
     function activeScanner(){
-        $('.code-input').val('');
-        $('.camera-group').hide();
-        $('.camera-clean').removeClass('active');
         $('.scan-group').show();
-        $('.scan-clean').addClass('active').focus();
+        $('.camera-group').hide();
+        $("#location-info").val("");
+        $("#location").val("");
+        $("#input-scan").val("");
+        $("#input-scan").focus();
+        $('#current_location').hide();
+        if (typeof codeReader !== 'undefined') {
+            codeReader.reset();
+        }
     }
 
     function startCapture(codeReader, selectedDeviceId){
         codeReader.reset()
         codeReader.decodeFromVideoDevice(selectedDeviceId, 'video', (result, err) => {
             if (result) {
-                document.getElementsByClassName('camera-clean')[0].value = result.text;
-                $.ajax({
-                    url: result.text,
-                    type: 'POST',
-                    dataType: 'json',
-                    async: false,
-                    success: function(response) {
-                        if(!response.type || response.type!="archive_location"){
-                            toastr.error("El código de QR no es correcto", 'aviso');
-                        }
-                        else{
-                            $("#location-info").val(JSON.stringify(response.location));
-                            $("#location").val(response.location.id);
-                            $("#current_location").hide();
-                            toastr.success(
-                                "El código de barras se ha leído correctamente",
-                                'Bien',
-                                {preventDuplicates:true}
-                            );
-                        }
-                    },
-                    error: function() {
-                        result=false;
-                    }
-                });
-                
+                get_az(result.text);
             }
             if (err && !(err instanceof ZXing.NotFoundException)) {
                 console.error(err)
-                document.getElementsByClassName('camera-clean')[0].value = '';
                 toastr.error("El código QR no se ha leído correctamente", 'aviso');
             }
         })
+    }
+
+    function get_az(value){
+        $.ajax({
+            url: "{{ path('nononsense_archive_check_az') }}",
+            type: 'POST',
+            dataType: 'json',
+            async: false,
+            data: {az: value},
+            success: function(response) {
+                if(response.check){
+                    $("#location-info").val(value);
+                    $("#location").val(response.az);
+                    $("#current_location").hide();
+                    $('.scan-group').hide();
+                    $('.camera-group').hide();
+                    toastr.success(
+                        "El código de barras se ha leído correctamente",
+                        'Bien',
+                        {preventDuplicates:true}
+                    );
+                }
+                else{
+                    toastr.error("El código de barras no es válido o no se ha leído correctamente", 'aviso');
+                }
+            },
+            error: function() {
+                toastr.error("El código de barras no es válido o no se ha leído correctamente", 'aviso');
+            }
+        });
     }
 </script>
 {% endblock %}

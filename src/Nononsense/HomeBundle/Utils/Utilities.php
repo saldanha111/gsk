@@ -144,6 +144,10 @@ class Utilities{
                 $record=$this->em->getRepository('NononsenseHomeBundle:ArchiveRecords')->findOneBy(array('id' => $id));
                 $signatureLog->setRecord($record);
                 break;
+            case "az":
+                $az=$this->em->getRepository('NononsenseHomeBundle:ArchiveAZ')->findOneBy(array('id' => $id));
+                $signatureLog->setArchiveAz($az);
+                break;
         }
         $signatureLog->setModified(new \DateTime());
         if($file){

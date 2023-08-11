@@ -1097,6 +1097,14 @@ nononsense_archive_ubications_edit:
     path: /archive-ubications/{id}
     defaults: { _controller: NononsenseHomeBundle:ArchiveUbications:edit}
 
+nononsense_archive_az_edit:
+    path: /az/{code}
+    defaults: { _controller: NononsenseHomeBundle:ArchiveAZ:edit}
+
+nononsense__archive_code_view:
+    path: /az/code/view/{code}
+    defaults: { _controller: NononsenseHomeBundle:ArchiveAZ:viewBarcode}
+
 nononsense_archive_view_qr:
     path: /archive-ubications-view/{id}
     defaults: { _controller: NononsenseHomeBundle:ArchiveUbications:viewQr}
@@ -1123,7 +1131,11 @@ nononsense_archive_records_edit:
     path: /archive-records/{id}
     defaults: { _controller: NononsenseHomeBundle:ArchiveRecords:edit}
 
-nononsense_products_check_unique:
+nononsense_archive_check_az:
+    path: /check-az
+    defaults: { _controller: NononsenseHomeBundle:ArchiveAZ:checkAZ}
+
+nononsense_archive_check_unique:
     path: /check-unique/{id}
     defaults: { _controller: NononsenseHomeBundle:ArchiveRecords:checkUnique}
 

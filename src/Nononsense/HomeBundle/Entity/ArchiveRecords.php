@@ -49,10 +49,10 @@ class ArchiveRecords
     protected $useState;
 
     /**
-     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\ArchiveLocations", inversedBy="archive")
-     * @ORM\JoinColumn(name="location_id", referencedColumnName="id")
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\ArchiveAZ", inversedBy="records")
+     * @ORM\JoinColumn(name="az_id", referencedColumnName="id")
      */
-    protected $location;
+    protected $az;
 
     /**
      * @ORM\ManyToMany(targetEntity="\Nononsense\HomeBundle\Entity\ArchiveCategories", inversedBy="records")
@@ -81,9 +81,9 @@ class ArchiveRecords
     /**
      * @var string
      *
-     * @ORM\Column(name="az", type="string", length=150, nullable=true)
+     * @ORM\Column(name="link", type="string", length=150, nullable=true)
      */
-    protected $az;
+    protected $link;
 
     /**
      * @var string
@@ -288,29 +288,6 @@ class ArchiveRecords
     }
 
     /**
-     * Set location
-     *
-     * @param \Nononsense\HomeBundle\Entity\ArchiveLocations $location
-     * @return ArchiveRecords
-     */
-    public function setLocation(\Nononsense\HomeBundle\Entity\ArchiveLocations $location = null)
-    {
-        $this->location = $location;
-
-        return $this;
-    }
-
-    /**
-     * Get location
-     *
-     * @return \Nononsense\HomeBundle\Entity\ArchiveLocations 
-     */
-    public function getLocation()
-    {
-        return $this->location;
-    }
-
-    /**
      * Set useState
      *
      * @param \Nononsense\HomeBundle\Entity\ArchiveUseStates $useState
@@ -400,29 +377,6 @@ class ArchiveRecords
     public function getModified()
     {
         return $this->modified;
-    }
-
-    /**
-     * Set az
-     *
-     * @param string $az
-     * @return ArchiveRecords
-     */
-    public function setAz($az)
-    {
-        $this->az = $az;
-
-        return $this;
-    }
-
-    /**
-     * Get az
-     *
-     * @return string 
-     */
-    public function getAz()
-    {
-        return $this->az;
     }
 
     /**
@@ -591,5 +545,51 @@ class ArchiveRecords
     public function getRetentionRevision()
     {
         return $this->retentionRevision;
+    }
+
+    /**
+     * Set link
+     *
+     * @param string $link
+     * @return ArchiveRecords
+     */
+    public function setLink($link)
+    {
+        $this->link = $link;
+
+        return $this;
+    }
+
+    /**
+     * Get link
+     *
+     * @return string 
+     */
+    public function getLink()
+    {
+        return $this->link;
+    }
+
+    /**
+     * Set az
+     *
+     * @param \Nononsense\HomeBundle\Entity\ArchiveAZ $az
+     * @return ArchiveRecords
+     */
+    public function setAz(\Nononsense\HomeBundle\Entity\ArchiveAZ $az = null)
+    {
+        $this->az = $az;
+
+        return $this;
+    }
+
+    /**
+     * Get az
+     *
+     * @return \Nononsense\HomeBundle\Entity\ArchiveAZ 
+     */
+    public function getAz()
+    {
+        return $this->az;
     }
 }
