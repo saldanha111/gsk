@@ -1,0 +1,102 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}Docoaro - GSK | {{'Preservations notices'|trans}} {% endblock %}
+{% block head %}
+    {{ parent() }}
+{% endblock %}
+{% block main_title %} Listado de preservations notices de archivo y retención{% endblock %}
+{% block content %}
+
+<div class="wrapper wrapper-content">
+    <div class="row">
+        <div class="col-xs-12">
+            {% for flashMessage in app.session.flashbag.get('error') %}
+                <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+                    <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                    {{ flashMessage }}
+                </div>
+                <br>
+            {% endfor %}
+            {% for flashMessage in app.session.flashbag.get('message') %}
+                <div class="alert alert-success alert-dismissable" style="margin: 10px 16px 0 16px">
+                    <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                    {{ flashMessage }}
+                </div>
+                <br>
+            {% endfor %}
+            <form id="form_item" action="{{ path('nononsense_archive_preservations_list') }}" method="GET">
+                <div class="row">
+                    <label class="col-sm-1 control-label item_filter">Nombre</label>
+                    <div class="col-sm-2 item_filter">
+                        <input type="text" name="f_name" class="form-control" value="{{filters.name is defined ? filters.name : ''}}">
+                    </div>
+
+                    <label class="col-sm-1 control-label item_filter">Activo</label>
+                    <div class="col-sm-2 item_filter">
+                        <select class="form-control" name="f_active">
+                            <option value=""></option>
+                            <option value="0" {{ filters.active is defined and filters.active is not null and filters.active==0 ? 'selected="selected"' : ''}}>No</option>
+                            <option value="1" {{ filters.active is defined and filters.active is not null and filters.active==1 ? 'selected="selected"' : ''}}>Si</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-2 item_filter">
+                        <button type="submit" class="btn btn-primary">Filtrar</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12">
+            <a href="{{ path('nononsense_archive_preservations_edit', {'id' : 0}) }}" class="btn btn-primary pull-right">
+                <i class="fa fa-plus"></i>
+                <span> Nueva categoría</span>
+            </a>
+            <br/>
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Id.</th>
+                    <th>Nombre</th>
+                    <th>Descripción</th>
+                    <th>Activo</th>
+                    <th>Editar</th>
+                </tr>
+                </thead>
+                {% if items is defined %}
+                    {% for item in items %}
+                    <tr>
+                        <td>{{ item.id }}</td>
+                        <td>{{ item.name }}</td>
+                        <td>{{ item.description }}</td>
+                        <td>{{ item.active ? 'Activo' : 'Inactivo' }}</td>
+                        <td>
+                            <a href="{{ path('nononsense_archive_preservations_edit', {'id' : item.id}) }}" class="btn btn-xs">
+                                <i class="fa fa-pencil" aria-hidden="true"></i>
+                                <span> Editar</span>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% endif %}
+            </table>
+            {% if count==0 %}
+                <br><b>No se han encontrado datos disponibles</b>
+            {% endif %}
+            {% if pagination is defined and pagination.needed %}
+                {% include '::pagination2.html.twig' %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+{{ parent() }}
+<script>
+  $(function () {
+    ActivateMenu('archive_preservations');
+    $('#side-menu').metisMenu();
+    $('[data-toggle="tooltip"]').tooltip();
+  });
+</script>
+{% endblock %}
+                        

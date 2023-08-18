@@ -39,6 +39,29 @@ class Security
 
         return $is_grant;
     }
+
+    public function getAreas($subseccion){
+
+        $is_grant = 0;
+        $array_areas=array();
+
+        $subseccionObj = $this->em->getRepository('NononsenseUserBundle:Subsecciones')->findOneByNameId($subseccion);
+
+        $array_groups = array();         
+        foreach ($this->user->getGroups() as $group) {
+            array_push($array_groups, $group->getGroup()->getId());
+        }
+
+        $groupSubseccionObj = $this->em->getRepository('NononsenseUserBundle:GroupsSubsecciones')->findBy(array('group'=>$array_groups, 'subseccion'=>$subseccionObj));
+        foreach($groupSubseccionObj as $group){
+            $areas = $this->em->getRepository('NononsenseHomeBundle:AreasGroups')->findBy(array('agroup'=>$group->getGroup()));
+            foreach($areas as $area){
+                $array_areas[]=$area->getArea();
+            }
+        }
+
+        return $array_areas;
+    }
     
     public function permission ($templateId) 
     {

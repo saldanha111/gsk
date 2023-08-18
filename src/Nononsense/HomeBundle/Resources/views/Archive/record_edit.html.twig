@@ -1,0 +1,523 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}Docoaro - GSK |  Archivo / {{record.id is not null ? 'Editar' : 'Crear'}} registro{% endblock %}
+{% block head %}
+    <link rel="stylesheet" href="{{ asset('/js/plugins/sweetalert/sweetalert.min.css') }}">
+    <link rel="stylesheet" href="/plugins/dual_listbox/dist/multi.min.css">
+    {{ parent() }}
+{% endblock %}
+{% block main_title %} Archivo / {{record.id is not null ? 'Editar' : 'Crear'}} registro{% endblock %}
+
+{% block content %}
+
+    <div class="wrapper wrapper-content animated fadeInUp">
+        {% for flashMessage in app.session.flashbag.get('error') %}
+            <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                {{ flashMessage }}
+            </div>
+            <br>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('message') %}
+            <div class="alert alert-success alert-dismissable" style="margin: 10px 16px 0 16px">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                {{ flashMessage }}
+            </div>
+            <br>
+        {% endfor %}
+        <form class="form-horizontal" id="form_item" method="POST" action="{{ path('nononsense_archive_records_edit',{'id': record.id is not null ? record.id : 0}) }}">
+            <div class="row">
+                <div class="col-lg-10 col-lg-offset-1">
+                    <div class="row">
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">Título</label>
+                            <div class="col-sm-6">
+                                <input type="text" name="title" class="form-control" value="{{record.title is not null ? record.title : ''}}" {{agent is not defined or not agent ? 'disabled="disabled"' : ''}}>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">Edición</label>
+                            <div class="col-sm-6">
+                                <input type="text" name="edition" class="form-control" value="{{record.edition is not null ? record.edition : ''}}" {{agent is not defined or not agent ? 'disabled="disabled"' : ''}}>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">Área</label>
+                            <div class="col-sm-6">
+                                <select class="form-control" name="area" style="width: 100%;" required="required" {{agent is not defined or not agent ? 'disabled="disabled"' : ''}}>
+                                    <option value=""></option>
+                                    {% for area in areas %}
+                                        <option value="{{area.id}}" {{record.area is defined and record.area==area ? 'selected="selected"'}}>{{area.name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">Tipo</label>
+                            <div class="col-sm-6">
+                                <select class="form-control" name="type" style="width: 100%;" required="required" {{agent is not defined or not agent ? 'disabled="disabled"' : ''}}>
+                                    <option value=""></option>
+                                    {% for type in types %}
+                                        <option value="{{type.id}}" {{record.type is defined and record.type==type ? 'selected="selected"'}}>{{type.name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">Identificador</label>
+                            <div class="col-sm-6">
+                                <input type="text" id="unique_number" name="unique_number" class="form-control" value="{{record.uniqueNumber is not null ? record.uniqueNumber : ''}}" required="required" {{agent is not defined or not agent ? 'disabled="disabled"' : ''}}>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">Estado</label>
+                            <div class="col-sm-6">
+                                <select class="form-control" name="state" style="width: 100%;" required="required" {{agent is not defined or not agent ? 'disabled="disabled"' : ''}}>
+                                    <option value=""></option>
+                                    {% for state in states %}
+                                        <option value="{{state.id}}" {{record.state is defined and record.state==state ? 'selected="selected"'}}>{{state.name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">Cat.Retención</label>
+                            <div class="col-sm-6">
+                                {% if agent is defined and agent %}
+                                    {% if categories is defined %}
+                                        <select multiple="multiple" name="categories[]" id="category" {{agent is not defined or not agent ? 'disabled="disabled"' : ''}}>
+                                            {% for category in categories %}
+                                                <option value={{category.id}} {{ category in record.categories ? "selected='selected'" : "" }}>{{category.name}}</option>;
+                                            {% endfor %}
+                                        </select>
+                                    {% endif %}
+                                {% else %}
+                                    {% if categories is defined %}
+                                        {% for category in categories %}
+                                            {{ category in record.categories ? (category.name~"<br>")|raw : "" }}
+                                        {% endfor %}
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">Preservation notices</label>
+                            <div class="col-sm-6">
+                                {% if agent is defined and agent %}
+                                    {% if preservations is defined %}
+                                        <select multiple="multiple" name="preservations[]" id="preservations" {{agent is not defined or not agent ? 'disabled="disabled"' : ''}}>
+                                            {% for preservation in preservations %}
+                                                <option value={{preservation.id}} {{ preservation in record.preservations ? "selected='selected'" : "" }}>{{preservation.name}}</option>;
+                                            {% endfor %}
+                                        </select>
+                                    {% endif %}
+                                {% else %}
+                                    {% if preservations is defined %}
+                                        {% for preservation in preservations %}
+                                            {{ preservation in record.preservations ? (preservation.name~"<br>")|raw : "" }}
+                                        {% endfor %}
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-4 col-sm-offset-1">
+                                <div class="checkbox">
+                                    <label>
+                                        <input name="filetype" value="1" type="radio" {{record.id is null or record.az is not empty ? 'checked="checked"' : ''}} > Archivo físico
+                                    </label>
+                                </div>
+                                <div class="checkbox">
+                                    <label>
+                                        <input name="filetype" value="2" type="radio" {{record.id is not null and record.az is empty ? 'checked="checked"' : ''}}> Archivo digital
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="physical_type" {{record.id is null or record.az is not empty ? 'style="display:block"' : 'style="display:none"'}}>
+                            <div class="form-group">
+                                <label class="col-sm-1 control-label">AZ</label>
+                                <div class="col-sm-2">
+                                    <input type="text" id="location-info" class="form-control" value="{{record.az is not null ? record.az.code : ''}}" readonly="readonly" {{record.id is null or record.az is not empty ? 'required="required"' : ''}}>
+                                    <input type="hidden" name="location" id="location" class="form-control" value="{{record.az is not null ? record.az.id : ''}}"  {{record.id is null or record.az is not empty ? 'required="required"' : ''}}>
+                                </div>
+                                {% if agent is defined and agent %}
+                                    <div class="col-md-2 col-sm-4 col-xs-6">
+                                        <button id="btn-camera-clean" type="button" class="btn btn-primary">Escanear con cámara</button>
+                                    </div>
+                                    <div class="col-md-2 col-sm-4 col-xs-6">
+                                        <button id="btn-scanner-clean" type="button" class="btn btn-primary">Escanear con scanner</button>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="form-group camera-group" style="display:none;">
+                                <label class="col-sm-1 control-label"></label>
+                                <div class="col-lg-2 col-md-4 col-sm-11">
+                                    <video id="video" style="border: 1px solid gray;"></video>
+                                </div>
+                                <div class="col-sm-11 col-sm-offset-1">
+                                    <div id="sourceSelectPanel" style="display:none">
+                                        <label for="sourceSelect">Selecciona la Cámara:</label>
+                                        <select id="sourceSelect" class="form-control" style="max-width:400px"></select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group scan-group" style="display:none;">
+                                <label class="col-sm-1 control-label"></label>
+                                <div class="col-lg-3 col-md-4 col-sm-11">
+                                    <input type="text" id="input-scan" class="form-control" value="">
+                                </div>
+                                <div class="col-sm-2">
+                                    <button id="btn-scanner-send" type="button" class="btn btn-primary">Obtener AZ</button>
+                                </div>
+                            </div>
+                            {% if record is defined and record is not empty and record.az is defined and record.az is not empty %}
+                                <div class="form-group" id="current_location">
+                                    <label class="col-sm-1 control-label"></label>
+                                    <div class="col-sm-11">
+                                        <div><b>Edificio:</b> {{record.az.location.building}}<br><b>Balda:</b> {{record.az.location.shelf}}<br><b>Pasillo:</b>{{record.az.location.passage}}<br><b>Armario:</b> {{record.az.location.cabinet}}<br><b>Otros:</b> {{record.az.location.others}}</div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div id="digital_type" {{record.id is not null and record.az is empty ? 'style="display:block"' : 'style="display:none"'}}>
+                            <div class="form-group">
+                                <label class="col-sm-1 control-label">Link</label>
+                                <div class="col-sm-6">
+                                    <input type="url" id="link" name="link" class="form-control" value="{{record.link is not null ? record.link : ''}}" {{record.id is not null and record.az is empty ? 'required="required"' : ''}} {{agent is not defined or not agent ? 'disabled="disabled"' : ''}}>
+                                </div>
+                            </div>
+                        </div>
+
+                        
+
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">Fecha inicio retención</label>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control" value="{{ record.initRetention is defined and record.initRetention is not empty ? record.initRetention|date("d/m/Y H:i:s")|gskdate : '' }}" readonly="readonly">
+                            </div>
+                        </div>
+                </div>
+            </div>
+            {% if agent is defined and agent %}
+                <div class="row">
+                    <div class="col-sm-11 col-sm-offset-1">
+                        <input type="submit" class="btn btn-primary submit-record" data-action="save" value="{{record.id is not null ? 'Editar' : 'Crear'}} registro">
+                    </div>
+                </div>
+            {% endif %}
+
+            <div class="modal fade" tabindex="-1" role="dialog" id="modalSign">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Firmar</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+
+                        <div class="modal-body">
+                            <div class="row box-text-comment">
+                                <div class="col-lg-10 col-lg-offset-1">
+                                    <label for="description_workflow">Comentarios</label>
+                                    <br>
+                                    <div class="form-group">
+                                        <textarea class="form-control text-comment" name="comment" id="modal_comment" rows="10" cols="40"  style="width:100%" required="required"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-10 col-lg-offset-1">
+                                    <div id="signature-pad3" class="input-group">
+                                        <label for="firma">Introduzca su firma</label>
+                                        <br>
+                                        <input type="password" id="modal_password" class="form-control" required="required"><br>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <input type="button" class="btn btn-primary" id="sign_record" value="Firmar">
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <input type="hidden" name="signature">
+            <textarea name="comment" style="display: none"></textarea>
+            <input type="hidden" id="action" value="">
+        </form>
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/plugins/sweetalert/sweetalert.min.js') }}"></script>
+    <script src="/plugins/dual_listbox/dist/multi.min.js"></script>
+    <script type="text/javascript" src="{{ asset('js/barcode-reader.min.js') }}"></script>
+    <script>
+
+    $( document ).ready(function() {
+        ActivateMenu('archive_records');
+        $('#side-menu').metisMenu();
+
+        {% if agent is defined and agent %}
+            $('#category').multi({ non_selected_header: 'Categorías de retención disponibles',
+                selected_header: 'Categorías de retención que aplican'
+            });
+
+            $('#preservations').multi({ non_selected_header: 'Preservation notices disponibles',
+                selected_header: 'Preservation notices que aplican'
+            });
+        {% endif %}
+
+
+
+        $(document).on('submit','#form_item',function(e){
+            event.preventDefault();
+
+            if(!$('[name="categories[]').val()){
+                swal({
+                    title: "Atención",
+                    text: "Es obligatorio al menos una categoría de retención",
+                    type: "warning"
+                });
+                return false;
+            }
+
+            if(!$('[name="preservations[]').val()){
+                swal({
+                    title: "Atención",
+                    text: "Es obligatorio al menos una preservation notice",
+                    type: "warning"
+                });
+                return false;
+            }
+
+            if(!checkUnique($("#unique_number").val())){
+                swal({
+                    title: "Atención",
+                    text: "El identificador ya existe",
+                    type: "warning"
+                });
+                return false;
+            }
+
+            $("#action").val($(this).data("action"));
+            $("#modalSign").modal('show');
+
+        });
+
+        $(document).on('click', '#sign_record', function() {
+            if ($('#modal_comment').is(":visible") && !$('#modal_comment').val()){
+                swal({
+                    title: "Atención",
+                    text: "La descripcion es obligatoria",
+                    type: "warning"
+                });
+                return false;
+            }
+
+            if (!$("#modal_password").val()){
+                swal({
+                    title: "Atención",
+                    text: "La firma es obligatoria",
+                    type: "warning"
+                });
+                return false;
+            }
+
+            if (!gpassword_valid($("#modal_password").val())){
+                swal({
+                    title: "Atención",
+                    text: "La firma no es correcta",
+                    type: "warning"
+                });
+                return false;
+            }
+            $('textarea[name="comment"]').val($("#modal_comment").val());
+            $('input[name="signature"]').val($("#modal_password").val());
+
+            $('#form_item').submit();
+        });
+
+        $(document).on('change', '[name="filetype"]', function() {
+            $("#location").val("");
+            $("#location-info").val("");
+            $("#link").val("");
+            const selectedOption = parseInt($(this).val());
+            switch(selectedOption){
+                case 1:
+                    $("#physical_type").show();
+                    $("#digital_type").hide();
+                    $("#location").prop('required',true);
+                    $("#location-info").prop('required',true);
+                    $("#link").prop('required',false);
+                    break;
+                case 2:
+                    $("#physical_type").hide();
+                    $("#digital_type").show();
+                    $("#location").prop('required',false);
+                    $("#location-info").prop('required',false);
+                    $("#link").prop('required',true);
+                    break;
+                default: break;
+            }
+
+            clear_workflow();
+        });
+
+    });
+
+    window.addEventListener('load', function () {
+        let selectedDeviceId;
+        const codeReader = new ZXing.BrowserMultiFormatReader();
+        codeReader.getVideoInputDevices()
+            .then((videoInputDevices) => {
+                if (videoInputDevices.length > 0) {
+                    const sourceSelect = document.getElementById('sourceSelect');
+                    selectedDeviceId = videoInputDevices[0].deviceId;
+                    videoInputDevices.forEach((element) => {
+                        const sourceOption = document.createElement('option');
+                        sourceOption.text = element.label;
+                        if(element.label.indexOf('back')){
+                            sourceOption.setAttribute('selected','selected');
+                            selectedDeviceId = element.deviceId;
+                        }
+                        sourceOption.value = element.deviceId;
+                        sourceSelect.appendChild(sourceOption);
+                    })
+
+                    sourceSelect.onchange = () => {
+                        selectedDeviceId = sourceSelect.value;
+                        startCapture(codeReader,selectedDeviceId);
+                    };
+
+                    const sourceSelectPanel = document.getElementById('sourceSelectPanel');
+                    sourceSelectPanel.style.display = 'block';
+
+                }
+                document.getElementById('btn-camera-clean').addEventListener('click', () => {
+                    if(selectedDeviceId != 'undefined') {
+                        activeCamera();
+                        startCapture(codeReader, selectedDeviceId);
+                    }else{
+                        toastr.error(
+                            "No se ha detectado ninguna cámara",
+                            'Error',
+                            {preventDuplicates:true}
+                        );
+                    }
+                })
+                document.getElementById('btn-scanner-clean').addEventListener('click', () => {
+                    activeScanner();
+                })
+                document.getElementById('btn-scanner-send').addEventListener('click', () => {
+                    get_az(document.getElementById('input-scan').value);
+                })
+            })
+            .catch((err) => {
+                console.error(err);
+            })
+    })
+
+    function activeCamera(){
+        $('.scan-group').hide();
+        $('.camera-group').show();
+        $("#location-info").val("");
+        $("#location").val("");
+        $('#current_location').hide();
+    }
+
+    function activeScanner(){
+        $('.scan-group').show();
+        $('.camera-group').hide();
+        $("#location-info").val("");
+        $("#location").val("");
+        $("#input-scan").val("");
+        $("#input-scan").focus();
+        $('#current_location').hide();
+        if (typeof codeReader !== 'undefined') {
+            codeReader.reset();
+        }
+    }
+
+    function startCapture(codeReader, selectedDeviceId){
+        codeReader.reset()
+        codeReader.decodeFromVideoDevice(selectedDeviceId, 'video', (result, err) => {
+
+            if (result) {
+                get_az(result.text);
+            }
+            if (err && !(err instanceof ZXing.NotFoundException)) {
+                console.error(err)
+                toastr.error("El código de barras no es válido o no se ha leído correctamente", 'aviso');
+                startCapture(codeReader, selectedDeviceId);
+            }
+            
+        })
+        
+    }
+
+    function get_az(value){
+        $.ajax({
+            url: "{{ path('nononsense_archive_check_az') }}",
+            type: 'POST',
+            dataType: 'json',
+            async: false,
+            data: {az: value},
+            success: function(response) {
+                if(response.check){
+                    $("#location-info").val(value);
+                    $("#location").val(response.az);
+                    $("#current_location").hide();
+                    $('.scan-group').hide();
+                    $('.camera-group').hide();
+                    toastr.success(
+                        "El código de barras se ha leído correctamente",
+                        'Bien',
+                        {preventDuplicates:true}
+                    );
+                }
+                else{
+                    toastr.error("El código de barras no es válido o no se ha leído correctamente", 'aviso');
+                }
+            },
+            error: function() {
+                toastr.error("El código de barras no es válido o no se ha leído correctamente", 'aviso');
+            }
+        });
+    }
+
+    function checkUnique(value){
+        var result;
+        url="{{ path('nononsense_archive_check_unique',{'id': record.id is not null ? record.id : 0}) }}";
+        $.ajax({
+            type: 'GET',
+            dataType: "json",
+            url: url,
+            async: false,
+            data: {code: value},
+            success: function(data){
+                console.log(data);
+                if(data.check){
+                    result=true;
+                }
+                else{
+                    result=false;
+                }
+
+            },
+            error: function (request, status, error) {
+                result=false;
+            }
+        });
+
+        return result;
+    }
+
+    </script>
+{% endblock %}
+
+

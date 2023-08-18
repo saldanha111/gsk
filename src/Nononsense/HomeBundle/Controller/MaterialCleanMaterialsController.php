@@ -150,9 +150,9 @@ class MaterialCleanMaterialsController extends Controller
                     $material->setCenter($center);
                     $material->setName($request->get("name"));
                     $material->setotherName(($request->get("otherName")) == 1);
-                    $material->setAdditionalInfo($request->get('additionalInfo'));
+                    $material->setAdditionalInfo(($request->get('additionalInfo')) == 1);
                 }
-                $material->setActive($request->get("active"));
+                $material->setActive(($request->get("active")) == 1);
                 $material->setExpirationDays($request->get("expiration_days"));
                 $material->setExpirationHours($request->get("expiration_hours"));
                 if ($error == 0) {

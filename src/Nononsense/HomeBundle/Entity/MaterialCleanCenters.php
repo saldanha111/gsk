@@ -191,7 +191,7 @@ class MaterialCleanCenters
      * @param bool $active
      * @return MaterialCleanCenters
      */
-    public function setActive(bool $active): MaterialCleanCenters
+    public function setActive(?bool $active): MaterialCleanCenters
     {
         $this->active = ($active)?: false;
         return $this;
@@ -332,7 +332,7 @@ class MaterialCleanCenters
      * @param bool $validated
      * @return MaterialCleanCenters
      */
-    public function setValidated(bool $validated): MaterialCleanCenters
+    public function setValidated(?bool $validated): MaterialCleanCenters
     {
         $this->validated = ($validated)?: false;
         return $this;

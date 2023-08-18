@@ -1,0 +1,322 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}Docoaro - GSK |  AZ / {{az.id is not null ? 'Editar' : 'Crear'}} AZ{% endblock %}
+{% block head %}
+    <link rel="stylesheet" href="{{ asset('/js/plugins/sweetalert/sweetalert.min.css') }}">
+    <link rel="stylesheet" href="/plugins/dual_listbox/dist/multi.min.css">
+    {{ parent() }}
+{% endblock %}
+{% block main_title %} AZ / {{az.id is not null ? 'Editar' : 'Crear'}} AZ{% endblock %}
+
+{% block content %}
+
+    <div class="wrapper wrapper-content animated fadeInUp">
+        {% for flashMessage in app.session.flashbag.get('error') %}
+            <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                {{ flashMessage }}
+            </div>
+            <br>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('message') %}
+            <div class="alert alert-success alert-dismissable" style="margin: 10px 16px 0 16px">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                {{ flashMessage }}
+            </div>
+            <br>
+        {% endfor %}
+        <form class="form-horizontal" id="form_item" method="POST" action="{{ path('nononsense_archive_az_edit',{'code': code is not null ? code : 0}) }}">
+            <div class="row">
+                <div class="col-lg-10 col-lg-offset-1">
+                    <div class="row">
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label"></label>
+                            <div class="col-sm-8 col-md-4 col-lg-3">
+                                <img class="img-responsive" src="{{ path('nononsense__archive_code_view',{'code': code is not null ? code : 0}) }}">
+                            </div>
+
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">Ubicación</label>
+                            <div class="col-sm-5">
+                                <input type="text" id="location-info" class="form-control" value="{{az.location is not null ? az.location.id : ''}}" readonly="readonly" required="required">
+                                <input type="hidden" name="location" id="location" class="form-control" value="{{az.location is not null ? az.location.id : ''}}" required="required">
+                            </div>
+                            <div class="col-md-2 col-sm-4 col-xs-6">
+                                <button id="btn-camera-clean" type="button" class="btn btn-primary">Escanear con cámara</button>
+                            </div>
+                            <div class="col-md-2 col-sm-4 col-xs-6">
+                                <button id="btn-scanner-clean" type="button" class="btn btn-primary">Escanear con scanner</button>
+                            </div>
+                        </div>
+                        <div class="form-group camera-group" style="display:none;">
+                            <label class="col-sm-1 control-label"></label>
+                            <div class="col-lg-2 col-md-4 col-sm-11">
+                                <video id="video" style="border: 1px solid gray;"></video>
+                            </div>
+                            <div class="col-sm-11 col-sm-offset-1">
+                                <div id="sourceSelectPanel" style="display:none">
+                                    <label for="sourceSelect">Selecciona la Cámara:</label>
+                                    <select id="sourceSelect" class="form-control" style="max-width:400px"></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group scan-group" style="display:none;">
+                            <label class="col-sm-1 control-label"></label>
+                            <div class="col-lg-3 col-md-4 col-sm-11">
+                                <input type="text" id="input-scan" class="form-control" value="">
+                            </div>
+                            <div class="col-sm-3 col-sm-offset-1">
+                                <button id="btn-scanner-send" type="button" class="btn btn-primary">Obtener localización</button>
+                            </div>
+                        </div>
+
+                        {% if az is defined and az is not empty and az.location is defined and az.location is not empty %}
+                            <div class="form-group" id="current_location">
+                                <label class="col-sm-1 control-label"></label>
+                                <div class="col-sm-11">
+                                    <div><b>Edificio:</b> {{az.location.building}}<br><b>Balda:</b> {{az.location.shelf}}<br><b>Pasillo:</b>{{az.location.passage}}<br><b>Armario:</b> {{az.location.cabinet}}<br><b>Otros:</b> {{az.location.others}}</div>
+                                </div>
+                            </div>
+                        {% endif %}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-11 col-sm-offset-1">
+                    <input type="submit" class="btn btn-primary submit-record" data-action="save" value="{{az.id is not null ? 'Editar' : 'Crear'}} AZ">
+                </div>
+            </div>
+
+
+            <div class="modal fade" tabindex="-1" role="dialog" id="modalSign">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Firmar</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+
+                        <div class="modal-body">
+                            <div class="row box-text-comment">
+                                <div class="col-lg-10 col-lg-offset-1">
+                                    <label for="description_workflow">Comentarios</label>
+                                    <br>
+                                    <div class="form-group">
+                                        <textarea class="form-control text-comment" name="comment" id="modal_comment" rows="10" cols="40"  style="width:100%" required="required"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-10 col-lg-offset-1">
+                                    <div id="signature-pad3" class="input-group">
+                                        <label for="firma">Introduzca su firma</label>
+                                        <br>
+                                        <input type="password" id="modal_password" class="form-control" required="required"><br>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <input type="button" class="btn btn-primary" id="sign_record" value="Firmar">
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <input type="hidden" name="signature">
+            <textarea name="comment" style="display: none"></textarea>
+            <input type="hidden" id="action" value="">
+        </form>
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/plugins/sweetalert/sweetalert.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/barcode-reader.min.js') }}"></script>
+    <script>
+
+    $( document ).ready(function() {
+        ActivateMenu('archive_az');
+        $('#side-menu').metisMenu();
+
+
+        $(document).on('submit','#form_item',function(e){
+            event.preventDefault();
+            if(!$("#location").val()){
+                swal({
+                    title: "Atención",
+                    text: "Debe escanear una localización",
+                    type: "warning"
+                });
+                return false;
+            }
+
+            $("#action").val($(this).data("action"));
+            $("#modalSign").modal('show');
+
+        });
+
+        $(document).on('click', '#sign_record', function() {
+            if ($('#modal_comment').is(":visible") && !$('#modal_comment').val()){
+                swal({
+                    title: "Atención",
+                    text: "La descripcion es obligatoria",
+                    type: "warning"
+                });
+                return false;
+            }
+
+            if (!$("#modal_password").val()){
+                swal({
+                    title: "Atención",
+                    text: "La firma es obligatoria",
+                    type: "warning"
+                });
+                return false;
+            }
+
+            if (!gpassword_valid($("#modal_password").val())){
+                swal({
+                    title: "Atención",
+                    text: "La firma no es correcta",
+                    type: "warning"
+                });
+                return false;
+            }
+            $('textarea[name="comment"]').val($("#modal_comment").val());
+            $('input[name="signature"]').val($("#modal_password").val());
+
+            $('#form_item').submit();
+        });
+
+    });
+
+    window.addEventListener('load', function () {
+        let selectedDeviceId;
+        const codeReader = new ZXing.BrowserMultiFormatReader();
+        codeReader.getVideoInputDevices()
+            .then((videoInputDevices) => {
+                if (videoInputDevices.length > 0) {
+                    const sourceSelect = document.getElementById('sourceSelect');
+                    selectedDeviceId = videoInputDevices[0].deviceId;
+                    videoInputDevices.forEach((element) => {
+                        const sourceOption = document.createElement('option');
+                        sourceOption.text = element.label;
+                        if(element.label.indexOf('back')){
+                            sourceOption.setAttribute('selected','selected');
+                            selectedDeviceId = element.deviceId;
+                        }
+                        sourceOption.value = element.deviceId;
+                        sourceSelect.appendChild(sourceOption);
+                    })
+
+                    sourceSelect.onchange = () => {
+                        selectedDeviceId = sourceSelect.value;
+                        startCapture(codeReader,selectedDeviceId);
+                    };
+
+                    const sourceSelectPanel = document.getElementById('sourceSelectPanel');
+                    sourceSelectPanel.style.display = 'block';
+
+                }
+                document.getElementById('btn-camera-clean').addEventListener('click', () => {
+                    if(selectedDeviceId != 'undefined') {
+                        activeCamera();
+                        startCapture(codeReader, selectedDeviceId);
+                    }else{
+                        toastr.error(
+                            "No se ha detectado ninguna cámara",
+                            'Error',
+                            {preventDuplicates:true}
+                        );
+                    }
+                })
+                document.getElementById('btn-scanner-clean').addEventListener('click', () => {
+                    activeScanner();
+                })
+                document.getElementById('btn-scanner-send').addEventListener('click', () => {
+                    search_location(document.getElementById('input-scan').value);
+                })
+            })
+            .catch((err) => {
+                console.error(err);
+            })
+    })
+
+    function activeCamera(){
+        $('.scan-group').hide();
+        $('.camera-group').show();
+        $("#location-info").val("");
+        $("#location").val("");
+        $('#current_location').hide();
+    }
+
+    function activeScanner(){
+        $('.scan-group').show();
+        $('.camera-group').hide();
+        $("#location-info").val("");
+        $("#location").val("");
+        $("#input-scan").val("");
+        $("#input-scan").focus();
+        $('#current_location').hide();
+        if (typeof codeReader !== 'undefined') {
+            codeReader.reset();
+        }
+    }
+
+    function startCapture(codeReader, selectedDeviceId){
+        codeReader.reset()
+        codeReader.decodeFromVideoDevice(selectedDeviceId, 'video', (result, err) => {
+
+            if (result) {
+                if(!search_location(result.text)){
+                    err=true;
+                }
+            }
+            if (err && !(err instanceof ZXing.NotFoundException)) {
+                console.error(err)
+                toastr.error("El código QR no es válido o no se ha leído correctamente", 'aviso');
+                startCapture(codeReader, selectedDeviceId);
+            }
+            
+        })
+        
+    }
+
+    function search_location(location){
+        return $.ajax({
+            url: location,
+            type: 'POST',
+            dataType: 'json',
+            async: false,
+            success: function(response) {
+                if(!response.type || response.type!="archive_location"){
+                    return true;
+                }
+                else{
+                    $("#location-info").val(JSON.stringify(response.location));
+                    $("#location").val(response.location.id);
+                    $("#current_location").hide();
+                    $('.scan-group').hide();
+                    $('.camera-group').hide();
+                    toastr.success(
+                        "El código de barras se ha leído correctamente",
+                        'Bien',
+                        {preventDuplicates:true}
+                    );
+                    return false;
+                }
+            },
+            error: function() {
+                return true;
+            }
+        });
+    }
+
+    </script>
+{% endblock %}
+
+

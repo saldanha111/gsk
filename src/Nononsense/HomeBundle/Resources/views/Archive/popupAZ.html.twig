@@ -1,0 +1,144 @@
+<div class="modal" id="popupAZ" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <h4>Escanee un código AZ existente vinculado o no en el sistema</h4>
+                <div class="form-group">
+                    <div class="col-md-2 col-sm-4 col-xs-6">
+                        <button id="btn-camera-clean-az" type="button" class="btn btn-primary">Escanear</button>
+                    </div>
+                    <div class="col-md-2 col-sm-4 col-xs-6">
+                        <button id="btn-scanner-clean-az" type="button" class="btn btn-primary">Escanear con scanner</button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group camera-groupAZ" style="display:none;">
+                        <div class="col-sm-12">
+                            <video id="videoAZ" style="border: 1px solid gray;"></video>
+                        </div>
+                        <div class="col-sm-12">
+                            <div id="sourceSelectPanel" style="display:none">
+                                <label for="sourceSelect">Selecciona la Cámara:</label>
+                                <select id="sourceSelect" class="form-control" style="width: 100%!important;"></select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group scan-groupAZ" style="display:none;">
+                        <div class="col-lg-8 col-md-6 col-sm-12">
+                            <input type="text" id="input-scanAZ" class="form-control" value="">
+                        </div>
+                        <div class="col-lg-4 col-md-6 col-sm-12">
+                            <button id="btn-scanner-send-az" type="button" class="btn btn-primary">Obtener localización</button>
+                        </div>
+                    </div>
+                </div>
+                <br><br>
+                <h4>Cree un código AZ nuevo</h4>
+                <a href="{{ path('nononsense_archive_az_edit', {'code': 0}) }}" class="btn btn-primary">Nuevo</a>
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script type="text/javascript" src="{{ asset('js/barcode-reader.min.js') }}"></script>
+<script>
+
+    $( document ).ready(function() {
+
+    });
+
+    window.addEventListener('load', function () {
+        let selectedDeviceIdAZ;
+        const codeReaderAZ = new ZXing.BrowserMultiFormatReader();
+        codeReaderAZ.getVideoInputDevices()
+            .then((videoInputDevices) => {
+                if (videoInputDevices.length > 0) {
+                    const sourceSelect = document.getElementById('sourceSelect');
+                    selectedDeviceIdAZ = videoInputDevices[0].deviceId;
+                    videoInputDevices.forEach((element) => {
+                        const sourceOption = document.createElement('option');
+                        sourceOption.text = element.label;
+                        if(element.label.indexOf('back')){
+                            sourceOption.setAttribute('selected','selected');
+                            selectedDeviceIdAZ = element.deviceId;
+                        }
+                        sourceOption.value = element.deviceId;
+                        sourceSelect.appendChild(sourceOption);
+                    })
+
+                    sourceSelect.onchange = () => {
+                        selectedDeviceIdAZ = sourceSelect.value;
+                        startCaptureAZ(codeReaderAZ,selectedDeviceIdAZ);
+                    };
+
+                    const sourceSelectPanel = document.getElementById('sourceSelectPanel');
+                    sourceSelectPanel.style.display = 'block';
+
+                }
+                document.getElementById('btn-camera-clean-az').addEventListener('click', () => {
+                    if(selectedDeviceIdAZ != 'undefined') {
+                        activeCameraAZ();
+                        startCaptureAZ(codeReaderAZ, selectedDeviceIdAZ);
+                    }else{
+                        toastr.error(
+                            "No se ha detectado ninguna cámara",
+                            'Error',
+                            {preventDuplicates:true}
+                        );
+                    }
+                })
+                document.getElementById('btn-scanner-clean-az').addEventListener('click', () => {
+                    activeScannerAZ();
+                })
+                document.getElementById('btn-scanner-send-az').addEventListener('click', () => {
+                    view_barcodeAZ(document.getElementById('input-scanAZ').value)
+                })
+            })
+            .catch((err) => {
+                console.error(err);
+            })
+    })
+
+    function activeCameraAZ(){
+        $('.scan-groupAZ').hide();
+        $('.camera-groupAZ').show();
+    }
+
+    function activeScannerAZ(){
+        $('.scan-groupAZ').show();
+        $('.camera-groupAZ').hide();
+        $("#input-scanAZ").val("");
+        $("#input-scanAZ").focus();
+    }
+
+    function startCaptureAZ(codeReaderAZ, selectedDeviceIdAZ){
+        codeReaderAZ.reset()
+        codeReaderAZ.decodeFromVideoDevice(selectedDeviceIdAZ, 'videoAZ', (result, err) => {
+
+            
+            if (result) {
+                $('.camera-groupAZ').hide();
+                startCaptureAZ(codeReaderAZ, selectedDeviceIdAZ);
+                view_barcodeAZ(result.text)
+            }
+            if (err && !(err instanceof ZXing.NotFoundException)) {
+                console.error(err)
+                toastr.error("El código de barras no es válido o no se ha leído correctamente", 'aviso');
+                startCaptureAZ(codeReaderAZ, selectedDeviceIdAZ);
+            }
+            
+        })
+        
+    }
+
+    function view_barcodeAZ(code){
+        url="{{ path('nononsense_archive_az_edit', {'code': 'value_id'}) }}";
+        url=url.replace("value_id", code);
+        location.href = url;
+    }
+</script>
+{% endblock %}

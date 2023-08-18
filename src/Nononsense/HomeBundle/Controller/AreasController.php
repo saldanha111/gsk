@@ -251,8 +251,8 @@ class AreasController extends Controller
 
         $this->get('session')->getFlashBag()->add(
             'addedUsers',
-            'Los nuevos miembros han sido añadidos.'
-        );
+            'The new members have been added.'
+            );
 
         return $this->redirect($this->generateUrl('nononsense_areas_edit', array('id' => $areaId)));
     }

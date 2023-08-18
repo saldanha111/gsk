@@ -100,7 +100,7 @@ class MaterialCleanCentersController extends Controller
                     $center->setName($request->get("name"));
                 }
                 $center->setDescription($request->get("description"));
-                $center->setActive($request->get("active"));
+                $center->setActive(($request->get("active")) == 1);
 
                 $error = 0;
                 $centerName = $em->getRepository(MaterialCleanCenters::class)->findOneBy(

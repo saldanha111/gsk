@@ -139,6 +139,28 @@ class MaterialCleanCleans
      */
     protected $reviewInformation;
 
+
+    /**
+     * @ORM\Column(name="cancel_date", type="datetime", nullable=true)
+     */
+    protected $cancelDate;
+
+    /**
+     * @ORM\Column(name="cancel_signature", type="text", nullable=true)
+     */
+    protected $cancelSignature;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="materialCancel")
+     * @ORM\JoinColumn(name="cancel_user", referencedColumnName="id", nullable=true)
+     */
+    protected $cancelUser;
+
+    /**
+     * @ORM\Column(name="cancel_information", type="text",  nullable=true)
+     */
+    protected $cancelInformation;
+
     /**
      * @ORM\Column(name="status", type="integer",  nullable=false, options={"default" : 1})
      */
@@ -658,5 +680,100 @@ class MaterialCleanCleans
     public function getAdditionalInfo()
     {
         return $this->additionalInfo;
+    }
+
+    
+
+
+    /**
+     * Set cancelDate
+     *
+     * @param \DateTime $cancelDate
+     * @return MaterialCleanCleans
+     */
+    public function setCancelDate($cancelDate)
+    {
+        $this->cancelDate = $cancelDate;
+
+        return $this;
+    }
+
+    /**
+     * Get cancelDate
+     *
+     * @return \DateTime 
+     */
+    public function getCancelDate()
+    {
+        return $this->cancelDate;
+    }
+
+    /**
+     * Set cancelSignature
+     *
+     * @param string $cancelSignature
+     * @return MaterialCleanCleans
+     */
+    public function setCancelSignature($cancelSignature)
+    {
+        $this->cancelSignature = $cancelSignature;
+
+        return $this;
+    }
+
+    /**
+     * Get cancelSignature
+     *
+     * @return string 
+     */
+    public function getCancelSignature()
+    {
+        return $this->cancelSignature;
+    }
+
+    /**
+     * Set cancelInformation
+     *
+     * @param string $cancelInformation
+     * @return MaterialCleanCleans
+     */
+    public function setCancelInformation($cancelInformation)
+    {
+        $this->cancelInformation = $cancelInformation;
+
+        return $this;
+    }
+
+    /**
+     * Get cancelInformation
+     *
+     * @return string 
+     */
+    public function getCancelInformation()
+    {
+        return $this->cancelInformation;
+    }
+
+    /**
+     * Set cancelUser
+     *
+     * @param \Nononsense\UserBundle\Entity\Users $cancelUser
+     * @return MaterialCleanCleans
+     */
+    public function setCancelUser(\Nononsense\UserBundle\Entity\Users $cancelUser = null)
+    {
+        $this->cancelUser = $cancelUser;
+
+        return $this;
+    }
+
+    /**
+     * Get cancelUser
+     *
+     * @return \Nononsense\UserBundle\Entity\Users 
+     */
+    public function getCancelUser()
+    {
+        return $this->cancelUser;
     }
 }

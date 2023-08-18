@@ -11,6 +11,11 @@ use Nononsense\HomeBundle\Entity\Tokens;
 use Nononsense\HomeBundle\Entity\CVRecordsHistory;
 use Nononsense\HomeBundle\Entity\TMCumplimentations;
 use Nononsense\UserBundle\Entity\Users;
+use Nononsense\HomeBundle\Entity\ArchiveCategories;
+use Nononsense\HomeBundle\Entity\ArchivePreservations;
+use Nononsense\HomeBundle\Entity\ArchiveTypes;
+use Nononsense\HomeBundle\Entity\ArchiveActions;
+use Nononsense\HomeBundle\Entity\ArchiveSignatures;
 use Nononsense\HomeBundle\Entity\RetentionCategories;
 use Nononsense\HomeBundle\Entity\RetentionActions;
 use Nononsense\HomeBundle\Entity\CVRecords;
@@ -99,6 +104,65 @@ class Utilities{
         return false;
     }
 
+    public function saveLogArchive(Users $user, int $action, string $comment, string $type, int $id, $file=NULL, $patern=NULL)
+    {
+        $action=$this->em->getRepository('NononsenseHomeBundle:ArchiveActions')->findOneBy(array('id' => $action));
+
+        $signatureLog = new ArchiveSignatures();
+        $signatureLog->setArchiveAction($action)
+            ->setDescription($comment)
+            ->setUserEntiy($user);
+
+        switch($type){
+            case "category":
+                $category=$this->em->getRepository('NononsenseHomeBundle:ArchiveCategories')->findOneBy(array('id' => $id));
+                $signatureLog->setArchiveCategory($category);
+                $records = $this->em->getRepository('NononsenseHomeBundle:ArchiveRecords')->list("list",array("categoryIn"=>$id));
+                foreach($records as $record){
+                    $record=$this->em->getRepository('NononsenseHomeBundle:ArchiveRecords')->findOneBy(array('id' => $record["id"]));
+                    $signatureLog->addRecord($record);
+                }
+                break;
+            case "type":
+                $type=$this->em->getRepository('NononsenseHomeBundle:ArchiveTypes')->findOneBy(array('id' => $id));
+                $signatureLog->setArchiveType($type);
+                break;
+            case "preservation":
+                $preservation=$this->em->getRepository('NononsenseHomeBundle:ArchivePreservations')->findOneBy(array('id' => $id));
+                $signatureLog->setArchivePreservation($preservation);
+                $records = $this->em->getRepository('NononsenseHomeBundle:ArchiveRecords')->list("list",array("preservationIn"=>$id));
+                foreach($records as $record){
+                    $record=$this->em->getRepository('NononsenseHomeBundle:ArchiveRecords')->findOneBy(array('id' => $record["id"]));
+                    $signatureLog->addRecord($record);
+                }
+                break;
+            case "record":
+                $record=$this->em->getRepository('NononsenseHomeBundle:ArchiveRecords')->findOneBy(array('id' => $id));
+                $signatureLog->setRecord($record);
+                break;
+            case "import":
+                $record=$this->em->getRepository('NononsenseHomeBundle:ArchiveRecords')->findOneBy(array('id' => $id));
+                $signatureLog->setRecord($record);
+                break;
+            case "az":
+                $az=$this->em->getRepository('NononsenseHomeBundle:ArchiveAZ')->findOneBy(array('id' => $id));
+                $signatureLog->setArchiveAz($az);
+                break;
+        }
+        $signatureLog->setModified(new \DateTime());
+        if($file){
+            $signatureLog->setAttachment($file["name"]);
+        }
+
+        if($patern){
+            $patern=$this->em->getRepository('NononsenseHomeBundle:ArchiveSignatures')->findOneBy(array('id' => $patern));
+            $signatureLog->setPatern($patern);
+        }
+        $this->em->persist($signatureLog);
+        $this->em->flush();
+        return true;
+    }
+    
     public function checkModelNotification($template,$state)
     {
         $models=$this->em->getRepository('NononsenseNotificationsBundle:NotificationsModels')->findBy(array("templateId" => $template, "isRemoved" => FALSE, "state" => $state));
@@ -118,7 +182,6 @@ class Utilities{
                 $this->sendNotification($email, "", "", "", $model->getSubject(), $model->getBody());
             }
         }
-
     }
 
     public function sendNotification($mailTo, $link, $logo, $accion, $subject, $message, $useTemplate = true)

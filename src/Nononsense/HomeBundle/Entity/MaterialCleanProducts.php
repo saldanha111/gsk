@@ -187,7 +187,7 @@ class MaterialCleanProducts
      * @param bool $active
      * @return MaterialCleanProducts
      */
-    public function setActive(bool $active): MaterialCleanProducts
+    public function setActive(?bool $active): MaterialCleanProducts
     {
         $this->active = ($active)?: false;
         return $this;
@@ -231,7 +231,7 @@ class MaterialCleanProducts
      * @param bool $validated
      * @return MaterialCleanProducts
      */
-    public function setValidated(bool $validated): MaterialCleanProducts
+    public function setValidated(?bool $validated): MaterialCleanProducts
     {
         $this->validated = ($validated)?: false;
         return $this;

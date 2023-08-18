@@ -306,6 +306,11 @@ class Users implements AdvancedUserInterface, \Serializable
     protected $materialReview;
 
     /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\MaterialCleanCleans", mappedBy="cancelUser")
+     */
+    protected $materialCancel;
+
+    /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\ProductsInputs", mappedBy="user")
      */
     protected $productsInput;
@@ -351,6 +356,17 @@ class Users implements AdvancedUserInterface, \Serializable
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\Logs", mappedBy="user")
      */
     private $logs;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\ArchiveSignatures", mappedBy="userEntiy")
+     */
+    protected $archiveSignatures;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\ArchiveRecords", mappedBy="creator")
+     */
+    protected $archiveRecords;
+
 
     /**
      * Users constructor.
@@ -1825,7 +1841,6 @@ class Users implements AdvancedUserInterface, \Serializable
     }
 
     /**
-<<<<<<< HEAD
      * Add cvWorkflows
      *
      * @param \Nononsense\HomeBundle\Entity\CVWorkflow $cvWorkflows
@@ -1834,7 +1849,9 @@ class Users implements AdvancedUserInterface, \Serializable
     public function addCvWorkflow(\Nononsense\HomeBundle\Entity\CVWorkflow $cvWorkflows)
     {
         $this->cvWorkflows[] = $cvWorkflows;
-=======
+    }
+
+    /**
      * Set activeDirectory
      *
      * @param boolean $activeDirectory
@@ -1843,13 +1860,10 @@ class Users implements AdvancedUserInterface, \Serializable
     public function setActiveDirectory($activeDirectory)
     {
         $this->activeDirectory = $activeDirectory;
->>>>>>> hide_options
-
         return $this;
     }
 
     /**
-<<<<<<< HEAD
      * Remove cvWorkflows
      *
      * @param \Nononsense\HomeBundle\Entity\CVWorkflow $cvWorkflows
@@ -1878,7 +1892,27 @@ class Users implements AdvancedUserInterface, \Serializable
     public function addCvSignature(\Nononsense\HomeBundle\Entity\CVSignatures $cvSignatures)
     {
         $this->cvSignatures[] = $cvSignatures;
+    }
 
+    /**
+     * Get activeDirectory
+     *
+     * @return boolean 
+     */
+    public function getActiveDirectory()
+    {
+        return $this->activeDirectory;
+    }
+
+    /**
+     * Add logs
+     *
+     * @param \Nononsense\HomeBundle\Entity\Logs $logs
+     * @return Users
+     */
+    public function addLog(\Nononsense\HomeBundle\Entity\Logs $logs)
+    {
+        $this->logs[] = $logs;
         return $this;
     }
 
@@ -2230,14 +2264,124 @@ class Users implements AdvancedUserInterface, \Serializable
     public function getGroupsSignatures()
     {
         return $this->groupsSignatures;
-=======
-     * Get activeDirectory
+    }
+
+    /**
+     * Remove logs
      *
-     * @return boolean 
+     * @param \Nononsense\HomeBundle\Entity\Logs $logs
      */
-    public function getActiveDirectory()
+    public function removeLog(\Nononsense\HomeBundle\Entity\Logs $logs)
     {
-        return $this->activeDirectory;
->>>>>>> hide_options
+        $this->logs->removeElement($logs);
+    }
+
+    /**
+     * Get logs
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getLogs()
+    {
+        return $this->logs;
+    }
+
+    /**
+     * Add materialCancel
+     *
+     * @param \Nononsense\HomeBundle\Entity\MaterialCleanCleans $materialCancel
+     * @return Users
+     */
+    public function addMaterialCancel(\Nononsense\HomeBundle\Entity\MaterialCleanCleans $materialCancel)
+    {
+        $this->materialCancel[] = $materialCancel;
+
+        return $this;
+    }
+
+    /**
+     * Remove materialCancel
+     *
+     * @param \Nononsense\HomeBundle\Entity\MaterialCleanCleans $materialCancel
+     */
+    public function removeMaterialCancel(\Nononsense\HomeBundle\Entity\MaterialCleanCleans $materialCancel)
+    {
+        $this->materialCancel->removeElement($materialCancel);
+    }
+
+    /**
+     * Get materialCancel
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getMaterialCancel()
+    {
+        return $this->materialCancel;
+    }
+
+    /**
+     * Add archiveSignatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\ArchiveSignatures $archiveSignatures
+     * @return Users
+     */
+    public function addArchiveSignature(\Nononsense\HomeBundle\Entity\ArchiveSignatures $archiveSignatures)
+    {
+        $this->archiveSignatures[] = $archiveSignatures;
+
+        return $this;
+    }
+
+    /**
+     * Remove archiveSignatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\ArchiveSignatures $archiveSignatures
+     */
+    public function removeArchiveSignature(\Nononsense\HomeBundle\Entity\ArchiveSignatures $archiveSignatures)
+    {
+        $this->archiveSignatures->removeElement($archiveSignatures);
+    }
+
+    /**
+     * Get archiveSignatures
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getArchiveSignatures()
+    {
+        return $this->archiveSignatures;
+    }
+
+    /**
+     * Add archiveRecords
+     *
+     * @param \Nononsense\HomeBundle\Entity\ArchiveRecords $archiveRecords
+     * @return Users
+     */
+    public function addArchiveRecord(\Nononsense\HomeBundle\Entity\ArchiveRecords $archiveRecords)
+    {
+        $this->archiveRecords[] = $archiveRecords;
+
+        return $this;
+    }
+
+    /**
+     * Remove archiveRecords
+     *
+     * @param \Nononsense\HomeBundle\Entity\ArchiveRecords $archiveRecords
+     */
+    public function removeArchiveRecord(\Nononsense\HomeBundle\Entity\ArchiveRecords $archiveRecords)
+    {
+        $this->archiveRecords->removeElement($archiveRecords);
+    }
+
+    /**
+     * Get archiveRecords
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getArchiveRecords()
+    {
+        return $this->archiveRecords;
     }
 }

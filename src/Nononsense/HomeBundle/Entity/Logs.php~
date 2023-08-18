@@ -200,4 +200,27 @@ class Logs
     {
         return $this->user;
     }
+
+    /**
+     * Set ip
+     *
+     * @param string $ip
+     * @return Logs
+     */
+    public function setIp($ip)
+    {
+        $this->ip = $ip;
+
+        return $this;
+    }
+
+    /**
+     * Get ip
+     *
+     * @return string 
+     */
+    public function getIp()
+    {
+        return $this->ip;
+    }
 }

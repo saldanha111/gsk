@@ -163,4 +163,27 @@ class MaterialCleanDepartments
         return $this->center;
     }
 
+
+    /**
+     * Add center
+     *
+     * @param \Nononsense\HomeBundle\Entity\MaterialCleanCenters $center
+     * @return MaterialCleanDepartments
+     */
+    public function addCenter(\Nononsense\HomeBundle\Entity\MaterialCleanCenters $center)
+    {
+        $this->center[] = $center;
+
+        return $this;
+    }
+
+    /**
+     * Remove center
+     *
+     * @param \Nononsense\HomeBundle\Entity\MaterialCleanCenters $center
+     */
+    public function removeCenter(\Nononsense\HomeBundle\Entity\MaterialCleanCenters $center)
+    {
+        $this->center->removeElement($center);
+    }
 }

@@ -1,0 +1,140 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}Docoaro - GSK | Audittrail archive {% endblock %}
+{% block head %}
+{{ parent() }}
+<link rel="stylesheet" href="/css/plugins/datapicker/datepicker3.css">
+{% endblock %}
+{% block main_title %} Audittrail archive{% endblock %}
+{% block content %}
+
+<div class="wrapper wrapper-content">
+    <div class="row">
+        <div class="col-sm-12">
+            <div>
+                <div class="row">
+                    <form class="form-horizontal" id="form_item" action="{{ path('nononsense_archive_log')}}" method="GET">
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label item_filter">ID</label>
+                            <div class="col-sm-1 item_filter">
+                                <input type="number" name="relational" class="form-control" value="{{filters.relational is defined ? filters.relational : ''}}">
+                            </div>
+                            <label class="col-sm-1 control-label item_filter">Usuario</label>
+                            <div class="col-sm-2 item_filter">
+                                <input type="text" name="user" class="form-control" value="{{filters.user is defined ? filters.user : ''}}">
+                            </div>
+                            <label class="col-sm-1 control-label item_filter">Tipo</label>
+                            <div class="col-sm-2 item_filter">
+                                <select class="form-control" name="type" style="width: 100%;">
+                                    <option value=""></option>
+                                    <option value="preservation" {{filters.type is defined and filters.type=="preservation" ? 'selected="selected"'}}>Preservation notices</option>
+                                    <option value="record" {{filters.type is defined and filters.type=="record" ? 'selected="selected"'}}>Registros</option>
+                                    <option value="category" {{filters.type is defined and filters.type=="category" ? 'selected="selected"'}}>Categoría</option>
+                                    <option value="type" {{filters.type is defined and filters.type=="type" ? 'selected="selected"'}}>Tipo</option>
+                                    <option value="az" {{filters.type is defined and filters.type=="type" ? 'selected="selected"'}}>AZ</option>
+                                </select>
+                            </div>
+                            <label class="col-sm-1 control-label">Acción</label>
+                            <div class="col-sm-2 item_filter">
+                                <select class="form-control" name="action" style="width: 100%;">
+                                    <option value=""></option>
+                                    {% for action in actions %}
+                                        <option value="{{action.id}}" {{filters.action is defined and filters.action==action.id ? 'selected="selected"'}}>{{action.name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-sm-1 item_filter">
+                                <button type="submit" class="btn btn-primary pull-right">Filtrar</button>
+                            </div>
+                        </div>
+                        <input type="hidden" name="id" value="{{filters.id is defined ? filters.id : ''}}">
+                    </form>
+                </div>
+                <div class="row">
+                    <table id="inProcessParcial" class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Tipo</th>
+                            <th>ID</th>
+                            <th>Ácción</th>
+                            <th>Usuario</th>
+                            <th>Comentario</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        {% if items is defined %}
+                            {% for item in items %}
+                            <tr>
+                                <td>{{ item.modified is defined and item.modified is not empty ? item.modified|date("d/m/Y H:i:s")|gskdate : '' }}</td>
+                                <td>
+                                    {% if item.preservation is not empty %}
+                                        Preservation notice
+                                    {% elseif item.record is not empty %}
+                                        Registro
+                                    {% elseif item.type is not empty %}
+                                        Tipo
+                                    {% elseif item.az is not empty %}
+                                        Az
+                                    {% else %} 
+                                        Categoría
+                                    {% endif %} 
+                                </td>
+                                <td>
+                                    {% if item.preservation is not empty %}
+                                        {{ item.preservation }}
+                                    {% elseif item.record is not empty %}
+                                        {{ item.record }}
+                                    {% elseif item.type is not empty %}
+                                        {{ item.type }}
+                                    {% elseif item.az is not empty %}
+                                        {{ item.az }}
+                                    {% else %} 
+                                        {{ item.category }}
+                                    {% endif %} 
+                                </td>
+                                <td>{{item.action}}</td>
+                                <td>{{item.user}}</td>
+                                <td>{{item.description}}</td>
+                                <td>
+                                    {% if (item.preservation is not empty or item.category is not empty) and item.action!="Crear" %}
+                                        <a href="{{path('nononsense_archive_records')}}?signature={{item.id}}" class="btn btn-xs btn-primary">
+                                            <i class="fa fa-eye" aria-hidden="true"></i><span> Ver registros afectados</span>
+                                        </a>
+                                    {% endif %}
+
+                                    {% if item.attachment is defined and item.attachment is not empty %}
+                                        <a href="{{path('nononsense_archive_log_certification', {'id' : item.id})}}" target="_blank" class="btn btn-xs btn-primary">
+                                            <i class="fa fa-file" aria-hidden="true"></i><span> Documento certificación</span>
+                                        </a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% endif %}
+                    </table>
+
+                    {% if count==0 %}
+                        <br><b>No se han encontrado datos disponibles</b>
+                    {% endif %}
+                    {% if pagination is defined and pagination.needed %}
+                        {% include '::pagination2.html.twig' %}
+                    {% endif %}
+                    <a href="{{pagination.url}}{{pagination.character}}export_excel=1" target="_blank" class="btn btn-primary pull-right"><i class="fa fa-file-excel-o" aria-hidden="true"></i> Excel</a> 
+                    <a href="{{pagination.url}}{{pagination.character}}export_pdf=1" target="_blank" class="btn btn-primary pull-right" style="margin-right:1px"><i class="fa fa-file-pdf-o" aria-hidden="true"></i> PDF</a> 
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+{{ parent() }}
+<script>
+  $(function () {
+
+    ActivateMenu('archive_logs');
+    $('#side-menu').metisMenu();
+  });
+</script>
+{% endblock %}
+                        
