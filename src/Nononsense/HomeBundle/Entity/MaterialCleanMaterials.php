@@ -239,7 +239,7 @@ class MaterialCleanMaterials
      * @param bool $active
      * @return MaterialCleanMaterials
      */
-    public function setActive(bool $active): MaterialCleanMaterials
+    public function setActive(?bool $active): MaterialCleanMaterials
     {
         $this->active = ($active)?: false;
         return $this;
@@ -369,9 +369,9 @@ class MaterialCleanMaterials
      * @param bool $otherName
      * @return MaterialCleanMaterials
      */
-    public function setOtherName(bool $otherName): MaterialCleanMaterials
+    public function setOtherName(?bool $otherName): MaterialCleanMaterials
     {
-        $this->otherName = $otherName;
+        $this->otherName = ($otherName)?: false;
         return $this;
     }
 
@@ -413,7 +413,7 @@ class MaterialCleanMaterials
      * @param bool $validated
      * @return MaterialCleanMaterials
      */
-    public function setValidated(bool $validated): MaterialCleanMaterials
+    public function setValidated(?bool $validated): MaterialCleanMaterials
     {
         $this->validated = ($validated)?: false;
         return $this;

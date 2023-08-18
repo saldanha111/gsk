@@ -121,7 +121,7 @@ class MaterialCleanProductsController extends Controller
                     $product->setName($request->get("name"));
                 }
                 $product->setTagsNumber((int) $request->get("tags_number"));
-                $product->setActive($request->get("active"));
+                $product->setActive(($request->get("active")) == 1);
 
                 $error = 0;
                 $productName = $productRepository->findOneBy(['name' => $request->get("name")]);
