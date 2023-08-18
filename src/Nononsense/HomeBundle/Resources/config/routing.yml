@@ -1064,6 +1064,102 @@ nononsense_retention_log:
     methods:    [GET]
     defaults: { _controller: NononsenseHomeBundle:RetentionLogs:list}
 
+
+nononsense_archive_categories_list:
+    path: /archive-categories
+    defaults: { _controller: NononsenseHomeBundle:ArchiveCategories:list}
+
+nononsense_archive_categories_edit:
+    path: /archive-categories/{id}
+    defaults: { _controller: NononsenseHomeBundle:ArchiveCategories:edit}
+
+nononsense_archive_preservations_list:
+    path: /preservations-notices
+    defaults: { _controller: NononsenseHomeBundle:ArchivePreservationsNotices:list}
+
+nononsense_archive_preservations_edit:
+    path: /preservations-notices/{id}
+    defaults: { _controller: NononsenseHomeBundle:ArchivePreservationsNotices:edit}
+
+nononsense_archive_types_list:
+    path: /archive-types
+    defaults: { _controller: NononsenseHomeBundle:ArchiveTypes:list}
+
+nononsense_archive_types_edit:
+    path: /archive-types/{id}
+    defaults: { _controller: NononsenseHomeBundle:ArchiveTypes:edit}
+
+nononsense_archive_ubications_list:
+    path: /archive-ubications
+    defaults: { _controller: NononsenseHomeBundle:ArchiveUbications:list}
+
+nononsense_archive_ubications_edit:
+    path: /archive-ubications/{id}
+    defaults: { _controller: NononsenseHomeBundle:ArchiveUbications:edit}
+
+nononsense_archive_az_edit:
+    path: /az/{code}
+    defaults: { _controller: NononsenseHomeBundle:ArchiveAZ:edit}
+
+nononsense__archive_code_view:
+    path: /az/code/view/{code}
+    defaults: { _controller: NononsenseHomeBundle:ArchiveAZ:viewBarcode}
+
+nononsense_archive_view_qr:
+    path: /archive-ubications-view/{id}
+    defaults: { _controller: NononsenseHomeBundle:ArchiveUbications:viewQr}
+
+nononsense_archive_json_qr:
+    path: /archive-json/{id}
+    defaults: { _controller: NononsenseHomeBundle:ArchiveUbications:jsonQr}
+
+nononsense_archive_log:
+    path: /archive-logs/
+    methods:    [GET]
+    defaults: { _controller: NononsenseHomeBundle:ArchiveLogs:list}
+
+nononsense_archive_log_certification:
+    path: /archive-logs/certification/{id}
+    defaults: { _controller: NononsenseHomeBundle:ArchiveLogs:downloadCertification}
+
+nononsense_archive_records:
+    path: /archive-records/
+    methods:    [GET]
+    defaults: { _controller: NononsenseHomeBundle:ArchiveRecords:list}
+
+nononsense_archive_records_edit:
+    path: /archive-records/{id}
+    defaults: { _controller: NononsenseHomeBundle:ArchiveRecords:edit}
+
+nononsense_archive_check_az:
+    path: /check-az
+    defaults: { _controller: NononsenseHomeBundle:ArchiveAZ:checkAZ}
+
+nononsense_archive_check_unique:
+    path: /check-unique/{id}
+    defaults: { _controller: NononsenseHomeBundle:ArchiveRecords:checkUnique}
+
+nononsense_archive_records_update:
+    path: /archive-records/
+    methods:    [POST]
+    defaults: { _controller: NononsenseHomeBundle:ArchiveRecords:update}
+
+nononsense_archive_loan:
+    path: /archive-loan/
+    methods:    [GET]
+    defaults: { _controller: NononsenseHomeBundle:ArchiveLoan:list}
+
+nononsense_archive_load_update:
+    path: /archive-loan/
+    methods:    [POST]
+    defaults: { _controller: NononsenseHomeBundle:ArchiveLoan:update}
+
+nononsense_archive_records_import:
+    path: /archive-import/
+    methods:    [POST]
+    defaults: { _controller: NononsenseHomeBundle:ArchiveRecords:upload}
+
+#Crt
 nononsense_retention_update:
     path: /retentions/
     methods:    [POST]

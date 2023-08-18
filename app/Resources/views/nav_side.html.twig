@@ -298,6 +298,31 @@
             </li>
             {% endif %} 
 
+            
+            <li>
+                <a href="#">
+                    <i class="fa fa-archive" aria-hidden="true"></i>
+                    <span class="nav-label">{{'Archivo y retención'|trans}}</span>
+                    <span class="fa arrow"></span>
+                </a>
+                <ul class="nav nav-second-level">
+                    {% if 'archive_admin' in array_subsecciones %}
+                        <li id="archive_types"><a href="{{path('nononsense_archive_types_list')}}">{{'Tipos'|trans}}</a></li>
+                        <li id="archive_categories"><a href="{{path('nononsense_archive_categories_list')}}">{{'Categorías'|trans}}</a></li>
+                        <li id="archive_preservations"><a href="{{path('nononsense_archive_preservations_list')}}">{{'Preservations notices'|trans}}</a></li>
+                        <li id="archive_ubications"><a href="{{path('nononsense_archive_ubications_list')}}">{{'Ubicaciones'|trans}}</a></li>
+                        <li id="archive_az"><a href="#" data-toggle="modal" data-target="#popupAZ">{{'AZ'|trans}}</a></li>
+                        <li id="archive_logs"><a href="{{path('nononsense_archive_log')}}">{{'Audittrail'|trans}}</a></li>
+                    {% endif %}
+                    {% if 'archive_agent' in array_subsecciones %}
+                        <li id="archive_loan"><a href="{{path('nononsense_archive_loan')}}">{{'Gestión de prestamos'|trans}}</a></li>
+                    {% endif %}
+                    <li id="archive_records"><a href="{{path('nononsense_archive_records')}}">{{'Consulta de registros en el sistema'|trans}}</a></li>
+                    <li id="archive_request"><a href="{{path('nononsense_archive_records')}}?request=1">{{'Solicitar prestamo'|trans}}</a></li>
+                </ul>
+            </li>
+            
+
             {% if 'qrs_gestion' in array_subsecciones or 'areas_gestion' in array_subsecciones or 'usuarios_gestion' in array_subsecciones  or 'grupos_gestion' in array_subsecciones or 'delegations_gestion' in array_subsecciones or 'notifications_gestion' in array_subsecciones or 'usuarios_acceso' in array_subsecciones %}
                 <li>
                     <a href="#"><i class="fa fa-fw fa-gear"></i> <span class="nav-label">{{'Configuración'|trans}}</span><span

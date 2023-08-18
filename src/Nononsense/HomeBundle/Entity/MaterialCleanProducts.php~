@@ -3,8 +3,10 @@
 namespace Nononsense\HomeBundle\Entity;
 
 use DateTime;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Nononsense\UserBundle\Entity\Users;
 
 /**
  * @ORM\Entity
@@ -36,21 +38,66 @@ class MaterialCleanProducts
     /**
      * @var bool
      *
-     * @ORM\Column(name="active", type="boolean", options={"default" : 1})
+     * @ORM\Column(name="active", type="boolean", nullable=false, options={"default":1})
      */
     private $active;
+
+    /**
+     * @ORM\Column(name="created", type="datetime", nullable=false, options={"default":"CURRENT_TIMESTAMP"})
+     */
+    protected $created;
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="validated", type="boolean", nullable=false, options={"default":1})
+     */
+    private $validated;
+
+    /**
+     * @ORM\Column(name="updated", type="datetime", nullable=false, options={"default":"CURRENT_TIMESTAMP"})
+     */
+    private $updated;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="update_comment", type="text", nullable=true, options={"default":NULL})
+     */
+    protected $updateComment;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="materialUpdated")
+     * @ORM\JoinColumn(name="update_user", referencedColumnName="id", nullable=true)
+     */
+    protected $updateUser;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="materialValidated")
+     * @ORM\JoinColumn(name="validate_user", referencedColumnName="id", nullable=true)
+     */
+    protected $validateUser;
 
     /**
      * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\MaterialCleanMaterials", mappedBy="product")
      */
     protected $material;
 
+    public function __construct()
+    {
+        $this->material = new ArrayCollection();
+        $this->created = new DateTime();
+        $this->updated = new DateTime();
+        $this->active = true;
+        $this->validated = false;
+    }
+
     /**
      * Get id
      *
-     * @return integer 
+     * @return int|null
      */
-    public function getId()
+    public function getId(): ?int
     {
         return $this->id;
     }
@@ -61,19 +108,18 @@ class MaterialCleanProducts
      * @param string $name
      * @return MaterialCleanProducts
      */
-    public function setName($name)
+    public function setName(string $name): MaterialCleanProducts
     {
         $this->name = $name;
-
         return $this;
     }
 
     /**
      * Get name
      *
-     * @return string 
+     * @return string|null
      */
-    public function getName()
+    public function getName(): ?string
     {
         return $this->name;
     }
@@ -81,52 +127,46 @@ class MaterialCleanProducts
     /**
      * Set tagsNumber
      *
-     * @param integer $tagsNumber
+     * @param int $tagsNumber
      * @return MaterialCleanProducts
      */
-    public function setTagsNumber($tagsNumber)
+    public function setTagsNumber(int $tagsNumber): MaterialCleanProducts
     {
         $this->tagsNumber = $tagsNumber;
-
         return $this;
     }
 
     /**
      * Get tagsNumber
      *
-     * @return integer 
+     * @return int|null
      */
-    public function getTagsNumber()
+    public function getTagsNumber(): ?int
     {
         return $this->tagsNumber;
     }
     /**
      * Constructor
      */
-    public function __construct()
-    {
-        $this->material = new \Doctrine\Common\Collections\ArrayCollection();
-    }
 
     /**
      * Add material
      *
-     * @param \Nononsense\HomeBundle\Entity\MaterialCleanMaterials $material
+     * @param MaterialCleanMaterials $material
      * @return MaterialCleanProducts
      */
-    public function addMaterial(\Nononsense\HomeBundle\Entity\MaterialCleanMaterials $material)
+    public function addMaterial(MaterialCleanMaterials $material): MaterialCleanProducts
     {
         $this->material[] = $material;
-
         return $this;
     }
 
     /**
      * Remove material
      *
-     * @param \Nononsense\HomeBundle\Entity\MaterialCleanMaterials $material
+     * @param MaterialCleanMaterials $material
      */
-    public function removeMaterial(\Nononsense\HomeBundle\Entity\MaterialCleanMaterials $material)
+    public function removeMaterial(MaterialCleanMaterials $material): void
     {
         $this->material->removeElement($material);
     }
@@ -134,9 +174,9 @@ class MaterialCleanProducts
     /**
      * Get material
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return ArrayCollection
      */
-    public function getMaterial()
+    public function getMaterial(): ArrayCollection
     {
         return $this->material;
     }
@@ -144,23 +184,154 @@ class MaterialCleanProducts
     /**
      * Set active
      *
-     * @param boolean $active
+     * @param bool $active
      * @return MaterialCleanProducts
      */
-    public function setActive($active)
+    public function setActive(bool $active): MaterialCleanProducts
     {
         $this->active = ($active)?: false;
-
         return $this;
     }
 
     /**
      * Get active
      *
-     * @return boolean 
+     * @return bool
      */
-    public function getActive()
+    public function getActive(): bool
     {
         return $this->active;
+    }
+
+    /**
+     * Set created
+     *
+     * @param DateTime $created
+     * @return MaterialCleanProducts
+     */
+    public function setCreated(DateTime $created): MaterialCleanProducts
+    {
+        $this->created = $created;
+        return $this;
+    }
+
+    /**
+     * Get created
+     *
+     * @return DateTime
+     */
+    public function getCreated(): DateTime
+    {
+        return $this->created;
+    }
+
+    /**
+     * Set validated
+     *
+     * @param bool $validated
+     * @return MaterialCleanProducts
+     */
+    public function setValidated(bool $validated): MaterialCleanProducts
+    {
+        $this->validated = ($validated)?: false;
+        return $this;
+    }
+
+    /**
+     * Get validated
+     *
+     * @return bool
+     */
+    public function getValidated(): bool
+    {
+        return $this->validated;
+    }
+
+    /**
+     * Set updated
+     *
+     * @param DateTime $updated
+     * @return MaterialCleanProducts
+     */
+    public function setUpdated(DateTime $updated): MaterialCleanProducts
+    {
+        $this->updated = $updated;
+        return $this;
+    }
+
+    /**
+     * Get updated
+     *
+     * @return DateTime
+     */
+    public function getUpdated(): DateTime
+    {
+        return $this->updated;
+    }
+
+    /**
+     * Set updateUser
+     *
+     * @param Users|null $updateUser
+     * @return MaterialCleanProducts
+     */
+    public function setUpdateUser(?Users $updateUser): MaterialCleanProducts
+    {
+        $this->updateUser = $updateUser;
+        return $this;
+    }
+
+    /**
+     * Get updateUser
+     *
+     * @return Users|null
+     */
+    public function getUpdateUser(): ?Users
+    {
+        return $this->updateUser;
+    }
+
+    /**
+     * Set validateUser
+     *
+     * @param Users|null $validateUser
+     * @return MaterialCleanProducts
+     */
+    public function setValidateUser(?Users $validateUser): MaterialCleanProducts
+    {
+        $this->validateUser = $validateUser;
+        return $this;
+    }
+
+    /**
+     * Get validateUser
+     *
+     * @return Users|null
+     */
+    public function getValidateUser(): ?Users
+    {
+        return $this->validateUser;
+    }
+
+    /**
+     * Set updateComment
+     *
+     * @param string|null $updateComment
+     * @return MaterialCleanProducts
+     */
+    public function setUpdateComment(?string $updateComment): MaterialCleanProducts
+    {
+        $this->updateComment = $updateComment;
+        return $this;
+    }
+
+    /**
+     * Get updateComment
+     *
+     * @return string|null
+     */
+    public function getupdateComment(): ?string
+    {
+        return $this->updateComment;
     }
 }
