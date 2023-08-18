@@ -299,7 +299,7 @@
             {% endif %} 
 
             
-            <li>
+            {# <li>
                 <a href="#">
                     <i class="fa fa-archive" aria-hidden="true"></i>
                     <span class="nav-label">{{'Archivo y retención'|trans}}</span>
@@ -320,7 +320,7 @@
                     <li id="archive_records"><a href="{{path('nononsense_archive_records')}}">{{'Consulta de registros en el sistema'|trans}}</a></li>
                     <li id="archive_request"><a href="{{path('nononsense_archive_records')}}?request=1">{{'Solicitar prestamo'|trans}}</a></li>
                 </ul>
-            </li>
+            </li> #}
             
 
             {% if 'qrs_gestion' in array_subsecciones or 'areas_gestion' in array_subsecciones or 'usuarios_gestion' in array_subsecciones  or 'grupos_gestion' in array_subsecciones or 'delegations_gestion' in array_subsecciones or 'notifications_gestion' in array_subsecciones or 'usuarios_acceso' in array_subsecciones %}
