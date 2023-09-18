@@ -97,7 +97,7 @@
                                 
                                     {% for request in accountRequests %}
                                         <tr>
-                                            <td>{{request.id}}</td>
+                                            <td>{{request.groupId.name}}</td>
                                             <td>{{request.requestId.requestType ? 'Alta' : 'Baja'}}</td>
                                             <td>{{request.requestId.isManual ? 'Manual por administrador' : 'Proceso de solicitud'}}</td>
                                             <td>
