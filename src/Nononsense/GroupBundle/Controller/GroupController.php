@@ -87,6 +87,15 @@ class GroupController extends Controller
             $em = $this->getDoctrine()->getManager();                
             $em->persist($group);
 
+            $permissions = $request->get('permissions');
+
+            foreach ($permissions as $permission) {
+                $newGroupsSubsecciones = new GroupsSubsecciones();
+                $newGroupsSubsecciones->setGroup($group);
+                $newGroupsSubsecciones->setSubseccion($em->getRepository('NononsenseUserBundle:Subsecciones')->find($permission));
+                $em->persist($newGroupsSubsecciones);
+            }
+
             $this->get('session')->getFlashBag()->add(
                 'createdGroup',
                 'El grupo '.$group->getName().' ha sido creado'
