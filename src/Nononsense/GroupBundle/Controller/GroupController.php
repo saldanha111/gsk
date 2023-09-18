@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use Nononsense\UserBundle\Entity\AccountRequests;
 use Nononsense\UserBundle\Entity\AccountRequestsGroups;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
 class GroupController extends Controller
 {
@@ -273,11 +274,13 @@ class GroupController extends Controller
         ));
     }
     
-    public function showAction($id)
+    public function showAction(Request $request,$id)
     {
         if (!$this->get('app.security')->permissionSeccion('grupos_gestion')) {
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
+
+        $user = $this->container->get('security.context')->getToken()->getUser();
 
         $groupAdmin = $this->isGroupAdmin($id);
 
@@ -290,14 +293,124 @@ class GroupController extends Controller
         $clonable = false;
 
         $signatures=$this->getDoctrine()->getRepository('NononsenseGroupBundle:GroupsSignatures')->findBy(array("group" => $group),array("id" => "ASC"));
+
+        if(!$request->get("export_excel") && !$request->get("export_pdf")){
+            return $this->render('NononsenseGroupBundle:Group:show.html.twig', array(
+                'group' => $group,
+                'editable' => $editable,
+                'clonable' => $clonable,
+                'signatures' => $signatures
+            ));
+        }
+        else{
         
- 
-        return $this->render('NononsenseGroupBundle:Group:show.html.twig', array(
-            'group' => $group,
-            'editable' => $editable,
-            'clonable' => $clonable,
-            'signatures' => $signatures
-        ));
+            if($request->get("export_excel")){
+                $phpExcelObject = $this->get('phpexcel')->createPHPExcelObject();
+
+                $phpExcelObject->getProperties();
+                $phpExcelObject->setActiveSheetIndex(0)
+                 ->setCellValue('A1', "Audittrail Grupos - ".$user->getUsername()." - ".$this->get('utilities')->sp_date(date("d/m/Y H:i:s")));
+                $phpExcelObject->setActiveSheetIndex()
+                 ->setCellValue('A2', 'Fecha')
+                 ->setCellValue('B2', 'Usuario')
+                 ->setCellValue('C2', 'Acción')
+                 ->setCellValue('D2', 'Justificación');
+            }
+
+            if($request->get("export_pdf")){
+                $html='<html><body style="font-size:8px;width:100%"><table autosize="1" style="overflow:wrap;width:100%"><tr style="font-size:8px;width:100%">
+                        <th style="font-size:8px;width:15%">Fecha</th>
+                        <th style="font-size:8px;width:15%">Usuario</th>
+                        <th style="font-size:8px;width:20%">Acción</th>
+                        <th style="font-size:8px;width:50%">Justificación</th>
+                    </tr>';
+            }
+
+            $i=3;
+            foreach($signatures as $item){
+
+                if($request->get("export_excel")){
+                    $phpExcelObject->getActiveSheet()
+                    ->setCellValue('A'.$i, ($item->getModified()) ? $this->get('utilities')->sp_date($item->getModified()->format("d/M/Y H:i:s")) : '')
+                    ->setCellValue('B'.$i, $item->getUser()->getName())
+                    ->setCellValue('C'.$i, $item->getDescription())
+                    ->setCellValue('D'.$i, $item->getJustification());
+
+                    $dom = new \DOMDocument;
+
+                    @$dom->loadHTML($item->getChanges());
+
+                    $tableData = [];
+
+                    $rows = $dom->getElementsByTagName('tr');
+
+                    foreach ($rows as $row) {
+                      $cells = $row->getElementsByTagName('td');
+                      
+                      $rowData = [];
+
+                      foreach ($cells as $cell) {
+                        $rowData[] = $cell->textContent;
+                      }
+                      $tableData[] = $rowData;
+                    }
+
+                    foreach ($tableData as $rowData) {
+
+                        $i++;
+                        $phpExcelObject->getActiveSheet()
+                            ->setCellValue('F'.$i, isset($rowData[0]) ? $rowData[0] : '')
+                            ->setCellValue('G'.$i, isset($rowData[1]) ? $rowData[1] : '')
+                            ->setCellValue('H'.$i, isset($rowData[2]) ? $rowData[2] : '');
+                                       
+                        
+                    }
+                }
+
+                if($request->get("export_pdf")){
+                    $html.='<tr style="font-size:8px">
+                        <td>'.(($item->getModified()) ? $this->get('utilities')->sp_date($item->getModified()->format("d/M/Y H:i:s")) : '').'</td>
+                        <td>'.$item->getUser()->getName().'</td>
+                        <td>'.$item->getDescription().'</td>
+                        <td>'.$item->getJustification().'</td>
+                    </tr>';
+
+                    if($item->getChanges()){
+                        $html.='<tr style="font-size:8px"><td colspan="2">'.$item->getChanges().'</td></tr>';
+                    }
+                }
+
+                $i++;
+            }
+
+            if($request->get("export_excel")){
+                $phpExcelObject->getActiveSheet()->setTitle('Audittrail grupos');
+                // Set active sheet index to the first sheet, so Excel opens this as the first sheet
+                $phpExcelObject->setActiveSheetIndex(0);
+
+                // create the writer
+                $writer = $this->get('phpexcel')->createWriter($phpExcelObject, 'Excel2007');
+                // create the response
+                $response = $this->get('phpexcel')->createStreamedResponse($writer);
+                // adding headers
+                $dispositionHeader = $response->headers->makeDisposition(
+                  ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+                  'audittrail_groups.xlsx'
+                );
+                $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
+                $response->headers->set('Pragma', 'public');
+                $response->headers->set('Cache-Control', 'maxage=1');
+                $response->headers->set('Content-Disposition', $dispositionHeader);
+
+                return $response; 
+            }
+
+            if($request->get("export_pdf")){
+                $html.='</table></body></html>';
+                $this->get('utilities')->returnPDFResponseFromHTML($html,"Audittrail Grupos");
+            }
+        }
+        
     }
     
     public function usersAction($id, $type = 'member')
