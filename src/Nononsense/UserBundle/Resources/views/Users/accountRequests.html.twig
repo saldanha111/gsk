@@ -113,6 +113,7 @@
                                 <th>MUD ID</th>
                                 <th>NOMBRE DEL SOLICITADO</th>
                                 <th>NOMBRE DEL SOLICITANTE</th>
+                                <th>MUD ID DEL SOLICITANTE</th>
                                 <th>FECHA DE SOLICITUD</th>
                                 <th>REVISADOS</th>
                                 <th>TIPO DE SOLICITUD</th>
@@ -125,6 +126,7 @@
                                 <td>{{row.mudId}}</td>
                                 <td>{{row.refUsername}}</td>
                                 <td>{{row.username}}</td>
+                                <td>{{row.baseMudId ? row.baseMudId : ''}}</td>
                                 <td>{{row.created|date("d-m-Y")}}</td>
                                 <td><span class="revised">{{row.revised}}</span>/{{row.request|length}}</td>
                                 {# <td>

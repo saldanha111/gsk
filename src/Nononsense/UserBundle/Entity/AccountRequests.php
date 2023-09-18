@@ -103,6 +103,13 @@ class AccountRequests
     private $isManual = false;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="base_mud_id", type="string", length=20, nullable=true)
+     */
+    private $baseMudId;
+
+    /**
      * Get id
      *
      * @return integer 
@@ -390,5 +397,28 @@ class AccountRequests
     public function getIsManual()
     {
         return $this->isManual;
+    }
+
+    /**
+     * Set baseMudId
+     *
+     * @param string $baseMudId
+     * @return AccountRequests
+     */
+    public function setBaseMudId($baseMudId)
+    {
+        $this->baseMudId = $baseMudId;
+
+        return $this;
+    }
+
+    /**
+     * Get baseMudId
+     *
+     * @return string 
+     */
+    public function getBaseMudId()
+    {
+        return $this->baseMudId;
     }
 }

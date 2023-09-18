@@ -15,9 +15,10 @@ class AccountRequestsGroupsRepository extends EntityRepository
 {
 	public function listBy($filter, $limit = 20){
         $list  = $this->createQueryBuilder('arg')
+                ->select('arg', 'r', 'grp')
         		->join('arg.requestId', 'r')
-                // ->addOrderBy('u.status','ASC')
-                ->addOrderBy('r.created','ASC');
+                ->join('arg.groupId', 'grp')
+                ->addOrderBy('r.created', 'ASC');
 
         if (isset($filter['status']) && is_numeric($filter['status'])) {
             $list->andWhere('arg.status = :status');

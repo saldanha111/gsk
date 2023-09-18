@@ -94,6 +94,7 @@ class AccountRequestController extends Controller
 	            		$bulkRequest->setUsername($form->get('username')->getData());
 	            		$bulkRequest->setDescription($form->get('description')->getData());
 	            		$bulkRequest->setRequestType($form->get('requestType')->getData());
+	            		$bulkRequest->setBaseMudId($form->get('mud_id')->getData());
 
 	            		foreach ($groups as $key => $group) {
 			            	$bulkGroupRequest = new AccountRequestsGroups();
