@@ -26,7 +26,7 @@ class AccountRequests
     /**
      * @var string
      *
-     * @ORM\Column(name="mud_id", type="string", length=20)
+     * @ORM\Column(name="mud_id", type="string", length=60)
      */
     private $mudId;
 

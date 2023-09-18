@@ -503,6 +503,8 @@ class GroupController extends Controller
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
 
+        $meUser = $this->container->get('security.context')->getToken()->getUser();
+
         $data = $request->query->get('users');
         $groupId = $request->query->get('id');
         $type = $request->query->get('type');
@@ -533,6 +535,15 @@ class GroupController extends Controller
                 $new->setType($type);
                 $em->persist($new);
 
+                $signature = new GroupsSignatures();
+                $signature->setGroup($group);
+                $signature->setUser($meUser);
+                $signature->setDescription("Se añade a este grupo el usuario ".$user->getName());
+                $signature->setJustification($request->get("justification"));
+                $signature->setCreated(new \DateTime());
+                $signature->setModified(new \DateTime());
+                $em->persist($signature);
+
                 $this->get('utilities')->logger(
                     'GROUP', 
                     'El usuario '.$user->getUsername().' de tipo '.$type.' ha sido añadido al grupo '.$group->getName().' manualmente', 
@@ -555,7 +566,7 @@ class GroupController extends Controller
     
     public function removeuserAction(Request $request, $id, $type = 'member', $userid)
     {
-        
+        $user = $this->container->get('security.context')->getToken()->getUser();
         $groupAdmin = $this->isGroupAdmin($id);
         // if does not enjoy the required permission send the user to the
         //groups list
@@ -569,6 +580,16 @@ class GroupController extends Controller
                                      'group' => $id,
                                      'type' => $type)
                         );
+
+        $signature = new GroupsSignatures();
+        $signature->setGroup($row->getGroup());
+        $signature->setUser($user);
+        $signature->setDescription("Se elimina de este grupo el usuario ".$row->getUser()->getName());
+        $signature->setJustification($request->get("justification"));
+        $signature->setCreated(new \DateTime());
+        $signature->setModified(new \DateTime());
+        $em->persist($signature);
+
         if (empty($row)) {
             $this->get('session')->getFlashBag()->add(
                 'errorDeletingUser',
