@@ -24,6 +24,7 @@ class GroupController extends Controller
         if (!$this->get('app.security')->permissionSeccion('grupos_gestion')) {
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
+        $user = $this->container->get('security.context')->getToken()->getUser();
 
         if(!$request->get("export_excel")){
             if($request->get("page")){
@@ -47,6 +48,10 @@ class GroupController extends Controller
             $filters["state"]=$request->get("state");
         }
 
+        if($request->get("user")){
+            $filters["user"]=$request->get("user");
+        }
+
 
         $array_item["filters"]=$filters;
         $array_item["groups"] = $this->getDoctrine()->getRepository(Groups::class)->list("list",$filters);
@@ -64,8 +69,97 @@ class GroupController extends Controller
         $array_item["pagination"]=\Nononsense\UtilsBundle\Classes\Utils::paginador($filters["limit_many"],$request,$url,$array_item["count"],"/", $parameters);
 
         $admin = true;
+
+        if(!$request->get("export_excel") && !$request->get("export_pdf")){
+            return $this->render('NononsenseGroupBundle:Group:index.html.twig',$array_item);  
+        }
+        else{
+            //Exportamos a Excel
+            $desc_pdf="Listado de grupos";
+
+            if($request->get("export_excel")){
+                $phpExcelObject = $this->get('phpexcel')->createPHPExcelObject();
+
+                $phpExcelObject->getProperties();
+                $phpExcelObject->setActiveSheetIndex(0)
+                 ->setCellValue('A1', $desc_pdf." - ".$user->getUsername()." - ".$this->get('utilities')->sp_date(date("d/m/Y H:i:s")));
+                $phpExcelObject->setActiveSheetIndex()
+                 ->setCellValue('A2', 'Nº')
+                 ->setCellValue('B2', 'Nombre')
+                 ->setCellValue('C2', 'Descripción')
+                 ->setCellValue('D2', 'Fecha alta')
+                 ->setCellValue('E2', 'Estado');
+            }
+
+            if($request->get("export_pdf")){
+                $html='<html><body style="font-size:8px;width:100%"><table autosize="1" style="overflow:wrap;width:100%"><tr style="font-size:8px;width:100%">
+                        <th style="font-size:8px;width:6%">Nº</th>
+                        <th style="font-size:8px;width:30%">Nombre</th>
+                        <th style="font-size:8px;width:44%">Descripción</th>
+                        <th style="font-size:8px;width:10%">Fecha alta</th>
+                        <th style="font-size:8px;width:10%">Estado</th>
+                    </tr>';
+            }
+
+            $i=3;
+            foreach($array_item["groups"] as $item){
+                if($item["isActive"]){
+                    $state="Si";
+                }
+                else{
+                    $state="No";
+                }
+                if($request->get("export_excel")){
+                    $phpExcelObject->getActiveSheet()
+                    ->setCellValue('A'.$i, $item["id"])
+                    ->setCellValue('B'.$i, $item["name"])
+                    ->setCellValue('C'.$i, $item["description"])
+                    ->setCellValue('D'.$i, ($item["created"]) ? $this->get('utilities')->sp_date($item["created"]->format('d/M/Y H:i:s')) : '')
+                    ->setCellValue('E'.$i, $state);
+                }
+
+                if($request->get("export_pdf")){
+                    $html.='<tr style="font-size:8px">
+                        <td>'.$item["id"].'</td>
+                        <td>'.$item["name"].'</td>
+                        <td>'.$item["description"].'</td>
+                        <td>'.(($item["created"]) ? $this->get('utilities')->sp_date($item["created"]->format('d/m/Y H:i:s')) : '').'</td>
+                        <td>'.$state.'</td>
+                    </tr>';
+                }
+
+                $i++;
+            }
+
+            if($request->get("export_excel")){
+                $phpExcelObject->getActiveSheet()->setTitle('Listado de grupos');
+                // Set active sheet index to the first sheet, so Excel opens this as the first sheet
+                $phpExcelObject->setActiveSheetIndex(0);
+
+                // create the writer
+                $writer = $this->get('phpexcel')->createWriter($phpExcelObject, 'Excel2007');
+                // create the response
+                $response = $this->get('phpexcel')->createStreamedResponse($writer);
+                // adding headers
+                $dispositionHeader = $response->headers->makeDisposition(
+                  ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+                  'list_groups.xlsx'
+                );
+                $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
+                $response->headers->set('Pragma', 'public');
+                $response->headers->set('Cache-Control', 'maxage=1');
+                $response->headers->set('Content-Disposition', $dispositionHeader);
+
+                return $response; 
+            }
+
+            if($request->get("export_pdf")){
+                $html.='</table></body></html>';
+                $this->get('utilities')->returnPDFResponseFromHTML($html,$desc_pdf);
+            }
+        }
         
-        return $this->render('NononsenseGroupBundle:Group:index.html.twig',$array_item);  
+        
     }
     
     public function createAction(Request $request)

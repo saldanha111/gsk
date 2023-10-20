@@ -192,6 +192,28 @@ class GroupsRepository extends EntityRepository
                     $list->setParameter('name'.$key, '%' . $term. '%');
                 }
             }
+            if(isset($filters["user"])){
+                $subquery = $this->createQueryBuilder('sub')
+                    ->select('gaux.id')
+                    ->from('Nononsense\GroupBundle\Entity\GroupUsers', 'gu')
+                    ->leftJoin("gu.user", "uaux")
+                    ->leftJoin("gu.group", "gaux");
+
+                $terms = explode(" ", $filters["user"]);
+                foreach($terms as $key => $term){
+                    $subquery->andWhere('uaux.name LIKE :user'.$key);
+                    $subquery->setParameter('user'.$key, '%' . $term. '%');
+                }
+
+                $dql = $subquery->getDQL();
+                $params = $subquery->getQuery()->getParameters();
+
+                $list->andWhere($list->expr()->in('g.id', $dql));
+
+                foreach ($params as $parameter) {
+                    $list->setParameter($parameter->getName(), $parameter->getValue());
+                }
+            }
 
             if(isset($filters["state"])){
                 switch($filters["state"]){

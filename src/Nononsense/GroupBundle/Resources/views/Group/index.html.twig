@@ -42,9 +42,13 @@
                         <div class="search-form">
                             <form action="{{ path('nononsense_groups_homepage_slash')}}" method="get">
                                 <div class="row">
-                                    <label class="col-sm-1 control-label item_filter">Nombre</label>
-                                    <div class="col-sm-4 item_filter">
+                                    <label class="col-sm-1 control-label item_filter">Grupo</label>
+                                    <div class="col-sm-2 item_filter">
                                         <input type="text" name="name" class="form-control" value="{{filters.name is defined ? filters.name : ''}}">
+                                    </div>
+                                    <label class="col-sm-1 control-label item_filter">Usuario</label>
+                                    <div class="col-sm-2 item_filter">
+                                        <input type="text" name="user" class="form-control" value="{{filters.user is defined ? filters.user : ''}}">
                                     </div>
 
                                     <label class="col-sm-1 control-label item_filter">Estado</label>
@@ -56,7 +60,7 @@
                                       </select>
                                     </div>
 
-                                    <div class="col-sm-4 item_filter">
+                                    <div class="col-sm-2 item_filter">
                                         <button type="submit" class="btn btn-primary">Filtrar</button>
                                     </div>
                                 </div>
@@ -77,6 +81,8 @@
                         {% if pagination is defined and pagination.needed %}
                             {% include '::pagination2.html.twig' %}
                         {% endif %}
+                        <a href="{{pagination.url}}{{pagination.character}}export_excel=1" target="_blank" class="btn btn-primary pull-right"><i class="fa fa-file-excel-o" aria-hidden="true"></i> Excel</a> 
+                        <a href="{{pagination.url}}{{pagination.character}}export_pdf=1" target="_blank" class="btn btn-primary pull-right" style="margin-right:1px"><i class="fa fa-file-pdf-o" aria-hidden="true"></i> PDF</a> 
                         {% if count==0 %}
                             <br><b>No se han encontrado grupos para esta búsqueda</b>
                         {% endif %}
