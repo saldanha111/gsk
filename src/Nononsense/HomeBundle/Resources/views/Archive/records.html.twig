@@ -7,7 +7,7 @@
 {% endblock %}
 {% block main_title %}
     {% if filters.request is not defined %}
-        Registros archivo
+        Consulta de registros
     {% else %}
         Solcitar préstamo
     {% endif %}
@@ -42,15 +42,15 @@
                     <form class="form-horizontal" id="form_item" action="{{ path('nononsense_archive_records')}}" method="GET">
                         {% if filters.signature is not defined %}
                             <div class="form-group">
-                                <label class="col-sm-1 control-label item_filter">ID</label>
+                                <label class="col-sm-2 control-label item_filter">ID</label>
                                 <div class="col-sm-1 item_filter">
                                     <input type="number" name="id" class="form-control" value="{{filters.id is defined ? filters.id : ''}}">
                                 </div>
-                                <label class="col-sm-1 control-label item_filter">Identificador</label>
+                                <label class="col-sm-2 control-label item_filter">Identificador</label>
                                 <div class="col-sm-1 item_filter">
                                     <input type="string" name="uniqueNumber" class="form-control" value="{{filters.uniqueNumber is defined ? filters.uniqueNumber : ''}}">
                                 </div>
-                                <label class="col-sm-1 control-label item_filter">Título</label>
+                                <label class="col-sm-2 control-label item_filter">Título</label>
                                 <div class="col-sm-2 item_filter">
                                     <input type="string" name="title" class="form-control" value="{{filters.title is defined ? filters.title : ''}}">
                                 </div>
@@ -58,6 +58,8 @@
                                 <div class="col-sm-1 item_filter">
                                     <input type="string" name="edition" class="form-control" value="{{filters.edition is defined ? filters.edition : ''}}">
                                 </div>
+                            </div>
+                            <div class="form-group">
                                 <label class="col-sm-1 control-label item_filter">Tipo</label>
                                 <div class="col-sm-2 item_filter">
                                     <select class="form-control" name="type" style="width: 100%;">
@@ -67,8 +69,7 @@
                                         {% endfor %}
                                     </select>
                                 </div>
-                            </div>
-                            <div class="form-group">
+
                                 <label class="col-sm-1 control-label item_filter">Estado</label>
                                 <div class="col-sm-2 item_filter">
                                     <select class="form-control" name="state" style="width: 100%;">
@@ -79,15 +80,17 @@
                                     </select>
                                 </div>
                                 
-                                    <label class="col-sm-1 control-label item_filter">Disponibilidad</label>
-                                    <div class="col-sm-2 item_filter">
-                                        <select class="form-control" name="useState" style="width: 100%;">
-                                            <option value=""></option>
-                                            {% for useState in useStates %}
-                                                <option value="{{useState.id}}" {{filters.useState is defined and filters.useState==useState.id ? 'selected="selected"'}}>{{useState.name}}</option>
-                                            {% endfor %}
-                                        </select>
-                                    </div>
+                                <label class="col-sm-2 control-label item_filter">Disponibilidad</label>
+                                <div class="col-sm-2 item_filter">
+                                    <select class="form-control" name="useState" style="width: 100%;">
+                                        <option value=""></option>
+                                        {% for useState in useStates %}
+                                            <option value="{{useState.id}}" {{filters.useState is defined and filters.useState==useState.id ? 'selected="selected"'}}>{{useState.name}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
                                 {% if filters.request is not defined %}
                                     <label class="col-sm-1 control-label">Área</label>
                                     <div class="col-sm-2 item_filter">
@@ -99,7 +102,7 @@
                                         </select>
                                     </div>
 
-                                    <label class="col-sm-1 control-label item_filter">Categoría retención</label>
+                                    <label class="col-sm-2 control-label item_filter">Categoría retención</label>
                                     <div class="col-sm-2 item_filter">
                                         <select class="form-control" name="category" style="width: 100%;">
                                             <option value=""></option>
@@ -109,18 +112,20 @@
                                         </select>
                                     </div>
                                 {% endif %}
-                            </div>
-                            <div class="form-group">
+
                                 {% if filters.request is not defined %}
-                                    <label class="col-sm-1 control-label">Fecha retención</label>
+                                    <label class="col-sm-2 control-label">Fecha de retención</label>
                                     <div class="col-sm-1 item_filter">
                                         <input type="text" class="form-control pull-right" autocomplete="off" name="retentionFrom" id="retentionFrom" value="{{filters.retentionFrom is defined ? filters.retentionFrom|date("Y-m-d") : ''}}">
                                     </div>
                                     <div class="col-sm-1">
                                         <input type="text" class="form-control pull-right" autocomplete="off" name="retentionUntil" id="retentionUntil" value="{{filters.retentionUntil is defined ? filters.retentionUntil|date("Y-m-d") : ''}}">
                                     </div>
-
-                                    <label class="col-sm-1 control-label">Fecha destrucción</label>
+                                {% endif %}
+                            </div>
+                            <div class="form-group">
+                                {% if filters.request is not defined %}
+                                    <label class="col-sm-2 control-label">Fecha destrucción</label>
                                     <div class="col-sm-1 item_filter">
                                         <input type="text" class="form-control pull-right" autocomplete="off" name="destructionFrom" id="destructionFrom" value="{{filters.destructionFrom is defined ? filters.destructionFrom|date("Y-m-d") : ''}}">
                                     </div>
@@ -128,7 +133,7 @@
                                         <input type="text" class="form-control pull-right" autocomplete="off" name="destructionUntil" id="destructionUntil" value="{{filters.destructionUntil is defined ? filters.destructionUntil|date("Y-m-d") : ''}}">
                                     </div>
 
-                                    <label class="col-sm-1 control-label item_filter">Preservation Notice</label>
+                                    <label class="col-sm-2 control-label item_filter">Preservation Notice</label>
                                     <div class="col-sm-1 item_filter">
                                         <select class="form-control" name="preservation" style="width: 100%;">
                                             <option value=""></option>
@@ -143,7 +148,7 @@
                                             <select class="form-control" style="width: 100%;" name="retentionAction">
                                                 <option value=""></option>
                                                 <option value="2" {{ filters.retentionAction is defined and filters.retentionAction=="2" ? 'selected="selected"' : ''}}>Revisión anual</option>
-                                                <option value="3" {{ filters.retentionAction is defined and filters.retentionAction=="3" ? 'selected="selected"' : ''}}>Solo vencidos</option>
+                                                <option value="3" {{ filters.retentionAction is defined and filters.retentionAction=="3" ? 'selected="selected"' : ''}}>Destrucción de registros</option>
                                                 <option value="4" {{ filters.retentionAction is defined and filters.retentionAction=="4" ? 'selected="selected"' : ''}}>Ver destruidos</option>
                                             </select>
                                         </div>
@@ -160,16 +165,6 @@
                 </div>
                 
                 <div class="row">
-                    {% if agent is defined and agent and filters.signature is not defined and filters.request is not defined %}
-                        <a href="{{ path('nononsense_archive_records_edit', {'id' : 0}) }}" class="btn btn-primary pull-right">
-                            <i class="fa fa-plus"></i>
-                            <span> Nuevo registro</span>
-                        </a>
-                        <a href="javascript:void(0)" class="btn btn-primary pull-right btn-import" style="margin-right:5px">
-                            <i class="fa fa-upload"></i>
-                            <span> Importar registros</span>
-                        </a><br><br>
-                    {% endif %}
                     <table id="inProcessParcial" class="table table-striped">
                         <thead>
                         <tr>
@@ -204,9 +199,9 @@
                                 <td>{{item.category}}</td>
                                 <td>{{ item.initRetention is defined and item.initRetention is not empty ? item.initRetention|date("d/m/Y")|gskdate : '' }}</td>
                                 <td>{{ item.destructionDate is defined and item.destructionDate is not empty ? item.destructionDate|date("d/m/Y")|gskdate : '' }}</td>
-                                <td>{{item.preservation}}</td>
+                                <td>{{ item.preservation is defined and item.preservation is not empty ? item.preservation : 'No' }}</td>
                                 <td>
-                                    {% if agent is defined and agent %}
+                                    {% if agent is defined and agent and item.areaId in agentareas %}
                                         <a href="{{ path('nononsense_archive_records_edit', {'id' : item.id}) }}" class="btn btn-xs">
                                             <i class="fa fa-pencil" aria-hidden="true"></i>
                                             <span> Editar</span>
@@ -338,60 +333,7 @@
     </div>
 </div>
 
-<div class="modal fade" tabindex="-1" role="dialog" id="modalImport">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <form class="form-horizontal" id="formModalImport" action="{{ path('nononsense_archive_records_import') }}" method="POST"  enctype="multipart/form-data">
-                <div class="modal-header">
-                    <h5 class="modal-title">Firmar</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
 
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-lg-10 col-lg-offset-1">
-                            Va a realizar una importación de registros. El excel a importar debe tener las siguientes columnas obligatorias:<br><br>
-                            <b>Area, Document Number, Version, Document Name, Type, Document Status, Legal Preservation Name, Global Retention Schedule (GRS)</b><br><br>
-                            Habrá una columna <b>AZ</b> no obligatoria para si se desea adjudicar una localización, si no se introduce se dará por hecho que es un archivo ditital siempre y cuando tenga un <b>Link la columna Document Number</b>. De no ser así notificará un error
-                        </div>
-                    </div>
-                    <br>
-                    <div class="row box-text-comment">
-                        <div class="col-lg-10 col-lg-offset-1">
-                            <label for="description_workflow">Comentarios</label>
-                            <br>
-                            <div class="form-group">
-                                <textarea class="form-control text-comment" name="comment" rows="10" cols="40" id="modal_comment2"  style="width:100%" required="required"></textarea>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row" id="box_file">
-                        <div class="col-lg-10 col-lg-offset-1">
-                            Archivo excel<br>
-                            <div class="form-group">
-                                <input type='file' name="excel" id="excel" required="required" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" />
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-lg-10 col-lg-offset-1">
-                            <div id="signature-pad3" class="input-group">
-                                <label for="firma">Introduzca su firma</label>
-                                <br>
-                                <input type="password" name="password" id="modal_password2" class="form-control" required="required"><br>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <input type="button" class="btn btn-primary" id="sign_modal_import" value="Firmar">
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
 {% endblock %}
 {% block scripts %}
 {{ parent() }}
@@ -476,10 +418,6 @@
         $("#modalRetention").modal('show');
     });
 
-    $(document).on('click','.btn-import',function(e){
-        $("#modalImport").modal('show');
-    });
-
     $(document).on('click','#sign_modal_retention',function(e){
         $('[name="action"]').val(retention_btn.data("action"));
         if ($('#modal_comment').is(":visible") && !$('#modal_comment').val()){
@@ -526,49 +464,9 @@
 
         $("#formModalRetention").submit();
     });
+});
 
-    $(document).on('click','#sign_modal_import',function(e){
-        if ($('#modal_comment2').is(":visible") && !$('#modal_comment2').val()){
-            swal({
-                title: "Atención",
-                text: "La descripcion es obligatoria",
-                type: "warning"
-            });
-            return false;
-        }
-
-        if ($('#excel').get(0).files.length === 0) {
-            swal({
-                title: "Atención",
-                text: "El archivo excel es obligatorio",
-                type: "warning"
-            });
-            return false;
-        }
-
-        if (!$("#modal_password2").val()){
-            swal({
-                title: "Atención",
-                text: "La firma es obligatoria",
-                type: "warning"
-            });
-            return false;
-        }
-
-        if (!gpassword_valid($("#modal_password2").val())){
-            swal({
-                title: "Atención",
-                text: "La firma no es correcta",
-                type: "warning"
-            });
-            return false;
-        }
-
-        $("#formModalImport").submit();
-    });
-  });
-
-  function check_superiores(){
+function check_superiores(){
     $( ".supcheck" ).each(function() {
       if($(".checkpem").is(":not(:checked)")){
         $(this).prop('checked', false);  
@@ -577,7 +475,7 @@
         $(this).prop('checked', true); 
       }
     });
-  }
+}
 </script>
 {% endblock %}
-                        
+                    

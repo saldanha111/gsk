@@ -44,7 +44,7 @@ class NotifyArchiveDestructionRetentionExpiredCommand extends ContainerAwareComm
 		}		
 
 		$subject = 'Destrucción de registros pendiente de realizar';
-	    $message = 'Hay registros que ya han superado por 6 meses su fecha de desctrucción. Por favor entre en la sección de "Archivo y retención -> Consulta de registros en el sistema" y filtre en "Acción" por "Solo vencidos" ';
+	    $message = 'Hay registros que ya han superado por 6 meses su fecha de desctrucción. Por favor entre en la sección de "Archivo y retención -> Consulta de registros en el sistema" y filtre en "Acción" por "Destrucción de registros"';
 
 		$users = $em->getRepository('NononsenseUserBundle:Users')->findby(array("id"=>$array_users));
 

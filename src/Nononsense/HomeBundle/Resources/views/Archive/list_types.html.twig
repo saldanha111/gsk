@@ -3,7 +3,7 @@
 {% block head %}
     {{ parent() }}
 {% endblock %}
-{% block main_title %} Listado de tipos de archivo y retención{% endblock %}
+{% block main_title %} Listado de tipo documento{% endblock %}
 {% block content %}
 
 <div class="wrapper wrapper-content">
@@ -49,7 +49,7 @@
         <div class="col-xs-12">
             <a href="{{ path('nononsense_archive_types_edit', {'id' : 0}) }}" class="btn btn-primary pull-right">
                 <i class="fa fa-plus"></i>
-                <span> Nueva categoría</span>
+                <span> Nuevo tipo de documento</span>
             </a>
             <br/>
             <table class="table table-striped">

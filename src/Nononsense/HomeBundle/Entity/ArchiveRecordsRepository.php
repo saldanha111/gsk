@@ -19,7 +19,7 @@ class ArchiveRecordsRepository extends EntityRepository
 
         switch($type){
             case "list":
-                $list = $this->createQueryBuilder('ar')->select("ar.id","ar.uniqueNumber","us.name useState","s.name state","t.name type","a.name area","ar.title","ar.edition","ar.initRetention","arc.name category","arc.retentionDays","arp.name preservation");
+                $list = $this->createQueryBuilder('ar')->select("ar.id","ar.uniqueNumber","us.name useState","s.name state","t.name type","a.name area","a.id areaId","ar.title","ar.edition","ar.initRetention","arc.name category","arc.retentionDays","arp.name preservation");
                 $list->addSelect('DATE_ADD(ar.initRetention, arc.retentionDays, \'DAY\') as destructionDate','ar.retentionRevision');
                 break;
             case "count":

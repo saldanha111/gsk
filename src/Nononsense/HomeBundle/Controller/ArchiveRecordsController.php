@@ -70,6 +70,11 @@ class ArchiveRecordsController extends Controller
         $array_item["types"] = $this->getDoctrine()->getRepository(ArchiveTypes::class)->findAll();
         $array_item["areas"] = $this->getDoctrine()->getRepository(Areas::class)->findAll();
         $array_item["categories"] = $this->getDoctrine()->getRepository(ArchiveCategories::class)->findAll();
+        $areas=$this->get('app.security')->getAreas('archive_agent');
+        foreach($areas as $area){
+            $array_item["agentareas"][]=$area->getId();
+        }
+
 
 
         $url=$this->container->get('router')->generate('nononsense_archive_records');
@@ -220,6 +225,8 @@ class ArchiveRecordsController extends Controller
     {
         $agent = $this->get('app.security')->permissionSeccion('archive_agent');
 
+
+
         $user = $this->container->get('security.context')->getToken()->getUser();
 
         $em = $this->getDoctrine()->getManager();
@@ -236,6 +243,15 @@ class ArchiveRecordsController extends Controller
             $stateUse = $em->getRepository(ArchiveUseStates::class)->findOneBy(['id' => 1]);
             $record->setUseState($stateUse);
             $record->setCreator($user);
+        }
+        else{
+            if(!in_array($record->getArea(), $this->get('app.security')->getAreas('archive_agent'))){
+                $this->get('session')->getFlashBag()->add(
+                    'error',
+                    'No tiene permisos para realizar esta acción'
+                );
+                return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+            }
         }
 
         if ($request->getMethod() == 'POST' && $this->saveData($request, $record)) {
@@ -294,6 +310,7 @@ class ArchiveRecordsController extends Controller
             $ids[]=intval($item["id"]);
         }
         
+        $sentence="La acción de actualización de archivos ha finalizado satisfactoriamente";
         $records=$this->getDoctrine()->getRepository(ArchiveRecords::class)->findBy(array("id" => $ids));
         switch($request->get("action")){
             case "1":
@@ -314,6 +331,7 @@ class ArchiveRecordsController extends Controller
                     $this->get('utilities')->saveLogArchive($this->getUser(),7,$request->get('comment'),"record",$record->getId(),$file);
                     $em->persist($record);
                 }
+                $sentence="Los registros han sido destruidos satisfactoriamente";
                 break;
             case "3":
                 foreach($records as $record){
@@ -333,7 +351,7 @@ class ArchiveRecordsController extends Controller
         }
         
         $em->flush();
-        $this->get('session')->getFlashBag()->add('success', "La acción de actualización de archivos ha finalizado satisfactoriamente");
+        $this->get('session')->getFlashBag()->add('success', $sentence);
 
         return $this->redirect($this->generateUrl('nononsense_archive_records'));
     }

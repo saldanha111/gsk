@@ -29,19 +29,19 @@
                 <div class="col-lg-10 col-lg-offset-1">
                     <div class="row">
                         <div class="form-group">
-                            <label class="col-sm-1 control-label">Título</label>
+                            <label class="col-sm-2 control-label">Título</label>
                             <div class="col-sm-6">
                                 <input type="text" name="title" class="form-control" value="{{record.title is not null ? record.title : ''}}" {{agent is not defined or not agent ? 'disabled="disabled"' : ''}}>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-1 control-label">Edición</label>
+                            <label class="col-sm-2 control-label">Edición</label>
                             <div class="col-sm-6">
                                 <input type="text" name="edition" class="form-control" value="{{record.edition is not null ? record.edition : ''}}" {{agent is not defined or not agent ? 'disabled="disabled"' : ''}}>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-1 control-label">Área</label>
+                            <label class="col-sm-2 control-label">Área</label>
                             <div class="col-sm-6">
                                 <select class="form-control" name="area" style="width: 100%;" required="required" {{agent is not defined or not agent ? 'disabled="disabled"' : ''}}>
                                     <option value=""></option>
@@ -52,7 +52,7 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-1 control-label">Tipo</label>
+                            <label class="col-sm-2 control-label">Tipo de documento</label>
                             <div class="col-sm-6">
                                 <select class="form-control" name="type" style="width: 100%;" required="required" {{agent is not defined or not agent ? 'disabled="disabled"' : ''}}>
                                     <option value=""></option>
@@ -63,13 +63,13 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-1 control-label">Identificador</label>
+                            <label class="col-sm-2 control-label">Identificador</label>
                             <div class="col-sm-6">
                                 <input type="text" id="unique_number" name="unique_number" class="form-control" value="{{record.uniqueNumber is not null ? record.uniqueNumber : ''}}" required="required" {{agent is not defined or not agent ? 'disabled="disabled"' : ''}}>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-1 control-label">Estado</label>
+                            <label class="col-sm-2 control-label">Estado</label>
                             <div class="col-sm-6">
                                 <select class="form-control" name="state" style="width: 100%;" required="required" {{agent is not defined or not agent ? 'disabled="disabled"' : ''}}>
                                     <option value=""></option>
@@ -80,7 +80,7 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-1 control-label">Cat.Retención</label>
+                            <label class="col-sm-2 control-label">Categoría de Retención</label>
                             <div class="col-sm-6">
                                 {% if agent is defined and agent %}
                                     {% if categories is defined %}
@@ -100,7 +100,7 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-1 control-label">Preservation notices</label>
+                            <label class="col-sm-2 control-label">Preservation notices</label>
                             <div class="col-sm-6">
                                 {% if agent is defined and agent %}
                                     {% if preservations is defined %}
@@ -120,7 +120,7 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <div class="col-sm-4 col-sm-offset-1">
+                            <div class="col-sm-5 col-sm-offset-1">
                                 <div class="checkbox">
                                     <label>
                                         <input name="filetype" value="1" type="radio" {{record.id is null or record.az is not empty ? 'checked="checked"' : ''}} > Archivo físico
@@ -135,7 +135,7 @@
                         </div>
                         <div id="physical_type" {{record.id is null or record.az is not empty ? 'style="display:block"' : 'style="display:none"'}}>
                             <div class="form-group">
-                                <label class="col-sm-1 control-label">AZ</label>
+                                <label class="col-sm-2 control-label">AZ</label>
                                 <div class="col-sm-2">
                                     <input type="text" id="location-info" class="form-control" value="{{record.az is not null ? record.az.code : ''}}" readonly="readonly" {{record.id is null or record.az is not empty ? 'required="required"' : ''}}>
                                     <input type="hidden" name="location" id="location" class="form-control" value="{{record.az is not null ? record.az.id : ''}}"  {{record.id is null or record.az is not empty ? 'required="required"' : ''}}>
@@ -150,7 +150,7 @@
                                 {% endif %}
                             </div>
                             <div class="form-group camera-group" style="display:none;">
-                                <label class="col-sm-1 control-label"></label>
+                                <label class="col-sm-2 control-label"></label>
                                 <div class="col-lg-2 col-md-4 col-sm-11">
                                     <video id="video" style="border: 1px solid gray;"></video>
                                 </div>
@@ -162,7 +162,7 @@
                                 </div>
                             </div>
                             <div class="form-group scan-group" style="display:none;">
-                                <label class="col-sm-1 control-label"></label>
+                                <label class="col-sm-2 control-label"></label>
                                 <div class="col-lg-3 col-md-4 col-sm-11">
                                     <input type="text" id="input-scan" class="form-control" value="">
                                 </div>
@@ -172,7 +172,7 @@
                             </div>
                             {% if record is defined and record is not empty and record.az is defined and record.az is not empty %}
                                 <div class="form-group" id="current_location">
-                                    <label class="col-sm-1 control-label"></label>
+                                    <label class="col-sm-2 control-label"></label>
                                     <div class="col-sm-11">
                                         <div><b>Edificio:</b> {{record.az.location.building}}<br><b>Balda:</b> {{record.az.location.shelf}}<br><b>Pasillo:</b>{{record.az.location.passage}}<br><b>Armario:</b> {{record.az.location.cabinet}}<br><b>Otros:</b> {{record.az.location.others}}</div>
                                     </div>
@@ -181,7 +181,7 @@
                         </div>
                         <div id="digital_type" {{record.id is not null and record.az is empty ? 'style="display:block"' : 'style="display:none"'}}>
                             <div class="form-group">
-                                <label class="col-sm-1 control-label">Link</label>
+                                <label class="col-sm-2 control-label">Link</label>
                                 <div class="col-sm-6">
                                     <input type="url" id="link" name="link" class="form-control" value="{{record.link is not null ? record.link : ''}}" {{record.id is not null and record.az is empty ? 'required="required"' : ''}} {{agent is not defined or not agent ? 'disabled="disabled"' : ''}}>
                                 </div>
@@ -191,7 +191,7 @@
                         
 
                         <div class="form-group">
-                            <label class="col-sm-1 control-label">Fecha inicio retención</label>
+                            <label class="col-sm-2 control-label">Fecha inicio retención</label>
                             <div class="col-sm-6">
                                 <input type="text" class="form-control" value="{{ record.initRetention is defined and record.initRetention is not empty ? record.initRetention|date("d/m/Y H:i:s")|gskdate : '' }}" readonly="readonly">
                             </div>
@@ -200,7 +200,7 @@
             </div>
             {% if agent is defined and agent %}
                 <div class="row">
-                    <div class="col-sm-11 col-sm-offset-1">
+                    <div class="col-sm-11 col-sm-offset-2">
                         <input type="submit" class="btn btn-primary submit-record" data-action="save" value="{{record.id is not null ? 'Editar' : 'Crear'}} registro">
                     </div>
                 </div>
@@ -259,7 +259,7 @@
     <script>
 
     $( document ).ready(function() {
-        ActivateMenu('archive_records');
+        ActivateMenu('archive_new_records');
         $('#side-menu').metisMenu();
 
         {% if agent is defined and agent %}
