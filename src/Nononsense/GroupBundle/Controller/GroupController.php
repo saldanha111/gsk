@@ -184,11 +184,13 @@ class GroupController extends Controller
 
             $permissions = $request->get('permissions');
 
-            foreach ($permissions as $permission) {
-                $newGroupsSubsecciones = new GroupsSubsecciones();
-                $newGroupsSubsecciones->setGroup($group);
-                $newGroupsSubsecciones->setSubseccion($em->getRepository('NononsenseUserBundle:Subsecciones')->find($permission));
-                $em->persist($newGroupsSubsecciones);
+            if($request->get('permissions')){
+                foreach ($permissions as $permission) {
+                    $newGroupsSubsecciones = new GroupsSubsecciones();
+                    $newGroupsSubsecciones->setGroup($group);
+                    $newGroupsSubsecciones->setSubseccion($em->getRepository('NononsenseUserBundle:Subsecciones')->find($permission));
+                    $em->persist($newGroupsSubsecciones);
+                }
             }
 
             $this->get('session')->getFlashBag()->add(
@@ -210,7 +212,7 @@ class GroupController extends Controller
             $em->flush();
 
             $group->setColor(\Nononsense\UtilsBundle\Classes\Utils::generateRandomColor());
-            $group->setDescription($this->get('translator')->trans('<p>Insert <strong>here</strong> the group description.</p>'));
+            
 
             $this->get('utilities')->logger(
                 'GROUP', 

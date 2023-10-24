@@ -107,7 +107,7 @@ class ArchiveRecordsController extends Controller
                  ->setCellValue('C2', 'Título')
                  ->setCellValue('D2', 'Edición')
                  ->setCellValue('E2', 'Área')
-                 ->setCellValue('F2', 'Tipo')
+                 ->setCellValue('F2', 'Tipo de documento')
                  ->setCellValue('G2', 'Estado')
                  ->setCellValue('H2', 'Disponibilidad')
                  ->setCellValue('I2', 'Categoría retención')
@@ -123,7 +123,7 @@ class ArchiveRecordsController extends Controller
                         <th style="font-size:8px;width:10%">Título</th>
                         <th style="font-size:8px;width:5%">Edición</th>
                         <th style="font-size:8px;width:10%">Área</th>
-                        <th style="font-size:8px;width:10%">Tipo</th>
+                        <th style="font-size:8px;width:10%">Tipo de documento</th>
                         <th style="font-size:8px;width:10%">Estado</th>
                         <th style="font-size:8px;width:10%">Disponibilidad</th>
                         <th style="font-size:8px;width:10%">Categoría</th>
