@@ -234,7 +234,7 @@ class ArchiveRecordsController extends Controller
         $areas = $em->getRepository(Areas::class)->findBy(array("isActive"=>TRUE));
         $types = $em->getRepository(ArchiveTypes::class)->findBy(array("active"=>TRUE));
         $states = $em->getRepository(ArchiveStates::class)->findAll();
-        $categories = $em->getRepository(ArchiveCategories::class)->findBy(array("active"=>TRUE));
+        $categories = $em->getRepository(ArchiveCategories::class)->findBy(array("active"=>TRUE),array("retentionDays" => "DESC"));
         $preservations = $em->getRepository(ArchivePreservations::class)->findBy(array("active"=>TRUE));
 
         if (!$record) {
@@ -343,7 +343,7 @@ class ArchiveRecordsController extends Controller
                         $route = $this->container->get('router')->generate('nononsense_home_homepage');
                         return $this->redirect($route);
                     }
-
+                    $sentence="La solicitud de registro ha sido tramitada satisfactoriamente";
                     $this->get('utilities')->saveLogArchive($this->getUser(),8,$request->get('comment'),"record",$record->getId());
                     $em->persist($record);
                 }
