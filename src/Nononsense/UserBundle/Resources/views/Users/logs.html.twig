@@ -14,9 +14,9 @@
                 <div class="row">
                     <form class="form-horizontal" id="form_item" method="GET">
                         <div class="form-group">
-                            <label class="col-sm-1 control-label item_filter">MUDID</label>
+                            <label class="col-sm-1 control-label item_filter">Nombre</label>
                             <div class="col-sm-2 item_filter">
-                                <input type="text" name="username" class="form-control" value="{{filters.username is defined ? filters.username : ''}}">
+                                <input type="text" name="name" class="form-control" value="{{filters.name is defined ? filters.name : ''}}">
                             </div>
                             <label class="col-sm-1 control-label item_filter">Descripción</label>
                             <div class="col-sm-2 item_filter">
@@ -81,6 +81,7 @@
                         {% include '::pagination2.html.twig' %}
                     {% endif %}
                     <a href="{{pagination.url}}{{pagination.character}}export_excel=1" target="_blank" class="btn btn-primary pull-right"><i class="fa fa-file-excel-o" aria-hidden="true"></i> Excel</a>
+                    <a href="{{pagination.url}}{{pagination.character}}export_pdf=1" target="_blank" class="btn btn-primary pull-right" style="margin-right:1px"><i class="fa fa fa-file-pdf-o" aria-hidden="true"></i> PDF</a>
                 </div>
             </div>
         </div>
