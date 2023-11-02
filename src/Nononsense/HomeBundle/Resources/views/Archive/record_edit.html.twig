@@ -41,16 +41,29 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-2 control-label">Área</label>
+                            <label class="col-sm-2 control-label">Área custodio</label>
                             <div class="col-sm-6">
                                 <select class="form-control" name="area" style="width: 100%;" required="required" {{agent is not defined or not agent ? 'disabled="disabled"' : ''}}>
                                     <option value=""></option>
-                                    {% for area in areas %}
+                                    {% for area in myAreas %}
                                         <option value="{{area.id}}" {{record.area is defined and record.area==area ? 'selected="selected"'}}>{{area.name}}</option>
                                     {% endfor %}
                                 </select>
                             </div>
                         </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Área</label>
+                            <div class="col-sm-6">
+                                <select class="form-control" name="area_info" style="width: 100%;" required="required" {{agent is not defined or not agent ? 'disabled="disabled"' : ''}}>
+                                    <option value=""></option>
+                                    {% for area in areas %}
+                                        <option value="{{area.id}}" {{record.areaInfo is defined and record.areaInfo==area ? 'selected="selected"'}}>{{area.name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
                         <div class="form-group">
                             <label class="col-sm-2 control-label">Tipo de documento</label>
                             <div class="col-sm-6">
@@ -86,7 +99,7 @@
                                     {% if categories is defined %}
                                         <select multiple="multiple" name="categories[]" id="category" {{agent is not defined or not agent ? 'disabled="disabled"' : ''}}>
                                             {% for category in categories %}
-                                                <option value={{category.id}} {{ category in record.categories ? "selected='selected'" : "" }}>{{category.name}}</option>;
+                                                <option value={{category.id}} {{ category in record.categories ? "selected='selected'" : "" }} title="{{category.description}}">{{category.name}}</option>;
                                             {% endfor %}
                                         </select>
                                     {% endif %}
@@ -137,7 +150,7 @@
                             <div class="form-group">
                                 <label class="col-sm-2 control-label">AZ</label>
                                 <div class="col-sm-2">
-                                    <input type="text" id="location-info" class="form-control" value="{{record.az is not null ? record.az.code : ''}}" readonly="readonly" {{record.id is null or record.az is not empty ? 'required="required"' : ''}}>
+                                    <input type="text" id="location-info" class="form-control readonly" value="{{record.az is not null ? record.az.code : ''}}" {{record.id is null or record.az is not empty ? 'required="required"' : ''}}>
                                     <input type="hidden" name="location" id="location" class="form-control" value="{{record.az is not null ? record.az.id : ''}}"  {{record.id is null or record.az is not empty ? 'required="required"' : ''}}>
                                 </div>
                                 {% if agent is defined and agent %}
@@ -262,9 +275,22 @@
         ActivateMenu('archive_new_records');
         $('#side-menu').metisMenu();
 
+        $(".readonly").on('keydown paste focus mousedown', function(e){
+            if(e.keyCode != 9) // ignore tab
+                e.preventDefault();
+        });
+        
+
         {% if agent is defined and agent %}
             $('#category').multi({ non_selected_header: 'Categorías de retención disponibles',
                 selected_header: 'Categorías de retención que aplican'
+            });
+
+            $("body").on('DOMSubtreeModified', ".multi-wrapper", function() {
+                $('#category').next(".multi-wrapper").find('a[role="button"]').each(function() {
+                    $(this).attr('title', $('#category').find('option[value='+$(this).data("value")+']').attr("title"));
+                });
+                $('a[role="button"]').tooltip();
             });
 
             $('#preservations').multi({ non_selected_header: 'Preservation notices disponibles',
@@ -272,7 +298,7 @@
             });
         {% endif %}
 
-
+        
 
         $(document).on('submit','#form_item',function(e){
             event.preventDefault();

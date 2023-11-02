@@ -19,7 +19,7 @@ class ArchiveRecordsRepository extends EntityRepository
 
         switch($type){
             case "list":
-                $list = $this->createQueryBuilder('ar')->select("ar.id","ar.uniqueNumber","us.name useState","s.name state","t.name type","a.name area","a.id areaId","ar.title","ar.edition","ar.initRetention","arc.name category","arc.retentionDays","arp.name preservation");
+                $list = $this->createQueryBuilder('ar')->select("ar.id","ar.uniqueNumber","us.name useState","s.name state","t.name type","a.name area","a.id areaId","a2.name areaInfo","a2.id areaInfoId","ar.title","ar.edition","ar.initRetention","arc.name category","arc.retentionDays","arp.name preservation");
                 $list->addSelect('DATE_ADD(ar.initRetention, arc.retentionDays, \'DAY\') as destructionDate','ar.retentionRevision');
                 break;
             case "count":
@@ -39,7 +39,8 @@ class ArchiveRecordsRepository extends EntityRepository
              ->leftJoin("ar.useState", "us")
              ->leftJoin("ar.type", "t")
              ->leftJoin("ar.az", "l")
-             ->leftJoin("ar.area", "a");
+             ->leftJoin("ar.area", "a")
+             ->leftJoin("ar.areaInfo", "a2");
 
         $list->leftJoin("ar.categories", "arc", "WITH", "(arc.id IN (
                 SELECT MIN(arc3.id)
@@ -99,6 +100,11 @@ class ArchiveRecordsRepository extends EntityRepository
             if(isset($filters["area"])){
                 $list->andWhere('a.id=:area');
                 $list->setParameter('area', $filters["area"]);
+            }
+
+            if(isset($filters["areaInfo"])){
+                $list->andWhere('a2.id=:areaInfo');
+                $list->setParameter('areaInfo', $filters["areaInfo"]);
             }
 
              if(isset($filters["areas"])){

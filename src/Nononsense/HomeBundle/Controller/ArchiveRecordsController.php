@@ -106,55 +106,37 @@ class ArchiveRecordsController extends Controller
                  ->setCellValue('B2', 'Identificador')
                  ->setCellValue('C2', 'Título')
                  ->setCellValue('D2', 'Edición')
-                 ->setCellValue('E2', 'Área')
-                 ->setCellValue('F2', 'Tipo de documento')
-                 ->setCellValue('G2', 'Estado')
-                 ->setCellValue('H2', 'Disponibilidad')
-                 ->setCellValue('I2', 'Categoría retención')
-                 ->setCellValue('J2', 'Inicio retención')
-                 ->setCellValue('K2', 'Fecha destrucción')
-                 ->setCellValue('L2', 'Preservation notice');
+                 ->setCellValue('E2', 'Área custodio')
+                 ->setCellValue('F2', 'Área')
+                 ->setCellValue('G2', 'Tipo de documento')
+                 ->setCellValue('H2', 'Estado')
+                 ->setCellValue('I2', 'Disponibilidad')
+                 ->setCellValue('J2', 'Categoría retención')
+                 ->setCellValue('K2', 'Inicio retención')
+                 ->setCellValue('L2', 'Fecha destrucción')
+                 ->setCellValue('M2', 'Preservation notice');
             }
 
             if($request->get("export_pdf")){
                 $html='<html><body style="font-size:8px;width:100%"><table autosize="1" style="overflow:wrap;width:100%"><tr style="font-size:8px;width:100%">
                         <th style="font-size:8px;width:5%">ID</th>
                         <th style="font-size:8px;width:5%">Identificador</th>
-                        <th style="font-size:8px;width:10%">Título</th>
+                        <th style="font-size:8px;width:9%">Título</th>
                         <th style="font-size:8px;width:5%">Edición</th>
-                        <th style="font-size:8px;width:10%">Área</th>
-                        <th style="font-size:8px;width:10%">Tipo de documento</th>
-                        <th style="font-size:8px;width:10%">Estado</th>
-                        <th style="font-size:8px;width:10%">Disponibilidad</th>
-                        <th style="font-size:8px;width:10%">Categoría</th>
-                        <th style="font-size:8px;width:10%">Inicio retención</th>
-                        <th style="font-size:8px;width:10%">Fecha destrucción</th>
+                        <th style="font-size:8px;width:9%">Área custodio</th>
+                        <th style="font-size:8px;width:8%">Área</th>
+                        <th style="font-size:8px;width:9%">Tipo de documento</th>
+                        <th style="font-size:8px;width:9%">Estado</th>
+                        <th style="font-size:8px;width:9%">Disponibilidad</th>
+                        <th style="font-size:8px;width:9%">Categoría</th>
+                        <th style="font-size:8px;width:9%">Inicio retención</th>
+                        <th style="font-size:8px;width:9%">Fecha destrucción</th>
                         <th style="font-size:8px;width:5%">Preserv. notice</th>
                     </tr>';
             }
 
             $i=3;
             foreach($array_item["items"] as $item){
-                if($item["preservation"]!=""){
-                    $type="Preservation Notice";
-                    $id=$item["preservation"];
-                }
-                else{
-                    if($item["record"]!=""){
-                        $type="Registro";
-                        $id=$item["record"];
-                    }
-                    else{
-                        if($item["type"]!=""){
-                            $type="Tipo";
-                            $id=$item["type"];
-                        }
-                        else{
-                            $type="Categoría";
-                            $id=$item["category"];
-                        }
-                    }
-                }
 
                 if($request->get("export_excel")){
                     $phpExcelObject->getActiveSheet()
@@ -163,11 +145,12 @@ class ArchiveRecordsController extends Controller
                     ->setCellValue('C'.$i, $item["title"])
                     ->setCellValue('D'.$i, $item["edition"])
                     ->setCellValue('E'.$i, $item["area"])
-                    ->setCellValue('F'.$i, $item["type"])
-                    ->setCellValue('G'.$i, $item["state"])
-                    ->setCellValue('H'.$i, $item["useState"])
-                    ->setCellValue('I'.$i, $item["category"])
-                    ->setCellValue('J'.$i, ($item["initRetention"]) ? $this->get('utilities')->sp_date($item["initRetention"]->format('d/m/Y')) : '')
+                    ->setCellValue('F'.$i, $item["areaInfo"])
+                    ->setCellValue('G'.$i, $item["type"])
+                    ->setCellValue('H'.$i, $item["state"])
+                    ->setCellValue('I'.$i, $item["useState"])
+                    ->setCellValue('J'.$i, $item["category"])
+                    ->setCellValue('K'.$i, ($item["initRetention"]) ? $this->get('utilities')->sp_date($item["initRetention"]->format('d/m/Y')) : '')
                     ->setCellValue('K'.$i, ($item["destructionDate"]) ? $this->get('utilities')->sp_date(date('d/m/Y', strtotime($item["destructionDate"]))) : '')
                     ->setCellValue('L'.$i, $item["preservation"]);
                 }
@@ -179,6 +162,7 @@ class ArchiveRecordsController extends Controller
                         <td>'.$item["title"].'</td>
                         <td>'.$item["edition"].'</td>
                         <td>'.$item["area"].'</td>
+                        <td>'.$item["areaInfo"].'</td>
                         <td>'.$item["type"].'</td>
                         <td>'.$item["state"].'</td>
                         <td>'.$item["useState"].'</td>
@@ -232,6 +216,7 @@ class ArchiveRecordsController extends Controller
         $em = $this->getDoctrine()->getManager();
         $record = $em->getRepository(ArchiveRecords::class)->findOneBy(['id' => $id]);
         $areas = $em->getRepository(Areas::class)->findBy(array("isActive"=>TRUE));
+        $myAreas=$this->get('app.security')->getAreas('archive_agent');
         $types = $em->getRepository(ArchiveTypes::class)->findBy(array("active"=>TRUE));
         $states = $em->getRepository(ArchiveStates::class)->findAll();
         $categories = $em->getRepository(ArchiveCategories::class)->findBy(array("active"=>TRUE),array("retentionDays" => "DESC"));
@@ -245,7 +230,7 @@ class ArchiveRecordsController extends Controller
             $record->setCreator($user);
         }
         else{
-            if(!in_array($record->getArea(), $this->get('app.security')->getAreas('archive_agent'))){
+            if(!in_array($record->getArea(),$myAreas)){
                 $this->get('session')->getFlashBag()->add(
                     'error',
                     'No tiene permisos para realizar esta acción'
@@ -262,6 +247,7 @@ class ArchiveRecordsController extends Controller
             'record' => $record,
             'used' => false,
             'areas' => $areas,
+            'myAreas' => $myAreas,
             'types' => $types,
             'states' => $states,
             'categories' => $categories,
@@ -608,6 +594,9 @@ class ArchiveRecordsController extends Controller
             $area = $em->getRepository(Areas::class)->findOneBy(['id' => $request->get('area')]);
             $record->setArea($area);
 
+            $areaInfo = $em->getRepository(Areas::class)->findOneBy(['id' => $request->get('area_info')]);
+            $record->setAreaInfo($areaInfo);
+
             $record->setUniqueNumber($request->get("unique_number"));
             $record->setModified(new \DateTime());
             if($request->get("title")){
@@ -623,7 +612,7 @@ class ArchiveRecordsController extends Controller
                 $record->setAZ(NULL);
             }
 
-            if ((!$request->get('location') && !$request->get("link")) || !$request->get('state') || !$request->get('type') || !$request->get('area') || !$request->get('comment')) {
+            if ((!$request->get('location') && !$request->get("link")) || !$request->get('state') || !$request->get('type') || !$request->get('area') || !$request->get('area_info') || !$request->get('comment')) {
                 $this->get('session')->getFlashBag()->add(
                     'error',
                     'Todos los datos son obligatorios'

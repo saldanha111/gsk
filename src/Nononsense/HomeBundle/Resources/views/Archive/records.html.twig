@@ -92,7 +92,7 @@
                             </div>
                             <div class="form-group">
                                 {% if filters.request is not defined %}
-                                    <label class="col-sm-1 control-label">Área</label>
+                                    <label class="col-sm-1 control-label">Área custodio</label>
                                     <div class="col-sm-2 item_filter">
                                         <select class="form-control" name="area" style="width: 100%;">
                                             <option value=""></option>
@@ -172,6 +172,7 @@
                             <th>Identificador</th>
                             <th>Título</th>
                             <th>Edición</th>
+                            <th>Área custodio</th>
                             <th>Área</th>
                             <th>Tipo de documento</th>
                             <th>Estado</th>
@@ -193,6 +194,7 @@
                                 <td>{{item.title}}</td>
                                 <td>{{item.edition}}</td>
                                 <td>{{item.area}}</td>
+                                <td>{{item.areaInfo}}</td>
                                 <td>{{item.type}}</td>
                                 <td>{{item.state}}</td>
                                 <td>{{item.useState}}</td>
@@ -236,7 +238,7 @@
                         {% endif %}
                         {% if filters.retentionAction is defined and count>0 and (filters.retentionAction=="3" or filters.retentionAction=="2") %}
                             <tr>
-                                <th colspan="14">
+                                <th colspan="15">
                                     <a class="btn btn-primary pull-right bnt-separator2 btn-retention" href="javascript:void(0)" data-action="1" data-info="Revisar"><i class="fa fa-check" aria-hidden="true"></i> Revisar</a>
                                     {% if filters.retentionAction is defined and filters.retentionAction=="3" %}
                                         <a class="btn btn-danger pull-right btn-retention" href="javascript:void(0)" data-action="2" data-info="Eliminar"><i class="fa fa-trash" aria-hidden="true"></i> Eliminar</a>
@@ -247,7 +249,7 @@
                         {% endif %}
                         {% if filters.request is defined and count>0  %}
                             <tr>
-                                <th colspan="14">
+                                <th colspan="15">
                                     <a class="btn btn-primary pull-right bnt-separator2 btn-retention" href="javascript:void(0)" data-action="3" data-info="Solicitar préstamo"><i class="fa fa-check" aria-hidden="true"></i> Solicitar préstamo</a>
                                 </th>
                                 <th><input id="record_masive" class="supcheck" type="checkbox"></th>
