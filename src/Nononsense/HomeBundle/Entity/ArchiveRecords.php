@@ -25,10 +25,16 @@ class ArchiveRecords
     protected $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\Areas", inversedBy="archive")
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\Areas")
      * @ORM\JoinColumn(name="area_id", referencedColumnName="id")
      */
     protected $area;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\Areas")
+     * @ORM\JoinColumn(name="area_info_id", referencedColumnName="id")
+     */
+    protected $areaInfo;
 
     /**
      * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\ArchiveTypes", inversedBy="archive")
@@ -591,5 +597,28 @@ class ArchiveRecords
     public function getAz()
     {
         return $this->az;
+    }
+
+    /**
+     * Set areaInfo
+     *
+     * @param \Nononsense\HomeBundle\Entity\Areas $areaInfo
+     * @return ArchiveRecords
+     */
+    public function setAreaInfo(\Nononsense\HomeBundle\Entity\Areas $areaInfo = null)
+    {
+        $this->areaInfo = $areaInfo;
+
+        return $this;
+    }
+
+    /**
+     * Get areaInfo
+     *
+     * @return \Nononsense\HomeBundle\Entity\Areas 
+     */
+    public function getAreaInfo()
+    {
+        return $this->areaInfo;
     }
 }

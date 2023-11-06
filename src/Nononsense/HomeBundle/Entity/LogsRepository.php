@@ -24,6 +24,15 @@ class LogsRepository extends EntityRepository
             	->setParameter('username', $filter["username"]);
         }
 
+        if (isset($filter['name']) && $filter['name']) {
+            $list->join('l.user', 'u');
+            $terms = explode(" ", $filter["name"]);
+            foreach($terms as $key => $term){
+                $list->andWhere('u.name LIKE :name'.$key);
+                $list->setParameter('name'.$key, '%' .$term . '%');
+            }
+        }
+
        if (isset($filter['description']) && $filter['description']) {
             $list->andWhere('l.description LIKE :description')
             	->setParameter('description', '%'.$filter["description"].'%');

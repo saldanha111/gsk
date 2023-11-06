@@ -316,6 +316,7 @@
                     {% endif %}
                     {% if 'archive_agent' in array_subsecciones %}
                         <li id="archive_new_records"><a href="#" data-toggle="modal" data-target="#popupArchiveNew">{{'Alta de registros'|trans}}</a></li>
+                        <li id="archive_masive_edition"><a href="{{path('nononsense_archive_records')}}?masive_edition=1">{{'Edición masiva'|trans}}</a></li>
                     {% endif %}
                     <li id="archive_records"><a href="{{path('nononsense_archive_records')}}">{{'Consulta de registros'|trans}}</a></li>
                     <li id="archive_request"><a href="{{path('nononsense_archive_records')}}?request=1">{{'Solicitar prestamo'|trans}}</a></li>
