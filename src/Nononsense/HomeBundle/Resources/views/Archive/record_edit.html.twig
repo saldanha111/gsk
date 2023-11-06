@@ -1,9 +1,11 @@
 {% extends '::base.html.twig' %}
 {% block page_title %}Docoaro - GSK |  Archivo / {{record.id is not null ? 'Editar' : 'Crear'}} registro{% endblock %}
 {% block head %}
+    {{ parent() }}
     <link rel="stylesheet" href="{{ asset('/js/plugins/sweetalert/sweetalert.min.css') }}">
     <link rel="stylesheet" href="/plugins/dual_listbox/dist/multi.min.css">
-    {{ parent() }}
+    <link rel="stylesheet" href="/css/plugins/datapicker/datepicker3.css">
+    
 {% endblock %}
 {% block main_title %} Archivo / {{record.id is not null ? 'Editar' : 'Crear'}} registro{% endblock %}
 
@@ -206,7 +208,11 @@
                         <div class="form-group">
                             <label class="col-sm-2 control-label">Fecha inicio retención</label>
                             <div class="col-sm-6">
-                                <input type="text" class="form-control" value="{{ record.initRetention is defined and record.initRetention is not empty ? record.initRetention|date("d/m/Y H:i:s")|gskdate : '' }}" readonly="readonly">
+                                {% if record.id is null %}
+                                    <input type="text" id="retentionDate" name="retention_date" class="form-control" value="{{ "now"|date("Y-m-d") }}">
+                                {% else %}
+                                    <input type="text" id="retentionDate" name="retention_date" class="form-control" value="{{ record.initRetention is defined and record.initRetention is not empty ? record.initRetention|date("Y-m-d") : '' }}">
+                                {% endif %}
                             </div>
                         </div>
                 </div>
@@ -269,6 +275,8 @@
     <script src="{{ asset('js/plugins/sweetalert/sweetalert.min.js') }}"></script>
     <script src="/plugins/dual_listbox/dist/multi.min.js"></script>
     <script type="text/javascript" src="{{ asset('js/barcode-reader.min.js') }}"></script>
+    <script src="/js/plugins/datapicker/bootstrap-datepicker.js"></script>
+    <script src="/js/plugins/datapicker/locales/bootstrap-datepicker.es.js" charset="UTF-8"></script>
     <script>
 
     $( document ).ready(function() {
@@ -278,6 +286,13 @@
         $(".readonly").on('keydown paste focus mousedown', function(e){
             if(e.keyCode != 9) // ignore tab
                 e.preventDefault();
+        });
+
+        $('#retentionDate').datepicker({
+          autoclose: true,
+          orientation: 'bottom auto',
+          format: 'yyyy-mm-dd',
+          language: 'es'
         });
         
 

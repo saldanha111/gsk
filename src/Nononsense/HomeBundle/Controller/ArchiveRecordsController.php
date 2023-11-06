@@ -57,7 +57,7 @@ class ArchiveRecordsController extends Controller
             $filters["limit_many"]=99999999999;
         }
 
-        if($request->get("retentionAction")){
+        if($request->get("retentionAction") || $request->get("masive_edition")){
             $filters["areas"]=$this->get('app.security')->getAreas('archive_agent');
             $filters2["areas"]=$this->get('app.security')->getAreas('archive_agent');
         }
@@ -70,7 +70,9 @@ class ArchiveRecordsController extends Controller
         $array_item["types"] = $this->getDoctrine()->getRepository(ArchiveTypes::class)->findAll();
         $array_item["areas"] = $this->getDoctrine()->getRepository(Areas::class)->findAll();
         $array_item["categories"] = $this->getDoctrine()->getRepository(ArchiveCategories::class)->findAll();
+        $array_item["preservations"] = $this->getDoctrine()->getRepository(ArchivePreservations::class)->findBy(array("active"=>TRUE));
         $areas=$this->get('app.security')->getAreas('archive_agent');
+        $array_item["myAreas"]=$areas;
         foreach($areas as $area){
             $array_item["agentareas"][]=$area->getId();
         }
@@ -334,6 +336,53 @@ class ArchiveRecordsController extends Controller
                     $em->persist($record);
                 }
                 break;
+            case "4":
+                foreach($records as $record){
+                    if($request->get("retention_date")){
+                        $retentionDate = new \DateTime($request->get("retention_date"));
+                        $record->setInitRetention($retentionDate);
+                    }
+                    if($request->get("state")){
+                        $state = $em->getRepository(ArchiveStates::class)->findOneBy(['id' => $request->get('state')]);
+                        $record->setState($state);
+                    }
+
+                    if($request->get("area")){
+                        $area = $em->getRepository(Areas::class)->findOneBy(['id' => $request->get('area')]);
+                        $record->setArea($area);
+                    }
+
+                    if($request->get("area_info")){
+                        $areaInfo = $em->getRepository(Areas::class)->findOneBy(['id' => $request->get('area_info')]);
+                        $record->setAreaInfo($areaInfo);
+                    }
+
+                    $record->setModified(new \DateTime());
+
+                    if($request->get('categories')){
+                        if($record->getCategories()){
+                            $record->getCategories()->clear();
+                        }
+                        foreach($request->get('categories') as $category){
+                            $category = $em->getRepository(ArchiveCategories::class)->findOneBy(['id' => $category]);
+                            $record->addCategory($category);
+                        }
+                    }
+
+                    if($request->get('preservations')){
+                        if($record->getPreservations()){
+                            $record->getPreservations()->clear();
+                        }
+                        foreach($request->get('preservations') as $preservation){
+                            $preservation = $em->getRepository(ArchivePreservations::class)->findOneBy(['id' => $preservation]);
+                            $record->addPreservation($preservation); 
+                        }
+                    }
+                    $sentence="La edición masiva se ha ejecutado satisfactoriamente";
+                    $this->get('utilities')->saveLogArchive($this->getUser(),2,$request->get('comment'),"record",$record->getId());
+                    $em->persist($record);
+                }
+                break;
         }
         
         $em->flush();
@@ -582,7 +631,13 @@ class ArchiveRecordsController extends Controller
             
             if($record->getState()!=$state){
                 if($state->getId()==1 || $state->getId()==2){
-                    $record->setInitRetention(new \DateTime());
+                    if(!$request->get("retention_date")){
+                        $record->setInitRetention(new \DateTime());
+                    }
+                    else{
+                        $retentionDate = new \DateTime($request->get("retention_date"));
+                        $record->setInitRetention($retentionDate);
+                    }
                 }
                 else{
                     $record->setInitRetention(NULL);
