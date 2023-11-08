@@ -1101,6 +1101,10 @@ nononsense_archive_az_list:
     path: /az
     defaults: { _controller: NononsenseHomeBundle:ArchiveAZ:list}
 
+nononsense_archive_az_print:
+    path: /az/print
+    defaults: { _controller: NononsenseHomeBundle:ArchiveAZ:print}
+
 nononsense_archive_az_edit:
     path: /az/{code}
     defaults: { _controller: NononsenseHomeBundle:ArchiveAZ:edit}

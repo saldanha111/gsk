@@ -25,6 +25,8 @@ use Com\Tecnick\Barcode\Barcode;
 use Com\Tecnick\Barcode\Exception as BCodeException;
 use Com\Tecnick\Color\Exception as BColorException;
 
+use PhpOffice\PhpWord\TemplateProcessor;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ArchiveAZController extends Controller
 {
@@ -212,6 +214,76 @@ class ArchiveAZController extends Controller
         return $response;
     }
 
+    public function printAction(Request $request)
+    {
+        // Obtén los códigos de la solicitud
+        for($i=0;$i<54;$i++){
+            $codes[] = uniqid();
+        }
+
+        // Cargar la plantilla de Word
+        $templateProcessor = new TemplateProcessor($this->container->get('kernel')->getRootDir().'/template_az.docx');
+
+        $barcodesPerPage = 44;
+        $barcodeChunks = array_chunk($codes, $barcodesPerPage);
+        $totalPages = count($barcodeChunks);
+        
+
+        // Clonar las páginas necesarias
+        //for ($i = 1; $i < $totalPages; $i++) {
+            $templateProcessor->cloneBlock('PAGE', $totalPages, true, true);
+        //}
+
+        // Renombrar los marcadores de posición
+        for ($i = 0; $i < $barcodesPerPage*$totalPages; $i++) {
+            $section=floor($i/$barcodesPerPage)+1;
+            $templateProcessor->setValue('barcode#'.$section, '${barcode' . ($i + 1).'}', 1);
+        }
+
+        // Reemplazar los marcadores de posición por imágenes de códigos de barras
+        foreach ($codes as $index => $code) {
+
+            $barcodeData = $this->getBarcodeImg($code);
+
+            // Crea un nombre de archivo temporal para la imagen
+            $tempImage = tempnam(sys_get_temp_dir(), 'barcode') . '.png';
+
+            // Guarda los datos de la imagen en el archivo
+            file_put_contents($tempImage, $barcodeData);
+
+            $placeholder = 'barcode' . ($index + 1);
+            $templateProcessor->setImageValue($placeholder, [
+                'path' => $tempImage,
+                'width' => 200,
+                'height' => 50,
+                'ratio' => false,
+            ]);
+
+            unlink($tempImage);
+        }
+
+        // Limpiar marcadores de posición sobrantes en la última página
+        $lastChunkSize = count($barcodeChunks[$totalPages - 1]);
+        if ($lastChunkSize < $barcodesPerPage) {
+            for ($i = $lastChunkSize; $i < $barcodesPerPage; $i++) {
+                $placeholder = 'barcode' . ($i + 1 + ($totalPages - 1) * $barcodesPerPage);
+                $templateProcessor->setValue($placeholder, '');
+            }
+        }
+
+        // Preparar y enviar la respuesta al navegador
+        $response = new StreamedResponse(function () use ($templateProcessor) {
+            // Guardar el documento en php://output que es un flujo directo al navegador
+            $templateProcessor->saveAs('php://output');
+        });
+
+        // Configurar los encabezados HTTP para la descarga
+        $response->headers->set('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+        $response->headers->set('Content-Disposition', 'attachment; filename="codigos-de-barras.docx"');
+        $response->headers->set('Cache-Control', 'max-age=0');
+
+        return $response;
+    }
 
     /**
      * @param $mcCode
