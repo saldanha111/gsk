@@ -1097,6 +1097,10 @@ nononsense_archive_ubications_edit:
     path: /archive-ubications/{id}
     defaults: { _controller: NononsenseHomeBundle:ArchiveUbications:edit}
 
+nononsense_archive_az_list:
+    path: /az
+    defaults: { _controller: NononsenseHomeBundle:ArchiveAZ:list}
+
 nononsense_archive_az_edit:
     path: /az/{code}
     defaults: { _controller: NononsenseHomeBundle:ArchiveAZ:edit}

@@ -3,6 +3,8 @@
 namespace Nononsense\HomeBundle\Entity;
 
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\Query\QueryException;
+use Doctrine\ORM\QueryBuilder;
 
 /**
  * ArchiveAZRepository
@@ -12,5 +14,80 @@ use Doctrine\ORM\EntityRepository;
  */
 class ArchiveAZRepository extends EntityRepository
 {
-	
+	/**
+     * @param string[] $filters
+     * @param int $paginate
+     * @return array|int|string
+     */
+    public function list(array $filters, $paginate = 1)
+    {
+        $list = $this->createQueryBuilder('azz')
+            ->select('azz')
+            ->orderBy('azz.id', 'DESC');
+
+        $list = self::fillFilersQuery($filters, $list);
+
+        if ($paginate == 1 && isset($filters["limit_from"])) {
+            $list->setFirstResult($filters["limit_from"] * $filters["limit_many"])->setMaxResults(
+                $filters["limit_many"]
+            );
+        }
+
+        $query = $list->getQuery();
+
+        return $query->getResult();
+    }
+
+    /**
+     * @param array $filters
+     * @return mixed
+     */
+    public function count($filters = [])
+    {
+        $list = $this->createQueryBuilder('azz')
+            ->select('COUNT(azz.id) as conta');
+
+        $list = self::fillFilersQuery($filters, $list);
+        $query = $list->getQuery();
+
+        try {
+            $result = $query->getSingleScalarResult();
+        } catch (QueryException $e) {
+            $result = 0;
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param array $filters
+     * @param QueryBuilder $list
+     * @return QueryBuilder
+     */
+    private function fillFilersQuery(array $filters, QueryBuilder $list)
+    {
+        if (isset($filters["code"])) {
+            $list->andWhere('azz.code = :code');
+            $list->setParameter('code', $filters["code"]);
+        }
+
+        if (isset($filters["codes"])) {
+            $list->andWhere('azz.code IN (:codes)');
+            $list->setParameter('codes', explode(',',$filters["codes"]));
+        }
+
+        return $list;
+    }
+
+    public function listToArray(): array
+    {
+        $list = $this->createQueryBuilder('aaz')
+            ->select('aaz')
+            ->orderBy('aaz.id', 'DESC');
+
+        $query = $list->getQuery();
+
+        return $query->getArrayResult();
+    }
+
 }
