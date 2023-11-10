@@ -56,6 +56,12 @@ class ArchiveSignatures
     protected $archiveAz;
 
     /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\ArchiveLocations", inversedBy="archiveSignatures")
+     * @ORM\JoinColumn(name="location_id", referencedColumnName="id")
+     */
+    protected $archiveLocation;
+
+    /**
      * @ORM\ManyToOne(targetEntity="\Nononsense\UserBundle\Entity\Users", inversedBy="archiveSignatures")
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
      */
@@ -460,5 +466,28 @@ class ArchiveSignatures
     public function getArchiveAz()
     {
         return $this->archiveAz;
+    }
+
+    /**
+     * Set archiveLocation
+     *
+     * @param \Nononsense\HomeBundle\Entity\ArchiveLocations $archiveLocation
+     * @return ArchiveSignatures
+     */
+    public function setArchiveLocation(\Nononsense\HomeBundle\Entity\ArchiveLocations $archiveLocation = null)
+    {
+        $this->archiveLocation = $archiveLocation;
+
+        return $this;
+    }
+
+    /**
+     * Get archiveLocation
+     *
+     * @return \Nononsense\HomeBundle\Entity\ArchiveLocations 
+     */
+    public function getArchiveLocation()
+    {
+        return $this->archiveLocation;
     }
 }

@@ -30,7 +30,8 @@
                                     <option value="record" {{filters.type is defined and filters.type=="record" ? 'selected="selected"'}}>Registros</option>
                                     <option value="category" {{filters.type is defined and filters.type=="category" ? 'selected="selected"'}}>Categoría</option>
                                     <option value="type" {{filters.type is defined and filters.type=="type" ? 'selected="selected"'}}>Tipo</option>
-                                    <option value="az" {{filters.type is defined and filters.type=="type" ? 'selected="selected"'}}>AZ</option>
+                                    <option value="az" {{filters.type is defined and filters.type=="az" ? 'selected="selected"'}}>AZ</option>
+                                    <option value="location" {{filters.type is defined and filters.type=="location" ? 'selected="selected"'}}>Ubicación</option>
                                 </select>
                             </div>
                             <label class="col-sm-1 control-label">Acción</label>
@@ -75,6 +76,8 @@
                                         Tipo
                                     {% elseif item.az is not empty %}
                                         Az
+                                    {% elseif item.location is not empty %}
+                                        Ubicación
                                     {% else %} 
                                         Categoría
                                     {% endif %} 
@@ -88,6 +91,8 @@
                                         {{ item.type }}
                                     {% elseif item.az is not empty %}
                                         {{ item.az }}
+                                    {% elseif item.location is not empty %}
+                                        {{ item.location }}
                                     {% else %} 
                                         {{ item.category }}
                                     {% endif %} 

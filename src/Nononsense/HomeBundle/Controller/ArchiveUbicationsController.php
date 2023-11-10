@@ -79,6 +79,11 @@ class ArchiveUbicationsController extends Controller
             $qr = new ArchiveLocations();
         }
 
+        $action = 5;
+        if ($qr->getId()) {
+            $action = 2;
+        }
+
         if($request->getMethod()=='POST'){
             try{
                 $qr->setBuilding($request->get("building"));
@@ -89,6 +94,13 @@ class ArchiveUbicationsController extends Controller
 
                 $em->persist($qr);
                 $em->flush();
+
+                $comment="";
+                if($request->get("comment")){
+                    $comment=$request->get("comment");
+                }
+                $this->get('utilities')->saveLogArchive($this->getUser(),$action,$comment,"location",$qr->getId());
+
                 $this->get('session')->getFlashBag()->add('message',"La ubicación se ha guardado correctamente");
                 return $this->redirect($this->generateUrl('nononsense_archive_ubications_list'));
             }
@@ -184,7 +196,7 @@ class ArchiveUbicationsController extends Controller
         ->setErrorCorrection('high')
         ->setForegroundColor(['r' => 0, 'g' => 0, 'b' => 0, 'a' => 0])
         ->setBackgroundColor(['r' => 255, 'g' => 255, 'b' => 255, 'a' => 0])
-        ->setLabel('')
+        ->setLabel($qr->getBuilding()."-".$qr->getShelf()."-".$qr->getPassage()."-".$qr->getCabinet()."-".$qr->getOthers())
         ->setLabelFontSize(14)
         ->setImageType(QrCode::IMAGE_TYPE_PNG)
         ;

@@ -76,6 +76,11 @@ class ArchiveAZRepository extends EntityRepository
             $list->setParameter('codes', explode(',',$filters["codes"]));
         }
 
+        if (isset($filters["prints"])) {
+            $list->andWhere('azz.id IN (:prints)');
+            $list->setParameter('prints', $filters["prints"]);
+        }
+
         return $list;
     }
 

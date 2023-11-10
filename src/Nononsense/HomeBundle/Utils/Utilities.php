@@ -148,6 +148,10 @@ class Utilities{
                 $az=$this->em->getRepository('NononsenseHomeBundle:ArchiveAZ')->findOneBy(array('id' => $id));
                 $signatureLog->setArchiveAz($az);
                 break;
+            case "location":
+                $location=$this->em->getRepository('NononsenseHomeBundle:ArchiveLocations')->findOneBy(array('id' => $id));
+                $signatureLog->setArchiveLocation($location);
+                break;
         }
         $signatureLog->setModified(new \DateTime());
         if($file){

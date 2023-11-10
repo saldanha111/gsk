@@ -216,10 +216,19 @@ class ArchiveAZController extends Controller
 
     public function printAction(Request $request)
     {
-        // Obtén los códigos de la solicitud
-        for($i=0;$i<54;$i++){
-            $codes[] = uniqid();
+        $em = $this->getDoctrine()->getManager();
+        $filters = Utils::getListFilters($request);
+        if($request->get("f_prints")){
+            foreach($request->get("f_prints") as $print){
+                $filters["prints"][]=$print;
+            }
         }
+        $archiveCategoriesRepository = $em->getRepository(ArchiveAZ::class);
+        $items = $archiveCategoriesRepository->list($filters,FALSE);
+        foreach($items as $item){
+            $codes[]=$item->getCode();
+        }
+
 
         // Cargar la plantilla de Word
         $templateProcessor = new TemplateProcessor($this->container->get('kernel')->getRootDir().'/template_az.docx');

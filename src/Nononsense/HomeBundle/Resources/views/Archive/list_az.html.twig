@@ -66,7 +66,7 @@
                             {# <img class="img-responsive" src="{{ path('nononsense__archive_code_view', {'code': item.code}) }}"> #}
                         </td>
                         <td>{{ item.location.building }}-{{ item.location.shelf }}-{{ item.location.passage }}-{{ item.location.cabinet }}-{{ item.location.others }}</td>
-                        <td><input class="checkpem" name="retentions[]" value="{{item.id}}" type="checkbox"></td>
+                        <td><input class="checkpem" name="f_prints[]" value="{{item.id}}" type="checkbox"></td>
                     </tr>
                     {% endfor %}
                     <tr>
@@ -90,7 +90,7 @@
 <div class="modal fade" tabindex="-1" role="dialog" id="modalPrint">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
-            <form class="form-horizontal" id="formModalRetention" action="{{pagination.url}}" method="POST">
+            <form class="form-horizontal" id="formModalPrint" action="{{pagination.url}}" method="POST">
                 <div class="modal-header">
                     <h5 class="modal-title">Impresión de AZs</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -105,7 +105,7 @@
                         </div>
                     </div>
                 </div>
-                <div id="dynamic_retention_elements" style="display:none">
+                <div id="dynamic_print_elements" style="display:none">
 
                 </div>
                 <div class="modal-footer">
@@ -150,6 +150,20 @@
 
         $("#print_message").html(title);
         $("#modalPrint").modal('show');
+    });
+
+    $(document).on('click','#print_modal',function(e){
+        if($('.checkpem:checked').length>0){
+            $(".checkpem:checked").each(function() {
+                $('#dynamic_print_elements').append($(this).clone());
+            });
+        }
+        $("#formModalPrint").submit();
+
+        setTimeout(() => {
+            navigation = false;
+            $("#modalPrint").modal('toggle');
+        }, 2000); // ajusta este tiempo según sea necesario
     });
   });
 
