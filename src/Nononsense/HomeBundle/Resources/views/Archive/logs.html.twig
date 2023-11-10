@@ -65,55 +65,58 @@
                         </thead>
                         {% if items is defined %}
                             {% for item in items %}
-                            <tr>
-                                <td>{{ item.modified is defined and item.modified is not empty ? item.modified|date("d/m/Y H:i:s")|gskdate : '' }}</td>
-                                <td>
-                                    {% if item.preservation is not empty %}
-                                        Preservation notice
-                                    {% elseif item.record is not empty %}
-                                        Registro
-                                    {% elseif item.type is not empty %}
-                                        Tipo
-                                    {% elseif item.az is not empty %}
-                                        Az
-                                    {% elseif item.location is not empty %}
-                                        Ubicación
-                                    {% else %} 
-                                        Categoría
-                                    {% endif %} 
-                                </td>
-                                <td>
-                                    {% if item.preservation is not empty %}
-                                        {{ item.preservation }}
-                                    {% elseif item.record is not empty %}
-                                        {{ item.record }}
-                                    {% elseif item.type is not empty %}
-                                        {{ item.type }}
-                                    {% elseif item.az is not empty %}
-                                        {{ item.az }}
-                                    {% elseif item.location is not empty %}
-                                        {{ item.location }}
-                                    {% else %} 
-                                        {{ item.category }}
-                                    {% endif %} 
-                                </td>
-                                <td>{{item.action}}</td>
-                                <td>{{item.user}}</td>
-                                <td>{{item.description}}</td>
-                                <td>
-                                    {% if (item.preservation is not empty or item.category is not empty) and item.action!="Crear" %}
-                                        <a href="{{path('nononsense_archive_records')}}?signature={{item.id}}" class="btn btn-xs btn-primary">
-                                            <i class="fa fa-eye" aria-hidden="true"></i><span> Ver registros afectados</span>
-                                        </a>
-                                    {% endif %}
+                                <tr>
+                                    <td>{{ item.modified is defined and item.modified is not empty ? item.modified|date("d/m/Y H:i:s")|gskdate : '' }}</td>
+                                    <td>
+                                        {% if item.preservation is not empty %}
+                                            Preservation notice
+                                        {% elseif item.record is not empty %}
+                                            Registro
+                                        {% elseif item.type is not empty %}
+                                            Tipo
+                                        {% elseif item.az is not empty %}
+                                            Az
+                                        {% elseif item.location is not empty %}
+                                            Ubicación
+                                        {% else %} 
+                                            Categoría
+                                        {% endif %} 
+                                    </td>
+                                    <td>
+                                        {% if item.preservation is not empty %}
+                                            {{ item.preservation }}
+                                        {% elseif item.record is not empty %}
+                                            {{ item.record }}
+                                        {% elseif item.type is not empty %}
+                                            {{ item.type }}
+                                        {% elseif item.az is not empty %}
+                                            {{ item.az }}
+                                        {% elseif item.location is not empty %}
+                                            {{ item.location }}
+                                        {% else %} 
+                                            {{ item.category }}
+                                        {% endif %} 
+                                    </td>
+                                    <td>{{item.action}}</td>
+                                    <td>{{item.user}}</td>
+                                    <td>{{item.description}}</td>
+                                    <td>
+                                        {% if (item.preservation is not empty or item.category is not empty) and item.action!="Crear" %}
+                                            <a href="{{path('nononsense_archive_records')}}?signature={{item.id}}" class="btn btn-xs btn-primary">
+                                                <i class="fa fa-eye" aria-hidden="true"></i><span> Ver registros afectados</span>
+                                            </a>
+                                        {% endif %}
 
-                                    {% if item.attachment is defined and item.attachment is not empty %}
-                                        <a href="{{path('nononsense_archive_log_certification', {'id' : item.id})}}" target="_blank" class="btn btn-xs btn-primary">
-                                            <i class="fa fa-file" aria-hidden="true"></i><span> Documento certificación</span>
-                                        </a>
-                                    {% endif %}
-                                </td>
-                            </tr>
+                                        {% if item.attachment is defined and item.attachment is not empty %}
+                                            <a href="{{path('nononsense_archive_log_certification', {'id' : item.id})}}" target="_blank" class="btn btn-xs btn-primary">
+                                                <i class="fa fa-file" aria-hidden="true"></i><span> Documento certificación</span>
+                                            </a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% if item.changes is defined and item.changes is not empty %}
+                                    <tr><td colspan="3"></td><td colspan="4">{{item.changes|raw}}</td></tr> 
+                                {% endif %}
                             {% endfor %}
                         {% endif %}
                     </table>

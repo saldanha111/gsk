@@ -338,6 +338,7 @@ class ArchiveRecordsController extends Controller
                 break;
             case "4":
                 foreach($records as $record){
+                    $changes=$this->getChanges($request,$record,TRUE);
                     if($request->get("retention_date")){
                         $retentionDate = new \DateTime($request->get("retention_date"));
                         $record->setInitRetention($retentionDate);
@@ -379,7 +380,7 @@ class ArchiveRecordsController extends Controller
                         }
                     }
                     $sentence="La edición masiva se ha ejecutado satisfactoriamente";
-                    $this->get('utilities')->saveLogArchive($this->getUser(),2,$request->get('comment'),"record",$record->getId());
+                    $this->get('utilities')->saveLogArchive($this->getUser(),2,$request->get('comment'),"record",$record->getId(),NULL,NULL,$changes);
                     $em->persist($record);
                 }
                 break;
@@ -616,12 +617,16 @@ class ArchiveRecordsController extends Controller
         $em = $this->getDoctrine()->getManager();
         $saved = false;
         $action = 5;
+        $changes=NULL;
 
         if ($record->getId()) {
             $action = 2;
         }
         $em->getConnection()->beginTransaction();
         try {
+            if($action!=5){
+                $changes=$this->getChanges($request,$record);  
+            }
             if($request->get('location')){
                 $az = $em->getRepository(ArchiveAZ::class)->findOneBy(['id' => $request->get('location')]);
                 $record->setAz($az);
@@ -700,9 +705,11 @@ class ArchiveRecordsController extends Controller
                 $comment=$request->get("comment");
             }
 
+            
+
             $em->persist($record);
             $em->flush();
-            $this->get('utilities')->saveLogArchive($this->getUser(),$action,$comment,"record",$record->getId());
+            $this->get('utilities')->saveLogArchive($this->getUser(),$action,$comment,"record",$record->getId(),NULL,NULL,$changes);
             $em->getConnection()->commit();
             $this->get('session')->getFlashBag()->add(
                 'message',
@@ -780,6 +787,112 @@ class ArchiveRecordsController extends Controller
             'name' => $ruta.$file_name,
             'size' => $file->getClientSize()
         ];
+    }
+
+    public function getChanges($request,$item,$masive = FALSE){
+        $changes="";
+        $em = $this->getDoctrine()->getManager();
+
+        if($request->get("title") && $request->get("title")!=$item->getTitle()){
+            $changes.="<tr><td>Titulo</td><td>".$item->getTitle()."</td><td>".$request->get("title")."</td></tr>";
+        }
+
+        if($request->get("edition") && $request->get("edition")!=$item->getEdition()){
+            $changes.="<tr><td>Edición</td><td>".$item->getEdition()."</td><td>".$request->get("edition")."</td></tr>";
+        }
+
+        if($request->get("link") && $request->get("link")!=$item->getLink()){
+            $changes.="<tr><td>Link</td><td>".$item->getLink()."</td><td>".$request->get("link")."</td></tr>";
+        }
+
+        if($request->get("type") && $request->get("type")!=$item->getType()->getId()){
+            $type = $em->getRepository(ArchiveTypes::class)->findOneBy(['id' => $request->get('type')]);
+            $changes.="<tr><td>Tipo</td><td>".$item->getType()->getName()."</td><td>".$type->getName()."</td></tr>";
+        }
+
+        if($request->get("area") && $request->get("area")!=$item->getArea()->getId()){
+            $area = $em->getRepository(Areas::class)->findOneBy(['id' => $request->get('area')]);
+            $changes.="<tr><td>Area custodio</td><td>".$item->getArea()->getName()."</td><td>".$area->getName()."</td></tr>";
+        }
+
+        if($request->get("area_info") && $request->get("area_info")!=$item->getAreaInfo()->getId()){
+            $areaInfo = $em->getRepository(Areas::class)->findOneBy(['id' => $request->get('area_info')]);
+            $changes.="<tr><td>Area</td><td>".$item->getAreaInfo()->getName()."</td><td>".$areaInfo->getName()."</td></tr>";
+        }
+
+        if($request->get("unique_number") && $request->get("unique_number")!=$item->getUniqueNumber()){
+            $changes.="<tr><td>Identificador</td><td>".$item->getUniqueNumber()."</td><td>".$request->get("unique_number")."</td></tr>";
+        }
+
+        if($request->get("state") && $request->get("state")!=$item->getState()->getId()){
+            $state = $em->getRepository(ArchiveStates::class)->findOneBy(['id' => $request->get('state')]);
+            $changes.="<tr><td>Estado</td><td>".$item->getState()->getName()."</td><td>".$state->getName()."</td></tr>";
+        }
+
+        if($request->get("location") && $request->get("location")!=$item->getAZ()->getId()){
+            $az = $em->getRepository(ArchiveAZ::class)->findOneBy(['id' => $request->get('location')]);
+            $changes.="<tr><td>AZ</td><td>".$item->getAZ()->getCode()."</td><td>".$az->getCode()."</td></tr>";
+        }
+
+        if($request->get("retention_date")){
+            if($item->getInitRetention()){
+                $last=$item->getInitRetention()->format("Y-m-d");
+                if($request->get("retention_date")!=$last){
+                    $changes.="<tr><td>Fecha retención</td><td>".$last."</td><td>".$request->get("retention_date")."</td></tr>";
+                }
+            }
+            else{
+                $changes.="<tr><td>Fecha retención</td><td></td><td>".$request->get("retention_date")."</td></tr>";
+            }
+        }
+
+        if(!$masive || ($masive && $request->get("categories"))){
+            $categories = $request->get('categories');
+            $saved=$item->getCategories();
+            $list_saved=array();
+            foreach($saved as $save){
+                if (empty($categories) || !in_array($save->getId(), $categories)) {
+                    $changes.="<tr><td>Categoría ".$save->getName()."</td><td>Si</td><td>No</td></tr>";
+                }
+                $list_saved[]=$save->getId();
+            }
+
+            if($categories){
+                foreach ($categories as $category) {
+                    if (!in_array($category, $list_saved)) {
+                        $newCategory = $em->getRepository(ArchiveCategories::class)->findOneBy(['id' => $category]);
+                        $changes.="<tr><td>Categoría ".$newCategory->getName()."</td><td>No</td><td>Si</td></tr>";
+                    }
+                }
+            }
+        }
+
+        if(!$masive || ($masive && $request->get("preservations"))){
+            $preservations = $request->get('preservations');
+            $saved=$item->getPreservations();
+            $list_saved=array();
+            foreach($saved as $save){
+                if (empty($preservations) || !in_array($save->getId(), $preservations)) {
+                    $changes.="<tr><td>Preservation notice ".$save->getName()."</td><td>Si</td><td>No</td></tr>";
+                }
+                $list_saved[]=$save->getId();
+            }
+
+            if($preservations){
+                foreach ($preservations as $preservation) {
+                    if (!in_array($preservation, $list_saved)) {
+                        $newPreservation = $em->getRepository(ArchivePreservations::class)->findOneBy(['id' => $preservation]);
+                        $changes.="<tr><td>Preservation notice ".$newPreservation->getName()."</td><td>No</td><td>Si</td></tr>";
+                    }
+                }
+            }
+        }
+
+        if($changes!=""){
+            $changes="\n<table class='table'><tr><td>Campo</td><td>Anterior</td><td>Nuevo</td></tr>".$changes."</table>";
+        }
+
+        return $changes;
     }
 
 }

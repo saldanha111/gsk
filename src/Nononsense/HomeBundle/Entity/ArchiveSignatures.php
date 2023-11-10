@@ -118,6 +118,13 @@ class ArchiveSignatures
      */
     protected $notAvailable;
 
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="changes", type="text", nullable=true)
+     */
+    protected $changes;
+
 
     /**
      * Get id
@@ -489,5 +496,28 @@ class ArchiveSignatures
     public function getArchiveLocation()
     {
         return $this->archiveLocation;
+    }
+
+    /**
+     * Set changes
+     *
+     * @param string $changes
+     * @return ArchiveSignatures
+     */
+    public function setChanges($changes)
+    {
+        $this->changes = $changes;
+
+        return $this;
+    }
+
+    /**
+     * Get changes
+     *
+     * @return string 
+     */
+    public function getChanges()
+    {
+        return $this->changes;
     }
 }

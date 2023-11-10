@@ -104,7 +104,7 @@ class Utilities{
         return false;
     }
 
-    public function saveLogArchive(Users $user, int $action, string $comment, string $type, int $id, $file=NULL, $patern=NULL)
+    public function saveLogArchive(Users $user, int $action, string $comment, string $type, int $id, $file=NULL, $patern=NULL, $changes=NULL)
     {
         $action=$this->em->getRepository('NononsenseHomeBundle:ArchiveActions')->findOneBy(array('id' => $action));
 
@@ -161,6 +161,10 @@ class Utilities{
         if($patern){
             $patern=$this->em->getRepository('NononsenseHomeBundle:ArchiveSignatures')->findOneBy(array('id' => $patern));
             $signatureLog->setPatern($patern);
+        }
+
+        if($changes && $changes!=""){
+            $signatureLog->setChanges($changes);
         }
         $this->em->persist($signatureLog);
         $this->em->flush();
