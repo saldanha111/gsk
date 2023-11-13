@@ -1,5 +1,4 @@
 <?php
-
 namespace Nononsense\HomeBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
@@ -23,6 +22,11 @@ class Areas
      * @Groups({"detail_area","list_area","json"})
      */
     protected $id;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\AreasSignatures", mappedBy="area")
+     */
+    protected $areasSignatures;
 
     /**
      * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\TMTemplates", inversedBy="areas")
@@ -329,5 +333,39 @@ class Areas
     public function getFll()
     {
         return $this->fll;
+    }
+
+
+    /**
+     * Add areasSignatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\AreasSignatures $areasSignatures
+     * @return Areas
+     */
+    public function addAreasSignature(\Nononsense\HomeBundle\Entity\AreasSignatures $areasSignatures)
+    {
+        $this->areasSignatures[] = $areasSignatures;
+
+        return $this;
+    }
+
+    /**
+     * Remove areasSignatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\AreasSignatures $areasSignatures
+     */
+    public function removeAreasSignature(\Nononsense\HomeBundle\Entity\AreasSignatures $areasSignatures)
+    {
+        $this->areasSignatures->removeElement($areasSignatures);
+    }
+
+    /**
+     * Get areasSignatures
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getAreasSignatures()
+    {
+        return $this->areasSignatures;
     }
 }
