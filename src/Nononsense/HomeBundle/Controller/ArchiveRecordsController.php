@@ -109,7 +109,7 @@ class ArchiveRecordsController extends Controller
                  ->setCellValue('C2', 'Título')
                  ->setCellValue('D2', 'Edición')
                  ->setCellValue('E2', 'Área custodio')
-                 ->setCellValue('F2', 'Área')
+                 ->setCellValue('F2', 'Área origen')
                  ->setCellValue('G2', 'Tipo de documento')
                  ->setCellValue('H2', 'Estado')
                  ->setCellValue('I2', 'Disponibilidad')
@@ -126,7 +126,7 @@ class ArchiveRecordsController extends Controller
                         <th style="font-size:8px;width:9%">Título</th>
                         <th style="font-size:8px;width:5%">Edición</th>
                         <th style="font-size:8px;width:9%">Área custodio</th>
-                        <th style="font-size:8px;width:8%">Área</th>
+                        <th style="font-size:8px;width:8%">Área origen</th>
                         <th style="font-size:8px;width:9%">Tipo de documento</th>
                         <th style="font-size:8px;width:9%">Estado</th>
                         <th style="font-size:8px;width:9%">Disponibilidad</th>
@@ -817,7 +817,7 @@ class ArchiveRecordsController extends Controller
 
         if($request->get("area_info") && $request->get("area_info")!=$item->getAreaInfo()->getId()){
             $areaInfo = $em->getRepository(Areas::class)->findOneBy(['id' => $request->get('area_info')]);
-            $changes.="<tr><td>Area</td><td>".$item->getAreaInfo()->getName()."</td><td>".$areaInfo->getName()."</td></tr>";
+            $changes.="<tr><td>Area origen</td><td>".$item->getAreaInfo()->getName()."</td><td>".$areaInfo->getName()."</td></tr>";
         }
 
         if($request->get("unique_number") && $request->get("unique_number")!=$item->getUniqueNumber()){

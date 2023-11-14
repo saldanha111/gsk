@@ -283,7 +283,7 @@
                         $(this).show();
                         toastr.error("La contraseña es incorecta", 'aviso');
                     } else {
-                        window.location.href='{{ path('nononsense_areas_remove_group')}}/{{item.id}}/'+data.group+'&justification='+$('#commentR').val();
+                        window.location.href='{{ path('nononsense_areas_remove_group')}}/{{item.id}}/'+data.group+'?justification='+$('#commentR').val();
                     }
                 });
                 ;

@@ -192,12 +192,12 @@ class ArchiveUbicationsController extends Controller
         $qrCode
         ->setText($qrLabel)
         ->setSize(500)
-        ->setPadding(5)
+        ->setPadding(25)
         ->setErrorCorrection('high')
         ->setForegroundColor(['r' => 0, 'g' => 0, 'b' => 0, 'a' => 0])
         ->setBackgroundColor(['r' => 255, 'g' => 255, 'b' => 255, 'a' => 0])
-        ->setLabel($qr->getBuilding()."-".$qr->getShelf()."-".$qr->getPassage()."-".$qr->getCabinet()."-".$qr->getOthers())
-        ->setLabelFontSize(14)
+        ->setLabel($qr->getBuilding()." - ".$qr->getPassage()." - ".$qr->getCabinet()." - ".$qr->getShelf()." - ".$qr->getOthers())
+        ->setLabelFontSize(12)
         ->setImageType(QrCode::IMAGE_TYPE_PNG)
         ;
          
