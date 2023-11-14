@@ -6,6 +6,7 @@ use Symfony\Component\Security\Core\Event\AuthenticationFailureEvent;
 use Doctrine\ORM\EntityManager;
 use Nononsense\HomeBundle\Entity\Logs;
 use Nononsense\HomeBundle\Entity\LogsTypes;
+use Nononsense\UserBundle\Entity\Users;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 class ExceptionListenerFail
@@ -20,10 +21,14 @@ class ExceptionListenerFail
     {
     	$request = $this->requestStack->getCurrentRequest();
     	$logType = $this->em->getRepository(LogsTypes::class)->findOneBy(['stringId' => 'ACCESS']); //Access Type
-        
+        $user = $this->em->getRepository(Users::class)->findOneBy([
+            'username' => $event->getAuthenticationToken()->getUsername()
+        ]);
+
         $log = new Logs();
         $log->setType($logType);
     	$log->setDate(new \DateTime());
+        $log->setUser($user);
     	$log->setDescription('Inicio de sesión fallido. Usuario: '.$event->getAuthenticationToken()->getUsername());
         $log->setIp($request->getClientIp());
 
