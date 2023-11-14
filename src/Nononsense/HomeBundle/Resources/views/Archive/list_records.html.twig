@@ -199,7 +199,6 @@
                                     <td><a class="btn btn-xs btn-info" href="{{path(audittrail, {'id': item.id})}}" target="_self"><i class="fa fa-book" aria-hidden="true"></i> Audit Trail</a></td>
                                     <td><input class="checkpem" name="retentions[]" value="{{item.id}}" type="checkbox"></td>
                                 </tr>
-                                
                             {% endfor %}
                         {% endif %}
                         {% if filters.retention_action is defined and count>0 and (filters.retention_action=="3" or filters.retention_action=="2") %}

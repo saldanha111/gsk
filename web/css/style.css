@@ -6168,6 +6168,17 @@ span.accordionTab:before {
   padding:10px 40px;
 }
 
+#AZContainer .tag {
+  display: inline-block;
+  margin: 5px;
+  padding: 5px;
+  background-color: #e0e0e0;
+  border-radius: 5px;
+}
+
+#AZContainer .tag button {
+  margin-left: 10px;
+}
 
 @media (max-width: 340px) {
     .welcome-message {

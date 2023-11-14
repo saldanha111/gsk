@@ -153,8 +153,28 @@
                     {% endif %}
                 </div>
 
+                
+
                 <div class="row">
-                    <div class="col-sm-11">
+                    <div class="col-sm-4 col-sm-offset-1">
+                        <div>
+                            <label class="control-label">Justificación</label>
+                            <textarea id="justification" name="justification" rows="10" cols="120" required="required" style="width:100%"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-4 col-sm-offset-1">
+                        <div>
+                            <label class="control-label">Introduzca su firma</label>
+                            <input type="password" name="password" id="box_password" class="form-control" required="required"><br>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-4 col-sm-offset-1">
                         <button type="submit" class="btn btn-primary  pull-right"><i class="fa fa-floppy-o" aria-hidden="true"></i> Guardar</button>
                     </div>
                 </div>
@@ -169,8 +189,25 @@
                     <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">{{'Close'|trans}}</span></button>
                     <h4 class="modal-title">{{'Remove'|trans}}</h4>
                 </div>
-                <div class="modal-body" id="modal-data">
-                    <p></p>
+                <div class="modal-body">
+                    <div  id="modal-data"></div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div>
+                                <label class="control-label">Justificación</label>
+                                <textarea name="justification" rows="10" cols="120" required="required" style="width:100%" id="commentR"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div>
+                                <label class="control-label">Introduzca su firma</label>
+                                <input type="password" name="password"  id="box_passwordR" class="form-control" required="required"><br>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-white" data-dismiss="modal">{{'Close'|trans}}</button>
@@ -190,6 +227,35 @@
             </div>
         </div>
     </did>
+
+    {% if signatures is defined and signatures is not empty %}
+        <div class="col-md-12">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Usuario</th>
+                    <th>Acción</th>
+                    <th>Justificación</th>
+                </tr>
+                </thead>
+                <tbody>
+                    {% for signature in signatures %}
+                        <tr>
+                            <td>{% if signature.modified is defined and signature.modified is not null %}{{signature.modified|date("d/m/Y H:i:s")|gskdate}}{% endif %}</td>
+                            <td>{{signature.user.name}}</td>
+                            <td>{{signature.description}}</td>
+                            <td>{{signature.justification}}</td>
+                        </tr>
+                        <tr><td colspan="4" class="changes_groups">{{signature.changes|raw}}</td></tr>
+                    {% endfor %}
+                    <tr><td colspan="4">
+                        <a href="{{ path('nononsense_areas_edit', {"id" : item.id })}}?export_excel=1" target="_blank" class="btn btn-primary pull-right"><i class="fa fa-file-excel-o" aria-hidden="true"></i> Excel</a> 
+                        <a href="{{ path('nononsense_areas_edit', {"id" : item.id })}}?export_pdf=1" target="_blank" class="btn btn-primary pull-right" style="margin-right:1px"><i class="fa fa-file-pdf-o" aria-hidden="true"></i> PDF</a> 
+                    </td></tr>
+            </tbody>
+        </div>
+    {% endif %}
     
 {% endblock %}
 
@@ -204,7 +270,24 @@
         window.members = {};
         function deleteGroup(data) {
             content = '<h3>' + data.name + '</h3>';
-            $('#deleteGroup').click(function(){window.location.href="{{ path('nononsense_areas_remove_group')}}" + '/{{item.id}}/' + data.group});
+            $('#deleteGroup').click(function(){
+
+                if ($('#commentR').length && !$('#commentR').val()) {
+                    toastr.error("Debe escribir una justificación", 'aviso');
+                    return false;
+                }
+
+                $(this).hide(function() {
+                    valid_password=password_valid($("#box_passwordR").val());
+                    if (!valid_password) {
+                        $(this).show();
+                        toastr.error("La contraseña es incorecta", 'aviso');
+                    } else {
+                        window.location.href='{{ path('nononsense_areas_remove_group')}}/{{item.id}}/'+data.group+'?justification='+$('#commentR').val();
+                    }
+                });
+                ;
+            });
             $('#modal-data').html(content);
             $('#removeModal').modal('toggle');
         }
@@ -223,10 +306,53 @@
         function addListOfGroups () {
             groups = JSON.stringify(window.members);
             if (groups != '{}') {
-                window.location.href = '{{ url('nononsense_area_addbulk')}}?groups=' + groups + '&id={{item.id}}';
+                if ($('#commentG').length && !$('#commentG').val()) {
+                    toastr.error("Debe escribir una justificación", 'aviso');
+                    return false;
+                }
+
+                $(this).hide(function() {
+                    valid_password=password_valid($("#box_passwordG").val());
+                    if (!valid_password) {
+                        $(this).show();
+                        toastr.error("La contraseña es incorecta", 'aviso');
+                    } else {
+                        users = JSON.stringify(window.members);
+                        if (users != '{}') {
+                            window.location.href = '{{ url('nononsense_area_addbulk')}}?groups=' + groups + '&id={{item.id}}&justification='+$('#commentG').val();
+                        } else {
+                            toastr.error('{{'There are no groups selected.'|trans}}','{{'Warning'|trans}}');
+                        }
+                    }
+                });
+                
             } else {
                 toastr.error('{{'No hay grupos añadidos'|trans}}','{{'Warning'|trans}}');
             }
+        }
+
+        function password_valid(password){
+            var result;
+            $.ajax({
+                url: "{{ path('nononsense_mclean_get_sign_valid') }}",
+                type: 'POST',
+                dataType: 'json',
+                async: false,
+                data: {password: password},
+                success: function(response) {
+                    console.log(response);
+                    if(response.valid){
+                        result=true;
+                    }else{
+                        result=false;
+                    }
+                },
+                error: function() {
+                    result=false;
+                }
+            });
+
+            return result;
         }
         
         $(document).ready(function(){
@@ -234,6 +360,14 @@
 
             ActivateMenu('areas_list');
             $('#side-menu').metisMenu();
+
+             $("#form_item").submit(function(e){
+                if (!gpassword_valid($("#box_password").val())){
+                    toastr.error("La firma no es correcta",'aviso');
+                    return false;
+                }
+                return true;
+            });
 
             $(document).on('click', '.add_line', function() {
                 $(this).closest(".pre_col_prefixes").find(".col_prefixes").append($("#master_line").html());

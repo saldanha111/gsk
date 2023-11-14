@@ -8,7 +8,7 @@
 {% endblock %}
 {% block main_title %}
     {% if filters.request is defined %}
-        Solcitar préstamo
+        Solicitar préstamo
     {% elseif filters.masive_edition is defined %}
         Edición masiva
     {% else %}
@@ -181,7 +181,7 @@
                             <th>Estado</th>
                             <th>Disponibilidad</th>
                             <th>Categoría retención</th>
-                            <th>AZ</th>
+                            <th>Ubicación</th>
                             <th>Inicio retención</th>
                             <th>Fecha destrucción</th>
                             <th>Preservation Notice</th>
@@ -205,7 +205,7 @@
                                 <td>{{item.category}}</td>
                                 <td>
                                     {% if item.AZ is defined and item.AZ is not empty %}
-                                        <a class="btn btn-xs btn-info btn-az" href="javascript:void(0)" data-code="{{item.AZ}}"><i class="fa fa-barcode" aria-hidden="true"></i> Ver</a>
+                                        <a class="btn btn-xs btn-info btn-az" href="javascript:void(0)" data-code="{{item.AZ}}" data-location="{{item.location}}"><i class="fa fa-barcode" aria-hidden="true"></i> Ver</a>
                                     {% endif %}</td>
                                 <td>{{ item.initRetention is defined and item.initRetention is not empty ? item.initRetention|date("d/m/Y")|gskdate : '' }}</td>
                                 <td>{{ item.destructionDate is defined and item.destructionDate is not empty ? item.destructionDate|date("d/m/Y")|gskdate : '' }}</td>
@@ -318,15 +318,7 @@
                         </div>
                     </div>
                     <br>
-                    <div class="row box-text-comment">
-                        <div class="col-lg-10 col-lg-offset-1">
-                            <label for="description_workflow">Comentarios</label>
-                            <br>
-                            <div class="form-group">
-                                <textarea class="form-control text-comment" name="comment" rows="10" cols="40" id="modal_comment"  style="width:100%" required="required"></textarea>
-                            </div>
-                        </div>
-                    </div>
+                    
                     <div class="row" id="box_file">
                         <div class="col-lg-10 col-lg-offset-1">
                             Certificado de destrucción<br>
@@ -349,7 +341,7 @@
                             </div>
                         </div>
                         <div class="col-lg-10 col-lg-offset-1">
-                            <label>Área</label>
+                            <label>Área origen</label>
                             <br>
                             <div class="form-group">
                                 <select class="form-control" name="area_info" style="width: 100%;">
@@ -405,7 +397,15 @@
                                 <input type="text" id="retentionDate" name="retention_date" class="form-control" value=""><br>
                             </div>
                         </div>
-
+                    </div>
+                    <div class="row box-text-comment">
+                        <div class="col-lg-10 col-lg-offset-1">
+                            <label for="description_workflow">Comentarios</label>
+                            <br>
+                            <div class="form-group">
+                                <textarea class="form-control text-comment" name="comment" rows="10" cols="40" id="modal_comment"  style="width:100%" required="required"></textarea>
+                            </div>
+                        </div>
                     </div>
                     <div class="row">
                         <div class="col-lg-10 col-lg-offset-1">
@@ -439,9 +439,21 @@
                     </button>
                 </div>
 
-                <div class="modal-body" style="display: flex; justify-content: center;">
-                    <img class="img-responsive" src="" id="imgAZPopUp">
-                    <img class="img-responsive" src="{{ asset('img/loadinggsk.svg') }}" id="azLoading">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-10 col-lg-offset-1">
+                            <label for="firma">Localización</label>
+                            <br>
+                            <span id="locationModal"></span>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-lg-10 col-lg-offset-1">
+                            <img class="img-responsive" src="" id="imgAZPopUp">
+                            <img class="img-responsive" src="{{ asset('img/loadinggsk.svg') }}" id="azLoading">
+                        </div>
+                    </div>
                 </div>
             </form>
         </div>
@@ -528,11 +540,11 @@
         retention_btn=$(this);
         title="Archivos - "+$(this).data("info")+" ";
         if($(this).data("action")=="4"){
-            $("#box_edition_masive").show();
+            $("#box_masive_edition").show();
             $("#box_file").hide();
         }
         else{
-            $("#box_edition_masive").hide();
+            $("#box_masive_edition").hide();
             if($(this).data("action")!="2"){
                 $("#box_file").hide();
                 //$("#certificate").prop('required',false);
@@ -573,6 +585,7 @@
         $("#azLoading").show();
         $("#imgAZPopUp").hide();
         $("#imgAZPopUp").attr("src",urlaz);
+        $("#locationModal").html($(this).data("location"));
         
 
          $("#imgAZPopUp").off('load').on('load', function() {

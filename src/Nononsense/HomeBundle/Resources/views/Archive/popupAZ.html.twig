@@ -30,14 +30,22 @@
                             <input type="text" id="input-scanAZ" class="form-control" value="">
                         </div>
                         <div class="col-lg-4 col-md-6 col-sm-12">
-                            <button id="btn-scanner-send-az" type="button" class="btn btn-primary">Obtener localización</button>
+                            <button id="btn-scanner-send-az" type="button" class="btn btn-primary">Obtener AZ</button>
                         </div>
                     </div>
                 </div>
                 <br><br>
-                <h4>Cree un código AZ nuevo</h4>
-                <a href="{{ path('nononsense_archive_az_edit', {'code': 0}) }}" class="btn btn-primary">Nuevo</a>
-                
+                <div class="row">
+                    <h4>Cree un código AZ nuevo</h4>
+                    <div class="form-group">
+                        <div class="col-lg-4 col-md-6 col-sm-12">
+                            <input type="number" id="az_number" class="form-control" value="1">
+                        </div>
+                        <div class="col-lg-4 col-md-6 col-sm-12">
+                            <a id="new_az" href="javascript:void(0)" class="btn btn-primary">Nuevo</a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -48,7 +56,28 @@
 <script>
 
     $( document ).ready(function() {
+        $(document).on('click', '#new_az', function() {
+            console.log("asdfasdfasdf");
+            if ($('#az_number').val()<=0){
+                swal({
+                    title: "Atención",
+                    text: "Mínimo debe crear un AZ",
+                    type: "warning"
+                });
+                return false;
+            }
 
+            if ($('#az_number').val()>99){
+                swal({
+                    title: "Atención",
+                    text: "Puede crear como máximo 99 AZ",
+                    type: "warning"
+                });
+                return false;
+            }
+
+            location.href = "{{ path('nononsense_archive_az_edit', {'code': 0}) }}?number="+$('#az_number').val();
+        });
     });
 
     window.addEventListener('load', function () {

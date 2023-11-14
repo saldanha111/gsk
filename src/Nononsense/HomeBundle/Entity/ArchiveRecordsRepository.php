@@ -19,7 +19,7 @@ class ArchiveRecordsRepository extends EntityRepository
 
         switch($type){
             case "list":
-                $list = $this->createQueryBuilder('ar')->select("ar.id","ar.uniqueNumber","us.name useState","s.name state","t.name type","a.name area","a.id areaId","a2.name areaInfo","a2.id areaInfoId","ar.title","ar.edition","ar.initRetention","arc.name category","arc.retentionDays","arp.name preservation","l.code AZ");
+                $list = $this->createQueryBuilder('ar')->select("ar.id","ar.uniqueNumber","us.name useState","s.name state","t.name type","a.name area","a.id areaId","a2.name areaInfo","a2.id areaInfoId","ar.title","ar.edition","ar.initRetention","arc.name category","arc.retentionDays","arp.name preservation","l.code AZ",'CONCAT(u.building, \' - \',u.passage, \' - \',u.cabinet, \' - \',u.shelf, \' - \',u.others ) as location');
                 $list->addSelect('DATE_ADD(ar.initRetention, arc.retentionDays, \'DAY\') as destructionDate','ar.retentionRevision');
                 break;
             case "count":
@@ -39,6 +39,7 @@ class ArchiveRecordsRepository extends EntityRepository
              ->leftJoin("ar.useState", "us")
              ->leftJoin("ar.type", "t")
              ->leftJoin("ar.az", "l")
+             ->leftJoin("l.location", "u")
              ->leftJoin("ar.area", "a")
              ->leftJoin("ar.areaInfo", "a2");
 

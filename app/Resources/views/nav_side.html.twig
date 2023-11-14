@@ -311,7 +311,8 @@
                         <li id="archive_categories"><a href="{{path('nononsense_archive_categories_list')}}">{{'Categorías de retención'|trans}}</a></li>
                         <li id="archive_preservations"><a href="{{path('nononsense_archive_preservations_list')}}">{{'Preservation notices'|trans}}</a></li>
                         <li id="archive_ubications"><a href="{{path('nononsense_archive_ubications_list')}}">{{'Ubicaciones'|trans}}</a></li>
-                        <li id="archive_az"><a href="#" data-toggle="modal" data-target="#popupAZ">{{'AZ'|trans}}</a></li>
+                        {# <li id="archive_az"><a href="#" data-toggle="modal" data-target="#popupAZ">{{'AZ'|trans}}</a></li> #}
+                        <li id="archive_az"><a href="{{path('nononsense_archive_az_list')}}">{{'AZ'|trans}}</a></li>
                         <li id="archive_logs"><a href="{{path('nononsense_archive_log')}}">{{'Audit trail'|trans}}</a></li>
                     {% endif %}
                     {% if 'archive_agent' in array_subsecciones %}

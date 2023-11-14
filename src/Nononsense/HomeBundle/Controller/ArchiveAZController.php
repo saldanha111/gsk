@@ -25,9 +25,37 @@ use Com\Tecnick\Barcode\Barcode;
 use Com\Tecnick\Barcode\Exception as BCodeException;
 use Com\Tecnick\Color\Exception as BColorException;
 
+use PhpOffice\PhpWord\TemplateProcessor;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ArchiveAZController extends Controller
 {
+    public function listAction(Request $request)
+    {
+        $is_valid = $this->get('app.security')->permissionSeccion('archive_admin');
+        if (!$is_valid) {
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+        }
+
+        $em = $this->getDoctrine()->getManager();
+        $defaultLimit = 15;
+        $filters = Utils::getListFilters($request);
+        $filters['limit_many'] = ($request->get('limit_many')) ?: $defaultLimit;
+
+        $archiveCategoriesRepository = $em->getRepository(ArchiveAZ::class);
+        $items = $archiveCategoriesRepository->list($filters);
+        $totalItems = $archiveCategoriesRepository->count($filters);
+
+        $data = [
+            'filters' => $filters,
+            'items' => $items,
+            'count' => $totalItems,
+            'pagination' => Utils::getPaginator($request, $filters['limit_many'], $totalItems)
+        ];
+
+        return $this->render('NononsenseHomeBundle:Archive:list_az.html.twig', $data);
+    }
+
     public function editAction(Request $request, $code)
     {
         $is_valid = $this->get('app.security')->permissionSeccion('archive_admin');
@@ -35,48 +63,99 @@ class ArchiveAZController extends Controller
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
 
+        $relocate=null;
+        if($request->get("relocate")){
+            $relocate=1;
+        }
+
+        $az=NULL;
         $action = 2;
         $em = $this->getDoctrine()->getManager();
+        $codes=array();
         if($code!=0){
+            $codes[]=$code;
             $az = $em->getRepository('NononsenseHomeBundle:ArchiveAZ')->findOneBy(array("code" => $code));
             if(!$az && $request->getMethod()!='POST'){
                 $this->get('session')->getFlashBag()->add('error', "El código AZ no se encuentra en el sistema y va a proceder a crearlo dentro de este");
             }
         }
         else{
-            $code=uniqid();
-        }
-        if(!isset($az) || !$az){
-            $az = new ArchiveAZ();
-            $az->setCode($code);
-            $action = 5;
+            if(!$request->get("relocate")){
+                if(!$request->get("number") || $request->get("number")<=0){
+                    $codes[]=uniqid();
+                }
+                else{
+                    for($count=0;$count<$request->get("number");$count++){
+                        $codes[]=uniqid();
+                    }
+                }
+            }
         }
 
         if($request->getMethod()=='POST'){
             try{
-                $location = $em->getRepository(ArchiveLocations::class)->findOneBy(['id' => $request->get('location')]);
-                $az->setLocation($location);
-
                 if($request->get("comment")){
                     $comment=$request->get("comment");
                 }
 
-                $em->persist($az);
+                $location = $em->getRepository(ArchiveLocations::class)->findOneBy(['id' => $request->get('location')]);
+
+                if($request->get("codes")){
+                    foreach($request->get("codes") as $code){
+                        $az = $em->getRepository('NononsenseHomeBundle:ArchiveAZ')->findOneBy(array("code" => $code));
+                        if(!$az){
+                            $az = new ArchiveAZ();
+                            $az->setCode($code);
+                            $action = 5;
+                        }
+                        else{
+                            $action = 2;
+                        }
+                        $az->setLocation($location);
+                        $em->persist($az);
+                        $saves[]=array("code" => $code,"action" => $action);
+                    }
+                }
+                else{
+                    $az->setLocation($location);
+                    $em->persist($az);
+                    $saves[]=array("code" => $az->getCode(),"action" => 2);
+                    
+                }
+
                 $em->flush();
-                $this->get('utilities')->saveLogArchive($this->getUser(),$action,$comment,"az",$az->getId());
-                $this->get('session')->getFlashBag()->add('message',"El código AZ se ha guardado correctamente. Descargeselo para empezar a utilizarlo");
-                return $this->redirect($this->generateUrl('nononsense_archive_az_edit', ['code' => $code]));
+
+                foreach($saves as $save){
+                    $az = $em->getRepository('NononsenseHomeBundle:ArchiveAZ')->findOneBy(array("code" => $save["code"]));
+                    $this->get('utilities')->saveLogArchive($this->getUser(),$save["action"],$comment,"az",$az->getId());
+                }
+
+                if($saves>1){
+                    $sentence="Los códigos AZ se han guardado correctamente. Ahora puede imprimirlos";
+                }
+                else{
+                    $sentence="El código AZ se ha guardado correctamente. Ahora puede imprimirlo si lo desea";
+                }
+
+                $list_codes="";
+                foreach ($saves as $save) {
+                    $list_codes.=$save["code"].",";
+                }
+
+                $this->get('session')->getFlashBag()->add('message',$sentence);
+                return $this->redirect($this->generateUrl('nononsense_archive_az_list')."?f_codes=".$list_codes);
             }
             catch(\Exception $e){
-                $this->get('session')->getFlashBag()->add('error', "Error al intentar guardar los datos del AZ");
+                $this->get('session')->getFlashBag()->add('error', "Error al intentar guardar los datos del AZ".$e->getMessage());
                 return $this->redirect($this->generateUrl('nononsense_home_homepage'));
             }
         }
         
         $array_item = array();
         $array_item['az'] = $az;
-        $array_item['code'] = $code;
+        $array_item['codes'] = $codes;
         $array_item['time'] = time();
+        $array_item['relocate']=$relocate;
 
         return $this->render('NononsenseHomeBundle:Archive:az.html.twig',$array_item);
     }
@@ -135,6 +214,85 @@ class ArchiveAZController extends Controller
         return $response;
     }
 
+    public function printAction(Request $request)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $filters = Utils::getListFilters($request);
+        if($request->get("f_prints")){
+            foreach($request->get("f_prints") as $print){
+                $filters["prints"][]=$print;
+            }
+        }
+        $archiveCategoriesRepository = $em->getRepository(ArchiveAZ::class);
+        $items = $archiveCategoriesRepository->list($filters,FALSE);
+        foreach($items as $item){
+            $codes[]=$item->getCode();
+        }
+
+
+        // Cargar la plantilla de Word
+        $templateProcessor = new TemplateProcessor($this->container->get('kernel')->getRootDir().'/template_az.docx');
+
+        $barcodesPerPage = 44;
+        $barcodeChunks = array_chunk($codes, $barcodesPerPage);
+        $totalPages = count($barcodeChunks);
+        
+
+        // Clonar las páginas necesarias
+        //for ($i = 1; $i < $totalPages; $i++) {
+            $templateProcessor->cloneBlock('PAGE', $totalPages, true, true);
+        //}
+
+        // Renombrar los marcadores de posición
+        for ($i = 0; $i < $barcodesPerPage*$totalPages; $i++) {
+            $section=floor($i/$barcodesPerPage)+1;
+            $templateProcessor->setValue('barcode#'.$section, '${barcode' . ($i + 1).'}', 1);
+        }
+
+        // Reemplazar los marcadores de posición por imágenes de códigos de barras
+        foreach ($codes as $index => $code) {
+
+            $barcodeData = $this->getBarcodeImg($code);
+
+            // Crea un nombre de archivo temporal para la imagen
+            $tempImage = tempnam(sys_get_temp_dir(), 'barcode') . '.png';
+
+            // Guarda los datos de la imagen en el archivo
+            file_put_contents($tempImage, $barcodeData);
+
+            $placeholder = 'barcode' . ($index + 1);
+            $templateProcessor->setImageValue($placeholder, [
+                'path' => $tempImage,
+                'width' => 200,
+                'height' => 50,
+                'ratio' => false,
+            ]);
+
+            unlink($tempImage);
+        }
+
+        // Limpiar marcadores de posición sobrantes en la última página
+        $lastChunkSize = count($barcodeChunks[$totalPages - 1]);
+        if ($lastChunkSize < $barcodesPerPage) {
+            for ($i = $lastChunkSize; $i < $barcodesPerPage; $i++) {
+                $placeholder = 'barcode' . ($i + 1 + ($totalPages - 1) * $barcodesPerPage);
+                $templateProcessor->setValue($placeholder, '');
+            }
+        }
+
+        // Preparar y enviar la respuesta al navegador
+        $response = new StreamedResponse(function () use ($templateProcessor) {
+            // Guardar el documento en php://output que es un flujo directo al navegador
+            $templateProcessor->saveAs('php://output');
+        });
+
+        // Configurar los encabezados HTTP para la descarga
+        $response->headers->set('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+        $response->headers->set('Content-Disposition', 'attachment; filename="codigos-de-barras.docx"');
+        $response->headers->set('Cache-Control', 'max-age=0');
+
+        return $response;
+    }
 
     /**
      * @param $mcCode
