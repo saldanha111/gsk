@@ -205,7 +205,7 @@
                                 <td>{{item.category}}</td>
                                 <td>
                                     {% if item.AZ is defined and item.AZ is not empty %}
-                                        <a class="btn btn-xs btn-info btn-az" href="javascript:void(0)" data-code="{{item.AZ}}"><i class="fa fa-barcode" aria-hidden="true"></i> Ver</a>
+                                        <a class="btn btn-xs btn-info btn-az" href="javascript:void(0)" data-code="{{item.AZ}}" data-location="{{item.location}}"><i class="fa fa-barcode" aria-hidden="true"></i> Ver</a>
                                     {% endif %}</td>
                                 <td>{{ item.initRetention is defined and item.initRetention is not empty ? item.initRetention|date("d/m/Y")|gskdate : '' }}</td>
                                 <td>{{ item.destructionDate is defined and item.destructionDate is not empty ? item.destructionDate|date("d/m/Y")|gskdate : '' }}</td>
@@ -439,9 +439,21 @@
                     </button>
                 </div>
 
-                <div class="modal-body" style="display: flex; justify-content: center;">
-                    <img class="img-responsive" src="" id="imgAZPopUp">
-                    <img class="img-responsive" src="{{ asset('img/loadinggsk.svg') }}" id="azLoading">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-10 col-lg-offset-1">
+                            <label for="firma">Localización</label>
+                            <br>
+                            <span id="locationModal"></span>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-lg-10 col-lg-offset-1">
+                            <img class="img-responsive" src="" id="imgAZPopUp">
+                            <img class="img-responsive" src="{{ asset('img/loadinggsk.svg') }}" id="azLoading">
+                        </div>
+                    </div>
                 </div>
             </form>
         </div>
@@ -573,6 +585,7 @@
         $("#azLoading").show();
         $("#imgAZPopUp").hide();
         $("#imgAZPopUp").attr("src",urlaz);
+        $("#locationModal").html($(this).data("location"));
         
 
          $("#imgAZPopUp").off('load').on('load', function() {
