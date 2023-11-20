@@ -1164,6 +1164,11 @@ nononsense_archive_load_update:
     methods:    [POST]
     defaults: { _controller: NononsenseHomeBundle:ArchiveLoan:update}
 
+nononsense_archive_records_preimport:
+    path: /archive-preimport/
+    methods:    [POST]
+    defaults: { _controller: NononsenseHomeBundle:ArchiveRecords:preupload}
+
 nononsense_archive_records_import:
     path: /archive-import/
     methods:    [POST]
