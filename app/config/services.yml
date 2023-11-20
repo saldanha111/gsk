@@ -113,7 +113,7 @@ services:
 
     app.exception_listener.failure:
         class: Nononsense\UserBundle\Security\Events\ExceptionListenerFail
-        arguments: ['@doctrine.orm.entity_manager', '@request_stack']
+        arguments: ['@doctrine.orm.entity_manager', '@request_stack', '@Validator']
         tags:
             - { name: kernel.event_listener, event: security.authentication.failure, method: onAuthenticationFailureLogin }
 
