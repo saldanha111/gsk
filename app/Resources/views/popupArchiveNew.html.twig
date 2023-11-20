@@ -1,3 +1,6 @@
+{% block head %}
+<link rel="stylesheet" href="{{ asset('/js/plugins/sweetalert/sweetalert.min.css') }}">
+{% endblock %}
 <div class="modal" id="popupArchiveNew" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -24,7 +27,7 @@
 <div class="modal fade" tabindex="-1" role="dialog" id="modalImport">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
-            <form class="form-horizontal" id="formModalImport" action="{{ path('nononsense_archive_records_import') }}" method="POST"  enctype="multipart/form-data">
+            <form class="form-horizontal" id="formModalImport" action="{{ path('nononsense_archive_records_preimport') }}" method="POST"  enctype="multipart/form-data">
                 <div class="modal-header">
                     <h5 class="modal-title">Firmar</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -36,20 +39,11 @@
                     <div class="row">
                         <div class="col-lg-10 col-lg-offset-1">
                             Va a realizar una importación de registros. El excel a importar debe tener las siguientes columnas obligatorias:<br><br>
-                            <b>Area, Document Number, Version, Document Name, Type, Document Status, Legal Preservation Name, Global Retention Schedule (GRS)</b><br><br>
+                            <b>Document Number, Version, Document Name</b><br><br>
                             Habrá una columna <b>AZ</b> no obligatoria para si se desea adjudicar una localización, si no se introduce se dará por hecho que es un archivo ditital siempre y cuando tenga un <b>Link la columna Document Number</b>. De no ser así notificará un error
                         </div>
                     </div>
-                    <br>
-                    <div class="row box-text-comment">
-                        <div class="col-lg-10 col-lg-offset-1">
-                            <label for="description_workflow">Comentarios</label>
-                            <br>
-                            <div class="form-group">
-                                <textarea class="form-control text-comment" name="comment" rows="10" cols="40" id="modal_comment2"  style="width:100%" required="required"></textarea>
-                            </div>
-                        </div>
-                    </div>
+                    <br><br>
                     <div class="row" id="box_file">
                         <div class="col-lg-10 col-lg-offset-1">
                             Archivo excel<br>
@@ -58,18 +52,9 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-lg-10 col-lg-offset-1">
-                            <div id="signature-pad3" class="input-group">
-                                <label for="firma">Introduzca su firma</label>
-                                <br>
-                                <input type="password" name="password" id="modal_password2" class="form-control" required="required"><br>
-                            </div>
-                        </div>
-                    </div>
                 </div>
                 <div class="modal-footer">
-                    <input type="button" class="btn btn-primary" id="sign_modal_import" value="Firmar">
+                    <input type="button" class="btn btn-primary" id="sign_modal_import" value="Precargar">
                 </div>
             </form>
         </div>
@@ -86,37 +71,10 @@ $(function () {
     });
 
     $(document).on('click','#sign_modal_import',function(e){
-        if ($('#modal_comment2').is(":visible") && !$('#modal_comment2').val()){
-            swal({
-                title: "Atención",
-                text: "La descripcion es obligatoria",
-                type: "warning"
-            });
-            return false;
-        }
-
         if ($('#excel').get(0).files.length === 0) {
             swal({
                 title: "Atención",
                 text: "El archivo excel es obligatorio",
-                type: "warning"
-            });
-            return false;
-        }
-
-        if (!$("#modal_password2").val()){
-            swal({
-                title: "Atención",
-                text: "La firma es obligatoria",
-                type: "warning"
-            });
-            return false;
-        }
-
-        if (!gpassword_valid($("#modal_password2").val())){
-            swal({
-                title: "Atención",
-                text: "La firma no es correcta",
                 type: "warning"
             });
             return false;

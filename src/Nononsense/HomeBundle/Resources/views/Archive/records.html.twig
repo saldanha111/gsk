@@ -45,24 +45,25 @@
                     <form class="form-horizontal" id="form_item" action="{{ path('nononsense_archive_records')}}" method="GET">
                         {% if filters.signature is not defined %}
                             <div class="form-group">
-                                <label class="col-sm-1 control-label item_filter">ID</label>
-                                <div class="col-sm-1 item_filter">
+                                <label class="col-sm-2 control-label item_filter">ID</label>
+                                <div class="col-sm-2 item_filter">
                                     <input type="number" name="id" class="form-control" value="{{filters.id is defined ? filters.id : ''}}">
                                 </div>
                                 <label class="col-sm-2 control-label item_filter">Identificador</label>
-                                <div class="col-sm-1 item_filter">
+                                <div class="col-sm-2 item_filter">
                                     <input type="string" name="uniqueNumber" class="form-control" value="{{filters.uniqueNumber is defined ? filters.uniqueNumber : ''}}">
                                 </div>
                                 <label class="col-sm-2 control-label item_filter">Título</label>
                                 <div class="col-sm-2 item_filter">
                                     <input type="string" name="title" class="form-control" value="{{filters.title is defined ? filters.title : ''}}">
                                 </div>
-                                <label class="col-sm-1 control-label item_filter">Edición</label>
-                                <div class="col-sm-1 item_filter">
-                                    <input type="string" name="edition" class="form-control" value="{{filters.edition is defined ? filters.edition : ''}}">
-                                </div>
+                                
                             </div>
                             <div class="form-group">
+                                <label class="col-sm-2 control-label item_filter">Edición</label>
+                                <div class="col-sm-2 item_filter">
+                                    <input type="string" name="edition" class="form-control" value="{{filters.edition is defined ? filters.edition : ''}}">
+                                </div>
                                 <label class="col-sm-2 control-label item_filter">Tipo de documento</label>
                                 <div class="col-sm-2 item_filter">
                                     <select class="form-control" name="type" style="width: 100%;">
@@ -73,8 +74,8 @@
                                     </select>
                                 </div>
 
-                                <label class="col-sm-1 control-label item_filter">Estado</label>
-                                <div class="col-sm-1 item_filter">
+                                <label class="col-sm-2 control-label item_filter">Estado</label>
+                                <div class="col-sm-2 item_filter">
                                     <select class="form-control" name="state" style="width: 100%;">
                                         <option value=""></option>
                                         {% for state in states %}
@@ -83,6 +84,9 @@
                                     </select>
                                 </div>
                                 
+                                
+                            </div>
+                            <div class="form-group">
                                 <label class="col-sm-2 control-label item_filter">Disponibilidad</label>
                                 <div class="col-sm-2 item_filter">
                                     <select class="form-control" name="useState" style="width: 100%;">
@@ -92,10 +96,8 @@
                                         {% endfor %}
                                     </select>
                                 </div>
-                            </div>
-                            <div class="form-group">
                                 {% if filters.request is not defined %}
-                                    <label class="col-sm-1 control-label">Área custodio</label>
+                                    <label class="col-sm-2 control-label">Área custodio</label>
                                     <div class="col-sm-2 item_filter">
                                         <select class="form-control" name="area" style="width: 100%;">
                                             <option value=""></option>
@@ -116,28 +118,33 @@
                                     </div>
                                 {% endif %}
 
-                                {% if filters.request is not defined %}
+                                
+                            </div>
+                            
+                            {% if filters.request is not defined %}
+                                <div class="form-group">
                                     <label class="col-sm-2 control-label">Fecha de retención</label>
-                                    <div class="col-sm-1 item_filter">
+                                    <div class="col-sm-2 item_filter">
                                         <input type="text" class="form-control pull-right" autocomplete="off" name="retentionFrom" id="retentionFrom" value="{{filters.retentionFrom is defined ? filters.retentionFrom|date("Y-m-d") : ''}}">
                                     </div>
-                                    <div class="col-sm-1">
+                                    <div class="col-sm-2">
                                         <input type="text" class="form-control pull-right" autocomplete="off" name="retentionUntil" id="retentionUntil" value="{{filters.retentionUntil is defined ? filters.retentionUntil|date("Y-m-d") : ''}}">
                                     </div>
-                                {% endif %}
-                            </div>
-                            <div class="form-group">
-                                {% if filters.request is not defined %}
+                                </div>
+                                <div class="form-group">
                                     <label class="col-sm-2 control-label">Fecha destrucción</label>
-                                    <div class="col-sm-1 item_filter">
+                                    <div class="col-sm-2 item_filter">
                                         <input type="text" class="form-control pull-right" autocomplete="off" name="destructionFrom" id="destructionFrom" value="{{filters.destructionFrom is defined ? filters.destructionFrom|date("Y-m-d") : ''}}">
                                     </div>
-                                    <div class="col-sm-1">
+                                    <div class="col-sm-2">
                                         <input type="text" class="form-control pull-right" autocomplete="off" name="destructionUntil" id="destructionUntil" value="{{filters.destructionUntil is defined ? filters.destructionUntil|date("Y-m-d") : ''}}">
                                     </div>
-
+                                </div>
+                            {% endif %}
+                            <div class="form-group">
+                                {% if filters.request is not defined %}
                                     <label class="col-sm-2 control-label item_filter">Preservation Notice</label>
-                                    <div class="col-sm-1 item_filter">
+                                    <div class="col-sm-2 item_filter">
                                         <select class="form-control" name="preservation" style="width: 100%;">
                                             <option value=""></option>
                                             <option value="1" {{filters.preservation is defined and filters.preservation == 1 ? 'selected="selected"'}}>Si</option>
@@ -146,7 +153,7 @@
                                     </div>
 
                                     {% if agent is defined and agent and filters.signature is not defined %}
-                                        <label class="col-sm-1 control-label">Acción</label>
+                                        <label class="col-sm-2 control-label">Acción</label>
                                         <div class="col-sm-2 item_filter">
                                             <select class="form-control" style="width: 100%;" name="retentionAction">
                                                 <option value=""></option>
@@ -157,8 +164,9 @@
                                         </div>
                                     {% endif %}
                                 {% endif %}
-
-                                <div class="col-sm-1 item_filter">
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-12 item_filter">
                                     <button type="submit" class="btn btn-primary pull-right">Filtrar</button>
                                 </div>
                             </div>

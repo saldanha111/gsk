@@ -209,9 +209,9 @@
                             <label class="col-sm-2 control-label">Fecha inicio retención</label>
                             <div class="col-sm-6">
                                 {% if record.id is null %}
-                                    <input type="text" id="retentionDate" name="retention_date" class="form-control" value="{{ "now"|date("Y-m-d") }}">
+                                    <input type="text" id="retentionDate" name="retention_date" class="form-control" value="" {{agent is not defined or not agent ? 'disabled="disabled"' : ''}}>
                                 {% else %}
-                                    <input type="text" id="retentionDate" name="retention_date" class="form-control" value="{{ record.initRetention is defined and record.initRetention is not empty ? record.initRetention|date("Y-m-d") : '' }}">
+                                    <input type="text" id="retentionDate" name="retention_date" class="form-control" value="{{ record.initRetention is defined and record.initRetention is not empty ? record.initRetention|date("Y-m-d") : '' }}" {{agent is not defined or not agent ? 'disabled="disabled"' : ''}}>
                                 {% endif %}
                             </div>
                         </div>
