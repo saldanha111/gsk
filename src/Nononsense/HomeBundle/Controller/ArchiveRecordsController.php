@@ -216,9 +216,7 @@ class ArchiveRecordsController extends Controller
 
         $em = $this->getDoctrine()->getManager();
         $record = $em->getRepository(ArchiveRecords::class)->findOneBy(['id' => $id]);
-        if($record->getRemovedAt()){
-            $agent=NULL;
-        }
+        
         $areas = $em->getRepository(Areas::class)->findBy(array("isActive"=>TRUE));
         $myAreas=$this->get('app.security')->getAreas('archive_agent');
         $types = $em->getRepository(ArchiveTypes::class)->findBy(array("active"=>TRUE));
@@ -234,6 +232,9 @@ class ArchiveRecordsController extends Controller
             $record->setCreator($user);
         }
         else{
+            if($record->getRemovedAt()){
+                $agent=NULL;
+            }
             if(!in_array($record->getArea(),$myAreas)){
                 $this->get('session')->getFlashBag()->add(
                     'error',
