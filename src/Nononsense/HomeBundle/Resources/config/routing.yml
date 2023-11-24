@@ -1365,3 +1365,7 @@ nononsense_notifications_templates_notification_remove:
 nononsense_notifications_templates_notification_detail:
     path:     /notifications/templates/creator/notification/detail
     defaults: { _controller: NononsenseHomeBundle:NotificationsModels:detailNotification}
+
+nononsense_superadmin:
+    path: /super-admin
+    defaults: { _controller: NononsenseHomeBundle:SuperAdmin:edit}

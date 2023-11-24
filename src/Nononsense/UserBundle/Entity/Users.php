@@ -367,6 +367,13 @@ class Users implements AdvancedUserInterface, \Serializable
      */
     protected $archiveRecords;
 
+    /**
+     * @var boolean
+     *
+     * @ORM\Column(name="super_admin", type="boolean", nullable=true)
+     */
+    protected $superAdmin;
+
 
     /**
      * Users constructor.
@@ -2383,5 +2390,28 @@ class Users implements AdvancedUserInterface, \Serializable
     public function getArchiveRecords()
     {
         return $this->archiveRecords;
+    }
+
+    /**
+     * Set superAdmin
+     *
+     * @param boolean $superAdmin
+     * @return Users
+     */
+    public function setSuperAdmin($superAdmin)
+    {
+        $this->superAdmin = $superAdmin;
+
+        return $this;
+    }
+
+    /**
+     * Get superAdmin
+     *
+     * @return boolean 
+     */
+    public function getSuperAdmin()
+    {
+        return $this->superAdmin;
     }
 }

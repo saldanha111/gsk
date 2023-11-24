@@ -11,7 +11,15 @@ class DefaultController extends Controller
 {
     public function indexAction()
     {
-        return $this->render('NononsenseHomeBundle:Contratos:home.html.twig');
+        $em = $this->getDoctrine()->getManager();
+        
+        $data['sectionsP'] = array();
+        $productions=$em->getRepository('NononsenseHomeBundle:SAInProduction')->findBy(array("production" => true));
+        foreach ($productions as $production) {
+            array_push($data['sectionsP'],$production->getSearch());
+        }
+
+        return $this->render('NononsenseHomeBundle:Contratos:home.html.twig', $data);
     }
     
     public function navSideAction()
@@ -30,6 +38,12 @@ class DefaultController extends Controller
         }
         $data = array();
         $data['array_subsecciones'] = $array_subsecciones;
+        $data['superadmin']=$this->getUser()->getSuperAdmin();
+        $data['sectionsP'] = array();
+        $productions=$em->getRepository('NononsenseHomeBundle:SAInProduction')->findBy(array("production" => true));
+        foreach ($productions as $production) {
+            array_push($data['sectionsP'],$production->getSearch());
+        }
 
         return $this->render('::nav_side.html.twig', $data);
     }
