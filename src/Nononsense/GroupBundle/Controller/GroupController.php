@@ -21,7 +21,7 @@ class GroupController extends Controller
 {
     public function indexAction(Request $request)
     {
-        if (!$this->get('app.security')->permissionSeccion('grupos_gestion')) {
+        if (!$this->get('app.security')->permissionSeccion('grupos_gestion') && !$this->get('app.security')->permissionSeccion('view_groups')) {
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
         $user = $this->container->get('security.context')->getToken()->getUser();
@@ -56,6 +56,10 @@ class GroupController extends Controller
         $array_item["filters"]=$filters;
         $array_item["groups"] = $this->getDoctrine()->getRepository(Groups::class)->list("list",$filters);
         $array_item["count"] = $this->getDoctrine()->getRepository(Groups::class)->list("count",$filters);
+
+        if ($this->get('app.security')->permissionSeccion('grupos_gestion') ) {
+            $array_item["editable"]=true;
+        }
 
         $url=$this->container->get('router')->generate('nononsense_tm_templates');
         $params=$request->query->all();
@@ -223,6 +227,11 @@ class GroupController extends Controller
             return $this->redirect($this->generateUrl('nononsense_groups_homepage'));
         }
 
+        $editable=false;
+        if ($this->get('app.security')->permissionSeccion('grupos_gestion') ) {
+            $editable=true;
+        }
+
         $em = $this->getDoctrine()->getManager();
         $secciones = $em->getRepository('NononsenseUserBundle:Secciones')->findBy(array(), array('name' => 'ASC'));
 
@@ -302,7 +311,6 @@ class GroupController extends Controller
 
         
 
-
         return $this->render('NononsenseGroupBundle:Group:edit.html.twig', array(
             'createGroup' => $form->createView(),
             'secciones' => $secciones,
@@ -366,13 +374,13 @@ class GroupController extends Controller
 
         return $this->render('NononsenseGroupBundle:Group:clone.html.twig', array(
             'createGroup' => $form->createView(),
-            'group' => $data,
+            'group' => $data
         ));
     }
     
     public function showAction(Request $request,$id)
     {
-        if (!$this->get('app.security')->permissionSeccion('grupos_gestion')) {
+        if (!$this->get('app.security')->permissionSeccion('grupos_gestion') && !$this->get('app.security')->permissionSeccion('view_groups')) {
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
 
@@ -385,12 +393,16 @@ class GroupController extends Controller
                       ->find($id);
         
 
-        $editable = true;
+        $editable=false;
         $clonable = false;
 
         $signatures=$this->getDoctrine()->getRepository('NononsenseGroupBundle:GroupsSignatures')->findBy(array("group" => $group),array("id" => "ASC"));
 
         if(!$request->get("export_excel") && !$request->get("export_pdf")){
+            
+            if ($this->get('app.security')->permissionSeccion('grupos_gestion') ) {
+                $editable=true;
+            }
             return $this->render('NononsenseGroupBundle:Group:show.html.twig', array(
                 'group' => $group,
                 'editable' => $editable,

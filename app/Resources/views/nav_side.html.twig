@@ -334,7 +334,7 @@
             {% endif %}
             
 
-            {% if ('qrs' in sectionsP and 'qrs_gestion' in array_subsecciones) or ('areas' in sectionsP and 'areas_gestion' in array_subsecciones) or ('users' in sectionsP and 'usuarios_gestion' in array_subsecciones)  or ('groups' in sectionsP and 'grupos_gestion' in array_subsecciones) or ('delegations' in sectionsP and 'delegations_gestion' in array_subsecciones) or ('models_notifications' in sectionsP and 'notifications_gestion' in array_subsecciones) or ('general_log' in sectionsP and 'usuarios_acceso' in array_subsecciones) %}
+            {% if ('qrs' in sectionsP and 'qrs_gestion' in array_subsecciones) or ('areas' in sectionsP and 'areas_gestion' in array_subsecciones) or ('users' in sectionsP and 'usuarios_gestion' in array_subsecciones)  or ('groups' in sectionsP and ('grupos_gestion' in array_subsecciones or 'view_groups' in array_subsecciones)) or ('delegations' in sectionsP and 'delegations_gestion' in array_subsecciones) or ('models_notifications' in sectionsP and 'notifications_gestion' in array_subsecciones) or ('general_log' in sectionsP and 'usuarios_acceso' in array_subsecciones) %}
                 <li>
                     <a href="#"><i class="fa fa-fw fa-gear"></i> <span class="nav-label">{{'Configuración'|trans}}</span><span
                             class="fa arrow"></span></a>
@@ -354,7 +354,7 @@
                                 <a href="{{path('nononsense_delegations_list')}}"><span class="nav-label">Delegación de firmas</span></a>
                             </li>
                         {% endif %}
-                        {% if ('groups' in sectionsP and 'grupos_gestion' in array_subsecciones) %}
+                        {% if ('groups' in sectionsP and ('grupos_gestion' in array_subsecciones or 'view_groups' in array_subsecciones)) %}
                             <li id="browse_groups">
                                 <a href="{{path('nononsense_groups_homepage')}}"><span class="nav-label">Grupos</span></a>
                             </li>

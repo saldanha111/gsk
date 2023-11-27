@@ -26,13 +26,15 @@
         {{ flashMessage }}
     </div>
 {% endfor %}
-    <div class="row">
-        <div class="col-lg-12">
-            <div>
-                <a href="{{ path('nononsense_group_create') }}" class="btn btn-primary pull-right"><i class="fa fa-plus"></i> Nuevo grupo</a>
-            </div><br>
+    {% if editable is defined and editable is not empty %}
+        <div class="row">
+            <div class="col-lg-12">
+                <div>
+                    <a href="{{ path('nononsense_group_create') }}" class="btn btn-primary pull-right"><i class="fa fa-plus"></i> Nuevo grupo</a>
+                </div><br>
+            </div>
         </div>
-    </div>
+    {% endif %}
     <div class="row">
         <div class="col-lg-12">
             <div class="wrapper wrapper-content animated fadeInUp">
