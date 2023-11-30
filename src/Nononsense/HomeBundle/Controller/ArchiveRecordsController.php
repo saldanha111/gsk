@@ -267,6 +267,8 @@ class ArchiveRecordsController extends Controller
         $em = $this->getDoctrine()->getManager();
         $user = $this->container->get('security.context')->getToken()->getUser();
 
+        $redirect=$this->generateUrl('nononsense_archive_records');
+
         $is_valid = $this->get('app.security')->permissionSeccion('archive_agent');
         if (!$is_valid) {
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
@@ -340,6 +342,7 @@ class ArchiveRecordsController extends Controller
                 }
                 break;
             case "4":
+                $redirect=$this->generateUrl('nononsense_archive_records')."?masive_edition=1";
                 foreach($records as $record){
                     $changes=$this->getChanges($request,$record,TRUE);
                     if($request->get("retention_date")){
@@ -392,7 +395,7 @@ class ArchiveRecordsController extends Controller
         $em->flush();
         $this->get('session')->getFlashBag()->add('success', $sentence);
 
-        return $this->redirect($this->generateUrl('nononsense_archive_records'));
+        return $this->redirect($redirect);
     }
 
     public function preuploadAction(Request $request)
@@ -731,20 +734,20 @@ class ArchiveRecordsController extends Controller
             }
             $state = $em->getRepository(ArchiveStates::class)->findOneBy(['id' => $request->get('state')]);
             
-            if($record->getState()!=$state){
-                if($state->getId()==1 || $state->getId()==2){
+            //if($record->getState()!=$state){
+                //if($state->getId()==1 || $state->getId()==2){
                     if(!$request->get("retention_date")){
-                        $record->setInitRetention(new \DateTime());
+                        $record->setInitRetention(NULL);
                     }
                     else{
                         $retentionDate = new \DateTime($request->get("retention_date"));
                         $record->setInitRetention($retentionDate);
                     }
-                }
+                /*}
                 else{
                     $record->setInitRetention(NULL);
                 }
-            }
+            }*/
             $record->setState($state);
             $type = $em->getRepository(ArchiveTypes::class)->findOneBy(['id' => $request->get('type')]);
             $record->setType($type);

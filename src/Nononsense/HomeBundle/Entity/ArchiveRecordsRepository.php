@@ -19,7 +19,7 @@ class ArchiveRecordsRepository extends EntityRepository
 
         switch($type){
             case "list":
-                $list = $this->createQueryBuilder('ar')->select("ar.id","ar.uniqueNumber","us.name useState","s.name state","t.name type","a.name area","a.id areaId","a2.name areaInfo","a2.id areaInfoId","ar.title","ar.edition","ar.initRetention","arc.name category","arc.retentionDays","arp.name preservation","l.code AZ",'CONCAT(u.building, \' - \',u.passage, \' - \',u.cabinet, \' - \',u.shelf, \' - \',u.others ) as location');
+                $list = $this->createQueryBuilder('ar')->select("ar.id","ar.uniqueNumber","us.name useState","s.name state","t.name type","a.name area","a.id areaId","a2.name areaInfo","a2.id areaInfoId","ar.title","ar.edition","ar.initRetention","arc.name category","arc.retentionDays","arp.name preservation","l.code AZ",'CONCAT(u.building, \' - \',u.passage, \' - \',u.cabinet, \' - \',u.shelf, \' - \',u.others ) as location','ar.removedAt');
                 $list->addSelect('DATE_ADD(ar.initRetention, arc.retentionDays, \'DAY\') as destructionDate','ar.retentionRevision');
                 break;
             case "count":
@@ -181,7 +181,7 @@ class ArchiveRecordsRepository extends EntityRepository
             if(isset($filters["retentionAction"])){
                 if($filters["retentionAction"]==3){
                     $dateFrom = DateTime::createFromFormat('Y-m-d',date("Y-m-d"));
-                    $list->andWhere('DATE_ADD(ar.initRetention, arc.retentionDays, \'DAY\')<=:rt3');
+                    $list->andWhere('DATE_ADD(ar.initRetention, arc.retentionDays, \'DAY\')<=:rt3 AND s.id=3 AND arp.name IS NULL');
                     $list->setParameter('rt3', $dateFrom->format('Y-m-d'));
                 }
             }

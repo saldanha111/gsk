@@ -25,6 +25,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 */
 class AccountRequestController extends Controller
 {
+	const TITLE_PDF = " Solicitudes de accesos";
+    const FILENAME_PDF = "account_request";
 
 	public function indexAction(Request $request){
 
@@ -38,6 +40,11 @@ class AccountRequestController extends Controller
         $filters['mudid']    	= $request->get('mudid');
         $filters['requestType'] = $request->get('type');
         $limit 					= 15;
+        $filters['uri']          = ($request->query->all()) ? $_SERVER['REQUEST_URI'].'&csv=true' : $_SERVER['REQUEST_URI'].'?csv=true';
+        $filters['pdf']          = ($request->query->all()) ? $_SERVER['REQUEST_URI'].'&pdf=true' : $_SERVER['REQUEST_URI'].'?pdf=true';
+
+        if ($request->get('csv')) return $this->reportCsvAction($this->getDoctrine()->getRepository(AccountRequests::class)->listBy($filters, 99999999999)['rows'], $filters);
+        if ($request->get('pdf')) return $this->reportPDFAction($request, $this->getDoctrine()->getRepository(AccountRequests::class)->listBy($filters, 99999999999)['rows'], $filters);
 
 		$accountRequests     	= $this->getDoctrine()->getRepository(AccountRequests::class)->listBy($filters, $limit);
 
@@ -434,4 +441,129 @@ class AccountRequestController extends Controller
 
 		return $message;
 	}
+
+	public function reportCsvAction($data, $filters){
+
+        if (!$this->get('app.security')->permissionSeccion('usuarios_gestion')) {
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+        }
+
+        $phpExcelObject = $this->get('phpexcel')->createPHPExcelObject();
+        $phpExcelObject->getProperties();
+        $phpExcelObject->setActiveSheetIndex(0)
+        ->setCellValue('A1','NUMERO DE SOLICITUD')
+        ->setCellValue('B1','MUD ID')
+        ->setCellValue('C1','NOMBRE DEL SOLICITADO')
+        ->setCellValue('D1','NOMBRE DEL SOLICITANTE')
+        ->setCellValue('E1','MUD ID DEL SOLICITANTE')
+        ->setCellValue('F1','FECHA DE SOLICITUD')
+        ->setCellValue('G1','REVISADOS')
+        ->setCellValue('H1','TIPO DE SOLICITUD');
+
+        $row = 2;
+        foreach ($data as $key => $value) {
+        	switch($value->getRequestType()){
+        		case 1: $type="Alta";break;
+        		case 0: $type="Baja";break;
+        	}
+            $phpExcelObject->getActiveSheet()
+             ->setCellValue('A'.$row, $value->getId())
+             ->setCellValue('B'.$row, $value->getMudId())
+             ->setCellValue('C'.$row, $value->getRefUsername())
+             ->setCellValue('D'.$row, $value->getUsername())
+             ->setCellValue('E'.$row, $value->getBaseMudId())
+             ->setCellValue('F'.$row, date_format($value->getCreated(), 'd-m-Y'))
+             ->setCellValue('G'.$row, '')
+             ->setCellValue('H'.$row, $type);
+
+            $row++;
+        }
+
+        for($col = 'A'; $col <= 'H'; $col++) {
+            $phpExcelObject->getActiveSheet()
+                ->getColumnDimension($col)
+                ->setAutoSize(true);
+        }
+        
+        $phpExcelObject->getActiveSheet()->setTitle('Account requests '.date('d-m-y'));
+        $phpExcelObject->setActiveSheetIndex(0);
+
+        $writer     = $this->get('phpexcel')->createWriter($phpExcelObject, 'Excel2007');
+        $response   = $this->get('phpexcel')->createStreamedResponse($writer);
+
+        $dispositionHeader = $response->headers->makeDisposition(
+          ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+          'Account-requests-'.date('d-m-y').'.xlsx'
+        );
+        $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
+        $response->headers->set('Pragma', 'public');
+        $response->headers->set('Cache-Control', 'maxage=1');
+        $response->headers->set('Content-Disposition', $dispositionHeader);
+
+        return $response;
+    }
+
+    public function reportPDFAction($request, $data, $filters){
+
+        $html='<html><body style="font-size:8px;width:100%">';
+        $sintax_head_f="<b>Filtros:</b><br>";
+
+        if($request->get("username")){
+            $html.=$sintax_head_f."Nombre del solicitante => ".$request->get("username")."<br>";
+            $sintax_head_f="";
+        }
+
+        if($request->get("mudid")){
+            $html.=$sintax_head_f."MUD ID => ".$request->get("mudid")."<br>";
+            $sintax_head_f="";
+        }
+
+        if($request->get("type")!== null && is_numeric($request->get("type"))){
+            switch($request->get("type")){
+                case 0: $hstate="Baja";break;
+                case 1: $hstate="Alta";break;
+            }
+            $html.=$sintax_head_f."Tipo de solicitud => ".$hstate."<br>";
+            $sintax_head_f="";
+        }
+
+        if($request->get("from") || $request->get("until")){
+            $html.=$sintax_head_f."Fecha  => ".$request->get("from") . " / " . $request->get("until") . "<br>";
+            $sintax_head_f="";
+        }
+
+        $html.='<br>
+            <table autosize="1" style="overflow:wrap;width:95%">
+            <tr style="font-size:8px;width:100%">
+                <th style="font-size:8px;width:10%">NUMERO DE SOLICITUD</th>
+                <th style="font-size:8px;width:10%">MUD ID</th>
+                <th style="font-size:8px;width:20%">NOMBRE DEL SOLICITADO</th>
+                <th style="font-size:8px;width:20%">NOMBRE DEL SOLICITANTE</th>
+                <th style="font-size:8px;width:10%">MUD ID DEL SOLICITANTE</th> 
+                <th style="font-size:8px;width:10%">FECHA DE SOLICITUD</th> 
+                <th style="font-size:8px;width:10%">REVISADOS</th> 
+                <th style="font-size:8px;width:10%">TIPO DE SOLICITUD</th> 
+            </tr>';
+
+        foreach ($data as $key => $value) {
+        	switch($value->getRequestType()){
+        		case 1: $type="Alta";break;
+        		case 0: $type="Baja";break;
+        	}
+            $html.='<tr style="font-size:8px">
+                        <td>'.$value->getId().'</td>
+                        <td>'.$value->getMudId().'</td>
+                        <td>'.$value->getRefUsername().'</td>
+                        <td>'.$value->getUsername().'</td>
+                        <td>'.$value->getBaseMudId().'</td>
+                        <td>'.date_format($value->getCreated(), 'd-m-Y').'</td>
+                        <td></td>
+                        <td>'.$type.'</td>';
+            $html.='</tr>';
+        }
+
+        $html.='</table></body></html>';
+
+        return $this->get('utilities')->returnPDFResponseFromHTML($html, self::TITLE_PDF, self::FILENAME_PDF);
+    }
 }

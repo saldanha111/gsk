@@ -28,8 +28,8 @@
                                     <option value=""></option>
                                     <option value="preservation" {{filters.type is defined and filters.type=="preservation" ? 'selected="selected"'}}>Preservation notices</option>
                                     <option value="record" {{filters.type is defined and filters.type=="record" ? 'selected="selected"'}}>Registros</option>
-                                    <option value="category" {{filters.type is defined and filters.type=="category" ? 'selected="selected"'}}>Categoría</option>
-                                    <option value="type" {{filters.type is defined and filters.type=="type" ? 'selected="selected"'}}>Tipo</option>
+                                    <option value="category" {{filters.type is defined and filters.type=="category" ? 'selected="selected"'}}>Categoría de retención</option>
+                                    <option value="type" {{filters.type is defined and filters.type=="type" ? 'selected="selected"'}}>Tipo de documento</option>
                                     <option value="az" {{filters.type is defined and filters.type=="az" ? 'selected="selected"'}}>AZ</option>
                                     <option value="location" {{filters.type is defined and filters.type=="location" ? 'selected="selected"'}}>Ubicación</option>
                                 </select>
@@ -57,6 +57,7 @@
                             <th>Fecha</th>
                             <th>Tipo</th>
                             <th>ID</th>
+                            <th></th>
                             <th>Acción</th>
                             <th>Usuario</th>
                             <th>Comentario</th>
@@ -73,13 +74,13 @@
                                         {% elseif item.record is not empty %}
                                             Registro
                                         {% elseif item.type is not empty %}
-                                            Tipo
+                                            Tipo de documento
                                         {% elseif item.az is not empty %}
                                             Az
                                         {% elseif item.location is not empty %}
                                             Ubicación
                                         {% else %} 
-                                            Categoría
+                                            Categoría de retención
                                         {% endif %} 
                                     </td>
                                     <td>
@@ -95,6 +96,21 @@
                                             {{ item.location }}
                                         {% else %} 
                                             {{ item.category }}
+                                        {% endif %} 
+                                    </td>
+                                    <td>
+                                        {% if item.preservation is not empty %}
+                                            {{ item.preservationName }}
+                                        {% elseif item.record is not empty %}
+                                            {{ item.recordName }}
+                                        {% elseif item.type is not empty %}
+                                            {{ item.typeName }}
+                                        {% elseif item.az is not empty %}
+                                            {{ item.azName }}
+                                        {% elseif item.location is not empty %}
+                                            NA
+                                        {% else %} 
+                                            {{ item.categoryName }}
                                         {% endif %} 
                                     </td>
                                     <td>{{item.action}}</td>
@@ -115,7 +131,7 @@
                                     </td>
                                 </tr>
                                 {% if item.changes is defined and item.changes is not empty %}
-                                    <tr><td colspan="3"></td><td colspan="4">{{item.changes|raw}}</td></tr> 
+                                    <tr><td colspan="4"></td><td colspan="4">{{item.changes|raw}}</td></tr> 
                                 {% endif %}
                             {% endfor %}
                         {% endif %}

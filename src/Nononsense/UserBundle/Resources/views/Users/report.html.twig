@@ -99,9 +99,10 @@
                     {% endif %}
                     {% if pagination is defined and pagination.needed %}
                         {% include '::pagination2.html.twig' %}
-                        <a href="{{filters.uri}}" class="btn btn-primary pull-right"><i class="fa fa-file-excel-o" aria-hidden="true"></i> Excel</a>
-                        <a href="{{filters.pdf}}" class="btn btn-primary pull-right" style="margin-right:1px"><i class="fa fa-file-pdf-o" aria-hidden="true"></i> PDF</a>
+                        
                     {% endif %}
+                    <a href="{{filters.uri}}" class="btn btn-primary pull-right"><i class="fa fa-file-excel-o" aria-hidden="true"></i> Excel</a>
+                    <a href="{{filters.pdf}}" class="btn btn-primary pull-right" style="margin-right:1px"><i class="fa fa-file-pdf-o" aria-hidden="true"></i> PDF</a>
 
 
                 </div>

@@ -41,7 +41,7 @@ class AccessController extends Controller
 
         if ($request->get('export_pdf') == '1') {
             $logs = $em->getRepository(Logs::class)->listBy($filters, 1048575);
-            return $this->exportPDF($logs);
+            return $this->exportPDF($request,$logs);
         }
 
         return $this->render('NononsenseUserBundle:Users:logs.html.twig', 
@@ -116,9 +116,36 @@ class AccessController extends Controller
         return $response; 
     }
 
-    private function exportPdf($logs)
+    private function exportPdf($request,$logs)
     {
-        $html='<html><body style="font-size:8px;width:100%"><table autosize="1" style="overflow:wrap;width:100%"><tr style="font-size:8px;width:100%">
+        $html='<html><body style="font-size:8px;width:100%">';
+        $sintax_head_f="<b>Filtros:</b><br>";
+
+        if($request->get("name")){
+            $html.=$sintax_head_f."Nombre => ".$request->get("name")."<br>";
+            $sintax_head_f="";
+        }
+
+        if($request->get("description")){
+            $html.=$sintax_head_f."Descripción => ".$request->get("description")."<br>";
+            $sintax_head_f="";
+        }
+
+        if($request->get("logType")){
+            switch($request->get("logType")){
+                case "1": $hstate="Grupo";break;
+                case "2": $hstate="Usuario";break;
+            }
+            $html.=$sintax_head_f."Tipo de registro => ".$hstate."<br>";
+            $sintax_head_f="";
+        }
+
+        if($request->get("from") || $request->get("until")){
+            $html.=$sintax_head_f."Fecha de alta  => ".$request->get("from") . " / " . $request->get("until") . "<br>";
+            $sintax_head_f="";
+        }
+
+        $html.='<br><table autosize="1" style="overflow:wrap;width:100%"><tr style="font-size:8px;width:100%">
                         <th style="font-size:8px;width:10%">ID</th>
                         <th style="font-size:8px;width:10%">TIPO</th>
                         <th style="font-size:8px;width:15%">USUARIO</th>

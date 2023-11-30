@@ -96,7 +96,32 @@ class GroupController extends Controller
             }
 
             if($request->get("export_pdf")){
-                $html='<html><body style="font-size:8px;width:100%"><table autosize="1" style="overflow:wrap;width:100%"><tr style="font-size:8px;width:100%">
+
+                $html='<html><body style="font-size:8px;width:100%">';
+                $sintax_head_f="<b>Filtros:</b><br>";
+
+                if($request->get("name")){
+                    $html.=$sintax_head_f."Grupo => ".$request->get("name")."<br>";
+                    $sintax_head_f="";
+                }
+
+                if($request->get("user")){
+                    $html.=$sintax_head_f."Usuario => ".$request->get("user")."<br>";
+                    $sintax_head_f="";
+                }
+
+
+                if($request->get("state")){
+                    switch($request->get("state")){
+                        case "active": $hstate="Activo";break;
+                        case "inactive": $hstate="Inactivo";break;
+                    }
+                    $html.=$sintax_head_f."Estado => ".$hstate."<br>";
+                    $sintax_head_f="";
+                }
+
+
+                $html.='<br><table autosize="1" style="overflow:wrap;width:100%"><tr style="font-size:8px;width:100%">
                         <th style="font-size:8px;width:6%">Nº</th>
                         <th style="font-size:8px;width:30%">Nombre</th>
                         <th style="font-size:8px;width:44%">Descripción</th>
@@ -525,11 +550,16 @@ class GroupController extends Controller
     {
         $groupAdmin = $this->isGroupAdmin($id);
 
-        if (!$this->get('app.security')->permissionSeccion('grupos_gestion')) {
+        if (!$this->get('app.security')->permissionSeccion('grupos_gestion') && !$this->get('app.security')->permissionSeccion('view_groups')) {
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
         
-        $admin = true;
+        if (!$this->get('app.security')->permissionSeccion('grupos_gestion')){
+            $admin = false;
+        }
+        else{
+            $admin = true;
+        }
 
         $users= $this->getDoctrine()
                       ->getRepository('NononsenseGroupBundle:GroupUsers')

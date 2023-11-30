@@ -10,7 +10,7 @@
     {% if filters.request is defined %}
         Solicitar préstamo
     {% elseif filters.masive_edition is defined %}
-        Edición masiva
+        Editar registros
     {% else %}
         Consulta de registros
     {% endif %}
@@ -184,7 +184,7 @@
                             <th>Título</th>
                             <th>Edición</th>
                             <th>Área custodio</th>
-                            <th>Área</th>
+                            <th>Área origen</th>
                             <th>Tipo de documento</th>
                             <th>Estado</th>
                             <th>Disponibilidad</th>
@@ -212,14 +212,21 @@
                                 <td>{{item.useState}}</td>
                                 <td>{{item.category}}</td>
                                 <td>
-                                    {% if item.AZ is defined and item.AZ is not empty %}
-                                        <a class="btn btn-xs btn-info btn-az" href="javascript:void(0)" data-code="{{item.AZ}}" data-location="{{item.location}}"><i class="fa fa-barcode" aria-hidden="true"></i> Ver</a>
-                                    {% endif %}</td>
+                                    {% if item.removedAt is empty %}
+                                        {% if item.AZ is defined and item.AZ is not empty %}
+                                            <a class="btn btn-xs btn-info btn-az" href="javascript:void(0)" data-code="{{item.AZ}}" data-location="{{item.location}}"><i class="fa fa-barcode" aria-hidden="true"></i> Ver</a>
+                                        {% else %}
+                                            Digital
+                                        {% endif %}
+                                    {% else %}
+                                        NA
+                                    {% endif %}    
+                                </td>
                                 <td>{{ item.initRetention is defined and item.initRetention is not empty ? item.initRetention|date("d/m/Y")|gskdate : '' }}</td>
                                 <td>{{ item.destructionDate is defined and item.destructionDate is not empty ? item.destructionDate|date("d/m/Y")|gskdate : '' }}</td>
                                 <td>{{ item.preservation is defined and item.preservation is not empty ? item.preservation : 'No' }}</td>
                                 <td>
-                                    {% if agent is defined and agent and item.areaId in agentareas %}
+                                    {% if agent is defined and agent and item.areaId in agentareas and item.removedAt is empty %}
                                         <a href="{{ path('nononsense_archive_records_edit', {'id' : item.id}) }}" class="btn btn-xs">
                                             <i class="fa fa-pencil" aria-hidden="true"></i>
                                             <span> Editar</span>
