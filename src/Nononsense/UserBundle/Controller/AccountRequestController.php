@@ -558,8 +558,7 @@ class AccountRequestController extends Controller
                         <td>'.$value->getBaseMudId().'</td>
                         <td>'.date_format($value->getCreated(), 'd-m-Y').'</td>
                         <td></td>
-                        <td>'.$type.'</td>';
-            $html.='</tr>';
+                        <td>'.$type.'</td></tr>';
         }
 
         $html.='</table></body></html>';
