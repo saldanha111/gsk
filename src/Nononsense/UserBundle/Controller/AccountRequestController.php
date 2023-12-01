@@ -43,8 +43,24 @@ class AccountRequestController extends Controller
         $filters['uri']          = ($request->query->all()) ? $_SERVER['REQUEST_URI'].'&csv=true' : $_SERVER['REQUEST_URI'].'?csv=true';
         $filters['pdf']          = ($request->query->all()) ? $_SERVER['REQUEST_URI'].'&pdf=true' : $_SERVER['REQUEST_URI'].'?pdf=true';
 
-        if ($request->get('csv')) return $this->reportCsvAction($this->getDoctrine()->getRepository(AccountRequests::class)->listBy($filters, 99999999999)['rows'], $filters);
-        if ($request->get('pdf')) return $this->reportPDFAction($request, $this->getDoctrine()->getRepository(AccountRequests::class)->listBy($filters, 99999999999)['rows'], $filters);
+        if ($request->get('csv')) {
+        	$filters['page'] = 1;
+
+        	return $this->reportCsvAction(
+        		$this->getDoctrine()->getRepository(AccountRequests::class)->listBy($filters, 99999999999)['rows'], 
+        		$filters
+        	);
+        }
+
+        if ($request->get('pdf')) {
+        	$filters['page'] = 1;
+
+        	return $this->reportPDFAction(
+        		$request, 
+        		$this->getDoctrine()->getRepository(AccountRequests::class)->listBy($filters, 99999999999)['rows'], 
+        		$filters
+        	);
+        }
 
 		$accountRequests     	= $this->getDoctrine()->getRepository(AccountRequests::class)->listBy($filters, $limit);
 
@@ -462,6 +478,13 @@ class AccountRequestController extends Controller
 
         $row = 2;
         foreach ($data as $key => $value) {
+        	$data[$key]->revised = 0; //Set revised property for group requests
+			foreach ($value->getRequest() as $k => $grequest) {
+				if ($grequest->getStatus() !== NULL) {
+					$data[$key]->revised += 1;
+				}
+			}
+
         	switch($value->getRequestType()){
         		case 1: $type="Alta";break;
         		case 0: $type="Baja";break;
@@ -473,7 +496,7 @@ class AccountRequestController extends Controller
              ->setCellValue('D'.$row, $value->getUsername())
              ->setCellValue('E'.$row, $value->getBaseMudId())
              ->setCellValue('F'.$row, date_format($value->getCreated(), 'd-m-Y'))
-             ->setCellValue('G'.$row, '')
+             ->setCellValue('G'.$row, $value->revised.'/'.count($value->getRequest()))
              ->setCellValue('H'.$row, $type);
 
             $row++;
@@ -546,6 +569,14 @@ class AccountRequestController extends Controller
             </tr>';
 
         foreach ($data as $key => $value) {
+
+        	$data[$key]->revised = 0; //Set revised property for group requests
+			foreach ($value->getRequest() as $k => $grequest) {
+				if ($grequest->getStatus() !== NULL) {
+					$data[$key]->revised += 1;
+				}
+			}
+
         	switch($value->getRequestType()){
         		case 1: $type="Alta";break;
         		case 0: $type="Baja";break;
@@ -557,7 +588,7 @@ class AccountRequestController extends Controller
                         <td>'.$value->getUsername().'</td>
                         <td>'.$value->getBaseMudId().'</td>
                         <td>'.date_format($value->getCreated(), 'd-m-Y').'</td>
-                        <td></td>
+                        <td>'.$value->revised.'/'.count($value->getRequest()).'</td>
                         <td>'.$type.'</td></tr>';
         }
 
