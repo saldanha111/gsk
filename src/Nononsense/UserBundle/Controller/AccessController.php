@@ -149,7 +149,7 @@ class AccessController extends Controller
                         <th style="font-size:8px;width:10%">ID</th>
                         <th style="font-size:8px;width:10%">TIPO</th>
                         <th style="font-size:8px;width:15%">USUARIO</th>
-                        <th style="font-size:8px;width:55%">DESCRIPCIÓN</th>
+                        <th style="font-size:8px;width:45%">DESCRIPCIÓN</th>
                         <th style="font-size:8px;width:10%">IP</th>
                         <th style="font-size:8px;width:10%">FECHA</th>
                     </tr>';
