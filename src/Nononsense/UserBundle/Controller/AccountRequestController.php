@@ -187,6 +187,12 @@ class AccountRequestController extends Controller
 							$this->addUserGroupAction($accountRequest->getGroupId(), $user);
 						}
 
+						if($user->getLocked() !== null){
+							$user->setLocked(null);
+							$em->persist($user);
+							$em->flush();
+						}
+
 						$message = ['type' => 'success', 'message' => 'Solicitud de alta aceptada con éxito'];
 					}
 
@@ -205,6 +211,12 @@ class AccountRequestController extends Controller
 								$em->remove($groupUser);
 							}
 
+						}
+
+						if(!(count($user->getGroups())-1)){
+							$user->setLocked(new \DateTime());
+							$em->persist($user);
+							$em->flush();
 						}
 						
 						$message = ['type' => 'success', 'message' => 'Solicitud de baja aceptada con éxito'];
