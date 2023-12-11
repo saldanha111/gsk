@@ -35,13 +35,13 @@ class AccessController extends Controller
         $parameters = !empty($params);
 
         if ($request->get('export_excel') == '1') {
-            $logs = $em->getRepository(Logs::class)->listBy($filters, 1048575);
+            //$logs = $em->getRepository(Logs::class)->listBy($filters, $limit);
             return $this->exportCsv($logs);
         }
 
         if ($request->get('export_pdf') == '1') {
-            $logs = $em->getRepository(Logs::class)->listBy($filters, 1048575);
-            return $this->exportPDF($request,$logs);
+            //$logs = $em->getRepository(Logs::class)->listBy($filters, $limit);
+            return $this->exportPDF($request, $logs);
         }
 
         return $this->render('NononsenseUserBundle:Users:logs.html.twig', 
