@@ -858,4 +858,119 @@ class GroupController extends Controller
 
         return $accountRequest;
     }
+
+    public function showUsersAction(Request $request, $id)
+    {
+        if (!$this->get('app.security')->permissionSeccion('grupos_gestion') && !$this->get('app.security')->permissionSeccion('view_groups')) {
+            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+        }
+
+        $user = $this->container->get('security.context')->getToken()->getUser();
+
+        $groupAdmin = $this->isGroupAdmin($id);
+
+        $group = $this->getDoctrine()
+                      ->getRepository('NononsenseGroupBundle:Groups')
+                      ->find($id);
+    
+        if($request->get("export_excel")){
+            $phpExcelObject = $this->get('phpexcel')->createPHPExcelObject();
+
+            $phpExcelObject->getProperties();
+            $phpExcelObject->setActiveSheetIndex(0)
+             ->setCellValue('A1', 'Grupo')
+             ->setCellValue('A2', $group->getName())
+             ->setCellValue('B1', 'Estado')
+             ->setCellValue('B2', ($group->getIsActive() ? 'Activo' : 'Inactivo'))
+             ->setCellValue('C1', 'Fecha de creación')
+             ->setCellValue('C2', $this->get('utilities')->sp_date($group->getCreated()->format('d/m/Y')))
+             ->setCellValue('D1', 'Descripción')
+             ->setCellValue('D2', strip_tags($group->getDescription()));
+        }
+
+        if($request->get("export_pdf")){
+            $html='<html><body style="font-size:8px;width:100%">';
+            $html='
+                <table autosize="1" style="overflow:wrap;width:100%">
+                    <tr style="font-size:8px;width:100%">
+                        <th style="font-size:8px;font-weight:bold;">Grupo</th>
+                        <th style="font-size:8px;font-weight:bold">Estado</th>
+                        <th style="font-size:8px;font-weight:bold">Fecha de creación</th>
+                        <th style="font-size:8px;font-weight:bold">Descripción</th>
+                    </tr>
+                    <tr style="font-size:8px">
+                        <td>'.$group->getName().'</td>
+                        <td>'.($group->getIsActive() ? 'Activo' : 'Inactivo').'</td>
+                        <td>'.$this->get('utilities')->sp_date($group->getCreated()->format('d/m/Y')).'</td>
+                        <td>'.strip_tags($group->getDescription()).'</td>
+                    </tr>
+                </table>';
+            $html.='
+                <br><br><table autosize="1" style="overflow:wrap;width:100%">
+                    <tr style="font-size:8px;width:100%">
+                        <th style="font-size:8px;width:15%;font-weight:bold">Nombre y Apellidos</th>
+                        <th style="font-size:8px;width:15%;font-weight:bold">Tipo</th>
+                    </tr>';
+        }
+
+        if($request->get("export_excel")){
+            $phpExcelObject->getActiveSheet()
+             ->setCellValue('A4', 'Nombre y Apellidos')
+             ->setCellValue('B4', 'Tipo');
+
+             foreach(range('A','D') as $columnID) {
+                $phpExcelObject->getActiveSheet()->getColumnDimension($columnID)
+                    ->setAutoSize(true);
+            }
+        }
+
+        $i=5;
+
+        foreach($group->getUsers() as $groupUser){
+
+            if($request->get("export_excel")){
+                $phpExcelObject->getActiveSheet()
+                ->setCellValue('A'.$i, $groupUser->getUser()->getName())
+                ->setCellValue('B'.$i, ($groupUser->getType() == 'admin' ? 'Administrador' : 'Miembro' ));
+            }
+
+            if($request->get("export_pdf")){
+                $html.='<tr style="font-size:8px">
+                    <td>'.$groupUser->getUser()->getName().'</td>
+                    <td>'.($groupUser->getType() == 'admin' ? 'Administrador' : 'Miembro' ).'</td>
+                </tr>';
+            }
+
+            $i++;
+        }
+
+        if($request->get("export_excel")){
+            $phpExcelObject->getActiveSheet()->setTitle('Audittrail Grupo-Usuarios');
+            // Set active sheet index to the first sheet, so Excel opens this as the first sheet
+            $phpExcelObject->setActiveSheetIndex(0);
+
+            // create the writer
+            $writer = $this->get('phpexcel')->createWriter($phpExcelObject, 'Excel2007');
+            // create the response
+            $response = $this->get('phpexcel')->createStreamedResponse($writer);
+            // adding headers
+            $dispositionHeader = $response->headers->makeDisposition(
+              ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+              'audittrail_user_groups.xlsx'
+            );
+            $response->headers->set('Content-Type', 'text/vnd.ms-excel; charset=utf-8');
+            $response->headers->set('Pragma', 'public');
+            $response->headers->set('Cache-Control', 'maxage=1');
+            $response->headers->set('Content-Disposition', $dispositionHeader);
+
+            return $response; 
+        }
+
+        if($request->get("export_pdf")){
+            $html.='</table></body></html>';
+            $this->get('utilities')->returnPDFResponseFromHTML($html,"Audittrail Grupo-Usuarios");
+        }
+
+        return $this->redirect($this->generateUrl('nononsense_group_show', array('id' => $id)));
+    }
 }
