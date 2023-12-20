@@ -689,6 +689,12 @@ class GroupController extends Controller
                 );
 
                 $this->simulateAccountRequest($user, $group, 1);
+
+                if($user->getLocked() !== null){
+                    $user->setLocked(null);
+                }
+
+                $em->persist($user);
             }
         }
         $em->flush();
@@ -735,6 +741,12 @@ class GroupController extends Controller
             );
         } else {
             $em->remove($row);
+
+            if(!(count($row->getUser()->getGroups())-1)){
+                $row->getUser()->setLocked(new \DateTime());
+                $em->persist($user);
+            }
+
             $em->flush();
 
             $this->get('utilities')->logger(
