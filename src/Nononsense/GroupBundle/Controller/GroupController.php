@@ -957,7 +957,7 @@ class GroupController extends Controller
         }
 
         if($request->get("export_excel")){
-            $phpExcelObject->getActiveSheet()->setTitle('Audittrail Grupo-Usuarios');
+            $phpExcelObject->getActiveSheet()->setTitle('Audit trail Grupo-Usuarios');
             // Set active sheet index to the first sheet, so Excel opens this as the first sheet
             $phpExcelObject->setActiveSheetIndex(0);
 
@@ -980,7 +980,7 @@ class GroupController extends Controller
 
         if($request->get("export_pdf")){
             $html.='</table></body></html>';
-            $this->get('utilities')->returnPDFResponseFromHTML($html,"Audittrail Grupo-Usuarios");
+            $this->get('utilities')->returnPDFResponseFromHTML($html,"Audit trail Grupo-Usuarios");
         }
 
         return $this->redirect($this->generateUrl('nononsense_group_show', array('id' => $id)));
