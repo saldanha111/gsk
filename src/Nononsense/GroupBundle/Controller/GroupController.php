@@ -442,7 +442,7 @@ class GroupController extends Controller
 
                 $phpExcelObject->getProperties();
                 $phpExcelObject->setActiveSheetIndex(0)
-                 ->setCellValue('A1', "Audittrail Grupos - ".$user->getUsername()." - ".$this->get('utilities')->sp_date(date("d/m/Y H:i:s")));
+                 ->setCellValue('A1', "Audit trail Grupos - ".$user->getUsername()." - ".$this->get('utilities')->sp_date(date("d/m/Y H:i:s")));
                 $phpExcelObject->setActiveSheetIndex()
                  ->setCellValue('A2', 'Fecha')
                  ->setCellValue('B2', 'Usuario')
@@ -517,7 +517,7 @@ class GroupController extends Controller
             }
 
             if($request->get("export_excel")){
-                $phpExcelObject->getActiveSheet()->setTitle('Audittrail grupos');
+                $phpExcelObject->getActiveSheet()->setTitle('Audit trail Grupos');
                 // Set active sheet index to the first sheet, so Excel opens this as the first sheet
                 $phpExcelObject->setActiveSheetIndex(0);
 
@@ -540,7 +540,7 @@ class GroupController extends Controller
 
             if($request->get("export_pdf")){
                 $html.='</table></body></html>';
-                $this->get('utilities')->returnPDFResponseFromHTML($html,"Audittrail Grupos");
+                $this->get('utilities')->returnPDFResponseFromHTML($html,"Audit trail Grupos");
             }
         }
         

@@ -116,7 +116,7 @@ class AreasController extends Controller
 
                 $phpExcelObject->getProperties();
                 $phpExcelObject->setActiveSheetIndex(0)
-                 ->setCellValue('A1', "Audittrail Areas - ".$user->getUsername()." - ".$this->get('utilities')->sp_date(date("d/m/Y H:i:s")));
+                 ->setCellValue('A1', "Audit trail Areas - ".$user->getUsername()." - ".$this->get('utilities')->sp_date(date("d/m/Y H:i:s")));
                 $phpExcelObject->setActiveSheetIndex()
                  ->setCellValue('A2', 'Fecha')
                  ->setCellValue('B2', 'Usuario')
@@ -191,7 +191,7 @@ class AreasController extends Controller
             }
 
             if($request->get("export_excel")){
-                $phpExcelObject->getActiveSheet()->setTitle('Audittrail Áreas');
+                $phpExcelObject->getActiveSheet()->setTitle('Audit trail Áreas');
                 // Set active sheet index to the first sheet, so Excel opens this as the first sheet
                 $phpExcelObject->setActiveSheetIndex(0);
 
@@ -214,7 +214,7 @@ class AreasController extends Controller
 
             if($request->get("export_pdf")){
                 $html.='</table></body></html>';
-                $this->get('utilities')->returnPDFResponseFromHTML($html,"Audittrail Áreas");
+                $this->get('utilities')->returnPDFResponseFromHTML($html,"Audit trail Áreas");
             }
         }
                 
