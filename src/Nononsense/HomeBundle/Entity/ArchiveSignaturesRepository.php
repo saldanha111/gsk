@@ -95,6 +95,11 @@ class ArchiveSignaturesRepository extends EntityRepository
                 $list->setParameter('areas', $filters["areas"]);
             }
 
+            if(isset($filters["recordId"])){
+                $list->andWhere('ar.id = :recordId');
+                $list->setParameter('recordId', $filters["recordId"]);
+            }
+
             if(isset($filters["type"])){
                 switch($filters["type"]){
                     case "category":
