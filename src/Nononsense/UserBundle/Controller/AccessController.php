@@ -35,13 +35,13 @@ class AccessController extends Controller
         $parameters = !empty($params);
 
         if ($request->get('export_excel') == '1') {
-            $logs = $em->getRepository(Logs::class)->listBy($filters, 1048575);
+            //$logs = $em->getRepository(Logs::class)->listBy($filters, $limit);
             return $this->exportCsv($logs);
         }
 
         if ($request->get('export_pdf') == '1') {
-            $logs = $em->getRepository(Logs::class)->listBy($filters, 1048575);
-            return $this->exportPDF($request,$logs);
+            //$logs = $em->getRepository(Logs::class)->listBy($filters, $limit);
+            return $this->exportPDF($request, $logs);
         }
 
         return $this->render('NononsenseUserBundle:Users:logs.html.twig', 
@@ -149,7 +149,7 @@ class AccessController extends Controller
                         <th style="font-size:8px;width:10%">ID</th>
                         <th style="font-size:8px;width:10%">TIPO</th>
                         <th style="font-size:8px;width:15%">USUARIO</th>
-                        <th style="font-size:8px;width:55%">DESCRIPCIÓN</th>
+                        <th style="font-size:8px;width:45%">DESCRIPCIÓN</th>
                         <th style="font-size:8px;width:10%">IP</th>
                         <th style="font-size:8px;width:10%">FECHA</th>
                     </tr>';

@@ -65,14 +65,15 @@
                         <div class="form-group">
 
                             <label class="col-sm-1 control-label">Fecha</label>
-                            <div class="col-sm-1 item_filter">
-                                <input type="text" class="form-control pull-right" autocomplete="off" name="from" id="from" value="{{filters.from is defined ? filters.from|date("Y-m-d") : ''}}">
-                            </div>
+                            <div class="col-sm-2">
+                                <div class="item_filter">
+                                    <input type="text" class="form-control pull-right" autocomplete="off" name="from" id="from" value="{{filters.from is defined ? filters.from|date("Y-m-d") : ''}}">
+                                </div>
 
-                            <div class="col-sm-1">
-                                <input type="text" class="form-control pull-right" autocomplete="off" name="until" id="until" value="{{filters.until is defined ? filters.until|date("Y-m-d") : ''}}">
+                                <div class="item_filter">
+                                    <input type="text" class="form-control pull-right" autocomplete="off" name="until" id="until" value="{{filters.until is defined ? filters.until|date("Y-m-d") : ''}}">
+                                </div>
                             </div>
-
                             <label class="col-sm-1 control-label">Estado</label>
                             <div class="col-sm-2 item_filter">
                                 <select class="form-control" style="width: 100%;" name="status">

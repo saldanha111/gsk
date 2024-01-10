@@ -12,6 +12,7 @@ use Nononsense\HomeBundle\Entity\Areas;
 use Nononsense\HomeBundle\Entity\ArchiveCategories;
 use Nononsense\HomeBundle\Entity\ArchivePreservations;
 use Nononsense\HomeBundle\Entity\ArchiveAZ;
+use Nononsense\HomeBundle\Entity\ArchiveSignatures;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Nononsense\HomeBundle\Form\Type as FormProveedor;
@@ -320,9 +321,25 @@ class ArchiveRecordsController extends Controller
                     $file = $this->uploadFile($request);
                 }
                 foreach($records as $record){
+                    $loans = $this->getDoctrine()->getRepository(ArchiveSignatures::class)->count([
+                        'actions' =>  array(8,9,10,11),
+                        'recordId' => $record->getId()
+                    ]);
+
+                    if ($loans){
+                        $this->get('session')->getFlashBag()->add(
+                            'error',
+                            'Algunos de los registros seleccionados tienen solicitudes asociadas y no pueden ser destruidos'
+                        );
+
+                        $route = $this->container->get('router')->generate('nononsense_archive_records');
+                        return $this->redirect($route);
+                    }
+                    
                     $record->setRemovedAt(new \DateTime());
                     $this->get('utilities')->saveLogArchive($this->getUser(),7,$request->get('comment'),"record",$record->getId(),$file);
                     $em->persist($record);
+                
                 }
                 $sentence="Los registros han sido destruidos satisfactoriamente";
                 break;

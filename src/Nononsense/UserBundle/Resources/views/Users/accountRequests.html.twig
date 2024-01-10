@@ -52,13 +52,12 @@
                     <form class="form-horizontal" id="form_item" action="{{ path('nononsense_user_check_requests')}}" method="GET">
                         <div class="form-group">
 
-                            <label class="col-sm-1 control-label item_filter">Nombre del solicitante</label>
-                            <div class="col-sm-2 item_filter">
+                            <label class="col-md-1 control-label item_filter">Nombre del solicitante</label>
+                            <div class="col-md-2 item_filter">
                                 <input type="text" name="username" class="form-control" value="{{filters.username is defined ? filters.username : ''}}">
                             </div>
-
-                            <label class="col-sm-1 control-label item_filter">MUD ID</label>
-                            <div class="col-sm-2 item_filter">
+                            <label class="col-md-1 control-label item_filter">MUD ID</label>
+                            <div class="col-md-2 item_filter">
                                 <input type="text" name="mudid" class="form-control" value="{{filters.mudid is defined ? filters.mudid : ''}}">
                             </div>
 
@@ -74,8 +73,8 @@
                                 </select>
                             </div> -->
                              
-                            <label class="col-sm-2 control-label item_filter">Tipo de solicitud:</label>
-                            <div class="col-sm-2 item_filter">
+                            <label class="col-md-2 control-label item_filter">Tipo de solicitud:</label>
+                            <div class="col-md-2 item_filter">
                                 <select class="form-control" name="type">
                                     <option value="">Todos</option>
                                     {% for i in 0..1 %}
@@ -85,21 +84,18 @@
                                     {% endfor %}
                                 </select>
                             </div>
-
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-1 control-label item_filter">Fecha </label>
-                            <div class="col-sm-1 item_filter">
-                                <input type="text" class="form-control pull-right" autocomplete="off" name="from" id="from" value="{{filters.from is defined and filters.from is not empty ? filters.from|date("Y-m-d") : ''}}">
+                            <label class="col-md-1 control-label item_filter">Fecha</label>
+                            <div class="col-md-2">
+                                <div class="item_filter">
+                                    <input type="text" class="form-control pull-right" autocomplete="off" name="from" id="from" value="{{filters.from is defined and filters.from is not empty ? filters.from|date("Y-m-d") : ''}}">
+                                </div>
+                                <div class="item_filter">
+                                    <input type="text" class="form-control pull-right" autocomplete="off" name="until" id="until" value="{{filters.until is defined and filters.until is not empty ? filters.until|date("Y-m-d") : ''}}">
+                                </div>
                             </div>
-
-                            <div class="col-sm-1 item_filter">
-                                <input type="text" class="form-control pull-right" autocomplete="off" name="until" id="until" value="{{filters.until is defined and filters.until is not empty ? filters.until|date("Y-m-d") : ''}}">
-                            </div>
-
-
-
-                            <div class="col-sm-1 item_filter">
+                            <div class="col-md-1 item_filter">
                                 <button type="submit" class="btn btn-primary pull-right">Filtrar</button>
                             </div>
                         </div>
