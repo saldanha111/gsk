@@ -38,7 +38,7 @@ class ArchiveAZController extends Controller
         }
 
         $em = $this->getDoctrine()->getManager();
-        $defaultLimit = 15;
+        $defaultLimit = 44;
         $filters = Utils::getListFilters($request);
         $filters['limit_many'] = ($request->get('limit_many')) ?: $defaultLimit;
 
@@ -52,6 +52,10 @@ class ArchiveAZController extends Controller
             'count' => $totalItems,
             'pagination' => Utils::getPaginator($request, $filters['limit_many'], $totalItems)
         ];
+
+        if($request->get("noprint")){
+            $data['noprint']=1;
+        }
 
         return $this->render('NononsenseHomeBundle:Archive:list_az.html.twig', $data);
     }
@@ -130,11 +134,24 @@ class ArchiveAZController extends Controller
                     $this->get('utilities')->saveLogArchive($this->getUser(),$save["action"],$comment,"az",$az->getId());
                 }
 
+                $noprint="";
                 if($saves>1){
-                    $sentence="Los códigos AZ se han guardado correctamente. Ahora puede imprimirlos";
+                    if(!$request->get("isRelocate")){
+                        $sentence="Los códigos AZ se han guardado correctamente. Ahora puede imprimirlos si lo desea";
+                    }
+                    else{
+                        $sentence="Los códigos AZ se han reubicado correctamente.";
+                        $noprint="&noprint=1";
+                    }
                 }
                 else{
-                    $sentence="El código AZ se ha guardado correctamente. Ahora puede imprimirlo si lo desea";
+                    if(!$request->get("isRelocate")){
+                        $sentence="El código AZ se ha guardado correctamente. Ahora puede imprimirlo si lo desea";
+                    }
+                    else{
+                        $sentence="El código AZ se ha reubicado correctamente.";
+                        $noprint="&noprint=1";
+                    }
                 }
 
                 $list_codes="";
@@ -143,7 +160,7 @@ class ArchiveAZController extends Controller
                 }
 
                 $this->get('session')->getFlashBag()->add('message',$sentence);
-                return $this->redirect($this->generateUrl('nononsense_archive_az_list')."?f_codes=".$list_codes);
+                return $this->redirect($this->generateUrl('nononsense_archive_az_list')."?f_codes=".$list_codes.$noprint);
             }
             catch(\Exception $e){
                 $this->get('session')->getFlashBag()->add('error', "Error al intentar guardar los datos del AZ".$e->getMessage());

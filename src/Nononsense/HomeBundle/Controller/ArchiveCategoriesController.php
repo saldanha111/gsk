@@ -77,11 +77,15 @@ class ArchiveCategoriesController extends Controller
         $em = $this->getDoctrine()->getManager();
         $saved = false;
         $action = 5;
+        $actionActive=null;
         if ($category->getId()) {
             $action = 2;
         }
         $em->getConnection()->beginTransaction();
         try {
+            if($action!=5){
+                $changes=$this->getChanges($request,$category);  
+            }
             $retentionDays = [
                 'days' => $request->get('days'),
                 'months' => $request->get('months'),
@@ -94,13 +98,15 @@ class ArchiveCategoriesController extends Controller
             $category->setRetentionDaysFormatted($retentionDays);
             $active=($request->get('active') || $action==5) ? true : false;
             if($action==2 && $active!=$category->getActive()){
-                $action=4;
+                if($changes==""){
+                    $action=NULL;
+                }
+                $actionActive=4;
                 if($active){
-                    $action=3;
+                    $actionActive=3;
                 }
             }
             $category->setActive($active);
-            
 
 
             if (!$request->get('name') || !$request->get('description')) {
@@ -114,7 +120,15 @@ class ArchiveCategoriesController extends Controller
 
             $em->persist($category);
             $em->flush();
-            $this->get('utilities')->saveLogArchive($this->getUser(),$action,$comment,"category",$category->getId());
+
+            if($action){
+                $this->get('utilities')->saveLogArchive($this->getUser(),$action,$comment,"category",$category->getId(),NULL,NULL,$changes);
+            }
+
+            if($actionActive){
+                $this->get('utilities')->saveLogArchive($this->getUser(),$actionActive,$comment,"category",$category->getId());
+            }
+
             $em->getConnection()->commit();
             $this->get('session')->getFlashBag()->add(
                 'message',
@@ -129,5 +143,38 @@ class ArchiveCategoriesController extends Controller
             );
         }
         return $saved;
+    }
+
+    public function getChanges($request,$item){
+        $changes="";
+        $em = $this->getDoctrine()->getManager();
+
+        if($request->get("name") && $request->get("name")!=$item->getName()){
+            $changes.="<tr><td>Nombre</td><td>".$item->getName()."</td><td>".$request->get("name")."</td></tr>";
+        }
+
+        if($request->get("description") && $request->get("description")!=$item->getDescription()){
+            $changes.="<tr><td>Descripción</td><td>".$item->getDescription()."</td><td>".$request->get("description")."</td></tr>";
+        }
+
+        $retentionDays = [
+            'days' => $request->get('days'),
+            'months' => $request->get('months'),
+            'years' => $request->get('years')
+        ];
+        $days = ($retentionDays['days']) ?: 0;
+        $months = ($retentionDays['months']) ?: 0;
+        $years = ($retentionDays['years']) ?: 0;
+        $retentionDays=$days + ($months * 30) + ($years * 365);
+
+        if($retentionDays!=$item->getRetentionDays()){
+            $changes.="<tr><td>Dias de retención</td><td>".$item->getRetentionDays()."</td><td>".$retentionDays."</td></tr>";
+        }
+
+        if($changes!=""){
+            $changes="\n<table class='table'><tr><td>Campo</td><td>Anterior</td><td>Nuevo</td></tr>".$changes."</table>";
+        }
+
+        return $changes;
     }
 }

@@ -25,7 +25,7 @@
                 <br>
             {% endfor %}
             {% if filters.codes is not defined or filters.codes is empty %}
-                <form id="form_item" action="{{ path('nononsense_archive_az_list') }}" method="GET">
+                <form class="form-horizontal" id="form_item" action="{{ path('nononsense_archive_az_list') }}" method="GET">
                     <div class="row">
                         <label class="col-sm-1 control-label item_filter">Código</label>
                         <div class="col-sm-2 item_filter">
@@ -55,7 +55,9 @@
                     <th>Código</th>
                     <th style="width:200px"></th>
                     <th>Ubicación</th>
-                    <th></th>
+                    {% if noprint is not defined or noprint is empty %}
+                        <th></th>
+                    {% endif %}
                 </tr>
                 </thead>
                 {% if items is defined %}
@@ -66,15 +68,19 @@
                             {# <img class="img-responsive" src="{{ path('nononsense__archive_code_view', {'code': item.code}) }}"> #}
                         </td>
                         <td>{{ item.location.building }}-{{ item.location.shelf }}-{{ item.location.passage }}-{{ item.location.cabinet }}-{{ item.location.others }}</td>
-                        <td><input class="checkpem" name="f_prints[]" value="{{item.id}}" type="checkbox"></td>
+                        {% if noprint is not defined or noprint is empty %}
+                            <td><input class="checkpem" name="f_prints[]" value="{{item.id}}" type="checkbox"></td>
+                        {% endif %}
                     </tr>
                     {% endfor %}
-                    <tr>
-                        <th colspan="3">
-                            <a class="btn btn-info pull-right btn-print" href="javascript:void(0)" data-action="1" data-info="Imprimir"><i class="fa fa-print" aria-hidden="true"></i> Imprimir</a>
-                        </th>
-                        <th><input id="record_masive" class="supcheck" type="checkbox"></th>
-                    </tr>
+                    {% if noprint is not defined or noprint is empty %}
+                        <tr>
+                            <th colspan="3">
+                                <a class="btn btn-info pull-right btn-print" href="javascript:void(0)" data-action="1" data-info="Imprimir"><i class="fa fa-print" aria-hidden="true"></i> Imprimir</a>
+                            </th>
+                            <th><input id="record_masive" class="supcheck" type="checkbox"></th>
+                        </tr>
+                    {% endif %}
                 {% endif %}
             </table>
             {% if count==0 %}
