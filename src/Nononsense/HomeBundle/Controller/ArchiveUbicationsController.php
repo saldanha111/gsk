@@ -72,7 +72,7 @@ class ArchiveUbicationsController extends Controller
         if(!$is_valid){
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
-
+        $changes="";
         $em = $this->getDoctrine()->getManager();
         $qr = $em->getRepository('NononsenseHomeBundle:ArchiveLocations')->find($id);
         if(!$qr){
@@ -86,6 +86,9 @@ class ArchiveUbicationsController extends Controller
 
         if($request->getMethod()=='POST'){
             try{
+                if($action!=5){
+                    $changes=$this->getChanges($request,$qr);  
+                }
                 $qr->setBuilding($request->get("building"));
                 $qr->setShelf($request->get("shelf"));
                 $qr->setPassage($request->get("passage"));
@@ -99,7 +102,10 @@ class ArchiveUbicationsController extends Controller
                 if($request->get("comment")){
                     $comment=$request->get("comment");
                 }
-                $this->get('utilities')->saveLogArchive($this->getUser(),$action,$comment,"location",$qr->getId());
+
+
+                $this->get('utilities')->saveLogArchive($this->getUser(),$action,$comment,"location",$qr->getId(),NULL,NULL,$changes);
+
 
                 $this->get('session')->getFlashBag()->add('message',"La ubicación se ha guardado correctamente");
                 return $this->redirect($this->generateUrl('nononsense_archive_ubications_list'));
@@ -117,7 +123,6 @@ class ArchiveUbicationsController extends Controller
     }
 
     public function viewQrAction(Request $request, $id){
-        
         $is_valid = $this->get('app.security')->permissionSeccion('archive_admin');
         if(!$is_valid){
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
@@ -129,19 +134,61 @@ class ArchiveUbicationsController extends Controller
             $qr = $this->getDoctrine()->getRepository('NononsenseHomeBundle:ArchiveLocations')->find($id);
 
             if($qr){
-                
                 $filename = self::generateQrImage($qr);
 
                 $rootdir = $this->get('kernel')->getRootDir();
                 $ruta_img_qr = $rootdir . "/files/archive-retention/qrs/";
+                $qrImagePath = $ruta_img_qr . $filename;
 
-                $content = file_get_contents($ruta_img_qr.$filename);
+                // Carga la imagen del QR
+                $qrImage = imagecreatefrompng($qrImagePath);
+
+                // Configuración de la imagen y del texto
+                $marginRight = 20; // Margen adicional a la derecha
+                $textWidth = 650; // Ancho para el texto
+                $width = imagesx($qrImage) + $textWidth + $marginRight;
+                $height = imagesy($qrImage);
+                $newImage = imagecreatetruecolor($width, $height);
+
+                // Define el color del texto y de fondo
+                $backgroundColor = imagecolorallocate($newImage, 255, 255, 255); // Blanco
+                $textColor = imagecolorallocate($newImage, 0, 0, 0); // Negro
+
+                // Rellena el fondo
+                imagefill($newImage, 0, 0, $backgroundColor);
+
+                // Copia el QR a la nueva imagen
+                imagecopy($newImage, $qrImage, 0, 0, 0, 0, imagesx($qrImage), imagesy($qrImage));
+
+                // Agrega el texto
+                $text = "Edificio: ".$qr->getBuilding()."\nPasillo: ".$qr->getPassage()."\nArmario: ".$qr->getCabinet()."\nBalda: ".$qr->getShelf()."\nOtros: ".$qr->getOthers();
+                $lines = explode("\n", $text);
+                $font = $rootdir.'/../web/fonts/Helvetica.ttf'; // Especifica la ruta a tu fuente
+                $fontSize = 50; // Tamaño de la fuente
+                $x = imagesx($qrImage) + 10; // Posición inicial en X para el texto
+                $y = 90; // Posición inicial en Y
+                $lineHeight = 80; // Altura de línea
+
+                foreach ($lines as $line) {
+                    imagettftext($newImage, $fontSize, 0, $x, $y, $textColor, $font, $line);
+                    $y += $lineHeight; // Incrementa la posición Y para la siguiente línea
+                }
+
+                // Prepara la respuesta
+                ob_start();
+                imagepng($newImage);
+                $imageData = ob_get_contents();
+                ob_end_clean();
 
                 $response = new Response();
                 $disposition = $response->headers->makeDisposition(ResponseHeaderBag::DISPOSITION_INLINE, 'image.png');
                 $response->headers->set('Content-Disposition', $disposition);
                 $response->headers->set('Content-Type', 'image/png');
-                $response->setContent($content);
+                $response->setContent($imageData);
+
+                imagedestroy($qrImage);
+                imagedestroy($newImage);
+
                 return $response;
             }
         }
@@ -196,7 +243,7 @@ class ArchiveUbicationsController extends Controller
         ->setErrorCorrection('high')
         ->setForegroundColor(['r' => 0, 'g' => 0, 'b' => 0, 'a' => 0])
         ->setBackgroundColor(['r' => 255, 'g' => 255, 'b' => 255, 'a' => 0])
-        ->setLabel($qr->getBuilding()." - ".$qr->getPassage()." - ".$qr->getCabinet()." - ".$qr->getShelf()." - ".$qr->getOthers())
+        //->setLabel($qr->getBuilding()." - ".$qr->getPassage()." - ".$qr->getCabinet()." - ".$qr->getShelf()." - ".$qr->getOthers())
         ->setLabelFontSize(12)
         ->setImageType(QrCode::IMAGE_TYPE_PNG)
         ;
@@ -204,6 +251,37 @@ class ArchiveUbicationsController extends Controller
         $qrCode->save($ruta_img_qr.$filename);
 
         return $filename;
+    }
+
+    public function getChanges($request,$item){
+        $changes="";
+        $em = $this->getDoctrine()->getManager();
+
+        if($request->get("building") && $request->get("building")!=$item->getBuilding()){
+            $changes.="<tr><td>Edificio</td><td>".$item->getBuilding()."</td><td>".$request->get("building")."</td></tr>";
+        }
+
+        if($request->get("passage") && $request->get("passage")!=$item->getPassage()){
+            $changes.="<tr><td>Pasillo</td><td>".$item->getPassage()."</td><td>".$request->get("passage")."</td></tr>";
+        }
+
+        if($request->get("cabinet") && $request->get("cabinet")!=$item->getCabinet()){
+            $changes.="<tr><td>Armario</td><td>".$item->getCabinet()."</td><td>".$request->get("cabinet")."</td></tr>";
+        }
+
+        if($request->get("shelf") && $request->get("shelf")!=$item->getShelf()){
+            $changes.="<tr><td>Balda</td><td>".$item->getShelf()."</td><td>".$request->get("shelf")."</td></tr>";
+        }
+
+        if($request->get("others") && $request->get("others")!=$item->getOthers()){
+            $changes.="<tr><td>Otros</td><td>".$item->getOthers()."</td><td>".$request->get("others")."</td></tr>";
+        }
+
+        if($changes!=""){
+            $changes="\n<table class='table'><tr><td>Campo</td><td>Anterior</td><td>Nuevo</td></tr>".$changes."</table>";
+        }
+
+        return $changes;
     }
 
 }

@@ -226,7 +226,7 @@
                                 <td>{{ item.destructionDate is defined and item.destructionDate is not empty ? item.destructionDate|date("d/m/Y")|gskdate : '' }}</td>
                                 <td>{{ item.preservation is defined and item.preservation is not empty ? item.preservation : 'No' }}</td>
                                 <td>
-                                    {% if agent is defined and agent and item.areaId in agentareas and item.removedAt is empty %}
+                                    {% if agent is defined and agent and item.areaId in agentareas and item.removedAt is empty and filters.signature is not defined  %}
                                         <a href="{{ path('nononsense_archive_records_edit', {'id' : item.id}) }}" class="btn btn-xs">
                                             <i class="fa fa-pencil" aria-hidden="true"></i>
                                             <span> Editar</span>
@@ -242,7 +242,8 @@
                                         {% if filters.retentionAction is defined and (filters.retentionAction=="2" or filters.retentionAction=="3") %}
                                             <a class="btn btn-xs btn-primary btn-retention"  href="javascript:void(0)" data-action="1" data-info="Revisar archivo (ID {{item.id}})" data-id="{{item.id}}" data-unique="1"><i class="fa fa-check" aria-hidden="true"></i> Revisar</a>
                                         {% endif %}
-                                        {% if item.retentionRevision is defined and item.retentionRevision %}
+
+                                        {% if item.retentionRevision is defined and item.retentionRevision and filters.signature is not defined %}
                                             <a class="btn btn-xs btn-warning" target="_blank"  href="{{path('nononsense_archive_log')}}?relational={{item.id}}&type=record"><i class="fa fa-warning" aria-hidden="true"></i> Revisado</a>
                                         {% endif %}  
                                     {% else %}

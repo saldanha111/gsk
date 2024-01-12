@@ -78,6 +78,7 @@ class ArchivePreservationsNoticesController extends Controller
         $saved = false;
         $action = 5;
         $actionActive=null;
+        $changes="";
         if ($category->getId()) {
             $action = 2;
         }

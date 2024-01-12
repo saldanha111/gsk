@@ -115,9 +115,16 @@ class ArchiveAZController extends Controller
                         else{
                             $action = 2;
                         }
+                        $changes="";
+                        $oldlocation=$az->getLocation();
+                        if($action!=5 && $location!=$oldlocation){
+                            $old=$oldlocation->getBuilding()." - ".$oldlocation->getPassage()." - ".$oldlocation->getCabinet()." - ".$oldlocation->getShelf()." - ".$oldlocation->getOthers();
+                            $new=$location->getBuilding()." - ".$location->getPassage()." - ".$location->getCabinet()." - ".$location->getShelf()." - ".$location->getOthers();
+                            $changes="\n<table class='table'><tr><td>Campo</td><td>Anterior</td><td>Nuevo</td></tr><tr><td>Localización</td><td>".$old."</td><td>".$new."</td></tr></table>";
+                        }
                         $az->setLocation($location);
                         $em->persist($az);
-                        $saves[]=array("code" => $code,"action" => $action);
+                        $saves[]=array("code" => $code,"action" => $action, "changes" => $changes);
                     }
                 }
                 else{
@@ -131,7 +138,7 @@ class ArchiveAZController extends Controller
 
                 foreach($saves as $save){
                     $az = $em->getRepository('NononsenseHomeBundle:ArchiveAZ')->findOneBy(array("code" => $save["code"]));
-                    $this->get('utilities')->saveLogArchive($this->getUser(),$save["action"],$comment,"az",$az->getId());
+                    $this->get('utilities')->saveLogArchive($this->getUser(),$save["action"],$comment,"az",$az->getId(),NULL,NULL,$save["changes"]);
                 }
 
                 $noprint="";

@@ -267,7 +267,7 @@ class ArchiveRecordsController extends Controller
     public function updateAction(Request $request){
         $em = $this->getDoctrine()->getManager();
         $user = $this->container->get('security.context')->getToken()->getUser();
-
+        $changes="";
         $redirect=$this->generateUrl('nononsense_archive_records');
 
         $is_valid = $this->get('app.security')->permissionSeccion('archive_agent');

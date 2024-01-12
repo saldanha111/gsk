@@ -77,6 +77,7 @@ class ArchiveTypesController extends Controller
         $em = $this->getDoctrine()->getManager();
         $saved = false;
         $action = 5;
+        $changes="";
         $actionActive=null;
         if ($category->getId()) {
             $action = 2;

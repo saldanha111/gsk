@@ -47,24 +47,24 @@ class ArchiveRecordsRepository extends EntityRepository
                 SELECT MIN(arc3.id)
                 FROM Nononsense\HomeBundle\Entity\ArchiveCategories arc3
                 JOIN arc3.records ar3 
-                WHERE ar3.id = ar.id
+                WHERE ar3.id = ar.id AND arc3.active=TRUE
                 AND arc3.retentionDays = 
                     (SELECT MAX(arc2.retentionDays) 
                     FROM Nononsense\HomeBundle\Entity\ArchiveCategories arc2 
                     JOIN arc2.records ar2 
-                    WHERE ar2.id = ar.id) 
+                    WHERE ar2.id = ar.id AND arc2.active=TRUE) 
             ))");
 
         $list->leftJoin("ar.preservations", "arp", "WITH", "(arp.id = (
                 SELECT MIN(arp2.id) 
                 FROM Nononsense\HomeBundle\Entity\ArchivePreservations arp2 
                 JOIN arp2.records ap2 
-                WHERE ap2.id = ar.id
+                WHERE ap2.id = ar.id AND arp2.active=TRUE
             ) OR arp.id IS NULL)");
             
 
-        $list->andWhere('arc.name IS NOT NULL OR (SELECT COUNT(arck.id) FROM Nononsense\HomeBundle\Entity\ArchiveCategories arck JOIN arck.records ack WHERE ack.id = ar.id)=0');
-        $list->andWhere('arp.name IS NOT NULL OR (SELECT COUNT(arpk.id) FROM Nononsense\HomeBundle\Entity\ArchivePreservations arpk JOIN arpk.records apk WHERE apk.id = ar.id)=0');
+        $list->andWhere('arc.name IS NOT NULL OR (SELECT COUNT(arck.id) FROM Nononsense\HomeBundle\Entity\ArchiveCategories arck JOIN arck.records ack WHERE ack.id = ar.id AND arck.active=TRUE)=0');
+        $list->andWhere('arp.name IS NOT NULL OR (SELECT COUNT(arpk.id) FROM Nononsense\HomeBundle\Entity\ArchivePreservations arpk JOIN arpk.records apk WHERE apk.id = ar.id AND arpk.active=TRUE)=0');
 
         if(!empty($filters)){
 
