@@ -67,7 +67,7 @@
                             <tr data-toggle="collapse">
                                 <th>{{log.id}}</th>
                                 <td>{{log.type is defined and log.type ? log.type.name : 'Sin definir'}}</td>
-                                <td>{{log.user is defined and log.user ? log.user.username : ''}}</td>
+                                <td>{{log.user is defined and log.user ? log.user.username : 'No aplica'}}</td>
                                 <td>{{log.description}}</td>
                                 <td>{{log.ip}}</td>
                                 <td>{{log.date|date("d-m-Y H:i")}}</td>
