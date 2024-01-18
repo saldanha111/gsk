@@ -1,10 +1,10 @@
 {% extends '::base.html.twig' %}
-{% block page_title %}Docoaro - GSK |  Archivo / {{category.id is not null ? 'Editar' : 'Crear'}} tipo de archivo {% endblock %}
+{% block page_title %}Docoaro - GSK |  Archivo / {{category.id is not null ? 'Editar' : 'Crear'}} tipo de documento {% endblock %}
 {% block head %}
     <link rel="stylesheet" href="{{ asset('/js/plugins/sweetalert/sweetalert.min.css') }}">
     {{ parent() }}
 {% endblock %}
-{% block main_title %} Archivo / {{category.id is not null ? 'Editar' : 'Crear'}} tipo de archivo{% endblock %}
+{% block main_title %} Archivo / {{category.id is not null ? 'Editar' : 'Crear'}} tipo de documento{% endblock %}
 
 {% block content %}
 

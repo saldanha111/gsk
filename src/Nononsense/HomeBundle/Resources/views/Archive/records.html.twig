@@ -264,7 +264,9 @@
                             {% if count>0 %}
                                 <tr>
                                     <th colspan="16">
-                                        <a class="btn btn-primary pull-right bnt-separator2 btn-retention" href="javascript:void(0)" data-action="1" data-info="Revisar"><i class="fa fa-check" aria-hidden="true"></i> Revisar</a>
+                                        {% if filters.retentionAction is defined and filters.retentionAction=="2" %}
+                                            <a class="btn btn-primary pull-right bnt-separator2 btn-retention" href="javascript:void(0)" data-action="1" data-info="Revisar"><i class="fa fa-check" aria-hidden="true"></i> Revisar</a>
+                                        {% endif %} 
                                         {% if filters.retentionAction is defined and filters.retentionAction=="3" %}
                                             <a class="btn btn-danger pull-right btn-retention" href="javascript:void(0)" data-action="2" data-info="Eliminar"><i class="fa fa-trash" aria-hidden="true"></i> Eliminar</a>
                                         {% endif %} 
