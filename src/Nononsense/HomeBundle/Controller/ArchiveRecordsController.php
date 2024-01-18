@@ -314,6 +314,7 @@ class ArchiveRecordsController extends Controller
                     $this->get('utilities')->saveLogArchive($this->getUser(),6,$request->get('comment'),"record",$record->getId());
                     $em->persist($record);
                 }
+                $sentence="La acción de revisión de registros ha finalizado satisfactoriamente";
                 break;
             case "2":
                 $file=NULL;
@@ -322,8 +323,9 @@ class ArchiveRecordsController extends Controller
                 }
                 foreach($records as $record){
                     $loans = $this->getDoctrine()->getRepository(ArchiveSignatures::class)->count([
-                        'actions' =>  array(8,9,10,11),
-                        'recordId' => $record->getId()
+                        'actions' =>  array(8,9,10),
+                        'recordId' => $record->getId(),
+                        'not_available' => 1
                     ]);
 
                     if ($loans){
@@ -924,17 +926,17 @@ class ArchiveRecordsController extends Controller
 
         if($request->get("type") && (!$item->getType() || $request->get("type")!=$item->getType()->getId())){
             $type = $em->getRepository(ArchiveTypes::class)->findOneBy(['id' => $request->get('type')]);
-            $changes.="<tr><td>Tipo</td><td>".$item->getType()->getName()."</td><td>".$type->getName()."</td></tr>";
+            $changes.="<tr><td>Tipo</td><td>".($item->getType() ? $item->getArea()->getName() : '')."</td><td>".$type->getName()."</td></tr>";
         }
 
         if($request->get("area") && (!$item->getArea() || $request->get("area")!=$item->getArea()->getId())){
             $area = $em->getRepository(Areas::class)->findOneBy(['id' => $request->get('area')]);
-            $changes.="<tr><td>Area custodio</td><td>".$item->getArea()->getName()."</td><td>".$area->getName()."</td></tr>";
+            $changes.="<tr><td>Area custodio</td><td>".($item->getArea() ? $item->getArea()->getName() : '')."</td><td>".$area->getName()."</td></tr>";
         }
 
         if($request->get("area_info") && (!$item->getAreaInfo() || $request->get("area_info")!=$item->getAreaInfo()->getId())){
             $areaInfo = $em->getRepository(Areas::class)->findOneBy(['id' => $request->get('area_info')]);
-            $changes.="<tr><td>Area origen</td><td>".$item->getAreaInfo()->getName()."</td><td>".$areaInfo->getName()."</td></tr>";
+            $changes.="<tr><td>Area origen</td><td>".($item->getAreaInfo() ? $item->getAreaInfo()->getName() : '')."</td><td>".$areaInfo->getName()."</td></tr>";
         }
 
         if($request->get("unique_number") && $request->get("unique_number")!=$item->getUniqueNumber()){
@@ -943,12 +945,12 @@ class ArchiveRecordsController extends Controller
 
         if($request->get("state") && (!$item->getState() || $request->get("state")!=$item->getState()->getId())){
             $state = $em->getRepository(ArchiveStates::class)->findOneBy(['id' => $request->get('state')]);
-            $changes.="<tr><td>Estado</td><td>".$item->getState()->getName()."</td><td>".$state->getName()."</td></tr>";
+            $changes.="<tr><td>Estado</td><td>".($item->getState() ? $item->getState()->getName() : '')."</td><td>".$state->getName()."</td></tr>";
         }
 
         if($request->get("location") && (!$item->getAZ() || $request->get("location")!=$item->getAZ()->getId())){
             $az = $em->getRepository(ArchiveAZ::class)->findOneBy(['id' => $request->get('location')]);
-            $changes.="<tr><td>AZ</td><td>".$item->getAZ()->getCode()."</td><td>".$az->getCode()."</td></tr>";
+            $changes.="<tr><td>AZ</td><td>".($item->getAZ() ? $item->getAZ()->getCode() : '')."</td><td>".$az->getCode()."</td></tr>";
         }
 
         if($request->get("retention_date")){

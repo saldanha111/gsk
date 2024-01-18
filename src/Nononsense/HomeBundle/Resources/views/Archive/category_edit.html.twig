@@ -34,7 +34,7 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-4 control-label">Significado</label>
+                            <label class="col-sm-4 control-label">Descripción</label>
                             <div class="col-sm-7">
                                 <textarea name="description" id="description" class="form-control text-comment" rows="10" cols="40"  style="width:100%" required="required">{{category.description is not null ? category.description : ''}}</textarea>
                             </div>
@@ -146,7 +146,7 @@
             if (!$('#description').val()){
                 swal({
                     title: "Atención",
-                    text: "El significado es obligatorio",
+                    text: "La descripción es obligatoria",
                     type: "warning"
                 });
                 return false;

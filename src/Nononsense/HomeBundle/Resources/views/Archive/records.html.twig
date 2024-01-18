@@ -239,7 +239,7 @@
                                             <a class="btn btn-xs btn-danger btn-retention" href="javascript:void(0)" data-info="Eliminar archivo (ID {{item.id}})" data-id="{{item.id}}" data-unique="1" data-action="2"><i class="fa fa-trash" aria-hidden="true"></i> Eliminar</a>
                                         {% endif %}
 
-                                        {% if filters.retentionAction is defined and (filters.retentionAction=="2" or filters.retentionAction=="3") %}
+                                        {% if filters.retentionAction is defined and (filters.retentionAction=="2") %}
                                             <a class="btn btn-xs btn-primary btn-retention"  href="javascript:void(0)" data-action="1" data-info="Revisar archivo (ID {{item.id}})" data-id="{{item.id}}" data-unique="1"><i class="fa fa-check" aria-hidden="true"></i> Revisar</a>
                                         {% endif %}
 
@@ -315,10 +315,11 @@
         <div class="modal-content">
             <form class="form-horizontal" id="formModalRetention" action="{{pagination.url}}" method="POST"  enctype="multipart/form-data">
                 <div class="modal-header">
-                    <h5 class="modal-title">Firmar</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+                    <h5 class="modal-title">Firmar
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </h5>
                 </div>
 
                 <div class="modal-body">
@@ -449,10 +450,11 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Código de AZ</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+                    <h5 class="modal-title">Código de AZ
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </h5>
                 </div>
 
                 <div class="modal-body">
