@@ -126,20 +126,13 @@ class AccountRequestController extends Controller
 
 			            	$bulkRequest->addRequest($bulkGroupRequest);
 
-			            	$logType = $em->getRepository(LogsTypes::class)->findOneBy(['stringId' => 'APPLY']);
+			            	$type = ($form->get('requestType')->getData()) ? 'acceso' : 'la baja';
 
-			            	$log = new Logs();
-					        $log->setType($logType);
-					        $log->setDate(new \DateTime());
-					        $log->setDescription($accountRequest->getMudId().' ha solicitado acceso al grupo '.$group->getName().' para el MUDID '.$bulkMudId['mudId']);
-
-					        $user = $em->getRepository(Users::class)->findOneBy(['username' => $accountRequest->getMudId()]);
-
-					        if ($user) {
-					            $log->setUser($user);
-					        }
-
-					        $em->persist($log);
+					        $this->get('utilities')->logger(
+				         		'APPLY', 
+				         		$accountRequest->getMudId().' ha solicitado '.$type.' al grupo '.$group->getName().' para el MUDID '.$bulkMudId['mudId'], 
+				         		$accountRequest->getMudId()
+				         	);
 			            }
 
 			            $em->persist($bulkRequest);
