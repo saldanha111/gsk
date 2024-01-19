@@ -12,6 +12,7 @@ use Nononsense\HomeBundle\Entity\Areas;
 use Nononsense\HomeBundle\Entity\ArchiveCategories;
 use Nononsense\HomeBundle\Entity\ArchivePreservations;
 use Nononsense\HomeBundle\Entity\ArchiveAZ;
+use Nononsense\HomeBundle\Entity\ArchiveSignatures;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Nononsense\HomeBundle\Form\Type as FormProveedor;
@@ -57,7 +58,7 @@ class ArchiveRecordsController extends Controller
             $filters["limit_many"]=99999999999;
         }
 
-        if($request->get("retentionAction")){
+        if($request->get("retentionAction") || $request->get("masive_edition")){
             $filters["areas"]=$this->get('app.security')->getAreas('archive_agent');
             $filters2["areas"]=$this->get('app.security')->getAreas('archive_agent');
         }
@@ -70,6 +71,13 @@ class ArchiveRecordsController extends Controller
         $array_item["types"] = $this->getDoctrine()->getRepository(ArchiveTypes::class)->findAll();
         $array_item["areas"] = $this->getDoctrine()->getRepository(Areas::class)->findAll();
         $array_item["categories"] = $this->getDoctrine()->getRepository(ArchiveCategories::class)->findAll();
+        $array_item["preservations"] = $this->getDoctrine()->getRepository(ArchivePreservations::class)->findBy(array("active"=>TRUE));
+        $areas=$this->get('app.security')->getAreas('archive_agent');
+        $array_item["myAreas"]=$areas;
+        foreach($areas as $area){
+            $array_item["agentareas"][]=$area->getId();
+        }
+
 
 
         $url=$this->container->get('router')->generate('nononsense_archive_records');
@@ -101,55 +109,37 @@ class ArchiveRecordsController extends Controller
                  ->setCellValue('B2', 'Identificador')
                  ->setCellValue('C2', 'Título')
                  ->setCellValue('D2', 'Edición')
-                 ->setCellValue('E2', 'Área')
-                 ->setCellValue('F2', 'Tipo')
-                 ->setCellValue('G2', 'Estado')
-                 ->setCellValue('H2', 'Disponibilidad')
-                 ->setCellValue('I2', 'Categoría retención')
-                 ->setCellValue('J2', 'Inicio retención')
-                 ->setCellValue('K2', 'Fecha destrucción')
-                 ->setCellValue('L2', 'Preservation notice');
+                 ->setCellValue('E2', 'Área custodio')
+                 ->setCellValue('F2', 'Área origen')
+                 ->setCellValue('G2', 'Tipo de documento')
+                 ->setCellValue('H2', 'Estado')
+                 ->setCellValue('I2', 'Disponibilidad')
+                 ->setCellValue('J2', 'Categoría retención')
+                 ->setCellValue('K2', 'Inicio retención')
+                 ->setCellValue('L2', 'Fecha destrucción')
+                 ->setCellValue('M2', 'Preservation notice');
             }
 
             if($request->get("export_pdf")){
                 $html='<html><body style="font-size:8px;width:100%"><table autosize="1" style="overflow:wrap;width:100%"><tr style="font-size:8px;width:100%">
                         <th style="font-size:8px;width:5%">ID</th>
                         <th style="font-size:8px;width:5%">Identificador</th>
-                        <th style="font-size:8px;width:10%">Título</th>
+                        <th style="font-size:8px;width:9%">Título</th>
                         <th style="font-size:8px;width:5%">Edición</th>
-                        <th style="font-size:8px;width:10%">Área</th>
-                        <th style="font-size:8px;width:10%">Tipo</th>
-                        <th style="font-size:8px;width:10%">Estado</th>
-                        <th style="font-size:8px;width:10%">Disponibilidad</th>
-                        <th style="font-size:8px;width:10%">Categoría</th>
-                        <th style="font-size:8px;width:10%">Inicio retención</th>
-                        <th style="font-size:8px;width:10%">Fecha destrucción</th>
+                        <th style="font-size:8px;width:9%">Área custodio</th>
+                        <th style="font-size:8px;width:8%">Área origen</th>
+                        <th style="font-size:8px;width:9%">Tipo de documento</th>
+                        <th style="font-size:8px;width:9%">Estado</th>
+                        <th style="font-size:8px;width:9%">Disponibilidad</th>
+                        <th style="font-size:8px;width:9%">Categoría</th>
+                        <th style="font-size:8px;width:9%">Inicio retención</th>
+                        <th style="font-size:8px;width:9%">Fecha destrucción</th>
                         <th style="font-size:8px;width:5%">Preserv. notice</th>
                     </tr>';
             }
 
             $i=3;
             foreach($array_item["items"] as $item){
-                if($item["preservation"]!=""){
-                    $type="Preservation Notice";
-                    $id=$item["preservation"];
-                }
-                else{
-                    if($item["record"]!=""){
-                        $type="Registro";
-                        $id=$item["record"];
-                    }
-                    else{
-                        if($item["type"]!=""){
-                            $type="Tipo";
-                            $id=$item["type"];
-                        }
-                        else{
-                            $type="Categoría";
-                            $id=$item["category"];
-                        }
-                    }
-                }
 
                 if($request->get("export_excel")){
                     $phpExcelObject->getActiveSheet()
@@ -158,11 +148,12 @@ class ArchiveRecordsController extends Controller
                     ->setCellValue('C'.$i, $item["title"])
                     ->setCellValue('D'.$i, $item["edition"])
                     ->setCellValue('E'.$i, $item["area"])
-                    ->setCellValue('F'.$i, $item["type"])
-                    ->setCellValue('G'.$i, $item["state"])
-                    ->setCellValue('H'.$i, $item["useState"])
-                    ->setCellValue('I'.$i, $item["category"])
-                    ->setCellValue('J'.$i, ($item["initRetention"]) ? $this->get('utilities')->sp_date($item["initRetention"]->format('d/m/Y')) : '')
+                    ->setCellValue('F'.$i, $item["areaInfo"])
+                    ->setCellValue('G'.$i, $item["type"])
+                    ->setCellValue('H'.$i, $item["state"])
+                    ->setCellValue('I'.$i, $item["useState"])
+                    ->setCellValue('J'.$i, $item["category"])
+                    ->setCellValue('K'.$i, ($item["initRetention"]) ? $this->get('utilities')->sp_date($item["initRetention"]->format('d/m/Y')) : '')
                     ->setCellValue('K'.$i, ($item["destructionDate"]) ? $this->get('utilities')->sp_date(date('d/m/Y', strtotime($item["destructionDate"]))) : '')
                     ->setCellValue('L'.$i, $item["preservation"]);
                 }
@@ -174,6 +165,7 @@ class ArchiveRecordsController extends Controller
                         <td>'.$item["title"].'</td>
                         <td>'.$item["edition"].'</td>
                         <td>'.$item["area"].'</td>
+                        <td>'.$item["areaInfo"].'</td>
                         <td>'.$item["type"].'</td>
                         <td>'.$item["state"].'</td>
                         <td>'.$item["useState"].'</td>
@@ -220,14 +212,17 @@ class ArchiveRecordsController extends Controller
     {
         $agent = $this->get('app.security')->permissionSeccion('archive_agent');
 
+
         $user = $this->container->get('security.context')->getToken()->getUser();
 
         $em = $this->getDoctrine()->getManager();
         $record = $em->getRepository(ArchiveRecords::class)->findOneBy(['id' => $id]);
+        
         $areas = $em->getRepository(Areas::class)->findBy(array("isActive"=>TRUE));
+        $myAreas=$this->get('app.security')->getAreas('archive_agent');
         $types = $em->getRepository(ArchiveTypes::class)->findBy(array("active"=>TRUE));
         $states = $em->getRepository(ArchiveStates::class)->findAll();
-        $categories = $em->getRepository(ArchiveCategories::class)->findBy(array("active"=>TRUE));
+        $categories = $em->getRepository(ArchiveCategories::class)->findBy(array("active"=>TRUE),array("retentionDays" => "DESC"));
         $preservations = $em->getRepository(ArchivePreservations::class)->findBy(array("active"=>TRUE));
 
         if (!$record) {
@@ -236,6 +231,18 @@ class ArchiveRecordsController extends Controller
             $stateUse = $em->getRepository(ArchiveUseStates::class)->findOneBy(['id' => 1]);
             $record->setUseState($stateUse);
             $record->setCreator($user);
+        }
+        else{
+            if($record->getRemovedAt()){
+                $agent=NULL;
+            }
+            if(!in_array($record->getArea(),$myAreas)){
+                $this->get('session')->getFlashBag()->add(
+                    'error',
+                    'No tiene permisos para realizar esta acción'
+                );
+                return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+            }
         }
 
         if ($request->getMethod() == 'POST' && $this->saveData($request, $record)) {
@@ -246,6 +253,7 @@ class ArchiveRecordsController extends Controller
             'record' => $record,
             'used' => false,
             'areas' => $areas,
+            'myAreas' => $myAreas,
             'types' => $types,
             'states' => $states,
             'categories' => $categories,
@@ -259,6 +267,8 @@ class ArchiveRecordsController extends Controller
     public function updateAction(Request $request){
         $em = $this->getDoctrine()->getManager();
         $user = $this->container->get('security.context')->getToken()->getUser();
+        $changes="";
+        $redirect=$this->generateUrl('nononsense_archive_records');
 
         $is_valid = $this->get('app.security')->permissionSeccion('archive_agent');
         if (!$is_valid) {
@@ -294,6 +304,7 @@ class ArchiveRecordsController extends Controller
             $ids[]=intval($item["id"]);
         }
         
+        $sentence="La acción de actualización de archivos ha finalizado satisfactoriamente";
         $records=$this->getDoctrine()->getRepository(ArchiveRecords::class)->findBy(array("id" => $ids));
         switch($request->get("action")){
             case "1":
@@ -303,6 +314,7 @@ class ArchiveRecordsController extends Controller
                     $this->get('utilities')->saveLogArchive($this->getUser(),6,$request->get('comment'),"record",$record->getId());
                     $em->persist($record);
                 }
+                $sentence="La acción de revisión de registros ha finalizado satisfactoriamente";
                 break;
             case "2":
                 $file=NULL;
@@ -310,10 +322,28 @@ class ArchiveRecordsController extends Controller
                     $file = $this->uploadFile($request);
                 }
                 foreach($records as $record){
+                    $loans = $this->getDoctrine()->getRepository(ArchiveSignatures::class)->count([
+                        'actions' =>  array(8,9,10),
+                        'recordId' => $record->getId(),
+                        'not_available' => 1
+                    ]);
+
+                    if ($loans){
+                        $this->get('session')->getFlashBag()->add(
+                            'error',
+                            'Algunos de los registros seleccionados tienen solicitudes asociadas y no pueden ser destruidos'
+                        );
+
+                        $route = $this->container->get('router')->generate('nononsense_archive_records');
+                        return $this->redirect($route);
+                    }
+                    
                     $record->setRemovedAt(new \DateTime());
                     $this->get('utilities')->saveLogArchive($this->getUser(),7,$request->get('comment'),"record",$record->getId(),$file);
                     $em->persist($record);
+                
                 }
+                $sentence="Los registros han sido destruidos satisfactoriamente";
                 break;
             case "3":
                 foreach($records as $record){
@@ -325,20 +355,69 @@ class ArchiveRecordsController extends Controller
                         $route = $this->container->get('router')->generate('nononsense_home_homepage');
                         return $this->redirect($route);
                     }
-
+                    $sentence="La solicitud de registro ha sido tramitada satisfactoriamente";
                     $this->get('utilities')->saveLogArchive($this->getUser(),8,$request->get('comment'),"record",$record->getId());
+                    $em->persist($record);
+                }
+                break;
+            case "4":
+                $redirect=$this->generateUrl('nononsense_archive_records')."?masive_edition=1";
+                foreach($records as $record){
+                    $changes=$this->getChanges($request,$record,TRUE);
+                    if($request->get("retention_date")){
+                        $retentionDate = new \DateTime($request->get("retention_date"));
+                        $record->setInitRetention($retentionDate);
+                    }
+                    if($request->get("state")){
+                        $state = $em->getRepository(ArchiveStates::class)->findOneBy(['id' => $request->get('state')]);
+                        $record->setState($state);
+                    }
+
+                    if($request->get("area")){
+                        $area = $em->getRepository(Areas::class)->findOneBy(['id' => $request->get('area')]);
+                        $record->setArea($area);
+                    }
+
+                    if($request->get("area_info")){
+                        $areaInfo = $em->getRepository(Areas::class)->findOneBy(['id' => $request->get('area_info')]);
+                        $record->setAreaInfo($areaInfo);
+                    }
+
+                    $record->setModified(new \DateTime());
+
+                    if($request->get('categories')){
+                        if($record->getCategories()){
+                            $record->getCategories()->clear();
+                        }
+                        foreach($request->get('categories') as $category){
+                            $category = $em->getRepository(ArchiveCategories::class)->findOneBy(['id' => $category]);
+                            $record->addCategory($category);
+                        }
+                    }
+
+                    if($request->get('preservations')){
+                        if($record->getPreservations()){
+                            $record->getPreservations()->clear();
+                        }
+                        foreach($request->get('preservations') as $preservation){
+                            $preservation = $em->getRepository(ArchivePreservations::class)->findOneBy(['id' => $preservation]);
+                            $record->addPreservation($preservation); 
+                        }
+                    }
+                    $sentence="La edición masiva se ha ejecutado satisfactoriamente";
+                    $this->get('utilities')->saveLogArchive($this->getUser(),2,$request->get('comment'),"record",$record->getId(),NULL,NULL,$changes);
                     $em->persist($record);
                 }
                 break;
         }
         
         $em->flush();
-        $this->get('session')->getFlashBag()->add('success', "La acción de actualización de archivos ha finalizado satisfactoriamente");
+        $this->get('session')->getFlashBag()->add('success', $sentence);
 
-        return $this->redirect($this->generateUrl('nononsense_archive_records'));
+        return $this->redirect($redirect);
     }
 
-    public function uploadAction(Request $request)
+    public function preuploadAction(Request $request)
     {
         $em = $this->getDoctrine()->getManager();
         $user = $this->container->get('security.context')->getToken()->getUser();
@@ -370,7 +449,7 @@ class ArchiveRecordsController extends Controller
 
 
                     // Suponiendo que las columnas obligatorias son 'Nombre', 'Edad', y 'Correo'
-                    $requiredColumns = ['Document Number', 'Version', 'Document Name', 'Type', 'Document Status', 'Global Retention Schedule (GRS)','Area'];
+                    $requiredColumns = ['Document Number', 'Version', 'Document Name'];
                     $actualColumns = $rows[0];  // Asumimos que la primera fila tiene los nombres de las columnas
                     
                     $required=array_diff($requiredColumns, $actualColumns);
@@ -382,137 +461,231 @@ class ArchiveRecordsController extends Controller
                         return $this->redirect($this->generateUrl('nononsense_archive_records'));
                     }
 
-                    $columnNames = $rows[0];
-                    $array_records=array();
-                    foreach ($rows as $rowNumber => $row) {
-                        if ($rowNumber == 0) { 
-                            continue;
-                        }
-
-                        $record = new ArchiveRecords();
-                        $record->setCreated(new \DateTime());
-                        $stateUse = $em->getRepository(ArchiveUseStates::class)->findOneBy(['id' => 1]);
-                        $record->setUseState($stateUse);
-                        $record->setCreator($user);
-
-                        foreach ($columnNames as $columnIndex => $columnName) {
-                            $value = $row[$columnIndex];
-                            switch($columnName){
-                                case "Document Number":
-                                    $searchRecord = $em->getRepository(ArchiveRecords::class)->findOneBy(['uniqueNumber' => $value]);
-                                    if($searchRecord){
-                                        $this->get('session')->getFlashBag()->add(
-                                            'error',
-                                            'El siguiente document number ya está en uso: '.$value
-                                        );
-                                        return $this->redirect($this->generateUrl('nononsense_archive_records'));
-                                    }
-                                    $record->setUniqueNumber($value);
-                                    break;
-                                case "Version":
-                                    $record->setEdition($value);
-                                    break;
-                                case "Document Name":
-                                    $record->setTitle($value);
-                                    break;
-                                case "Area":
-                                    $area = $em->getRepository(Areas::class)->findOneBy(['name' => $value]);
-                                    if(!$area){
-                                        $this->get('session')->getFlashBag()->add(
-                                            'error',
-                                            'No se encuentra el area del registro: '.$value
-                                        );
-                                        return $this->redirect($this->generateUrl('nononsense_archive_records'));
-                                    }
-                                    $record->setArea($area);
-                                    break;
-                                case "Type":
-                                    $type = $em->getRepository(ArchiveTypes::class)->findOneBy(['name' => $value]);
-                                    if(!$type){
-                                        $this->get('session')->getFlashBag()->add(
-                                            'error',
-                                            'No se encuentra el tipo de registro: '.$value
-                                        );
-                                        return $this->redirect($this->generateUrl('nononsense_archive_records'));
-                                    }
-                                    $record->setType($type);
-                                    break;
-                                case "Document Status":
-                                    break;
-                                case "Legal Preservation Name":
-                                    if($value){
-                                        $preservation = $em->getRepository(ArchivePreservations::class)->findOneBy(['name' => $value]);
-                                        if(!$preservation){
-                                            $this->get('session')->getFlashBag()->add(
-                                                'error',
-                                                'No se encuentra la preservation notice '.$value
-                                            );
-                                            return $this->redirect($this->generateUrl('nononsense_archive_records'));
-                                        }
-                                        $record->addPreservation($preservation); 
-                                    }
-                                    break;
-                                case "Global Retention Schedule (GRS)":
-                                    if($value){
-                                        $category = $em->getRepository(ArchiveCategories::class)->findOneBy(['name' => $value]);
-                                        if(!$category){
-                                            $this->get('session')->getFlashBag()->add(
-                                                'error',
-                                                'No se encuentra la categoria de retención '.$value
-                                            );
-                                            return $this->redirect($this->generateUrl('nononsense_archive_records'));
-                                        }
-                                        $record->addCategory($category);
-                                    }
-                                    break;
-                                case "AZ":
-                                    if($value){
-                                        $az = $em->getRepository(ArchiveAZ::class)->findOneBy(['code' => $value]);
-                                        if(!$az){
-                                            $this->get('session')->getFlashBag()->add(
-                                                'error',
-                                                'No se encuentra el AZ del registro: '.$value
-                                            );
-                                            return $this->redirect($this->generateUrl('nononsense_archive_records'));
-                                        }
-                                        $record->setAZ($az);
-                                    }
-                                    else{
-                                        $docNumberColumnIndex = array_search('Document Number', $columnNames);
-                                        $cell = $sheet->getCellByColumnAndRow($docNumberColumnIndex, $rowNumber+1);
-                                        $link = $cell->getHyperlink()->getUrl();
-                                        if($link){
-                                            $record->setLink($link);
-                                        }
-                                        else{
-                                            $this->get('session')->getFlashBag()->add(
-                                                'error',
-                                                'No se encuentra el Link para este archivo digital: '.$cell->getValue()
-                                            );
-                                            return $this->redirect($this->generateUrl('nononsense_archive_records'));
-                                        }
-                                    }
-                                    break;
-                            }
-
-                        }
-
-                        $record->setModified(new \DateTime());
-                        
-
-
-                        $em->persist($record);
-                        $em->flush();
-                        $this->get('utilities')->saveLogArchive($this->getUser(),12,$request->get("comment"),"record",$record->getId());
+                    $array_item["states"] = $this->getDoctrine()->getRepository(ArchiveStates::class)->findAll();
+                    $array_item["types"] = $this->getDoctrine()->getRepository(ArchiveTypes::class)->findAll();
+                    $array_item["areas"] = $this->getDoctrine()->getRepository(Areas::class)->findAll();
+                    $array_item["categories"] = $this->getDoctrine()->getRepository(ArchiveCategories::class)->findAll();
+                    $array_item["preservations"] = $this->getDoctrine()->getRepository(ArchivePreservations::class)->findBy(array("active"=>TRUE));
+                    $areas=$this->get('app.security')->getAreas('archive_agent');
+                    $array_item["myAreas"]=$areas;
+                    
+                    $columnNames = array_shift($rows);
+                    if (!in_array('AZ', $columnNames)) {
+                        $columnNames[] = 'AZ';
                     }
+                    if (!in_array('Link', $columnNames)) {
+                        $columnNames[] = 'Link';
+                    }
+                    $docNumberColumnIndex = array_search('Document Number', $columnNames);
+
+                    $needsRedirect = false;
+                    $errorMessage = '';
+
+                    $records = array_map(function ($record, $rowNumber) use ($columnNames, $sheet, $docNumberColumnIndex, $em, &$needsRedirect, &$errorMessage) {
+                        while (count($record) < count($columnNames)) {
+                            $record[] = null;
+                        }
+
+                        $registro = array_combine($columnNames, $record);
+
+                        if (empty($registro['AZ'])) {
+                            // Ajusta también el índice de la fila, sumando 2 para compensar la fila de encabezados y el índice basado en 1
+                            $rowIndex = $rowNumber + 2;
+                            $cell = $sheet->getCellByColumnAndRow($docNumberColumnIndex, $rowIndex);
+                            if ($cell->hasHyperlink()) {
+                                $link = $cell->getHyperlink()->getUrl();
+                                $registro['Link'] = $link;
+                            } else {
+                                $errorMessage = 'No se encuentra el Link para este archivo digital: '.$registro['Document Name'];
+                                $needsRedirect = true;
+                                return null;
+                            }
+                        } else {
+                            $az = $em->getRepository(ArchiveAZ::class)->findOneBy(['code' => $registro['AZ']]);
+                            if(!$az){
+                                $errorMessage = 'No se encuentra el siguiente AZ: '.$registro['AZ'];
+                                $needsRedirect = true;
+                                return null;
+                            }
+                            $registro['Link'] = '';
+                        }
+
+                        $searchRecord = $em->getRepository(ArchiveRecords::class)->findOneBy(['uniqueNumber' => $registro['Document Number']]);
+                        if($searchRecord){
+                            $errorMessage = 'El siguiente document number ya está en uso: ' . $registro['Document Number'];
+                            $needsRedirect = true;
+                            return null;
+                        }
+
+                        return $registro;
+                    }, $rows, array_keys($rows));
+
+                    if ($needsRedirect) {
+                        $this->get('session')->getFlashBag()->add('error', $errorMessage);
+                        return $this->redirect($this->generateUrl('nononsense_archive_records'));
+                    }
+
+                    $array_item["items"]=$records;
+                    $array_item["count"]=count($records);
+
+                    return $this->render('NononsenseHomeBundle:Archive:import_records.html.twig', $array_item);
 
                 } catch (\Exception $e) {
                     return new Response('Error al leer el archivo Excel: ' . $e->getMessage(). " - Line: ".$e->getLine(). " - File:".$e->getFile());
                 }
             }
         }
-        $em->getConnection()->commit();
         $this->get('session')->getFlashBag()->add('success', "La importación se ha realizado satisfactoriamente. Se han importado ".(count($rows)-1)." registros");
+
+        return $this->redirect($this->generateUrl('nononsense_archive_records'));
+    }
+
+    public function uploadAction(Request $request)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $user = $this->container->get('security.context')->getToken()->getUser();
+
+        $is_valid = $this->get('app.security')->permissionSeccion('archive_agent');
+        if (!$is_valid) {
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                'No tiene permisos para realizar esta acción'
+            );
+            return $this->redirect($this->generateUrl('nononsense_archive_records'));
+        }
+
+        if(!$request->get("password")){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                    'La firma es incorrecta'
+            );
+            $route = $this->container->get('router')->generate('nononsense_home_homepage');
+            return $this->redirect($route);
+        }
+
+        if(!$request->get("totalRecords") || $request->get("totalRecords")!=count($request->get("title"))){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                'El número de registros es demasiado elevado. Reduzca el archivo excel o contacte con un técnico de Oaro ('.count($request->get("title")).')'
+            );
+            return $this->redirect($this->generateUrl('nononsense_archive_records'));
+        }
+
+        $em->getConnection()->beginTransaction();
+        try {
+            $area = $em->getRepository(Areas::class)->findOneBy(['id' => $request->get("area")]);
+            if(!$area){
+                $this->get('session')->getFlashBag()->add(
+                    'error',
+                    'No se encuentra el area del registro: '.$request->get("area")
+                );
+                return $this->redirect($this->generateUrl('nononsense_archive_records'));
+            }
+
+            $areaInfo = $em->getRepository(Areas::class)->findOneBy(['id' => $request->get("area_info")]);
+            if(!$areaInfo){
+                $this->get('session')->getFlashBag()->add(
+                    'error',
+                    'No se encuentra el area origen del registro: '.$request->get("area_info")
+                );
+                return $this->redirect($this->generateUrl('nononsense_archive_records'));
+            }
+
+            $type = $em->getRepository(ArchiveTypes::class)->findOneBy(['id' => $request->get("type")]);
+            if(!$type){
+                $this->get('session')->getFlashBag()->add(
+                    'error',
+                    'No se encuentra el tipo de registro: '.$request->get("type")
+                );
+                return $this->redirect($this->generateUrl('nononsense_archive_records'));
+            }
+
+            $stateUse = $em->getRepository(ArchiveUseStates::class)->findOneBy(['id' => 1]);
+
+            foreach($request->get("title") as $key => $title){
+                $record = new ArchiveRecords();
+                $record->setCreated(new \DateTime());
+                $record->setUseState($stateUse);
+                $record->setCreator($user);
+
+                $record->setArea($area);
+                $record->setAreaInfo($areaInfo);
+                $record->setType($type);
+
+                $searchRecord = $em->getRepository(ArchiveRecords::class)->findOneBy(['uniqueNumber' => $request->get("uniqueNumber")[$key]]);
+                if($searchRecord){
+                    $this->get('session')->getFlashBag()->add(
+                        'error',
+                        'El siguiente document number ya está en uso: '.$request->get("uniqueNumber")[$key]
+                    );
+                    return $this->redirect($this->generateUrl('nononsense_archive_records'));
+                }
+                $record->setUniqueNumber($request->get("uniqueNumber")[$key]);
+                $record->setEdition($request->get("edition")[$key]);
+                $record->setTitle($request->get("title")[$key]);
+
+                if($request->get("preservation") && array_key_exists($key, $request->get("preservation")) && $request->get("preservation")[$key]){
+                    $preservation = $em->getRepository(ArchivePreservations::class)->findOneBy(['id' => $request->get("preservation")[$key]]);
+                    if(!$preservation){
+                        $this->get('session')->getFlashBag()->add(
+                            'error',
+                            'No se encuentra la preservation notice '.$request->get("preservation")[$key]
+                        );
+                        return $this->redirect($this->generateUrl('nononsense_archive_records'));
+                    }
+                    $record->addPreservation($preservation); 
+                }
+
+                if($request->get("category") && array_key_exists($key, $request->get("category")) && $request->get("category")[$key]){
+                    $category = $em->getRepository(ArchiveCategories::class)->findOneBy(['id' => $request->get("category")[$key]]);
+                    if(!$category){
+                        $this->get('session')->getFlashBag()->add(
+                            'error',
+                            'No se encuentra la categoria de retención '.$request->get("category")[$key]
+                        );
+                        return $this->redirect($this->generateUrl('nononsense_archive_records'));
+                    }
+                    $record->addCategory($category);
+                }
+
+                if($request->get("az") && array_key_exists($key, $request->get("az")) && $request->get("az")[$key]){
+                    $az = $em->getRepository(ArchiveAZ::class)->findOneBy(['code' => $request->get("az")[$key]]);
+                    if(!$az){
+                        $this->get('session')->getFlashBag()->add(
+                            'error',
+                            'No se encuentra el AZ del registro: '.$request->get("az")[$key]
+                        );
+                        return $this->redirect($this->generateUrl('nononsense_archive_records'));
+                    }
+                    $record->setAZ($az);
+                }
+
+                if($request->get("link") && array_key_exists($key, $request->get("link")) && $request->get("link")[$key]){
+                    $record->setLink($request->get("link")[$key]);
+                }
+
+                if($request->get("retention_date") && array_key_exists($key, $request->get("retention_date")) && $request->get("retention_date")[$key]){
+                    $retentionDate = new \DateTime($request->get("retention_date")[$key]);
+                    $record->setInitRetention($retentionDate);
+                }
+
+                if($request->get("state") && array_key_exists($key, $request->get("state")) && $request->get("state")[$key]){
+                    $state = $em->getRepository(ArchiveStates::class)->findOneBy(['id' => $request->get('state')[$key]]);
+                    $record->setState($state);
+                }
+
+                $record->setModified(new \DateTime());
+                
+                $em->persist($record);
+                $em->flush();
+                $this->get('utilities')->saveLogArchive($this->getUser(),12,$request->get("comment"),"record",$record->getId());
+            }
+        } catch (\Exception $e) {
+            return new Response('Error al leer el archivo Excel: ' . $e->getMessage(). " - Line: ".$e->getLine(). " - File:".$e->getFile());
+        }
+
+        $em->getConnection()->commit();
+        $this->get('session')->getFlashBag()->add('success', "La importación se ha realizado satisfactoriamente. Se han importado ".count($request->get("title"))." registros");
 
         return $this->redirect($this->generateUrl('nononsense_archive_records'));
     }
@@ -556,19 +729,23 @@ class ArchiveRecordsController extends Controller
     private function saveData(Request $request, ArchiveRecords $record)
     {
         $is_valid = $this->get('app.security')->permissionSeccion('archive_agent');
-        if (!$is_valid) {
+        if (!$is_valid || $record->getRemovedAt()) {
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
 
         $em = $this->getDoctrine()->getManager();
         $saved = false;
         $action = 5;
+        $changes=NULL;
 
         if ($record->getId()) {
             $action = 2;
         }
         $em->getConnection()->beginTransaction();
         try {
+            if($action!=5){
+                $changes=$this->getChanges($request,$record);  
+            }
             if($request->get('location')){
                 $az = $em->getRepository(ArchiveAZ::class)->findOneBy(['id' => $request->get('location')]);
                 $record->setAz($az);
@@ -576,19 +753,28 @@ class ArchiveRecordsController extends Controller
             }
             $state = $em->getRepository(ArchiveStates::class)->findOneBy(['id' => $request->get('state')]);
             
-            if($record->getState()!=$state){
-                if($state->getId()==1 || $state->getId()==2){
-                    $record->setInitRetention(new \DateTime());
-                }
+            //if($record->getState()!=$state){
+                //if($state->getId()==1 || $state->getId()==2){
+                    if(!$request->get("retention_date")){
+                        $record->setInitRetention(NULL);
+                    }
+                    else{
+                        $retentionDate = new \DateTime($request->get("retention_date"));
+                        $record->setInitRetention($retentionDate);
+                    }
+                /*}
                 else{
                     $record->setInitRetention(NULL);
                 }
-            }
+            }*/
             $record->setState($state);
             $type = $em->getRepository(ArchiveTypes::class)->findOneBy(['id' => $request->get('type')]);
             $record->setType($type);
             $area = $em->getRepository(Areas::class)->findOneBy(['id' => $request->get('area')]);
             $record->setArea($area);
+
+            $areaInfo = $em->getRepository(Areas::class)->findOneBy(['id' => $request->get('area_info')]);
+            $record->setAreaInfo($areaInfo);
 
             $record->setUniqueNumber($request->get("unique_number"));
             $record->setModified(new \DateTime());
@@ -605,7 +791,7 @@ class ArchiveRecordsController extends Controller
                 $record->setAZ(NULL);
             }
 
-            if ((!$request->get('location') && !$request->get("link")) || !$request->get('state') || !$request->get('type') || !$request->get('area') || !$request->get('comment')) {
+            if ((!$request->get('location') && !$request->get("link")) || !$request->get('state') || !$request->get('type') || !$request->get('area') || !$request->get('area_info') || !$request->get('comment')) {
                 $this->get('session')->getFlashBag()->add(
                     'error',
                     'Todos los datos son obligatorios'
@@ -638,9 +824,11 @@ class ArchiveRecordsController extends Controller
                 $comment=$request->get("comment");
             }
 
+            
+
             $em->persist($record);
             $em->flush();
-            $this->get('utilities')->saveLogArchive($this->getUser(),$action,$comment,"record",$record->getId());
+            $this->get('utilities')->saveLogArchive($this->getUser(),$action,$comment,"record",$record->getId(),NULL,NULL,$changes);
             $em->getConnection()->commit();
             $this->get('session')->getFlashBag()->add(
                 'message',
@@ -718,6 +906,112 @@ class ArchiveRecordsController extends Controller
             'name' => $ruta.$file_name,
             'size' => $file->getClientSize()
         ];
+    }
+
+    public function getChanges($request,$item,$masive = FALSE){
+        $changes="";
+        $em = $this->getDoctrine()->getManager();
+
+        if($request->get("title") && $request->get("title")!=$item->getTitle()){
+            $changes.="<tr><td>Titulo</td><td>".$item->getTitle()."</td><td>".$request->get("title")."</td></tr>";
+        }
+
+        if($request->get("edition") && $request->get("edition")!=$item->getEdition()){
+            $changes.="<tr><td>Edición</td><td>".$item->getEdition()."</td><td>".$request->get("edition")."</td></tr>";
+        }
+
+        if($request->get("link") && $request->get("link")!=$item->getLink()){
+            $changes.="<tr><td>Link</td><td>".$item->getLink()."</td><td>".$request->get("link")."</td></tr>";
+        }
+
+        if($request->get("type") && (!$item->getType() || $request->get("type")!=$item->getType()->getId())){
+            $type = $em->getRepository(ArchiveTypes::class)->findOneBy(['id' => $request->get('type')]);
+            $changes.="<tr><td>Tipo</td><td>".($item->getType() ? $item->getArea()->getName() : '')."</td><td>".$type->getName()."</td></tr>";
+        }
+
+        if($request->get("area") && (!$item->getArea() || $request->get("area")!=$item->getArea()->getId())){
+            $area = $em->getRepository(Areas::class)->findOneBy(['id' => $request->get('area')]);
+            $changes.="<tr><td>Area custodio</td><td>".($item->getArea() ? $item->getArea()->getName() : '')."</td><td>".$area->getName()."</td></tr>";
+        }
+
+        if($request->get("area_info") && (!$item->getAreaInfo() || $request->get("area_info")!=$item->getAreaInfo()->getId())){
+            $areaInfo = $em->getRepository(Areas::class)->findOneBy(['id' => $request->get('area_info')]);
+            $changes.="<tr><td>Area origen</td><td>".($item->getAreaInfo() ? $item->getAreaInfo()->getName() : '')."</td><td>".$areaInfo->getName()."</td></tr>";
+        }
+
+        if($request->get("unique_number") && $request->get("unique_number")!=$item->getUniqueNumber()){
+            $changes.="<tr><td>Identificador</td><td>".$item->getUniqueNumber()."</td><td>".$request->get("unique_number")."</td></tr>";
+        }
+
+        if($request->get("state") && (!$item->getState() || $request->get("state")!=$item->getState()->getId())){
+            $state = $em->getRepository(ArchiveStates::class)->findOneBy(['id' => $request->get('state')]);
+            $changes.="<tr><td>Estado</td><td>".($item->getState() ? $item->getState()->getName() : '')."</td><td>".$state->getName()."</td></tr>";
+        }
+
+        if($request->get("location") && (!$item->getAZ() || $request->get("location")!=$item->getAZ()->getId())){
+            $az = $em->getRepository(ArchiveAZ::class)->findOneBy(['id' => $request->get('location')]);
+            $changes.="<tr><td>AZ</td><td>".($item->getAZ() ? $item->getAZ()->getCode() : '')."</td><td>".$az->getCode()."</td></tr>";
+        }
+
+        if($request->get("retention_date")){
+            if($item->getInitRetention()){
+                $last=$item->getInitRetention()->format("Y-m-d");
+                if($request->get("retention_date")!=$last){
+                    $changes.="<tr><td>Fecha retención</td><td>".$last."</td><td>".$request->get("retention_date")."</td></tr>";
+                }
+            }
+            else{
+                $changes.="<tr><td>Fecha retención</td><td></td><td>".$request->get("retention_date")."</td></tr>";
+            }
+        }
+
+        if(!$masive || ($masive && $request->get("categories"))){
+            $categories = $request->get('categories');
+            $saved=$item->getCategories();
+            $list_saved=array();
+            foreach($saved as $save){
+                if (empty($categories) || !in_array($save->getId(), $categories)) {
+                    $changes.="<tr><td>Categoría ".$save->getName()."</td><td>Si</td><td>No</td></tr>";
+                }
+                $list_saved[]=$save->getId();
+            }
+
+            if($categories){
+                foreach ($categories as $category) {
+                    if (!in_array($category, $list_saved)) {
+                        $newCategory = $em->getRepository(ArchiveCategories::class)->findOneBy(['id' => $category]);
+                        $changes.="<tr><td>Categoría ".$newCategory->getName()."</td><td>No</td><td>Si</td></tr>";
+                    }
+                }
+            }
+        }
+
+        if(!$masive || ($masive && $request->get("preservations"))){
+            $preservations = $request->get('preservations');
+            $saved=$item->getPreservations();
+            $list_saved=array();
+            foreach($saved as $save){
+                if (empty($preservations) || !in_array($save->getId(), $preservations)) {
+                    $changes.="<tr><td>Preservation notice ".$save->getName()."</td><td>Si</td><td>No</td></tr>";
+                }
+                $list_saved[]=$save->getId();
+            }
+
+            if($preservations){
+                foreach ($preservations as $preservation) {
+                    if (!in_array($preservation, $list_saved)) {
+                        $newPreservation = $em->getRepository(ArchivePreservations::class)->findOneBy(['id' => $preservation]);
+                        $changes.="<tr><td>Preservation notice ".$newPreservation->getName()."</td><td>No</td><td>Si</td></tr>";
+                    }
+                }
+            }
+        }
+
+        if($changes!=""){
+            $changes="\n<table class='table'><tr><td>Campo</td><td>Anterior</td><td>Nuevo</td></tr>".$changes."</table>";
+        }
+
+        return $changes;
     }
 
 }

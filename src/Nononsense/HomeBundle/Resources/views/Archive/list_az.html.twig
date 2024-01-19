@@ -1,0 +1,189 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}Docoaro - GSK | {{'Listado de AZ'|trans}} {% endblock %}
+{% block head %}
+    <link rel="stylesheet" href="{{ asset('/js/plugins/sweetalert/sweetalert.min.css') }}">
+    {{ parent() }}
+{% endblock %}
+{% block main_title %} Listado de AZ{% endblock %}
+{% block content %}
+
+<div class="wrapper wrapper-content">
+    <div class="row">
+        <div class="col-xs-12">
+            {% for flashMessage in app.session.flashbag.get('error') %}
+                <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+                    <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                    {{ flashMessage }}
+                </div>
+                <br>
+            {% endfor %}
+            {% for flashMessage in app.session.flashbag.get('message') %}
+                <div class="alert alert-success alert-dismissable" style="margin: 10px 16px 0 16px">
+                    <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                    {{ flashMessage }}
+                </div>
+                <br>
+            {% endfor %}
+            {% if filters.codes is not defined or filters.codes is empty %}
+                <form class="form-horizontal" id="form_item" action="{{ path('nononsense_archive_az_list') }}" method="GET">
+                    <div class="row">
+                        <label class="col-sm-1 control-label item_filter">Código</label>
+                        <div class="col-sm-2 item_filter">
+                            <input type="text" name="f_code" class="form-control" value="{{filters.code is defined ? filters.code : ''}}">
+                        </div>
+                        <div class="col-sm-2 item_filter">
+                            <button type="submit" class="btn btn-primary">Filtrar</button>
+                        </div>
+                    </div>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12">
+            {% if filters.codes is not defined or filters.codes is empty %}
+                
+
+                <a href="{{ path('nononsense_archive_az_edit', {'code': '0'}) }}?relocate=1"  class="btn btn-primary pull-right"><i class="fa fa-thumb-tack" aria-hidden="true"></i> <span>{{'Reubicar AZs'|trans}}</span></a>
+
+                <a href="#"  class="btn btn-primary pull-right" data-toggle="modal" data-target="#popupAZ" style="margin-right:4px"><i class="fa fa-plus"></i> <span>{{'Nuevo AZ'|trans}}</span></a>
+                <br/>
+            {% endif %}
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Código</th>
+                    <th style="width:200px"></th>
+                    <th>Ubicación</th>
+                    {% if noprint is not defined or noprint is empty %}
+                        <th></th>
+                    {% endif %}
+                </tr>
+                </thead>
+                {% if items is defined %}
+                    {% for item in items %}
+                    <tr>
+                        <td>{{ item.code }}</td>
+                        <td>
+                            {# <img class="img-responsive" src="{{ path('nononsense__archive_code_view', {'code': item.code}) }}"> #}
+                        </td>
+                        <td>{{ item.location.building }}-{{ item.location.shelf }}-{{ item.location.passage }}-{{ item.location.cabinet }}-{{ item.location.others }}</td>
+                        {% if noprint is not defined or noprint is empty %}
+                            <td><input class="checkpem" name="f_prints[]" value="{{item.id}}" type="checkbox"></td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                    {% if noprint is not defined or noprint is empty %}
+                        <tr>
+                            <th colspan="3">
+                                <a class="btn btn-info pull-right btn-print" href="javascript:void(0)" data-action="1" data-info="Imprimir"><i class="fa fa-print" aria-hidden="true"></i> Imprimir</a>
+                            </th>
+                            <th><input id="record_masive" class="supcheck" type="checkbox"></th>
+                        </tr>
+                    {% endif %}
+                {% endif %}
+            </table>
+            {% if count==0 %}
+                <br><b>No se han encontrado datos disponibles</b>
+            {% endif %}
+            {% if pagination is defined and pagination.needed %}
+                {% include '::pagination2.html.twig' %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="modalPrint">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form class="form-horizontal" id="formModalPrint" action="{{pagination.url}}" method="POST">
+                <div class="modal-header">
+                    <h5 class="modal-title">Impresión de AZs
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </h5>
+                </div>
+
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-10 col-lg-offset-1 error" id="print_message">
+                             
+                        </div>
+                    </div>
+                </div>
+                <div id="dynamic_print_elements" style="display:none">
+
+                </div>
+                <div class="modal-footer">
+                    <input type="button" class="btn btn-primary" id="print_modal" value="Imprimir">
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+
+{{ parent() }}
+{{ render(controller('Nononsense\HomeBundle:Default:popupAZ')) }}
+<script>
+  $(function () {
+    ActivateMenu('archive_az');
+    $('#side-menu').metisMenu();
+    $('[data-toggle="tooltip"]').tooltip();
+
+    $('.supcheck').change(function() {
+        if($(this).is(":checked")) {state=true;}else{state=false;}
+        $(":checkbox").prop('checked', state);        
+    });
+
+    $('.checkpem').change(function() {
+      check_superiores();
+    });
+
+    $(document).on('click','.btn-print',function(e){
+        print_btn=$(this);
+        title="Número de AZs: ";
+
+        if($('.checkpem:checked').length>0){
+            count=$('.checkpem:checked').length;
+        }
+        else{
+            count={{count}};
+        }
+
+        title+="<b>"+count+"</b>";
+
+        $("#print_message").html(title);
+        $("#modalPrint").modal('show');
+    });
+
+    $(document).on('click','#print_modal',function(e){
+        if($('.checkpem:checked').length>0){
+            $(".checkpem:checked").each(function() {
+                $('#dynamic_print_elements').append($(this).clone());
+            });
+        }
+        $("#formModalPrint").submit();
+
+        setTimeout(() => {
+            navigation = false;
+            $("#modalPrint").modal('toggle');
+        }, 2000); // ajusta este tiempo según sea necesario
+    });
+  });
+
+  function check_superiores(){
+    $( ".supcheck" ).each(function() {
+      if($(".checkpem").is(":not(:checked)")){
+        $(this).prop('checked', false);  
+      }
+      else{
+        $(this).prop('checked', true); 
+      }
+    });
+  }
+</script>
+{% endblock %}
+                        

@@ -76,7 +76,7 @@ class ArchiveLogsController extends Controller
 
                 $phpExcelObject->getProperties();
                 $phpExcelObject->setActiveSheetIndex(0)
-                 ->setCellValue('A1', "Audittrail archivo - ".$user->getUsername()." - ".$this->get('utilities')->sp_date(date("d/m/Y H:i:s")));
+                 ->setCellValue('A1', "Audit trail archivo - ".$user->getUsername()." - ".$this->get('utilities')->sp_date(date("d/m/Y H:i:s")));
                 $phpExcelObject->setActiveSheetIndex()
                  ->setCellValue('A2', 'Fecha')
                  ->setCellValue('B2', 'Tipo')
@@ -134,6 +134,36 @@ class ArchiveLogsController extends Controller
                     ->setCellValue('D'.$i, $item["action"])
                     ->setCellValue('E'.$i, $item["user"])
                     ->setCellValue('F'.$i, $item["description"]);
+
+                    $dom = new \DOMDocument;
+
+                    @$dom->loadHTML($item["changes"]);
+
+                    $tableData = [];
+
+                    $rows = $dom->getElementsByTagName('tr');
+
+                    foreach ($rows as $row) {
+                      $cells = $row->getElementsByTagName('td');
+                      
+                      $rowData = [];
+
+                      foreach ($cells as $cell) {
+                        $rowData[] = $cell->textContent;
+                      }
+                      $tableData[] = $rowData;
+                    }
+
+                    foreach ($tableData as $rowData) {
+
+                        $i++;
+                        $phpExcelObject->getActiveSheet()
+                            ->setCellValue('G'.$i, isset($rowData[0]) ? $rowData[0] : '')
+                            ->setCellValue('H'.$i, isset($rowData[1]) ? $rowData[1] : '')
+                            ->setCellValue('I'.$i, isset($rowData[2]) ? $rowData[2] : '');
+                                       
+                        
+                    }
                 }
 
                 if($request->get("export_pdf")){
@@ -145,13 +175,18 @@ class ArchiveLogsController extends Controller
                         <td>'.$item["user"].'</td>
                         <td>'.$item["description"].'</td>
                     </tr>';
+
+                    if($item["changes"]!=""){
+                        $html.='<tr style="font-size:8px"><td colspan="3"></td><td colspan="3">'.$item["changes"].'</td></tr>';
+                    }
+
                 }
 
                 $i++;
             }
 
             if($request->get("export_excel")){
-                $phpExcelObject->getActiveSheet()->setTitle('Audittrail archivo');
+                $phpExcelObject->getActiveSheet()->setTitle('Audit trail archivo');
                 // Set active sheet index to the first sheet, so Excel opens this as the first sheet
                 $phpExcelObject->setActiveSheetIndex(0);
 
@@ -174,7 +209,7 @@ class ArchiveLogsController extends Controller
 
             if($request->get("export_pdf")){
                 $html.='</table></body></html>';
-                $this->get('utilities')->returnPDFResponseFromHTML($html,"Audittrail archivo");
+                $this->get('utilities')->returnPDFResponseFromHTML($html,"Audit trail archivo");
             }
         }
     }

@@ -1,9 +1,9 @@
 {% extends '::base.html.twig' %}
-{% block page_title %}Docoaro - GSK | {{'Preservations notices'|trans}} {% endblock %}
+{% block page_title %}Docoaro - GSK | {{'Tipos de archivo'|trans}} {% endblock %}
 {% block head %}
     {{ parent() }}
 {% endblock %}
-{% block main_title %} Listado de tipos de archivo y retención{% endblock %}
+{% block main_title %} Listado de tipos archivo{% endblock %}
 {% block content %}
 
 <div class="wrapper wrapper-content">
@@ -23,7 +23,7 @@
                 </div>
                 <br>
             {% endfor %}
-            <form id="form_item" action="{{ path('nononsense_archive_types_list') }}" method="GET">
+            <form id="form_item" class="form-horizontal" action="{{ path('nononsense_archive_types_list') }}" method="GET">
                 <div class="row">
                     <label class="col-sm-1 control-label item_filter">Nombre</label>
                     <div class="col-sm-2 item_filter">
@@ -49,7 +49,7 @@
         <div class="col-xs-12">
             <a href="{{ path('nononsense_archive_types_edit', {'id' : 0}) }}" class="btn btn-primary pull-right">
                 <i class="fa fa-plus"></i>
-                <span> Nueva categoría</span>
+                <span> Nuevo tipo de documento</span>
             </a>
             <br/>
             <table class="table table-striped">

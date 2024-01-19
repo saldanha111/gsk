@@ -4,12 +4,15 @@
 {{ parent() }}
 <link rel="stylesheet" href="/css/plugins/datapicker/datepicker3.css">
 <link rel="stylesheet" href="{{ asset('/js/plugins/sweetalert/sweetalert.min.css') }}">
+<link rel="stylesheet" href="/plugins/dual_listbox/dist/multi.min.css">
 {% endblock %}
 {% block main_title %}
-    {% if filters.request is not defined %}
-        Registros archivo
+    {% if filters.request is defined %}
+        Solicitar préstamo
+    {% elseif filters.masive_edition is defined %}
+        Editar registros
     {% else %}
-        Solcitar préstamo
+        Consulta de registros
     {% endif %}
 {% endblock %}
 {% block content %}
@@ -42,23 +45,26 @@
                     <form class="form-horizontal" id="form_item" action="{{ path('nononsense_archive_records')}}" method="GET">
                         {% if filters.signature is not defined %}
                             <div class="form-group">
-                                <label class="col-sm-1 control-label item_filter">ID</label>
-                                <div class="col-sm-1 item_filter">
+                                <label class="col-sm-2 control-label item_filter">ID</label>
+                                <div class="col-sm-2 item_filter">
                                     <input type="number" name="id" class="form-control" value="{{filters.id is defined ? filters.id : ''}}">
                                 </div>
-                                <label class="col-sm-1 control-label item_filter">Identificador</label>
-                                <div class="col-sm-1 item_filter">
+                                <label class="col-sm-2 control-label item_filter">Identificador</label>
+                                <div class="col-sm-2 item_filter">
                                     <input type="string" name="uniqueNumber" class="form-control" value="{{filters.uniqueNumber is defined ? filters.uniqueNumber : ''}}">
                                 </div>
-                                <label class="col-sm-1 control-label item_filter">Título</label>
+                                <label class="col-sm-2 control-label item_filter">Título</label>
                                 <div class="col-sm-2 item_filter">
                                     <input type="string" name="title" class="form-control" value="{{filters.title is defined ? filters.title : ''}}">
                                 </div>
-                                <label class="col-sm-1 control-label item_filter">Edición</label>
-                                <div class="col-sm-1 item_filter">
+                                
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label item_filter">Edición</label>
+                                <div class="col-sm-2 item_filter">
                                     <input type="string" name="edition" class="form-control" value="{{filters.edition is defined ? filters.edition : ''}}">
                                 </div>
-                                <label class="col-sm-1 control-label item_filter">Tipo</label>
+                                <label class="col-sm-2 control-label item_filter">Tipo de documento</label>
                                 <div class="col-sm-2 item_filter">
                                     <select class="form-control" name="type" style="width: 100%;">
                                         <option value=""></option>
@@ -67,9 +73,8 @@
                                         {% endfor %}
                                     </select>
                                 </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="col-sm-1 control-label item_filter">Estado</label>
+
+                                <label class="col-sm-2 control-label item_filter">Estado</label>
                                 <div class="col-sm-2 item_filter">
                                     <select class="form-control" name="state" style="width: 100%;">
                                         <option value=""></option>
@@ -79,17 +84,20 @@
                                     </select>
                                 </div>
                                 
-                                    <label class="col-sm-1 control-label item_filter">Disponibilidad</label>
-                                    <div class="col-sm-2 item_filter">
-                                        <select class="form-control" name="useState" style="width: 100%;">
-                                            <option value=""></option>
-                                            {% for useState in useStates %}
-                                                <option value="{{useState.id}}" {{filters.useState is defined and filters.useState==useState.id ? 'selected="selected"'}}>{{useState.name}}</option>
-                                            {% endfor %}
-                                        </select>
-                                    </div>
+                                
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label item_filter">Disponibilidad</label>
+                                <div class="col-sm-2 item_filter">
+                                    <select class="form-control" name="useState" style="width: 100%;">
+                                        <option value=""></option>
+                                        {% for useState in useStates %}
+                                            <option value="{{useState.id}}" {{filters.useState is defined and filters.useState==useState.id ? 'selected="selected"'}}>{{useState.name}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
                                 {% if filters.request is not defined %}
-                                    <label class="col-sm-1 control-label">Área</label>
+                                    <label class="col-sm-2 control-label">Área custodio</label>
                                     <div class="col-sm-2 item_filter">
                                         <select class="form-control" name="area" style="width: 100%;">
                                             <option value=""></option>
@@ -99,7 +107,7 @@
                                         </select>
                                     </div>
 
-                                    <label class="col-sm-1 control-label item_filter">Categoría retención</label>
+                                    <label class="col-sm-2 control-label item_filter">Categoría retención</label>
                                     <div class="col-sm-2 item_filter">
                                         <select class="form-control" name="category" style="width: 100%;">
                                             <option value=""></option>
@@ -109,27 +117,34 @@
                                         </select>
                                     </div>
                                 {% endif %}
+
+                                
                             </div>
-                            <div class="form-group">
-                                {% if filters.request is not defined %}
-                                    <label class="col-sm-1 control-label">Fecha retención</label>
-                                    <div class="col-sm-1 item_filter">
+                            
+                            {% if filters.request is not defined %}
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">Fecha de retención</label>
+                                    <div class="col-sm-2 item_filter">
                                         <input type="text" class="form-control pull-right" autocomplete="off" name="retentionFrom" id="retentionFrom" value="{{filters.retentionFrom is defined ? filters.retentionFrom|date("Y-m-d") : ''}}">
                                     </div>
-                                    <div class="col-sm-1">
+                                    <div class="col-sm-2">
                                         <input type="text" class="form-control pull-right" autocomplete="off" name="retentionUntil" id="retentionUntil" value="{{filters.retentionUntil is defined ? filters.retentionUntil|date("Y-m-d") : ''}}">
                                     </div>
-
-                                    <label class="col-sm-1 control-label">Fecha destrucción</label>
-                                    <div class="col-sm-1 item_filter">
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">Fecha destrucción</label>
+                                    <div class="col-sm-2 item_filter">
                                         <input type="text" class="form-control pull-right" autocomplete="off" name="destructionFrom" id="destructionFrom" value="{{filters.destructionFrom is defined ? filters.destructionFrom|date("Y-m-d") : ''}}">
                                     </div>
-                                    <div class="col-sm-1">
+                                    <div class="col-sm-2">
                                         <input type="text" class="form-control pull-right" autocomplete="off" name="destructionUntil" id="destructionUntil" value="{{filters.destructionUntil is defined ? filters.destructionUntil|date("Y-m-d") : ''}}">
                                     </div>
-
-                                    <label class="col-sm-1 control-label item_filter">Preservation Notice</label>
-                                    <div class="col-sm-1 item_filter">
+                                </div>
+                            {% endif %}
+                            <div class="form-group">
+                                {% if filters.request is not defined %}
+                                    <label class="col-sm-2 control-label item_filter">Preservation Notice</label>
+                                    <div class="col-sm-2 item_filter">
                                         <select class="form-control" name="preservation" style="width: 100%;">
                                             <option value=""></option>
                                             <option value="1" {{filters.preservation is defined and filters.preservation == 1 ? 'selected="selected"'}}>Si</option>
@@ -138,19 +153,20 @@
                                     </div>
 
                                     {% if agent is defined and agent and filters.signature is not defined %}
-                                        <label class="col-sm-1 control-label">Acción</label>
+                                        <label class="col-sm-2 control-label">Acción</label>
                                         <div class="col-sm-2 item_filter">
                                             <select class="form-control" style="width: 100%;" name="retentionAction">
                                                 <option value=""></option>
                                                 <option value="2" {{ filters.retentionAction is defined and filters.retentionAction=="2" ? 'selected="selected"' : ''}}>Revisión anual</option>
-                                                <option value="3" {{ filters.retentionAction is defined and filters.retentionAction=="3" ? 'selected="selected"' : ''}}>Solo vencidos</option>
+                                                <option value="3" {{ filters.retentionAction is defined and filters.retentionAction=="3" ? 'selected="selected"' : ''}}>Destrucción de registros</option>
                                                 <option value="4" {{ filters.retentionAction is defined and filters.retentionAction=="4" ? 'selected="selected"' : ''}}>Ver destruidos</option>
                                             </select>
                                         </div>
                                     {% endif %}
                                 {% endif %}
-
-                                <div class="col-sm-1 item_filter">
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-12 item_filter">
                                     <button type="submit" class="btn btn-primary pull-right">Filtrar</button>
                                 </div>
                             </div>
@@ -160,16 +176,6 @@
                 </div>
                 
                 <div class="row">
-                    {% if agent is defined and agent and filters.signature is not defined and filters.request is not defined %}
-                        <a href="{{ path('nononsense_archive_records_edit', {'id' : 0}) }}" class="btn btn-primary pull-right">
-                            <i class="fa fa-plus"></i>
-                            <span> Nuevo registro</span>
-                        </a>
-                        <a href="javascript:void(0)" class="btn btn-primary pull-right btn-import" style="margin-right:5px">
-                            <i class="fa fa-upload"></i>
-                            <span> Importar registros</span>
-                        </a><br><br>
-                    {% endif %}
                     <table id="inProcessParcial" class="table table-striped">
                         <thead>
                         <tr>
@@ -177,11 +183,13 @@
                             <th>Identificador</th>
                             <th>Título</th>
                             <th>Edición</th>
-                            <th>Área</th>
-                            <th>Tipo</th>
+                            <th>Área custodio</th>
+                            <th>Área origen</th>
+                            <th>Tipo de documento</th>
                             <th>Estado</th>
                             <th>Disponibilidad</th>
                             <th>Categoría retención</th>
+                            <th>Ubicación</th>
                             <th>Inicio retención</th>
                             <th>Fecha destrucción</th>
                             <th>Preservation Notice</th>
@@ -198,15 +206,27 @@
                                 <td>{{item.title}}</td>
                                 <td>{{item.edition}}</td>
                                 <td>{{item.area}}</td>
+                                <td>{{item.areaInfo}}</td>
                                 <td>{{item.type}}</td>
                                 <td>{{item.state}}</td>
                                 <td>{{item.useState}}</td>
                                 <td>{{item.category}}</td>
+                                <td>
+                                    {% if item.removedAt is empty %}
+                                        {% if item.AZ is defined and item.AZ is not empty %}
+                                            <a class="btn btn-xs btn-info btn-az" href="javascript:void(0)" data-code="{{item.AZ}}" data-location="{{item.location}}"><i class="fa fa-barcode" aria-hidden="true"></i> Ver</a>
+                                        {% else %}
+                                            Digital
+                                        {% endif %}
+                                    {% else %}
+                                        NA
+                                    {% endif %}    
+                                </td>
                                 <td>{{ item.initRetention is defined and item.initRetention is not empty ? item.initRetention|date("d/m/Y")|gskdate : '' }}</td>
                                 <td>{{ item.destructionDate is defined and item.destructionDate is not empty ? item.destructionDate|date("d/m/Y")|gskdate : '' }}</td>
-                                <td>{{item.preservation}}</td>
+                                <td>{{ item.preservation is defined and item.preservation is not empty ? item.preservation : 'No' }}</td>
                                 <td>
-                                    {% if agent is defined and agent %}
+                                    {% if agent is defined and agent and item.areaId in agentareas and item.removedAt is empty and filters.signature is not defined  %}
                                         <a href="{{ path('nononsense_archive_records_edit', {'id' : item.id}) }}" class="btn btn-xs">
                                             <i class="fa fa-pencil" aria-hidden="true"></i>
                                             <span> Editar</span>
@@ -219,10 +239,11 @@
                                             <a class="btn btn-xs btn-danger btn-retention" href="javascript:void(0)" data-info="Eliminar archivo (ID {{item.id}})" data-id="{{item.id}}" data-unique="1" data-action="2"><i class="fa fa-trash" aria-hidden="true"></i> Eliminar</a>
                                         {% endif %}
 
-                                        {% if filters.retentionAction is defined and (filters.retentionAction=="2" or filters.retentionAction=="3") %}
+                                        {% if filters.retentionAction is defined and (filters.retentionAction=="2") %}
                                             <a class="btn btn-xs btn-primary btn-retention"  href="javascript:void(0)" data-action="1" data-info="Revisar archivo (ID {{item.id}})" data-id="{{item.id}}" data-unique="1"><i class="fa fa-check" aria-hidden="true"></i> Revisar</a>
                                         {% endif %}
-                                        {% if item.retentionRevision is defined and item.retentionRevision %}
+
+                                        {% if item.retentionRevision is defined and item.retentionRevision and filters.signature is not defined %}
                                             <a class="btn btn-xs btn-warning" target="_blank"  href="{{path('nononsense_archive_log')}}?relational={{item.id}}&type=record"><i class="fa fa-warning" aria-hidden="true"></i> Revisado</a>
                                         {% endif %}  
                                     {% else %}
@@ -232,31 +253,47 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    {% if (filters.retentionAction is defined and count>0 and (filters.retentionAction=="3" or filters.retentionAction=="2")) or (count>0 and filters.request is defined and item.useState == "Archivado") %}
+                                    {% if (filters.retentionAction is defined and count>0 and (filters.retentionAction=="3" or filters.retentionAction=="2")) or (count>0 and filters.request is defined and item.useState == "Archivado") or (agent is defined and agent and item.areaId in agentareas and filters.masive_edition is defined) %}
                                         <input class="checkpem" name="retentions[]" value="{{item.id}}" type="checkbox">
                                     {% endif %}
                                 </td>
                             </tr>
                             {% endfor %}
                         {% endif %}
-                        {% if filters.retentionAction is defined and count>0 and (filters.retentionAction=="3" or filters.retentionAction=="2") %}
-                            <tr>
-                                <th colspan="14">
-                                    <a class="btn btn-primary pull-right bnt-separator2 btn-retention" href="javascript:void(0)" data-action="1" data-info="Revisar"><i class="fa fa-check" aria-hidden="true"></i> Revisar</a>
-                                    {% if filters.retentionAction is defined and filters.retentionAction=="3" %}
-                                        <a class="btn btn-danger pull-right btn-retention" href="javascript:void(0)" data-action="2" data-info="Eliminar"><i class="fa fa-trash" aria-hidden="true"></i> Eliminar</a>
-                                    {% endif %} 
-                                </th>
-                                <th><input id="record_masive" class="supcheck" type="checkbox"></th>
-                            </tr>
-                        {% endif %}
-                        {% if filters.request is defined and count>0  %}
-                            <tr>
-                                <th colspan="14">
-                                    <a class="btn btn-primary pull-right bnt-separator2 btn-retention" href="javascript:void(0)" data-action="3" data-info="Solicitar préstamo"><i class="fa fa-check" aria-hidden="true"></i> Solicitar préstamo</a>
-                                </th>
-                                <th><input id="record_masive" class="supcheck" type="checkbox"></th>
-                            </tr>
+                        {% if filters.retentionAction is defined and (filters.retentionAction=="3" or filters.retentionAction=="2") %}
+                            {% if count>0 %}
+                                <tr>
+                                    <th colspan="16">
+                                        {% if filters.retentionAction is defined and filters.retentionAction=="2" %}
+                                            <a class="btn btn-primary pull-right bnt-separator2 btn-retention" href="javascript:void(0)" data-action="1" data-info="Revisar"><i class="fa fa-check" aria-hidden="true"></i> Revisar</a>
+                                        {% endif %} 
+                                        {% if filters.retentionAction is defined and filters.retentionAction=="3" %}
+                                            <a class="btn btn-danger pull-right btn-retention" href="javascript:void(0)" data-action="2" data-info="Eliminar"><i class="fa fa-trash" aria-hidden="true"></i> Eliminar</a>
+                                        {% endif %} 
+                                    </th>
+                                    <th><input id="record_masive" class="supcheck" type="checkbox"></th>
+                                </tr>
+                            {% endif %}
+                        {% else %}
+                            {% if filters.request is defined  %}
+                                {% if count>0 %}
+                                    <tr>
+                                        <th colspan="16">
+                                            <a class="btn btn-primary pull-right bnt-separator2 btn-retention" href="javascript:void(0)" data-action="3" data-info="Solicitar préstamo"><i class="fa fa-check" aria-hidden="true"></i> Solicitar préstamo</a>
+                                        </th>
+                                        <th><input id="record_masive" class="supcheck" type="checkbox"></th>
+                                    </tr>
+                                {% endif %}
+                            {% elseif agent is defined and agent and filters.masive_edition is defined %}
+                                {% if count>0 %}
+                                    <tr>
+                                        <th colspan="16">
+                                            <a class="btn btn-primary pull-right bnt-separator2 btn-retention" href="javascript:void(0)" data-action="4" data-info="Edición masiva"><i class="fa fa-check" aria-hidden="true"></i> Edición masiva</a>
+                                        </th>
+                                        <th><input id="record_masive" class="supcheck" type="checkbox"></th>
+                                    </tr>
+                                {% endif %}
+                            {% endif %}
                         {% endif %}
                     </table>
 
@@ -280,10 +317,11 @@
         <div class="modal-content">
             <form class="form-horizontal" id="formModalRetention" action="{{pagination.url}}" method="POST"  enctype="multipart/form-data">
                 <div class="modal-header">
-                    <h5 class="modal-title">Firmar</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+                    <h5 class="modal-title">Firmar
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </h5>
                 </div>
 
                 <div class="modal-body">
@@ -299,20 +337,92 @@
                         </div>
                     </div>
                     <br>
+                    
+                    <div class="row" id="box_file">
+                        <div class="col-lg-10 col-lg-offset-1">
+                            Certificado de destrucción<br>
+                            <div class="form-group">
+                                <input type='file' name="certification" id="certificate" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" id="box_masive_edition">
+                        <div class="col-lg-10 col-lg-offset-1">
+                            <label>Área custodio</label>
+                            <br>
+                            <div class="form-group">
+                                <select class="form-control" name="area" style="width: 100%;">
+                                    <option value=""></option>
+                                    {% for area in myAreas %}
+                                        <option value="{{area.id}}">{{area.name}}</option>
+                                    {% endfor %}
+                                </select><br>
+                            </div>
+                        </div>
+                        <div class="col-lg-10 col-lg-offset-1">
+                            <label>Área origen</label>
+                            <br>
+                            <div class="form-group">
+                                <select class="form-control" name="area_info" style="width: 100%;">
+                                    <option value=""></option>
+                                    {% for area in areas %}
+                                        <option value="{{area.id}}">{{area.name}}</option>
+                                    {% endfor %}
+                                </select><br>
+                            </div>
+                        </div>
+                        <div class="col-lg-10 col-lg-offset-1">
+                            <label>Estado</label>
+                            <br>
+                            <div class="form-group">
+                                <select class="form-control" name="state" style="width: 100%;">
+                                    <option value=""></option>
+                                    {% for state in states %}
+                                        <option value="{{state.id}}">{{state.name}}</option>
+                                    {% endfor %}
+                                </select><br>
+                            </div>
+                        </div>
+                        <div class="col-lg-10 col-lg-offset-1">
+                            <label>Categoría de Retención</label>
+                            <br>
+                            <div class="form-group">
+                                {% if categories is defined %}
+                                    <select multiple="multiple" name="categories[]" id="category">
+                                        {% for category in categories %}
+                                            <option value={{category.id}} title="{{category.description}}">{{category.name}}</option>;
+                                        {% endfor %}
+                                    </select><br>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-lg-10 col-lg-offset-1">
+                            <label for="firma">Preservation notices</label>
+                            <br>
+                            <div class="form-group">
+                                {% if preservations is defined %}
+                                    <select multiple="multiple" name="preservations[]" id="preservations">
+                                        {% for preservation in preservations %}
+                                            <option value={{preservation.id}}>{{preservation.name}}</option>;
+                                        {% endfor %}
+                                    </select><br>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="col-lg-10 col-lg-offset-1">
+                            <label for="firma">Fecha inicio retención</label>
+                            <div class="form-group">
+                                <input type="text" id="retentionDate" name="retention_date" class="form-control" value=""><br>
+                            </div>
+                        </div>
+                    </div>
                     <div class="row box-text-comment">
                         <div class="col-lg-10 col-lg-offset-1">
                             <label for="description_workflow">Comentarios</label>
                             <br>
                             <div class="form-group">
                                 <textarea class="form-control text-comment" name="comment" rows="10" cols="40" id="modal_comment"  style="width:100%" required="required"></textarea>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row" id="box_file">
-                        <div class="col-lg-10 col-lg-offset-1">
-                            Certificado de destrucción<br>
-                            <div class="form-group">
-                                <input type='file' name="certification" id="certificate" />
                             </div>
                         </div>
                     </div>
@@ -338,68 +448,54 @@
     </div>
 </div>
 
-<div class="modal fade" tabindex="-1" role="dialog" id="modalImport">
+<div class="modal fade" tabindex="-1" role="dialog" id="modalAZ">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
-            <form class="form-horizontal" id="formModalImport" action="{{ path('nononsense_archive_records_import') }}" method="POST"  enctype="multipart/form-data">
                 <div class="modal-header">
-                    <h5 class="modal-title">Firmar</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+                    <h5 class="modal-title">Código de AZ
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </h5>
                 </div>
 
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-lg-10 col-lg-offset-1">
-                            Va a realizar una importación de registros. El excel a importar debe tener las siguientes columnas obligatorias:<br><br>
-                            <b>Area, Document Number, Version, Document Name, Type, Document Status, Legal Preservation Name, Global Retention Schedule (GRS)</b><br><br>
-                            Habrá una columna <b>AZ</b> no obligatoria para si se desea adjudicar una localización, si no se introduce se dará por hecho que es un archivo ditital siempre y cuando tenga un <b>Link la columna Document Number</b>. De no ser así notificará un error
-                        </div>
-                    </div>
-                    <br>
-                    <div class="row box-text-comment">
-                        <div class="col-lg-10 col-lg-offset-1">
-                            <label for="description_workflow">Comentarios</label>
+                            <label for="firma">Localización</label>
                             <br>
-                            <div class="form-group">
-                                <textarea class="form-control text-comment" name="comment" rows="10" cols="40" id="modal_comment2"  style="width:100%" required="required"></textarea>
-                            </div>
+                            <span id="locationModal"></span>
                         </div>
                     </div>
-                    <div class="row" id="box_file">
-                        <div class="col-lg-10 col-lg-offset-1">
-                            Archivo excel<br>
-                            <div class="form-group">
-                                <input type='file' name="excel" id="excel" required="required" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" />
-                            </div>
-                        </div>
-                    </div>
+
                     <div class="row">
                         <div class="col-lg-10 col-lg-offset-1">
-                            <div id="signature-pad3" class="input-group">
-                                <label for="firma">Introduzca su firma</label>
-                                <br>
-                                <input type="password" name="password" id="modal_password2" class="form-control" required="required"><br>
-                            </div>
+                            <img class="img-responsive" src="" id="imgAZPopUp">
+                            <img class="img-responsive" src="{{ asset('img/loadinggsk.svg') }}" id="azLoading">
                         </div>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <input type="button" class="btn btn-primary" id="sign_modal_import" value="Firmar">
                 </div>
             </form>
         </div>
     </div>
 </div>
+
+
 {% endblock %}
 {% block scripts %}
 {{ parent() }}
 <script src="/js/plugins/datapicker/bootstrap-datepicker.js"></script>
 <script src="/js/plugins/datapicker/locales/bootstrap-datepicker.es.js" charset="UTF-8"></script>
 <script src="{{ asset('js/plugins/sweetalert/sweetalert.min.js') }}"></script>
+<script src="/plugins/dual_listbox/dist/multi.min.js"></script>
 <script>
   $(function () {
+    $('#retentionDate').datepicker({
+      autoclose: true,
+      orientation: 'bottom auto',
+      format: 'yyyy-mm-dd',
+      language: 'es'
+    });
     $('#retentionFrom').datepicker({
       autoclose: true,
       orientation: 'bottom auto',
@@ -425,9 +521,28 @@
       language: 'es'
     });
 
+    {% if agent is defined and agent %}
+        $('#category').multi({ non_selected_header: 'Categorías de retención disponibles',
+            selected_header: 'Categorías de retención que aplican'
+        });
+
+        $("body").on('DOMSubtreeModified', ".multi-wrapper", function() {
+            $('#category').next(".multi-wrapper").find('a[role="button"]').each(function() {
+                $(this).attr('title', $('#category').find('option[value='+$(this).data("value")+']').attr("title"));
+            });
+            $('a[role="button"]').tooltip();
+        });
+
+        $('#preservations').multi({ non_selected_header: 'Preservation notices disponibles',
+            selected_header: 'Preservation notices que aplican'
+        });
+    {% endif %}
+
     {% if filters.request is defined and filters.request is not empty %}
         ActivateMenu('archive_request');
-    {% else %}
+    {% elseif filters.masive_edition is defined and filters.masive_edition is not empty  %}
+        ActivateMenu('archive_masive_edition');
+    {% else  %}
         ActivateMenu('archive_records');
     {% endif %}
     $('#side-menu').metisMenu();
@@ -444,13 +559,20 @@
     $(document).on('click','.btn-retention',function(e){
         retention_btn=$(this);
         title="Archivos - "+$(this).data("info")+" ";
-        if($(this).data("action")!="2"){
+        if($(this).data("action")=="4"){
+            $("#box_masive_edition").show();
             $("#box_file").hide();
-            //$("#certificate").prop('required',false);
         }
         else{
-            $("#box_file").show();
-            //$("#certificate").prop('required',true);
+            $("#box_masive_edition").hide();
+            if($(this).data("action")!="2"){
+                $("#box_file").hide();
+                //$("#certificate").prop('required',false);
+            }
+            else{
+                $("#box_file").show();
+                //$("#certificate").prop('required',true);
+            }
         }
         if(!$(this).data("unique")){
             if($('.checkpem:checked').length>0){
@@ -476,8 +598,24 @@
         $("#modalRetention").modal('show');
     });
 
-    $(document).on('click','.btn-import',function(e){
-        $("#modalImport").modal('show');
+    $(document).on('click','.btn-az',function(e){
+        urlaz="{{ path('nononsense__archive_code_view', {'code': 'value_id'}) }}";
+        urlaz=urlaz.replace("value_id", $(this).data("code"));
+        $("#modalAZ").modal('show');
+        $("#azLoading").show();
+        $("#imgAZPopUp").hide();
+        $("#imgAZPopUp").attr("src",urlaz);
+        $("#locationModal").html($(this).data("location"));
+        
+
+         $("#imgAZPopUp").off('load').on('load', function() {
+            // Mostrar el modal una vez que la imagen está cargada.
+            $("#imgAZPopUp").show();
+            $("#azLoading").hide();
+        }).each(function() {
+            // Esta función adicional es un truco que fuerza la recarga en caso de que la imagen esté en caché.
+            if(this.complete) $(this).trigger('load');
+        });
     });
 
     $(document).on('click','#sign_modal_retention',function(e){
@@ -526,49 +664,9 @@
 
         $("#formModalRetention").submit();
     });
+});
 
-    $(document).on('click','#sign_modal_import',function(e){
-        if ($('#modal_comment2').is(":visible") && !$('#modal_comment2').val()){
-            swal({
-                title: "Atención",
-                text: "La descripcion es obligatoria",
-                type: "warning"
-            });
-            return false;
-        }
-
-        if ($('#excel').get(0).files.length === 0) {
-            swal({
-                title: "Atención",
-                text: "El archivo excel es obligatorio",
-                type: "warning"
-            });
-            return false;
-        }
-
-        if (!$("#modal_password2").val()){
-            swal({
-                title: "Atención",
-                text: "La firma es obligatoria",
-                type: "warning"
-            });
-            return false;
-        }
-
-        if (!gpassword_valid($("#modal_password2").val())){
-            swal({
-                title: "Atención",
-                text: "La firma no es correcta",
-                type: "warning"
-            });
-            return false;
-        }
-
-        $("#formModalImport").submit();
-    });
-  });
-
-  function check_superiores(){
+function check_superiores(){
     $( ".supcheck" ).each(function() {
       if($(".checkpem").is(":not(:checked)")){
         $(this).prop('checked', false);  
@@ -577,7 +675,7 @@
         $(this).prop('checked', true); 
       }
     });
-  }
+}
 </script>
 {% endblock %}
-                        
+                    

@@ -20,12 +20,13 @@ class ExceptionListenerSuccess
     {
     	$request = $this->requestStack->getCurrentRequest();
     	$logType = $this->em->getRepository(LogsTypes::class)->findOneBy(['stringId' => 'ACCESS']); //Access Type
+        $username = $request->get('_username');
 
         $log = new Logs();
         $log->setType($logType);
     	$log->setDate(new \DateTime());
         $log->setUser($event->getAuthenticationToken()->getUser());
-    	$log->setDescription('Inicio de sesión correcto. Usuario: '.$event->getAuthenticationToken()->getUsername());
+    	$log->setDescription('Inicio de sesión correcto. Usuario: '.$username);
         $log->setIp($request->getClientIp());
 
         $this->em->persist($log);

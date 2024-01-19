@@ -1,0 +1,290 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}Docoaro - GSK | Importación de registros {% endblock %}
+{% block head %}
+{{ parent() }}
+<link rel="stylesheet" href="/css/plugins/datapicker/datepicker3.css">
+<link rel="stylesheet" href="{{ asset('/js/plugins/sweetalert/sweetalert.min.css') }}">
+<link rel="stylesheet" href="/plugins/dual_listbox/dist/multi.min.css">
+<link rel="stylesheet" href="/css/plugins/dataTables/jquery.dataTables.min.css">
+
+{% endblock %}
+{% block main_title %}
+    Importación de registros
+{% endblock %}
+{% block content %}
+
+<div class="wrapper wrapper-content">
+    <form class="form-horizontal" id="form_import" action="{{ path('nononsense_archive_records_import') }}" method="POST">
+        <input type="hidden" name="totalRecords" value="{{count}}">
+        <div class="row">
+            <div class="col-sm-12">
+                <div>
+                    <div class="row">
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label item_filter">Tipo de documento</label>
+                            <div class="col-sm-2 item_filter">
+                                <select class="form-control" name="type" style="width: 100%;" required="required">
+                                    <option value=""></option>
+                                    {% for type in types %}
+                                        <option value="{{type.id}}">{{type.name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <label class="col-sm-1 control-label">Área custodio</label>
+                            <div class="col-sm-2 item_filter">
+                                <select class="form-control" name="area" style="width: 100%;" required="required">
+                                    <option value=""></option>
+                                    {% for area in myAreas %}
+                                        <option value="{{area.id}}">{{area.name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <label class="col-sm-1 control-label">Área origen</label>
+                            <div class="col-sm-2 item_filter">
+                                <select class="form-control" name="area_info" style="width: 100%;" required="required">
+                                    <option value=""></option>
+                                    {% for area in areas %}
+                                        <option value="{{area.id}}">{{area.name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="col-sm-1 item_filter">
+                                <input type="submit" class="btn btn-primary" id="sign_modal_import2" value="Firmar e importar">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <table id="inProcessParcial" class="table table-striped">
+                            <thead>
+                            <tr>
+                                <th>Identificador</th>
+                                <th>Título</th>
+                                <th>Edición</th>
+                                <th>Estado</th>
+                                <th>Categoría retención</th>
+                                <th>Preservation Notice</th>
+                                <th>Inicio retención</th>
+                            </tr>
+                            </thead>
+                            {% if items is defined %}
+                                {% for key,item in items %}
+                                    <tr>
+                                        <td>{{item['Document Number']}}<input type="hidden" name="uniqueNumber[{{key}}]" value="{{item['Document Number']}}"></td>
+                                        <td>{{item['Document Name']}}<input type="hidden" name="title[{{key}}]" value="{{item['Document Name']}}"></td>
+                                        <td>{{item['Version']}}<input type="hidden" name="edition[{{key}}]" value="{{item['Version']}}"></td>
+                                        <td>
+                                            <select class="form-control" name="state[{{key}}]" style="width: 100%;">
+                                                <option value=""></option>
+                                                {% for state in states %}
+                                                    <option value="{{state.id}}">{{state.name}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <select class="form-control" name="category[{{key}}]" style="width: 100%;">
+                                                <option value=""></option>
+                                                {% for category in categories %}
+                                                    <option value="{{category.id}}">{{category.name}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <select class="form-control" name="preservation[{{key}}]" style="width: 100%;">
+                                                <option value=""></option>
+                                                {% for preservation in preservations %}
+                                                    <option value="{{preservation.id}}">{{preservation.name}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <input type="text" name="retention_date[{{key}}]" class="form-control retentionDate" value="">
+                                            <input type="hidden" name="link[{{key}}]" value="{{item['Link']}}">
+                                            <input type="hidden" name="az[{{key}}]" value="{{item['AZ']}}">
+                                        </td>
+                                        
+                                    </tr>
+                                {% endfor %}
+                            {% endif %}
+
+                        </table>
+
+
+
+                        {% if count==0 %}
+                            <br><b>No se han encontrado datos disponibles</b>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+<div class="modal fade" tabindex="-1" role="dialog" id="modalImportCustom">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Firmar
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </h5>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-10 col-lg-offset-1">
+                        Va a importar <b>{{count}}</b> registros
+                    </div>
+                </div>
+                <br>
+                <div class="row box-text-comment">
+                    <div class="col-lg-10 col-lg-offset-1">
+                        <label for="description_workflow">Comentarios</label>
+                        <br>
+                        <div class="form-group">
+                            <textarea class="form-control text-comment" name="comment" rows="10" cols="40" id="modal_comment_import"  style="width:100%" required="required"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-10 col-lg-offset-1">
+                        <div id="signature-pad3" class="input-group">
+                            <label for="firma">Introduzca su firma</label>
+                            <br>
+                            <input type="password" name="password" id="modal_password_import" class="form-control" required="required"><br>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <input type="button" class="btn btn-primary" id="sign_modal_import_custom" value="Firmar">
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
+{% block scripts %}
+{{ parent() }}
+<script src="/js/plugins/datapicker/bootstrap-datepicker.js"></script>
+<script src="/js/plugins/datapicker/locales/bootstrap-datepicker.es.js" charset="UTF-8"></script>
+<script src="{{ asset('js/plugins/sweetalert/sweetalert.min.js') }}"></script>
+<script src="/plugins/dual_listbox/dist/multi.min.js"></script>
+<script src="/js/plugins/__dataTables/jquery.dataTables.min.js"></script>
+<script>
+$(function () {
+    $('.retentionDate').datepicker({
+      autoclose: true,
+      orientation: 'bottom auto',
+      format: 'yyyy-mm-dd',
+      language: 'es'
+    });
+
+    $('#inProcessParcial').DataTable({
+        "ordering": false,
+        "pageLength": 25,
+        "language": {
+            "lengthMenu": "Mostrar _MENU_ registros por página",
+            "zeroRecords": "No se encontraron resultados",
+            "info": "Mostrando la página _PAGE_ de _PAGES_",
+            "infoEmpty": "No hay registros disponibles",
+            "infoFiltered": "(filtrado de _MAX_ registros totales)",
+            "search": "Buscar:",
+            "paginate": {
+                "first":      "Primero",
+                "last":       "Último",
+                "next":       "Siguiente",
+                "previous":   "Anterior"
+            },
+            "loadingRecords": "Cargando...",
+            "processing":     "Procesando...",
+            "emptyTable":     "No hay datos disponibles en la tabla",
+            "aria": {
+                "sortAscending":  ": activar para ordenar la columna de manera ascendente",
+                "sortDescending": ": activar para ordenar la columna de manera descendente"
+            }
+        }
+    });
+
+    var readyToSubmit = false;
+
+    $(document).on('submit','#form_import',function(e){
+        if (!readyToSubmit) {
+            e.preventDefault();
+            readyToSubmit = true;
+            $("#modalImportCustom").modal('show');
+        }
+    });
+
+    $(document).on('click','#sign_modal_import_custom',function(e){
+        if ($('#modal_comment_import').is(":visible") && !$('#modal_comment_import').val()){
+            swal({
+                title: "Atención",
+                text: "La descripcion es obligatoria",
+                type: "warning"
+            });
+            return false;
+        }
+
+        if (!$("#modal_password_import").val()){
+            swal({
+                title: "Atención",
+                text: "La firma es obligatoria",
+                type: "warning"
+            });
+            return false;
+        }
+
+        if (!gpassword_valid($("#modal_password_import").val())){
+            swal({
+                title: "Atención",
+                text: "La firma no es correcta",
+                type: "warning"
+            });
+            return false;
+        }
+
+        var comment = $('#modal_comment_import').val();
+        var password = $('#modal_password_import').val();
+
+        $('<input>').attr({
+            type: 'hidden',
+            name: 'comment',
+            value: comment
+        }).appendTo('#form_import');
+
+        $('<input>').attr({
+            type: 'hidden',
+            name: 'password',
+            value: password
+        }).appendTo('#form_import');
+
+        var dataTable = $('#inProcessParcial').DataTable();
+
+        // Deshabilitar la paginación
+        dataTable.page.len(-1).draw();
+
+        // Una vez que se han cargado todas las filas, envía el formulario
+        setTimeout(function() {
+            $("#form_import").submit();
+        }, 0);
+        
+        $("#form_import").submit();
+    });
+
+    $('#modalImportCustom').on('hidden.bs.modal', function () {
+        readyToSubmit = false;
+    });
+
+    ActivateMenu('archive_records');
+});
+</script>
+{% endblock %}
+                    

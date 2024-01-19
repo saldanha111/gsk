@@ -77,19 +77,27 @@ class ArchiveTypesController extends Controller
         $em = $this->getDoctrine()->getManager();
         $saved = false;
         $action = 5;
+        $changes="";
+        $actionActive=null;
         if ($category->getId()) {
             $action = 2;
         }
         $em->getConnection()->beginTransaction();
         try {
+            if($action!=5){
+                $changes=$this->getChanges($request,$category);  
+            }
             $category->setModified(new DateTime());
             $category->setName($request->get('name'));
             $category->setDescription($request->get('description'));
             $active=($request->get('active') || $action==5) ? true : false;
             if($action==2 && $active!=$category->getActive()){
-                $action=4;
+                if($changes==""){
+                    $action=NULL;
+                }
+                $actionActive=4;
                 if($active){
-                    $action=3;
+                    $actionActive=3;
                 }
             }
             $category->setActive($active);
@@ -107,20 +115,47 @@ class ArchiveTypesController extends Controller
 
             $em->persist($category);
             $em->flush();
-            $this->get('utilities')->saveLogArchive($this->getUser(),$action,$comment,"type",$category->getId());
+
+            if($action){
+                $this->get('utilities')->saveLogArchive($this->getUser(),$action,$comment,"type",$category->getId(),NULL,NULL,$changes);
+            }
+
+            if($actionActive){
+                $this->get('utilities')->saveLogArchive($this->getUser(),$actionActive,$comment,"type",$category->getId());
+            }
+
             $em->getConnection()->commit();
             $this->get('session')->getFlashBag()->add(
                 'message',
-                "El tipo de archivo se ha guardado correctamente"
+                "El tipo de documento se ha guardado correctamente"
             );
             $saved = true;
         } catch (Exception $e) {
             $em->getConnection()->rollback();
             $this->get('session')->getFlashBag()->add(
                 'error',
-                "Error al intentar guardar el tipo de archivo"
+                "Error al intentar guardar el tipo de documento"
             );
         }
         return $saved;
+    }
+
+    public function getChanges($request,$item){
+        $changes="";
+        $em = $this->getDoctrine()->getManager();
+
+        if($request->get("name") && $request->get("name")!=$item->getName()){
+            $changes.="<tr><td>Nombre</td><td>".$item->getName()."</td><td>".$request->get("name")."</td></tr>";
+        }
+
+        if($request->get("description") && $request->get("description")!=$item->getDescription()){
+            $changes.="<tr><td>Descripción</td><td>".$item->getDescription()."</td><td>".$request->get("description")."</td></tr>";
+        }
+
+        if($changes!=""){
+            $changes="\n<table class='table'><tr><td>Campo</td><td>Anterior</td><td>Nuevo</td></tr>".$changes."</table>";
+        }
+
+        return $changes;
     }
 }

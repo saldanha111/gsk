@@ -1,6 +1,7 @@
 {% extends '::base.html.twig' %}
 {% block page_title %}Docoaro - GSK |  Ubicaciones / {{qr.id is not null ? 'Editar' : 'Crear'}} Ubicación {% endblock %}
 {% block head %}
+    <link rel="stylesheet" href="{{ asset('/js/plugins/sweetalert/sweetalert.min.css') }}">
     {{ parent() }}
 {% endblock %}
 {% block main_title %} Ubicaciones / {{qr.id is not null ? 'Editar' : 'Crear'}} Ubicación{% endblock %}
@@ -26,20 +27,20 @@
                                 <input type="text" name="building" class="form-control" value="{{qr.building is not null ? qr.building : ''}}" required="required">
                             </div>
 
-                            <label class="col-sm-1 control-label">Balda</label>
-                            <div class="col-sm-4">
-                                <input type="text" name="shelf" class="form-control" value="{{qr.shelf is not null ? qr.shelf : ''}}" required="required">
-                            </div>
-                        </div>
-                        <div class="form-group">
                             <label class="col-sm-1 control-label">Pasillo</label>
                             <div class="col-sm-4">
                                 <input type="text" name="passage" class="form-control" value="{{qr.passage is not null ? qr.passage : ''}}" required="required">
                             </div>
-
+                        </div>
+                        <div class="form-group">
                             <label class="col-sm-1 control-label">Armario</label>
                             <div class="col-sm-4">
                                 <input type="text" name="cabinet" class="form-control" value="{{qr.cabinet is not null ? qr.cabinet : ''}}" required="required">
+                            </div>
+
+                            <label class="col-sm-1 control-label">Balda</label>
+                            <div class="col-sm-4">
+                                <input type="text" name="shelf" class="form-control" value="{{qr.shelf is not null ? qr.shelf : ''}}" required="required">
                             </div>
                         </div>
                         <div class="form-group">
@@ -59,6 +60,48 @@
                 </div>
             </div>
 
+
+            <div class="modal fade" tabindex="-1" role="dialog" id="modalSign">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Firmar
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </h5>
+                        </div>
+
+                        <div class="modal-body">
+                            <div class="row box-text-comment">
+                                <div class="col-lg-10 col-lg-offset-1">
+                                    <label for="description_workflow">Comentarios</label>
+                                    <br>
+                                    <div class="form-group">
+                                        <textarea class="form-control text-comment" name="comment" id="modal_comment" rows="10" cols="40"  style="width:100%" required="required"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-10 col-lg-offset-1">
+                                    <div id="signature-pad3" class="input-group">
+                                        <label for="firma">Introduzca su firma</label>
+                                        <br>
+                                        <input type="password" id="modal_password" class="form-control" required="required"><br>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <input type="button" class="btn btn-primary" id="sign_category" value="Firmar">
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <input type="hidden" name="signature">
+            <textarea name="comment" style="display: none"></textarea>
+            <input type="hidden" id="action" value="">
         </form>
     </div>
     
@@ -66,12 +109,51 @@
 
 {% block scripts %}
     {{ parent() }}
-
+    <script src="{{ asset('js/plugins/sweetalert/sweetalert.min.js') }}"></script>
     <script>
 
     $( document ).ready(function() {
         ActivateMenu('archive_ubications');
         $('#side-menu').metisMenu();
+
+        $(document).on('submit','#form_item',function(e){
+            event.preventDefault();
+            $("#action").val($(this).data("action"));
+            $("#modalSign").modal('show');
+        });
+
+        $(document).on('click', '#sign_category', function() {
+            if ($('#modal_comment').is(":visible") && !$('#modal_comment').val()){
+                swal({
+                    title: "Atención",
+                    text: "La descripcion es obligatoria",
+                    type: "warning"
+                });
+                return false;
+            }
+
+            if (!$("#modal_password").val()){
+                swal({
+                    title: "Atención",
+                    text: "La firma es obligatoria",
+                    type: "warning"
+                });
+                return false;
+            }
+
+            if (!gpassword_valid($("#modal_password").val())){
+                swal({
+                    title: "Atención",
+                    text: "La firma no es correcta",
+                    type: "warning"
+                });
+                return false;
+            }
+            $('textarea[name="comment"]').val($("#modal_comment").val());
+            $('input[name="signature"]').val($("#modal_password").val());
+
+            $('#form_item').submit();
+        });
     });
     </script>
 {% endblock %}

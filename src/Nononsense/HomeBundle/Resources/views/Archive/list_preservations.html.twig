@@ -3,7 +3,7 @@
 {% block head %}
     {{ parent() }}
 {% endblock %}
-{% block main_title %} Listado de preservations notices de archivo y retención{% endblock %}
+{% block main_title %} Listado de preservation notices{% endblock %}
 {% block content %}
 
 <div class="wrapper wrapper-content">
@@ -23,7 +23,7 @@
                 </div>
                 <br>
             {% endfor %}
-            <form id="form_item" action="{{ path('nononsense_archive_preservations_list') }}" method="GET">
+            <form class="form-horizontal" id="form_item" action="{{ path('nononsense_archive_preservations_list') }}" method="GET">
                 <div class="row">
                     <label class="col-sm-1 control-label item_filter">Nombre</label>
                     <div class="col-sm-2 item_filter">

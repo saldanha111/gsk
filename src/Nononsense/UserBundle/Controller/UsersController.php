@@ -503,12 +503,12 @@ class UsersController extends Controller
             $sintax_head_f="";
         }
 
-        if($request->get("from")){
+        if($request->get("from") || $request->get("until")){
             $html.=$sintax_head_f."Fecha de alta  => ".$request->get("from") . " / " . $request->get("until") . "<br>";
             $sintax_head_f="";
         }
 
-        if($request->get("locked_from")){
+        if($request->get("locked_from") || $request->get("locked_until")){
             $html.=$sintax_head_f."Fecha de baja  => ".$request->get("locked_from") . " / " . $request->get("locked_until") . "<br>";
             $sintax_head_f="";
         }

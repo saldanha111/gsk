@@ -123,7 +123,7 @@
                                 <select class="form-control" style="width: 100%;" name="retention_action">
                                     <option value=""></option>
                                     <option value="2" {{ filters.retention_action is defined and filters.retention_action=="2" ? 'selected="selected"' : ''}}>Revisión anual</option>
-                                    <option value="3" {{ filters.retention_action is defined and filters.retention_action=="3" ? 'selected="selected"' : ''}}>Solo vencidos</option>
+                                    <option value="3" {{ filters.retention_action is defined and filters.retention_action=="3" ? 'selected="selected"' : ''}}>Destrucción de registros</option>
                                     <option value="4" {{ filters.retention_action is defined and filters.retention_action=="4" ? 'selected="selected"' : ''}}>Ver destruidos</option>
                                 </select>
                             </div>
@@ -199,7 +199,6 @@
                                     <td><a class="btn btn-xs btn-info" href="{{path(audittrail, {'id': item.id})}}" target="_self"><i class="fa fa-book" aria-hidden="true"></i> Audit Trail</a></td>
                                     <td><input class="checkpem" name="retentions[]" value="{{item.id}}" type="checkbox"></td>
                                 </tr>
-                                
                             {% endfor %}
                         {% endif %}
                         {% if filters.retention_action is defined and count>0 and (filters.retention_action=="3" or filters.retention_action=="2") %}
@@ -237,10 +236,11 @@
         <div class="modal-content">
             <form class="form-horizontal" id="formModalRetention" action="{{pagination.url}}" method="POST">
                 <div class="modal-header">
-                    <h5 class="modal-title">Firmar</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+                    <h5 class="modal-title">Firmar
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </h5>
                 </div>
 
                 <div class="modal-body">

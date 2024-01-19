@@ -1,11 +1,23 @@
 {% extends '::base.html.twig' %}
-{% block page_title %}Docoaro - GSK |  AZ / {{az.id is not null ? 'Editar' : 'Crear'}} AZ{% endblock %}
+{% block page_title %}Docoaro - GSK |  AZ / 
+    {% if relocate is defined and relocate is not empty %}
+        Reubicar AZs
+    {% else %}
+        {{az is defined and az is not empty ? 'Editar' : 'Crear'}} AZ
+    {% endif %}
+{% endblock %}
 {% block head %}
     <link rel="stylesheet" href="{{ asset('/js/plugins/sweetalert/sweetalert.min.css') }}">
     <link rel="stylesheet" href="/plugins/dual_listbox/dist/multi.min.css">
     {{ parent() }}
 {% endblock %}
-{% block main_title %} AZ / {{az.id is not null ? 'Editar' : 'Crear'}} AZ{% endblock %}
+{% block main_title %}
+    {% if relocate is defined and relocate is not empty %}
+        AZ / Reubicar AZs
+    {% else %}
+        AZ / {{az is defined and az is not empty ? 'Editar' : 'Crear'}} AZ
+    {% endif %}
+{% endblock %}
 
 {% block content %}
 
@@ -24,22 +36,67 @@
             </div>
             <br>
         {% endfor %}
-        <form class="form-horizontal" id="form_item" method="POST" action="{{ path('nononsense_archive_az_edit',{'code': code is not null ? code : 0}) }}">
-            <div class="row">
+        <form class="form-horizontal" id="form_item" method="POST" action="{{ path('nononsense_archive_az_edit',{'code': az is defined and az is not empty ? az.code : 0}) }}">
+            <div class="row" id="AZContainer">
                 <div class="col-lg-10 col-lg-offset-1">
                     <div class="row">
-                        <div class="form-group">
-                            <label class="col-sm-1 control-label"></label>
-                            <div class="col-sm-8 col-md-4 col-lg-3">
-                                <img class="img-responsive" src="{{ path('nononsense__archive_code_view',{'code': code is not null ? code : 0}) }}">
+                        {% if relocate is defined and relocate is not empty %}
+                            <div class="form-group">
+                                <label class="col-sm-1 control-label">AZ</label>
+                                <div class="col-sm-5"  id="tagsContainer">
+                                    
+                                </div>
+                                <div class="col-md-2 col-sm-4 col-xs-6">
+                                    <button id="btn-camera-clean-az" type="button" class="btn btn-primary">Escanear AZs</button>
+                                </div>
+                                <div class="col-md-2 col-sm-4 col-xs-6">
+                                    <button id="btn-scanner-clean-az" type="button" class="btn btn-primary">Escanear AZs con scanner</button>
+                                </div>
                             </div>
 
-                        </div>
+                            <div class="form-group camera-groupAZ" style="display:none;">
+                                <label class="col-sm-1 control-label"></label>
+                                <div class="col-lg-2 col-md-4 col-sm-11">
+                                    <video id="videoAZ" style="border: 1px solid gray;"></video>
+                                </div>
+                                <div class="col-sm-11 col-sm-offset-1">
+                                    <div id="sourceSelectPanelAZ" style="display:none">
+                                        <label for="sourceSelect">Selecciona la Cámara:</label>
+                                        <select id="sourceSelect" class="form-control" style="max-width:400px"></select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group scan-groupAZ" style="display:none;">
+                                <label class="col-sm-1 control-label"></label>
+                                <div class="col-lg-3 col-md-4 col-sm-11">
+                                    <input type="text" id="input-scanAZ" class="form-control" value="">
+                                </div>
+                                <div class="col-sm-3 col-sm-offset-1">
+                                    <button id="btn-scanner-send-az" type="button" class="btn btn-primary">Obtener AZ</button>
+                                </div>
+                            </div>
+                            <hr>
+                        {% else %}
+                            <div class="form-group">
+                                <label class="col-sm-1 control-label">Código/s</label>
+                                {% if az is defined and az is not empty %}
+                                    <div class="col-sm-3">
+                                        <img class="img-responsive" src="{{ path('nononsense__archive_code_view',{'code': az.code }) }}">
+                                    </div>
+                                {% else %}
+                                    <div class="col-sm-9">
+                                        {% for code in codes %}
+                                            {{ code }}<input type="hidden" name="codes[]" value="{{code}}">,
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endif %} 
                         <div class="form-group">
                             <label class="col-sm-1 control-label">Ubicación</label>
                             <div class="col-sm-5">
-                                <input type="text" id="location-info" class="form-control" value="{{az.location is not null ? az.location.id : ''}}" readonly="readonly" required="required">
-                                <input type="hidden" name="location" id="location" class="form-control" value="{{az.location is not null ? az.location.id : ''}}" required="required">
+                                <input type="text" id="location-info" class="form-control" value="{{az is defined and az is not empty and az.location is not null ? az.location.id : ''}}" readonly="readonly" required="required">
+                                <input type="hidden" name="location" id="location" class="form-control" value="{{az is defined and az is not empty and az.location is not null ? az.location.id : ''}}" required="required">
                             </div>
                             <div class="col-md-2 col-sm-4 col-xs-6">
                                 <button id="btn-camera-clean" type="button" class="btn btn-primary">Escanear con cámara</button>
@@ -82,7 +139,12 @@
             </div>
             <div class="row">
                 <div class="col-sm-11 col-sm-offset-1">
-                    <input type="submit" class="btn btn-primary submit-record" data-action="save" value="{{az.id is not null ? 'Editar' : 'Crear'}} AZ">
+                    {% if relocate is defined and relocate is not empty %}
+                        <input type="submit" class="btn btn-primary submit-record" data-action="save" value="Reubicar AZs"> 
+                    {% else %}
+                        <input type="submit" class="btn btn-primary submit-record" data-action="save" value="{{az is defined and az is not empty ? 'Editar' : 'Crear'}} AZ">
+                    {% endif %}
+                    
                 </div>
             </div>
 
@@ -91,10 +153,11 @@
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title">Firmar</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
+                            <h5 class="modal-title">Firmar
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </h5>
                         </div>
 
                         <div class="modal-body">
@@ -127,6 +190,7 @@
             <input type="hidden" name="signature">
             <textarea name="comment" style="display: none"></textarea>
             <input type="hidden" id="action" value="">
+            <input type="hidden" name="isRelocate" value="{{relocate is defined and relocate is not empty ? 1 : ''}}">
         </form>
     </div>
 
@@ -137,7 +201,8 @@
     <script src="{{ asset('js/plugins/sweetalert/sweetalert.min.js') }}"></script>
     <script type="text/javascript" src="{{ asset('js/barcode-reader.min.js') }}"></script>
     <script>
-
+    let codeReaderAZ;
+    let codeReader;
     $( document ).ready(function() {
         ActivateMenu('archive_az');
         $('#side-menu').metisMenu();
@@ -196,7 +261,7 @@
 
     window.addEventListener('load', function () {
         let selectedDeviceId;
-        const codeReader = new ZXing.BrowserMultiFormatReader();
+        codeReader = new ZXing.BrowserMultiFormatReader();
         codeReader.getVideoInputDevices()
             .then((videoInputDevices) => {
                 if (videoInputDevices.length > 0) {
@@ -247,6 +312,11 @@
     })
 
     function activeCamera(){
+        if($('.camera-groupAZ').length>0){
+            $('.camera-groupAZ').hide();
+            $('.scan-groupAZ').hide();
+            codeReaderAZ.reset();
+        }
         $('.scan-group').hide();
         $('.camera-group').show();
         $("#location-info").val("");
@@ -255,6 +325,11 @@
     }
 
     function activeScanner(){
+        if($('.camera-groupAZ').length>0){
+            $('.camera-groupAZ').hide();
+            $('.scan-groupAZ').hide();
+            codeReaderAZ.reset();
+        }
         $('.scan-group').show();
         $('.camera-group').hide();
         $("#location-info").val("");
@@ -316,7 +391,154 @@
         });
     }
 
-    </script>
+    {% if relocate is defined and relocate is not empty %}
+
+        window.addEventListener('load', function () {
+            let selectedDeviceIdAZ;
+            codeReaderAZ = new ZXing.BrowserMultiFormatReader();
+            codeReaderAZ.getVideoInputDevices()
+                .then((videoInputDevices) => {
+                    if (videoInputDevices.length > 0) {
+                        const sourceSelect = document.getElementById('sourceSelect');
+                        selectedDeviceIdAZ = videoInputDevices[0].deviceId;
+                        videoInputDevices.forEach((element) => {
+                            const sourceOption = document.createElement('option');
+                            sourceOption.text = element.label;
+                            if(element.label.indexOf('back')){
+                                sourceOption.setAttribute('selected','selected');
+                                selectedDeviceIdAZ = element.deviceId;
+                            }
+                            sourceOption.value = element.deviceId;
+                            sourceSelect.appendChild(sourceOption);
+                        })
+
+                        sourceSelect.onchange = () => {
+                            selectedDeviceIdAZ = sourceSelect.value;
+                            startCaptureAZ(codeReaderAZ,selectedDeviceIdAZ);
+                        };
+
+                        const sourceSelectPanelAZ = document.getElementById('sourceSelectPanelAZ');
+                        sourceSelectPanelAZ.style.display = 'block';
+
+                    }
+                    document.getElementById('btn-camera-clean-az').addEventListener('click', () => {
+                        if(selectedDeviceIdAZ != 'undefined') {
+                            activeCameraAZ();
+                            startCaptureAZ(codeReaderAZ, selectedDeviceIdAZ);
+                        }else{
+                            toastr.error(
+                                "No se ha detectado ninguna cámara",
+                                'Error',
+                                {preventDuplicates:true}
+                            );
+                        }
+                    })
+                    document.getElementById('btn-scanner-clean-az').addEventListener('click', () => {
+                        activeScannerAZ();
+                    })
+                    document.getElementById('btn-scanner-send-az').addEventListener('click', () => {
+                        onBarcodeRead(document.getElementById('input-scanAZ').value);
+                        document.getElementById('input-scanAZ').value="";
+                    })
+                })
+                .catch((err) => {
+                    console.error(err);
+                })
+        })
+
+        function activeCameraAZ(){
+            if($('.camera-group').length>0){
+                $('.camera-group').hide();
+                $('.scan-group').hide();
+                codeReader.reset();
+            }
+            $('.scan-groupAZ').hide();
+            $('.camera-groupAZ').show();
+        }
+
+        function activeScannerAZ(){
+            if($('.camera-group').length>0){
+                $('.camera-group').hide();
+                $('.scan-group').hide();
+                codeReader.reset();
+            }
+            $('.scan-groupAZ').show();
+            $('.camera-groupAZ').hide();
+            $("#input-scanAZ").val("");
+            $("#input-scanAZ").focus();
+        }
+
+        function startCaptureAZ(codeReaderAZ, selectedDeviceIdAZ){
+            codeReaderAZ.reset()
+            codeReaderAZ.decodeFromVideoDevice(selectedDeviceIdAZ, 'videoAZ', (result, err) => {
+
+                
+                if (result) {
+                    /*$('.camera-groupAZ').hide();
+                    startCaptureAZ(codeReaderAZ, selectedDeviceIdAZ);*/
+                    onBarcodeRead(result.text)
+                }
+                if (err && !(err instanceof ZXing.NotFoundException)) {
+                    console.error(err)
+                    toastr.error("El código de barras no es válido o no se ha leído correctamente", 'aviso');
+                    startCaptureAZ(codeReaderAZ, selectedDeviceIdAZ);
+                }
+                
+            })
+            
+        }
+
+
+        function onBarcodeRead(barcodeValue) {
+          // Verifica que el contenedor de tags y el formulario existan
+          let tagsContainer = document.getElementById('tagsContainer');
+          let myForm = document.getElementById('form_item'); // Asegúrate de que el id 'myForm' es correcto
+
+          if (!tagsContainer || !myForm) {
+            console.error('Los elementos necesarios no están presentes en el DOM.');
+            return; // Salir de la función si los elementos no existen
+          }
+
+          // Verificar si el valor del tag ya existe
+          let existingInputs = myForm.querySelectorAll('input[type="hidden"]');
+          for (let i = 0; i < existingInputs.length; i++) {
+            if (existingInputs[i].value === barcodeValue) {
+              console.log('Tag repetido:', barcodeValue);
+              return; // Si el valor ya existe, no añadir otro tag y salir de la función
+            }
+          }
+
+          // Crear el nuevo tag y el input oculto como antes
+          let newTag = document.createElement('span');
+          newTag.textContent = barcodeValue;
+          newTag.classList.add('tag');
+
+          let hiddenInput = document.createElement('input');
+          hiddenInput.type = 'hidden';
+          hiddenInput.name = 'codes[]';
+          hiddenInput.value = barcodeValue;
+
+          let closeButton = document.createElement('button');
+          closeButton.type = 'button';
+          closeButton.textContent = 'x';
+          closeButton.onclick = function() {
+            this.parentElement.remove(); // Elimina el tag
+            hiddenInput.remove(); // También elimina el input oculto
+          };
+
+          newTag.appendChild(closeButton);
+          tagsContainer.appendChild(newTag);
+          myForm.appendChild(hiddenInput);
+        }
+
+        // Asegúrate de que esta función se llama después de que el DOM esté cargado
+        document.addEventListener('DOMContentLoaded', function () {
+          // onBarcodeRead('123456789012'); // Ejemplo de cómo llamarías la función
+        });
+
+    {% endif %} 
+
+</script>
 {% endblock %}
 
 

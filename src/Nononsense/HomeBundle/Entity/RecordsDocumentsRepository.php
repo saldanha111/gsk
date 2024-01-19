@@ -65,7 +65,7 @@ class RecordsDocumentsRepository extends EntityRepository
                 $list->setParameter('status', $filters["status"]);
             }
 
-            if (isset($filters["pending_for_me"])) {
+            if (isset($filters["pending_for_me"]) && isset($groups)) {
                 $list->andWhere('((r.status=1 OR r.status=5) AND r.usercreatedid=:user_id) OR (r.status=2 AND (s.userid=:user_id OR s.groupid IN (:groups)))');
                 $list->setParameter('user_id', $user->getId());
                 $list->setParameter('groups', $groups);
@@ -153,7 +153,7 @@ class RecordsDocumentsRepository extends EntityRepository
                 $list->setParameter('until', $filters["until"]." 23:59:00");
             }
 
-            if (isset($filters["pending_for_me"])) {
+            if (isset($filters["pending_for_me"]) && isset($groups)) {
                 $list->andWhere('(r.status=1 AND r.usercreatedid=:user_id) OR (r.status=2 AND (s.userid=:user_id OR s.groupid IN (:groups)))');
                 $list->setParameter('user_id', $user->getId());
                 $list->setParameter('groups', $groups);

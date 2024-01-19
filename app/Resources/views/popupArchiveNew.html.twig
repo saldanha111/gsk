@@ -1,0 +1,87 @@
+{% block head %}
+<link rel="stylesheet" href="{{ asset('/js/plugins/sweetalert/sweetalert.min.css') }}">
+{% endblock %}
+<div class="modal" id="popupArchiveNew" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Alta de registros</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <a href="{{ path('nononsense_archive_records_edit', {'id' : 0}) }}" class="btn btn-primary pull-right">
+                    <i class="fa fa-plus"></i>
+                    <span> Nuevo registro</span>
+                </a>
+                <a href="javascript:void(0)" class="btn btn-primary pull-right btn-import" style="margin-right:5px">
+                    <i class="fa fa-upload"></i>
+                    <span> Importar registros</span>
+                </a><br><br>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="modalImport">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form class="form-horizontal" id="formModalImport" action="{{ path('nononsense_archive_records_preimport') }}" method="POST"  enctype="multipart/form-data">
+                <div class="modal-header">
+                    <h5 class="modal-title">Firmar</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-10 col-lg-offset-1">
+                            Va a realizar una importación de registros. El excel a importar debe tener las siguientes columnas obligatorias:<br><br>
+                            <b>Document Number, Version, Document Name</b><br><br>
+                            Habrá una columna <b>AZ</b> no obligatoria para si se desea adjudicar una localización, si no se introduce se dará por hecho que es un archivo ditital siempre y cuando tenga un <b>Link la columna Document Number</b>. De no ser así notificará un error
+                        </div>
+                    </div>
+                    <br><br>
+                    <div class="row" id="box_file">
+                        <div class="col-lg-10 col-lg-offset-1">
+                            Archivo excel<br>
+                            <div class="form-group">
+                                <input type='file' name="excel" id="excel" required="required" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <input type="button" class="btn btn-primary" id="sign_modal_import" value="Precargar">
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script src="{{ asset('js/plugins/sweetalert/sweetalert.min.js') }}"></script>
+<script>
+$(function () {
+
+    $(document).on('click','.btn-import',function(e){
+        $("#modalImport").modal('show');
+    });
+
+    $(document).on('click','#sign_modal_import',function(e){
+        if ($('#excel').get(0).files.length === 0) {
+            swal({
+                title: "Atención",
+                text: "El archivo excel es obligatorio",
+                type: "warning"
+            });
+            return false;
+        }
+
+        $("#formModalImport").submit();
+    });
+});
+</script>
+{% endblock %}

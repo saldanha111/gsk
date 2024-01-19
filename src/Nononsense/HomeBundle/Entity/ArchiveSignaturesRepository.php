@@ -17,13 +17,17 @@ class ArchiveSignaturesRepository extends EntityRepository
         $em = $this->getEntityManager();
 
         $list = $this->createQueryBuilder('ars')
-            ->select('IDENTITY(ars.archiveCategory) category', 'IDENTITY(ars.archivePreservation) preservation', 'IDENTITY(ars.archiveType) type', 'IDENTITY(ars.record) record', 'IDENTITY(ars.archiveAz) az','a.name action', 'u.name user', 'ars.description', 'ars.modified','ars.id','ars.attachment','a.id actionId','us.id useStateId','u2.name user2', 'ars2.description description2', 'ars2.modified modified2', 'ars2.id patern','ar.link')
+            ->select('IDENTITY(ars.archiveCategory) category', 'IDENTITY(ars.archivePreservation) preservation', 'IDENTITY(ars.archiveType) type', 'IDENTITY(ars.record) record', 'IDENTITY(ars.archiveAz) az', 'IDENTITY(ars.archiveLocation) location','a.name action', 'u.name user', 'ars.description', 'ars.modified','ars.id','ars.attachment','a.id actionId','us.id useStateId','u2.name user2', 'ars2.description description2', 'ars2.modified modified2', 'ars2.id patern','ar.link','ars.changes','ar.uniqueNumber recordName','relc.name categoryName','relp.name preservationName','relaz.code azName','relt.name typeName')
             ->leftJoin("ars.archiveAction", "a")
             ->leftJoin("ars.userEntiy", "u")
             ->leftJoin("ars.record", "ar")
             ->leftJoin("ar.useState", "us")
             ->leftJoin("ars.patern", "ars2")
             ->leftJoin("ars2.userEntiy", "u2")
+            ->leftJoin("ars.archiveCategory", "relc")
+            ->leftJoin("ars.archivePreservation", "relp")
+            ->leftJoin("ars.archiveAz", "relaz")
+            ->leftJoin("ars.archiveType", "relt")
             ->orderBy('ars.id', 'DESC');
 
         $list = self::fillFilersQuery($filters, $list);
@@ -91,6 +95,11 @@ class ArchiveSignaturesRepository extends EntityRepository
                 $list->setParameter('areas', $filters["areas"]);
             }
 
+            if(isset($filters["recordId"])){
+                $list->andWhere('ar.id = :recordId');
+                $list->setParameter('recordId', $filters["recordId"]);
+            }
+
             if(isset($filters["type"])){
                 switch($filters["type"]){
                     case "category":
@@ -107,6 +116,9 @@ class ArchiveSignaturesRepository extends EntityRepository
                         break;
                     case "az":
                         $list->andWhere("ars.archiveAz IS NOT NULL");
+                        break;
+                    case "location":
+                        $list->andWhere("ars.archiveLocation IS NOT NULL");
                         break;
                 }
             }

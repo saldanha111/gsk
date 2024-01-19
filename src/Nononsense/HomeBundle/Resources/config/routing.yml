@@ -1097,6 +1097,16 @@ nononsense_archive_ubications_edit:
     path: /archive-ubications/{id}
     defaults: { _controller: NononsenseHomeBundle:ArchiveUbications:edit}
 
+nononsense_archive_az_list:
+    path: /az/
+    methods:    [GET]
+    defaults: { _controller: NononsenseHomeBundle:ArchiveAZ:list}
+
+nononsense_archive_az_print:
+    path: /az/
+    methods:    [POST]
+    defaults: { _controller: NononsenseHomeBundle:ArchiveAZ:print}
+
 nononsense_archive_az_edit:
     path: /az/{code}
     defaults: { _controller: NononsenseHomeBundle:ArchiveAZ:edit}
@@ -1153,6 +1163,11 @@ nononsense_archive_load_update:
     path: /archive-loan/
     methods:    [POST]
     defaults: { _controller: NononsenseHomeBundle:ArchiveLoan:update}
+
+nononsense_archive_records_preimport:
+    path: /archive-preimport/
+    methods:    [POST]
+    defaults: { _controller: NononsenseHomeBundle:ArchiveRecords:preupload}
 
 nononsense_archive_records_import:
     path: /archive-import/
@@ -1350,3 +1365,7 @@ nononsense_notifications_templates_notification_remove:
 nononsense_notifications_templates_notification_detail:
     path:     /notifications/templates/creator/notification/detail
     defaults: { _controller: NononsenseHomeBundle:NotificationsModels:detailNotification}
+
+nononsense_superadmin:
+    path: /super-admin
+    defaults: { _controller: NononsenseHomeBundle:SuperAdmin:edit}

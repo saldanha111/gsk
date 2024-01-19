@@ -1,0 +1,65 @@
+{% extends '::base.html.twig' %}
+{% block page_title %}Docoaro - GSK |  Superadmin {% endblock %}
+{% block head %}
+    <link rel="stylesheet" href="{{ asset('/js/plugins/sweetalert/sweetalert.min.css') }}">
+    {{ parent() }}
+{% endblock %}
+{% block main_title %} Superadmin {% endblock %}
+
+{% block content %}
+
+    <div class="wrapper wrapper-content animated fadeInUp">
+        {% for flashMessage in app.session.flashbag.get('error') %}
+            <div class="alert alert-danger alert-dismissable" style="margin: 10px 16px 0 16px">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                {{ flashMessage }}
+            </div>
+            <br>
+        {% endfor %}
+        {% for flashMessage in app.session.flashbag.get('message') %}
+            <div class="alert alert-success alert-dismissable" style="margin: 10px 16px 0 16px">
+                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+                {{ flashMessage }}
+            </div>
+            <br>
+        {% endfor %}
+        <form class="form-horizontal" id="form_item" method="POST" action="{{ path('nononsense_superadmin') }}">
+            <div class="row">
+                {% for section in sections %}
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">{{section.name}}</label>
+                        <div class="col-sm-2">
+                            <select class="form-control" name="sections[{{section.id}}]" style="width: 100%;">
+                                <option value=""></option>
+                                <option value="1" {{section.production == true ? 'selected="selected"'}}>Si</option>
+                                <option value="2" {{section.production != true ? 'selected="selected"'}}>No</option>
+                            </select>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="row">
+                <div class="col-sm-11">
+                    <input type="submit" class="btn btn-primary pull-right" value="Guardar">
+                </div>
+            </div>
+        </form>
+    </div>
+    
+{% endblock %}
+
+{% block scripts %}
+    {{ parent() }}
+    <script src="{{ asset('js/plugins/sweetalert/sweetalert.min.js') }}"></script>
+
+    <script>
+
+    $( document ).ready(function() {
+        ActivateMenu('supeardmin');
+        $('#side-menu').metisMenu();
+    });
+
+    </script>
+{% endblock %}
+
+

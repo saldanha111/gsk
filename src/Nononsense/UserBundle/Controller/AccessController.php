@@ -20,6 +20,7 @@ class AccessController extends Controller
         
         $filters['page'] = (!$request->get('page')) ? 1 : $request->get('page');
         $filters['username'] = $request->get('username');
+        $filters['name'] = $request->get('name');
         $filters['description'] = $request->get('description');
         $filters['from'] = $request->get('from');
         $filters['until'] = $request->get('until');
@@ -34,8 +35,13 @@ class AccessController extends Controller
         $parameters = !empty($params);
 
         if ($request->get('export_excel') == '1') {
-            $logs = $em->getRepository(Logs::class)->listBy($filters, 1048575);
+            //$logs = $em->getRepository(Logs::class)->listBy($filters, $limit);
             return $this->exportCsv($logs);
+        }
+
+        if ($request->get('export_pdf') == '1') {
+            //$logs = $em->getRepository(Logs::class)->listBy($filters, $limit);
+            return $this->exportPDF($request, $logs);
         }
 
         return $this->render('NononsenseUserBundle:Users:logs.html.twig', 
@@ -108,6 +114,58 @@ class AccessController extends Controller
         $response->headers->set('Content-Disposition', $dispositionHeader);
 
         return $response; 
+    }
+
+    private function exportPdf($request,$logs)
+    {
+        $html='<html><body style="font-size:8px;width:100%">';
+        $sintax_head_f="<b>Filtros:</b><br>";
+
+        if($request->get("name")){
+            $html.=$sintax_head_f."Nombre => ".$request->get("name")."<br>";
+            $sintax_head_f="";
+        }
+
+        if($request->get("description")){
+            $html.=$sintax_head_f."Descripción => ".$request->get("description")."<br>";
+            $sintax_head_f="";
+        }
+
+        if($request->get("logType")){
+            switch($request->get("logType")){
+                case "1": $hstate="Grupo";break;
+                case "2": $hstate="Usuario";break;
+            }
+            $html.=$sintax_head_f."Tipo de registro => ".$hstate."<br>";
+            $sintax_head_f="";
+        }
+
+        if($request->get("from") || $request->get("until")){
+            $html.=$sintax_head_f."Fecha de alta  => ".$request->get("from") . " / " . $request->get("until") . "<br>";
+            $sintax_head_f="";
+        }
+
+        $html.='<br><table autosize="1" style="overflow:wrap;width:100%"><tr style="font-size:8px;width:100%">
+                        <th style="font-size:8px;width:10%">ID</th>
+                        <th style="font-size:8px;width:10%">TIPO</th>
+                        <th style="font-size:8px;width:15%">USUARIO</th>
+                        <th style="font-size:8px;width:45%">DESCRIPCIÓN</th>
+                        <th style="font-size:8px;width:10%">IP</th>
+                        <th style="font-size:8px;width:10%">FECHA</th>
+                    </tr>';
+        foreach ($logs['rows'] as $key => $log) {
+            $html.='<tr style="font-size:8px">
+                <td>'.$log->getId().'</td>
+                <td>'.(($log->getType()) ? $log->getType()->getName() : 'Sin definir').'</td>
+                <td>'.(($log->getUser()) ? $log->getUser()->getUsername() : '').'</td>
+                <td>'.$log->getDescription().'</td>
+                <td>'.$log->getIp().'</td>
+                <td>'.($log->getDate()->format('Y-m-d H:i')).'</td>
+            </tr>';
+        }
+
+        $html.='</table></body></html>';
+        $this->get('utilities')->returnPDFResponseFromHTML($html,"Log general");
     }
 
 }

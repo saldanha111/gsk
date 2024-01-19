@@ -32,6 +32,12 @@ nononsense_group_removeuser:
     requirements:
         id: ".+"
 
+nononsense_users_group_show:
+    path:     /show/{id}/users
+    defaults: { _controller: NononsenseGroupBundle:Group:showUsers }
+    requirements:
+        id: ".+"
+
 nononsense_group_show:
     path:     /show/{id}
     defaults: { _controller: NononsenseGroupBundle:Group:show }

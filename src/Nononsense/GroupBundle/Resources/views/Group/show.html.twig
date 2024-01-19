@@ -85,8 +85,8 @@
 
             </div>
         </div>
+            
                 <div class="col-md-7">
-                    
                     <div class="ibox" id="addusers" style="display: none">
                         <div class="ibox-title">
                             <h5>Add users </h5>
@@ -145,9 +145,12 @@
                                 <i class="fa fa-spinner fa-spin"></i>
                             </div>
                         </div>
+                        <a href="{{ path('nononsense_users_group_show', {"id" : group.id })}}?export_excel=1" target="_blank" class="btn btn-primary pull-right"><i class="fa fa-file-excel-o" aria-hidden="true"></i> Excel</a> 
+                        <a href="{{ path('nononsense_users_group_show', {"id" : group.id })}}?export_pdf=1" target="_blank" class="btn btn-primary pull-right" style="margin-right:1px"><i class="fa fa-file-pdf-o" aria-hidden="true"></i> PDF</a> 
                     </div>
 
                 </div>
+            
             </div>
         </div>
                             
@@ -158,8 +161,17 @@
                         <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Cerrar</span></button>
                         <h4 class="modal-title">Eliminar del grupo</h4>
                     </div>
-                    <div class="modal-body" id="modal-data">
-                        <p></p>
+                    <div class="modal-body">
+                        <div  id="modal-data"></div>
+                        <div>
+                            <label class="control-label">Justificación</label>
+                            <textarea name="justification"  id="comment" rows="10" cols="120" required="required" style="width:100%"></textarea>
+                        </div>
+
+                        <div>
+                            <label class="control-label">Introduzca su firma</label>
+                            <input type="password" name="password" id="box_password" class="form-control" required="required"><br>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-white" data-dismiss="modal">Cerrar</button>
@@ -190,8 +202,13 @@
                         </tr>
                         <tr><td colspan="4" class="changes_groups">{{signature.changes|raw}}</td></tr>
                     {% endfor %}
+                    <tr><td colspan="4">
+                        <a href="{{ path('nononsense_group_show', {"id" : group.id })}}?export_excel=1" target="_blank" class="btn btn-primary pull-right"><i class="fa fa-file-excel-o" aria-hidden="true"></i> Excel</a> 
+                        <a href="{{ path('nononsense_group_show', {"id" : group.id })}}?export_pdf=1" target="_blank" class="btn btn-primary pull-right" style="margin-right:1px"><i class="fa fa-file-pdf-o" aria-hidden="true"></i> PDF</a> 
+                    </td></tr>
             </tbody>
         </div>
+        
     {% endif %}
 
 {% endblock %}
@@ -204,10 +221,50 @@
     <script>
         window.members = {};
         function deleteUser(data, type) {
-            content = '<div class="text-center"><img alt="image" class="img-circle" style="width: 112px; height: 112px" src="' + data.image + '"><h3>' + data.name + '</h3></div>';
-            $('#deleteUser').click(function(){window.location.href="{{ path('nononsense_group_remove_user')}}" + '/{{group.id}}/' + type + '/' + data.user});
+            content = '<div class="text-center"><h3>' + data.name + '</h3></div>';
+            $('#deleteUser').click(function(){
+                if ($('#comment').length && !$('#comment').val()) {
+                    toastr.error("Debe escribir una justificación", 'aviso');
+                    return false;
+                }
+
+                $(this).hide(function() {
+                    valid_password=password_valid($("#box_password").val());
+                    if (!valid_password) {
+                        $(this).show();
+                        toastr.error("La contraseña es incorecta", 'aviso');
+                    } else {
+                        window.location.href="{{ path('nononsense_group_remove_user')}}" + '/{{group.id}}/' + type + '/' + data.user+'?justification='+$('#comment').val();
+                    }
+                });
+                return false;
+            });
             $('#modal-data').html(content);
             $('#removeModal').modal('toggle');
+        }
+
+        function password_valid(password){
+            var result;
+            $.ajax({
+                url: "{{ path('nononsense_mclean_get_sign_valid') }}",
+                type: 'POST',
+                dataType: 'json',
+                async: false,
+                data: {password: password},
+                success: function(response) {
+                    console.log(response);
+                    if(response.valid){
+                        result=true;
+                    }else{
+                        result=false;
+                    }
+                },
+                error: function() {
+                    result=false;
+                }
+            });
+
+            return result;
         }
         
         function insertUser (id, type) {            
@@ -222,12 +279,26 @@
         }
         
         function addListOfUsers (type) {
-            users = JSON.stringify(window.members);
-            if (users != '{}') {
-                window.location.href = '{{ url('nononsense_group_addbulk')}}?users=' + users + '&id={{group.id}}&type=' + type;
-            } else {
-                toastr.error('{{'There are no users selected.'|trans}}','{{'Warning'|trans}}');
+            if ($('#commentG').length && !$('#commentG').val()) {
+                toastr.error("Debe escribir una justificación", 'aviso');
+                return false;
             }
+
+            $(this).hide(function() {
+                valid_password=password_valid($("#box_passwordG").val());
+                if (!valid_password) {
+                    $(this).show();
+                    toastr.error("La contraseña es incorecta", 'aviso');
+                } else {
+                    users = JSON.stringify(window.members);
+                    if (users != '{}') {
+                        window.location.href = '{{ url('nononsense_group_addbulk')}}?users=' + users + '&id={{group.id}}&type=' + type+'&justification='+$('#commentG').val();
+                    } else {
+                        toastr.error('{{'There are no users selected.'|trans}}','{{'Warning'|trans}}');
+                    }
+                }
+            });
+            
         }
         
         $(document).ready(function(){

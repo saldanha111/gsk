@@ -70,12 +70,12 @@ class CertificationsRepository extends EntityRepository
             }
         }
         if(isset($filters["from"])){
-            $dateFrom = DateTime::createFromFormat('d-m-Y',$filters["from"]);
+            $dateFrom = DateTime::createFromFormat('Y-m-d',$filters["from"]);
             $list->andWhere('c.modified>=:from');
             $list->setParameter('from', $dateFrom->format('Y-m-d'));
         }
         if(isset($filters["until"])){
-            $dateUntil = DateTime::createFromFormat('d-m-Y',$filters["until"]);
+            $dateUntil = DateTime::createFromFormat('Y-m-d',$filters["until"]);
             $list->andWhere('c.modified<=:until');
             $list->setParameter('until', $dateUntil->format('Y-m-d')." 23:59:00");
         }

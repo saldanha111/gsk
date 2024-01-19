@@ -728,7 +728,7 @@ class CVDocoaroController extends Controller
         $subactions = $em->getRepository(CVActions::class)->findBy(array("graphic" => TRUE),array("type" => "ASC"));
         $actions = $em->getRepository(TMCumplimentationsType::class)->search("list",array());
         $html='Documento: <b>'.$record->getTemplate()->getName().'</b><br>Registro:<b>'.$record->getId().'</b><br><br>'.$this->get_signatures($record,1,$filters);
-        $title="Audittrail ".$record->getId()." - Código: ".$record->getTemplate()->getId()." - Título: ".$record->getTemplate()->getName()." - Edición: ".$record->getTemplate()->getNumEdition();
+        $title="Audit trail ".$record->getId()." - Código: ".$record->getTemplate()->getId()." - Título: ".$record->getTemplate()->getName()." - Edición: ".$record->getTemplate()->getNumEdition();
         if($request->get("pdf")){
             $this->get('utilities')->returnPDFResponseFromHTML('<html><body style="font-size:8px;width:100%">'.$html.'</body></html>',$title);
         }
