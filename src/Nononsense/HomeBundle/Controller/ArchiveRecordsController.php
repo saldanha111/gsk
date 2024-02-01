@@ -310,7 +310,7 @@ class ArchiveRecordsController extends Controller
             case "1":
                 
                 foreach($records as $record){
-                    $record->setRetentionRevision(TRUE);
+                    $record->setRetentionRevision(new \DateTime());
                     $this->get('utilities')->saveLogArchive($this->getUser(),6,$request->get('comment'),"record",$record->getId());
                     $em->persist($record);
                 }

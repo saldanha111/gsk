@@ -243,7 +243,8 @@
                                             <a class="btn btn-xs btn-primary btn-retention"  href="javascript:void(0)" data-action="1" data-info="Revisar archivo (ID {{item.id}})" data-id="{{item.id}}" data-unique="1"><i class="fa fa-check" aria-hidden="true"></i> Revisar</a>
                                         {% endif %}
 
-                                        {% if item.retentionRevision is defined and item.retentionRevision and filters.signature is not defined %}
+                                        {% set currentDate = date() %}
+                                        {% if item.retentionRevision is defined and item.retentionRevision and filters.signature is not defined and (item.removedAt is not defined or item.removedAt is empty) and currentDate.diff(item.retentionRevision).y < 1 %}
                                             <a class="btn btn-xs btn-warning" target="_blank"  href="{{path('nononsense_archive_log')}}?relational={{item.id}}&type=record"><i class="fa fa-warning" aria-hidden="true"></i> Revisado</a>
                                         {% endif %}  
                                     {% else %}
