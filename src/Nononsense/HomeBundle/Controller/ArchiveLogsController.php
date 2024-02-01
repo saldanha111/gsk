@@ -80,7 +80,7 @@ class ArchiveLogsController extends Controller
                 $phpExcelObject->setActiveSheetIndex()
                  ->setCellValue('A2', 'Fecha')
                  ->setCellValue('B2', 'Tipo')
-                 ->setCellValue('C2', 'ID')
+                 ->setCellValue('C2', 'Identificador')
                  ->setCellValue('D2', 'Acción')
                  ->setCellValue('E2', 'Usuario')
                  ->setCellValue('F2', 'Comentario');
@@ -90,7 +90,7 @@ class ArchiveLogsController extends Controller
                 $html='<html><body style="font-size:8px;width:100%"><table autosize="1" style="overflow:wrap;width:100%"><tr style="font-size:8px;width:100%">
                         <th style="font-size:8px;width:15%">Fecha</th>
                         <th style="font-size:8px;width:10%">Tipo</th>
-                        <th style="font-size:8px;width:5%">ID</th>
+                        <th style="font-size:8px;width:5%">Identificador</th>
                         <th style="font-size:8px;width:10%">Acción</th>
                         <th style="font-size:8px;width:10%">Usuario</th>
                         <th style="font-size:8px;width:50%">Comentario</th>
@@ -119,8 +119,14 @@ class ArchiveLogsController extends Controller
                                 $id=$item["az"];
                             }
                             else{
-                                $type="Categoría";
-                                $id=$item["category"];
+                                if($item["state"]!=""){
+                                    $type="Estado";
+                                    $id=$item["state"];
+                                }
+                                else{
+                                    $type="Categoría";
+                                    $id=$item["category"];
+                                }
                             }
                         }
                     }

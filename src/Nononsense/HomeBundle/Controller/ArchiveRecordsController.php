@@ -66,7 +66,7 @@ class ArchiveRecordsController extends Controller
         $array_item["filters"]=$filters;
         $array_item["items"] = $this->getDoctrine()->getRepository(ArchiveRecords::class)->list("list",$filters);
         $array_item["count"] = $this->getDoctrine()->getRepository(ArchiveRecords::class)->list("count",$filters2);
-        $array_item["states"] = $this->getDoctrine()->getRepository(ArchiveStates::class)->findAll();
+        $array_item["states"] = $this->getDoctrine()->getRepository(ArchiveStates::class)->findBy(array("active"=>TRUE));
         $array_item["useStates"] = $this->getDoctrine()->getRepository(ArchiveUseStates::class)->findAll();
         $array_item["types"] = $this->getDoctrine()->getRepository(ArchiveTypes::class)->findAll();
         $array_item["areas"] = $this->getDoctrine()->getRepository(Areas::class)->findAll();
@@ -115,7 +115,7 @@ class ArchiveRecordsController extends Controller
                  ->setCellValue('H2', 'Estado')
                  ->setCellValue('I2', 'Disponibilidad')
                  ->setCellValue('J2', 'Categoría retención')
-                 ->setCellValue('K2', 'Inicio retención')
+                 ->setCellValue('K2', 'Fecha inicio retención')
                  ->setCellValue('L2', 'Fecha destrucción')
                  ->setCellValue('M2', 'Preservation notice');
             }
@@ -132,7 +132,7 @@ class ArchiveRecordsController extends Controller
                         <th style="font-size:8px;width:9%">Estado</th>
                         <th style="font-size:8px;width:9%">Disponibilidad</th>
                         <th style="font-size:8px;width:9%">Categoría</th>
-                        <th style="font-size:8px;width:9%">Inicio retención</th>
+                        <th style="font-size:8px;width:9%">Fecha inicio retención</th>
                         <th style="font-size:8px;width:9%">Fecha destrucción</th>
                         <th style="font-size:8px;width:5%">Preserv. notice</th>
                     </tr>';
@@ -221,7 +221,7 @@ class ArchiveRecordsController extends Controller
         $areas = $em->getRepository(Areas::class)->findBy(array("isActive"=>TRUE));
         $myAreas=$this->get('app.security')->getAreas('archive_agent');
         $types = $em->getRepository(ArchiveTypes::class)->findBy(array("active"=>TRUE));
-        $states = $em->getRepository(ArchiveStates::class)->findAll();
+        $states = $em->getRepository(ArchiveStates::class)->findBy(array("active"=>TRUE));
         $categories = $em->getRepository(ArchiveCategories::class)->findBy(array("active"=>TRUE),array("retentionDays" => "DESC"));
         $preservations = $em->getRepository(ArchivePreservations::class)->findBy(array("active"=>TRUE));
 
@@ -323,7 +323,7 @@ class ArchiveRecordsController extends Controller
                 }
                 foreach($records as $record){
                     $loans = $this->getDoctrine()->getRepository(ArchiveSignatures::class)->count([
-                        'actions' =>  array(8,9,10),
+                        'actions' =>  array(8,9),
                         'recordId' => $record->getId(),
                         'not_available' => 1
                     ]);
@@ -461,7 +461,7 @@ class ArchiveRecordsController extends Controller
                         return $this->redirect($this->generateUrl('nononsense_archive_records'));
                     }
 
-                    $array_item["states"] = $this->getDoctrine()->getRepository(ArchiveStates::class)->findAll();
+                    $array_item["states"] = $this->getDoctrine()->getRepository(ArchiveStates::class)->findBy(array("active"=>TRUE));
                     $array_item["types"] = $this->getDoctrine()->getRepository(ArchiveTypes::class)->findAll();
                     $array_item["areas"] = $this->getDoctrine()->getRepository(Areas::class)->findAll();
                     $array_item["categories"] = $this->getDoctrine()->getRepository(ArchiveCategories::class)->findAll();

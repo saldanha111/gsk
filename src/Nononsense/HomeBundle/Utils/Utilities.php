@@ -16,6 +16,7 @@ use Nononsense\HomeBundle\Entity\ArchivePreservations;
 use Nononsense\HomeBundle\Entity\ArchiveTypes;
 use Nononsense\HomeBundle\Entity\ArchiveActions;
 use Nononsense\HomeBundle\Entity\ArchiveSignatures;
+use Nononsense\HomeBundle\Entity\ArchiveStates;
 use Nononsense\HomeBundle\Entity\RetentionCategories;
 use Nononsense\HomeBundle\Entity\RetentionActions;
 use Nononsense\HomeBundle\Entity\CVRecords;
@@ -126,6 +127,10 @@ class Utilities{
             case "type":
                 $type=$this->em->getRepository('NononsenseHomeBundle:ArchiveTypes')->findOneBy(array('id' => $id));
                 $signatureLog->setArchiveType($type);
+                break;
+            case "state":
+                $state=$this->em->getRepository('NononsenseHomeBundle:ArchiveStates')->findOneBy(array('id' => $id));
+                $signatureLog->setArchiveState($state);
                 break;
             case "preservation":
                 $preservation=$this->em->getRepository('NononsenseHomeBundle:ArchivePreservations')->findOneBy(array('id' => $id));

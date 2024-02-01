@@ -7,6 +7,7 @@ use Exception;
 use Nononsense\GroupBundle\Entity\Groups;
 use Nononsense\HomeBundle\Entity\ArchiveSignatures;
 use Nononsense\HomeBundle\Entity\ArchiveCategories;
+use Nononsense\HomeBundle\Entity\ArchiveRecords;
 use Nononsense\UserBundle\Entity\Users;
 use Nononsense\UtilsBundle\Classes\Utils;
 use Symfony\Component\HttpFoundation\Request;
@@ -107,6 +108,19 @@ class ArchiveCategoriesController extends Controller
                     $actionActive=3;
                 }
             }
+
+            //Check if there are records with this category
+            if($actionActive==4){
+                $existRecords = $this->getDoctrine()->getRepository(ArchiveRecords::class)->list("count",array("categoryIn" => $category->getId()));
+                if($existRecords){
+                    $this->get('session')->getFlashBag()->add(
+                        'error',
+                        "Hay registros asociados a esta categoría de retención y por tanto no puede deshabilitarse."
+                    );
+                    return false;
+                }
+            }
+
             $category->setActive($active);
 
 
@@ -133,7 +147,7 @@ class ArchiveCategoriesController extends Controller
             $em->getConnection()->commit();
             $this->get('session')->getFlashBag()->add(
                 'message',
-                "La categoría de retencioón se ha guardado correctamente"
+                "La categoría de retención se ha guardado correctamente"
             );
             $saved = true;
         } catch (Exception $e) {
