@@ -22,6 +22,7 @@ class ArchiveSignaturesRepository extends EntityRepository
             ->leftJoin("ars.userEntiy", "u")
             ->leftJoin("ars.record", "ar")
             ->leftJoin("ar.useState", "us")
+            ->leftJoin("ar.state", "s")
             ->leftJoin("ars.patern", "ars2")
             ->leftJoin("ars2.userEntiy", "u2")
             ->leftJoin("ars.archiveCategory", "relc")
@@ -119,6 +120,9 @@ class ArchiveSignaturesRepository extends EntityRepository
                         break;
                     case "location":
                         $list->andWhere("ars.archiveLocation IS NOT NULL");
+                        break;
+                    case "state":
+                        $list->andWhere("ars.archiveState IS NOT NULL");
                         break;
                 }
             }

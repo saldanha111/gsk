@@ -123,7 +123,7 @@
                             
                             {% if filters.request is not defined %}
                                 <div class="form-group">
-                                    <label class="col-sm-2 control-label">Fecha de retención</label>
+                                    <label class="col-sm-2 control-label">Fecha inicio retención</label>
                                     <div class="col-sm-2 item_filter">
                                         <input type="text" class="form-control pull-right" autocomplete="off" name="retentionFrom" id="retentionFrom" value="{{filters.retentionFrom is defined ? filters.retentionFrom|date("Y-m-d") : ''}}">
                                     </div>
@@ -190,7 +190,7 @@
                             <th>Disponibilidad</th>
                             <th>Categoría retención</th>
                             <th>Ubicación</th>
-                            <th>Inicio retención</th>
+                            <th>Fecha inicio retención</th>
                             <th>Fecha destrucción</th>
                             <th>Preservation Notice</th>
                             <th></th>

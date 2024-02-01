@@ -32,6 +32,7 @@
                                     <option value="type" {{filters.type is defined and filters.type=="type" ? 'selected="selected"'}}>Tipo de documento</option>
                                     <option value="az" {{filters.type is defined and filters.type=="az" ? 'selected="selected"'}}>AZ</option>
                                     <option value="location" {{filters.type is defined and filters.type=="location" ? 'selected="selected"'}}>Ubicación</option>
+                                    <option value="state" {{filters.type is defined and filters.type=="state" ? 'selected="selected"'}}>Estado de documento</option>
                                 </select>
                             </div>
                             <label class="col-sm-1 control-label">Acción</label>
@@ -56,7 +57,7 @@
                         <tr>
                             <th>Fecha</th>
                             <th>Tipo</th>
-                            <th>ID</th>
+                            <th>Identificador</th>
                             <th></th>
                             <th>Acción</th>
                             <th>Usuario</th>
@@ -113,7 +114,7 @@
                                             {{ item.categoryName }}
                                         {% endif %} 
                                     </td>
-                                    <td>{{item.action}}</td>
+                                    <td>{{item.action}} {{ item.changes is not defined or item.changes is empty and item.action=='Actualizar' ? '(Sin cambios)' : '' }}</td>
                                     <td>{{item.user}}</td>
                                     <td>{{item.description}}</td>
                                     <td>
