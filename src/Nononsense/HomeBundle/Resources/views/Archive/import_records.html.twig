@@ -85,15 +85,15 @@
                                             </select>
                                         </td>
                                         <td>
-                                            <select class="form-control" name="category[{{key}}]" style="width: 100%;">
+                                            <select multiple="multiple" class="form-control categories" name="category[{{key}}][]" style="width: 100%;">
                                                 <option value=""></option>
                                                 {% for category in categories %}
-                                                    <option value="{{category.id}}">{{category.name}}</option>
+                                                    <option value={{category.id}} {{ category.id==item.category ? "selected='selected'" : "" }} title="{{category.description}}">{{category.name}}</option>;
                                                 {% endfor %}
                                             </select>
                                         </td>
                                         <td>
-                                            <select class="form-control" name="preservation[{{key}}]" style="width: 100%;">
+                                            <select multiple="multiple" class="form-control preservations" name="preservation[{{key}}][]" style="width: 100%;">
                                                 <option value=""></option>
                                                 {% for preservation in preservations %}
                                                     <option value="{{preservation.id}}">{{preservation.name}}</option>
@@ -185,6 +185,14 @@ $(function () {
       orientation: 'bottom auto',
       format: 'yyyy-mm-dd',
       language: 'es'
+    });
+
+    $('.categories').multi({ non_selected_header: 'Categorías de retención disponibles',
+        selected_header: 'Categorías de retención que aplican'
+    });
+
+    $('.preservations').multi({ non_selected_header: 'Preservation notices disponibles',
+        selected_header: 'Preservation notices que aplican'
     });
 
     $('#inProcessParcial').DataTable({

@@ -52,6 +52,7 @@
             <table class="table table-striped">
                 <thead>
                 <tr>
+                    <th>Id.</th>
                     <th>Código</th>
                     <th style="width:200px"></th>
                     <th>Ubicación</th>
@@ -63,6 +64,7 @@
                 {% if items is defined %}
                     {% for item in items %}
                     <tr>
+                        <td>{{ item.id }}</td>
                         <td>{{ item.code }}</td>
                         <td>
                             {# <img class="img-responsive" src="{{ path('nononsense__archive_code_view', {'code': item.code}) }}"> #}

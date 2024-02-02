@@ -449,7 +449,7 @@ class ArchiveRecordsController extends Controller
 
 
                     // Suponiendo que las columnas obligatorias son 'Nombre', 'Edad', y 'Correo'
-                    $requiredColumns = ['Document Number', 'Version', 'Document Name'];
+                    $requiredColumns = ['Document Number', 'Version', 'Document Name', 'Global Retention Schedule'];
                     $actualColumns = $rows[0];  // Asumimos que la primera fila tiene los nombres de las columnas
                     
                     $required=array_diff($requiredColumns, $actualColumns);
@@ -509,6 +509,14 @@ class ArchiveRecordsController extends Controller
                             }
                             $registro['Link'] = '';
                         }
+
+                        $searchCategory = $em->getRepository(ArchiveCategories::class)->findOneBy(['name' => $registro['Global Retention Schedule'], 'active' => TRUE]);
+                        if(!$searchCategory){
+                            $errorMessage = 'No se encuentra la siguiente GRS: '.$registro['Global Retention Schedule'];
+                            $needsRedirect = true;
+                            return null;
+                        }
+                        $registro['category']=$searchCategory->getId();
 
                         $searchRecord = $em->getRepository(ArchiveRecords::class)->findOneBy(['uniqueNumber' => $registro['Document Number']]);
                         if($searchRecord){
@@ -625,27 +633,31 @@ class ArchiveRecordsController extends Controller
                 $record->setTitle($request->get("title")[$key]);
 
                 if($request->get("preservation") && array_key_exists($key, $request->get("preservation")) && $request->get("preservation")[$key]){
-                    $preservation = $em->getRepository(ArchivePreservations::class)->findOneBy(['id' => $request->get("preservation")[$key]]);
-                    if(!$preservation){
-                        $this->get('session')->getFlashBag()->add(
-                            'error',
-                            'No se encuentra la preservation notice '.$request->get("preservation")[$key]
-                        );
-                        return $this->redirect($this->generateUrl('nononsense_archive_records'));
+                    foreach($request->get("preservation")[$key] as $preser){
+                        $preservation = $em->getRepository(ArchivePreservations::class)->findOneBy(['id' => $preser]);
+                        if(!$preservation){
+                            $this->get('session')->getFlashBag()->add(
+                                'error',
+                                'No se encuentra la preservation notice '.$request->get("preservation")[$key]
+                            );
+                            return $this->redirect($this->generateUrl('nononsense_archive_records'));
+                        }
+                        $record->addPreservation($preservation);
                     }
-                    $record->addPreservation($preservation); 
                 }
 
                 if($request->get("category") && array_key_exists($key, $request->get("category")) && $request->get("category")[$key]){
-                    $category = $em->getRepository(ArchiveCategories::class)->findOneBy(['id' => $request->get("category")[$key]]);
-                    if(!$category){
-                        $this->get('session')->getFlashBag()->add(
-                            'error',
-                            'No se encuentra la categoria de retención '.$request->get("category")[$key]
-                        );
-                        return $this->redirect($this->generateUrl('nononsense_archive_records'));
+                    foreach($request->get("category")[$key] as $cat){
+                        $category = $em->getRepository(ArchiveCategories::class)->findOneBy(['id' => $cat]);
+                        if(!$category){
+                            $this->get('session')->getFlashBag()->add(
+                                'error',
+                                'No se encuentra la categoria de retención '.$request->get("category")[$key]
+                            );
+                            return $this->redirect($this->generateUrl('nononsense_archive_records'));
+                        }
+                        $record->addCategory($category);
                     }
-                    $record->addCategory($category);
                 }
 
                 if($request->get("az") && array_key_exists($key, $request->get("az")) && $request->get("az")[$key]){

@@ -80,6 +80,8 @@
                                             Az
                                         {% elseif item.location is not empty %}
                                             Ubicación
+                                        {% elseif item.state is not empty %}
+                                            Estado de documento
                                         {% else %} 
                                             Categoría de retención
                                         {% endif %} 
@@ -95,6 +97,8 @@
                                             {{ item.az }}
                                         {% elseif item.location is not empty %}
                                             {{ item.location }}
+                                        {% elseif item.state is not empty %}
+                                            {{ item.state }}
                                         {% else %} 
                                             {{ item.category }}
                                         {% endif %} 
@@ -110,6 +114,8 @@
                                             {{ item.azName }}
                                         {% elseif item.location is not empty %}
                                             NA
+                                        {% elseif item.state is not empty %}
+                                            {{ item.stateName }}
                                         {% else %} 
                                             {{ item.categoryName }}
                                         {% endif %} 

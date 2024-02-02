@@ -17,7 +17,7 @@ class ArchiveSignaturesRepository extends EntityRepository
         $em = $this->getEntityManager();
 
         $list = $this->createQueryBuilder('ars')
-            ->select('IDENTITY(ars.archiveCategory) category', 'IDENTITY(ars.archivePreservation) preservation', 'IDENTITY(ars.archiveType) type', 'IDENTITY(ars.record) record', 'IDENTITY(ars.archiveAz) az', 'IDENTITY(ars.archiveLocation) location','a.name action', 'u.name user', 'ars.description', 'ars.modified','ars.id','ars.attachment','a.id actionId','us.id useStateId','u2.name user2', 'ars2.description description2', 'ars2.modified modified2', 'ars2.id patern','ar.link','ars.changes','ar.uniqueNumber recordName','relc.name categoryName','relp.name preservationName','relaz.code azName','relt.name typeName')
+            ->select('IDENTITY(ars.archiveCategory) category', 'IDENTITY(ars.archivePreservation) preservation', 'IDENTITY(ars.archiveType) type', 'IDENTITY(ars.record) record', 'IDENTITY(ars.archiveAz) az', 'IDENTITY(ars.archiveLocation) location', 'IDENTITY(ars.archiveState) state','a.name action', 'u.name user', 'ars.description', 'ars.modified','ars.id','ars.attachment','a.id actionId','us.id useStateId','u2.name user2', 'ars2.description description2', 'ars2.modified modified2', 'ars2.id patern','ar.link','ars.changes','ar.uniqueNumber recordName','relc.name categoryName','relp.name preservationName','relaz.code azName','relt.name typeName','rels.name stateName')
             ->leftJoin("ars.archiveAction", "a")
             ->leftJoin("ars.userEntiy", "u")
             ->leftJoin("ars.record", "ar")
@@ -29,6 +29,7 @@ class ArchiveSignaturesRepository extends EntityRepository
             ->leftJoin("ars.archivePreservation", "relp")
             ->leftJoin("ars.archiveAz", "relaz")
             ->leftJoin("ars.archiveType", "relt")
+            ->leftJoin("ars.archiveState", "rels")
             ->orderBy('ars.id', 'DESC');
 
         $list = self::fillFilersQuery($filters, $list);
