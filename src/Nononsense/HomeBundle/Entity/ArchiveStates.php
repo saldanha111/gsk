@@ -32,6 +32,34 @@ class ArchiveStates
     protected $archive;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="description", type="string", length=255,  nullable=true)
+     */
+    protected $description;
+
+    /**
+     * @ORM\Column(name="created", type="datetime", nullable=false,  nullable=true)
+     */
+    protected $created;
+
+    /**
+     * @ORM\Column(name="modified", type="datetime", nullable=false,  nullable=true)
+     */
+    protected $modified;
+
+    /**
+     * @var bool
+     * @ORM\Column(name="active", type="boolean", options={"default" : 1},  nullable=true)
+     */
+    protected $active;
+
+    /**
+     * @ORM\OneToMany(targetEntity="\Nononsense\HomeBundle\Entity\ArchiveSignatures", mappedBy="archiveState")
+     */
+    protected $archiveSignatures;
+
+    /**
      * Constructor
      */
     public function __construct()
@@ -103,5 +131,130 @@ class ArchiveStates
     public function getArchive()
     {
         return $this->archive;
+    }
+
+    /**
+     * Set description
+     *
+     * @param string $description
+     * @return ArchiveStates
+     */
+    public function setDescription($description)
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    /**
+     * Get description
+     *
+     * @return string 
+     */
+    public function getDescription()
+    {
+        return $this->description;
+    }
+
+    /**
+     * Set created
+     *
+     * @param \DateTime $created
+     * @return ArchiveStates
+     */
+    public function setCreated($created)
+    {
+        $this->created = $created;
+
+        return $this;
+    }
+
+    /**
+     * Get created
+     *
+     * @return \DateTime 
+     */
+    public function getCreated()
+    {
+        return $this->created;
+    }
+
+    /**
+     * Set modified
+     *
+     * @param \DateTime $modified
+     * @return ArchiveStates
+     */
+    public function setModified($modified)
+    {
+        $this->modified = $modified;
+
+        return $this;
+    }
+
+    /**
+     * Get modified
+     *
+     * @return \DateTime 
+     */
+    public function getModified()
+    {
+        return $this->modified;
+    }
+
+    /**
+     * Set active
+     *
+     * @param boolean $active
+     * @return ArchiveStates
+     */
+    public function setActive($active)
+    {
+        $this->active = $active;
+
+        return $this;
+    }
+
+    /**
+     * Get active
+     *
+     * @return boolean 
+     */
+    public function getActive()
+    {
+        return $this->active;
+    }
+
+    /**
+     * Add archiveSignatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\ArchiveSignatures $archiveSignatures
+     * @return ArchiveStates
+     */
+    public function addArchiveSignature(\Nononsense\HomeBundle\Entity\ArchiveSignatures $archiveSignatures)
+    {
+        $this->archiveSignatures[] = $archiveSignatures;
+
+        return $this;
+    }
+
+    /**
+     * Remove archiveSignatures
+     *
+     * @param \Nononsense\HomeBundle\Entity\ArchiveSignatures $archiveSignatures
+     */
+    public function removeArchiveSignature(\Nononsense\HomeBundle\Entity\ArchiveSignatures $archiveSignatures)
+    {
+        $this->archiveSignatures->removeElement($archiveSignatures);
+    }
+
+    /**
+     * Get archiveSignatures
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getArchiveSignatures()
+    {
+        return $this->archiveSignatures;
     }
 }

@@ -127,14 +127,14 @@ class ArchiveTypesController extends Controller
             $em->getConnection()->commit();
             $this->get('session')->getFlashBag()->add(
                 'message',
-                "El tipo de archivo se ha guardado correctamente"
+                "El tipo de documento se ha guardado correctamente"
             );
             $saved = true;
         } catch (Exception $e) {
             $em->getConnection()->rollback();
             $this->get('session')->getFlashBag()->add(
                 'error',
-                "Error al intentar guardar el tipo de archivo"
+                "Error al intentar guardar el tipo de documento"
             );
         }
         return $saved;

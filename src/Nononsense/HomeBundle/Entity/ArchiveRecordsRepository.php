@@ -181,7 +181,7 @@ class ArchiveRecordsRepository extends EntityRepository
             if(isset($filters["retentionAction"])){
                 if($filters["retentionAction"]==3){
                     $dateFrom = DateTime::createFromFormat('Y-m-d',date("Y-m-d"));
-                    $list->andWhere('DATE_ADD(ar.initRetention, arc.retentionDays, \'DAY\')<=:rt3 AND arp.name IS NULL');
+                    $list->andWhere('DATE_ADD(ar.initRetention, arc.retentionDays, \'DAY\')<=:rt3 AND us.id=1 AND arp.name IS NULL');
                     $list->setParameter('rt3', $dateFrom->format('Y-m-d'));
                 }
             }

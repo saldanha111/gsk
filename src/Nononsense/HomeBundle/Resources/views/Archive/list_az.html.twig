@@ -1,5 +1,5 @@
 {% extends '::base.html.twig' %}
-{% block page_title %}Docoaro - GSK | {{'Categorías de retención'|trans}} {% endblock %}
+{% block page_title %}Docoaro - GSK | {{'Listado de AZ'|trans}} {% endblock %}
 {% block head %}
     <link rel="stylesheet" href="{{ asset('/js/plugins/sweetalert/sweetalert.min.css') }}">
     {{ parent() }}
@@ -52,6 +52,7 @@
             <table class="table table-striped">
                 <thead>
                 <tr>
+                    <th>Id.</th>
                     <th>Código</th>
                     <th style="width:200px"></th>
                     <th>Ubicación</th>
@@ -63,6 +64,7 @@
                 {% if items is defined %}
                     {% for item in items %}
                     <tr>
+                        <td>{{ item.id }}</td>
                         <td>{{ item.code }}</td>
                         <td>
                             {# <img class="img-responsive" src="{{ path('nononsense__archive_code_view', {'code': item.code}) }}"> #}
@@ -98,10 +100,11 @@
         <div class="modal-content">
             <form class="form-horizontal" id="formModalPrint" action="{{pagination.url}}" method="POST">
                 <div class="modal-header">
-                    <h5 class="modal-title">Impresión de AZs</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+                    <h5 class="modal-title">Impresión de AZs
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </h5>
                 </div>
 
                 <div class="modal-body">

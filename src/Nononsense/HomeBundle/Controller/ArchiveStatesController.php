@@ -6,13 +6,13 @@ use DateTime;
 use Exception;
 use Nononsense\GroupBundle\Entity\Groups;
 use Nononsense\HomeBundle\Entity\ArchiveSignatures;
-use Nononsense\HomeBundle\Entity\ArchivePreservations;
+use Nononsense\HomeBundle\Entity\ArchiveStates;
 use Nononsense\UserBundle\Entity\Users;
 use Nononsense\UtilsBundle\Classes\Utils;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 
-class ArchivePreservationsNoticesController extends Controller
+class ArchiveStatesController extends Controller
 {
     public function listAction(Request $request)
     {
@@ -26,7 +26,7 @@ class ArchivePreservationsNoticesController extends Controller
         $filters = Utils::getListFilters($request);
         $filters['limit_many'] = ($request->get('limit_many')) ?: $defaultLimit;
 
-        $archiveCategoriesRepository = $em->getRepository(ArchivePreservations::class);
+        $archiveCategoriesRepository = $em->getRepository(ArchiveStates::class);
         $items = $archiveCategoriesRepository->list($filters);
         $totalItems = $archiveCategoriesRepository->count($filters);
 
@@ -37,7 +37,7 @@ class ArchivePreservationsNoticesController extends Controller
             'pagination' => Utils::getPaginator($request, $filters['limit_many'], $totalItems)
         ];
 
-        return $this->render('NononsenseHomeBundle:Archive:list_preservations.html.twig', $data);
+        return $this->render('NononsenseHomeBundle:Archive:list_states.html.twig', $data);
     }
 
     public function editAction(Request $request, $id)
@@ -48,15 +48,15 @@ class ArchivePreservationsNoticesController extends Controller
         }
 
         $em = $this->getDoctrine()->getManager();
-        $category = $em->getRepository(ArchivePreservations::class)->findOneBy(['id' => $id]);
+        $category = $em->getRepository(ArchiveStates::class)->findOneBy(['id' => $id]);
 
         if (!$category) {
-            $category = new ArchivePreservations();
+            $category = new ArchiveStates();
             $category->setCreated(new \DateTime());
         }
 
         if ($request->getMethod() == 'POST' && $this->saveData($request, $category)) {
-            return $this->redirect($this->generateUrl('nononsense_archive_preservations_list'));
+            return $this->redirect($this->generateUrl('nononsense_archive_states_list'));
         }
 
         $data = [
@@ -64,21 +64,21 @@ class ArchivePreservationsNoticesController extends Controller
             'used' => false
         ];
 
-        return $this->render('NononsenseHomeBundle:Archive:preservation_edit.html.twig', $data);
+        return $this->render('NononsenseHomeBundle:Archive:state_edit.html.twig', $data);
     }
 
     /**
      * @param Request $request
-     * @param ArchivePreservations $category
+     * @param ArchiveStates $category
      * @return bool
      */
-    private function saveData(Request $request, ArchivePreservations $category)
+    private function saveData(Request $request, ArchiveStates $category)
     {
         $em = $this->getDoctrine()->getManager();
         $saved = false;
         $action = 5;
-        $actionActive=null;
         $changes="";
+        $actionActive=null;
         if ($category->getId()) {
             $action = 2;
         }
@@ -100,23 +100,10 @@ class ArchivePreservationsNoticesController extends Controller
                     $actionActive=3;
                 }
             }
-
-            //Check if there are records with this preservation
-            if($actionActive==4){
-                $records = $category->getRecords();
-    
-                // Iterar sobre cada 'ArchiveRecord' y eliminar la relación con 'ArchivePreservations'
-                foreach ($records as $record) {
-                    // Eliminar la relación
-                    $record->getPreservations()->removeElement($category);
-                    
-                    // Persistir los cambios en 'ArchiveRecord'
-                    $em->persist($record);
-                }
-            }
-
             $category->setActive($active);
             
+
+
             if (!$request->get('name') || !$request->get('description')) {
                 throw new Exception('Todos los datos son obligatorios.');
             }
@@ -128,25 +115,26 @@ class ArchivePreservationsNoticesController extends Controller
 
             $em->persist($category);
             $em->flush();
+
             if($action){
-                $this->get('utilities')->saveLogArchive($this->getUser(),$action,$comment,"preservation",$category->getId(),NULL,NULL,$changes);
+                $this->get('utilities')->saveLogArchive($this->getUser(),$action,$comment,"state",$category->getId(),NULL,NULL,$changes);
             }
 
             if($actionActive){
-                $this->get('utilities')->saveLogArchive($this->getUser(),$actionActive,$comment,"preservation",$category->getId());
+                $this->get('utilities')->saveLogArchive($this->getUser(),$actionActive,$comment,"state",$category->getId());
             }
 
             $em->getConnection()->commit();
             $this->get('session')->getFlashBag()->add(
                 'message',
-                "La preservation notice se ha guardado correctamente"
+                "El tipo de documento se ha guardado correctamente"
             );
             $saved = true;
         } catch (Exception $e) {
             $em->getConnection()->rollback();
             $this->get('session')->getFlashBag()->add(
                 'error',
-                "Error al intentar guardar los datos de la preservation notice"
+                "Error al intentar guardar el tipo de documento".$e->getMessage()
             );
         }
         return $saved;

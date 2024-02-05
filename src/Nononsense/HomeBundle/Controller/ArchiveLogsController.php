@@ -80,17 +80,64 @@ class ArchiveLogsController extends Controller
                 $phpExcelObject->setActiveSheetIndex()
                  ->setCellValue('A2', 'Fecha')
                  ->setCellValue('B2', 'Tipo')
-                 ->setCellValue('C2', 'ID')
+                 ->setCellValue('C2', 'Identificador')
                  ->setCellValue('D2', 'Acción')
                  ->setCellValue('E2', 'Usuario')
                  ->setCellValue('F2', 'Comentario');
             }
 
             if($request->get("export_pdf")){
-                $html='<html><body style="font-size:8px;width:100%"><table autosize="1" style="overflow:wrap;width:100%"><tr style="font-size:8px;width:100%">
+                $html='';
+                $sintax_head_f="<b>Filtros:</b><br>";
+
+                if($request->get("relational")){
+                    $html.=$sintax_head_f."ID => ".$request->get("relational")."<br>";
+                    $sintax_head_f="";
+                }
+
+                if($request->get("user")){
+                    $html.=$sintax_head_f."Usuario => ".$request->get("user")."<br>";
+                    $sintax_head_f="";
+                }
+
+                if($request->get("type")){
+                    switch($request->get("type")){
+                        case "preservation": $desc_type="Preservation notices";break;
+                        case "record": $desc_type="Registros notices";break;
+                        case "category": $desc_type="Categoría de retención";break;
+                        case "type": $desc_type="Tipo de documento";break;
+                        case "az": $desc_type="AZ";break;
+                        case "location": $desc_type="Ubicación";break;
+                        case "state": $desc_type="Estado de documento";break;
+                        default: $desc_type="Desconocido";break;
+                    }
+                    $html.=$sintax_head_f."Tipo => ".$desc_type."<br>";
+                    $sintax_head_f="";
+                }
+
+                if($request->get("action")){
+                    switch($request->get("action")){
+                        case "2": $desc_action="Actualizar";break;
+                        case "3": $desc_action="Habilitar";break;
+                        case "4": $desc_action="Deshabilitar";break;
+                        case "5": $desc_action="Crear";break;
+                        case "6": $desc_action="Revisar";break;
+                        case "7": $desc_action="Eliminar";break;
+                        case "8": $desc_action="Solicitud Préstamo";break;
+                        case "9": $desc_action="Aceptar solicitud préstamo";break;
+                        case "10": $desc_action="Rechazar solicitud préstamo";break;
+                        case "11": $desc_action="Préstamo finalizado";break;
+                        case "12": $desc_action="Importar";break;
+                        default: $desc_action="Desconocido";break;
+                    }
+                    $html.=$sintax_head_f."Acción => ".$desc_action."<br>";
+                    $sintax_head_f="";
+                }
+
+                $html.='<br><table autosize="1" style="overflow:wrap;width:100%"><tr style="font-size:8px;width:100%">
                         <th style="font-size:8px;width:15%">Fecha</th>
                         <th style="font-size:8px;width:10%">Tipo</th>
-                        <th style="font-size:8px;width:5%">ID</th>
+                        <th style="font-size:8px;width:5%">Identificador</th>
                         <th style="font-size:8px;width:10%">Acción</th>
                         <th style="font-size:8px;width:10%">Usuario</th>
                         <th style="font-size:8px;width:50%">Comentario</th>
@@ -110,7 +157,7 @@ class ArchiveLogsController extends Controller
                     }
                     else{
                         if($item["type"]!=""){
-                            $type="Tipo";
+                            $type="Tipo de documento";
                             $id=$item["type"];
                         }
                         else{
@@ -119,8 +166,14 @@ class ArchiveLogsController extends Controller
                                 $id=$item["az"];
                             }
                             else{
-                                $type="Categoría";
-                                $id=$item["category"];
+                                if($item["state"]!=""){
+                                    $type="Estado de documento";
+                                    $id=$item["state"];
+                                }
+                                else{
+                                    $type="Categoría de retención";
+                                    $id=$item["category"];
+                                }
                             }
                         }
                     }
