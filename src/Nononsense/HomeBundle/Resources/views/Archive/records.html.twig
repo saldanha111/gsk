@@ -145,10 +145,13 @@
                                 {% if filters.request is not defined %}
                                     <label class="col-sm-2 control-label item_filter">Preservation Notice</label>
                                     <div class="col-sm-2 item_filter">
-                                        <select class="form-control" name="preservation" style="width: 100%;">
+                                        <select class="form-control" name="preservationIn" style="width: 100%;">
                                             <option value=""></option>
-                                            <option value="1" {{filters.preservation is defined and filters.preservation == 1 ? 'selected="selected"'}}>Si</option>
-                                            <option value="2" {{filters.preservation is defined and filters.preservation == 2 ? 'selected="selected"'}}>No</option>
+                                            <option value="Y" {{filters.preservationIn is defined and filters.preservationIn == "Y" ? 'selected="selected"'}}>Si</option>
+                                            <option value="N" {{filters.preservationIn is defined and filters.preservationIn == "N" ? 'selected="selected"'}}>No</option>
+                                            {% for preservation in preservations %}
+                                                <option value="{{preservation.id}}" {{filters.preservationIn is defined and filters.preservationIn==preservation.id ? 'selected="selected"'}}>{{preservation.name}}</option>
+                                            {% endfor %}
                                         </select>
                                     </div>
 

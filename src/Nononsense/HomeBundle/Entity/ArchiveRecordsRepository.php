@@ -125,9 +125,14 @@ class ArchiveRecordsRepository extends EntityRepository
             }
 
             if(isset($filters["preservationIn"])){
-                $list->innerJoin('ar.preservations', 'subp')
-                    ->andWhere('subp.id = :preservationIn')
-                    ->setParameter('preservationIn', $filters["preservationIn"]);
+                switch($filters["preservationIn"]){
+                    case "Y": $list->andWhere('arp.name IS NOT NULL');break;
+                    case "N": $list->andWhere('arp.name IS NULL');break;
+                    default: $list->innerJoin('ar.preservations', 'subp')
+                                ->andWhere('subp.id = :preservationIn')
+                                ->setParameter('preservationIn', $filters["preservationIn"]);
+                }
+                
             }
 
             if(isset($filters["signature"])){

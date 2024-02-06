@@ -793,8 +793,14 @@ class ArchiveRecordsController extends Controller
             if($request->get("title")){
                 $record->setTitle($request->get('title'));
             }
+            else{
+                $record->setTitle(NULL);
+            }
             if($request->get("edition")){
                 $record->setEdition($request->get('edition'));
+            }
+            else{
+                $record->setEdition(NULL);
             }
 
 
@@ -924,11 +930,11 @@ class ArchiveRecordsController extends Controller
         $changes="";
         $em = $this->getDoctrine()->getManager();
 
-        if($request->get("title") && $request->get("title")!=$item->getTitle()){
+        if($request->get("title")!=$item->getTitle()){
             $changes.="<tr><td>Titulo</td><td>".$item->getTitle()."</td><td>".$request->get("title")."</td></tr>";
         }
 
-        if($request->get("edition") && $request->get("edition")!=$item->getEdition()){
+        if($request->get("edition")!=$item->getEdition()){
             $changes.="<tr><td>Edición</td><td>".$item->getEdition()."</td><td>".$request->get("edition")."</td></tr>";
         }
 
@@ -965,16 +971,13 @@ class ArchiveRecordsController extends Controller
             $changes.="<tr><td>AZ</td><td>".($item->getAZ() ? $item->getAZ()->getCode() : '')."</td><td>".$az->getCode()."</td></tr>";
         }
 
-        if($request->get("retention_date")){
-            if($item->getInitRetention()){
-                $last=$item->getInitRetention()->format("Y-m-d");
-                if($request->get("retention_date")!=$last){
-                    $changes.="<tr><td>Fecha retención</td><td>".$last."</td><td>".$request->get("retention_date")."</td></tr>";
-                }
-            }
-            else{
-                $changes.="<tr><td>Fecha retención</td><td></td><td>".$request->get("retention_date")."</td></tr>";
-            }
+        $lastRetentionDate="";
+        if($item->getInitRetention()){
+            $lastRetentionDate=$item->getInitRetention()->format("Y-m-d");
+        }
+
+        if($request->get("retention_date")!=$lastRetentionDate){
+            $changes.="<tr><td>Fecha retención</td><td>".$lastRetentionDate."</td><td>".$request->get("retention_date")."</td></tr>";
         }
 
         if(!$masive || ($masive && $request->get("categories"))){
