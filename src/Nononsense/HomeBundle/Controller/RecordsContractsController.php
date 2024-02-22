@@ -1121,7 +1121,7 @@ class RecordsContractsController extends Controller
             $secondSignNumber = self::WORKER_SIGN_DIRECTOR;
         }
 
-        if ($contract) {
+        if ($contract && $contract->getStatus() !== self::WORKER_SIGN_COMISSION) {
             $firma = $request->get('firma');
 
             $em = $this->getDoctrine()->getManager();
