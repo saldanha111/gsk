@@ -449,7 +449,7 @@ class ArchiveRecordsController extends Controller
 
 
                     // Suponiendo que las columnas obligatorias son 'Nombre', 'Edad', y 'Correo'
-                    $requiredColumns = ['Document Number', 'Version', 'Document Name', 'Global Retention Schedule'];
+                    $requiredColumns = ['Document Number', 'Version', 'Document Name', 'Global Retention Schedule (GRS)'];
                     $actualColumns = $rows[0];  // Asumimos que la primera fila tiene los nombres de las columnas
                     
                     $required=array_diff($requiredColumns, $actualColumns);
@@ -510,9 +510,9 @@ class ArchiveRecordsController extends Controller
                             $registro['Link'] = '';
                         }
 
-                        $searchCategory = $em->getRepository(ArchiveCategories::class)->findOneBy(['name' => $registro['Global Retention Schedule'], 'active' => TRUE]);
+                        $searchCategory = $em->getRepository(ArchiveCategories::class)->findOneBy(['name' => $registro['Global Retention Schedule (GRS)'], 'active' => TRUE]);
                         if(!$searchCategory){
-                            $errorMessage = 'No se encuentra la siguiente GRS: '.$registro['Global Retention Schedule'];
+                            $errorMessage = 'No se encuentra la siguiente GRS: '.$registro['Global Retention Schedule (GRS)'];
                             $needsRedirect = true;
                             return null;
                         }

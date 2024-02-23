@@ -186,11 +186,6 @@ class ArchiveAZController extends Controller
 
     public function viewBarcodeAction(Request $request, $code)
     {
-        $is_valid = $this->get('app.security')->permissionSeccion('archive_agent');
-        if(!$is_valid){
-            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
-        }
-
         if ($code) {
             $content = $this->getBarcodeImg($code);
             if ($content) {
