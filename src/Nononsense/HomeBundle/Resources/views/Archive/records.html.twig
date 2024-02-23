@@ -174,6 +174,10 @@
                                 </div>
                             </div>
                         {% endif %}
+
+                        {% if filters.request is defined and filters.request is not empty %}
+                            <input type="hidden" name="request" value="{{filters.request}}">
+                        {% endif %}
                         <input type="hidden" name="signature" value="{{filters.signature is defined ? filters.signature : ''}}">
                     </form>
                 </div>
@@ -251,13 +255,13 @@
                                             <a class="btn btn-xs btn-warning" target="_blank"  href="{{path('nononsense_archive_log')}}?relational={{item.id}}&type=record"><i class="fa fa-warning" aria-hidden="true"></i> Revisado</a>
                                         {% endif %}  
                                     {% else %}
-                                        {% if item.useState == "Archivado" %}
+                                        {% if item.useState == "Archivado" and item.AZ is defined and item.AZ is not empty %}
                                             <a class="btn btn-xs btn-primary btn-retention"  href="javascript:void(0)" data-action="3" data-info="Solicitar préstamo (ID {{item.id}})" data-id="{{item.id}}" data-unique="1"><i class="fa fa-check" aria-hidden="true"></i> Solicitar préstamo</a>
                                         {% endif %}
                                     {% endif %}
                                 </td>
                                 <td>
-                                    {% if (filters.retentionAction is defined and count>0 and (filters.retentionAction=="3" or filters.retentionAction=="2")) or (count>0 and filters.request is defined and item.useState == "Archivado") or (agent is defined and agent and item.areaId in agentareas and filters.masive_edition is defined) %}
+                                    {% if (filters.retentionAction is defined and count>0 and (filters.retentionAction=="3" or filters.retentionAction=="2")) or (count>0 and filters.request is defined and item.useState == "Archivado" and item.AZ is defined and item.AZ is not empty) or (agent is defined and agent and item.areaId in agentareas and filters.masive_edition is defined) %}
                                         <input class="checkpem" name="retentions[]" value="{{item.id}}" type="checkbox">
                                     {% endif %}
                                 </td>

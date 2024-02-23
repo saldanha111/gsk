@@ -79,8 +79,11 @@ class ArchiveRecordsRepository extends EntityRepository
             }
 
             if(isset($filters["uniqueNumber"])){
-                $list->andWhere('ar.uniqueNumber=:uniqueNumber');
-                $list->setParameter('uniqueNumber', $filters["uniqueNumber"]);
+                $terms = explode(" ", $filters["uniqueNumber"]);
+                foreach($terms as $key => $term){
+                    $list->andWhere('ar.uniqueNumber LIKE :uniqueNumber'.$key);
+                    $list->setParameter('uniqueNumber'.$key, '%' . $term. '%');
+                }
             }
 
             if(isset($filters["useState"])){
@@ -179,8 +182,11 @@ class ArchiveRecordsRepository extends EntityRepository
             }
 
             if(isset($filters["edition"])){
-                $list->andWhere('ar.edition=:edition');
-                $list->setParameter('edition', $filters["edition"]);
+                $terms = explode(" ", $filters["edition"]);
+                foreach($terms as $key => $term){
+                    $list->andWhere('ar.edition LIKE :edition'.$key);
+                    $list->setParameter('edition'.$key, '%' . $term. '%');
+                }
             }
 
             if(isset($filters["retentionAction"])){

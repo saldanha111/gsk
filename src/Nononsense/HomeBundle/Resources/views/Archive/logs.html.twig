@@ -124,11 +124,11 @@
                                     <td>{{item.user}}</td>
                                     <td>{{item.description}}</td>
                                     <td>
-                                        {% if (item.preservation is not empty or item.category is not empty) and item.action!="Crear" %}
+                                        {# {% if (item.preservation is not empty or item.category is not empty) and item.action!="Crear" %}
                                             <a href="{{path('nononsense_archive_records')}}?signature={{item.id}}" class="btn btn-xs btn-primary">
                                                 <i class="fa fa-eye" aria-hidden="true"></i><span> Ver registros afectados</span>
                                             </a>
-                                        {% endif %}
+                                        {% endif %} #}
 
                                         {% if item.attachment is defined and item.attachment is not empty %}
                                             <a href="{{path('nononsense_archive_log_certification', {'id' : item.id})}}" target="_blank" class="btn btn-xs btn-primary">
