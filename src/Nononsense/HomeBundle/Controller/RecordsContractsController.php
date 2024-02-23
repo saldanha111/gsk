@@ -887,6 +887,14 @@ class RecordsContractsController extends Controller
             return false;
         }
 
+        if(!$firma){
+            $this->get('session')->getFlashBag()->add(
+                'error',
+                "No se ha realizado la firma. No se ha guardado ningún dato en el campo firma."
+            );
+            return false;
+        }
+
         if (!$signature) {
             $can_sign = 0;
 

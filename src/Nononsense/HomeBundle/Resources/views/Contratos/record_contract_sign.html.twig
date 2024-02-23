@@ -20,21 +20,33 @@
         <div>
             <div class="col-sm-5 ">
                 <h1>Firma de Contrato</h1>
-                <form id="signForm" action="{{path('nononsense_record_contracts_sign', {'id': record.id})}}" method="POST" enctype="multipart/form-data">
+                <form id="signForm" action="{{path('nononsense_record_contracts_sign', {'id': record.id})}}" method="POST" enctype="multipart/form-data" autocomplete="off">
                     <div class="row">
                         <div class="col-xs-12">
                             <h2>Introduzca el código</h2>
                         </div>
                         <div class="col-md-4 col-sm-6 col-xs-12">
-                            <input type="text" id="pin" name='pin' placeholder="Código" class="form-control">
+                            <input type="text" id="pin" name='pin' placeholder="Código" class="form-control" autocomplete="new-password">
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-lg-10 col-lg-offset-1 mb-3">
-                            <div id="signature-pad2" class="input-group">
-                                <label for="box_password">Introduzca su firma</label><br>
-                                <input type="password" name="password" id="box_password" class="form-control" required="required"><br>
+                        <div class="col-xs-12">
+                            <h2>Introduzca su contraseña</h2>
+                        </div>
+                        <div class="col-md-4 col-sm-6 col-xs-12">
+                            <input type="password" name="password" id="box_password" class="form-control" required="required" autocomplete="new-password">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div id="signature-pad" class="input-group">
+                                <h2>Introduzca su firma</h2>
+                                <canvas width="300" height="150" style="touch-action: none; border: 2px solid #eee; box-shadow: 0px 0px 6px 1px rgba(80, 90, 100, 0.5)"></canvas>
                             </div>
+                            <input type="hidden" id="firma" name="firma" />
+                        </div>
+                        <div class="col-xs-12">
+                            <a name="borrarFirmar" class="btn btn-primary" id="borrarFirmar">Limpiar firma</a>
                         </div>
                     </div>
                     <div class="row">
@@ -60,6 +72,7 @@
 {% endblock %}
 {% block scripts %}
 {{ parent() }}
+<script src="/js/plugins/signature-pad/signature-pad.min.js"></script>
 <script>
     $(document).ready(function () {
 
@@ -82,18 +95,29 @@
         ActivateMenu('docxpresso_home');
         $('#side-menu').metisMenu();
 
+        var canvas = document.querySelector("canvas");
+        var signaturePad = new SignaturePad(canvas);
+
         $('a[name="guardarRegistro"]').on('click', function () {
             const firma = document.getElementById("box_password").value;
             const firmaEstaVacia = (firma === "");
-
+            $("#firma").val(signaturePad.toDataURL())
             if(firmaEstaVacia){
+                toastr.error("Debe poner su contraseña de acceso al sistema",'aviso');
+            }else if(signaturePad.isEmpty()){
                 toastr.error("Debe rellenar una firma, no puede dejar el cuadro en blanco",'aviso');
             }else if(!$('input[name="privacy"]').prop('checked')){
                 toastr.error("Debe aceptar las condiciones de uso",'aviso');
             }else{
                 $("#signForm").submit();
             }
+
         });
+
+        $('#borrarFirmar').on('click', function () {
+            signaturePad.clear();
+        });
+
     });
 
 </script>
