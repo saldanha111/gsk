@@ -127,14 +127,14 @@ class ArchiveStatesController extends Controller
             $em->getConnection()->commit();
             $this->get('session')->getFlashBag()->add(
                 'message',
-                "El tipo de documento se ha guardado correctamente"
+                "El estado de documento se ha guardado correctamente"
             );
             $saved = true;
         } catch (Exception $e) {
             $em->getConnection()->rollback();
             $this->get('session')->getFlashBag()->add(
                 'error',
-                "Error al intentar guardar el tipo de documento".$e->getMessage()
+                "Error al intentar guardar el estado de documento".$e->getMessage()
             );
         }
         return $saved;

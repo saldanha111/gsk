@@ -1,9 +1,9 @@
 {% extends '::base.html.twig' %}
-{% block page_title %}Docoaro - GSK | {{'Estados de archivo'|trans}} {% endblock %}
+{% block page_title %}Docoaro - GSK | {{'Estados de documentos'|trans}} {% endblock %}
 {% block head %}
     {{ parent() }}
 {% endblock %}
-{% block main_title %} Listado de estados de archivo{% endblock %}
+{% block main_title %} Listado de estados de documentos{% endblock %}
 {% block content %}
 
 <div class="wrapper wrapper-content">
@@ -49,7 +49,7 @@
         <div class="col-xs-12">
             <a href="{{ path('nononsense_archive_states_edit', {'id' : 0}) }}" class="btn btn-primary pull-right">
                 <i class="fa fa-plus"></i>
-                <span> Nuevo estado de archivo</span>
+                <span> Nuevo estado de documento</span>
             </a>
             <br/>
             <table class="table table-striped">
