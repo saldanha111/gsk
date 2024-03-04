@@ -125,19 +125,19 @@
                                 <div class="form-group">
                                     <label class="col-sm-2 control-label">Fecha inicio retención</label>
                                     <div class="col-sm-2 item_filter">
-                                        <input type="text" class="form-control pull-right" autocomplete="off" name="retentionFrom" id="retentionFrom" value="{{filters.retentionFrom is defined ? filters.retentionFrom|date("Y-m-d") : ''}}">
+                                        <input type="text" class="form-control pull-right" autocomplete="off" name="retentionFrom" id="retentionFrom" value="{{filters.retentionFrom is defined ? filters.retentionFrom : ''}}">
                                     </div>
                                     <div class="col-sm-2">
-                                        <input type="text" class="form-control pull-right" autocomplete="off" name="retentionUntil" id="retentionUntil" value="{{filters.retentionUntil is defined ? filters.retentionUntil|date("Y-m-d") : ''}}">
+                                        <input type="text" class="form-control pull-right" autocomplete="off" name="retentionUntil" id="retentionUntil" value="{{filters.retentionUntil is defined ? filters.retentionUntil : ''}}">
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label class="col-sm-2 control-label">Fecha destrucción</label>
                                     <div class="col-sm-2 item_filter">
-                                        <input type="text" class="form-control pull-right" autocomplete="off" name="destructionFrom" id="destructionFrom" value="{{filters.destructionFrom is defined ? filters.destructionFrom|date("Y-m-d") : ''}}">
+                                        <input type="text" class="form-control pull-right" autocomplete="off" name="destructionFrom" id="destructionFrom" value="{{filters.destructionFrom is defined ? filters.destructionFrom : ''}}">
                                     </div>
                                     <div class="col-sm-2">
-                                        <input type="text" class="form-control pull-right" autocomplete="off" name="destructionUntil" id="destructionUntil" value="{{filters.destructionUntil is defined ? filters.destructionUntil|date("Y-m-d") : ''}}">
+                                        <input type="text" class="form-control pull-right" autocomplete="off" name="destructionUntil" id="destructionUntil" value="{{filters.destructionUntil is defined ? filters.destructionUntil: ''}}">
                                     </div>
                                 </div>
                             {% endif %}
@@ -507,25 +507,25 @@
     $('#retentionFrom').datepicker({
       autoclose: true,
       orientation: 'bottom auto',
-      format: 'yyyy-mm-dd',
+      format: 'dd/mm/yyyy',
       language: 'es'
     });
     $('#retentionUntil').datepicker({
       autoclose: true,
       orientation: 'bottom auto',
-      format: 'yyyy-mm-dd',
+      format: 'dd/mm/yyyy',
       language: 'es'
     });
     $('#destructionFrom').datepicker({
       autoclose: true,
       orientation: 'bottom auto',
-      format: 'yyyy-mm-dd',
+      format: 'dd/mm/yyyy',
       language: 'es'
     });
     $('#destructionUntil').datepicker({
       autoclose: true,
       orientation: 'bottom auto',
-      format: 'yyyy-mm-dd',
+      format: 'dd/mm/yyyy',
       language: 'es'
     });
 

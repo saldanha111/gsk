@@ -207,22 +207,22 @@ class ArchiveRecordsController extends Controller
                 }
 
                 if($request->get("retentionFrom")){
-                    $html.=$sintax_head_f."Fecha inicio retención desde => ".$request->get("retentionFrom")."<br>";
+                    $html.=$sintax_head_f."Fecha inicio retención desde => ".$this->get('utilities')->sp_date($request->get("retentionFrom"))."<br>";
                     $sintax_head_f="";
                 }
 
                 if($request->get("retentionUntil")){
-                    $html.=$sintax_head_f."Fecha inicio retención hasta => ".$request->get("retentionUntil")."<br>";
+                    $html.=$sintax_head_f."Fecha inicio retención hasta => ".$this->get('utilities')->sp_date($request->get("retentionUntil"))."<br>";
                     $sintax_head_f="";
                 }
 
                 if($request->get("destructionFrom")){
-                    $html.=$sintax_head_f."Fecha destrucción desde => ".$request->get("destructionFrom")."<br>";
+                    $html.=$sintax_head_f."Fecha destrucción desde => ".$this->get('utilities')->sp_date($request->get("destructionFrom"))."<br>";
                     $sintax_head_f="";
                 }
 
                 if($request->get("destructionUntil")){
-                    $html.=$sintax_head_f."Fecha destrucción hasta => ".$request->get("destructionUntil")."<br>";
+                    $html.=$sintax_head_f."Fecha destrucción hasta => ".$this->get('utilities')->sp_date($request->get("destructionUntil"))."<br>";
                     $sintax_head_f="";
                 }
 

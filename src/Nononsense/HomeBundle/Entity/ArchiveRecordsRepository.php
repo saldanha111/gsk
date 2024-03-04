@@ -160,23 +160,23 @@ class ArchiveRecordsRepository extends EntityRepository
             }
 
             if(isset($filters["retentionFrom"])){
-                $dateFrom = DateTime::createFromFormat('Y-m-d',$filters["retentionFrom"]);
+                $dateFrom = DateTime::createFromFormat('d/m/Y',$filters["retentionFrom"]);
                 $list->andWhere('ar.initRetention>=:retentionFrom');
                 $list->setParameter('retentionFrom', $dateFrom->format('Y-m-d'));
             }
             if(isset($filters["retentionUntil"])){
-                $dateUntil = DateTime::createFromFormat('Y-m-d',$filters["retentionUntil"]);
+                $dateUntil = DateTime::createFromFormat('d/m/Y',$filters["retentionUntil"]);
                 $list->andWhere('ar.initRetention<=:retentionUntil');
                 $list->setParameter('retentionUntil', $dateUntil->format('Y-m-d')." 23:59:00");
             }
 
             if(isset($filters["destructionFrom"])){
-                $dateFrom = DateTime::createFromFormat('Y-m-d',$filters["destructionFrom"]);
+                $dateFrom = DateTime::createFromFormat('d/m/Y',$filters["destructionFrom"]);
                 $list->andWhere('DATE_ADD(ar.initRetention, arc.retentionDays, \'DAY\')>=:destructionFrom');
                 $list->setParameter('destructionFrom', $dateFrom->format('Y-m-d'));
             }
             if(isset($filters["destructionUntil"])){
-                $dateUntil = DateTime::createFromFormat('Y-m-d',$filters["destructionUntil"]);
+                $dateUntil = DateTime::createFromFormat('d/m/Y',$filters["destructionUntil"]);
                 $list->andWhere('DATE_ADD(ar.initRetention, arc.retentionDays, \'DAY\')<=:destructionUntil');
                 $list->setParameter('destructionUntil', $dateUntil->format('Y-m-d')." 23:59:00");
             }
