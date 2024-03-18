@@ -96,7 +96,7 @@
                         </div>
                         <div class="form-group">
                             <label class="col-sm-2 control-label">Categoría de Retención</label>
-                            <div class="col-sm-6">
+                            <div class="col-sm-6" id="retention_categories">
                                 {% if agent is defined and agent %}
                                     {% if categories is defined %}
                                         <select multiple="multiple" name="categories[]" id="category" {{agent is not defined or not agent ? 'disabled="disabled"' : ''}}>
@@ -116,7 +116,7 @@
                         </div>
                         <div class="form-group">
                             <label class="col-sm-2 control-label">Preservation notices</label>
-                            <div class="col-sm-6">
+                            <div class="col-sm-6" id="retention_preservations">
                                 {% if agent is defined and agent %}
                                     {% if preservations is defined %}
                                         <select multiple="multiple" name="preservations[]" id="preservations" {{agent is not defined or not agent ? 'disabled="disabled"' : ''}}>
@@ -319,7 +319,7 @@
         $(document).on('submit','#form_item',function(e){
             event.preventDefault();
 
-            if(!$('[name="categories[]').val()){
+            if($('#retention_categories .selected-wrapper a.item.selected').length==0){
                 swal({
                     title: "Atención",
                     text: "Es obligatorio al menos una categoría de retención",
@@ -328,7 +328,7 @@
                 return false;
             }
 
-            if(!$('[name="preservations[]').val()){
+            if($('#retention_preservations .selected-wrapper a.item.selected').length==0){
                 swal({
                     title: "Atención",
                     text: "Es obligatorio al menos una preservation notice",
