@@ -328,14 +328,14 @@
                 return false;
             }
 
-            if($('#retention_preservations .selected-wrapper a.item.selected').length==0){
+            /*if($('#retention_preservations .selected-wrapper a.item.selected').length==0){
                 swal({
                     title: "Atención",
                     text: "Es obligatorio al menos una preservation notice",
                     type: "warning"
                 });
                 return false;
-            }
+            }*/
 
             if(!checkUnique($("#unique_number").val())){
                 swal({
