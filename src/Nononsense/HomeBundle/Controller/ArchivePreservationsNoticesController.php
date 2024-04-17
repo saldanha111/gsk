@@ -108,14 +108,14 @@ class ArchivePreservationsNoticesController extends Controller
 
             //Check if there are records with this preservation
             if($actionActive==4){
-                $changes="<table class='table'><tr><td>Campo</td><td>Anterior</td><td>Nuevo</td></tr><tr><td>Preservation notice ".$category->getName()."</td><td>Si</td><td>No</td></tr></table>";
+                $changes_rel="<table class='table'><tr><td>Campo</td><td>Anterior</td><td>Nuevo</td></tr><tr><td>Preservation notice ".$category->getName()."</td><td>Si</td><td>No</td></tr></table>";
                 $records = $category->getRecords();
     
                 // Iterar sobre cada 'ArchiveRecord' y eliminar la relación con 'ArchivePreservations'
                 foreach ($records as $record) {
                     // Eliminar la relación
                     $record->getPreservations()->removeElement($category);
-                    $this->get('utilities')->saveLogArchive($this->getUser(),2,$comment,"record",$record->getId(),NULL,NULL,$changes);
+                    $this->get('utilities')->saveLogArchive($this->getUser(),2,$comment,"record",$record->getId(),NULL,NULL,$changes_rel);
                     // Persistir los cambios en 'ArchiveRecord'
                     $em->persist($record);
                 }
