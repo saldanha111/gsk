@@ -40,6 +40,12 @@ class Utilities{
         $this->templating = $templating;
     }
 
+    public function scapeLike($term){
+        $term = str_replace('%', '\\%', $term);
+        $term = str_replace('_', '\\_', $term);
+        return $term;
+    }
+
     public function generateToken()
     {
     	$user = $this->container->get('security.context')->getToken()->getUser();
