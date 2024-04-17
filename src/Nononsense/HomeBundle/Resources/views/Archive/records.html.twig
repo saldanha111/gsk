@@ -107,18 +107,16 @@
                                         </select>
                                     </div>
 
-                                    <label class="col-sm-2 control-label item_filter">Categoría retención</label>
+                                    <label class="col-sm-2 control-label">Área origen</label>
                                     <div class="col-sm-2 item_filter">
-                                        <select class="form-control" name="category" style="width: 100%;">
+                                        <select class="form-control" name="areaInfo" style="width: 100%;">
                                             <option value=""></option>
-                                            {% for category in categories %}
-                                                <option value="{{category.id}}" {{filters.category is defined and filters.category==category.id ? 'selected="selected"'}}>{{category.name}}</option>
+                                            {% for area in areas %}
+                                                <option value="{{area.id}}" {{filters.areaInfo is defined and filters.areaInfo==area.id ? 'selected="selected"'}}>{{area.name}}</option>
                                             {% endfor %}
                                         </select>
                                     </div>
                                 {% endif %}
-
-                                
                             </div>
                             
                             {% if filters.request is not defined %}
@@ -143,6 +141,15 @@
                             {% endif %}
                             <div class="form-group">
                                 {% if filters.request is not defined %}
+                                    <label class="col-sm-2 control-label item_filter">Categoría retención</label>
+                                    <div class="col-sm-2 item_filter">
+                                        <select class="form-control" name="category" style="width: 100%;">
+                                            <option value=""></option>
+                                            {% for category in categories %}
+                                                <option value="{{category.id}}" {{filters.category is defined and filters.category==category.id ? 'selected="selected"'}}>{{category.name}}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
                                     <label class="col-sm-2 control-label item_filter">Preservation Notice</label>
                                     <div class="col-sm-2 item_filter">
                                         <select class="form-control" name="preservationIn" style="width: 100%;">
