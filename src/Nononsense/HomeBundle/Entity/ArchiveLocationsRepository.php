@@ -3,7 +3,6 @@
 namespace Nononsense\HomeBundle\Entity;
 
 use Doctrine\ORM\EntityRepository;
-use Nononsense\HomeBundle\Utils\Utilities;
 
 /**
  * ArchiveLocationsRepository
@@ -55,11 +54,20 @@ class ArchiveLocationsRepository extends EntityRepository
                 $list->setParameter('id', $filters["id"]);
             }
 
-            if(isset($filters["building"])){
+
+            /*if(isset($filters["building"])){
                 $terms = explode(" ", $filters["building"]);
                 foreach($terms as $key => $term){
                     $list->andWhere("qr.building LIKE :building".$key." ESCAPE '\\'");
                     $list->setParameter('building'.$key, '%' . Utilities::scapeLike($term). '%');
+                }
+            }*/
+
+            if(isset($filters["building"])){
+                $terms = explode(" ", $filters["building"]);
+                foreach($terms as $key => $term){
+                    $list->andWhere('qr.building LIKE :building'.$key);
+                    $list->setParameter('building'.$key, '%' . $term. '%');
                 }
             }
 
@@ -67,7 +75,7 @@ class ArchiveLocationsRepository extends EntityRepository
                 $terms = explode(" ", $filters["shelf"]);
                 foreach($terms as $key => $term){
                     $list->andWhere('qr.shelf LIKE :shelf'.$key);
-                    $list->setParameter('shelf'.$key, '%' . Utilities::scapeLike($term). '%');
+                    $list->setParameter('shelf'.$key, '%' . $term. '%');
                 }
             }
 
@@ -75,7 +83,7 @@ class ArchiveLocationsRepository extends EntityRepository
                 $terms = explode(" ", $filters["passage"]);
                 foreach($terms as $key => $term){
                     $list->andWhere('qr.passage LIKE :passage'.$key);
-                    $list->setParameter('passage'.$key, '%' . Utilities::scapeLike($term). '%');
+                    $list->setParameter('passage'.$key, '%' . $term. '%');
                 }
             }
 
@@ -83,7 +91,7 @@ class ArchiveLocationsRepository extends EntityRepository
                 $terms = explode(" ", $filters["cabinet"]);
                 foreach($terms as $key => $term){
                     $list->andWhere('qr.cabinet LIKE :cabinet'.$key);
-                    $list->setParameter('cabinet'.$key, '%' . Utilities::scapeLike($term). '%');
+                    $list->setParameter('cabinet'.$key, '%' . $term. '%');
                 }
             }
 
@@ -91,7 +99,7 @@ class ArchiveLocationsRepository extends EntityRepository
                 $terms = explode(" ", $filters["others"]);
                 foreach($terms as $key => $term){
                     $list->andWhere('qr.others LIKE :others'.$key);
-                    $list->setParameter('others'.$key, '%' . Utilities::scapeLike($term). '%');
+                    $list->setParameter('others'.$key, '%' . $term. '%');
                 }
             }
         }
