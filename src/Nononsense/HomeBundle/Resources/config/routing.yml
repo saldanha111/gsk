@@ -1089,6 +1089,14 @@ nononsense_archive_types_edit:
     path: /archive-types/{id}
     defaults: { _controller: NononsenseHomeBundle:ArchiveTypes:edit}
 
+nononsense_archive_states_list:
+    path: /archive-states
+    defaults: { _controller: NononsenseHomeBundle:ArchiveStates:list}
+
+nononsense_archive_states_edit:
+    path: /archive-states/{id}
+    defaults: { _controller: NononsenseHomeBundle:ArchiveStates:edit}
+
 nononsense_archive_ubications_list:
     path: /archive-ubications
     defaults: { _controller: NononsenseHomeBundle:ArchiveUbications:list}

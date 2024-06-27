@@ -54,6 +54,15 @@ class ArchiveLocationsRepository extends EntityRepository
                 $list->setParameter('id', $filters["id"]);
             }
 
+
+            /*if(isset($filters["building"])){
+                $terms = explode(" ", $filters["building"]);
+                foreach($terms as $key => $term){
+                    $list->andWhere("qr.building LIKE :building".$key." ESCAPE '\\'");
+                    $list->setParameter('building'.$key, '%' . Utilities::scapeLike($term). '%');
+                }
+            }*/
+
             if(isset($filters["building"])){
                 $terms = explode(" ", $filters["building"]);
                 foreach($terms as $key => $term){

@@ -3,6 +3,8 @@
 namespace Nononsense\HomeBundle\Entity;
 
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\Query\QueryException;
+use Doctrine\ORM\QueryBuilder;
 
 /**
  * ArchiveStatesRepository
@@ -12,5 +14,83 @@ use Doctrine\ORM\EntityRepository;
  */
 class ArchiveStatesRepository extends EntityRepository
 {
-	
+	/**
+     * @param string[] $filters
+     * @param int $paginate
+     * @return array|int|string
+     */
+    public function list(array $filters, $paginate = 1)
+    {
+        $list = $this->createQueryBuilder('at')
+            ->select('at')
+            ->orderBy('at.id', 'DESC');
+
+        $list = self::fillFilersQuery($filters, $list);
+
+        if ($paginate == 1 && isset($filters["limit_from"])) {
+            $list->setFirstResult($filters["limit_from"] * $filters["limit_many"])->setMaxResults(
+                $filters["limit_many"]
+            );
+        }
+
+        $query = $list->getQuery();
+
+        return $query->getResult();
+    }
+
+    /**
+     * @param array $filters
+     * @return mixed
+     */
+    public function count($filters = [])
+    {
+        $list = $this->createQueryBuilder('at')
+            ->select('COUNT(at.id) as conta');
+
+        $list = self::fillFilersQuery($filters, $list);
+        $query = $list->getQuery();
+
+        try {
+            $result = $query->getSingleScalarResult();
+        } catch (QueryException $e) {
+            $result = 0;
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param array $filters
+     * @param QueryBuilder $list
+     * @return QueryBuilder
+     */
+    private function fillFilersQuery(array $filters, QueryBuilder $list)
+    {
+        if (isset($filters["name"])) {
+            $terms = explode(" ", $filters["name"]);
+            foreach($terms as $key => $term){
+                $list->andWhere('at.name LIKE :name'.$key);
+                $list->setParameter('name'.$key, '%' .$term . '%');
+            }
+        }
+
+
+        if (isset($filters["active"])) {
+            $list->andWhere('at.active = :active');
+            $list->setParameter('active', $filters["active"]);
+        }
+
+        return $list;
+    }
+
+    public function listToArray(): array
+    {
+        $list = $this->createQueryBuilder('at')
+            ->select('at')
+            ->orderBy('at.id', 'DESC');
+
+        $query = $list->getQuery();
+
+        return $query->getArrayResult();
+    }
 }

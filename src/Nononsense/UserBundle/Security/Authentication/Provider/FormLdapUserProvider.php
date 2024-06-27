@@ -18,6 +18,7 @@ use Nononsense\UserBundle\Entity\Users;
 use Nononsense\UserBundle\Entity\Roles;
 use Symfony\Component\Security\Core\Util\SecureRandom;
 use Symfony\Component\Validator\Constraints as Assert;
+use Nononsense\UtilsBundle\Classes\Utils;
 
 /**
  * Based on Symfony's LdapUserProvider Class.
@@ -121,11 +122,20 @@ class FormLdapUserProvider implements UserProviderInterface
 
         if (!$newUser) {
 
-             throw new UsernameNotFoundException(sprintf('User "%s" not found.', $username));
-            // $newUser = new Users();
+            //throw new UsernameNotFoundException(sprintf('User "%s" not found.', $username));
+            $newUser = new Users();
 
-            // $role = $em->getRepository(Roles::class)->findOneBy(array('name' => 'ROLE_USER'));
-            // $newUser->addRole($role);
+            $width  = $this->container->getParameter('avatar_width');
+            $height = $this->container->getParameter('avatar_height');
+            $image = Utils::generateColoredPNG(['width' => $width, 'height' => $height]);
+            $newUser->setPhoto($image);
+            $newUser->setActiveDirectory(1);
+
+            $role = $em->getRepository(Roles::class)->findOneBy(array('name' => 'ROLE_USER'));
+            $newUser->addRole($role);
+
+            $header = ['apiKey:'.$this->container->getParameter('api3.key')];
+            Utils::api3($this->container->getParameter('api3.url').'/record-counter', $header ,'POST', ['type' => 'user']);
         }
         
         $newUser->setUsername($user['cn'][0]);

@@ -25,7 +25,7 @@ class ArchiveUbicationsController extends Controller
 {
     public function listAction(Request $request)
     {
-        $is_valid = $this->get('app.security')->permissionSeccion('archive_admin');
+        $is_valid = $this->get('app.security')->permissionSeccion('archive_agent');
         if(!$is_valid){
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
@@ -68,7 +68,7 @@ class ArchiveUbicationsController extends Controller
 
     public function editAction(Request $request, $id)
     {
-        $is_valid = $this->get('app.security')->permissionSeccion('archive_admin');
+        $is_valid = $this->get('app.security')->permissionSeccion('archive_agent');
         if(!$is_valid){
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }
@@ -123,7 +123,7 @@ class ArchiveUbicationsController extends Controller
     }
 
     public function viewQrAction(Request $request, $id){
-        $is_valid = $this->get('app.security')->permissionSeccion('archive_admin');
+        $is_valid = $this->get('app.security')->permissionSeccion('archive_agent');
         if(!$is_valid){
             return $this->redirect($this->generateUrl('nononsense_home_homepage'));
         }

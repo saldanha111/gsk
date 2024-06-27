@@ -74,7 +74,7 @@
                                     </select>
                                 </div>
 
-                                <label class="col-sm-2 control-label item_filter">Estado</label>
+                                <label class="col-sm-2 control-label item_filter">Estado de documento</label>
                                 <div class="col-sm-2 item_filter">
                                     <select class="form-control" name="state" style="width: 100%;">
                                         <option value=""></option>
@@ -107,6 +107,40 @@
                                         </select>
                                     </div>
 
+                                    <label class="col-sm-2 control-label">Área origen</label>
+                                    <div class="col-sm-2 item_filter">
+                                        <select class="form-control" name="areaInfo" style="width: 100%;">
+                                            <option value=""></option>
+                                            {% for area in areas %}
+                                                <option value="{{area.id}}" {{filters.areaInfo is defined and filters.areaInfo==area.id ? 'selected="selected"'}}>{{area.name}}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            {% if filters.request is not defined %}
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">Fecha inicio retención</label>
+                                    <div class="col-sm-2 item_filter">
+                                        <input type="text" class="form-control pull-right" autocomplete="off" name="retentionFrom" id="retentionFrom" value="{{filters.retentionFrom is defined ? filters.retentionFrom : ''}}">
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <input type="text" class="form-control pull-right" autocomplete="off" name="retentionUntil" id="retentionUntil" value="{{filters.retentionUntil is defined ? filters.retentionUntil : ''}}">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">Fecha destrucción</label>
+                                    <div class="col-sm-2 item_filter">
+                                        <input type="text" class="form-control pull-right" autocomplete="off" name="destructionFrom" id="destructionFrom" value="{{filters.destructionFrom is defined ? filters.destructionFrom : ''}}">
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <input type="text" class="form-control pull-right" autocomplete="off" name="destructionUntil" id="destructionUntil" value="{{filters.destructionUntil is defined ? filters.destructionUntil: ''}}">
+                                    </div>
+                                </div>
+                            {% endif %}
+                            <div class="form-group">
+                                {% if filters.request is not defined %}
                                     <label class="col-sm-2 control-label item_filter">Categoría retención</label>
                                     <div class="col-sm-2 item_filter">
                                         <select class="form-control" name="category" style="width: 100%;">
@@ -116,39 +150,15 @@
                                             {% endfor %}
                                         </select>
                                     </div>
-                                {% endif %}
-
-                                
-                            </div>
-                            
-                            {% if filters.request is not defined %}
-                                <div class="form-group">
-                                    <label class="col-sm-2 control-label">Fecha de retención</label>
-                                    <div class="col-sm-2 item_filter">
-                                        <input type="text" class="form-control pull-right" autocomplete="off" name="retentionFrom" id="retentionFrom" value="{{filters.retentionFrom is defined ? filters.retentionFrom|date("Y-m-d") : ''}}">
-                                    </div>
-                                    <div class="col-sm-2">
-                                        <input type="text" class="form-control pull-right" autocomplete="off" name="retentionUntil" id="retentionUntil" value="{{filters.retentionUntil is defined ? filters.retentionUntil|date("Y-m-d") : ''}}">
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label class="col-sm-2 control-label">Fecha destrucción</label>
-                                    <div class="col-sm-2 item_filter">
-                                        <input type="text" class="form-control pull-right" autocomplete="off" name="destructionFrom" id="destructionFrom" value="{{filters.destructionFrom is defined ? filters.destructionFrom|date("Y-m-d") : ''}}">
-                                    </div>
-                                    <div class="col-sm-2">
-                                        <input type="text" class="form-control pull-right" autocomplete="off" name="destructionUntil" id="destructionUntil" value="{{filters.destructionUntil is defined ? filters.destructionUntil|date("Y-m-d") : ''}}">
-                                    </div>
-                                </div>
-                            {% endif %}
-                            <div class="form-group">
-                                {% if filters.request is not defined %}
                                     <label class="col-sm-2 control-label item_filter">Preservation Notice</label>
                                     <div class="col-sm-2 item_filter">
-                                        <select class="form-control" name="preservation" style="width: 100%;">
+                                        <select class="form-control" name="preservationIn" style="width: 100%;">
                                             <option value=""></option>
-                                            <option value="1" {{filters.preservation is defined and filters.preservation == 1 ? 'selected="selected"'}}>Si</option>
-                                            <option value="2" {{filters.preservation is defined and filters.preservation == 2 ? 'selected="selected"'}}>No</option>
+                                            <option value="Y" {{filters.preservationIn is defined and filters.preservationIn == "Y" ? 'selected="selected"'}}>Si</option>
+                                            <option value="N" {{filters.preservationIn is defined and filters.preservationIn == "N" ? 'selected="selected"'}}>No</option>
+                                            {% for preservation in preservations %}
+                                                <option value="{{preservation.id}}" {{filters.preservationIn is defined and filters.preservationIn==preservation.id ? 'selected="selected"'}}>{{preservation.name}}</option>
+                                            {% endfor %}
                                         </select>
                                     </div>
 
@@ -171,6 +181,10 @@
                                 </div>
                             </div>
                         {% endif %}
+
+                        {% if filters.request is defined and filters.request is not empty %}
+                            <input type="hidden" name="request" value="{{filters.request}}">
+                        {% endif %}
                         <input type="hidden" name="signature" value="{{filters.signature is defined ? filters.signature : ''}}">
                     </form>
                 </div>
@@ -186,11 +200,11 @@
                             <th>Área custodio</th>
                             <th>Área origen</th>
                             <th>Tipo de documento</th>
-                            <th>Estado</th>
+                            <th>Estado de documento</th>
                             <th>Disponibilidad</th>
                             <th>Categoría retención</th>
                             <th>Ubicación</th>
-                            <th>Inicio retención</th>
+                            <th>Fecha inicio retención</th>
                             <th>Fecha destrucción</th>
                             <th>Preservation Notice</th>
                             <th></th>
@@ -243,17 +257,18 @@
                                             <a class="btn btn-xs btn-primary btn-retention"  href="javascript:void(0)" data-action="1" data-info="Revisar archivo (ID {{item.id}})" data-id="{{item.id}}" data-unique="1"><i class="fa fa-check" aria-hidden="true"></i> Revisar</a>
                                         {% endif %}
 
-                                        {% if item.retentionRevision is defined and item.retentionRevision and filters.signature is not defined %}
+                                        {% set currentDate = date() %}
+                                        {% if item.retentionRevision is defined and item.retentionRevision and filters.signature is not defined and (item.removedAt is not defined or item.removedAt is empty) and currentDate.diff(item.retentionRevision).y < 1 %}
                                             <a class="btn btn-xs btn-warning" target="_blank"  href="{{path('nononsense_archive_log')}}?relational={{item.id}}&type=record"><i class="fa fa-warning" aria-hidden="true"></i> Revisado</a>
                                         {% endif %}  
                                     {% else %}
-                                        {% if item.useState == "Archivado" %}
+                                        {% if item.useState == "Archivado" and item.AZ is defined and item.AZ is not empty %}
                                             <a class="btn btn-xs btn-primary btn-retention"  href="javascript:void(0)" data-action="3" data-info="Solicitar préstamo (ID {{item.id}})" data-id="{{item.id}}" data-unique="1"><i class="fa fa-check" aria-hidden="true"></i> Solicitar préstamo</a>
                                         {% endif %}
                                     {% endif %}
                                 </td>
                                 <td>
-                                    {% if (filters.retentionAction is defined and count>0 and (filters.retentionAction=="3" or filters.retentionAction=="2")) or (count>0 and filters.request is defined and item.useState == "Archivado") or (agent is defined and agent and item.areaId in agentareas and filters.masive_edition is defined) %}
+                                    {% if (filters.retentionAction is defined and count>0 and (filters.retentionAction=="3" or filters.retentionAction=="2")) or (count>0 and filters.request is defined and item.useState == "Archivado" and item.AZ is defined and item.AZ is not empty) or (agent is defined and agent and item.areaId in agentareas and filters.masive_edition is defined) %}
                                         <input class="checkpem" name="retentions[]" value="{{item.id}}" type="checkbox">
                                     {% endif %}
                                 </td>
@@ -372,7 +387,7 @@
                             </div>
                         </div>
                         <div class="col-lg-10 col-lg-offset-1">
-                            <label>Estado</label>
+                            <label>Estado de documento</label>
                             <br>
                             <div class="form-group">
                                 <select class="form-control" name="state" style="width: 100%;">
@@ -499,25 +514,25 @@
     $('#retentionFrom').datepicker({
       autoclose: true,
       orientation: 'bottom auto',
-      format: 'yyyy-mm-dd',
+      format: 'dd/mm/yyyy',
       language: 'es'
     });
     $('#retentionUntil').datepicker({
       autoclose: true,
       orientation: 'bottom auto',
-      format: 'yyyy-mm-dd',
+      format: 'dd/mm/yyyy',
       language: 'es'
     });
     $('#destructionFrom').datepicker({
       autoclose: true,
       orientation: 'bottom auto',
-      format: 'yyyy-mm-dd',
+      format: 'dd/mm/yyyy',
       language: 'es'
     });
     $('#destructionUntil').datepicker({
       autoclose: true,
       orientation: 'bottom auto',
-      format: 'yyyy-mm-dd',
+      format: 'dd/mm/yyyy',
       language: 'es'
     });
 

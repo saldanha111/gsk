@@ -66,7 +66,7 @@ class ArchiveRecordsController extends Controller
         $array_item["filters"]=$filters;
         $array_item["items"] = $this->getDoctrine()->getRepository(ArchiveRecords::class)->list("list",$filters);
         $array_item["count"] = $this->getDoctrine()->getRepository(ArchiveRecords::class)->list("count",$filters2);
-        $array_item["states"] = $this->getDoctrine()->getRepository(ArchiveStates::class)->findAll();
+        $array_item["states"] = $this->getDoctrine()->getRepository(ArchiveStates::class)->findBy(array("active"=>TRUE));
         $array_item["useStates"] = $this->getDoctrine()->getRepository(ArchiveUseStates::class)->findAll();
         $array_item["types"] = $this->getDoctrine()->getRepository(ArchiveTypes::class)->findAll();
         $array_item["areas"] = $this->getDoctrine()->getRepository(Areas::class)->findAll();
@@ -115,13 +115,130 @@ class ArchiveRecordsController extends Controller
                  ->setCellValue('H2', 'Estado')
                  ->setCellValue('I2', 'Disponibilidad')
                  ->setCellValue('J2', 'Categoría retención')
-                 ->setCellValue('K2', 'Inicio retención')
+                 ->setCellValue('K2', 'Fecha inicio retención')
                  ->setCellValue('L2', 'Fecha destrucción')
                  ->setCellValue('M2', 'Preservation notice');
             }
 
             if($request->get("export_pdf")){
-                $html='<html><body style="font-size:8px;width:100%"><table autosize="1" style="overflow:wrap;width:100%"><tr style="font-size:8px;width:100%">
+                $html='<html><body style="font-size:8px;width:100%">';
+                $sintax_head_f="<b>Filtros:</b><br>";
+
+                if($request->get("id")){
+                    $html.=$sintax_head_f."ID => ".$request->get("id")."<br>";
+                    $sintax_head_f="";
+                }
+
+                if($request->get("uniqueNumber")){
+                    $html.=$sintax_head_f."Identificador => ".$request->get("uniqueNumber")."<br>";
+                    $sintax_head_f="";
+                }
+
+                if($request->get("title")){
+                    $html.=$sintax_head_f."Título => ".$request->get("title")."<br>";
+                    $sintax_head_f="";
+                }
+
+                if($request->get("edition")){
+                    $html.=$sintax_head_f."Edición => ".$request->get("edition")."<br>";
+                    $sintax_head_f="";
+                }
+
+                if($request->get("type")){
+                    foreach($array_item["types"] as $type){
+                        if($type->getId()==$request->get("type")){
+                            $html.=$sintax_head_f."Tipo de documento => ".$type->getName()."<br>";
+                            $sintax_head_f=""; 
+                        }
+                    } 
+                }
+
+                if($request->get("state")){
+                    foreach($array_item["states"] as $state){
+                        if($state->getId()==$request->get("state")){
+                            $html.=$sintax_head_f."Estado de documento => ".$state->getName()."<br>";
+                            $sintax_head_f=""; 
+                        }
+                    }
+                }
+
+                if($request->get("useState")){
+                    foreach($array_item["useStates"] as $useState){
+                        if($useState->getId()==$request->get("useState")){
+                            $html.=$sintax_head_f."Disponibilidad => ".$useState->getName()."<br>";
+                            $sintax_head_f=""; 
+                        }
+                    }
+                }
+
+                if($request->get("area")){
+                    foreach($array_item["areas"] as $area){
+                        if($area->getId()==$request->get("area")){
+                            $html.=$sintax_head_f."Área custodio => ".$area->getName()."<br>";
+                            $sintax_head_f=""; 
+                        }
+                    }
+                }
+
+                if($request->get("category")){
+                    foreach($array_item["categories"] as $category){
+                        if($category->getId()==$request->get("category")){
+                            $html.=$sintax_head_f."Categoría retención => ".$category->getName()."<br>";
+                            $sintax_head_f=""; 
+                        }
+                    }
+                }
+
+                if($request->get("preservationIn")){
+                    if("Y"==$request->get("preservationIn")){
+                        $html.=$sintax_head_f."Preservation Notice => Sí<br>";
+                        $sintax_head_f=""; 
+                    }
+                    if("N"==$request->get("preservationIn")){
+                        $html.=$sintax_head_f."Preservation Notice => No<br>";
+                        $sintax_head_f=""; 
+                    }
+                    foreach($array_item["preservations"] as $preservation){
+                        if($preservation->getId()==$request->get("preservationIn")){
+                            $html.=$sintax_head_f."Preservation Notice => ".$preservation->getName()."<br>";
+                            $sintax_head_f=""; 
+                        }
+                    }
+                }
+
+                if($request->get("retentionFrom")){
+                    $html.=$sintax_head_f."Fecha inicio retención desde => ".$this->get('utilities')->sp_date($request->get("retentionFrom"))."<br>";
+                    $sintax_head_f="";
+                }
+
+                if($request->get("retentionUntil")){
+                    $html.=$sintax_head_f."Fecha inicio retención hasta => ".$this->get('utilities')->sp_date($request->get("retentionUntil"))."<br>";
+                    $sintax_head_f="";
+                }
+
+                if($request->get("destructionFrom")){
+                    $html.=$sintax_head_f."Fecha destrucción desde => ".$this->get('utilities')->sp_date($request->get("destructionFrom"))."<br>";
+                    $sintax_head_f="";
+                }
+
+                if($request->get("destructionUntil")){
+                    $html.=$sintax_head_f."Fecha destrucción hasta => ".$this->get('utilities')->sp_date($request->get("destructionUntil"))."<br>";
+                    $sintax_head_f="";
+                }
+
+                if($request->get("retentionAction")){
+                    switch($request->get("retentionAction")){
+                        case "2": $desc_action="Revisión anual";break;
+                        case "3": $desc_action="Destrucción de registros";break;
+                        case "4": $desc_action="Ver destruidos";break;
+                        default: $desc_action="Desconocido";break;
+                    }
+                    $html.=$sintax_head_f."Acción => ".$desc_action."<br>";
+                    $sintax_head_f="";
+                }
+
+
+                $html.='<table autosize="1" style="overflow:wrap;width:100%"><tr style="font-size:8px;width:100%">
                         <th style="font-size:8px;width:5%">ID</th>
                         <th style="font-size:8px;width:5%">Identificador</th>
                         <th style="font-size:8px;width:9%">Título</th>
@@ -132,7 +249,7 @@ class ArchiveRecordsController extends Controller
                         <th style="font-size:8px;width:9%">Estado</th>
                         <th style="font-size:8px;width:9%">Disponibilidad</th>
                         <th style="font-size:8px;width:9%">Categoría</th>
-                        <th style="font-size:8px;width:9%">Inicio retención</th>
+                        <th style="font-size:8px;width:9%">Fecha inicio retención</th>
                         <th style="font-size:8px;width:9%">Fecha destrucción</th>
                         <th style="font-size:8px;width:5%">Preserv. notice</th>
                     </tr>';
@@ -140,7 +257,12 @@ class ArchiveRecordsController extends Controller
 
             $i=3;
             foreach($array_item["items"] as $item){
-
+                if($item["preservation"]==""){
+                    $preservation="No";
+                }
+                else{
+                    $preservation=$item["preservation"];
+                }
                 if($request->get("export_excel")){
                     $phpExcelObject->getActiveSheet()
                     ->setCellValue('A'.$i, $item["id"])
@@ -155,7 +277,7 @@ class ArchiveRecordsController extends Controller
                     ->setCellValue('J'.$i, $item["category"])
                     ->setCellValue('K'.$i, ($item["initRetention"]) ? $this->get('utilities')->sp_date($item["initRetention"]->format('d/m/Y')) : '')
                     ->setCellValue('K'.$i, ($item["destructionDate"]) ? $this->get('utilities')->sp_date(date('d/m/Y', strtotime($item["destructionDate"]))) : '')
-                    ->setCellValue('L'.$i, $item["preservation"]);
+                    ->setCellValue('L'.$i, $preservation);
                 }
 
                 if($request->get("export_pdf")){
@@ -172,7 +294,7 @@ class ArchiveRecordsController extends Controller
                         <td>'.$item["category"].'</td>
                         <td>'.(($item["initRetention"]) ? $this->get('utilities')->sp_date($item["initRetention"]->format('d/m/Y')) : '').'</td>
                         <td>'.(($item["destructionDate"]) ? $this->get('utilities')->sp_date(date('d/m/Y', strtotime($item["destructionDate"]))) : '').'</td>
-                        <td>'.$item["preservation"].'</td>
+                        <td>'.$preservation.'</td>
                     </tr>';
                 }
 
@@ -221,7 +343,7 @@ class ArchiveRecordsController extends Controller
         $areas = $em->getRepository(Areas::class)->findBy(array("isActive"=>TRUE));
         $myAreas=$this->get('app.security')->getAreas('archive_agent');
         $types = $em->getRepository(ArchiveTypes::class)->findBy(array("active"=>TRUE));
-        $states = $em->getRepository(ArchiveStates::class)->findAll();
+        $states = $em->getRepository(ArchiveStates::class)->findBy(array("active"=>TRUE));
         $categories = $em->getRepository(ArchiveCategories::class)->findBy(array("active"=>TRUE),array("retentionDays" => "DESC"));
         $preservations = $em->getRepository(ArchivePreservations::class)->findBy(array("active"=>TRUE));
 
@@ -270,9 +392,11 @@ class ArchiveRecordsController extends Controller
         $changes="";
         $redirect=$this->generateUrl('nononsense_archive_records');
 
-        $is_valid = $this->get('app.security')->permissionSeccion('archive_agent');
-        if (!$is_valid) {
-            return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+        if($request->get("action")!="3"){
+            $is_valid = $this->get('app.security')->permissionSeccion('archive_agent');
+            if (!$is_valid) {
+                return $this->redirect($this->generateUrl('nononsense_home_homepage'));
+            }
         }
 
         if(!$request->get("password")){
@@ -310,7 +434,7 @@ class ArchiveRecordsController extends Controller
             case "1":
                 
                 foreach($records as $record){
-                    $record->setRetentionRevision(TRUE);
+                    $record->setRetentionRevision(new \DateTime());
                     $this->get('utilities')->saveLogArchive($this->getUser(),6,$request->get('comment'),"record",$record->getId());
                     $em->persist($record);
                 }
@@ -323,7 +447,7 @@ class ArchiveRecordsController extends Controller
                 }
                 foreach($records as $record){
                     $loans = $this->getDoctrine()->getRepository(ArchiveSignatures::class)->count([
-                        'actions' =>  array(8,9,10),
+                        'actions' =>  array(8,9),
                         'recordId' => $record->getId(),
                         'not_available' => 1
                     ]);
@@ -449,7 +573,7 @@ class ArchiveRecordsController extends Controller
 
 
                     // Suponiendo que las columnas obligatorias son 'Nombre', 'Edad', y 'Correo'
-                    $requiredColumns = ['Document Number', 'Version', 'Document Name'];
+                    $requiredColumns = ['Document Number', 'Version', 'Document Name', 'Global Retention Schedule (GRS)'];
                     $actualColumns = $rows[0];  // Asumimos que la primera fila tiene los nombres de las columnas
                     
                     $required=array_diff($requiredColumns, $actualColumns);
@@ -461,7 +585,7 @@ class ArchiveRecordsController extends Controller
                         return $this->redirect($this->generateUrl('nononsense_archive_records'));
                     }
 
-                    $array_item["states"] = $this->getDoctrine()->getRepository(ArchiveStates::class)->findAll();
+                    $array_item["states"] = $this->getDoctrine()->getRepository(ArchiveStates::class)->findBy(array("active"=>TRUE));
                     $array_item["types"] = $this->getDoctrine()->getRepository(ArchiveTypes::class)->findAll();
                     $array_item["areas"] = $this->getDoctrine()->getRepository(Areas::class)->findAll();
                     $array_item["categories"] = $this->getDoctrine()->getRepository(ArchiveCategories::class)->findAll();
@@ -509,6 +633,14 @@ class ArchiveRecordsController extends Controller
                             }
                             $registro['Link'] = '';
                         }
+
+                        $searchCategory = $em->getRepository(ArchiveCategories::class)->findOneBy(['name' => $registro['Global Retention Schedule (GRS)'], 'active' => TRUE]);
+                        if(!$searchCategory){
+                            $errorMessage = 'No se encuentra la siguiente GRS: '.$registro['Global Retention Schedule (GRS)'];
+                            $needsRedirect = true;
+                            return null;
+                        }
+                        $registro['category']=$searchCategory->getId();
 
                         $searchRecord = $em->getRepository(ArchiveRecords::class)->findOneBy(['uniqueNumber' => $registro['Document Number']]);
                         if($searchRecord){
@@ -625,27 +757,31 @@ class ArchiveRecordsController extends Controller
                 $record->setTitle($request->get("title")[$key]);
 
                 if($request->get("preservation") && array_key_exists($key, $request->get("preservation")) && $request->get("preservation")[$key]){
-                    $preservation = $em->getRepository(ArchivePreservations::class)->findOneBy(['id' => $request->get("preservation")[$key]]);
-                    if(!$preservation){
-                        $this->get('session')->getFlashBag()->add(
-                            'error',
-                            'No se encuentra la preservation notice '.$request->get("preservation")[$key]
-                        );
-                        return $this->redirect($this->generateUrl('nononsense_archive_records'));
+                    foreach($request->get("preservation")[$key] as $preser){
+                        $preservation = $em->getRepository(ArchivePreservations::class)->findOneBy(['id' => $preser]);
+                        if(!$preservation){
+                            $this->get('session')->getFlashBag()->add(
+                                'error',
+                                'No se encuentra la preservation notice '.$request->get("preservation")[$key]
+                            );
+                            return $this->redirect($this->generateUrl('nononsense_archive_records'));
+                        }
+                        $record->addPreservation($preservation);
                     }
-                    $record->addPreservation($preservation); 
                 }
 
                 if($request->get("category") && array_key_exists($key, $request->get("category")) && $request->get("category")[$key]){
-                    $category = $em->getRepository(ArchiveCategories::class)->findOneBy(['id' => $request->get("category")[$key]]);
-                    if(!$category){
-                        $this->get('session')->getFlashBag()->add(
-                            'error',
-                            'No se encuentra la categoria de retención '.$request->get("category")[$key]
-                        );
-                        return $this->redirect($this->generateUrl('nononsense_archive_records'));
+                    foreach($request->get("category")[$key] as $cat){
+                        $category = $em->getRepository(ArchiveCategories::class)->findOneBy(['id' => $cat]);
+                        if(!$category){
+                            $this->get('session')->getFlashBag()->add(
+                                'error',
+                                'No se encuentra la categoria de retención '.$request->get("category")[$key]
+                            );
+                            return $this->redirect($this->generateUrl('nononsense_archive_records'));
+                        }
+                        $record->addCategory($category);
                     }
-                    $record->addCategory($category);
                 }
 
                 if($request->get("az") && array_key_exists($key, $request->get("az")) && $request->get("az")[$key]){
@@ -781,8 +917,14 @@ class ArchiveRecordsController extends Controller
             if($request->get("title")){
                 $record->setTitle($request->get('title'));
             }
+            else{
+                $record->setTitle(NULL);
+            }
             if($request->get("edition")){
                 $record->setEdition($request->get('edition'));
+            }
+            else{
+                $record->setEdition(NULL);
             }
 
 
@@ -912,12 +1054,33 @@ class ArchiveRecordsController extends Controller
         $changes="";
         $em = $this->getDoctrine()->getManager();
 
-        if($request->get("title") && $request->get("title")!=$item->getTitle()){
-            $changes.="<tr><td>Titulo</td><td>".$item->getTitle()."</td><td>".$request->get("title")."</td></tr>";
-        }
+        if(!$masive){
+            if($request->get("title")!=$item->getTitle()){
+                $changes.="<tr><td>Titulo</td><td>".$item->getTitle()."</td><td>".$request->get("title")."</td></tr>";
+            }
 
-        if($request->get("edition") && $request->get("edition")!=$item->getEdition()){
-            $changes.="<tr><td>Edición</td><td>".$item->getEdition()."</td><td>".$request->get("edition")."</td></tr>";
+            if($request->get("edition")!=$item->getEdition()){
+                $changes.="<tr><td>Edición</td><td>".$item->getEdition()."</td><td>".$request->get("edition")."</td></tr>";
+            }
+
+            $lastRetentionDate="";
+            if($item->getInitRetention()){
+                $lastRetentionDate=$item->getInitRetention()->format("Y-m-d");
+            }
+
+            if($request->get("retention_date")!=$lastRetentionDate){
+                $changes.="<tr><td>Fecha retención</td><td>".$lastRetentionDate."</td><td>".$request->get("retention_date")."</td></tr>";
+            }
+        }
+        else{
+            $lastRetentionDate="";
+            if($item->getInitRetention()){
+                $lastRetentionDate=$item->getInitRetention()->format("Y-m-d");
+            }
+
+            if($request->get("retention_date") && $request->get("retention_date")!=$lastRetentionDate){
+                $changes.="<tr><td>Fecha retención</td><td>".$lastRetentionDate."</td><td>".$request->get("retention_date")."</td></tr>";
+            }
         }
 
         if($request->get("link") && $request->get("link")!=$item->getLink()){
@@ -953,17 +1116,7 @@ class ArchiveRecordsController extends Controller
             $changes.="<tr><td>AZ</td><td>".($item->getAZ() ? $item->getAZ()->getCode() : '')."</td><td>".$az->getCode()."</td></tr>";
         }
 
-        if($request->get("retention_date")){
-            if($item->getInitRetention()){
-                $last=$item->getInitRetention()->format("Y-m-d");
-                if($request->get("retention_date")!=$last){
-                    $changes.="<tr><td>Fecha retención</td><td>".$last."</td><td>".$request->get("retention_date")."</td></tr>";
-                }
-            }
-            else{
-                $changes.="<tr><td>Fecha retención</td><td></td><td>".$request->get("retention_date")."</td></tr>";
-            }
-        }
+        
 
         if(!$masive || ($masive && $request->get("categories"))){
             $categories = $request->get('categories');

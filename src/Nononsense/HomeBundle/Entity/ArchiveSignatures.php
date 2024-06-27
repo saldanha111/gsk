@@ -44,6 +44,12 @@ class ArchiveSignatures
     protected $archiveType;
 
     /**
+     * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\ArchiveStates", inversedBy="archiveSignatures")
+     * @ORM\JoinColumn(name="state_id", referencedColumnName="id")
+     */
+    protected $archiveState;
+
+    /**
      * @ORM\ManyToOne(targetEntity="\Nononsense\HomeBundle\Entity\ArchiveRecords", inversedBy="archiveSignatures")
      * @ORM\JoinColumn(name="record_id", referencedColumnName="id")
      */
@@ -519,5 +525,28 @@ class ArchiveSignatures
     public function getChanges()
     {
         return $this->changes;
+    }
+
+    /**
+     * Set archiveState
+     *
+     * @param \Nononsense\HomeBundle\Entity\ArchiveStates $archiveState
+     * @return ArchiveSignatures
+     */
+    public function setArchiveState(\Nononsense\HomeBundle\Entity\ArchiveStates $archiveState = null)
+    {
+        $this->archiveState = $archiveState;
+
+        return $this;
+    }
+
+    /**
+     * Get archiveState
+     *
+     * @return \Nononsense\HomeBundle\Entity\ArchiveStates 
+     */
+    public function getArchiveState()
+    {
+        return $this->archiveState;
     }
 }

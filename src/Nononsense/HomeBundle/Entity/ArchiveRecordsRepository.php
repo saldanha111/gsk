@@ -79,8 +79,11 @@ class ArchiveRecordsRepository extends EntityRepository
             }
 
             if(isset($filters["uniqueNumber"])){
-                $list->andWhere('ar.uniqueNumber=:uniqueNumber');
-                $list->setParameter('uniqueNumber', $filters["uniqueNumber"]);
+                $terms = explode(" ", $filters["uniqueNumber"]);
+                foreach($terms as $key => $term){
+                    $list->andWhere('ar.uniqueNumber LIKE :uniqueNumber'.$key);
+                    $list->setParameter('uniqueNumber'.$key, '%' . $term. '%');
+                }
             }
 
             if(isset($filters["useState"])){
@@ -125,9 +128,14 @@ class ArchiveRecordsRepository extends EntityRepository
             }
 
             if(isset($filters["preservationIn"])){
-                $list->innerJoin('ar.preservations', 'subp')
-                    ->andWhere('subp.id = :preservationIn')
-                    ->setParameter('preservationIn', $filters["preservationIn"]);
+                switch($filters["preservationIn"]){
+                    case "Y": $list->andWhere('arp.name IS NOT NULL');break;
+                    case "N": $list->andWhere('arp.name IS NULL');break;
+                    default: $list->innerJoin('ar.preservations', 'subp')
+                                ->andWhere('subp.id = :preservationIn')
+                                ->setParameter('preservationIn', $filters["preservationIn"]);
+                }
+                
             }
 
             if(isset($filters["signature"])){
@@ -152,30 +160,33 @@ class ArchiveRecordsRepository extends EntityRepository
             }
 
             if(isset($filters["retentionFrom"])){
-                $dateFrom = DateTime::createFromFormat('Y-m-d',$filters["retentionFrom"]);
+                $dateFrom = DateTime::createFromFormat('d/m/Y',$filters["retentionFrom"]);
                 $list->andWhere('ar.initRetention>=:retentionFrom');
                 $list->setParameter('retentionFrom', $dateFrom->format('Y-m-d'));
             }
             if(isset($filters["retentionUntil"])){
-                $dateUntil = DateTime::createFromFormat('Y-m-d',$filters["retentionUntil"]);
+                $dateUntil = DateTime::createFromFormat('d/m/Y',$filters["retentionUntil"]);
                 $list->andWhere('ar.initRetention<=:retentionUntil');
                 $list->setParameter('retentionUntil', $dateUntil->format('Y-m-d')." 23:59:00");
             }
 
             if(isset($filters["destructionFrom"])){
-                $dateFrom = DateTime::createFromFormat('Y-m-d',$filters["destructionFrom"]);
+                $dateFrom = DateTime::createFromFormat('d/m/Y',$filters["destructionFrom"]);
                 $list->andWhere('DATE_ADD(ar.initRetention, arc.retentionDays, \'DAY\')>=:destructionFrom');
                 $list->setParameter('destructionFrom', $dateFrom->format('Y-m-d'));
             }
             if(isset($filters["destructionUntil"])){
-                $dateUntil = DateTime::createFromFormat('Y-m-d',$filters["destructionUntil"]);
+                $dateUntil = DateTime::createFromFormat('d/m/Y',$filters["destructionUntil"]);
                 $list->andWhere('DATE_ADD(ar.initRetention, arc.retentionDays, \'DAY\')<=:destructionUntil');
                 $list->setParameter('destructionUntil', $dateUntil->format('Y-m-d')." 23:59:00");
             }
 
             if(isset($filters["edition"])){
-                $list->andWhere('ar.edition=:edition');
-                $list->setParameter('edition', $filters["edition"]);
+                $terms = explode(" ", $filters["edition"]);
+                foreach($terms as $key => $term){
+                    $list->andWhere('ar.edition LIKE :edition'.$key);
+                    $list->setParameter('edition'.$key, '%' . $term. '%');
+                }
             }
 
             if(isset($filters["retentionAction"])){

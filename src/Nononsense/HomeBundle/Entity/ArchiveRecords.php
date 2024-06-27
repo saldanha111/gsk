@@ -132,8 +132,7 @@ class ArchiveRecords
     protected $removedAt;
 
     /**
-     * @var bool
-     * @ORM\Column(name="retention_revision", type="boolean", nullable=true)
+     * @ORM\Column(name="retention_revision", type="datetime", nullable=true)
      */
     protected $retentionRevision;
 
@@ -531,29 +530,6 @@ class ArchiveRecords
     }
 
     /**
-     * Set retentionRevision
-     *
-     * @param boolean $retentionRevision
-     * @return ArchiveRecords
-     */
-    public function setRetentionRevision($retentionRevision)
-    {
-        $this->retentionRevision = $retentionRevision;
-
-        return $this;
-    }
-
-    /**
-     * Get retentionRevision
-     *
-     * @return boolean 
-     */
-    public function getRetentionRevision()
-    {
-        return $this->retentionRevision;
-    }
-
-    /**
      * Set link
      *
      * @param string $link
@@ -620,5 +596,28 @@ class ArchiveRecords
     public function getAreaInfo()
     {
         return $this->areaInfo;
+    }
+
+    /**
+     * Set retentionRevision
+     *
+     * @param \DateTime $retentionRevision
+     * @return ArchiveRecords
+     */
+    public function setRetentionRevision($retentionRevision)
+    {
+        $this->retentionRevision = $retentionRevision;
+
+        return $this;
+    }
+
+    /**
+     * Get retentionRevision
+     *
+     * @return \DateTime 
+     */
+    public function getRetentionRevision()
+    {
+        return $this->retentionRevision;
     }
 }
