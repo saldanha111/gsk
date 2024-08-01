@@ -34,7 +34,7 @@ class NotifyArchiveDestructionRetentionExpiredCommand extends ContainerAwareComm
 		foreach($groups as $group){
 			$areasGroups = $em->getRepository('NononsenseHomeBundle:AreasGroups')->findBy(array('agroup' => $group->getGroup()));
 			foreach($areasGroups as $areaGroup){
-				$count = $em->getRepository('NononsenseHomeBundle:ArchiveRecords')->list("count",array("area" => $areaGroup->getArea()->getId(),"destructionUntil" => $from->format('Y-m-d')));
+				$count = $em->getRepository('NononsenseHomeBundle:ArchiveRecords')->list("count",array("area" => $areaGroup->getArea()->getId(),"destructionUntil" => $from->format('d/m/Y')));
 				if($count>0){
 					foreach($group->getGroup()->getUsers() as $gu){
 						$array_users[]=$gu->getUser()->getId();
