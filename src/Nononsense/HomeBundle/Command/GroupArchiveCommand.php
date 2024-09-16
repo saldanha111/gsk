@@ -16,7 +16,7 @@ class GroupArchiveCommand extends ContainerAwareCommand
 	
 	protected function configure(){
 		$this
-		->setName('gsk:GroupArchive')
+		->setName('gsk:groupArchive')
 		->setDescription('Agrupar registros de archivo para certificación');
 	}
 
@@ -39,6 +39,7 @@ class GroupArchiveCommand extends ContainerAwareCommand
         	
 			$group=$this->getNewGroupId();
 			foreach ($retentions as $key => $retention) {
+
 				if($retention->getArchivecategory()){
 					$type="Categoria";
 					$id=$retention->getArchiveCategory()->getId();
@@ -54,8 +55,28 @@ class GroupArchiveCommand extends ContainerAwareCommand
 							$id=$retention->getArchiveType()->getId();
 						}
 						else{
-							$type="Registro";
-							$id=$retention->getRecord()->getId();
+							if($retention->getArchiveState()){
+								$type="State";
+								$id=$retention->getArchiveState()->getId();
+							}
+							else{
+								if($retention->getArchiveLocation()){
+									$type="Location";
+									$id=$retention->getArchiveLocation()->getId();
+								}
+								else{
+									if($retention->getArchiveAz()){
+										$type="AZ";
+										$id=$retention->getArchiveAz()->getId();
+									}
+									else{
+										if($retention->getRecord()){
+											$type="Registro";
+											$id=$retention->getRecord()->getId();
+										}
+									}
+								}
+							}
 						}
 					}
 				}
