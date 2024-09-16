@@ -24,7 +24,7 @@ class NotifyArchiveDestructionRetentionExpiredCommand extends ContainerAwareComm
 
 		$em = $this->getContainer()->get('doctrine')->getManager();
 		$from = new \DateTime();
-		$from->sub(new \DateInterval('P6M'));
+		$from->sub(new \DateInterval('P'.$this->getContainer()->getParameter('archive_retention.days_after_retention').'D'));
 
 		$link = trim($this->getContainer()->getParameter('cm_installation'), '/').$this->getContainer()->get('router')->generate('nononsense_archive_records')."?retentionAction=3";
 
