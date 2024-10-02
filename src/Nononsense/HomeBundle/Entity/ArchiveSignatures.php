@@ -86,9 +86,9 @@ class ArchiveSignatures
     protected $modified;
 
     /**
-     * @var string
+     * @var integer
      *
-     * @ORM\Column(name="group_id", type="string", length=90, nullable=true)
+     * @ORM\Column(name="group_id", type="integer", nullable=true)
      */
     protected $groupId;
 
@@ -97,12 +97,6 @@ class ArchiveSignatures
      * @ORM\JoinTable(name="archive_signatures_records")
      */
     protected $records;
-
-    /**
-     * @var integer
-     * @ORM\Column(name="groupid", type="integer", nullable=true)
-     */
-    protected $groupid;
 
     /**
      * @var string
@@ -186,29 +180,6 @@ class ArchiveSignatures
     public function getModified()
     {
         return $this->modified;
-    }
-
-    /**
-     * Set groupId
-     *
-     * @param string $groupId
-     * @return ArchiveSignatures
-     */
-    public function setGroupId($groupId)
-    {
-        $this->groupId = $groupId;
-
-        return $this;
-    }
-
-    /**
-     * Get groupId
-     *
-     * @return string 
-     */
-    public function getGroupId()
-    {
-        return $this->groupId;
     }
 
     /**
@@ -548,5 +519,28 @@ class ArchiveSignatures
     public function getArchiveState()
     {
         return $this->archiveState;
+    }
+
+    /**
+     * Set groupId
+     *
+     * @param integer $groupId
+     * @return ArchiveSignatures
+     */
+    public function setGroupId($groupId)
+    {
+        $this->groupId = $groupId;
+
+        return $this;
+    }
+
+    /**
+     * Get groupId
+     *
+     * @return integer 
+     */
+    public function getGroupId()
+    {
+        return $this->groupId;
     }
 }
