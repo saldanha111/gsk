@@ -85,7 +85,7 @@ class GroupArchiveCommand extends ContainerAwareCommand
                     <td>".$type."</td>
                     <td>".$id."</td>
                     <td>".$retention->getArchiveAction()->getName()."</td>
-                    <td>".$retention->getDescription()."</td>
+                    <td>".htmlspecialchars($retention->getDescription(), ENT_QUOTES, 'UTF-8')."</td>
                 </tr>";
 
                 $retention->setGroupId($group);
