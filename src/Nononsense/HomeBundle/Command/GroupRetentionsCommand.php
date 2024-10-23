@@ -72,7 +72,7 @@ class GroupRetentionsCommand extends ContainerAwareCommand
 			} catch (\Exception $e) {
 				$subject = 'Error de agrupación en retención';
 				$message = 'Error durante la agrupación de certificación '.$e->getMessage();
-				$this->getContainer()->get('utilities')->sendNotification('sergio.saldana@nodalblock.com', false, false, false, $subject, $message);
+				$this->getContainer()->get('utilities')->sendNotification($this->getContainer()->getParameter('support_email'), false, false, false, $subject, $message);
 				$output->writeln(['<error>'.$e->getMessage().'</error>']);
 			}
 		}
