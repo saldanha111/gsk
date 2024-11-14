@@ -85,7 +85,7 @@ class GroupArchiveCommand extends ContainerAwareCommand
                     <td>".$type."</td>
                     <td>".$id."</td>
                     <td>".$retention->getArchiveAction()->getName()."</td>
-                    <td>".$retention->getDescription()."</td>
+                    <td>".htmlspecialchars($retention->getDescription(), ENT_QUOTES, 'UTF-8')."</td>
                 </tr>";
 
                 $retention->setGroupId($group);
@@ -101,7 +101,7 @@ class GroupArchiveCommand extends ContainerAwareCommand
 			} catch (\Exception $e) {
 				$subject = 'Error de agrupación en archivo';
 				$message = 'Error durante la agrupación de certificación '.$e->getMessage();
-				$this->getContainer()->get('utilities')->sendNotification('sergio.saldana@nodalblock.com', false, false, false, $subject, $message);
+				$this->getContainer()->get('utilities')->sendNotification($this->getContainer()->getParameter('support_email'), false, false, false, $subject, $message);
 				$output->writeln(['<error>'.$e->getMessage().'</error>']);
 			}
 		}
