@@ -452,8 +452,8 @@ class MaterialCleanTracesController extends Controller
                             <li>Fecha: '.$now->format('d-m-Y H:i:s').'</li>
                         </ul>';
 
-                    $file = Utils::generatePdf($this->container, 'GSK - Material limpio', 'Material limpieza caducada', $html, 'material', $this->getParameter('crt.root_dir'));
-                    Utils::setCertification($this->container, $file, 'material-limpieza caducada', $trace->getId());
+//                    $file = Utils::generatePdf($this->container, 'GSK - Material limpio', 'Material limpieza caducada', $html, 'material', $this->getParameter('crt.root_dir'));
+//                    Utils::setCertification($this->container, $file, 'material-limpieza caducada', $trace->getId());
 
                     $trace->setStatus(3)
                         ->setDirtyMaterialUser($this->getUser())
@@ -518,8 +518,8 @@ class MaterialCleanTracesController extends Controller
                             <li>Fecha: '.$now->format('d-m-Y H:i:s').'</li>
                         </ul>';
 
-                        $file = Utils::generatePdf($this->container, 'GSK - Material limpio', 'Revisión de material', $html, 'material', $this->getParameter('crt.root_dir'));
-                        Utils::setCertification($this->container, $file, 'material revision', $trace->getId());
+//                        $file = Utils::generatePdf($this->container, 'GSK - Material limpio', 'Revisión de material', $html, 'material', $this->getParameter('crt.root_dir'));
+//                        Utils::setCertification($this->container, $file, 'material revision', $trace->getId());
 
                         $trace->setStatus(4)
                             ->setReviewUser($this->getUser())
@@ -593,8 +593,8 @@ class MaterialCleanTracesController extends Controller
                     <li>Fecha: '.$now->format('d-m-Y H:i:s').'</li>
                 </ul>';
 
-                $file = Utils::generatePdf($this->container, 'GSK - Material limpio', 'Cancelación de limpieza', $html, 'material', $this->getParameter('crt.root_dir'));
-                Utils::setCertification($this->container, $file, 'material-cancelacion', $trace->getId());
+//                $file = Utils::generatePdf($this->container, 'GSK - Material limpio', 'Cancelación de limpieza', $html, 'material', $this->getParameter('crt.root_dir'));
+//                Utils::setCertification($this->container, $file, 'material-cancelacion', $trace->getId());
 
                 $trace->setStatus(5)
                     ->setCancelUser($this->getUser())

@@ -179,8 +179,8 @@ class MaterialCleanCleansController extends Controller
                             <li>Fecha: '.$now->format('d-m-Y H:i:s').'</li>
                         </ul>';
 
-                    $file = Utils::generatePdf($this->container, 'GSK - Material limpio', 'Limpieza de material', $html, 'material', $this->getParameter('crt.root_dir'));
-                    Utils::setCertification($this->container, $file, 'material-limpieza', $materialClean->getId());
+//                    $file = Utils::generatePdf($this->container, 'GSK - Material limpio', 'Limpieza de material', $html, 'material', $this->getParameter('crt.root_dir'));
+//                    Utils::setCertification($this->container, $file, 'material-limpieza', $materialClean->getId());
 
                     $this->get('session')->getFlashBag()->add(
                         'message',

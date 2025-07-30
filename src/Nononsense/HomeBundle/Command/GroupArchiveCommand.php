@@ -112,11 +112,21 @@ class GroupArchiveCommand extends ContainerAwareCommand
 		$em2 = $this->getContainer()->get('doctrine')->getManager();
 
 	    $qb = $em2->createQueryBuilder();
-	    $retentions = $qb->select('rts')
-			->from('NononsenseHomeBundle:ArchiveSignatures', 'rts')
-			->where('rts.groupId is NULL')
-			->getQuery()
-			->getResult();
+
+//      Only certify the records deletion
+//	    $retentions = $qb->select('rts')
+//			->from('NononsenseHomeBundle:ArchiveSignatures', 'rts')
+//			->where('rts.groupId is NULL')
+//			->getQuery()
+//			->getResult();
+
+        $retentions = $qb->select('rts')
+            ->from('NononsenseHomeBundle:ArchiveSignatures', 'rts')
+            ->leftJoin('rts.archiveAction', 'a')
+            ->where('rts.groupId is NULL AND rts.record IS NOT NULL AND a.name = :delete')
+            ->setParameter('delete', 'Eliminar')
+            ->getQuery()
+            ->getResult();
 
 		return $retentions;
 	}
