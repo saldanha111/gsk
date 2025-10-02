@@ -96,6 +96,13 @@ class AccountRequestController extends Controller
             	$groups = $form->get('request')->getData(); //Get groups NOT MAPPED in AccountRequests entity.
             	$password = $form->get('_password')->getData();
 
+                try{
+                    $this->signForm($accountRequest->getMudId(), $password);
+                } catch (\Exception $e) {
+                    $this->get('session')->getFlashBag()->add('errors', 'Error al firmar su solicitud, intentelo de nuevo');
+                    return $this->redirect($this->generateUrl('nononsense_user_crate_requests'));
+                }
+
             	$bulkMudIds = $form->get('bulk')->getData();
 
             	if ($bulkMudIds) {
@@ -140,8 +147,6 @@ class AccountRequestController extends Controller
             	}
 
 	            try {
-		           	$this->signForm($accountRequest->getMudId(), $password); //Sign form with AD sAMAccountName and password.
-
 		            $em->flush();
 
 		            //Application submitted successfully
