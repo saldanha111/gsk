@@ -27,6 +27,7 @@ use Com\Tecnick\Color\Exception as BColorException;
 
 use PhpOffice\PhpWord\TemplateProcessor;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use TCPDF;
 
 class ArchiveAZController extends Controller
 {
@@ -237,81 +238,179 @@ class ArchiveAZController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
         $filters = Utils::getListFilters($request);
-        if($request->get("f_prints")){
-            foreach($request->get("f_prints") as $print){
-                $filters["prints"][]=$print;
+
+        if ($request->get("f_prints")) {
+            foreach ($request->get("f_prints") as $print) {
+                $filters["prints"][] = $print;
             }
         }
+
         $archiveCategoriesRepository = $em->getRepository(ArchiveAZ::class);
-        $items = $archiveCategoriesRepository->list($filters,FALSE);
-        foreach($items as $item){
-            $codes[]=$item->getCode();
+        $items = $archiveCategoriesRepository->list($filters, false);
+
+        if (empty($items)) {
+            $this->get('session')->getFlashBag()->add('error', "No hay códigos disponibles para imprimir.");
+            return $this->redirect($this->generateUrl('nononsense_archive_az_list'));
         }
 
-
-        // Cargar la plantilla de Word
-        $templateProcessor = new TemplateProcessor($this->container->get('kernel')->getRootDir().'/template_az.docx');
-
-        $barcodesPerPage = 44;
-        $barcodeChunks = array_chunk($codes, $barcodesPerPage);
-        $totalPages = count($barcodeChunks);
-        
-
-        // Clonar las páginas necesarias
-        //for ($i = 1; $i < $totalPages; $i++) {
-            $templateProcessor->cloneBlock('PAGE', $totalPages, true, true);
-        //}
-
-        // Renombrar los marcadores de posición
-        for ($i = 0; $i < $barcodesPerPage*$totalPages; $i++) {
-            $section=floor($i/$barcodesPerPage)+1;
-            $templateProcessor->setValue('barcode#'.$section, '${barcode' . ($i + 1).'}', 1);
+        $codes = [];
+        foreach ($items as $item) {
+            $codes[] = $item->getCode();
         }
 
-        // Reemplazar los marcadores de posición por imágenes de códigos de barras
-        foreach ($codes as $index => $code) {
+        // --- Rejilla: 3 columnas × 10 filas (30 por página)
+        $colsPerRow  = 3;
+        $rowsPerPage = 10;
+        $perPage     = $colsPerRow * $rowsPerPage;
 
-            $barcodeData = $this->getBarcodeImg($code);
+        // --- Estilo del código de barras (vector, sin imagen)
+        //     IMPORTANTE: sin 'stretch' ni 'fitwidth' para controlar el ancho exacto
+        $barcodeStyle = [
+            'position'      => '',
+            'align'         => 'C',
+            'stretch'       => false,
+            'fitwidth'      => false,
+            'cellfitalign'  => '',
+            'border'        => false,
+            'hpadding'      => 0,
+            'vpadding'      => 0,
+            'fgcolor'       => [0, 0, 0],
+            'bgcolor'       => false,
+            'text'          => false,
+            'font'          => 'helvetica',
+            'fontsize'      => 11,
+            'stretchtext'   => 0,
+        ];
 
-            // Crea un nombre de archivo temporal para la imagen
-            $tempImage = tempnam(sys_get_temp_dir(), 'barcode') . '.png';
+        // --- Crear PDF en A4 vertical (P)
+        $pdf = new \Nononsense\HomeBundle\Utils\GskPdf('P', PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false, false, []);
+        $pdf->setName("Códigos AZ - " . $this->getUser()->getUsername());
+        $pdf->SetAuthor('GSK');
+        $pdf->SetTitle('Códigos AZ');
+        $pdf->SetSubject('Códigos AZ');
+        $pdf->setFontSubsetting(true);
+        $pdf->SetHeaderData(null, null, date("d/m/Y H:i:s"), null, [0,0,0], [0,0,0]);
+        $pdf->SetPrintHeader(true);
+        $pdf->SetPrintFooter(true);
 
-            // Guarda los datos de la imagen en el archivo
-            file_put_contents($tempImage, $barcodeData);
+        // Márgenes y tipografía base
+        $left = 12; $top = 18; $right = 12; $bottom = 18;
+        $pdf->SetMargins($left, $top, $right);
+        $pdf->SetAutoPageBreak(true, $bottom);
+        $pdf->SetFont('helvetica', '', 11);
 
-            $placeholder = 'barcode' . ($index + 1);
-            $templateProcessor->setImageValue($placeholder, [
-                'path' => $tempImage,
-                'width' => 200,
-                'height' => 50,
-                'ratio' => false,
-            ]);
+        // Cálculo de celda
+        $usableW = $pdf->getPageWidth()  - $left - $right;
+        $usableH = $pdf->getPageHeight() - $top  - $bottom;
+        $cellW   = $usableW / $colsPerRow;
+        $cellH   = $usableH / $rowsPerPage;
 
-            unlink($tempImage);
-        }
+        // Padding y proporciones internas
+        $innerPadX = 4; // mm
+        $innerPadY = 3; // mm
 
-        // Limpiar marcadores de posición sobrantes en la última página
-        $lastChunkSize = count($barcodeChunks[$totalPages - 1]);
-        if ($lastChunkSize < $barcodesPerPage) {
-            for ($i = $lastChunkSize; $i < $barcodesPerPage; $i++) {
-                $placeholder = 'barcode' . ($i + 1 + ($totalPages - 1) * $barcodesPerPage);
-                $templateProcessor->setValue($placeholder, '');
+        $innerW   = $cellW - (2 * $innerPadX);
+        $innerH   = $cellH - (2 * $innerPadY);
+
+        // Alturas pensadas para que no se corte el texto
+        $barcodeH = max(14.0, $innerH * 0.68);
+        $gapH     = max(1.8,  $innerH * 0.08);
+        $labelH   = max(6.0,  $innerH * 0.24);
+
+        // Módulo base (grosor de barra). Ajustaremos si no cabe.
+        $moduleBase = 0.55; // 0.50–0.60 según impresora/lector
+
+        $chunks = array_chunk($codes, $perPage);
+        foreach ($chunks as $pageCodes) {
+            $pdf->AddPage('P', 'A4');
+
+            // --- GRID visible (bordes de celdas)
+            $pdf->SetDrawColor(80, 80, 80);
+            $pdf->SetLineWidth(0.2);
+            for ($r = 0; $r < $rowsPerPage; $r++) {
+                for ($c = 0; $c < $colsPerRow; $c++) {
+                    $x = $left + ($c * $cellW);
+                    $y = $top  + ($r * $cellH);
+                    $pdf->Rect($x, $y, $cellW, $cellH);
+                }
+            }
+
+            // --- Pintar códigos centrados (H y V) con cálculo de ancho REAL por código
+            foreach ($pageCodes as $i => $code) {
+                $row = intdiv($i, $colsPerRow);
+                $col = $i % $colsPerRow;
+
+                $cellX = $left + ($col * $cellW);
+                $cellY = $top  + ($row * $cellH);
+
+                // Área interna
+                $innerX = $cellX + $innerPadX;
+                $innerY = $cellY + $innerPadY;
+
+                // Altura total del bloque (barras + gap + texto)
+                $blockH = $barcodeH + $gapH + $labelH;
+
+                // Centrado vertical
+                $yStart = $innerY + max(0, ($innerH - $blockH) / 2);
+
+                // ---- Cálculo de ANCHO EXACTO según nº de módulos del C128
+                // Usamos TCPDFBarcode para obtener 'maxw' (número de módulos).
+                $modules = null;
+                try {
+                    $bc = new \TCPDFBarcode($code, 'C128B');
+                    $bca = $bc->getBarcodeArray();
+                    // 'maxw' = número de columnas (módulos) que ocupa el código (incluye zonas de calma)
+                    if (is_array($bca) && isset($bca['maxw'])) {
+                        $modules = (int) $bca['maxw'];
+                    }
+                } catch (\Exception $e) {
+                    $modules = null;
+                }
+
+                // Fallback si no pudimos calcular módulos
+                if (!$modules || $modules <= 0) {
+                    $modules = 220; // aproximación conservadora para C128 medio
+                }
+
+                // Calcula el módulo para que quepa en el ancho interno, pero intenta mantener el grosor base
+                $moduleW  = $moduleBase;
+                $barcodeW = $modules * $moduleW;
+
+                if ($barcodeW > $innerW) {
+                    // Reducimos módulo para encajar exactamente en el ancho disponible
+                    $moduleW  = $innerW / $modules;
+                    $barcodeW = $innerW;
+                }
+
+                // Centrado horizontal EXACTO
+                $xBarcode = $innerX + (($innerW - $barcodeW) / 2);
+
+                // Dibuja el código de barras (vector) - Code 128
+                $pdf->write1DBarcode(
+                    $code,
+                    'C128B',
+                    $xBarcode,
+                    $yStart,
+                    $barcodeW,
+                    $barcodeH,
+                    $moduleW,
+                    $barcodeStyle,
+                    ''
+                );
+
+                // Etiqueta legible (centrada)
+                $pdf->SetFont('helvetica', '', 11);
+                $pdf->SetXY($cellX, $yStart + $barcodeH + $gapH);
+                $pdf->Cell($cellW, $labelH, $code, 0, 0, 'C', false, '', 0, false, 'T', 'M');
             }
         }
 
-        // Preparar y enviar la respuesta al navegador
-        $response = new StreamedResponse(function () use ($templateProcessor) {
-            // Guardar el documento en php://output que es un flujo directo al navegador
-            $templateProcessor->saveAs('php://output');
-        });
-
-        // Configurar los encabezados HTTP para la descarga
-        $response->headers->set('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
-        $response->headers->set('Content-Disposition', 'attachment; filename="codigos-de-barras.docx"');
-        $response->headers->set('Cache-Control', 'max-age=0');
-
-        return $response;
+        // Salida directa al navegador
+        $pdf->Output("codigos-az.pdf", 'I');
+        return new Response(); // TCPDF ya envía la salida
     }
+
+
 
     /**
      * @param $mcCode
@@ -324,7 +423,7 @@ class ArchiveAZController extends Controller
         $barcode = new Barcode();
         try {
             $bobj = $barcode->getBarcodeObj(
-                'C128,C',
+                'C128,B',
                 $code,
                 500,         // bar width (use absolute or negative value as multiplication factor)
                 100,        // bar height (use absolute or negative value as multiplication factor)
